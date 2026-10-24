@@ -1,0 +1,17 @@
+{
+  "kind": "read-only-preserved-Node-error",
+  "processId": 31708,
+  "backendRequests": 0,
+  "errorChains": [
+    [
+      {
+        "name": "AiAgentConfigResultUnknownError",
+        "message": "Agent配置创建回执无效，结果待核验"
+      },
+      {
+        "name": "Error",
+        "message": "Agent配置正式创建回执ID必须是非空字符串"
+      }
+    ]
+  ]
+}

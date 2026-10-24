@@ -1,0 +1,4 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+WebSocket server error: Port 24678 is already in use
+{"status":"passed","roots":["AiDataEntrySession","DataColumn","DataView","DataSet","AiTurnResource","RTableProps","RFormProps","SparkInteractiveDataContainerProps"],"queriesPerRoot":["catalog","members","guide"]}

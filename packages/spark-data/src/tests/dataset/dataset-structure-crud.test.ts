@@ -109,6 +109,20 @@ describe('DataSet structure CRUD', () => {
     expect(() => ds.removeTable('Items')).toThrow(/resourceRelations|viewCascades/)
   })
 
+  it('assertCanRemoveTable should run the full removal preflight without mutating the DataSet', () => {
+    const ds = createStructureDataSet()
+    try {
+      expect(() => ds.assertCanRemoveTable('Orders')).toThrow(/resourceRelations|viewCascades/)
+      expect(() => ds.assertCanRemoveTable('Items')).toThrow(/resourceRelations|viewCascades/)
+      expect(() => ds.assertCanRemoveTable('Drafts')).not.toThrow()
+      expect(() => ds.assertCanRemoveTable('Missing')).toThrow(/not found/)
+      expect(ds.getTable('Orders')).toBeDefined()
+      expect(ds.getTable('Items')).toBeDefined()
+      expect(ds.getTable('Drafts')).toBeDefined()
+      expect(ds.getView('Drafts', 'default')).toBeDefined()
+    } finally { ds.destroy() }
+  })
+
   it('removeTable should delete unreferenced table', () => {
     const ds = createStructureDataSet()
 

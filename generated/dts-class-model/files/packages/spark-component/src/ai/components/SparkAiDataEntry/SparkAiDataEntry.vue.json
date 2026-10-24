@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry",
+    "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue",
+    "sourceFile": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/SparkAiDataEntry/SparkAiDataEntry",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry\n职责：把统一AI批量新增会话呈现为标准RendererForm、RendererTable及字段子组件。\n边界：只解析PAGE_RUNTIME完整目标、附着应用host会话并编排交互；不创建AI服务、数据owner或第二份业务草稿。\nAI用途：按DataTable.columns中DataColumn.allowAIAdd与原DataView权限显示通用批量录入，并通过标准数据组件编辑提示和预览候选。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-24T20:12:09.820Z",
+  "models": {}
+}

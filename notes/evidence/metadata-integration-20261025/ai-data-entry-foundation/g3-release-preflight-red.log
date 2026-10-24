@@ -1,0 +1,44 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts > AiDataEntryHost persistent owner and attachments > keeps the live attachment and both temporary tables when a candidate relation blocks safe release
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+
+ ❯ tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts (16 tests | 1 failed | 15 skipped) 29ms
+     × keeps the live attachment and both temporary tables when a candidate relation blocks safe release 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts > AiDataEntryHost persistent owner and attachments > keeps the live attachment and both temporary tables when a candidate relation blocks safe release
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts:339:39
+    337|
+    338|     expect(() => host.releaseClean()).toThrow(/resourceRelations/)
+    339|     expect(attachment.signal.aborted).toBe(false)
+       |                                       ^
+    340|     expect(host.isDirty).toBe(false)
+    341|     expect(attachment.session.targetView).toBe(f.target)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 skipped (16)
+   Start at  03:02:39
+   Duration  3.34s (transform 1.37s, setup 126ms, import 1.69s, tests 29ms, environment 1.16s)
+

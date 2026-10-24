@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "dictionaryId": "327D74EC0ABC4196AA75C56D944B8201",
+  "requests": 35,
+  "documentLoads": 0,
+  "eventTruncations": 0,
+  "turnCreates": 2,
+  "businessWrites": 1,
+  "counts": {
+    "before": 5,
+    "afterCancel": 5,
+    "afterSave": 7,
+    "afterReopen": 7
+  },
+  "turnIds": [
+    "2114088498104504320",
+    "2114088787435982848"
+  ],
+  "retainedAddedRows": [
+    {
+      "rowid": "77CDFBD360F6E82554CA4A7094EA80B9",
+      "val": "G4S_20261025_F721_A",
+      "txt": "通用录入保存A",
+      "ordIdx": 4
+    },
+    {
+      "rowid": "4BE2596650D71A59E02C381B496286C7",
+      "val": "G4S_20261025_F721_B",
+      "txt": "通用录入保存B",
+      "ordIdx": 5
+    }
+  ],
+  "originalRowsUnchanged": true,
+  "savedOnlyTwoAddedEntries": true,
+  "otherDictionaryIsolated": true,
+  "fixedAgentReference": true,
+  "userMessageContainsOnlyBusinessInputAndSchema": true,
+  "scope": "Completed same-SPA flow after layout fix; later source path relocation is separately checked."
+}

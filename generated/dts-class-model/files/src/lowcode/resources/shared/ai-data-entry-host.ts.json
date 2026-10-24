@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/ai-data-entry-host",
+    "sourcePath": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+    "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/ai-data-entry-host",
+    "jsdoc": "@module app:lowcode/resources/shared/ai-data-entry-host\n职责：在一个运行DataSet内持有通用AI录入会话，并管理标准组件的临时附件。\n边界：正式Agent轮次仍经同DataSet的AiTurnResource；租户映射只读部署配置；不读取管理端Agent配置、不保存业务DataView。\nAI用途：将当前已配置Agent与精确目标DataView组合成可安全重挂、停止和清理的通用录入owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiDataEntryHostInput",
+      "AiDataEntryHost"
+    ]
+  },
+  "$defs": {
+    "AiDataEntryHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.adapterForView.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adapterForView.return": {
+          "$ref": "../../../../packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json#/$defs/AiDataEntryAdapter"
+        }
+      }
+    },
+    "AiDataEntryHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryHost",
+      "properties": {
+        "isDirty": {
+          "type": "boolean"
+        },
+        "blocksWorkspace": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiDataEntryHostInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.openSession.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openSession.return": {
+          "$ref": "../../../../packages/spark-component/src/ai/data-entry-host-capability.ts.json#/$defs/AiDataEntryAttachment"
+        },
+        "method.releaseClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.releaseClean.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-24T20:18:50.902Z",
+  "models": {
+    "AiDataEntryHostInput": {
+      "name": "AiDataEntryHostInput",
+      "jsdoc": "可选领域回调仅用于当前目标的最窄业务语义，不接管模型字段、权限或保存。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前PageRuntime拥有的正式DataSet；四个轮次视图与临时会话视图都依附此实例。 */\n    dataSet: DataSet;\n    /** 为特定真实目标提供同步领域校验与原DataView追加回调；未匹配时使用通用新增。 */\n    adapterForView?: (targetView: DataView) => AiDataEntryAdapter | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前PageRuntime拥有的正式DataSet；四个轮次视图与临时会话视图都依附此实例。 */\n    dataSet: DataSet;\n    /** 为特定真实目标提供同步领域校验与原DataView追加回调；未匹配时使用通用新增。 */\n    adapterForView?: (targetView: DataView) => AiDataEntryAdapter | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "当前PageRuntime拥有的正式DataSet；四个轮次视图与临时会话视图都依附此实例。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "adapterForView",
+              "jsdoc": "为特定真实目标提供同步领域校验与原DataView追加回调；未匹配时使用通用新增。",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "AiDataEntryAdapter"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiDataEntryHost": {
+      "name": "AiDataEntryHost",
+      "jsdoc": "一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定一个PageRuntime DataSet、同实例正式AiTurnResource和可选领域回调。\n@param input.dataSet 本次应用运行实例的原生DataSet，不能用业务行副本替代。\n@param input.adapterForView 仅为精确目标提供领域语义；其输入仍是同一个正式DataView。",
+          "signatureText": "constructor(input: AiDataEntryHostInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "AiDataEntryHostInput",
+                "sourcePath": "src/lowcode/resources/shared/ai-data-entry-host.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "AiDataEntryHostCapability",
+            "targetName": "AiDataEntryHostCapability"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "isDirty",
+              "jsdoc": "是否存在需用户保留或处理的AI会话状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blocksWorkspace",
+              "jsdoc": "是否有忙碌、未知命令或非终态轮次需要锁定原业务操作。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "subscribe",
+              "jsdoc": "订阅当前会话状态；会话仍由正式DataView提供状态真源。",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "openSession",
+              "jsdoc": "为目标DataView附着会话；同目标重挂复用原session，不同目标先安全释放旧临时表。\n@param targetView 必须是本owner DataSet中身份相同的正式DataView对象。",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "AiDataEntryAttachment"
+              }
+            },
+            {
+              "name": "releaseClean",
+              "jsdoc": "同步撤销活动附件，再安全释放仅两张会话临时表；共享轮次视图归DataSet继续持有。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+
+ Test Files  3 passed (3)
+      Tests  62 passed (62)
+   Start at  01:39:29
+   Duration  2.15s (transform 2.06s, setup 0ms, import 3.15s, tests 783ms, environment 0ms)
+

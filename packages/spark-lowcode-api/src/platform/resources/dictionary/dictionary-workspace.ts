@@ -5,6 +5,7 @@
  * AI用途：设计页绑定definition，独立数据页绑定entries并消费已保存标题，各自通过明确的保存方法提交。
  */
 import {DataView, DataViewFilter, RequestState, type DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {deriveAiDataEntryFields} from '../../../realtime/data-entry/ai-data-entry-fields.js'
 import {DictionarySchema} from './dictionary-schema'
 
 /** 与既有字典创建合同一致的本地时间格式；由新增行创建时调用一次。 */
@@ -136,7 +137,7 @@ export class DictionaryWorkspace {
 
   /**
    * 只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。
-   * @param values 只包含字典六个业务字段的候选条目。
+   * @param values 仅包含当前正式输出列中显式允许AI新增的字段。
    * @returns 当前批次可写时为undefined；否则为拒绝原因。
    */
   entryAppendError(values: ReadonlyArray<Readonly<Record<string, unknown>>>): string | undefined {
@@ -146,7 +147,7 @@ export class DictionaryWorkspace {
 
   /**
    * 全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。
-   * @param values 只包含 val、txt、exVal_1 至 exVal_4 的候选条目，不接受身份、排序或其它字段。
+   * @param values 仅包含当前正式输出列中显式允许AI新增的字段；字典归属、创建时间及缺省排序由领域补入。
    * @throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。
    */
   async appendEntries(values: ReadonlyArray<Readonly<Record<string, unknown>>>): Promise<void> {
@@ -373,47 +374,59 @@ export class DictionaryWorkspace {
     if (this.entries.addActionState() !== 'enabled') throw new Error('当前查询不允许新增字典条目')
     const validator = this.entries.validator
     if (!validator) throw new Error('字典条目缺少正式列校验器')
-    const fields = new Set(DictionarySchema.fields.map(field => field.name))
-    const writeFields = new Set([...fields, 'typeid', 'crttime', 'ordIdx'])
-    for (const field of writeFields) {
-      if (this.entries.newRowFieldAccess(field).write !== 'allowed') throw new Error(`当前查询不允许新增字段 ${field}`)
-    }
+    const aiFields = new Set(deriveAiDataEntryFields(this.entries).map(field => field.name))
+    const schemaFields = new Set(DictionarySchema.fields.map(field => field.name))
     const output: Array<Record<string, unknown>> = []
+    const seenCodes = new Set<string>()
+    const candidateCodes = values.some(value => isPlainRecord(value) && Object.hasOwn(value, 'val') && value['val'] !== undefined)
+    if (candidateCodes) {
+      const snapshot = this.entries.readSnapshot()
+      if (!snapshot.fields.includes('val')) throw new Error('当前已加载条目编码不可读，不能核验候选重复')
+      for (const row of this.entries.rows) {
+        if (this.entries.fieldAccess(row, 'val').read !== 'visible') throw new Error('当前已加载条目编码不可读，不能核验候选重复')
+        const id = this.entries.getPkKey(row)
+        const current = id === undefined ? row : this.entries.getEditingRow(id) ?? row
+        const value = current['val']
+        if (typeof value === 'string' && value.trim() || typeof value === 'number' && Number.isFinite(value)) {
+          seenCodes.add(String(value).trim().toLowerCase())
+        }
+      }
+    }
     for (const value of values) {
       if (!isPlainRecord(value)) {
         throw new Error('候选条目必须是普通对象')
       }
       const keys = Reflect.ownKeys(value)
       const stringKeys = keys.filter((key): key is string => typeof key === 'string')
-      if (stringKeys.length !== keys.length || stringKeys.some(key => !fields.has(key))) throw new Error('候选条目包含非业务字段或身份字段')
+      if (stringKeys.length !== keys.length || stringKeys.some(key => !aiFields.has(key))) throw new Error('候选条目包含未启用字段、身份字段或非输出字段')
       const candidate = Object.fromEntries(stringKeys.map(key => [key, value[key]]))
       const normalized: Record<string, unknown> = {}
-      for (const field of DictionarySchema.fields) {
-        const fieldValue = candidate[field.name]
-        if (field.name === 'val') {
-          if (typeof fieldValue !== 'string' && typeof fieldValue !== 'number') throw new Error('字典条目编码必须是文本或数值')
-          if (typeof fieldValue === 'number' && !Number.isFinite(fieldValue)) throw new Error('字典条目编码必须是有限数值')
-          normalized[field.name] = fieldValue
-        } else if (field.name === 'txt') {
-          if (typeof fieldValue !== 'string') throw new Error('字典条目显示文本必须是文本')
-          normalized[field.name] = fieldValue
-        } else {
-          if (fieldValue !== undefined && fieldValue !== null && typeof fieldValue !== 'string') {
-            throw new Error(`字典扩展字段 ${field.name} 必须是文本`)
-          }
-          normalized[field.name] = fieldValue ?? null
+      for (const field of stringKeys) {
+        const fieldValue = candidate[field]
+        if (fieldValue === undefined) continue
+        if (schemaFields.has(field)) {
+          if (field === 'val' && typeof fieldValue === 'number' && !Number.isFinite(fieldValue)) throw new Error('字典条目编码必须是有限数值')
+          if (field !== 'val' && fieldValue !== null && typeof fieldValue !== 'string') throw new Error(`字典字段 ${field} 必须是文本或null`)
         }
+        normalized[field] = fieldValue
       }
       const definition = this.definition.getEditingRow(this.#input.dictionaryId)
       if (!definition) throw new Error('字典定义已失效')
-      const definitionRow = this.definition.rows.find(row => row['rowid'] === this.#input.dictionaryId) ?? null
-      if (this.definition.fieldAccess(definitionRow, 'dictionaryType').read !== 'visible'
-        || definition['dictionaryType'] !== '0' && definition['dictionaryType'] !== '1') {
-        throw new Error('字典编码类型不可读或无效，不能确认候选')
+      if (Object.hasOwn(normalized, 'val')) {
+        const definitionRow = this.definition.rows.find(row => row['rowid'] === this.#input.dictionaryId) ?? null
+        if (this.definition.fieldAccess(definitionRow, 'dictionaryType').read !== 'visible'
+          || definition['dictionaryType'] !== '0' && definition['dictionaryType'] !== '1') {
+          throw new Error('字典编码类型不可读或无效，不能确认候选')
+        }
+        const code = String(normalized['val']).trim().toLowerCase()
+        if (seenCodes.has(code)) throw new Error(`字典条目编码重复: ${String(normalized['val'])}`)
+        seenCodes.add(code)
       }
-      DictionarySchema.validateEntry(normalized, definition)
-      const actualWrite = {...normalized, typeid: this.#input.dictionaryId, crttime: formatCreationTime(), ordIdx: 0}
-      this.assertNewEntryWritable(actualWrite, writeFields)
+      const suppliedSchemaFields = stringKeys.filter(field => schemaFields.has(field))
+      DictionarySchema.validateEntry(normalized, definition, suppliedSchemaFields)
+      const actualWrite: Record<string, unknown> = {...normalized, typeid: this.#input.dictionaryId, crttime: formatCreationTime()}
+      if (!Object.hasOwn(actualWrite, 'ordIdx')) actualWrite['ordIdx'] = 0
+      this.assertNewEntryWritable(actualWrite, new Set(Object.keys(actualWrite)))
       output.push(actualWrite)
     }
     this.assertEntryAppendContext()

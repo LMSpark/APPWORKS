@@ -1,0 +1,33 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/realtime/agent-config/ai-agent-config-resource.test.ts > AiAgentConfigResource native DataSet contract > fails a stale Agent GET when the target changes without registering a refresh
+🐛 [DataView] 销毁 DataView: AiAgentConfigCreate:default
+🐛 [DataView] 销毁 DataView: AiAgentConfig:default
+
+ ❯ src/realtime/agent-config/ai-agent-config-resource.test.ts (28 tests | 1 failed | 27 skipped) 91ms
+     × fails a stale Agent GET when the target changes without registering a refresh 90ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/realtime/agent-config/ai-agent-config-resource.test.ts > AiAgentConfigResource native DataSet contract > fails a stale Agent GET when the target changes without registering a refresh
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ src/realtime/agent-config/ai-agent-config-resource.test.ts:210:62
+    208|
+    209|       expect(f.http.requests).toHaveLength(1)
+    210|       expect(f.resource.configuration.loadingError?.message).toContain…
+       |                                                              ^
+    211|       expect(f.resource.configuration.rows).toEqual([])
+    212|       expect(rowChanges).not.toContainEqual(['AGENT-1'])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 skipped (28)
+   Start at  01:40:33
+   Duration  1.67s (transform 942ms, setup 0ms, import 1.27s, tests 91ms, environment 0ms)
+
+undefined
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-lowcode-api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/realtime/agent-config/ai-agent-config-resource.test.ts -t "without registering a refresh"

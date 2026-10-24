@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 965,
+  "scannedFileCount": 971,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2512,6 +2512,51 @@
         "jsdoc": "@module @spark-appworks/spark-component:ai/components/SparkAgentPanel/SparkAgentPanel\n职责：复用现有 AI trace UI，并可选展示 AG-UI 事件 timeline。\n边界：只做组合渲染，不解释 AG-UI 原始协议、不持有运行状态，也不执行 agent。\nAI用途：需要把 AG-UI adapter 输出接入仓内 AI UI 层时，从本模块开始。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts": {
+      "file": "files/packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry.props",
+        "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+        "sourceFile": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "ai/components/SparkAiDataEntry/SparkAiDataEntry.props",
+        "jsdoc": "@module @spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry.props\n职责：定义通用AI批量新增renderer允许的页面配置属性。\n边界：只接收目标视图、标题和禁用态；Agent ID、系统提示词和字段schema由应用host及正式模型提供。\nAI用途：页面配置只声明完整DataView绑定，不复制模型字段或AI配置。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SparkAiDataEntryProps"
+        ]
+      }
+    },
+    "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue": {
+      "file": "files/packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry",
+        "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue",
+        "sourceFile": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "ai/components/SparkAiDataEntry/SparkAiDataEntry",
+        "jsdoc": "@module @spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry\n职责：把统一AI批量新增会话呈现为标准RendererForm、RendererTable及字段子组件。\n边界：只解析PAGE_RUNTIME完整目标、附着应用host会话并编排交互；不创建AI服务、数据owner或第二份业务草稿。\nAI用途：按DataTable.columns中DataColumn.allowAIAdd与原DataView权限显示通用批量录入，并通过标准数据组件编辑提示和预览候选。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-component/src/ai/data-entry-host-capability.ts": {
+      "file": "files/packages/spark-component/src/ai/data-entry-host-capability.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:ai/data-entry-host-capability",
+        "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+        "sourceFile": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "ai/data-entry-host-capability",
+        "jsdoc": "@module @spark-appworks/spark-component:ai/data-entry-host-capability\n职责：定义通用AI批量新增组件与应用级会话owner之间的窄能力合同。\n边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖spark-lowcode-api，也不承载Agent配置或系统提示词。\nAI用途：应用宿主通过此能力把已配置的AI录入会话附着到标准组件，临时卸载时只撤销附件。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "AiDataEntrySessionSurface",
+          "AiDataEntryAttachment",
+          "AiDataEntryHostCapability"
+        ]
       }
     },
     "packages/spark-component/src/ai/index.ts": {
@@ -10924,21 +10969,6 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/dictionary/dictionary-ai-candidates",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates\n职责：将已完成的AI轮次投影为只读字典候选，并在人工确认时写入原条目DataView。\n边界：复用AiTurnResource、DictionaryWorkspace与原DataSet保存；不持有业务行副本或第二保存器。\nAI用途：字典数据维护页的候选预览、状态核验、停止和确认流程。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DictionaryAiCandidates"
-        ]
-      }
-    },
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts.json",
       "module": {
@@ -11123,6 +11153,21 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:realtime/agent-config/ai-agent-config-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "realtime/agent-config/ai-agent-config-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/agent-config/ai-agent-config-resource\n职责：把 Agent 配置创建命令与按正式 ID 读取配置装配为当前 DataSet 的语义 DataView。\n边界：HTTP 仅由命令提交/只读查询 owner 发出；operationId 是本地命令身份，不作为 Agent ID 或核验凭据。\nAI用途：配置阶段通过创建命令提交专用Agent配置，再按正式回执ID读取核验；运行生成只消费配置好的Agent ID。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AiAgentConfigResource"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
       "file": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json",
       "module": {
@@ -11135,6 +11180,38 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AiTurnResource"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts": {
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-fields",
+        "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "realtime/data-entry/ai-data-entry-fields",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-fields\n职责：从当前正式 DataView 的输出列及新增字段权限，派生本轮 AI 批量录入使用的最小字段约束，并校验候选值的基本类型。\n边界：只投影列定义和已有权限，不保存第二份字段配置、不扩大写权限；最终领域校验与新增仍交回原 DataView。\nAI用途：构造本轮请求的字段 schema 与确认前基础校验时，从这里取得正式字段白名单，不能依据业务行或页面配置自行补列。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AiDataEntryField"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts": {
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-session",
+        "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "realtime/data-entry/ai-data-entry-session",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-session\n职责：持有单个真实目标 DataView 的暂存式 AI 批量录入会话，协调输入、正式 Agent 轮次、候选查询、确认与安全释放。\n边界：轮次命令沿同 DataSet 的 AiTurnResource/DataView 提交；确认只向原目标 DataView 暂存新增行，不保存业务数据，也不自建权限或字段真源。\nAI用途：页面或标准组件需要创建、查询、停止并确认一批 AI 候选时，使用本会话公共合同；组件卸载只应 detach 订阅，不得销毁仍有待核验状态的 owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AiDataEntryAdapter",
+          "AiDataEntrySessionInput",
+          "AiDataEntrySession"
         ]
       }
     },
@@ -13530,6 +13607,22 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/shared/ai-data-entry-host.ts": {
+      "file": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/shared/ai-data-entry-host",
+        "sourcePath": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+        "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/shared/ai-data-entry-host",
+        "jsdoc": "@module app:lowcode/resources/shared/ai-data-entry-host\n职责：在一个运行DataSet内持有通用AI录入会话，并管理标准组件的临时附件。\n边界：正式Agent轮次仍经同DataSet的AiTurnResource；租户映射只读部署配置；不读取管理端Agent配置、不保存业务DataView。\nAI用途：将当前已配置Agent与精确目标DataView组合成可安全重挂、停止和清理的通用录入owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AiDataEntryHostInput",
+          "AiDataEntryHost"
+        ]
+      }
+    },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json",
       "module": {
@@ -15540,7 +15633,7 @@
         "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace",
-        "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace\n职责：字典设计与数据页面的实例生命周期及标准组件上下文。\n边界：不持有行副本，不选择保存范围；页面调用不同领域命令。\nAI用途：复用正式DataSet、PageRuntime和草稿保护，保持两类页面独立。",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace\n职责：管理字典设计/数据工作区的正式DataSet、PageRuntime与安全生命周期。\n边界：不保存业务行副本或第二套AI状态；AI轮次由同一运行DataSet中的通用host/session承接。\nAI用途：为标准AI批量新增组件提供当前正式条目DataView与租户配置Agent的应用能力。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -15566,7 +15659,7 @@
         "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
-        "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page\n职责：按已保存的字典设计维护六字段业务数据。\n边界：宿主通过唯一dictionaryId prop提供目标；标准组件绑定正式条目DataView，不编辑或保存设计配置。\nAI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖、权限和独立保存范围。",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page\n职责：按已保存的字典设计维护正式条目，并在需要时挂载通用AI批量录入组件。\n边界：目录宿主持有本页owner且置于Dialog槽外；clean close先显式释放AI会话和PageRuntime。\nAI用途：组件根据DataTable.columns中DataColumn.allowAIAdd及原DataView权限生成候选，确认仍暂存到原条目视图。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16256,6 +16349,10 @@
       "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts",
       "file": "files/packages/spark-ai/src/agent/conversation/chat/chat-types.ts.json"
     },
+    "AiAgentConfigResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json"
+    },
     "AiAgentFunctionCallCheck": {
       "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-types.ts",
       "file": "files/packages/spark-ai/src/agent/conversation/session/session-types.ts.json"
@@ -16643,6 +16740,42 @@
     "AiBusinessInputOptions": {
       "sourcePath": "packages/spark-ai/src/agent/business/business-kit.ts",
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json"
+    },
+    "AiDataEntryAdapter": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json"
+    },
+    "AiDataEntryAttachment": {
+      "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+      "file": "files/packages/spark-component/src/ai/data-entry-host-capability.ts.json"
+    },
+    "AiDataEntryField": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts.json"
+    },
+    "AiDataEntryHost": {
+      "sourcePath": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+      "file": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json"
+    },
+    "AiDataEntryHostCapability": {
+      "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+      "file": "files/packages/spark-component/src/ai/data-entry-host-capability.ts.json"
+    },
+    "AiDataEntryHostInput": {
+      "sourcePath": "src/lowcode/resources/shared/ai-data-entry-host.ts",
+      "file": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json"
+    },
+    "AiDataEntrySession": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json"
+    },
+    "AiDataEntrySessionInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+      "file": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json"
+    },
+    "AiDataEntrySessionSurface": {
+      "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+      "file": "files/packages/spark-component/src/ai/data-entry-host-capability.ts.json"
     },
     "AiDeliveryArtifact": {
       "sourcePath": "src/services/ai/ai-delivery-port.ts",
@@ -18355,10 +18488,6 @@
     "DialogFullscreenOptions": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts.json"
-    },
-    "DictionaryAiCandidates": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json"
     },
     "DictionarySchema": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",
@@ -21392,6 +21521,10 @@
       "sourcePath": "packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts",
       "file": "files/packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts.json"
     },
+    "SparkAiDataEntryProps": {
+      "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+      "file": "files/packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts.json"
+    },
     "SparkAIModel": {
       "sourcePath": "packages/spark-utils/src/ai-model.ts",
       "file": "files/packages/spark-utils/src/ai-model.ts.json"
@@ -24243,6 +24376,14 @@
           "name": "SparkAgentPanel"
         }
       },
+      "SparkAiDataEntryProps": {
+        "className": "SparkAiDataEntryProps",
+        "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+        "file": "files/packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts.json",
+        "component": {
+          "name": "SparkAiDataEntry"
+        }
+      },
       "TableRowClassContext": {
         "className": "TableRowClassContext",
         "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts",
@@ -24751,6 +24892,9 @@
       ],
       "SparkAgentPanel": [
         "SparkAgentPanelProps"
+      ],
+      "SparkAiDataEntry": [
+        "SparkAiDataEntryProps"
       ],
       "TreeNodeSummary": [
         "RTreeNodeSummaryProps"

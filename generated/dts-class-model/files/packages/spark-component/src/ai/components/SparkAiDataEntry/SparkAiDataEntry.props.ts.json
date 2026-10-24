@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry.props",
+    "sourcePath": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/SparkAiDataEntry/SparkAiDataEntry.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/SparkAiDataEntry/SparkAiDataEntry.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/SparkAiDataEntry/SparkAiDataEntry.props\n职责：定义通用AI批量新增renderer允许的页面配置属性。\n边界：只接收目标视图、标题和禁用态；Agent ID、系统提示词和字段schema由应用host及正式模型提供。\nAI用途：页面配置只声明完整DataView绑定，不复制模型字段或AI配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkAiDataEntryProps"
+    ]
+  },
+  "$defs": {
+    "SparkAiDataEntryProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAiDataEntryProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "dataViewKey"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-24T18:53:10.871Z",
+  "models": {
+    "SparkAiDataEntryProps": {
+      "name": "SparkAiDataEntryProps",
+      "jsdoc": "通用AI批量新增renderer的页面属性。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SparkAiDataEntry"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "录入区域标题；不包含Agent配置或系统提示词。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "暂时禁用本组件交互，不改变DataView数据权限。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,177 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > decodes metadata query relations with the same formal contract, without mutating wire rows 7ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > resolves native table resource semantics from the formal source without I/O 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 数据库表 to native resource type database-table without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 表 to native resource type database-table without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type table to native resource type database-table without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 数据库视图 to native resource type database-view without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 视图 to native resource type logical-view without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 字典 to native resource type dictionary without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 接口 to native resource type third-party-api without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type JSON to native resource type json without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > maps formal Type 文件 to native resource type file without altering the source name 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects unknown formal Type  0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects unknown formal Type unknown 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects unknown formal Type __proto__ 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects unknown formal Type constructor 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects unknown formal Type database-table 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > rejects missing source names and retains legacy wire parse and encode behavior 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi > round trips structured wire filters and rejects damaged stored definitions 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi > parses one field ValueFun object while preserving unknown types and JSON extension values 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > reads only rowid and Name once with the target filter and preserves the formal Name 25ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 4ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 12ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects absent, ambiguous, foreign, invalid or unreadable formal names 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > rejects stale scope and caller guard without delivering the name 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > collects all relation pages and decodes the full filter without flattening OR 19ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects invalid relation ownership or definition {"dataSetId":"FOREIGN"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects invalid relation ownership or definition {"parentModId":""} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects invalid relation ownership or definition {"childModId":""} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects invalid relation ownership or definition {"filter":{"Type":"and","children":[]}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > normalizes the backend record identity spelling before projecting relations 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects duplicate or incomplete relation pages 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > accepts a complete empty relation set 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > rejects late results after the request identity changes 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal relation reader > checks the page instance before issuing relation queries 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi relation dependency options > reads the application dictionary across pages, maps zero values, and sorts by ordIdx 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi relation dependency options > rejects stale scope and empty or incomplete dictionary responses 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads independent source metadata while model fields are pending and handles complete 58ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads independent source metadata while model fields are pending and handles stale-scope 61ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads independent source metadata while model fields are pending and handles invalid-source 63ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > resolves equivalent output records once without mutating the formal model and rejects semantic conflicts 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'source name' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'type' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'computed status' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'order' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'Group' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'Distinct' semantics 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'ValueFun' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate outputs with different 'Value' semantics 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > distinguishes a missing raw value from null while comparing semantic JSON independent of key order 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > preserves 'Expression' rule IDs without turning source fields or keys into computed outputs: 'RULE-ID' 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > preserves 'expression' rule IDs without turning source fields or keys into computed outputs: 'RULE-ID' 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > preserves 'Expression' rule IDs without turning source fields or keys into computed outputs: 'rowid+1' 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads only the selected model and its source, verifies output key aliases and preserves structured definitions 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > supports non-database sources without consulting a physical catalog 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads a field-declared dictionary primary key through the single formal owner 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads a field-declared dictionary primary key through the batch formal owner 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for 字典 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for JSON 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for 文件 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for 数据库视图 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for 接口 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > uses the declared field identity instead of inventing rowid for 视图 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'not-output' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'computed' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'multiple' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'duplicate' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'alias-collision' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'tenant' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'explicit-mismatch' field-key evidence through 'single' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'not-output' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'computed' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'multiple' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'duplicate' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'alias-collision' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'tenant' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects 'explicit-mismatch' field-key evidence through 'batch' reading 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects unreadable model primary-key evidence through the single formal owner 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects unreadable field primary-key evidence through the single formal owner 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > reads a non-table model with no declared or field primary key as keyless 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects foreign or invalid selected model identity {"dataSetId":"FOREIGN"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects foreign or invalid selected model identity {"Name":"Other"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects foreign or invalid selected model identity {"rowid":""} 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects foreign or invalid selected model identity {"MetaName":""} 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid field ownership or primary-key output {"dataModelId":"FOREIGN"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid field ownership or primary-key output {"dataSetId":"FOREIGN"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid field ownership or primary-key output {"type":"resource"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid field ownership or primary-key output {"IsOutput":0} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid field ownership or primary-key output {"ValueFun":{"Type":"GetConstValue","Value":"fake"}} 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate selected models and incomplete model responses 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > collects every model field page before validating the selected key 20ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects a late metadata response after request identity changes 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects absent, foreign or incomplete formal sources 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects absent, foreign or incomplete formal sources 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects absent, foreign or incomplete formal sources 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects absent, foreign or incomplete formal sources 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid source field ownership or multiple business keys 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid source field ownership or multiple business keys 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects invalid source field ownership or multiple business keys 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects output aliases that collide with the verified key 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > rejects duplicate formal field records and incomplete subsequent pages 3ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi selected formal model reader > honors the caller instance guard before issuing metadata queries 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > reads selected model and field sets once while preserving source keys and formal contracts 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: undefined 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: {"rowid":"MODEL-1","dataSetId":"SPACE-1","Name":"Orders","Type":"数据库表","MetaName":"OrderRows","DbId":"DB-1","PrimaryKeyFields":"rowid","IsBusinessMain":1,"Filter":{"Type":"cond","Field":"enabled","ValueFun":{"Type":"GetConstValue","Value":false}}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: {"rowid":"MODEL-1","dataSetId":"SPACE-1","Name":"Orders","Type":"数据库表","MetaName":"OrderRows","DbId":"DB-1","PrimaryKeyFields":"rowid","IsBusinessMain":1,"Filter":{"Type":"cond","Field":"enabled","ValueFun":{"Type":"GetConstValue","Value":false}}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: {"rowid":"MODEL-1","dataSetId":"SPACE-1","Name":"Orders","Type":"数据库表","MetaName":"OrderRows","DbId":"DB-1","PrimaryKeyFields":"rowid","IsBusinessMain":1,"Filter":{"Type":"cond","Field":"enabled","ValueFun":{"Type":"GetConstValue","Value":false}}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: {"rowid":"MODEL-1","dataSetId":"SPACE-1","Name":"Orders","Type":"数据库表","MetaName":"OrderRows","DbId":"DB-1","PrimaryKeyFields":"rowid","IsBusinessMain":1,"Filter":{"Type":"cond","Field":"enabled","ValueFun":{"Type":"GetConstValue","Value":false}}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete or ambiguous model sets before field/source reads: {"rowid":"MODEL-1","dataSetId":"SPACE-1","Name":"Orders","Type":"数据库表","MetaName":"OrderRows","DbId":"DB-1","PrimaryKeyFields":"rowid","IsBusinessMain":1,"Filter":{"Type":"cond","Field":"enabled","ValueFun":{"Type":"GetConstValue","Value":false}}} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects fields outside the selected definition: {"dataSetId":"OTHER"} 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects fields outside the selected definition: {"dataModelId":"UNKNOWN"} 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects fields outside the selected definition: {"type":"inputParams"} 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > drains all reads while fields are pending: success 61ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > drains all reads while fields are pending: source-failure 63ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > drains all reads while fields are pending: scope 64ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > drains all reads while fields are pending: invalid-source 63ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects unreadable definitions: model-hidden 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects unreadable definitions: field-masked 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > rejects incomplete field pages and accepts an explicit empty set without requests 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > preserves interface source input mappings separately from output fields in a batch 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > shares equivalent in-flight sets but reads fresh definitions after completion 3ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model batch > collects all field pages before splitting them by verified model identity 15ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > reads eleven distinct source keys in two scoped queries, preserving every model column identity 5ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > keeps database and table names paired without including cross-product sources 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > reuses one physical source for distinct models without merging their field identities 3ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > keeps identical table names in different databases attached to their own source key 3ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > collects a source catalog spanning two pages without querying the entire directory 305ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > collects all source field pages and reads fresh source keys on the next call 7ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects the whole batch when one source is invalid: missing-source 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects the whole batch when one source is invalid: duplicate-source 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects the whole batch when one source is invalid: missing-key 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects the whole batch when one source is invalid: multiple-keys 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects the whole batch when one source is invalid: foreign-field 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects malformed combined responses: foreign-source 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects malformed combined responses: duplicate-source-id 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects malformed combined responses: duplicate-field-id 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects malformed combined responses: incomplete-source 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects malformed combined responses: incomplete-fields 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi batched source keys > rejects a changed request scope while a combined source-field query is pending 63ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > discovers actual model Names and delivers each verified formal contract without catalog expansion 7ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > reads all list pages before validating scene ownership and issuing selected queries 9ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > rejects ambiguous names and invalid identities before loading any model 2ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > rejects ambiguous names and invalid identities before loading any model 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > rejects ambiguous names and invalid identities before loading any model 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > rejects identity replacement between discovery and formal readback 3ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > accepts an empty complete scene without inventing a default model 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > rejects late discovery after the request scope changes 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal model list > honors caller instance guards before discovery 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd=1 to the DataTable field boolean true 1ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd="1" to the DataTable field boolean true 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd=0 to the DataTable field boolean false 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd="0" to the DataTable field boolean false 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd=null to the DataTable field boolean false 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > normalizes formal DB allowAIAdd=undefined to the DataTable field boolean false 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd=2 instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd="2" instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd=true instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd=false instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd="true" instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd="false" instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd=-1 instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd={} instead of coercing it to an access flag 0ms
+ ✓ src/platform/data-space/design/data-space-design-api.test.ts > DataTable formal field AI generation metadata > rejects invalid formal DB allowAIAdd=undefined instead of coercing it to an access flag 0ms
+
+ Test Files  1 passed (1)
+      Tests  168 passed (168)
+   Start at  01:09:08
+   Duration  3.80s (transform 1.78s, setup 0ms, import 2.33s, tests 1.08s, environment 0ms)
+

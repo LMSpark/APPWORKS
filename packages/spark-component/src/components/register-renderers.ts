@@ -24,6 +24,7 @@
  * virtual:spark-components 只负责业务扩展组件。
  */
 import { Spark } from '../core/system/spark.js'
+import { SparkAiDataEntry } from '../ai/index.js'
 
 // ── 数据容器 ──
 import {
@@ -189,6 +190,7 @@ const CORE_COMPONENTS: Array<readonly [string, unknown]> = [
 
 /** 扩展组件：随内置注册表同步注册，但在核心组件之后执行。 */
 const EXTENDED_COMPONENTS: ReadonlyArray<readonly [string, unknown]> = [
+  ['ai-data-entry', SparkAiDataEntry],
   // 扩展容器
   ['r-popconfirm', RendererPopconfirm],
   ['r-page-header', RendererPageHeader],

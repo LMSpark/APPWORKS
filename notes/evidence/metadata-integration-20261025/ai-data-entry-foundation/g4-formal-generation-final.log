@@ -1,0 +1,69 @@
+$ pnpm exec tsx --no-cache scripts/generate-dts-class-model.mjs
+Emitting ClassModel surface in memory (compiler-api)...
+Parsing declaration tsconfig: tsconfig.class-model-emit.json
+  parse-config: 0.132s (emit total 0.132s)
+Creating Vue-aware TypeScript Program: 906 root file(s), 239 Vue file(s).
+Vue-aware TypeScript Program ready.
+  create-vue-program: 7.999s (emit total 8.131s)
+Skipping pre-emit diagnostics; emit diagnostics are still enforced.
+Subscribing to declaration emit via writeFile callback...
+Captured declaration 50/906: class-model-emit/packages/spark-data/src/strategies/cascade-delegate.d.ts
+Captured declaration 100/906: class-model-emit/packages/spark-project-model/src/scenario/scenario-view-config.d.ts
+Captured declaration 150/906: class-model-emit/packages/spark-utils/src/internal/index.d.ts
+Captured declaration 200/906: class-model-emit/packages/spark-component/src/components/containers/data-views/RendererVirtualCard/zero-code.d.ts
+Captured declaration 250/906: class-model-emit/packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.vue.d.ts
+Captured declaration 300/906: class-model-emit/packages/spark-component/src/components/fields/context/field-composable-props.d.ts
+Captured declaration 350/906: class-model-emit/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue.d.ts
+Captured declaration 400/906: class-model-emit/packages/spark-component/src/components/fields/options/index.d.ts
+Captured declaration 450/906: class-model-emit/packages/spark-component/src/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.vue.d.ts
+Captured declaration 500/906: class-model-emit/packages/spark-component/src/index.d.ts
+Captured declaration 550/906: class-model-emit/packages/spark-ai/src/class-model/class-model/bundle/dts-bundle-types.d.ts
+Captured declaration 600/906: class-model-emit/packages/spark-ai/src/agent/workflow/agent-workflow-validation.d.ts
+Captured declaration 650/906: class-model-emit/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.d.ts
+Captured declaration 700/906: class-model-emit/src/services/project/navigation/project-navigation-guard.d.ts
+Captured declaration 750/906: class-model-emit/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.d.ts
+Captured declaration 800/906: class-model-emit/src/services/class-model-artifacts/artifact-urls.d.ts
+Captured declaration 850/906: class-model-emit/src/views/features/integration/api-management/ui/api-config-page.props.d.ts
+Captured declaration 900/906: class-model-emit/src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue.d.ts
+Captured declaration 906/906: class-model-emit/src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue.d.ts
+Captured declaration 950/906: class-model-emit/src/views/tenant/CacheManager.vue.d.ts
+  emit-declarations: 18.672s (emit total 26.803s)
+Declaration emit complete: 971 in-memory DTS file(s).
+Collected DTS files: 971
+Building DTS ClassModel bundle...
+Reading DTS source text for 971 file(s)...
+Projected DTS file 50/971: packages/spark-ai/src/class-model/class-model/bundle/read-dts-class-model-bundle-json.ts
+Projected DTS file 100/971: packages/spark-app/src/ai/tool-approval-bridge.ts
+Projected DTS file 150/971: packages/spark-component/src/ai/components/session/SessionReasoningBlock/SessionReasoningBlock.vue
+Projected DTS file 200/971: packages/spark-component/src/components/containers/data-views/RendererVirtualCard/types.ts
+Projected DTS file 250/971: packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code.ts
+Projected DTS file 300/971: packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts
+Projected DTS file 350/971: packages/spark-component/src/components/display/non-data-components/time/DisplayCountdown/DisplayCountdown.props.ts
+Projected DTS file 400/971: packages/spark-component/src/components/fields/data-components/datetime/FieldTimePicker/FieldTimePicker.props.ts
+Projected DTS file 450/971: packages/spark-component/src/components/fields/data-components/value/FieldSwitch/FieldSwitch.props.ts
+Projected DTS file 500/971: packages/spark-component/src/page/renderer/useRendererSetup.ts
+Projected DTS file 550/971: packages/spark-data/src/strategies/computed-column-delegate.ts
+Projected DTS file 600/971: packages/spark-lowcode-api/src/platform/data-space/data-space.ts
+Projected DTS file 650/971: packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts
+Projected DTS file 700/971: packages/spark-utils/src/index.ts
+Projected DTS file 750/971: src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts
+Projected DTS file 800/971: src/lowcode/resources/excel-import/lowcode-excel-import.ts
+Projected DTS file 850/971: src/views/app/dev-system/components/NodeBasicInfo.vue
+Projected DTS file 900/971: src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue
+Projected DTS file 950/971: src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue
+Projected DTS file 971/971: src/views/tenant/Settings.vue
+Writing semantic gap logs...
+Writing bundle manifest...
+DTS ClassModel bundle complete.
+DTS files: 971
+Wrote generated\dts-class-model\manifest.json
+Per-file JSON: 971
+ClassModel symbols (incl. duplicates in files): 1983
+classIndex entries: 1600
+Semantic gaps: 3110
+Semantic gap JSON: generated\dts-class-model\semantic-gaps.json
+Timing:
+  collect-dts: 27.492s (total 27.492s)
+  prepare-output: 0.737s (total 28.229s)
+  build-bundle: 6.915s (total 35.144s)
+  cleanup: 0.001s (total 35.144s)

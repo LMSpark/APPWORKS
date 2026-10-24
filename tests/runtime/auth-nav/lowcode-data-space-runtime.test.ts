@@ -1,9 +1,9 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase, Request } from '@spark-appworks/spark-utils'
 import {
-  DataSpaceRuntimeApi,
+  DataSpaceDesignApi, DataSpaceRuntimeApi,
 } from '@spark-appworks/spark-lowcode-api'
-import { DataViewFilter, RequestState } from '@spark-appworks/spark-data'
+import { DataSet, DataViewFilter, RequestState } from '@spark-appworks/spark-data'
 import { afterEach, beforeAll, afterAll, describe, expect, it, vi } from 'vitest'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 
@@ -13,6 +13,7 @@ let runtime: typeof import('../../../src/lowcode/lowcode-runtime')
 
 import { ScenarioViewConfig } from '../../../packages/spark-project-model/src/scenario/scenario-view-config'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import { LowcodeDataSpaceViewFields } from '../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -502,12 +503,15 @@ class RuntimeFixtureHttpClient extends HttpClientBase {
     const modelName = typeof table['Name'] === 'string' ? table['Name'] : ''
     const rows = modelName === '部门模型'
       ? this.parentIds.map(id => ({ id, lingma_sys_key: `P-${id}`, lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }))
-      : [{ id: 70, departmentId: 7, lingma_sys_key: 'C-70', lingma_sys_params: { r: [], e: ['departmentId'], h: [], m: [], d: false } }]
+      : modelName === 'AI记录'
+        ? [{rowid: 'AI-ROW-1', titleAlias: '业务标题', noteAlias: '业务备注', lingma_sys_key: 'AI-ROW-1',
+          lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}]
+        : [{ id: 70, departmentId: 7, lingma_sys_key: 'C-70', lingma_sys_params: { r: [], e: ['departmentId'], h: [], m: [], d: false } }]
     return {
       data: {
         Code: 200,
         Result: {
-          primaryKeyField: 'id',
+          primaryKeyField: modelName === 'AI记录' ? 'rowid' : 'id',
           allowAdd: true,
           lingma_sys_key: modelName === '部门模型' ? 'PARENT' : 'CHILD',
           data: { Items: rows, Count: rows.length },
@@ -749,5 +753,82 @@ describe('lowcode data-space DataView runtime', () => {
     const sent = isRecord(http.requests[0]?.data) ? http.requests[0].data : {}
     const tables = Array.isArray(sent['Table']) ? sent['Table'] : []
     expect(isRecord(tables[0]) ? tables[0]['Name'] : undefined).toBe('员工模型')
+  })
+
+  it('keeps allowAIAdd on formal DataTable columns while every native DataView inherits its output columns', async () => {
+    const model = DataSpaceDesignApi.projectModel({rowid: 'MODEL-AI', dataSetId: 'FORM-AI', Name: 'AI记录',
+      Type: '数据库表', MetaName: 'AI_RECORDS', DbId: 'DATABASE-AI', PrimaryKeyFields: 'rowid', IsBusinessMain: 1}, [
+      {rowid: 'FIELD-PK', dataSetId: 'FORM-AI', dataModelId: 'MODEL-AI', type: 'dataModel',
+        Name: 'rowid', FieldType: '字符串', IsPKey: 1, IsOutput: 1},
+      {rowid: 'FIELD-ON', dataSetId: 'FORM-AI', dataModelId: 'MODEL-AI', type: 'dataModel',
+        Name: 'title_source', AsName: 'titleAlias', FieldType: '字符串', IsPKey: 0, IsOutput: 1, allowAIAdd: 1},
+      {rowid: 'FIELD-OFF', dataSetId: 'FORM-AI', dataModelId: 'MODEL-AI', type: 'dataModel',
+        Name: 'note_source', AsName: 'noteAlias', FieldType: '字符串', IsPKey: 0, IsOutput: 1, allowAIAdd: '0'},
+      {rowid: 'FIELD-HIDDEN', dataSetId: 'FORM-AI', dataModelId: 'MODEL-AI', type: 'dataModel',
+        Name: 'internal_source', AsName: 'internalAlias', FieldType: '字符串', IsPKey: 0, IsOutput: 0, allowAIAdd: 1},
+    ], 'rowid')
+    const directColumns = LowcodeDataSpaceViewFields.columns(model, [
+      {name: 'titleAlias', allowAIAdd: false}, {name: 'noteAlias', allowAIAdd: true},
+    ], 'MODEL-AI')
+    expect(directColumns.find(column => column.name === 'titleAlias')).toMatchObject({allowAIAdd: true})
+    expect(directColumns.find(column => column.name === 'noteAlias')).toMatchObject({allowAIAdd: false})
+    const config = new ScenarioViewConfig('FORM-AI', JSON.stringify({scenarioId: 'FORM-AI', tables: {
+      'MODEL-AI': {
+        modelBinding: {modelId: 'MODEL-AI', modelName: 'AI记录'},
+        views: {default: {}, selection: {}},
+      },
+    }}))
+    expect(() => new ScenarioViewConfig('FORM-AI', JSON.stringify({scenarioId: 'FORM-AI', tables: {
+      'MODEL-AI': {modelBinding: {modelId: 'MODEL-AI', modelName: 'AI记录'},
+        columns: [{name: 'titleAlias', allowAIAdd: false}]},
+    }}))).toThrow(/allowAIAdd/)
+    expect(() => new ScenarioViewConfig('FORM-AI', JSON.stringify({scenarioId: 'FORM-AI', tables: {
+      'MODEL-AI': {modelBinding: {modelId: 'MODEL-AI', modelName: 'AI记录'}, views: {default: {}, selection: {
+        fieldProjection: [{fieldId: 'FIELD-ON', source: 'resource', resourceFieldId: 'FIELD-ON',
+          resourceField: 'title_source', viewField: 'titleAlias', type: '字符串', label: '标题',
+          output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false,
+          value: '', valueFunction: '', expression: '', allowAIAdd: false}],
+      }}},
+    }}))).toThrow(/allowAIAdd/)
+    const http = new RuntimeFixtureHttpClient()
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http,
+      readScope: () => ({token: 'fixture-request-scope', headers: {}})}), http).assemble({
+      config, space: {dataSpaceId: 'FORM-AI', name: 'AI字段元数据'}, models: [model], relations: [],
+    })
+    const table = assembly.dataSet.getTable('MODEL-AI')
+    const defaultView = assembly.dataSet.getView('MODEL-AI', 'default')
+    const selectionView = assembly.dataSet.getView('MODEL-AI', 'selection')
+    if (!table || !defaultView || !selectionView) throw new Error('Missing assembled AI DataTable/DataView')
+
+    expect(table.columns.find(column => column.name === 'titleAlias')).toMatchObject({allowAIAdd: true})
+    expect(table.columns.find(column => column.name === 'noteAlias')).toMatchObject({allowAIAdd: false})
+    expect(table.columns.find(column => column.name === 'internalAlias')).toMatchObject({allowAIAdd: true})
+    expect(defaultView.columns).toEqual(expect.arrayContaining([
+      expect.objectContaining({name: 'titleAlias', allowAIAdd: true}),
+      expect.objectContaining({name: 'noteAlias', allowAIAdd: false}),
+    ]))
+    expect(defaultView.columns.map(column => column.name)).not.toContain('internalAlias')
+    expect(selectionView.columns).toEqual(defaultView.columns)
+    expect(selectionView.dataTable).toBe(table)
+    expect(defaultView.dataTable).toBe(table)
+
+    // DataSet's native snapshot carries the formal column boolean and restores it without a pagedata copy.
+    const snapshot = assembly.dataSet.toJson()
+    const snapshotTable = snapshot.tables['MODEL-AI']
+    expect(snapshotTable?.columns).toEqual(expect.arrayContaining([
+      expect.objectContaining({name: 'titleAlias', allowAIAdd: true}),
+      expect.objectContaining({name: 'noteAlias', allowAIAdd: false}),
+    ]))
+    const restored = DataSet.fromJson(snapshot)
+    expect(restored.getTable('MODEL-AI')?.columns.find(column => column.name === 'titleAlias'))
+      .toMatchObject({allowAIAdd: true})
+    expect(restored.getView('MODEL-AI', 'selection')?.columns)
+      .toEqual(restored.getView('MODEL-AI', 'default')?.columns)
+
+    await defaultView.requestData()
+    expect(defaultView.rows.length).toBeGreaterThan(0)
+    expect(defaultView.rows.every(row => !Object.prototype.hasOwnProperty.call(row, 'allowAIAdd'))).toBe(true)
+    restored.destroy()
+    assembly.dataSet.destroy()
   })
 })

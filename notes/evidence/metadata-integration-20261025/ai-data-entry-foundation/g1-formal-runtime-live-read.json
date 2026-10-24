@@ -1,0 +1,1746 @@
+{
+  "status": "confirmed",
+  "mode": "native-DataView-readonly",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "formal": [
+    {
+      "dataSpaceId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "id": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+      "metaName": "_Base_DictData",
+      "model": {
+        "Name": "_Base_DictData",
+        "Type": "数据库表",
+        "MetaName": "_Base_DictData",
+        "PrimaryKeyFields": "rowid"
+      },
+      "fields": [
+        {
+          "id": "020E881C9D674966B16BB04A7DBBDAD7",
+          "name": "flowstate",
+          "type": "int",
+          "computed": false,
+          "raw": {
+            "rowid": "020E881C9D674966B16BB04A7DBBDAD7",
+            "Name": "flowstate",
+            "AsName": null,
+            "FieldType": "int",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "1CBC5B7E072F4AF99D333CA8909DBC9B",
+          "name": "author",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "1CBC5B7E072F4AF99D333CA8909DBC9B",
+            "Name": "author",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "329F73309C074560ABD24798E504FA48",
+          "name": "rowid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "329F73309C074560ABD24798E504FA48",
+            "Name": "rowid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 1,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "3A5354A6245E4328A57D5E669BE58F5F",
+          "name": "updatetime",
+          "type": "datetime",
+          "computed": false,
+          "raw": {
+            "rowid": "3A5354A6245E4328A57D5E669BE58F5F",
+            "Name": "updatetime",
+            "AsName": null,
+            "FieldType": "datetime",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "3A826E6B9F8C480EB1397F9DB8314928",
+          "name": "createtime",
+          "type": "datetime",
+          "computed": false,
+          "raw": {
+            "rowid": "3A826E6B9F8C480EB1397F9DB8314928",
+            "Name": "createtime",
+            "AsName": null,
+            "FieldType": "datetime",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "4DBB4225285B4538B064A19D5359BA28",
+          "name": "functiondesc",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "4DBB4225285B4538B064A19D5359BA28",
+            "Name": "functiondesc",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "4EDF2D28099F49F18AFACE98805D8277",
+          "name": "crttime",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "4EDF2D28099F49F18AFACE98805D8277",
+            "Name": "crttime",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "5A80A2F168FB45A890BF74304B2369FE",
+          "name": "exVal_1",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "5A80A2F168FB45A890BF74304B2369FE",
+            "Name": "exVal_1",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "69CC84178A39419DAA14EA59D4EB7588",
+          "name": "ReportID",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "69CC84178A39419DAA14EA59D4EB7588",
+            "Name": "ReportID",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+          "name": "typeid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+            "Name": "typeid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "767B42E888BE486C968DF0C7E842C201",
+          "name": "description",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "767B42E888BE486C968DF0C7E842C201",
+            "Name": "description",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "948E9B78FA9441F5A8E04AF4F556CBE4",
+          "name": "updateuser",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "948E9B78FA9441F5A8E04AF4F556CBE4",
+            "Name": "updateuser",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "9EE786E744394AA38B8E19D896A3333D",
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "computed": false,
+          "raw": {
+            "rowid": "9EE786E744394AA38B8E19D896A3333D",
+            "Name": "lingma_sys_is_delete",
+            "AsName": null,
+            "FieldType": "bigint",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "9EE7F98909434B3EBEC821C78850E4DE",
+          "name": "exVal_3",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "9EE7F98909434B3EBEC821C78850E4DE",
+            "Name": "exVal_3",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "A2287F86C7114FE0B3BFA46D5C502B7E",
+          "name": "ordIdx",
+          "type": "tinyint",
+          "computed": false,
+          "raw": {
+            "rowid": "A2287F86C7114FE0B3BFA46D5C502B7E",
+            "Name": "ordIdx",
+            "AsName": null,
+            "FieldType": "tinyint",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "AE753934F33C4FBC93D8B929A4FB1479",
+          "name": "createuser",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "AE753934F33C4FBC93D8B929A4FB1479",
+            "Name": "createuser",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "B8406E12883349FB9E87CF8F911EDFD4",
+          "name": "exVal_2",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "B8406E12883349FB9E87CF8F911EDFD4",
+            "Name": "exVal_2",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "CCE59E85A6E845DD9A31DF02268EAE39",
+          "name": "exVal_4",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "CCE59E85A6E845DD9A31DF02268EAE39",
+            "Name": "exVal_4",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "D1D3A9B6642D4C6388150586B8694DA1",
+          "name": "val",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "D1D3A9B6642D4C6388150586B8694DA1",
+            "Name": "val",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "E672A99D4E5F495299822FF75938488D",
+          "name": "wfid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "E672A99D4E5F495299822FF75938488D",
+            "Name": "wfid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        {
+          "id": "FA5B8C6970204D51B807A3B6B48E8AD6",
+          "name": "txt",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "FA5B8C6970204D51B807A3B6B48E8AD6",
+            "Name": "txt",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": "",
+            "allowAIAdd": 1,
+            "type": "dataModel",
+            "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        }
+      ]
+    },
+    {
+      "dataSpaceId": "EDB0E34486FFB903E896E5C281230961",
+      "id": "EDB0E34486FFB903E896E5C281230961p000",
+      "metaName": "_Base_DictType",
+      "model": {
+        "Name": "_Base_DictType",
+        "Type": "数据库表",
+        "MetaName": "_Base_DictType",
+        "PrimaryKeyFields": null
+      },
+      "fields": [
+        {
+          "id": "0A85B8C2356C4372AB62199688FDFD8A",
+          "name": "createtime",
+          "type": "datetime",
+          "computed": false,
+          "raw": {
+            "rowid": "0A85B8C2356C4372AB62199688FDFD8A",
+            "Name": "createtime",
+            "AsName": null,
+            "FieldType": "datetime",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "14802B0870CB4DBCA036121A776C8C51",
+          "name": "createuser",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "14802B0870CB4DBCA036121A776C8C51",
+            "Name": "createuser",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "1BFD2714B3B84463877C98CA26A5238B",
+          "name": "secondValue",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "1BFD2714B3B84463877C98CA26A5238B",
+            "Name": "secondValue",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "215CA37BF93748AD96F8EB4F85742696",
+          "name": "description",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "215CA37BF93748AD96F8EB4F85742696",
+            "Name": "description",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "25DFDDB0325645769D54A8F86A390216",
+          "name": "AppId",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "25DFDDB0325645769D54A8F86A390216",
+            "Name": "AppId",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "399C2908F7B6436B8AF96FB0B7F1D5E3",
+          "name": "updatetime",
+          "type": "datetime",
+          "computed": false,
+          "raw": {
+            "rowid": "399C2908F7B6436B8AF96FB0B7F1D5E3",
+            "Name": "updatetime",
+            "AsName": null,
+            "FieldType": "datetime",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "39FC71BA4641425796C7DCD6B7F292FC",
+          "name": "crttime",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "39FC71BA4641425796C7DCD6B7F292FC",
+            "Name": "crttime",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "3DAE756FC0604DD58C0CEDF6C17A1143",
+          "name": "ModName",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "3DAE756FC0604DD58C0CEDF6C17A1143",
+            "Name": "ModName",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "3E622C5E90A94E4FBB3ACEF4A5A7A8A6",
+          "name": "ReportID",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "3E622C5E90A94E4FBB3ACEF4A5A7A8A6",
+            "Name": "ReportID",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "3EAD180CB5CE4392BE80884E1FDAA0EE",
+          "name": "wfid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "3EAD180CB5CE4392BE80884E1FDAA0EE",
+            "Name": "wfid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "461CF4AD34B14D71A339E9C292D2EEE6",
+          "name": "author",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "461CF4AD34B14D71A339E9C292D2EEE6",
+            "Name": "author",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "48AC69AC09B1494EAB859BBB7CA22C2A",
+          "name": "fourthvalue",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "48AC69AC09B1494EAB859BBB7CA22C2A",
+            "Name": "fourthvalue",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "4DE0B0F39A9846E7AF1942C9D375ABB9",
+          "name": "dictionaryType",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "4DE0B0F39A9846E7AF1942C9D375ABB9",
+            "Name": "dictionaryType",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "4F1E3811F28B40479C91F6B7CBF809EC",
+          "name": "flowstate",
+          "type": "int",
+          "computed": false,
+          "raw": {
+            "rowid": "4F1E3811F28B40479C91F6B7CBF809EC",
+            "Name": "flowstate",
+            "AsName": null,
+            "FieldType": "int",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "513994939FAD48CF92319748ED0AFF7C",
+          "name": "functiondesc",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "513994939FAD48CF92319748ED0AFF7C",
+            "Name": "functiondesc",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "528A67C02E884C628F85343B7AC724FF",
+          "name": "thirdValue",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "528A67C02E884C628F85343B7AC724FF",
+            "Name": "thirdValue",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "5653567ACAAC422B8E7D3C1B65EC3095",
+          "name": "val",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "5653567ACAAC422B8E7D3C1B65EC3095",
+            "Name": "val",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "5926F0021D4548ADB2FE0CB411DFD11B",
+          "name": "remark",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "5926F0021D4548ADB2FE0CB411DFD11B",
+            "Name": "remark",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "5F169039DCE84C6893169D903A389F2C",
+          "name": "StructureTypeID",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "5F169039DCE84C6893169D903A389F2C",
+            "Name": "StructureTypeID",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "722A2A9D73BE490F925DC4E0E1E45F5F",
+          "name": "updateuser",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "722A2A9D73BE490F925DC4E0E1E45F5F",
+            "Name": "updateuser",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "B2D0DAC5C8534341AA21425FF84606A2",
+          "name": "txt",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "B2D0DAC5C8534341AA21425FF84606A2",
+            "Name": "txt",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "C9573F7F507F43C4ACE101680301E668",
+          "name": "rowid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "C9573F7F507F43C4ACE101680301E668",
+            "Name": "rowid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 1,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "D68377782ECA46D2B5E701540D417163",
+          "name": "TypeName",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "D68377782ECA46D2B5E701540D417163",
+            "Name": "TypeName",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "E2B4B21E9EC543B18D57A477C45B1322",
+          "name": "modid",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "E2B4B21E9EC543B18D57A477C45B1322",
+            "Name": "modid",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "E3BAFB6BD0744BBC9BC0C3391387730B",
+          "name": "fiveValue",
+          "type": "varchar",
+          "computed": false,
+          "raw": {
+            "rowid": "E3BAFB6BD0744BBC9BC0C3391387730B",
+            "Name": "fiveValue",
+            "AsName": null,
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        {
+          "id": "FD76FA3F6C094708BFFBE660F91290AC",
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "computed": false,
+          "raw": {
+            "rowid": "FD76FA3F6C094708BFFBE660F91290AC",
+            "Name": "lingma_sys_is_delete",
+            "AsName": null,
+            "FieldType": "bigint",
+            "IsOutput": 1,
+            "IsPKey": 0,
+            "ValueFun": null,
+            "Expression": null,
+            "allowAIAdd": 0,
+            "type": "dataModel",
+            "dataModelId": "EDB0E34486FFB903E896E5C281230961p000",
+            "dataSetId": "EDB0E34486FFB903E896E5C281230961"
+          }
+        }
+      ]
+    }
+  ],
+  "queryResults": [
+    {
+      "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "modelBinding": {
+        "modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+        "modelName": "_Base_DictData"
+      },
+      "requestState": 0,
+      "tableColumns": [
+        {
+          "name": "flowstate",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "author",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "rowid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "updatetime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "createtime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "functiondesc",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "crttime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_1",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ReportID",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "typeid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "description",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "updateuser",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_3",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ordIdx",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "createuser",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "exVal_2",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_4",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "val",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "wfid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "txt",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "_pk",
+          "hasAllowAIAdd": false
+        }
+      ],
+      "columns": [
+        {
+          "name": "author",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "functiondesc",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "crttime",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_1",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "typeid",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_3",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ordIdx",
+          "type": "tinyint",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "createuser",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "exVal_2",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_4",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "val",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "txt",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "_pk",
+          "type": "varchar",
+          "hasAllowAIAdd": false
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_AppSystemList",
+          "filter": null
+        }
+      ]
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_NavigationInfo",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "SysId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D99A1DCE9894698799101EFD70F8FC76"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "prowId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "000000"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_DictData"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_DictData"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "883991528A5B4BE3B351AA30B085D9DC"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_DictType"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961p000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_DictType"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+            }
+          },
+          "fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            }
+          ]
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "_Base_DictData",
+                    "_Base_DictType"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Relation",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "69B79AB779DF4C12A5595DACDF3283F1p000",
+                    "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_DictData"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_DictType"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "883991528A5B4BE3B351AA30B085D9DC",
+                "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    }
+  ],
+  "blockedMutations": 0
+}

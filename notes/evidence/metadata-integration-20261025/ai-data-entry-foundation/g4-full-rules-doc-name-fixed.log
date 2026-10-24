@@ -1,0 +1,40 @@
+$ pnpm run verify:arch && pnpm run verify:deps && pnpm run verify:pages-config && pnpm run verify:ai-codegen && pnpm run verify:docs && pnpm run verify:class-model && pnpm run verify:workflow-designs && pnpm run verify:lowcode-contracts && pnpm run verify:ai-model && pnpm run verify:project-blueprint-ssot && pnpm run verify:ajax-result-parity && pnpm run verify:send-code-parity && pnpm run verify:wire-query-parity && pnpm run verify:dirs && pnpm run verify:page-thin
+$ node tools/verify-architecture.mjs
+Verifying architecture rules...
+
+Architecture verification passed.
+$ node tools/verify-dependency-catalog.mjs
+dependency catalog: ok
+$ node tools/verify-pages-config.mjs
+pages-config: ok
+$ node tools/verify-ai-codegen-rules.mjs
+AI codegen rule scan passed: 1390 file(s) checked.
+$ node tools/verify-docs.mjs
+Doc governance verification passed: 440 file(s) checked.
+$ pnpm run ensure:class-model-bundle && pnpm --filter @spark-appworks/spark-ai run lint && pnpm --filter @spark-appworks/spark-ai run typecheck && pnpm exec vitest run packages/spark-ai/src/class-model/tests/read-dts-class-model-bundle-json.test.ts packages/spark-ai/src/class-model/tests/class-model-tool-schema-recovery.test.ts tests/scripts/class-model-bundle-assert.test.ts tests/scripts/class-model-incremental-build.test.ts
+$ node scripts/ensure-class-model-bundle.mjs
+$ eslint "src/**/*.{ts,tsx}" --max-warnings=0
+$ tsc --noEmit -p tsconfig.json
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+
+ Test Files  4 passed (4)
+      Tests  49 passed (49)
+   Start at  04:10:23
+   Duration  12.72s (transform 1.94s, setup 1.02s, import 3.00s, tests 8.40s, environment 8.04s)
+
+$ node tools/verify-workflow-designs.mjs
+$ node tools/lowcode-contracts/generate-ledgers.mjs --check
+file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tools/lowcode-contracts/generate-ledgers.mjs:175
+    if (current !== next) throw new Error(`${name} is stale; run pnpm run generate:lowcode-contracts`)
+                                ^
+
+Error: lowcode-endpoint-ledger.json is stale; run pnpm run generate:lowcode-contracts
+    at emit (file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tools/lowcode-contracts/generate-ledgers.mjs:175:33)
+    at async file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tools/lowcode-contracts/generate-ledgers.mjs:183:1
+
+Node.js v24.18.0
+[ELIFECYCLE] Command failed with exit code 1.
+[ELIFECYCLE] Command failed with exit code 1.

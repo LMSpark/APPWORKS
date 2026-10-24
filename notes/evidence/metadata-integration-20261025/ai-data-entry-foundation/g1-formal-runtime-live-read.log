@@ -1,0 +1,466 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+上午1:11:27 [vite] (client) [optimizer] scanning dependencies...
+上午1:11:30 [vite] (client) [optimizer] bundling dependencies...
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+{
+  "status": "confirmed",
+  "modelFields": [
+    {
+      "id": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+      "fields": 21,
+      "flags": [
+        {
+          "name": "flowstate",
+          "id": "020E881C9D674966B16BB04A7DBBDAD7",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "author",
+          "id": "1CBC5B7E072F4AF99D333CA8909DBC9B",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "rowid",
+          "id": "329F73309C074560ABD24798E504FA48",
+          "allowAIAdd": 1
+        },
+        {
+          "name": "updatetime",
+          "id": "3A5354A6245E4328A57D5E669BE58F5F",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "createtime",
+          "id": "3A826E6B9F8C480EB1397F9DB8314928",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "functiondesc",
+          "id": "4DBB4225285B4538B064A19D5359BA28",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "crttime",
+          "id": "4EDF2D28099F49F18AFACE98805D8277",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "exVal_1",
+          "id": "5A80A2F168FB45A890BF74304B2369FE",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "ReportID",
+          "id": "69CC84178A39419DAA14EA59D4EB7588",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "typeid",
+          "id": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "description",
+          "id": "767B42E888BE486C968DF0C7E842C201",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "updateuser",
+          "id": "948E9B78FA9441F5A8E04AF4F556CBE4",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "id": "9EE786E744394AA38B8E19D896A3333D",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "exVal_3",
+          "id": "9EE7F98909434B3EBEC821C78850E4DE",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "ordIdx",
+          "id": "A2287F86C7114FE0B3BFA46D5C502B7E",
+          "allowAIAdd": 1
+        },
+        {
+          "name": "createuser",
+          "id": "AE753934F33C4FBC93D8B929A4FB1479",
+          "allowAIAdd": 1
+        },
+        {
+          "name": "exVal_2",
+          "id": "B8406E12883349FB9E87CF8F911EDFD4",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "exVal_4",
+          "id": "CCE59E85A6E845DD9A31DF02268EAE39",
+          "allowAIAdd": 1
+        },
+        {
+          "name": "val",
+          "id": "D1D3A9B6642D4C6388150586B8694DA1",
+          "allowAIAdd": 1
+        },
+        {
+          "name": "wfid",
+          "id": "E672A99D4E5F495299822FF75938488D",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "txt",
+          "id": "FA5B8C6970204D51B807A3B6B48E8AD6",
+          "allowAIAdd": 1
+        }
+      ]
+    },
+    {
+      "id": "EDB0E34486FFB903E896E5C281230961p000",
+      "fields": 26,
+      "flags": [
+        {
+          "name": "createtime",
+          "id": "0A85B8C2356C4372AB62199688FDFD8A",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "createuser",
+          "id": "14802B0870CB4DBCA036121A776C8C51",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "secondValue",
+          "id": "1BFD2714B3B84463877C98CA26A5238B",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "description",
+          "id": "215CA37BF93748AD96F8EB4F85742696",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "AppId",
+          "id": "25DFDDB0325645769D54A8F86A390216",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "updatetime",
+          "id": "399C2908F7B6436B8AF96FB0B7F1D5E3",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "crttime",
+          "id": "39FC71BA4641425796C7DCD6B7F292FC",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "ModName",
+          "id": "3DAE756FC0604DD58C0CEDF6C17A1143",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "ReportID",
+          "id": "3E622C5E90A94E4FBB3ACEF4A5A7A8A6",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "wfid",
+          "id": "3EAD180CB5CE4392BE80884E1FDAA0EE",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "author",
+          "id": "461CF4AD34B14D71A339E9C292D2EEE6",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "fourthvalue",
+          "id": "48AC69AC09B1494EAB859BBB7CA22C2A",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "dictionaryType",
+          "id": "4DE0B0F39A9846E7AF1942C9D375ABB9",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "flowstate",
+          "id": "4F1E3811F28B40479C91F6B7CBF809EC",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "functiondesc",
+          "id": "513994939FAD48CF92319748ED0AFF7C",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "thirdValue",
+          "id": "528A67C02E884C628F85343B7AC724FF",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "val",
+          "id": "5653567ACAAC422B8E7D3C1B65EC3095",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "remark",
+          "id": "5926F0021D4548ADB2FE0CB411DFD11B",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "StructureTypeID",
+          "id": "5F169039DCE84C6893169D903A389F2C",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "updateuser",
+          "id": "722A2A9D73BE490F925DC4E0E1E45F5F",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "txt",
+          "id": "B2D0DAC5C8534341AA21425FF84606A2",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "rowid",
+          "id": "C9573F7F507F43C4ACE101680301E668",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "TypeName",
+          "id": "D68377782ECA46D2B5E701540D417163",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "modid",
+          "id": "E2B4B21E9EC543B18D57A477C45B1322",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "fiveValue",
+          "id": "E3BAFB6BD0744BBC9BC0C3391387730B",
+          "allowAIAdd": 0
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "id": "FD76FA3F6C094708BFFBE660F91290AC",
+          "allowAIAdd": 0
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "modelBinding": {
+        "modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+        "modelName": "_Base_DictData"
+      },
+      "requestState": 0,
+      "tableColumns": [
+        {
+          "name": "flowstate",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "author",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "rowid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "updatetime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "createtime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "functiondesc",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "crttime",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_1",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ReportID",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "typeid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "description",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "updateuser",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_3",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ordIdx",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "createuser",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "exVal_2",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_4",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "val",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "wfid",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "txt",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "_pk",
+          "hasAllowAIAdd": false
+        }
+      ],
+      "columns": [
+        {
+          "name": "author",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "functiondesc",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "crttime",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_1",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "typeid",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_3",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "ordIdx",
+          "type": "tinyint",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "createuser",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "exVal_2",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": false
+        },
+        {
+          "name": "exVal_4",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "val",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "txt",
+          "type": "varchar",
+          "hasAllowAIAdd": true,
+          "allowAIAdd": true
+        },
+        {
+          "name": "_pk",
+          "type": "varchar",
+          "hasAllowAIAdd": false
+        }
+      ]
+    }
+  ],
+  "requestCount": 16,
+  "blockedMutations": 0
+}

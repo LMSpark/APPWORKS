@@ -1,0 +1,41 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > edits only businessPrompt through the standard input DataView and never exposes Agent/system/schema props
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts (14 tests | 1 failed | 13 skipped) 217ms
+     × edits only businessPrompt through the standard input DataView and never exposes Agent/system/schema props 215ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > edits only businessPrompt through the standard input DataView and never exposes Agent/system/schema props
+AssertionError: expected '' to be undefined
+
+- Expected:
+undefined
+
++ Received:
+""
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:246:48
+    244|     const startButton = wrapper.findAll('button').find(button => butto…
+    245|     if (!startButton) throw new Error('start action is missing')
+    246|     expect(startButton.attributes('disabled')).toBeUndefined()
+       |                                                ^
+    247|     await startButton.trigger('click')
+    248|     await flushPromises()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  03:13:54
+   Duration  9.96s (transform 5.89s, setup 132ms, import 8.09s, tests 217ms, environment 1.16s)
+

@@ -1,0 +1,723 @@
+$ pnpm run build:packages && pnpm run build:fe
+$ node scripts/build-packages.mjs
+📦 Package build order: spark-utils → spark-json-document → spark-ai → spark-data → spark-project-model → spark-component → spark-app → spark-lowcode-api
+ℹ️  Skipping source-only packages (no build script): vite-plugin-spark-catalog
+
+⏭️  Skipping spark-utils (unchanged)
+
+⏭️  Skipping spark-json-document (unchanged)
+
+⏭️  Skipping spark-ai (unchanged)
+
+⏭️  Skipping spark-data (unchanged)
+
+⏭️  Skipping spark-project-model (unchanged)
+
+🔧 Building spark-component ...
+
+> pnpm run build
+
+$ pnpm run clean && vite build && vue-tsc -p tsconfig.build.json
+$ rimraf dist
+vite v8.0.16 building client environment for production...
+[2K
+transforming...✓ 438 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/spark-component.css                                                                                                                  53.01 kB │ gzip: 9.06 kB
+dist/runtime/index.js                                                                                                                      0.10 kB │ gzip: 0.09 kB
+dist/core/system/keys.js                                                                                                                   0.11 kB │ gzip: 0.13 kB
+dist/components/fields/context/tableCellContext.js                                                                                         0.14 kB │ gzip: 0.14 kB
+dist/components/fields/context/tableColumnContext.js                                                                                       0.16 kB │ gzip: 0.16 kB
+dist/_virtual/_plugin-vue_export-helper.js                                                                                                 0.16 kB │ gzip: 0.15 kB
+dist/page/services/pageLogger.js                                                                                                           0.16 kB │ gzip: 0.14 kB
+dist/components/containers/data-views/RendererTable/types.js                                                                               0.17 kB │ gzip: 0.16 kB
+dist/components/SparkComponentRenderer.js                                                                                                  0.18 kB │ gzip: 0.14 kB
+dist/components/fields/data-components/text/FieldJson/FieldJson.js                                                                         0.19 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/text/FieldText/FieldText.js                                                                         0.19 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/value/FieldRate/FieldRate.js                                                                        0.19 kB │ gzip: 0.15 kB
+dist/components/containers/support/scope/RendererHostScope.js                                                                              0.19 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/datetime/FieldDate/FieldDate.js                                                                     0.19 kB │ gzip: 0.15 kB
+dist/components/display/data-components/value/DisplayTag/DisplayTag.js                                                                     0.19 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/choice/FieldRadio/FieldRadio.js                                                                     0.19 kB │ gzip: 0.15 kB
+dist/components/display/non-data-components/DisplayIcon/DisplayIcon.js                                                                     0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/text/FieldJson/JsonViewRows.js                                                                      0.20 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/value/FieldSlider/FieldSlider.js                                                                    0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/value/FieldSwitch/FieldSwitch.js                                                                    0.20 kB │ gzip: 0.15 kB
+dist/components/containers/layout/structure/RendererCard/RendererCard.js                                                                   0.20 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/picker/FieldDeptPicker/FieldDeptPicker.js                                                           0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/picker/FieldUserPicker/FieldUserPicker.js                                                           0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/text/FieldMention/FieldMention.js                                                                   0.20 kB │ gzip: 0.15 kB
+dist/components/fields/non-data-components/FieldTableCellScope.js                                                                          0.20 kB │ gzip: 0.16 kB
+dist/components/containers/layout/navigation/RendererLink/RendererLink.js                                                                  0.20 kB │ gzip: 0.16 kB
+dist/components/display/data-components/value/DisplayBadge/DisplayBadge.js                                                                 0.20 kB │ gzip: 0.15 kB
+dist/components/containers/layout/action/RendererButton/RendererButton.js                                                                  0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/choice/FieldCheckTag/FieldCheckTag.js                                                               0.20 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/choice/FieldCheckbox/FieldCheckbox.js                                                               0.20 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/picker/FieldCascader/FieldCascader.js                                                               0.20 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/picker/FieldTransfer/FieldTransfer.js                                                               0.20 kB │ gzip: 0.15 kB
+dist/components/display/data-components/visual/DisplayAvatar/DisplayAvatar.js                                                              0.20 kB │ gzip: 0.15 kB
+dist/components/containers/layout/navigation/RendererAnchor/RendererAnchor.js                                                              0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/navigation/RendererTabs/RendererTabPane.js                                                               0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/overlay/RendererPopover/RendererPopover.js                                                               0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/overlay/RendererTooltip/RendererTooltip.js                                                               0.21 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/choice/FieldSegmented/FieldSegmented.js                                                             0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/structure/RendererDivider/RendererDivider.js                                                             0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/feedback/DisplayAlert/DisplayAlert.js                                                          0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/feedback/DisplayEmpty/DisplayEmpty.js                                                          0.21 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/picker/FieldProductPicker/FieldProductPicker.js                                                     0.21 kB │ gzip: 0.15 kB
+dist/components/containers/layout/navigation/RendererSteps/RendererStepItem.js                                                             0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/overlay/RendererDropdown/RendererDropdown.js                                                             0.21 kB │ gzip: 0.16 kB
+dist/components/display/data-components/DisplayPagination/DisplayPagination.js                                                             0.21 kB │ gzip: 0.15 kB
+dist/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.js                                                           0.21 kB │ gzip: 0.16 kB
+dist/ai/components/approval/AiToolApprovalPanel/AiToolApprovalPanel.vue_vue_type_style_index_0_lang.module.js                              0.21 kB │ gzip: 0.17 kB
+dist/components/display/data-components/visual/DisplayProgress/DisplayProgress.js                                                          0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/feedback/DisplayResult/DisplayResult.js                                                        0.21 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/datetime/FieldTimePicker/FieldTimePicker.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/datetime/FieldTimeSelect/FieldTimeSelect.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/components/display/data-components/value/DisplayStatistic/DisplayStatistic.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.js                                                        0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/time/DisplayTimeline/DisplayTimeline.js                                                        0.21 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/choice/FieldMultiSelect/FieldMultiSelect.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/components/containers/layout/navigation/RendererAnchor/RendererAnchorLink.js                                                          0.21 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/page/actions/action-types.js                                                                                                          0.21 kB │ gzip: 0.17 kB
+dist/components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.js                                                         0.21 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/time/DisplayCountdown/DisplayCountdown.js                                                      0.22 kB │ gzip: 0.16 kB
+dist/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.js                                                       0.22 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.js                                                    0.22 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/value/FieldValueFunction/FieldValueFunction.js                                                      0.22 kB │ gzip: 0.16 kB
+dist/components/containers/layout/structure/RendererCollapse/RendererCollapseItem.js                                                       0.22 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.js                                                     0.22 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/time/DisplayTimeline/DisplayTimelineItem.js                                                    0.22 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumb.js                                               0.22 kB │ gzip: 0.16 kB
+dist/ai/components/session/SessionReasoningBlock/SessionReasoningBlock.vue_vue_type_style_index_0_lang.module.js                           0.23 kB │ gzip: 0.17 kB
+dist/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.js                                           0.23 kB │ gzip: 0.16 kB
+dist/components/fields/data-components/composables/value/useRangeFilterMode.js                                                             0.23 kB │ gzip: 0.18 kB
+dist/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.js                                           0.23 kB │ gzip: 0.17 kB
+dist/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.js                                          0.24 kB │ gzip: 0.16 kB
+dist/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.js                                       0.24 kB │ gzip: 0.16 kB
+dist/runtime/app-services.js                                                                                                               0.26 kB │ gzip: 0.21 kB
+dist/_virtual/_rolldown/runtime.js                                                                                                         0.26 kB │ gzip: 0.22 kB
+dist/core/system/plugin.js                                                                                                                 0.28 kB │ gzip: 0.22 kB
+dist/ai/components/session/SessionStreamView/SessionStreamView.vue_vue_type_style_index_0_lang.module.js                                   0.31 kB │ gzip: 0.20 kB
+dist/ai/components/SparkAgentPanel/SparkAgentPanel.js                                                                                      0.31 kB │ gzip: 0.22 kB
+dist/ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.vue_vue_type_style_index_0_lang.module.js                           0.32 kB │ gzip: 0.21 kB
+dist/ai/components/session/SessionChatBubble/SessionChatBubble.js                                                                          0.32 kB │ gzip: 0.22 kB
+dist/ai/components/session/SessionStreamView/SessionStreamView.js                                                                          0.32 kB │ gzip: 0.22 kB
+dist/ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.js                                                                       0.32 kB │ gzip: 0.22 kB
+dist/components/containers/support/crud/crud-defaults.js                                                                                   0.32 kB │ gzip: 0.21 kB
+dist/ai/components/approval/AiToolApprovalPanel/AiToolApprovalPanel.js                                                                     0.32 kB │ gzip: 0.22 kB
+dist/ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.js                                                                  0.32 kB │ gzip: 0.22 kB
+dist/ai/components/session/SessionToolCallCard/SessionToolCallCard.js                                                                      0.32 kB │ gzip: 0.22 kB
+dist/ai/components/session/SessionReasoningBlock/SessionReasoningBlock.js                                                                  0.33 kB │ gzip: 0.22 kB
+dist/ai/components/diagnostics/SessionDiagnosticsPanel/SessionDiagnosticsPanel.js                                                          0.33 kB │ gzip: 0.22 kB
+dist/ai/data-entry-host-capability.js                                                                                                      0.33 kB │ gzip: 0.24 kB
+dist/components/fields/actions/useFieldActionMode.js                                                                                       0.35 kB │ gzip: 0.23 kB
+dist/components/fields/data-components/picker/FieldUserPicker/FieldUserPicker.vue_vue_type_script_lang.js                                  0.35 kB │ gzip: 0.27 kB
+dist/components/fields/data-components/picker/FieldDeptPicker/FieldDeptPicker.vue_vue_type_script_lang.js                                  0.36 kB │ gzip: 0.26 kB
+dist/components/editors/JsonTreeEditor.js                                                                                                  0.36 kB │ gzip: 0.24 kB
+dist/components/fields/data-components/picker/FieldProductPicker/FieldProductPicker.vue_vue_type_script_lang.js                            0.36 kB │ gzip: 0.27 kB
+dist/components/editors/SparkCodeEditor.js                                                                                                 0.36 kB │ gzip: 0.24 kB
+dist/components/editors/SparkJsonEditor.js                                                                                                 0.36 kB │ gzip: 0.24 kB
+dist/page/renderer/SparkPageRenderer.js                                                                                                    0.37 kB │ gzip: 0.23 kB
+dist/components/containers/zones/RendererTail.js                                                                                           0.37 kB │ gzip: 0.24 kB
+dist/components/containers/zones/RendererEditor.js                                                                                         0.37 kB │ gzip: 0.24 kB
+dist/components/containers/zones/RendererFilter.js                                                                                         0.37 kB │ gzip: 0.24 kB
+dist/components/containers/zones/RendererFooter.js                                                                                         0.37 kB │ gzip: 0.24 kB
+dist/components/containers/zones/RendererHeader.js                                                                                         0.37 kB │ gzip: 0.24 kB
+dist/components/containers/data-views/DataViewMetaBar.js                                                                                   0.38 kB │ gzip: 0.25 kB
+dist/ai/components/SparkAiDataEntry/SparkAiDataEntry.js                                                                                    0.38 kB │ gzip: 0.24 kB
+dist/components/containers/data-views/RendererGraph/GraphCanvas.js                                                                         0.39 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/value/FieldIcon/FieldIcon.js                                                                        0.39 kB │ gzip: 0.24 kB
+dist/components/fields/non-data-components/TreeNodeSummary.js                                                                              0.39 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/RendererForm/RendererForm.js                                                                         0.39 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/RendererList/RendererList.js                                                                         0.39 kB │ gzip: 0.24 kB
+dist/components/containers/data-views/RendererTree/RendererTree.js                                                                         0.39 kB │ gzip: 0.24 kB
+dist/components/fields/data-components/file/FieldImage/FieldImage.js                                                                       0.39 kB │ gzip: 0.24 kB
+dist/components/fields/data-components/value/FieldColor/FieldColor.js                                                                      0.39 kB │ gzip: 0.24 kB
+dist/components/support/UnregisteredNodeFallback.js                                                                                        0.39 kB │ gzip: 0.24 kB
+dist/components/containers/data-views/RendererGraph/RendererGraph.js                                                                       0.39 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/RendererTable/RendererTable.js                                                                       0.39 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/file/FieldUpload/FieldUpload.js                                                                     0.39 kB │ gzip: 0.24 kB
+dist/components/fields/data-components/value/FieldNumber/FieldNumber.js                                                                    0.39 kB │ gzip: 0.25 kB
+dist/components/containers/layout/overlay/RendererTour/RendererTour.js                                                                     0.40 kB │ gzip: 0.25 kB
+dist/components/display/data-components/value/DisplayText/DisplayText.js                                                                   0.40 kB │ gzip: 0.24 kB
+dist/components/fields/data-components/choice/FieldSelect/FieldSelect.js                                                                   0.40 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/RendererDetail/RendererDetail.js                                                                     0.40 kB │ gzip: 0.25 kB
+dist/components/containers/support/scope/RendererFieldScope.js                                                                             0.40 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/text/FieldJson/JsonArrayRows.js                                                                     0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/navigation/RendererTabs/RendererTabs.js                                                                  0.40 kB │ gzip: 0.25 kB
+dist/components/display/data-components/visual/DisplayImage/DisplayImage.js                                                                0.40 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/text/FieldJson/JsonObjectForm.js                                                                    0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/structure/RendererSpace/RendererSpace.js                                                                 0.40 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/file/FieldFilePath/FieldFilePath.js                                                                 0.40 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/text/FieldTextarea/FieldTextarea.js                                                                 0.40 kB │ gzip: 0.25 kB
+dist/components/fields/non-data-components/FieldContextRenderer.js                                                                         0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/navigation/RendererSteps/RendererSteps.js                                                                0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/overlay/RendererDialog/RendererDialog.js                                                                 0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/overlay/RendererDrawer/RendererDrawer.js                                                                 0.40 kB │ gzip: 0.25 kB
+dist/components/containers/layout/action/RendererToolbar/RendererToolbar.js                                                                0.41 kB │ gzip: 0.25 kB
+dist/components/containers/layout/overlay/RendererDialog/FullscreenDialog.js                                                               0.41 kB │ gzip: 0.26 kB
+dist/components/containers/layout/structure/RendererSection/RendererSection.js                                                             0.41 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.js                                                             0.41 kB │ gzip: 0.25 kB
+dist/components/containers/layout/structure/RendererCollapse/RendererCollapse.js                                                           0.41 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.js                                                           0.41 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/RendererVirtualCard/RendererVirtualCard.js                                                           0.42 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/text/FieldJson/JsonObjectProperties.js                                                              0.42 kB │ gzip: 0.25 kB
+dist/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.js                                                       0.42 kB │ gzip: 0.25 kB
+dist/components/containers/support/crud/crud-result-helpers.js                                                                             0.42 kB │ gzip: 0.27 kB
+dist/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.js                                                0.43 kB │ gzip: 0.26 kB
+dist/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.js                                              0.44 kB │ gzip: 0.25 kB
+dist/components/containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.js                                             0.45 kB │ gzip: 0.26 kB
+dist/components/containers/data-views/RendererDetail/zero-code.js                                                                          0.45 kB │ gzip: 0.29 kB
+dist/components/containers/support/scope/scopeFactories.js                                                                                 0.47 kB │ gzip: 0.25 kB
+dist/page/renderer/useCssScope.js                                                                                                          0.48 kB │ gzip: 0.30 kB
+dist/components/containers/layout/structure/RendererSection/zero-code.js                                                                   0.49 kB │ gzip: 0.26 kB
+dist/ai/components/session/SessionToolCallCard/SessionToolCallCard.vue_vue_type_style_index_0_lang.module.js                               0.51 kB │ gzip: 0.25 kB
+dist/components/containers/data-views/zero-code-shared.js                                                                                  0.52 kB │ gzip: 0.32 kB
+dist/components/containers/support/interactionControl.js                                                                                   0.55 kB │ gzip: 0.32 kB
+dist/page/services/providePageRuntimeServices.js                                                                                           0.57 kB │ gzip: 0.35 kB
+dist/components/containers/data-views/data-row-utils.js                                                                                    0.57 kB │ gzip: 0.34 kB
+dist/permission/index.js                                                                                                                   0.58 kB │ gzip: 0.32 kB
+dist/components/fields/data-components/composables/state/useChoiceFieldState.js                                                            0.60 kB │ gzip: 0.32 kB
+dist/ai/components/session/SessionChatBubble/SessionChatBubble.vue_vue_type_style_index_0_lang.module.js                                   0.62 kB │ gzip: 0.22 kB
+dist/components/fields/actions/useSelectorFieldActions.js                                                                                  0.63 kB │ gzip: 0.34 kB
+dist/components/containers/support/visibility-container-zero-code.js                                                                       0.63 kB │ gzip: 0.28 kB
+dist/components/fields/non-data-components/FieldTableCellScope.vue_vue_type_script_setup_true_lang.js                                      0.64 kB │ gzip: 0.39 kB
+dist/ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.vue_vue_type_style_index_0_lang.module.js                                0.64 kB │ gzip: 0.26 kB
+dist/components/containers/data-views/RendererList/zero-code.js                                                                            0.66 kB │ gzip: 0.41 kB
+dist/ai/components/diagnostics/SessionDiagnosticsPanel/SessionDiagnosticsPanel.vue_vue_type_style_index_0_lang.module.js                   0.66 kB │ gzip: 0.25 kB
+dist/components/containers/layout/navigation/RendererTabs/zero-code.js                                                                     0.67 kB │ gzip: 0.32 kB
+dist/components/fields/data-components/composables/value/useControlledFieldChange.js                                                       0.69 kB │ gzip: 0.41 kB
+dist/components/fields/actions/useFileFieldActions.js                                                                                      0.77 kB │ gzip: 0.36 kB
+dist/components/fields/context/dataViewEditing.js                                                                                          0.77 kB │ gzip: 0.40 kB
+dist/components/fields/data-components/composables/state/useBasicFieldState.js                                                             0.78 kB │ gzip: 0.38 kB
+dist/components/containers/support/scope/row-mirror-sync.js                                                                                0.80 kB │ gzip: 0.46 kB
+dist/core/capability-context.js                                                                                                            0.81 kB │ gzip: 0.38 kB
+dist/ai/components/SparkAgentPanel/SparkAgentPanel.vue_vue_type_style_index_0_lang.module.js                                               0.82 kB │ gzip: 0.28 kB
+dist/page/renderer/scopeCSS.js                                                                                                             0.87 kB │ gzip: 0.53 kB
+dist/components/fields/data-components/composables/value/useSwitchNullValue.js                                                             0.92 kB │ gzip: 0.47 kB
+dist/components/containers/zones/RendererTail.vue_vue_type_script_setup_true_lang.js                                                       0.94 kB │ gzip: 0.58 kB
+dist/components/fields/context/useResolvedFieldContext.js                                                                                  0.94 kB │ gzip: 0.45 kB
+dist/components/containers/layout/structure/RendererCollapse/zero-code.js                                                                  0.94 kB │ gzip: 0.43 kB
+dist/components/containers/zones/RendererFooter.vue_vue_type_script_setup_true_lang.js                                                     0.95 kB │ gzip: 0.58 kB
+dist/components/containers/zones/RendererHeader.vue_vue_type_script_setup_true_lang.js                                                     0.95 kB │ gzip: 0.58 kB
+dist/components/containers/zones/RendererEditor.vue_vue_type_script_setup_true_lang.js                                                     0.96 kB │ gzip: 0.58 kB
+dist/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumbItem.vue_vue_type_script_setup_true_lang.js       0.99 kB │ gzip: 0.55 kB
+dist/ai/components/session/SessionReasoningBlock/SessionReasoningBlock.vue_vue_type_script_setup_true_lang.js                              1.00 kB │ gzip: 0.59 kB
+dist/components/containers/layout/navigation/RendererSteps/zero-code.js                                                                    1.07 kB │ gzip: 0.44 kB
+dist/components/containers/runtime/column-auto-field.js                                                                                    1.10 kB │ gzip: 0.49 kB
+dist/components/containers/support/useEventDefaults.js                                                                                     1.10 kB │ gzip: 0.59 kB
+dist/core/system/spark.js                                                                                                                  1.10 kB │ gzip: 0.52 kB
+dist/ai/components/approval/AiToolApprovalPanel/AiToolApprovalPanel.vue_vue_type_script_setup_true_lang.js                                 1.12 kB │ gzip: 0.62 kB
+dist/components/fields/data-components/composables/state/useOptionFieldState.js                                                            1.12 kB │ gzip: 0.57 kB
+dist/components/display/non-data-components/DisplayIcon/DisplayIcon.vue_vue_type_script_setup_true_lang.js                                 1.15 kB │ gzip: 0.63 kB
+dist/components/display/non-data-components/time/DisplayTimeline/DisplayTimeline.vue_vue_type_script_setup_true_lang.js                    1.16 kB │ gzip: 0.64 kB
+dist/components/containers/layout/navigation/RendererAnchor/RendererAnchorLink.vue_vue_type_script_setup_true_lang.js                      1.21 kB │ gzip: 0.65 kB
+dist/components/containers/data-views/RendererForm/zero-code.js                                                                            1.22 kB │ gzip: 0.53 kB
+dist/page/renderer/useRendererSetup.js                                                                                                     1.23 kB │ gzip: 0.65 kB
+dist/components/containers/layout/structure/RendererDivider/RendererDivider.vue_vue_type_script_setup_true_lang.js                         1.23 kB │ gzip: 0.63 kB
+dist/page/binding/bind-normalize.js                                                                                                        1.25 kB │ gzip: 0.59 kB
+dist/permission/PermissionResolver.js                                                                                                      1.25 kB │ gzip: 0.52 kB
+dist/components/fields/data-components/choice/FieldCheckTag/FieldCheckTag.vue_vue_type_script_setup_true_lang.js                           1.27 kB │ gzip: 0.70 kB
+dist/components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.vue_vue_type_script_setup_true_lang.js                    1.30 kB │ gzip: 0.68 kB
+dist/components/containers/data-views/RendererTree/input.js                                                                                1.30 kB │ gzip: 0.59 kB
+dist/components/containers/data-views/RendererVirtualCard/zero-code.js                                                                     1.30 kB │ gzip: 0.60 kB
+dist/components/containers/support/scope/RendererHostScope.vue_vue_type_script_setup_true_lang.js                                          1.31 kB │ gzip: 0.72 kB
+dist/components/fields/data-components/composables/state/useHtmlEditorState.js                                                             1.33 kB │ gzip: 0.64 kB
+dist/components/fields/options/option-normalization.js                                                                                     1.33 kB │ gzip: 0.62 kB
+dist/components/display/non-data-components/time/DisplayCountdown/DisplayCountdown.vue_vue_type_script_setup_true_lang.js                  1.34 kB │ gzip: 0.68 kB
+dist/components/display/non-data-components/structure/DisplayBreadcrumb/DisplayBreadcrumb.vue_vue_type_script_setup_true_lang.js           1.34 kB │ gzip: 0.69 kB
+dist/components/containers/runtime/container-ui.js                                                                                         1.34 kB │ gzip: 0.66 kB
+dist/page/createSandbox.js                                                                                                                 1.36 kB │ gzip: 0.78 kB
+dist/components/containers/support/crud/base-crud-methods.js                                                                               1.36 kB │ gzip: 0.49 kB
+dist/components/display/non-data-components/feedback/DisplayEmpty/DisplayEmpty.vue_vue_type_script_setup_true_lang.js                      1.38 kB │ gzip: 0.71 kB
+dist/components/fields/columnFormRules.js                                                                                                  1.38 kB │ gzip: 0.53 kB
+dist/components/display/non-data-components/feedback/DisplayAlert/DisplayAlert.vue_vue_type_script_setup_true_lang.js                      1.41 kB │ gzip: 0.67 kB
+dist/components/containers/layout/state.js                                                                                                 1.42 kB │ gzip: 0.64 kB
+dist/components/display/non-data-components/feedback/DisplayResult/DisplayResult.vue_vue_type_script_setup_true_lang.js                    1.42 kB │ gzip: 0.76 kB
+dist/ai/components/session/SessionChatBubble/SessionChatBubble.vue_vue_type_script_setup_true_lang.js                                      1.42 kB │ gzip: 0.71 kB
+dist/page/binding/build-page-children.js                                                                                                   1.43 kB │ gzip: 0.70 kB
+dist/page/context/page-component-registry.js                                                                                               1.44 kB │ gzip: 0.55 kB
+dist/components/create-passthrough.js                                                                                                      1.48 kB │ gzip: 0.74 kB
+dist/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.vue_vue_type_script_setup_true_lang.js                   1.50 kB │ gzip: 0.81 kB
+dist/components/fields/data-components/composables/state/useEntityPickerState.js                                                           1.54 kB │ gzip: 0.66 kB
+dist/components/containers/data-views/RendererGraph/GraphLayout.js                                                                         1.55 kB │ gzip: 0.82 kB
+dist/components/display/data-components/value/DisplayStatistic/DisplayStatistic.vue_vue_type_script_setup_true_lang.js                     1.61 kB │ gzip: 0.73 kB
+dist/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptions.vue_vue_type_script_setup_true_lang.js       1.62 kB │ gzip: 0.78 kB
+dist/components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.vue_vue_type_script_setup_true_lang.js                1.63 kB │ gzip: 0.81 kB
+dist/components/display/data-components/visual/DisplayAvatar/DisplayAvatar.vue_vue_type_script_setup_true_lang.js                          1.63 kB │ gzip: 0.78 kB
+dist/components/fields/data-components/text/FieldJson/JsonViewRows.vue_vue_type_script_setup_true_lang.js                                  1.64 kB │ gzip: 0.85 kB
+dist/components/support/beforeRender.js                                                                                                    1.64 kB │ gzip: 0.75 kB
+dist/core/system/registry.js                                                                                                               1.66 kB │ gzip: 0.78 kB
+dist/components/containers/layout/structure/RendererCard/RendererCard.vue_vue_type_script_setup_true_lang.js                               1.70 kB │ gzip: 0.86 kB
+dist/permission/usePermission.js                                                                                                           1.74 kB │ gzip: 0.88 kB
+dist/components/containers/layout/structure/RendererSpace/RendererSpace.vue_vue_type_script_setup_true_lang.js                             1.74 kB │ gzip: 0.89 kB
+dist/components/fields/context/useFieldContext.js                                                                                          1.74 kB │ gzip: 0.62 kB
+dist/components/fields/data-components/composables/state/useFieldControlState.js                                                           1.76 kB │ gzip: 0.59 kB
+dist/components/containers/layout/navigation/RendererAnchor/RendererAnchor.vue_vue_type_script_setup_true_lang.js                          1.83 kB │ gzip: 0.88 kB
+dist/components/containers/layout/action/RendererButton/useActionButtonRuntime.js                                                          1.85 kB │ gzip: 0.87 kB
+dist/components/fields/data-components/composables/value/fieldValueCoercion.js                                                             1.87 kB │ gzip: 0.56 kB
+dist/core/capability-keys.js                                                                                                               1.89 kB │ gzip: 0.80 kB
+dist/components/display/non-data-components/time/DisplayTimeline/DisplayTimelineItem.vue_vue_type_script_setup_true_lang.js                1.96 kB │ gzip: 0.89 kB
+dist/components/containers/layout/overlay/RendererTooltip/RendererTooltip.vue_vue_type_script_setup_true_lang.js                           1.98 kB │ gzip: 0.89 kB
+dist/components/display/non-data-components/structure/DisplayDescriptions/DisplayDescriptionsItem.vue_vue_type_script_setup_true_lang.js   2.00 kB │ gzip: 0.92 kB
+dist/components/containers/runtime/layout-data-context.js                                                                                  2.05 kB │ gzip: 0.90 kB
+dist/components/display/data-components/visual/DisplayProgress/DisplayProgress.vue_vue_type_script_setup_true_lang.js                      2.08 kB │ gzip: 0.89 kB
+dist/components/display/data-components/DisplayPagination/DisplayPagination.vue_vue_type_script_setup_true_lang.js                         2.11 kB │ gzip: 0.92 kB
+dist/components/containers/layout/overlay/RendererPopconfirm/RendererPopconfirm.vue_vue_type_script_setup_true_lang.js                     2.14 kB │ gzip: 0.93 kB
+dist/ai/components/diagnostics/AiSessionTracePanel/AiSessionTracePanel.vue_vue_type_script_setup_true_lang.js                              2.17 kB │ gzip: 0.96 kB
+dist/components/fields/data-components/value/FieldRate/FieldRate.vue_vue_type_script_setup_true_lang.js                                    2.18 kB │ gzip: 1.01 kB
+dist/components/display/data-components/value/DisplayBadge/DisplayBadge.vue_vue_type_script_setup_true_lang.js                             2.19 kB │ gzip: 0.98 kB
+dist/components/display/data-components/value/DisplayTag/DisplayTag.vue_vue_type_script_setup_true_lang.js                                 2.19 kB │ gzip: 0.97 kB
+dist/components/containers/layout/structure/RendererCollapse/RendererCollapseItem.vue_vue_type_script_setup_true_lang.js                   2.25 kB │ gzip: 1.02 kB
+dist/components/fields/options/useFieldCascadeOptions.js                                                                                   2.28 kB │ gzip: 1.00 kB
+dist/components/containers/layout/overlay/RendererPopover/RendererPopover.vue_vue_type_script_setup_true_lang.js                           2.28 kB │ gzip: 0.99 kB
+dist/components/fields/data-components/value/FieldSlider/FieldSlider.vue_vue_type_script_setup_true_lang.js                                2.30 kB │ gzip: 1.04 kB
+dist/components/fields/options/option-source.js                                                                                            2.31 kB │ gzip: 1.08 kB
+dist/components/support/UnregisteredNodeFallback.vue_vue_type_script_setup_true_lang.js                                                    2.34 kB │ gzip: 1.13 kB
+dist/components/containers/layout/index.js                                                                                                 2.35 kB │ gzip: 0.65 kB
+dist/components/display/data-components/value/DisplayText/DisplayText.vue_vue_type_script_setup_true_lang.js                               2.37 kB │ gzip: 1.00 kB
+dist/components/fields/data-components/composables/state/useFileFieldState.js                                                              2.38 kB │ gzip: 0.73 kB
+dist/components/containers/layout/navigation/RendererSteps/RendererStepItem.vue_vue_type_script_setup_true_lang.js                         2.42 kB │ gzip: 1.09 kB
+dist/components/fields/data-components/datetime/FieldTimeSelect/FieldTimeSelect.vue_vue_type_script_setup_true_lang.js                     2.53 kB │ gzip: 1.13 kB
+dist/ai/components/session/SessionToolCallCard/SessionToolCallCard.vue_vue_type_script_setup_true_lang.js                                  2.53 kB │ gzip: 0.96 kB
+dist/ai/components/session/SessionStreamView/SessionStreamView.vue_vue_type_script_setup_true_lang.js                                      2.54 kB │ gzip: 0.95 kB
+dist/ai/components/SparkAgentPanel/SparkAgentPanel.vue_vue_type_script_setup_true_lang.js                                                  2.54 kB │ gzip: 1.06 kB
+dist/components/containers/data-views/view-tree-state.js                                                                                   2.56 kB │ gzip: 1.05 kB
+dist/components/fields/non-data-components/TreeNodeSummary.vue_vue_type_script_setup_true_lang.js                                          2.57 kB │ gzip: 1.00 kB
+dist/components/containers/layout/navigation/RendererLink/RendererLink.vue_vue_type_script_setup_true_lang.js                              2.59 kB │ gzip: 1.20 kB
+dist/components/containers/layout/overlay/RendererDropdown/RendererDropdown.vue_vue_type_script_setup_true_lang.js                         2.64 kB │ gzip: 1.11 kB
+dist/components/display/useDisplayDataSource.js                                                                                            2.65 kB │ gzip: 1.07 kB
+dist/components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.vue_vue_type_script_setup_true_lang.js                     2.74 kB │ gzip: 1.18 kB
+dist/components/containers/layout/overlay/RendererTour/RendererTour.vue_vue_type_script_setup_true_lang.js                                 2.75 kB │ gzip: 1.18 kB
+dist/components/fields/data-components/value/FieldSwitch/FieldSwitch.vue_vue_type_script_setup_true_lang.js                                2.81 kB │ gzip: 1.21 kB
+dist/components/fields/data-components/picker/FieldTransfer/FieldTransfer.vue_vue_type_script_setup_true_lang.js                           2.83 kB │ gzip: 1.21 kB
+dist/components/containers/layout/navigation/RendererTabs/RendererTabPane.vue_vue_type_script_setup_true_lang.js                           2.87 kB │ gzip: 1.29 kB
+dist/components/fields/data-components/choice/FieldRadio/FieldRadio.vue_vue_type_script_setup_true_lang.js                                 2.88 kB │ gzip: 1.22 kB
+dist/components/display/data-components/visual/DisplayImage/DisplayImage.vue_vue_type_script_setup_true_lang.js                            2.88 kB │ gzip: 1.21 kB
+dist/components/fields/createPickerPreset.js                                                                                               2.91 kB │ gzip: 0.89 kB
+dist/components/fields/data-components/datetime/FieldTimePicker/FieldTimePicker.vue_vue_type_script_setup_true_lang.js                     2.95 kB │ gzip: 1.25 kB
+dist/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.vue_vue_type_script_setup_true_lang.js                 2.95 kB │ gzip: 1.24 kB
+dist/components/fields/data-components/value/FieldColor/FieldColor.vue_vue_type_script_setup_true_lang.js                                  2.96 kB │ gzip: 1.23 kB
+dist/components/fields/data-components/text/FieldTextarea/FieldTextarea.vue_vue_type_script_setup_true_lang.js                             2.99 kB │ gzip: 1.30 kB
+dist/components/fields/data-components/picker/FieldCascader/FieldCascader.vue_vue_type_script_setup_true_lang.js                           2.99 kB │ gzip: 1.21 kB
+dist/components/containers/layout/structure/RendererCollapse/RendererCollapse.vue_vue_type_script_setup_true_lang.js                       3.02 kB │ gzip: 1.33 kB
+dist/components/containers/layout/navigation/RendererSteps/RendererSteps.vue_vue_type_script_setup_true_lang.js                            3.02 kB │ gzip: 1.32 kB
+dist/components/fields/data-components/choice/FieldSegmented/FieldSegmented.vue_vue_type_script_setup_true_lang.js                         3.06 kB │ gzip: 1.26 kB
+dist/components/containers/runtime/useDataViewEventBridge.js                                                                               3.14 kB │ gzip: 1.03 kB
+dist/ai/components/diagnostics/SessionDiagnosticsPanel/SessionDiagnosticsPanel.vue_vue_type_script_setup_true_lang.js                      3.18 kB │ gzip: 1.26 kB
+dist/components/fields/data-components/picker/FieldTreeSelect/FieldTreeSelect.vue_vue_type_script_setup_true_lang.js                       3.23 kB │ gzip: 1.25 kB
+dist/page/context/buildPageContext.js                                                                                                      3.28 kB │ gzip: 1.12 kB
+dist/components/containers/support/scope/RendererFieldScope.vue_vue_type_script_setup_true_lang.js                                         3.28 kB │ gzip: 1.35 kB
+dist/components/containers/layout/navigation/RendererTabs/RendererTabs.vue_vue_type_script_setup_true_lang.js                              3.33 kB │ gzip: 1.46 kB
+dist/components/fields/data-components/choice/FieldMultiSelect/FieldMultiSelect.vue_vue_type_script_setup_true_lang.js                     3.36 kB │ gzip: 1.33 kB
+dist/components/fields/data-components/datetime/FieldDate/FieldDate.vue_vue_type_script_setup_true_lang.js                                 3.40 kB │ gzip: 1.43 kB
+dist/components/containers/layout/overlay/RendererDialog/FullscreenDialog.vue_vue_type_script_setup_true_lang.js                           3.40 kB │ gzip: 1.42 kB
+dist/ai/components/approval/AiToolApprovalCard/AiToolApprovalCard.vue_vue_type_script_setup_true_lang.js                                   3.44 kB │ gzip: 1.25 kB
+dist/components/fields/data-components/text/FieldText/FieldText.vue_vue_type_script_setup_true_lang.js                                     3.52 kB │ gzip: 1.48 kB
+dist/components/containers/runtime/container-form-detail.js                                                                                3.60 kB │ gzip: 1.39 kB
+dist/components/fields/data-components/choice/FieldCheckbox/FieldCheckbox.vue_vue_type_script_setup_true_lang.js                           3.65 kB │ gzip: 1.53 kB
+dist/components/containers/runtime/container-layout.js                                                                                     3.67 kB │ gzip: 1.43 kB
+dist/components/fields/context/useActiveFieldRow.js                                                                                        3.69 kB │ gzip: 1.53 kB
+dist/components/containers/data-views/view-runtime-state.js                                                                                3.73 kB │ gzip: 1.06 kB
+dist/components/containers/layout/action/RendererToolbar/RendererToolbar.vue_vue_type_script_setup_true_lang.js                            3.80 kB │ gzip: 1.51 kB
+dist/page/actions/button-templates.js                                                                                                      3.80 kB │ gzip: 1.01 kB
+dist/components/containers/data-views/DataViewMetaBar.vue_vue_type_script_setup_true_lang.js                                               3.81 kB │ gzip: 1.34 kB
+dist/components/containers/data-views/RendererTable/zero-code.js                                                                           3.81 kB │ gzip: 1.34 kB
+dist/components/fields/data-components/value/FieldNumber/FieldNumber.vue_vue_type_script_setup_true_lang.js                                3.91 kB │ gzip: 1.42 kB
+dist/components/containers/data-views/view-data-source.js                                                                                  3.92 kB │ gzip: 1.48 kB
+dist/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.vue_vue_type_script_setup_true_lang.js                       4.02 kB │ gzip: 1.64 kB
+dist/components/fields/data-components/value/FieldIcon/FieldIcon.vue_vue_type_script_setup_true_lang.js                                    4.20 kB │ gzip: 1.63 kB
+dist/components/containers/data-views/RendererDetail/RendererDetail.vue_vue_type_script_setup_true_lang.js                                 4.22 kB │ gzip: 1.60 kB
+dist/components/fields/data-components/file/FieldFilePath/FieldFilePath.vue_vue_type_script_setup_true_lang.js                             4.30 kB │ gzip: 1.73 kB
+dist/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.vue_vue_type_script_setup_true_lang.js                   4.30 kB │ gzip: 1.65 kB
+dist/components/fields/data-components/file/FieldUpload/FieldUpload.vue_vue_type_script_setup_true_lang.js                                 4.41 kB │ gzip: 1.76 kB
+dist/components/containers/data-views/RendererForm/RendererForm.vue_vue_type_script_setup_true_lang.js                                     4.45 kB │ gzip: 1.71 kB
+dist/components/fields/data-components/choice/FieldSelect/FieldSelect.vue_vue_type_script_setup_true_lang.js                               4.75 kB │ gzip: 1.80 kB
+dist/components/fields/data-components/text/FieldHtmlEditor/FieldHtmlEditor.vue_vue_type_script_setup_true_lang.js                         4.86 kB │ gzip: 1.77 kB
+dist/components/fields/context/useFieldPermission.js                                                                                       4.92 kB │ gzip: 1.81 kB
+dist/components/containers/layout/overlay/RendererDrawer/RendererDrawer.vue_vue_type_script_setup_true_lang.js                             4.98 kB │ gzip: 1.83 kB
+dist/components/editors/SparkCodeEditor.vue_vue_type_script_setup_true_lang.js                                                             5.00 kB │ gzip: 2.00 kB
+dist/components/fields/data-components/file/FieldImage/FieldImage.vue_vue_type_script_setup_true_lang.js                                   5.11 kB │ gzip: 1.93 kB
+dist/components/containers/data-views/RendererTree/zero-code.js                                                                            5.23 kB │ gzip: 1.67 kB
+dist/components/fields/data-components/text/FieldMention/FieldMention.vue_vue_type_script_setup_true_lang.js                               5.39 kB │ gzip: 2.05 kB
+dist/core/useSparkComponent.js                                                                                                             5.39 kB │ gzip: 2.15 kB
+dist/components/editors/SparkJsonEditor.vue_vue_type_script_setup_true_lang.js                                                             5.46 kB │ gzip: 2.08 kB
+dist/components/fields/data-components/text/FieldJson/JsonObjectProperties.vue_vue_type_script_setup_true_lang.js                          5.49 kB │ gzip: 2.21 kB
+dist/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.js                                        5.54 kB │ gzip: 2.23 kB
+dist/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue_vue_type_script_setup_true_lang.js      5.81 kB │ gzip: 2.21 kB
+dist/page/actions/action-executor.js                                                                                                       5.92 kB │ gzip: 2.19 kB
+dist/components/containers/layout/action/RendererButton/RendererButton.vue_vue_type_script_setup_true_lang.js                              6.04 kB │ gzip: 2.28 kB
+dist/page/services/buildPageService.js                                                                                                     6.30 kB │ gzip: 2.47 kB
+dist/components/containers/layout/overlay/RendererDialog/RendererDialog.vue_vue_type_script_setup_true_lang.js                             6.38 kB │ gzip: 2.28 kB
+dist/page/actions/node-to-descriptor.js                                                                                                    6.41 kB │ gzip: 1.97 kB
+dist/components/fields/options/useFieldOptions.js                                                                                          7.11 kB │ gzip: 2.49 kB
+dist/components/containers/layout/structure/RendererSection/RendererSection.vue_vue_type_script_setup_true_lang.js                         7.33 kB │ gzip: 2.15 kB
+dist/components/fields/non-data-components/FieldContextRenderer.vue_vue_type_script_setup_true_lang.js                                     7.40 kB │ gzip: 2.41 kB
+dist/components/containers/data-views/RendererTree/RendererTree.vue_vue_type_script_setup_true_lang.js                                     7.55 kB │ gzip: 2.73 kB
+dist/components/containers/data-views/RendererVirtualCard/virtual-card-paging.js                                                           7.59 kB │ gzip: 2.88 kB
+dist/components/containers/runtime/container-filter.js                                                                                     7.79 kB │ gzip: 2.81 kB
+dist/components/fields/data-components/value/FieldValueFunction/FieldValueFunction.vue_vue_type_script_setup_true_lang.js                  8.38 kB │ gzip: 3.07 kB
+dist/page/actions/executor-helpers.js                                                                                                      8.50 kB │ gzip: 2.88 kB
+dist/components/containers/data-views/RendererList/RendererList.vue_vue_type_script_setup_true_lang.js                                     9.23 kB │ gzip: 3.09 kB
+dist/page/renderer/SparkPageRenderer.vue_vue_type_script_setup_true_lang.js                                                                9.77 kB │ gzip: 3.78 kB
+dist/components/containers/zones/RendererFilter.vue_vue_type_script_setup_true_lang.js                                                     9.85 kB │ gzip: 3.62 kB
+dist/ai/components/SparkAiDataEntry/SparkAiDataEntry.vue_vue_type_script_setup_true_lang.js                                               10.07 kB │ gzip: 3.37 kB
+dist/components/fields/data-components/text/FieldJson/JsonObjectForm.vue_vue_type_script_setup_true_lang.js                               10.24 kB │ gzip: 3.12 kB
+dist/components/fields/data-components/text/FieldJson/FieldJson.vue_vue_type_script_setup_true_lang.js                                    10.35 kB │ gzip: 3.56 kB
+dist/components/containers/data-views/RendererGraph/GraphCanvas.vue_vue_type_script_setup_true_lang.js                                    10.38 kB │ gzip: 3.66 kB
+dist/components/containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue_vue_type_script_setup_true_lang.js        10.58 kB │ gzip: 3.70 kB
+dist/components/register-renderers.js                                                                                                     10.62 kB │ gzip: 2.31 kB
+dist/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue_vue_type_script_setup_true_lang.js         11.11 kB │ gzip: 3.78 kB
+dist/components/SparkComponentRenderer.vue_vue_type_script_setup_true_lang.js                                                             11.14 kB │ gzip: 3.98 kB
+dist/components/containers/data-views/RendererVirtualCard/RendererVirtualCard.vue_vue_type_script_setup_true_lang.js                      11.96 kB │ gzip: 4.15 kB
+dist/components/containers/data-views/RendererTable/RendererTable.vue_vue_type_script_setup_true_lang.js                                  12.24 kB │ gzip: 3.91 kB
+dist/page/actions/action-data.js                                                                                                          12.61 kB │ gzip: 4.11 kB
+dist/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.vue_vue_type_script_setup_true_lang.js           13.25 kB │ gzip: 3.82 kB
+dist/components/fields/data-components/text/FieldJson/JsonArrayRows.vue_vue_type_script_setup_true_lang.js                                13.30 kB │ gzip: 4.46 kB
+dist/index.js                                                                                                                             13.80 kB │ gzip: 2.77 kB
+dist/components/containers/data-views/RendererGraph/RendererGraph.vue_vue_type_script_setup_true_lang.js                                  14.08 kB │ gzip: 4.62 kB
+dist/components/editors/JsonTreeEditor.vue_vue_type_script_setup_true_lang.js                                                             20.79 kB │ gzip: 5.89 kB
+
+[PLUGIN_TIMINGS] Your build spent significant time in plugins. Here is a breakdown:
+  - vite:vue (55%)
+  - vite:terser (10%)
+  - vite:css-post (10%)
+  - vite:build-import-analysis (9%)
+  - vite:worker (6%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+✓ built in 3.75s
+🔧 Building spark-app ...
+
+> pnpm run build
+
+$ pnpm run clean && vite build && vue-tsc -p tsconfig.build.json
+$ rimraf dist
+vite v8.0.16 building client environment for production...
+[2K
+transforming...✓ 46 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/spark-app.css                                                                               1.15 kB │ gzip: 0.47 kB
+dist/navigation/nav-types.js                                                                     0.11 kB │ gzip: 0.11 kB
+dist/navigation/runtime-navigation.js                                                            0.14 kB │ gzip: 0.14 kB
+dist/router/cross-project-ref-route.js                                                           0.15 kB │ gzip: 0.14 kB
+dist/_virtual/_plugin-vue_export-helper.js                                                       0.16 kB │ gzip: 0.15 kB
+dist/types.js                                                                                    0.24 kB │ gzip: 0.21 kB
+dist/router/route-helpers.js                                                                     0.28 kB │ gzip: 0.26 kB
+dist/app/app-context.js                                                                          0.28 kB │ gzip: 0.22 kB
+dist/useServices.js                                                                              0.32 kB │ gzip: 0.25 kB
+dist/shell/page-ui/AppPageUiHost.js                                                              0.35 kB │ gzip: 0.24 kB
+dist/app/config/index.js                                                                         0.38 kB │ gzip: 0.27 kB
+dist/router/system-page-identity/system-page-route-host.js                                       0.39 kB │ gzip: 0.24 kB
+dist/navigation/nav-access.js                                                                    0.48 kB │ gzip: 0.27 kB
+dist/namespace.js                                                                                0.70 kB │ gzip: 0.31 kB
+dist/navigation/action-registry.js                                                               0.76 kB │ gzip: 0.44 kB
+dist/router/system-page-identity/system-page-route-host.vue_vue_type_script_setup_true_lang.js   1.05 kB │ gzip: 0.66 kB
+dist/shell/plugins/presets.js                                                                    1.14 kB │ gzip: 0.61 kB
+dist/app/auto-register.js                                                                        1.17 kB │ gzip: 0.74 kB
+dist/router/guards.js                                                                            1.21 kB │ gzip: 0.68 kB
+dist/router/cross-project-ref-page.js                                                            1.64 kB │ gzip: 0.93 kB
+dist/navigation/runtime-target.js                                                                1.70 kB │ gzip: 0.66 kB
+dist/ai/tool-approval-bridge.js                                                                  1.81 kB │ gzip: 0.81 kB
+dist/app/bootstrap.js                                                                            1.88 kB │ gzip: 1.11 kB
+dist/constants.js                                                                                1.88 kB │ gzip: 0.86 kB
+dist/router/invalid-system-page.js                                                               2.04 kB │ gzip: 1.18 kB
+dist/shell/theme/index.js                                                                        2.53 kB │ gzip: 1.08 kB
+dist/shell/plugins/registry.js                                                                   2.66 kB │ gzip: 1.08 kB
+dist/app/error-handler.js                                                                        3.23 kB │ gzip: 1.50 kB
+dist/router/external-link-frame-page.js                                                          3.70 kB │ gzip: 1.33 kB
+dist/router/system-page-identity/system-page-identity-pool.js                                    3.77 kB │ gzip: 1.72 kB
+dist/shell/page-ui/pageUiService.js                                                              4.03 kB │ gzip: 1.69 kB
+dist/index.js                                                                                    4.39 kB │ gzip: 1.41 kB
+dist/app/start.js                                                                                4.65 kB │ gzip: 1.98 kB
+dist/navigation/useTabPages.js                                                                   4.77 kB │ gzip: 1.93 kB
+dist/shell/page-ui/AppPageUiHost.vue_vue_type_script_setup_true_lang.js                          5.43 kB │ gzip: 1.67 kB
+dist/logger/index.js                                                                             5.50 kB │ gzip: 2.16 kB
+dist/router/page-runtime-pool.js                                                                 5.94 kB │ gzip: 2.36 kB
+dist/ai/ai-run-adapter.js                                                                        7.07 kB │ gzip: 2.21 kB
+dist/router/system-page-identity/system-page-identity-resolver.js                                7.49 kB │ gzip: 2.48 kB
+dist/navigation/useNavigation.js                                                                11.14 kB │ gzip: 3.96 kB
+dist/navigation/useColorScheme.js                                                               16.52 kB │ gzip: 4.57 kB
+dist/router/dynamic.js                                                                          16.57 kB │ gzip: 4.60 kB
+
+✓ built in 293ms
+⏭️  Skipping spark-lowcode-api (unchanged)
+
+✅ Package build complete (2 built, 6 skipped).
+$ node scripts/build-frontend.mjs
+
+🧩 组件注册模式: 编译时注册（packages 走 Vite alias → src）
+
+> pnpm exec vite build
+
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+vite v8.0.16 building client environment for production...
+[2K
+transforming...[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+✓ 3264 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                  1.58 kB │ gzip:   0.60 kB
+dist/fonts/iconfont.1781876895482-D9epzWxu.woff                  4.85 kB
+dist/fonts/iconfont.1781876895482-BllfKX1O.ttf                   8.63 kB
+dist/css/excel-import-sheet-layout-pane-DDg_aQ3i.css             0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-rule-form-DNBELRW1.css                      0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-edge-panel-CHYZi6MM.css                 0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-node-panel-CjkjB5h2.css                 0.07 kB │ gzip:   0.09 kB
+dist/css/excel-import-editor-page-zfAz4KXh.css                   0.07 kB │ gzip:   0.09 kB
+dist/css/logic-view-design-page-BsEeMAjj.css                     0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-editor-page-CymuvPYR.css                    0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-page-CyPjFsLw.css                       0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-list-page-CgXBnxwj.css                      0.07 kB │ gzip:   0.09 kB
+dist/css/ModuleContextBadge-BALn3kfJ.css                         0.07 kB │ gzip:   0.09 kB
+dist/css/DataSpaceParametersEditor-CRgZvd7b.css                  0.09 kB │ gzip:   0.10 kB
+dist/css/AppProjectSettingsDialog-Cz8yeJ27.css                   0.11 kB │ gzip:   0.12 kB
+dist/css/DataSpaceTableConfiguration-ec69cVvs.css                0.14 kB │ gzip:   0.13 kB
+dist/css/logic-view-list-page-CZp_8k_c.css                       0.15 kB │ gzip:   0.12 kB
+dist/css/workflow-definition-page-BpMnODo-.css                   0.15 kB │ gzip:   0.12 kB
+dist/css/DataSpaceBindingEditor-DWQTO_Ir.css                     0.15 kB │ gzip:   0.13 kB
+dist/css/register-dialog-BPxy4I53.css                            0.15 kB │ gzip:   0.13 kB
+dist/css/excel-import-list-page-hMbVQbe2.css                     0.15 kB │ gzip:   0.13 kB
+dist/css/json-data-page-BTGAlaSS.css                             0.16 kB │ gzip:   0.12 kB
+dist/css/DataSpaceFieldCreate-BEW7aQrI.css                       0.20 kB │ gzip:   0.14 kB
+dist/css/copy-table-dialog-CxK35DZZ.css                          0.21 kB │ gzip:   0.15 kB
+dist/css/CacheManager-CVLjEgq-.css                               0.22 kB │ gzip:   0.17 kB
+dist/css/data-code-editor-page-Bt1k_X4G.css                      0.23 kB │ gzip:   0.14 kB
+dist/css/api-interface-list-page-BqTZ7pVn.css                    0.23 kB │ gzip:   0.16 kB
+dist/css/DataSpaceModelRemoval-CulC_Ko2.css                      0.24 kB │ gzip:   0.16 kB
+dist/css/DataSpaceSourceInputEditor-Cufizg6s.css                 0.26 kB │ gzip:   0.17 kB
+dist/css/DeliveryPane-DcUBXreB.css                               0.27 kB │ gzip:   0.19 kB
+dist/css/service-management-page-DTFG4lsJ.css                    0.27 kB │ gzip:   0.17 kB
+dist/css/table-relation-dialog-Bmgm28Ig.css                      0.27 kB │ gzip:   0.17 kB
+dist/css/DevDataSetDesigner-BYyiv8nf.css                         0.31 kB │ gzip:   0.21 kB
+dist/css/data-set-list-page-CxCTI1P2.css                         0.32 kB │ gzip:   0.20 kB
+dist/css/data-code-list-page-B6-w4G3L.css                        0.36 kB │ gzip:   0.18 kB
+dist/css/TemplateDslDemo-DF-ONf0K.css                            0.37 kB │ gzip:   0.20 kB
+dist/css/view-design-dialog-BjDM7vMa.css                         0.39 kB │ gzip:   0.25 kB
+dist/css/PageLoadError-BKvLIrGf.css                              0.43 kB │ gzip:   0.24 kB
+dist/css/PlatformApps-D4pNWGfT.css                               0.45 kB │ gzip:   0.25 kB
+dist/css/dictionary-data-page-BaGkffWT.css                       0.45 kB │ gzip:   0.22 kB
+dist/css/PlatformTenantManagement-C9avPJmZ.css                   0.46 kB │ gzip:   0.26 kB
+dist/css/DataSpaceModelRename-BDO58GD9.css                       0.47 kB │ gzip:   0.25 kB
+dist/css/data-dictionary-list-page-CEJ-CHAs.css                  0.47 kB │ gzip:   0.23 kB
+dist/css/DataSpaceCascadeEditor-CQEy01OL.css                     0.47 kB │ gzip:   0.25 kB
+dist/css/table-design-dialog-NtVPHkGz.css                        0.48 kB │ gzip:   0.26 kB
+dist/css/data-set-design-edge-panel-BOT30_q3.css                 0.51 kB │ gzip:   0.25 kB
+dist/css/DataSpaceModelRequest-DBE7aEnv.css                      0.54 kB │ gzip:   0.29 kB
+dist/css/Settings-CGZVLugt.css                                   0.63 kB │ gzip:   0.28 kB
+dist/css/AppList-DL1g0Kub.css                                    0.65 kB │ gzip:   0.30 kB
+dist/css/vendor-WsftzwoE.css                                     0.71 kB │ gzip:   0.33 kB
+dist/css/BlueprintWorkspace-5Bxr5cMd.css                         0.74 kB │ gzip:   0.31 kB
+dist/css/DevPreviewTab-z_i1LOmC.css                              0.75 kB │ gzip:   0.33 kB
+dist/css/DataSpaceQueryPreview-BuZ3Q6EX.css                      0.79 kB │ gzip:   0.35 kB
+dist/css/table-and-view-page-BWkVhYly.css                        0.85 kB │ gzip:   0.33 kB
+dist/css/Dashboard-tbYkMEl4.css                                  0.89 kB │ gzip:   0.37 kB
+dist/css/DataSpaceModelSource-CFOoXGOT.css                       0.89 kB │ gzip:   0.39 kB
+dist/css/DataSpaceViewEditor-4NsgMFmZ.css                        1.03 kB │ gzip:   0.43 kB
+dist/css/IconPicker-D2TS0StY.css                                 1.14 kB │ gzip:   0.46 kB
+dist/css/ProjectBlueprintTree-CnqIXuBl.css                       1.22 kB │ gzip:   0.47 kB
+dist/css/LoginView-Ddd7sHrD.css                                  1.26 kB │ gzip:   0.51 kB
+dist/css/database-management-hub-BH8At8qK.css                    1.33 kB │ gzip:   0.44 kB
+dist/css/TenantConfigPanel-DbOlUhvj.css                          1.53 kB │ gzip:   0.58 kB
+dist/css/data-set-design-node-panel-DSyHdaZe.css                 1.68 kB │ gzip:   0.59 kB
+dist/css/DataSpaceFieldEditor-DmdYRcG_.css                       1.71 kB │ gzip:   0.58 kB
+dist/css/CustomRTableDemo-BtPxIlkp.css                           2.00 kB │ gzip:   0.66 kB
+dist/css/ProjectPlanningDocumentImportDialog-o4mIOg_n.css        2.05 kB │ gzip:   0.55 kB
+dist/css/About-JWZsPNWd.css                                      2.08 kB │ gzip:   0.69 kB
+dist/css/DevNodeProps-CqENCQf8.css                               2.87 kB │ gzip:   0.85 kB
+dist/css/DevFileEditor-BwJkYHv0.css                              3.37 kB │ gzip:   0.91 kB
+dist/css/RFormCompareDemo-Bs-i-Sll.css                           3.52 kB │ gzip:   0.95 kB
+dist/css/CapabilityDemo-DQ3kdSVe.css                             3.60 kB │ gzip:   1.08 kB
+dist/css/DevSystem-q1VQA7EF.css                                  4.06 kB │ gzip:   0.94 kB
+dist/css/HomePage-DiSowdZh.css                                  10.71 kB │ gzip:   2.56 kB
+dist/css/data-set-design-page-CavrxY33.css                      14.12 kB │ gzip:   2.40 kB
+dist/css/WorkflowDesigns-73rFtNxv.css                           17.83 kB │ gzip:   3.65 kB
+dist/css/index-DO_Esluw.css                                     34.76 kB │ gzip:   6.59 kB
+dist/css/spark-app-BNTqloWf.css                                 60.14 kB │ gzip:  10.29 kB
+dist/css/vendor-forms-Cs1c_RRX.css                             136.04 kB │ gzip:  20.25 kB
+dist/css/element-plus-BDTeg99L.css                             359.37 kB │ gzip:  48.46 kB
+dist/js/spark-json-document-CblRcrt9.js                          0.06 kB │ gzip:   0.08 kB
+dist/js/element-plus-CPEpUTE4.js                                 0.09 kB │ gzip:   0.10 kB
+dist/js/design-json-ui-C9Vyeldw.js                               0.09 kB │ gzip:   0.11 kB
+dist/js/childPlacementLabels-BjQRHeTI.js                         0.20 kB │ gzip:   0.21 kB
+dist/js/useNodeKindFlags-D95iDYBl.js                             0.34 kB │ gzip:   0.19 kB
+dist/js/PageLoadError-HX3Lgl1X.js                                0.51 kB │ gzip:   0.41 kB
+dist/js/sequence-selector-dialog-DD5SJHjI.js                     0.59 kB │ gzip:   0.45 kB
+dist/js/parent-code-dialog-DGrXHN0r.js                           0.60 kB │ gzip:   0.45 kB
+dist/js/code-class-edit-dialog-DZHiLPdq.js                       0.60 kB │ gzip:   0.45 kB
+dist/js/time-string-dialog-BQF69WhO.js                           0.60 kB │ gzip:   0.45 kB
+dist/js/code-init-dialog-BwIGAfA8.js                             0.61 kB │ gzip:   0.47 kB
+dist/js/excel-import-transform-rule-dialog-CGL8PGPB.js           0.62 kB │ gzip:   0.47 kB
+dist/js/code-class-selector-dialog-sQdWUjEu.js                   0.64 kB │ gzip:   0.50 kB
+dist/js/excel-import-sheet-layout-lookup-dialog-CwzbFgHo.js      0.67 kB │ gzip:   0.50 kB
+dist/js/workflow-trigger-table-dialog-BmxHYesl.js                0.69 kB │ gzip:   0.52 kB
+dist/js/pdf-inspect-rule-form-BdrOB82V.js                        0.79 kB │ gzip:   0.53 kB
+dist/js/excel-import-sheet-layout-pane-BcpuUaNh.js               0.80 kB │ gzip:   0.53 kB
+dist/js/workflow-design-edge-panel-D9h_uAEN.js                   0.81 kB │ gzip:   0.54 kB
+dist/js/workflow-design-node-panel-588-ZH0T.js                   0.81 kB │ gzip:   0.54 kB
+dist/js/rolldown-runtime-Cyuzqnbw.js                             0.82 kB │ gzip:   0.47 kB
+dist/js/PrototypePane-wRg-rdbX.js                                0.86 kB │ gzip:   0.56 kB
+dist/js/PlanningPane-xO8hSnMS.js                                 0.86 kB │ gzip:   0.57 kB
+dist/js/TemplateDslDemo-s_TW6OWC.js                              0.89 kB │ gzip:   0.59 kB
+dist/js/ModuleContextBadge-73EbAYrN.js                           0.93 kB │ gzip:   0.61 kB
+dist/js/excel-import-transform-rules-pane-D3-RAvf6.js            0.94 kB │ gzip:   0.62 kB
+dist/js/ScenarioDefinitionTextEditor-BhORiV8z.js                 1.04 kB │ gzip:   0.59 kB
+dist/js/application-option-dialog-CGeYkPLh.js                    1.09 kB │ gzip:   0.65 kB
+dist/js/NodeLayoutConfig-CuZloIWe.js                             1.17 kB │ gzip:   0.70 kB
+dist/js/ReleasePane-BtAxwKJn.js                                  1.20 kB │ gzip:   0.68 kB
+dist/js/DataPlanningPane-BOhJ7HCj.js                             1.31 kB │ gzip:   0.82 kB
+dist/js/lowcode-logic-view-CPL3srNl.js                           1.36 kB │ gzip:   0.75 kB
+dist/js/lowcode-pdf-inspect-BALvB032.js                          1.37 kB │ gzip:   0.74 kB
+dist/js/lowcode-data-code-BCAhgNHW.js                            1.41 kB │ gzip:   0.73 kB
+dist/js/lowcode-excel-import-Z2IGXcuK.js                         1.47 kB │ gzip:   0.76 kB
+dist/js/lowcode-workflow-definition-35ZyUFz7.js                  1.51 kB │ gzip:   0.80 kB
+dist/js/DeliveryPane-E_J9c7cp.js                                 1.52 kB │ gzip:   0.91 kB
+dist/js/NodeStateConfig-BD70BDN3.js                              1.59 kB │ gzip:   0.63 kB
+dist/js/DataSpaceParametersEditor-C9Othv47.js                    1.59 kB │ gzip:   0.97 kB
+dist/js/copy-table-dialog-C212jzb6.js                            1.65 kB │ gzip:   0.90 kB
+dist/js/logic-view-design-page-BZD1e6BA.js                       1.69 kB │ gzip:   0.99 kB
+dist/js/pdf-inspect-editor-page-COQbjQd5.js                      1.70 kB │ gzip:   1.00 kB
+dist/js/DevNodeProps-Dt0Hjnyx.js                                 1.85 kB │ gzip:   0.82 kB
+dist/js/EstimatePane-DXOnGQpd.js                                 1.95 kB │ gzip:   0.86 kB
+dist/js/use-staged-design-page-CF0v_HX9.js                       2.10 kB │ gzip:   1.07 kB
+dist/js/workflow-design-page-BViwA2kL.js                         2.16 kB │ gzip:   1.13 kB
+dist/js/lowcode-data-space-source-catalog-CfpqW-Ur.js            2.20 kB │ gzip:   1.08 kB
+dist/js/DataSpaceArrayHeaders-DJCJ-vs5.js                        2.25 kB │ gzip:   1.17 kB
+dist/js/IconPicker-o3TzphoL.js                                   2.26 kB │ gzip:   1.21 kB
+dist/js/add-table-dialog-BdvgYpFM.js                             2.29 kB │ gzip:   1.07 kB
+dist/js/register-database-dialog-CHSQRAjj.js                     2.30 kB │ gzip:   1.07 kB
+dist/js/register-dialog-0hw7uYI-.js                              2.35 kB │ gzip:   1.21 kB
+dist/js/DataSpaceFieldRemoval-CK8ET-C-.js                        2.47 kB │ gzip:   1.26 kB
+dist/js/excel-import-editor-page-t5k0oltg.js                     2.53 kB │ gzip:   1.29 kB
+dist/js/structured-config-catalog-CDYOOGMN.js                    2.69 kB │ gzip:   1.35 kB
+dist/js/pdf-inspect-list-page-C_tomMd7.js                        2.70 kB │ gzip:   1.56 kB
+dist/js/view-design-dialog-s3jcWi-3.js                           2.75 kB │ gzip:   1.25 kB
+dist/js/excel-import-list-page-DJHd_IkM.js                       2.81 kB │ gzip:   1.62 kB
+dist/js/table-relation-dialog-m94w_hud.js                        2.86 kB │ gzip:   1.32 kB
+dist/js/staged-design-file-view-CVR1HAb8.js                      3.03 kB │ gzip:   1.56 kB
+dist/js/database-management-hub-BoaDTwXe.js                      3.03 kB │ gzip:   1.50 kB
+dist/js/logic-view-list-page-D63Q8Nq5.js                         3.11 kB │ gzip:   1.73 kB
+dist/js/workflow-definition-page-BXN8-BYb.js                     3.15 kB │ gzip:   1.71 kB
+dist/js/data-code-editor-page-T3YP2UhO.js                        3.19 kB │ gzip:   1.40 kB
+dist/js/data-code-list-page-B4TEbdSI.js                          3.36 kB │ gzip:   1.82 kB
+dist/js/NodeTargetConfig-b_1VBcQN.js                             3.38 kB │ gzip:   1.55 kB
+dist/js/DataSpaceModelFields-D1qUSWNF.js                         3.50 kB │ gzip:   1.66 kB
+dist/js/Dashboard-B2Kv38O5.js                                    3.52 kB │ gzip:   1.38 kB
+dist/js/AppProjectSettingsDialog-DQFTmT2U.js                     3.53 kB │ gzip:   1.76 kB
+dist/js/dictionary-setting-CY72abHA.js                           3.68 kB │ gzip:   1.75 kB
+dist/js/lowcode-data-space-array-draft-DAbnAtu7.js               3.90 kB │ gzip:   1.93 kB
+dist/js/use-dictionary-workspace-tfv4eCjB.js                     3.98 kB │ gzip:   1.85 kB
+dist/js/ProjectPlanningDocumentImportDialog-BoN4ReRH.js          4.11 kB │ gzip:   1.70 kB
+dist/js/About-DIbW-ZCd.js                                        4.14 kB │ gzip:   1.89 kB
+dist/js/dictionary-data-page-NO-cLsAC.js                         4.14 kB │ gzip:   1.95 kB
+dist/js/ProjectBlueprintTree-Dg6i0bFZ.js                         4.24 kB │ gzip:   2.04 kB
+dist/js/DataSpaceModelRemoval-DQ0pzAsD.js                        4.32 kB │ gzip:   2.10 kB
+dist/js/DataSpaceSourceInputEditor-HY4t16vG.js                   4.57 kB │ gzip:   2.18 kB
+dist/js/CustomRTableDemo-kIttLor9.js                             4.58 kB │ gzip:   1.89 kB
+dist/js/DevPreviewTab-BIFDReDI.js                                4.60 kB │ gzip:   2.32 kB
+dist/js/NodeBasicInfo-OJ-eoKXA.js                                4.84 kB │ gzip:   1.48 kB
+dist/js/json-data-page-BqKK6lPT.js                               5.09 kB │ gzip:   2.43 kB
+dist/js/PlatformApps-BcSfAPla.js                                 5.24 kB │ gzip:   2.30 kB
+dist/js/table-design-dialog-uYn5zGZw.js                          5.61 kB │ gzip:   1.83 kB
+dist/js/AppList-qoM-4SKS.js                                      5.70 kB │ gzip:   2.50 kB
+dist/js/DataSpaceArrayCreate-D7de1Z8i.js                         5.71 kB │ gzip:   2.39 kB
+dist/js/lowcode-model-relation-adapter-D_GW9bUC.js               6.27 kB │ gzip:   2.38 kB
+dist/js/RFormCompareDemo-DxLTdZiN.js                             6.32 kB │ gzip:   2.55 kB
+dist/js/data-dictionary-list-page-DrEfzS8T.js                    6.35 kB │ gzip:   2.74 kB
+dist/js/api-management-page-DbPlO_Ym.js                          6.38 kB │ gzip:   2.64 kB
+dist/js/CapabilityDemo-BLlNneDT.js                               6.46 kB │ gzip:   2.63 kB
+dist/js/DataSpaceArrayEditor-Dub4GDmD.js                         6.52 kB │ gzip:   2.72 kB
+dist/js/DataSpaceFieldCreate-CmpPiOpj.js                         6.68 kB │ gzip:   2.57 kB
+dist/js/CacheManager-BOaYi_8C.js                                 6.86 kB │ gzip:   2.84 kB
+dist/js/DataSpaceModelRename-BbNoIcHJ.js                         6.92 kB │ gzip:   2.93 kB
+dist/js/DevDataSetDesigner-CEyQlRXW.js                           7.34 kB │ gzip:   2.57 kB
+dist/js/DataSpaceModelRequest-B2JSluAV.js                        7.51 kB │ gzip:   3.31 kB
+dist/js/BlueprintWorkspace-BpbL5SPF.js                           7.73 kB │ gzip:   3.30 kB
+dist/js/PlatformTenantManagement-Cw9OYBM-.js                     7.88 kB │ gzip:   3.14 kB
+dist/js/TenantConfigPanel-DrRCbXVH.js                            8.40 kB │ gzip:   3.38 kB
+dist/js/lowcode-api-provider-3cuy_yT7.js                         9.09 kB │ gzip:   2.39 kB
+dist/js/HomePage-Bysl-kT0.js                                     9.28 kB │ gzip:   3.94 kB
+dist/js/api-config-page-qpO9IECs.js                              9.29 kB │ gzip:   3.41 kB
+dist/js/lowcode-data-space-assembler-CvpYc7wc.js                 9.40 kB │ gzip:   3.63 kB
+dist/js/lowcode-dictionary-DNf4FU2f.js                           9.41 kB │ gzip:   3.72 kB
+dist/js/api-interface-list-page-CFySINRe.js                     10.60 kB │ gzip:   3.80 kB
+dist/js/DataSpaceBindingEditor-CzxKCGy9.js                      12.20 kB │ gzip:   4.57 kB
+dist/js/LoginView-CJTvSHk-.js                                   12.53 kB │ gzip:   3.15 kB
+dist/js/DataSpaceQueryPreview-B7_HG-Lu.js                       12.71 kB │ gzip:   4.79 kB
+dist/js/lowcode-data-space-field-value--i9kefE_.js              12.98 kB │ gzip:   4.29 kB
+dist/js/service-management-page-CMYPS32i.js                     13.10 kB │ gzip:   4.85 kB
+dist/js/lowcode-runtime-BLUhDJvG.js                             13.41 kB │ gzip:   4.81 kB
+dist/js/DataSpaceTableConfiguration-Ci8ahdn9.js                 13.43 kB │ gzip:   5.36 kB
+dist/js/DevFileEditor-CBMl6Qud.js                               14.04 kB │ gzip:   5.72 kB
+dist/js/Settings-BuRndZ-V.js                                    14.20 kB │ gzip:   4.51 kB
+dist/js/data-set-design-node-panel-lfFCN_dP.js                  14.81 kB │ gzip:   5.48 kB
+dist/js/data-set-design-edge-panel-CL6GEgvG.js                  15.56 kB │ gzip:   5.46 kB
+dist/js/lowcode-data-space-source-input-session-BbbIv7TZ.js     17.68 kB │ gzip:   5.88 kB
+dist/js/DataSpaceCascadeEditor-BM8pfuQk.js                      17.84 kB │ gzip:   5.54 kB
+dist/js/lowcode-database-server-Cl9GbTVp.js                     19.17 kB │ gzip:   5.86 kB
+dist/js/element-plus-core-BNIuNOQ2.js                           19.67 kB │ gzip:   7.74 kB
+dist/js/DataSpaceFieldEditor-BNczjuji.js                        22.84 kB │ gzip:   7.54 kB
+dist/js/artifact-urls-BGHuVHEG.js                               24.77 kB │ gzip:   8.06 kB
+dist/js/data-set-list-page-BLT6iSTH.js                          26.37 kB │ gzip:   9.08 kB
+dist/js/DataSpaceModelSource-Dc22sqML.js                        30.77 kB │ gzip:   9.43 kB
+dist/js/lowcode-data-space-field-edit-session-DoK8OCpg.js       30.99 kB │ gzip:   9.39 kB
+dist/js/_virtual_spark-components-BX6VNvA3.js                   31.07 kB │ gzip:   7.12 kB
+dist/js/vue-page-registry-DqjSAV9e.js                           40.24 kB │ gzip:   8.89 kB
+dist/js/DataSpaceViewEditor-cbApkbml.js                         40.94 kB │ gzip:  12.64 kB
+dist/js/table-and-view-page-CeoSaLGO.js                         60.40 kB │ gzip:  15.96 kB
+dist/js/index-B6d7_iga.js                                       67.93 kB │ gzip:  23.30 kB
+dist/js/DevSystem-CIKrriFg.js                                   69.12 kB │ gzip:  23.64 kB
+dist/js/element-plus-components-j-r-ClIKZw09.js                 80.16 kB │ gzip:  26.01 kB
+dist/js/vendor-editor-C-MFVCAC.js                               91.91 kB │ gzip:  34.75 kB
+dist/js/data-set-design-page-DiENYbHM.js                        93.38 kB │ gzip:  26.31 kB
+dist/js/WorkflowDesigns-DTbrpMW_.js                            116.22 kB │ gzip:  27.78 kB
+dist/js/spark-lowcode-api-Cp99Felt.js                          200.17 kB │ gzip:  56.38 kB
+dist/js/vendor-BmzYsOOA.js                                     258.24 kB │ gzip:  91.23 kB
+dist/js/element-plus-components-s-z-B7z8jdVW.js                302.53 kB │ gzip:  98.69 kB
+dist/js/lowcode-data-space-design-CUa-O0N4.js                  329.32 kB │ gzip:  84.08 kB
+dist/js/vendor-forms-Cn4j_tgO.js                               453.26 kB │ gzip: 135.52 kB
+dist/js/spark-ai-w5kcnLir.js                                   480.02 kB │ gzip: 133.85 kB
+dist/js/vendor-jsoneditor-C_efnzlq.js                          501.71 kB │ gzip: 131.76 kB
+dist/js/element-plus-components-a-i-g7o7MEQp.js                747.88 kB │ gzip: 235.13 kB
+dist/js/spark-app-DSIaIWkG.js                                1,630.45 kB │ gzip: 485.49 kB
+
+[INVALID_ANNOTATION] A comment "/* #__PURE__ */" in "node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js" contains an annotation that Rolldown cannot interpret due to the position of the comment.
+      ╭─[ node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js:3362:1 ]
+      │
+ 3362 │ /* #__PURE__ */
+      │ ───────┬───────  
+      │        ╰───────── comment ignored due to position
+      │ 
+      │ Help: For more information on how to use pure annotations correctly, check the documentation: https://rolldown.rs/in-depth/dead-code-elimination#pure
+──────╯
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 1000 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[INVALID_ANNOTATION] A comment "/* #__PURE__ */" in "node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js" contains an annotation that Rolldown cannot interpret due to the position of the comment.
+      ╭─[ node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js:5780:23 ]
+      │
+ 5780 │ const defaultState = (/* #__PURE__ */ {
+      │                       ───────┬───────  
+      │                              ╰───────── comment ignored due to position
+      │ 
+      │ Help: For more information on how to use pure annotations correctly, check the documentation: https://rolldown.rs/in-depth/dead-code-elimination#pure
+──────╯
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+state@6.6.0/node_modules/@codemirror/state/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js, node_modules/.pnpm/@codemirror+lint@6.9.7/node_modules/@codemirror/lint/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+view@6.43.1/node_modules/@codemirror/view/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js, node_modules/.pnpm/@codemirror+lint@6.9.7/node_modules/@codemirror/lint/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-css@6.3.1/node_modules/@codemirror/lang-css/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+lang-json@6.0.2/node_modules/@codemirror/lang-json/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by packages/spark-component/src/page/createSandbox.ts, dynamic import will not move module into another chunk.
+
+✓ built in 5.66s

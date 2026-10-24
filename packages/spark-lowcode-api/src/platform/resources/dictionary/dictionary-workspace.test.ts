@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {DictionarySchema} from './dictionary-schema'
 import {DictionaryHttp, fixture, initialDefinition, initialEntry} from './tests/dictionary-workspace.fixture'
 
@@ -898,18 +898,160 @@ describe('Dictionary resource through formal DataViews', () => {
       await workspace.load()
       workspace.entries.updateEditingValue('E1', 'exVal_4', '已有修改')
       const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
-      await appendEntries.call(workspace, [{val: 'AI-1', txt: '建议条目', exVal_1: '#abc', exVal_2: '类别', exVal_3: null, exVal_4: '扩展'}])
+      await appendEntries.call(workspace, [{val: 'AI-1', txt: '建议条目', exVal_4: '扩展'}])
       expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
       expect(workspace.entries.rows).toHaveLength(2)
       expect(workspace.entries.rows.find(row => row['val'] === 'AI-1')).toMatchObject({
-        typeid: 'D1', val: 'AI-1', txt: '建议条目', exVal_1: '#abc', exVal_2: '类别', exVal_3: null, exVal_4: '扩展',
+        typeid: 'D1', val: 'AI-1', txt: '建议条目', exVal_4: '扩展',
       })
+      expect(workspace.entries.rows.find(row => row['val'] === 'AI-1')).not.toHaveProperty('exVal_1')
       expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('已有修改')
       expect(http.saves).toHaveLength(0)
       await workspace.saveData()
       expect(http.saves).toHaveLength(1)
       expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData'}])
       expect(http.records['_Base_DictData']).toHaveLength(2)
+    } finally {dataSet.destroy()}
+  })
+  it('stages formally enabled ordIdx and createuser values while using the domain order default only when absent', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      expect(workspace.entries.columns.find(column => column.name === 'ordIdx')?.allowAIAdd).toBe(true)
+      expect(workspace.entries.columns.find(column => column.name === 'createuser')?.allowAIAdd).toBe(true)
+      await expect(workspace.appendEntries([{val: 'AI-ORDERED', txt: '带排序候选', ordIdx: 4, createuser: 'AI-USER'}]))
+        .resolves.toBeUndefined()
+      const firstId = [...workspace.entries.dirtyTracking.pendingCreateIds][0]
+      expect(workspace.entries.getEditingRow(firstId!) ).toMatchObject({typeid: 'D1', ordIdx: 4, createuser: 'AI-USER'})
+      await expect(workspace.appendEntries([{val: 'AI-DEFAULT', txt: '默认排序'}])).resolves.toBeUndefined()
+      const defaultId = [...workspace.entries.dirtyTracking.pendingCreateIds].find(id =>
+        workspace.entries.getEditingRow(id)?.['val'] === 'AI-DEFAULT')
+      expect(workspace.entries.getEditingRow(defaultId!)?.['ordIdx']).toBe(0)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('stages absent non-AI val and txt for manual completion and keeps full save validation', async () => {
+    const {workspace, dataSet, http} = fixture(new DictionaryHttp(), false, 'SCENE', [], {}, {
+      val: {allowAIAdd: false}, txt: {allowAIAdd: false},
+    })
+    try {
+      await workspace.load()
+      expect(workspace.entries.columns.find(column => column.name === 'val')?.allowAIAdd).toBe(false)
+      expect(workspace.entries.columns.find(column => column.name === 'txt')?.allowAIAdd).toBe(false)
+      let appendError: unknown
+      try {await workspace.appendEntries([{exVal_4: '扩展先录'}])} catch (error) {appendError = error}
+      expect.soft(appendError).toBeUndefined()
+      expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+      const id = [...workspace.entries.dirtyTracking.pendingCreateIds][0]
+      if (id !== undefined) {
+        const draft = workspace.entries.getEditingRow(id)
+        expect.soft(draft).not.toHaveProperty('val')
+        expect.soft(draft).not.toHaveProperty('txt')
+        await expect(workspace.saveData()).rejects.toThrow(/必填|不能为空|val|txt|文本或数值/i)
+        expect(http.saves).toHaveLength(0)
+        workspace.entries.updateEditingValue(id, 'val', '补全编码')
+        workspace.entries.updateEditingValue(id, 'txt', '补全名称')
+        await workspace.saveData()
+        expect(http.saves).toHaveLength(1)
+        expect(http.records['_Base_DictData']).toEqual(expect.arrayContaining([
+          expect.objectContaining({val: '补全编码', txt: '补全名称', exVal_4: '扩展先录'}),
+        ]))
+      }
+    } finally {dataSet.destroy()}
+  })
+  it('rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'val', ' Blue ')
+      const duplicate = [{val: 'blue', txt: '重复编码'}]
+      expect.soft(workspace.entryAppendError(duplicate)).toMatch(/重复/)
+      let appendError: unknown
+      try {await workspace.appendEntries(duplicate)} catch (error) {appendError = error}
+      expect.soft(appendError).toBeInstanceOf(Error)
+      expect.soft(appendError instanceof Error ? appendError.message : '').toMatch(/重复/)
+      expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect.soft(workspace.entries.getEditingRow('E1')?.['val']).toBe(' Blue ')
+      expect.soft(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('rejects duplicates across the full batch and against an earlier staged new row', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      const duplicateBatch = [{val: 'Batch-Code', txt: '首项'}, {val: ' batch-code ', txt: '重复项'}]
+      expect.soft(workspace.entryAppendError(duplicateBatch)).toMatch(/重复/)
+      let appendError: unknown
+      try {await workspace.appendEntries(duplicateBatch)} catch (error) {appendError = error}
+      expect.soft(appendError instanceof Error ? appendError.message : '').toMatch(/重复/)
+      expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect.soft(workspace.entries.rows.filter(row => row['val'] === 'Batch-Code' || row['val'] === ' batch-code ')).toHaveLength(0)
+
+      await workspace.appendEntries([{val: 'Earlier-Draft', txt: '已暂存'}])
+      let secondError: unknown
+      try {await workspace.appendEntries([{val: ' earlier-draft ', txt: '后续重复'}])} catch (error) {secondError = error}
+      expect.soft(secondError instanceof Error ? secondError.message : '').toMatch(/重复/)
+      expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+      expect.soft(workspace.entries.rows.filter(row => String(row['val']).trim().toLowerCase() === 'earlier-draft')).toHaveLength(1)
+      expect.soft(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('fails closed when a supplied code cannot be read', async () => {
+    const unreadable = fixture()
+    unreadable.http.hidden = ['val']
+    try {
+      await unreadable.workspace.load()
+      await expect(unreadable.workspace.appendEntries([{val: 'new-code', txt: '候选'}])).rejects.toThrow(/编码|重复|不可读/)
+      expect(unreadable.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+    } finally {unreadable.dataSet.destroy()}
+  })
+
+  it('allows a batch without val when val and other omitted fields are unreadable or not writable', async () => {
+    const partial = fixture(new DictionaryHttp(), false, 'SCENE', [], {}, {
+      val: {allowAIAdd: false}, txt: {allowAIAdd: false},
+    })
+    partial.http.hidden = ['val']
+    partial.http.denied = ['val', 'txt', 'exVal_1', 'exVal_2', 'exVal_3']
+    try {
+      await partial.workspace.load()
+      expect(partial.workspace.entries.columns.find(column => column.name === 'val')?.allowAIAdd).toBe(false)
+      expect(partial.workspace.entries.fieldAccess(partial.workspace.entries.rows[0] ?? null, 'val').write).toBe('denied')
+      expect(partial.workspace.entries.newRowFieldAccess('val').write).toBe('allowed')
+      expect(partial.workspace.entries.newRowFieldAccess('txt').write).toBe('allowed')
+      expect(partial.workspace.entries.newRowFieldAccess('exVal_4').write).toBe('allowed')
+      let appendError: unknown
+      try {await partial.workspace.appendEntries([{exVal_4: '唯一提供的扩展'}])} catch (error) {appendError = error}
+      expect.soft(appendError).toBeUndefined()
+      expect.soft(partial.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+      expect.soft(partial.http.saves).toHaveLength(0)
+    } finally {partial.dataSet.destroy()}
+  })
+  it('does not require permissions on omitted extension fields', async () => {
+    const {workspace, dataSet, http} = fixture()
+    http.denied = ['exVal_1', 'exVal_2', 'exVal_3']
+    try {
+      await workspace.load()
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0] ?? null, 'exVal_1').write).toBe('denied')
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0] ?? null, 'exVal_2').write).toBe('denied')
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0] ?? null, 'exVal_3').write).toBe('denied')
+      let appendError: unknown
+      try {await workspace.appendEntries([{val: 'ONLY-SUPPLIED', txt: '仅提供正式启用列', exVal_4: '末项'}])} catch (error) {appendError = error}
+      expect.soft(appendError).toBeUndefined()
+      expect.soft(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('does not write omitted extension values as null', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      await workspace.appendEntries([{val: 'ONLY-SUPPLIED', txt: '仅提供正式启用列', exVal_4: '末项'}])
+      const id = [...workspace.entries.dirtyTracking.pendingCreateIds][0]
+      const candidate = workspace.entries.getEditingRow(id!)
+      expect(candidate).toMatchObject({val: 'ONLY-SUPPLIED', txt: '仅提供正式启用列', exVal_4: '末项'})
+      expect(candidate).not.toHaveProperty('exVal_1')
+      expect(candidate).not.toHaveProperty('exVal_2')
+      expect(candidate).not.toHaveProperty('exVal_3')
+      expect(http.saves).toHaveLength(0)
     } finally {dataSet.destroy()}
   })
   it('persists ordIdx 0 on AI Added rows without changing existing rows or their drafts', async () => {
@@ -1043,14 +1185,15 @@ describe('Dictionary resource through formal DataViews', () => {
       expect(workspace.entries.rows).toHaveLength(1)
     } finally {dataSet.destroy()}
   })
-  it('rejects reserved identity and non-business properties from AI input', async () => {
+  it('rejects reserved identity and formally disabled fields while accepting configured business columns', async () => {
     const {workspace, dataSet, http} = fixture()
     try {
       await workspace.load()
       const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
       await expect(appendEntries.call(workspace, [{rowid: 'AI-ROW', typeid: 'D1', val: 'AI-1', txt: '候选'}])).rejects.toThrow()
-      await expect(appendEntries.call(workspace, [{val: 'AI-1', txt: '候选', ordIdx: 1}])).rejects.toThrow()
-      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      await expect(appendEntries.call(workspace, [{val: 'AI-1', txt: '候选', exVal_1: '未启用'}])).rejects.toThrow(/未启用/)
+      await expect(appendEntries.call(workspace, [{val: 'AI-2', txt: '候选', ordIdx: 1}])).resolves.toBeUndefined()
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
       expect(http.saves).toHaveLength(0)
     } finally {dataSet.destroy()}
   })

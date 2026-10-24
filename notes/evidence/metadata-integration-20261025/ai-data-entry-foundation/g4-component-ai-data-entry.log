@@ -1,0 +1,9 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-component
+
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  03:53:14
+   Duration  10.90s (transform 5.81s, setup 29ms, import 8.39s, tests 1.06s, environment 1.10s)
+

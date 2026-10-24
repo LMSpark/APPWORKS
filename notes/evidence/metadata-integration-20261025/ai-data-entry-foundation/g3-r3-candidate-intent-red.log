@@ -1,0 +1,34 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > renders queried candidate rows through readonly standard field children
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts (14 tests | 1 failed | 13 skipped) 272ms
+     × renders queried candidate rows through readonly standard field children 270ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > renders queried candidate rows through readonly standard field children
+AssertionError: expected { class: 'el-textarea__inner', …(7) } to have property "disabled"
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:226:51
+    224|     expect(wrapper.text()).toContain('3')
+    225|     expect(wrapper.findAll('textarea')).toHaveLength(1)
+    226|     expect(wrapper.find('textarea').attributes()).toHaveProperty('disa…
+       |                                                   ^
+    227|     expect(f.session.candidates.addActionState()).not.toBe('enabled')
+    228|     expect(f.session.candidates.newRowFieldAccess('name').write).not.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  03:17:09
+   Duration  12.11s (transform 6.93s, setup 159ms, import 10.08s, tests 272ms, environment 1.22s)
+

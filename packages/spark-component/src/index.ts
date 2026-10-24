@@ -333,6 +333,8 @@ export {
   AiToolApprovalCard,
   AiToolApprovalPanel,
   SparkAgentPanel,
+  SparkAiDataEntry,
+  AI_DATA_ENTRY_HOST,
 } from './ai/index.js'
 
 export type {
@@ -346,6 +348,10 @@ export type {
   AiToolApprovalCardEmits,
   AiToolApprovalPanelProps,
   SparkAgentPanelProps,
+  SparkAiDataEntryProps,
+  AiDataEntryAttachment,
+  AiDataEntryHostCapability,
+  AiDataEntrySessionSurface,
   StreamDisplayEntry,
   ToolCallDisplayItem,
   ReasoningDisplayItem,

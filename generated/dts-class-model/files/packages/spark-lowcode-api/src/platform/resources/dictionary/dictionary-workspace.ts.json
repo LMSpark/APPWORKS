@@ -221,7 +221,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T15:59:15.743Z",
+  "generatedAt": "2026-10-24T19:43:54.615Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",
@@ -368,7 +368,7 @@
             },
             {
               "name": "entryAppendError",
-              "jsdoc": "只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。\n@param values 只包含字典六个业务字段的候选条目。\n@returns 当前批次可写时为undefined；否则为拒绝原因。",
+              "jsdoc": "只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。\n@param values 仅包含当前正式输出列中显式允许AI新增的字段。\n@returns 当前批次可写时为undefined；否则为拒绝原因。",
               "parameters": [
                 {
                   "name": "values",
@@ -407,7 +407,7 @@
             },
             {
               "name": "appendEntries",
-              "jsdoc": "全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。\n@param values 只包含 val、txt、exVal_1 至 exVal_4 的候选条目，不接受身份、排序或其它字段。\n@throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。",
+              "jsdoc": "全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。\n@param values 仅包含当前正式输出列中显式允许AI新增的字段；字典归属、创建时间及缺省排序由领域补入。\n@throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。",
               "parameters": [
                 {
                   "name": "values",

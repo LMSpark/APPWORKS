@@ -30,7 +30,7 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.createAiCandidates.params": {
+        "method.createAiDataEntryHost.params": {
           "type": "object",
           "properties": {
             "dataSet": {
@@ -42,8 +42,8 @@
           },
           "additionalProperties": false
         },
-        "method.createAiCandidates.return": {
-          "$ref": "../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json#/$defs/DictionaryAiCandidates"
+        "method.createAiDataEntryHost.return": {
+          "$ref": "../shared/ai-data-entry-host.ts.json#/$defs/AiDataEntryHost"
         },
         "method.loadCatalog.params": {
           "type": "object",
@@ -96,7 +96,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T15:04:40.240Z",
+  "generatedAt": "2026-10-24T20:18:50.901Z",
   "models": {
     "LowcodeDictionary": {
       "name": "LowcodeDictionary",
@@ -119,8 +119,8 @@
           ],
           "methods": [
             {
-              "name": "createAiCandidates",
-              "jsdoc": "仅由数据页AI入口延迟调用；AI轮次继续使用本实例DataSet和当前scope。",
+              "name": "createAiDataEntryHost",
+              "jsdoc": "为精确字典条目视图装配最窄领域适配；正式轮次与租户Agent由通用应用Host负责。",
               "parameters": [
                 {
                   "name": "dataSet",
@@ -139,7 +139,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "DictionaryAiCandidates"
+                "name": "AiDataEntryHost"
               }
             },
             {

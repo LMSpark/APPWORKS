@@ -1,0 +1,2 @@
+$ node tools/verify-ai-codegen-rules.mjs
+AI codegen rule scan passed: 1392 file(s) checked.

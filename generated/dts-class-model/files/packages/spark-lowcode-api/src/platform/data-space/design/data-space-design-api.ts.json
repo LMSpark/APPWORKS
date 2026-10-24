@@ -93,6 +93,12 @@
         "orderType": {
           "type": "string"
         },
+        "allowAIAdd": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "raw": {
           "$ref": "#/$defs/DataSpaceFormalRow"
         }
@@ -640,7 +646,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:52:21.936Z",
+  "generatedAt": "2026-10-24T17:08:58.101Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
@@ -707,11 +713,11 @@
       "jsdoc": "name 是正式字段 Name，canonicalName 是输出别名；type 是原 FieldType，未知时保持空值。\ncomputed 仅表示 ValueFun 派生输出；Expression 是脱敏规则ID，原值保留在raw，不产生计算或写入权限。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    raw: DataSpaceFormalRow;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    /** Formal allowAIAdd is normalized from DB 0/1; it describes column metadata and does not grant data permission. */\n    allowAIAdd?: boolean;\n    raw: DataSpaceFormalRow;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    raw: DataSpaceFormalRow;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    /** Formal allowAIAdd is normalized from DB 0/1; it describes column metadata and does not grant data permission. */\n    allowAIAdd?: boolean;\n    raw: DataSpaceFormalRow;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -769,6 +775,12 @@
             },
             {
               "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAIAdd",
+              "jsdoc": "Formal allowAIAdd is normalized from DB 0/1; it describes column metadata and does not grant data permission.",
               "readable": true,
               "writable": false
             },

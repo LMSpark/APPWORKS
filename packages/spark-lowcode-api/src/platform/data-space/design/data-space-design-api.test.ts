@@ -952,3 +952,30 @@ describe('DataSpaceDesignApi formal model list', () => {
     expect(http.requests).toHaveLength(0)
   })
 })
+
+describe('DataTable formal field AI generation metadata', () => {
+  const modelRow = {rowid: 'MODEL-AI', dataSetId: 'SPACE-AI', Name: 'AiRows', Type: '数据库表',
+    MetaName: 'AI_ROWS', DbId: 'DB-AI', PrimaryKeyFields: 'rowid'}
+  const fieldBase = {dataSetId: 'SPACE-AI', dataModelId: 'MODEL-AI', type: 'dataModel',
+    FieldType: '字符串', IsOutput: 1, IsPKey: 0}
+
+  function projectField(value: unknown, include = true) {
+    const field = {...fieldBase, rowid: 'FIELD-AI', Name: 'title', AsName: 'titleAlias'}
+    const rawField = include ? {...field, allowAIAdd: value} : field
+    return DataSpaceDesignApi.projectModel(modelRow, [
+      {...fieldBase, rowid: 'FIELD-PK', Name: 'rowid', IsPKey: 1}, rawField,
+    ], 'rowid').fields.find(item => item.canonicalName === 'titleAlias')
+  }
+
+  it.each([
+    [1, true], ['1', true], [0, false], ['0', false], [null, false], [undefined, false],
+  ])('normalizes formal DB allowAIAdd=%j to the DataTable field boolean %s', (value, expected) => {
+    const actual = value === undefined ? projectField(undefined, false) : projectField(value)
+    expect(actual).toMatchObject({allowAIAdd: expected})
+  })
+
+  it.each([2, '2', true, false, 'true', 'false', -1, {}, []])(
+    'rejects invalid formal DB allowAIAdd=%j instead of coercing it to an access flag', value => {
+      expect(() => projectField(value)).toThrow(/allowAIAdd/)
+    })
+})

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/agent-config/ai-agent-config-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/agent-config/ai-agent-config-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/agent-config/ai-agent-config-resource\n职责：把 Agent 配置创建命令与按正式 ID 读取配置装配为当前 DataSet 的语义 DataView。\n边界：HTTP 仅由命令提交/只读查询 owner 发出；operationId 是本地命令身份，不作为 Agent ID 或核验凭据。\nAI用途：配置阶段通过创建命令提交专用Agent配置，再按正式回执ID读取核验；运行生成只消费配置好的Agent ID。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentConfigResource"
+    ]
+  },
+  "$defs": {
+    "AgentConfigResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentConfigResourceInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true
+      }
+    },
+    "AiAgentConfigResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentConfigResource",
+      "properties": {
+        "requests": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "configuration": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AgentConfigResourceInput"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-24T17:44:24.133Z",
+  "models": {
+    "AgentConfigResourceInput": {
+      "name": "AgentConfigResourceInput",
+      "jsdoc": "Inputs for the narrow Agent create/read resources during configuration setup.\nThis owner binds both views to one native DataSet and uses the supplied authenticated client and scope guard.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前配置阶段的原生DataSet；两个资源DataView依附于此实例并随DataSet销毁。 */\n    dataSet: DataSet;\n    /** 既有认证HTTP客户端；请求由本资源绑定的DataView owner发出。 */\n    http: HttpClientBase;\n    /** 每次命令提交和配置读取前后检查当前租户/应用范围；不在资源内推断管理角色。 */\n    guard: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前配置阶段的原生DataSet；两个资源DataView依附于此实例并随DataSet销毁。 */\n    dataSet: DataSet;\n    /** 既有认证HTTP客户端；请求由本资源绑定的DataView owner发出。 */\n    http: HttpClientBase;\n    /** 每次命令提交和配置读取前后检查当前租户/应用范围；不在资源内推断管理角色。 */\n    guard: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "当前配置阶段的原生DataSet；两个资源DataView依附于此实例并随DataSet销毁。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "jsdoc": "既有认证HTTP客户端；请求由本资源绑定的DataView owner发出。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "guard",
+              "jsdoc": "每次命令提交和配置读取前后检查当前租户/应用范围；不在资源内推断管理角色。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentConfigResource": {
+      "name": "AiAgentConfigResource",
+      "jsdoc": "Agent配置阶段的SPARK data语义资源。创建只经 `requests` selected-view save；读取只经\n`configuration.refresh()`，不会执行管理角色判断或用operationId猜测正式Agent身份。\n两个DataView归传入的DataSet所有，并随其销毁。若创建回执丢失且没有可信正式Agent ID，\n原命令保持unknown；保存恢复只会报告无法核验，不会重POST。不能销毁视图来清除unknown捕获。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "将Agent配置命令与只读回读绑定到当前DataSet。\n@param input.dataSet 本配置阶段的原生DataSet；资源视图随它的生命周期释放。\n@param input.http 现有认证HTTP客户端；不创建第二套客户端或请求入口。\n@param input.guard 每次访问时校验当前作用域仍有效，不以角色或用户名称判断权限。\n@throws 任一保留资源表已存在时，在新增两个表中的任何一个之前拒绝装配。",
+          "signatureText": "constructor(input: AgentConfigResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "AgentConfigResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "requests",
+              "jsdoc": "一行对应一次Agent创建命令；operationId本地生成，agentId仅由正式创建回执填充。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configuration",
+              "jsdoc": "按queryContext.agentId读取的正式配置白名单，只读，不承载创建草稿。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -4,9 +4,10 @@
  * 边界：保留数据库模型真源，视图来自应用内场景配置；读写由原runtime owner执行。
  * AI用途：原路径列表绑定导航场景，设置/条目共用已有字典数据编辑场景。
  */
-import {buildDataViewKey, DataViewFilter, type DataSet} from '@spark-appworks/spark-data'
-import {AiTurnResource, DATA_SPACE_DESIGN_FORM_KEY, DictionaryAiCandidates, type DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
+import {buildDataViewKey, DataViewFilter, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {DATA_SPACE_DESIGN_FORM_KEY, type AiDataEntryAdapter, type DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
 import {loadScenarioDataSet} from '../../data-space/lowcode-data-space-runtime'
@@ -26,12 +27,44 @@ export class LowcodeDictionary {
   /** 设置与条目已有正式空间的身份，来自已核对的场景配置。 */
   static readonly editorScenarioId = editorConfig.scenarioId
 
-  /** 仅由数据页AI入口延迟调用；AI轮次继续使用本实例DataSet和当前scope。 */
-  static createAiCandidates(dataSet: DataSet, workspace: DictionaryWorkspace): DictionaryAiCandidates {
-    const {assertCurrent} = this.scope()
-    return new DictionaryAiCandidates({dataSet, workspace,
-      aiTurns: new AiTurnResource({dataSet, http: lowcodeHttp, guard: assertCurrent}),
-      agentId: 'agent-metadata-admin'})
+  /** 为精确字典条目视图装配最窄领域适配；正式轮次与租户Agent由通用应用Host负责。 */
+  static createAiDataEntryHost(dataSet: DataSet, workspace: DictionaryWorkspace): AiDataEntryHost {
+    if (dataSet.getView(workspace.entries.tableName, workspace.entries.viewId) !== workspace.entries) {
+      throw new Error('字典AI录入目标不属于当前DataSet')
+    }
+    const adapter: AiDataEntryAdapter = {
+      readContext: (target: DataView) => {
+        this.assertDictionaryTarget(target, workspace)
+        const definitionId = workspace.definition.rows[0]?.['rowid']
+        const definition = typeof definitionId === 'string' ? workspace.definition.getEditingRow(definitionId) : undefined
+        if (!definition || workspace.definition.fieldAccess(workspace.definition.rows[0] ?? null, 'dictionaryType').read !== 'visible') {
+          throw new Error('字典编码类型不可读，不能生成候选')
+        }
+        const dictionaryType = definition['dictionaryType']
+        if (dictionaryType !== '0' && dictionaryType !== '1') throw new Error('字典编码类型缺失或无效')
+        return {dictionaryType, labels: Object.fromEntries(['val', 'txt', 'exVal_1', 'exVal_2', 'exVal_3', 'exVal_4']
+          .map(name => [name, workspace.fieldLabel(name)]))}
+      },
+      validateBatch: (target: DataView, rows) => {
+        this.assertDictionaryTarget(target, workspace)
+        const reason = workspace.entryAppendError(rows)
+        if (reason) throw new Error(reason)
+      },
+      appendBatch: (target: DataView, rows) => {
+        this.assertDictionaryTarget(target, workspace)
+        return workspace.appendEntries(rows)
+      },
+    }
+    return new AiDataEntryHost({dataSet, adapterForView: target => {
+      this.assertDictionaryTarget(target, workspace)
+      return adapter
+    }})
+  }
+
+  private static assertDictionaryTarget(target: DataView, workspace: DictionaryWorkspace): void {
+    if (target !== workspace.entries || target.tableName !== '_Base_DictData' || target.viewId !== 'default') {
+      throw new Error('字典AI适配器目标不匹配')
+    }
   }
 
   /** 按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。 */

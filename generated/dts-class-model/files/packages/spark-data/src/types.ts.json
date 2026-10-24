@@ -396,7 +396,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@207538": {
+            "__@iterator@208521": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -451,7 +451,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@207538"
+            "__@iterator@208521"
           ],
           "additionalProperties": false
         },
@@ -726,6 +726,12 @@
           ]
         },
         "autoIncrement": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "allowAIAdd": {
           "enum": [
             false,
             true
@@ -1016,7 +1022,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@207538": {
+            "__@iterator@208521": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1071,7 +1077,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@207538"
+            "__@iterator@208521"
           ],
           "additionalProperties": false
         },
@@ -1297,7 +1303,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@207538": {
+            "__@iterator@208521": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1352,7 +1358,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@207538"
+            "__@iterator@208521"
           ],
           "additionalProperties": false
         },
@@ -1590,7 +1596,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@207538": {
+                "__@iterator@208521": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1645,7 +1651,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@207538"
+                "__@iterator@208521"
               ],
               "additionalProperties": false
             },
@@ -1875,7 +1881,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@207538": {
+                "__@iterator@208521": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1930,7 +1936,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@207538"
+                "__@iterator@208521"
               ],
               "additionalProperties": false
             },
@@ -2866,7 +2872,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@207538": {
+                "__@iterator@208521": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2921,7 +2927,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@207538"
+                "__@iterator@208521"
               ],
               "additionalProperties": false
             },
@@ -3151,7 +3157,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@207538": {
+                "__@iterator@208521": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3206,7 +3212,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@207538"
+                "__@iterator@208521"
               ],
               "additionalProperties": false
             },
@@ -5170,6 +5176,16 @@
         "method.addTable.return": {
           "$ref": "data-table.ts.json#/$defs/DataTable"
         },
+        "method.assertCanRemoveTable.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanRemoveTable.return": true,
         "method.removeTable.params": {
           "type": "object",
           "properties": {
@@ -6173,7 +6189,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T17:03:31.599Z",
+  "generatedAt": "2026-10-24T18:23:43.745Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -6698,7 +6714,7 @@
       "jsdoc": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /** 字符串首尾空白：reject 保存时拒绝，normalize 保存前去除；两者都把纯空白视为空值。 */\n    trim?: 'reject' | 'normalize';\n    /** 保存后本视图保留行中的非空值不得重复；只核已加载及待提交行，不替代服务端约束。 */\n    unique?: boolean;\n    /** 仅本视图待新增行可写；既有行字段只读，保存拒绝对其修改。 */\n    immutable?: boolean;\n    /** 保存前核对非空值在选项视图中唯一存在；fill 在本字段新增或变更时把匹配选项写回本行。 */\n    optionsView?: DataColumnOptionsView;\n    /** 值函数字段，保存前按 DataViewFilter 值函数合同校验。 */\n    valueFunction?: DataColumnValueFunction;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n    /**\n     * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。\n     */\n    enumOptions?: ReadonlyArray<Readonly<{\n        value: string;\n        label: string;\n    }>>;\n}",
+        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 正式模型字段是否允许作为通用 AI 批量新增的生成目标列。\n     * 该标志属于 DataTable.columns 字段元数据，不是业务行或 DataView 配置；未设置时按未启用处理。\n     * 此标志不授予数据权限，仍须消费原新增权限与字段权限。\n     */\n    allowAIAdd?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /** 字符串首尾空白：reject 保存时拒绝，normalize 保存前去除；两者都把纯空白视为空值。 */\n    trim?: 'reject' | 'normalize';\n    /** 保存后本视图保留行中的非空值不得重复；只核已加载及待提交行，不替代服务端约束。 */\n    unique?: boolean;\n    /** 仅本视图待新增行可写；既有行字段只读，保存拒绝对其修改。 */\n    immutable?: boolean;\n    /** 保存前核对非空值在选项视图中唯一存在；fill 在本字段新增或变更时把匹配选项写回本行。 */\n    optionsView?: DataColumnOptionsView;\n    /** 值函数字段，保存前按 DataViewFilter 值函数合同校验。 */\n    valueFunction?: DataColumnValueFunction;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n    /**\n     * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。\n     */\n    enumOptions?: ReadonlyArray<Readonly<{\n        value: string;\n        label: string;\n    }>>;\n}",
         "members": {
           "attributes": [
             {
@@ -6740,6 +6756,12 @@
             {
               "name": "autoIncrement",
               "jsdoc": "是否自增",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAIAdd",
+              "jsdoc": "正式模型字段是否允许作为通用 AI 批量新增的生成目标列。\n该标志属于 DataTable.columns 字段元数据，不是业务行或 DataView 配置；未设置时按未启用处理。\n此标志不授予数据权限，仍须消费原新增权限与字段权限。",
               "readable": true,
               "writable": false
             },
@@ -9235,7 +9257,7 @@
       "jsdoc": "数据集公共契约\n消费者（渲染层、能力系统）应依赖此接口而非具体 DataSet 类，\n便于测试 mock 与未来扩展。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 正式场景身份；完整DataView绑定须精确匹配，本地数据集可以没有场景。 */\n    readonly scenarioId?: string | undefined;\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** 数据资源关系定义 */\n    readonly resourceRelations: DataResourceRelation[] | undefined;\n    /** DataView 输入级联定义 */\n    readonly viewCascades: DataViewCascade[] | undefined;\n    /** Schema 格式版本（默认 2），与数据集快照版本分别维护。 */\n    readonly schemaVersion: number;\n    /** 数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。 */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定 DataView 为源的目标级联（视图级索引） */\n    getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[];\n    /** 查询以指定 DataView 为目标的源级联（视图级索引） */\n    getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[];\n    /** 查询以指定资源为父的所有资源关系（聚合函数消费） */\n    getResourceChildRelations(parentTable: string): DataResourceRelation[];\n    /** 查询以指定资源为子的所有资源关系 */\n    getResourceParentRelations(childTable: string): DataResourceRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加数据资源关系 */\n    addResourceRelation(params: DataResourceRelationInput): DataResourceRelation;\n    /** 更新数据资源关系 */\n    updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation;\n    /** 删除数据资源关系 */\n    removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加 DataView 输入级联 */\n    addCascade(cascade: DataViewCascade): DataViewCascade;\n    /** 按唯一选择器读取级联，未命中返回 undefined，歧义报错。 */\n    getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined;\n    /** 更新 DataView 输入级联 */\n    updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade;\n    /** 删除 DataView 输入级联 */\n    removeCascade(selector: DataViewCascadeSelector): void;\n    /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */\n    resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null;\n    getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState;\n    refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>;\n    onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有表中标记了 `autoLoad: true` 且处于 Idle 状态的视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
+        "declarationTypeText": "{\n    /** 正式场景身份；完整DataView绑定须精确匹配，本地数据集可以没有场景。 */\n    readonly scenarioId?: string | undefined;\n    /** 数据集名称 */\n    readonly dataSetName: string;\n    /** 数据表集合 */\n    readonly tables: Record<string, DataTable>;\n    /** 数据资源关系定义 */\n    readonly resourceRelations: DataResourceRelation[] | undefined;\n    /** DataView 输入级联定义 */\n    readonly viewCascades: DataViewCascade[] | undefined;\n    /** Schema 格式版本（默认 2），与数据集快照版本分别维护。 */\n    readonly schemaVersion: number;\n    /** 数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。 */\n    readonly version: number | undefined;\n    /** 页面 ID */\n    readonly pageId: string | undefined;\n    /** 查询以指定 DataView 为源的目标级联（视图级索引） */\n    getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[];\n    /** 查询以指定 DataView 为目标的源级联（视图级索引） */\n    getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[];\n    /** 查询以指定资源为父的所有资源关系（聚合函数消费） */\n    getResourceChildRelations(parentTable: string): DataResourceRelation[];\n    /** 查询以指定资源为子的所有资源关系 */\n    getResourceParentRelations(childTable: string): DataResourceRelation[];\n    /** 动态添加数据表 */\n    addTable(tableName: string, columns: DataColumn[]): DataTable;\n    /** 检查指定表能否删除；使用与 removeTable 相同的完整关系/级联规则，且不修改 DataSet。 */\n    assertCanRemoveTable(tableName: string): void;\n    /** 删除未被关系或依赖引用的数据表 */\n    removeTable(tableName: string): void;\n    /** 添加数据资源关系 */\n    addResourceRelation(params: DataResourceRelationInput): DataResourceRelation;\n    /** 更新数据资源关系 */\n    updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation;\n    /** 删除数据资源关系 */\n    removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }): void;\n    /** 添加 DataView 输入级联 */\n    addCascade(cascade: DataViewCascade): DataViewCascade;\n    /** 按唯一选择器读取级联，未命中返回 undefined，歧义报错。 */\n    getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined;\n    /** 更新 DataView 输入级联 */\n    updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade;\n    /** 删除 DataView 输入级联 */\n    removeCascade(selector: DataViewCascadeSelector): void;\n    /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */\n    resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null;\n    getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState;\n    refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>;\n    onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void;\n    /** 获取数据表 */\n    getTable(name: string): DataTable | undefined;\n    /** 获取数据视图（委托到 DataTable） */\n    getView(tableName: string, viewId?: string): DataView | undefined;\n    /** 保存 DataSet 范围内的编辑态和 staged 变更；默认按数据资源关系父资源先于子资源提交所有有变更视图 */\n    saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>;\n    /** 注入页面运行时服务（用于 URL 模板 tenant/project 作用域解析） */\n    setAppServices(appServices: DataSetAppServices): void;\n    /** 注入页面路由快照（页面运行时服务缺失时用于 URL 模板 tenant/project 作用域解析） */\n    setPageRoute(route: unknown): void;\n    /** 生成端点 URL 模板上下文参数 */\n    getRequestTemplateParams(): Record<string, unknown>;\n    /** 序列化为 JSON 友好的元数据对象 */\n    toJson(): DataSetMetadata;\n    /**\n     * 订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n     * @returns 取消订阅函数\n     */\n    on(event: 'loadSuccess' | 'loadError', handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void;\n    /**\n     * 订阅此 DataSet 内任意视图的状态变化。\n     *\n     * 严格作用于本 DataSet 实例，多实例并存时互不干扰（替代全局 event-bus）。\n     * 订阅时遍历当前已存在的所有视图；如需监听后续动态创建的视图，可在创建后重新订阅。\n     *\n     * @returns 取消订阅函数（组件卸载时调用）\n     */\n    onAnyViewChange(handlers: ViewChangeHandlers): () => void;\n    /**\n     * 触发所有表中标记了 `autoLoad: true` 且处于 Idle 状态的视图自动加载。\n     * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。\n     */\n    triggerAutoLoad(): void;\n    /**\n     * 销毁 DataSet 及其所有 DataTable/DataView 的资源。\n     * 清理所有事件订阅、委托、共享 HTTP 客户端引用。\n     */\n    destroy(): void;\n    /** 数据集是否已被销毁 */\n    readonly destroyed: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -9419,6 +9441,23 @@
                 "type": "reference",
                 "name": "DataTable",
                 "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "assertCanRemoveTable",
+              "jsdoc": "检查指定表能否删除；使用与 removeTable 相同的完整关系/级联规则，且不修改 DataSet。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

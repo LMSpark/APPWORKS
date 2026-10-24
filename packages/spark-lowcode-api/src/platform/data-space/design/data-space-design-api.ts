@@ -45,7 +45,10 @@ type DataSpaceFormalReadInput = Readonly<{
 type DataSpaceFormalField = Readonly<{
   id: string; modelId: string; name: string; canonicalName: string; type: string
   primaryKey: boolean; description: string; output: boolean; computed: boolean
-  order: number; orderType: string; raw: DataSpaceFormalRow
+  order: number; orderType: string
+  /** Formal allowAIAdd is normalized from DB 0/1; it describes column metadata and does not grant data permission. */
+  allowAIAdd?: boolean
+  raw: DataSpaceFormalRow
 }>
 /** 正式模型输出合同；来源名与查询模型 Name 分离，primaryKey 空字符串表示无键只读。 */
 type DataSpaceFormalModel = Readonly<{
@@ -103,6 +106,14 @@ function formalComputedValue(value: unknown): boolean {
   try { const parsed: unknown = JSON.parse(value); return parsed !== null && parsed !== '' } catch { return Boolean(value.trim()) }
 }
 
+function formalAllowAIAdd(row: DataSpaceFormalRow): boolean {
+  const value = row['allowAIAdd']
+  if (value === undefined || value === null) return false
+  if (value === 1 || value === '1') return true
+  if (value === 0 || value === '0') return false
+  throw new LowcodeApiError(0, '正式字段 allowAIAdd 仅接受 0 或 1')
+}
+
 function formalDatabaseTable(row: DataSpaceFormalRow): boolean {
   return ['数据库表', '表', 'table'].includes(formalText(row, ['Type', 'type']))
 }
@@ -119,7 +130,7 @@ function formalField(row: DataSpaceFormalRow, sourcePrimaryKey: string): DataSpa
     output: binary(row['IsOutput'] ?? row['isOutput']),
     computed: formalComputedValue(row['ValueFun'] ?? row['valueFun']),
     order: Number.isSafeInteger(order) && order >= 0 ? order : 0,
-    orderType: formalText(row, ['OrderType', 'orderType', 'ordertype']), raw: row })
+    orderType: formalText(row, ['OrderType', 'orderType', 'ordertype']), allowAIAdd: formalAllowAIAdd(row), raw: row })
 }
 
 function sameSemanticValue(left: unknown, right: unknown): boolean {
@@ -138,6 +149,7 @@ function sameFormalOutput(left: DataSpaceFormalField, right: DataSpaceFormalFiel
   return left.name === right.name && left.canonicalName === right.canonicalName && left.type === right.type
     && left.primaryKey === right.primaryKey && left.description === right.description && left.output === right.output
     && left.computed === right.computed && left.order === right.order && left.orderType === right.orderType
+    && left.allowAIAdd === right.allowAIAdd
     && ['Group', 'Value', 'ValueFun', 'Expression', 'Distinct'].every(key => {
       const read = (row: DataSpaceFormalRow) => Object.keys(row).find(name => name.toLowerCase() === key.toLowerCase())
       const leftKey = read(left.raw); const rightKey = read(right.raw)

@@ -209,6 +209,12 @@ export type DataColumn = {
   isPrimaryKey?: boolean
   /** 是否自增 */
   autoIncrement?: boolean
+  /**
+   * 正式模型字段是否允许作为通用 AI 批量新增的生成目标列。
+   * 该标志属于 DataTable.columns 字段元数据，不是业务行或 DataView 配置；未设置时按未启用处理。
+   * 此标志不授予数据权限，仍须消费原新增权限与字段权限。
+   */
+  allowAIAdd?: boolean
 
   /**
    * 是否为框架计算列（如 `_pk`）。
@@ -1311,6 +1317,8 @@ export type DataSetContract = {
   getResourceParentRelations(childTable: string): DataResourceRelation[]
   /** 动态添加数据表 */
   addTable(tableName: string, columns: DataColumn[]): DataTable
+  /** 检查指定表能否删除；使用与 removeTable 相同的完整关系/级联规则，且不修改 DataSet。 */
+  assertCanRemoveTable(tableName: string): void
   /** 删除未被关系或依赖引用的数据表 */
   removeTable(tableName: string): void
   /** 添加数据资源关系 */

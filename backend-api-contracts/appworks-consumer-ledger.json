@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 194,
-  "directUnmatchedCount": 134,
+  "consumerCount": 196,
+  "directUnmatchedCount": 135,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -919,19 +919,31 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 284,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sourceLine": 303,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sourceLine": 531,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 33,
+      "sourceLine": 36,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 45,
+      "sourceLine": 61,
       "scope": "publishable-lowcode-api"
     },
     {

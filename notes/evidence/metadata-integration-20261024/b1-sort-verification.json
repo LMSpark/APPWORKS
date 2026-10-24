@@ -1,0 +1,303 @@
+{
+  "date": "2026-10-24",
+  "base": "c59d7de1d5bbbb5e0ce9c9e99f30576b2ff0faf4",
+  "branch": "10-17",
+  "status": {
+    "implementation": "passed",
+    "engineering": "passed",
+    "liveSortSaveReopen": "blocked-by-typeid-SystemData-output-contract"
+  },
+  "retainedDictionary": {
+    "id": "327D74EC0ABC4196AA75C56D944B8201",
+    "name": "B1Sort_20261024_1925F4C2",
+    "savedDefinitions": 1,
+    "savedEntries": 0,
+    "deleted": false
+  },
+  "finalTests": {
+    "workspace": 58,
+    "workflow": 29,
+    "catalog": 35
+  },
+  "commands": [
+    {
+      "key": "phase1-workspace-vitest",
+      "command": "package cwd: pnpm exec vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-phase1-workspace-vitest.log",
+      "logSha256": "8a06d8b59948561bade91cbc359341ac574aec21dc2c716b6eda9cb3c5def8c3"
+    },
+    {
+      "key": "phase1-page-vitest",
+      "command": "pnpm exec vitest run tests/runtime/page/dictionary/dictionary-workflow.test.ts tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-phase1-page-vitest.log",
+      "logSha256": "4d9eef8d938a81be31d8c79be15e3d00e8f421249c9296129b9b097a0404ca16"
+    },
+    {
+      "key": "r1-red",
+      "command": "package cwd: selected creation-time tests before fix",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-r1-red.log",
+      "logSha256": "ba3343ac15d88aecb85dc03e3b14e9887a69790e730bd1e759e22250c7459dc5"
+    },
+    {
+      "key": "r1-workspace-vitest",
+      "command": "package cwd: pnpm exec vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-r1-workspace-vitest.log",
+      "logSha256": "129838861b818a63f2265b1b097f84439c1185265d646d4b0a9b5528c5b2c8e4"
+    },
+    {
+      "key": "r1-page-vitest",
+      "command": "pnpm exec vitest run tests/runtime/page/dictionary/dictionary-workflow.test.ts tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-r1-page-vitest.log",
+      "logSha256": "5de5115db54cd0f76eb58bf0a15ad7e7a0fa3a5dc229f77bba5d3fc1953e2e43"
+    },
+    {
+      "key": "final-typecheck",
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-typecheck.log",
+      "logSha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "key": "final-lint",
+      "command": "pnpm run lint",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-lint.log",
+      "logSha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "key": "final-generate",
+      "command": "pnpm run generate:class-model-surface",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-generate.log",
+      "logSha256": "a6ae6b71c17a555b74ae8128946350ad8efcad63bdf6d5eb7ad7955782ee644f"
+    },
+    {
+      "key": "final-contracts",
+      "command": "pnpm run generate:lowcode-contracts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-contracts.log",
+      "logSha256": "ede69eda729cb5244859e00ba7002124766cf5f8cc144930b3e38967d824a62d"
+    },
+    {
+      "key": "rules",
+      "command": "pnpm run verify:rules (first attempt, generated consumer ledger stale)",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-rules.log",
+      "logSha256": "e0554876262692635de1047e2db771b51c2b8e1e799f31b8dcca91027f194bf4"
+    },
+    {
+      "key": "final-rules",
+      "command": "pnpm run verify:rules",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-rules.log",
+      "logSha256": "f49f6035ae5097579f68fa4cab84bac2e9faba433b2fbad42c993f6f531b7b0d"
+    },
+    {
+      "key": "final-build",
+      "command": "pnpm run build",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-build.log",
+      "logSha256": "dee92bfc5f60743ed9db529f2fa86c09038339b6339120a8cfb0fefb3695d87d"
+    },
+    {
+      "key": "final-knowledge",
+      "command": "pnpm exec tsx --no-cache cache/b1-sort-final-knowledge.mjs",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-sort-final-knowledge.log",
+      "logSha256": "5803e0a4ab4a2894e9ab7d700a67b870c9befb106a011a9125f877eecc595fc8"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
+      "sha256": "5e83ea77d1f76dae5f5a1ce96b4400cfd166d67575779fef80d61b7ed2f0733d"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sha256": "f5f002ac6074c63f36cece73a76f6d6f3fadbb0af8fa2202dc583cebce4a7bf2"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sha256": "dabb7929cbfbe6395921d1f2b3251ca9b19730fd06fda19ab89db8e10a6c8ae5"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "sha256": "a268848b86022ace00fb4fcda42354214331f5f4d3cbbf492819dae1fb7c93b7"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "sha256": "00a70a854ab5e4d6bd30e1222d54d2ae52431ad0373c70373cda30aeb9488988"
+    }
+  ],
+  "generated": [
+    {
+      "path": "generated/dts-class-model/.dts-manifest.json",
+      "onlyCompilerSymbolIds": false
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
+      "onlyCompilerSymbolIds": false
+    },
+    {
+      "path": "generated/dts-class-model/files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue.json",
+      "onlyCompilerSymbolIds": false
+    }
+  ],
+  "knowledgeFreshness": {
+    "source": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
+    "sourceModifiedAt": "2026-10-24T11:26:15.367Z",
+    "generatedAt": "2026-10-24T11:26:15.367Z"
+  },
+  "windows": [
+    {
+      "key": "design-create-rejected",
+      "from": 88854,
+      "to": 88933,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 9,
+      "reads": 8,
+      "writes": 1,
+      "failures": 0,
+      "nonSuccess": [
+        {
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+          "httpStatus": 200,
+          "code": 500
+        }
+      ]
+    },
+    {
+      "key": "rejection-readback",
+      "from": 88961,
+      "to": 88985,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 2,
+      "reads": 2,
+      "writes": 0,
+      "failures": 0,
+      "nonSuccess": []
+    },
+    {
+      "key": "design-save",
+      "from": 93545,
+      "to": 93640,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 12,
+      "reads": 11,
+      "writes": 1,
+      "failures": 0,
+      "nonSuccess": []
+    },
+    {
+      "key": "entry-create-blocked",
+      "from": 93642,
+      "to": 93730,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 8,
+      "reads": 8,
+      "writes": 0,
+      "failures": 0,
+      "nonSuccess": []
+    },
+    {
+      "key": "entry-cancel",
+      "from": 93746,
+      "to": 93763,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 2,
+      "reads": 2,
+      "writes": 0,
+      "failures": 0,
+      "nonSuccess": []
+    },
+    {
+      "key": "target-switch",
+      "from": 93763,
+      "to": 93830,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 8,
+      "reads": 8,
+      "writes": 0,
+      "failures": 0,
+      "nonSuccess": []
+    },
+    {
+      "key": "reopened-empty",
+      "from": 93833,
+      "to": 93901,
+      "truncated": false,
+      "hasMore": false,
+      "documentRequests": 0,
+      "requests": 8,
+      "reads": 8,
+      "writes": 0,
+      "failures": 0,
+      "nonSuccess": []
+    }
+  ]
+}

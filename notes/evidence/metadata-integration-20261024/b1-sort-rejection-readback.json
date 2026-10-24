@@ -1,0 +1,41 @@
+{
+  "from": 88961,
+  "to": 88985,
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "requests": [
+    {
+      "requestId": "22092.15443",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 0,
+      "sort": [],
+      "businessRows": []
+    },
+    {
+      "requestId": "22092.15444",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 0,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": []
+    }
+  ],
+  "failures": 0
+}

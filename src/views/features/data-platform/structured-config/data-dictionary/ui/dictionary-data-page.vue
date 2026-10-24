@@ -63,16 +63,22 @@ const entryFields = computed<SparkNode[]>(() => {
     field: field.name, label: workspace.value?.fieldLabel(field.name) ?? field.defaultLabel, width: 155,
   }})), {type: 'r-number', props: {field: 'ordIdx', label: '排序', width: 90}}]
 })
-const entryToolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || uncertain.value,
-    onClick: () => run(() => workspace.value!.addEntry())}},
-  {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || uncertain.value || !entryRemovable.value,
-    onClick: removeEntry}},
-  {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || uncertain.value,
-    onClick: () => run(() => workspace.value!.saveData())}},
-  {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey, disabled: busy.value,
-    onClick: () => run(() => workspace.value!.load(true))}},
-]}))
+const entryToolbar = computed<RToolbarProps>(() => {
+  revision.value
+  return {wrap: true, children: [
+    {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || uncertain.value,
+      onClick: () => run(() => workspace.value!.addEntry())}},
+    {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || uncertain.value || !entryRemovable.value,
+      onClick: removeEntry}},
+    {type: 'r-button', props: {label: '设置排序', dataViewKey: entryKey,
+      disabled: busy.value || uncertain.value || workspace.value?.canApplyDisplayedOrder !== true,
+      onClick: () => run(() => workspace.value!.applyDisplayedOrder())}},
+    {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || uncertain.value,
+      onClick: () => run(() => workspace.value!.saveData())}},
+    {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey, disabled: busy.value,
+      onClick: () => run(() => workspace.value!.load(true))}},
+]}
+})
 const editFields = computed<SparkNode[]>(() => entryFields.value.map(node => ({...node, props: {...node.props, readonly: busy.value}})))
 function chooseEntry(row: DataRow): void {workspace.value?.entries.setCurrentRow(row)}
 async function removeEntry(): Promise<void> {

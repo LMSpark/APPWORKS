@@ -1074,3 +1074,27 @@ flowchart TD
 - “关闭重开／新实例”明确指SPA内工作区组件及PageRuntime/DataSet的生命周期；正常功能切换保留应用壳和登录态，不依赖浏览器整页刷新。刷新或重新登录后的恢复属于单列的跨实例合同，不能替代SPA内切换与保存验收。
 - 切换目标、关闭或返回时，按正式宿主生命周期处理未保存/未确认提交守卫、DataView绑定与订阅释放、旧异步结果失效及目标隔离；继续使用SPARK data唯一数据交互链，不增加页面间共享草稿真源。
 - 已核当前B1实现：目录RendererDialog按workspaceKind与dictionaryId挂载子组件，关闭清空editingId；没有硬跳转或整页刷新。既有目录宿主测试与在线切换证据沿此SPA路径；本次仅澄清台账和验收术语，不改产品行为。
+
+### 2026-10-24 B1 批量排序（用户批准，实施中）
+
+- 用户已明确批准本批计划、gpt-6-luna实施及专用测试字典保留方案。基线c59d7de1d5bbbb5e0ce9c9e99f30576b2ff0faf4，10-17工作树干净、ahead3；本批仅提交不推送。既有恢复/入口组不重复派工。
+- 执行合同：DictionaryWorkspace公开canApplyDisplayedOrder与applyDisplayedOrder；按entries.rows当前行序写ordIdx=1..N，全目标身份/状态/当次字段权限及原生列规则先预检，再写原DataView编辑覆盖；不自动保存、查询或改排序配置。空集无变更，保留其他字段修改，取消/saveData沿原链。页面通过同一Table.toolbar的标准按钮触发，保持SPA宿主及单目标输入。
+- Ruling：沿用本工作区和唯一台账，brief/report/log置于既有ignored cache；不另建总计划或独立工作树，以保留已验收本地服务和用户工作上下文。第一段只允许失败用例，主控核定后才开放产品；所有阶段保持单一产品写者。参考仓和Java只读，不启动Java。
+
+| 预检项 | 生产者/消费者及发现 | 裁定 |
+| --- | --- | --- |
+| 领域命令自身 | 原生rows/字段权限/validator→编辑覆盖→saveData；参考倒序与本仓默认升序冲突 | 使用已批准1..N；按正式列规则，不猜tinyint范围 |
+| 领域与页面 | owner getter/Promise命令→标准Toolbar按钮和现有run | 同一预检复用；不能页面重复批处理或借当前行权限 |
+| 测试与实现 | 新API缺失应RED；HTTP fixture必须执行真实请求排序/过滤 | 先测试后产品，夹具错误和产品反例分列 |
+| 实现与SPA烟测 | 同一目录宿主组件及PageRuntime生命周期→真实保存/关闭重开 | 不用整页刷新替代，专用测试字典保留，不删业务资源 |
+| 生成/复核/交付 | 源码JSDoc→正式ClassModel→定向测试/工程门禁/独立审查 | 冻结后复核；主控负责生成、烟测和明确路径提交 |
+- Phase1主控核定：领域54项中42通过/12预期RED，目录与workflow合计64项中63通过/1预期RED；分别失败于新公开getter和标准按钮缺失，原始输出保留cache。真实请求Fields.Order较大者优先，已核RuntimeApi源合同，夹具初次错误不算产品反例。开放Phase2单一低价写者；另要求后一目标权限/列上界拒绝、正式查询失效及SPA内同目标重开断言，不能用全局拒绝或只切另一目标代替。
+- 排序冻结初审：Spec/Quality PASS，领域56/56、workflow29+catalog35共64/64、typecheck/scoped lint通过；不加mutatingChanged的裁决限于现有全部写入口run busy/revision及query requestState事件，不当作未来外部CRUD保证。正式生成与全lint退出0；rules因consumer台账过期失败，后续正式刷新。真实SPA新建专用字典设计首次提交HTTP200/Code500，缺crttime默认值；候选ID 5F189392FA694C909ABDD54550542076不可当作已创建正式资源。
+- Ruling: B1-sort修复轮1/5纳入阻断烟测的最小创建字段修复。参考现行源码目录handleSubmit显式crttime，条目buildAddedRow也补crttime；线上正式模型两者均声明varchar字段且无Value默认，当前owner新增输入缺失。由原低价单写者恢复该领域新增值，仅沿DataView.addRow，既有记录不回填、不改Java。理由：专用字典设计/条目创建是本批用户明确验收前置；若时间格式/语义判断错误，真实服务会拒绝或时间展示需返工，必须以独立读回核准。原500、字段合同及失败截图保留，不抹平失败记录。
+- B1-sort修复轮1/5复审：crttime缺失 ADDRESSED，0新缺陷；当前冻结领域58/58、workflow29/29、catalog35/35，全typecheck/lint/正式ClassModel/正式consumer台账/rules/build均退出0。ClassModel15个实际变化：12个仅编译器符号ID、3个本组投影/声明清单；新增属性/方法正式指南查询成功且源码与生成时间一致。保留现有fromJson两警告、bundle大小/动静态导入告警，不宣称日志无警告。
+- 真实SPA设计复验成功：专用B1Sort_20261024_1925F4C2，正式ID327D74EC0ABC4196AA75C56D944B8201，独立设计Added请求Code200、正式读回1定义0条目。前次失败候选已正式读回0且放弃本地草稿，未执行资源删除。
+- 真实条目新增的第二阻断：绑定组件暂存C/A/B及ordIdx1/2/3后显式保存，数据层prepareSaveRow报SPARK_MODEL_SAVE_FIELD:typeid；窗口8读0写，不能称后端500。正式typeid字段6DEED3F0B04C4AD1B369843C4AD35FD5的ValueFun为SystemData/ParamName=rowid，当前输出模型投影为computed，新增保存守卫拒绝。源输入GetInputParam能力与这个输出字段不是同一合同，尚无经确认的新行默认执行责任方。
+- Ruling: 不为通过排序烟测解除计算输出写入守卫、直接改正式元数据或旁路提交；保留本批已验证的排序实现，将SystemData输出的新行持久化合同核定登记为线上排序验收前置。理由是用户计划明确要求在线失败如实登记，当前无可据以安全恢复该赋值的正式合同；代价是本批真实A/B/C排序保存/重开仍未核销，后续需在同一SPARK data链补齐或明确迁移后重验。
+- 现场收尾：待保存时关闭被禁用；取消后正式读回1定义0条目，再关闭→页面类型新实例（其原3条）→关闭→专用字典新实例，均正式只读且目标隔离。专用字典保留空定义，3条本地草稿已取消，0资源删除。各验收窗口无Document请求，正常切换未刷新或重新登录；开发期HMR不当作SPA验收步骤。
+- 本批状态：实施/标准绑定/公开合同生成/工程门禁/任务复核完成；真实排序保存及重开=待验收（typeid值函数合同阻断）；保留资源=完成；唯一台账及证据归档=完成，最终整批复核及提交待收尾。不核销完整B1的AI候选、删除外部引用、下游消费，也不核销阶段A既有差距。详情evidence/metadata-integration-20261024/b1-sort-acceptance.md、b1-sort-verification.json、b1-sort-typeid-gap.md。
+- 最终整批复核完成：Spec/Quality PASS，新增缺陷0，5个源码/测试及13个命令日志hash与冻结证据一致。主控接受declined-to-judge边界：线上事实仅覆盖所记窗口、不替SystemData确定写入例外、不承诺同步外部失效的跨行事务、不扩到完整B1和历史提交。按已核35个明确路径提交本批实现/生成物/证据；不推送、不删除工作区或保留字典。线上排序状态继续待验收，提交身份由本批Git记录核准。

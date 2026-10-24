@@ -1,0 +1,140 @@
+{
+  "name": "B1Sort_20261024_1925F4C2",
+  "evidence": {
+    "from": 88854,
+    "to": 88933,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.15434",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15435",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15436",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15437",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15438",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15439",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": []
+      },
+      {
+        "requestId": "22092.15440",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 0,
+        "sort": [],
+        "businessRows": []
+      },
+      {
+        "requestId": "22092.15441",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 0,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": []
+      },
+      {
+        "requestId": "22092.15442",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "httpStatus": 200,
+        "code": 500,
+        "changes": [
+          {
+            "table": "_Base_DictType",
+            "Added": [
+              {
+                "rowid": "5F189392FA694C909ABDD54550542076",
+                "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+                "TypeName": "B1Sort_20261024_1925F4C2",
+                "dictionaryType": "0",
+                "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+                "val": "编码",
+                "txt": "显示文本"
+              }
+            ],
+            "Changed": [],
+            "Deleted": []
+          }
+        ],
+        "changeFieldNames": [
+          {
+            "table": "_Base_DictType",
+            "Added": [
+              [
+                "AppId",
+                "TypeName",
+                "dictionaryType",
+                "functiondesc",
+                "rowid",
+                "txt",
+                "val"
+              ]
+            ],
+            "Changed": [],
+            "Deleted": []
+          }
+        ]
+      }
+    ],
+    "failures": 0
+  }
+}

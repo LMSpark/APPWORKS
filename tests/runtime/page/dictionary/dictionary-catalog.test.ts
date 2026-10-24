@@ -523,4 +523,63 @@ describe('dictionary catalog formal view assembly', () => {
     expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_3']).toBe('D2目录入口保存')
     expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_4']).toBe('D2原值')
   })
+
+  it('sorts and saves displayed entry order inside the catalog host, then isolates the next dictionary', async () => {
+    dictionaryHttp.records['_Base_DictData'] = [
+      {rowid: 'C', typeid: 'D1', ordIdx: 1, val: 'C', txt: 'C'},
+      {rowid: 'A', typeid: 'D1', ordIdx: 2, val: 'A', txt: 'A'},
+      {rowid: 'B', typeid: 'D1', ordIdx: 3, val: 'B', txt: 'B'},
+    ]
+    http.dictionaryRows.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', createuser: 'U-ROW', StructureTypeID: 'S1'})
+    dictionaryHttp.records['_Base_DictType']!.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', dictionaryType: '0',
+      val: '代码', txt: '名称', secondValue: '色号', thirdValue: '类别', fourthvalue: 'D2用途', fiveValue: 'D2说明', functiondesc: ''})
+    dictionaryHttp.records['_Base_DictData']!.push({rowid: 'E2', typeid: 'D2', ordIdx: 1, val: '20', txt: '黑',
+      exVal_1: '#000', exVal_2: '基础', exVal_3: '', exVal_4: 'D2原值'})
+    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog?retain=yes')
+    const catalogTable = wrapper.findComponent(RendererTable)
+    await catalogTable.findAll('.el-table__body .el-table__row')[0]!.trigger('click'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    const dataSetD1 = sets.at(-1)!
+    const table = dataPage.findComponent(RendererTable)
+    const codeHeading = table.findAll('.el-table__header-wrapper th').find(cell => cell.text().includes('代码'))!
+    await codeHeading.trigger('click'); await flushPromises()
+    expect(table.find('.el-table__body').text().indexOf('A')).toBeLessThan(table.find('.el-table__body').text().indexOf('C'))
+    const apply = dataPage.findAll('button').find(button => button.text() === '设置排序')
+    expect(apply).toBeDefined()
+    await apply!.trigger('click'); await flushPromises()
+    expect(dataPage.findComponent(RendererTable).text()).toContain('1')
+    expect(dictionaryHttp.saves).toHaveLength(0)
+    await dataPage.findAll('button').find(button => button.text() === '保存数据')!.trigger('click'); await flushPromises()
+    expect(dictionaryHttp.saves).toHaveLength(1)
+    const orderSave = dictionaryHttp.saves[0]!.data as Array<{TableName: string; CrudModel: {Changed: Array<Record<string, unknown>>}}>
+    expect(orderSave).toHaveLength(1)
+    expect(orderSave[0]!.TableName).toBe('_Base_DictData')
+    expect(orderSave[0]!.CrudModel.Changed.map(row => Object.fromEntries(Object.entries(row)
+      .filter(([field]) => !field.startsWith('lingma_sys_'))))).toEqual([
+      {rowid: 'A', ordIdx: 1}, {rowid: 'B', ordIdx: 2}, {rowid: 'C', ordIdx: 3},
+    ])
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
+    expect(dataSetD1.destroyed).toBe(true)
+    await catalogTable.findAll('.el-table__body .el-table__row')[0]!.trigger('click'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
+    const reopenedD1 = wrapper.findComponent(DictionaryData)
+    const reopenedD1DataSet = sets.at(-1)!
+    expect(reopenedD1DataSet).not.toBe(dataSetD1)
+    const reopenedText = reopenedD1.findComponent(RendererTable).find('.el-table__body').text()
+    expect(reopenedText.indexOf('A')).toBeLessThan(reopenedText.indexOf('B'))
+    expect(reopenedText.indexOf('B')).toBeLessThan(reopenedText.indexOf('C'))
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
+    expect(reopenedD1DataSet.destroyed).toBe(true)
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
+    const dataPageD2 = wrapper.findComponent(DictionaryData)
+    expect(sets.at(-1)).not.toBe(dataSetD1)
+    expect(dataPageD2.text()).toContain('当前方案：双目标（D2）')
+    expect(dataPageD2.findComponent(RendererTable).text()).toContain('黑')
+    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.query).toEqual({retain: 'yes'})
+    expect(dictionaryHttp.records['_Base_DictData']![0]).toMatchObject({rowid: 'C', ordIdx: 3})
+    expect(dictionaryHttp.records['_Base_DictData']!.find(row => row['rowid'] === 'E2')?.['exVal_4']).toBe('D2原值')
+  })
 })

@@ -1,0 +1,242 @@
+{
+  "from": 93545,
+  "to": 93640,
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "requests": [
+    {
+      "requestId": "22092.16166",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataSet",
+      "rows": 1,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16167",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16168",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Relation",
+      "rows": 0,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16169",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Field",
+      "rows": 47,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16170",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "View_TblList",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16171",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_TblField",
+      "rows": 49,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16172",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 0,
+      "sort": [],
+      "businessRows": []
+    },
+    {
+      "requestId": "22092.16173",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 0,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": []
+    },
+    {
+      "requestId": "22092.16174",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "httpStatus": 200,
+      "code": 200,
+      "changes": [
+        {
+          "table": "_Base_DictType",
+          "Added": [
+            {
+              "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+              "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+              "TypeName": "B1Sort_20261024_1925F4C2",
+              "dictionaryType": "0",
+              "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+              "val": "编码",
+              "txt": "显示文本",
+              "crttime": "2026-10-24 19:28:05"
+            }
+          ],
+          "Changed": [],
+          "Deleted": []
+        }
+      ],
+      "changeFieldNames": [
+        {
+          "table": "_Base_DictType",
+          "Added": [
+            [
+              "AppId",
+              "TypeName",
+              "crttime",
+              "dictionaryType",
+              "functiondesc",
+              "rowid",
+              "txt",
+              "val"
+            ]
+          ],
+          "Changed": [],
+          "Deleted": []
+        }
+      ]
+    },
+    {
+      "requestId": "22092.16175",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 1,
+      "sort": [],
+      "businessRows": [
+        {
+          "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "B1Sort_20261024_1925F4C2",
+          "dictionaryType": "0",
+          "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+          "val": "编码",
+          "txt": "显示文本",
+          "secondValue": null,
+          "thirdValue": null,
+          "fourthvalue": null,
+          "fiveValue": null,
+          "crttime": "2026-10-24T19:28:05"
+        }
+      ]
+    },
+    {
+      "requestId": "22092.16176",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 0,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": []
+    },
+    {
+      "requestId": "22092.16177",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 5,
+      "sort": [
+        {
+          "field": "crttime",
+          "order": 2,
+          "direction": "descending"
+        },
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": [
+        {
+          "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "B1Sort_20261024_1925F4C2",
+          "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+          "crttime": "2026-10-24T19:28:05"
+        },
+        {
+          "rowid": "583B0BB885A14469850A685A135705E0",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "app_request_type",
+          "functiondesc": "应用授权类型",
+          "crttime": "2026-08-21T10:10:35"
+        },
+        {
+          "rowid": "88717CBDAF6145D3B39D491B7B853D80",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "app_auth_status",
+          "functiondesc": "应用授权状态",
+          "crttime": "2026-08-21T10:09:49"
+        },
+        {
+          "rowid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "数据目录参数处理方式",
+          "functiondesc": "数据目录参数处理方式",
+          "crttime": "2026-08-07T10:22:06"
+        },
+        {
+          "rowid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "页面类型",
+          "functiondesc": "页面类型",
+          "crttime": "2026-08-07T10:12:21"
+        }
+      ]
+    }
+  ],
+  "failures": 0
+}

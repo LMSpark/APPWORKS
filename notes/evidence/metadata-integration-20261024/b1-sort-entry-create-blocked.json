@@ -1,0 +1,124 @@
+{
+  "from": 93642,
+  "to": 93730,
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "requests": [
+    {
+      "requestId": "22092.16178",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataSet",
+      "rows": 1,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16179",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16180",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Relation",
+      "rows": 0,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16181",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Field",
+      "rows": 47,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16182",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "View_TblList",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16183",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_TblField",
+      "rows": 49,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16184",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 1,
+      "sort": [],
+      "businessRows": [
+        {
+          "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "B1Sort_20261024_1925F4C2",
+          "dictionaryType": "0",
+          "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+          "val": "编码",
+          "txt": "显示文本",
+          "secondValue": null,
+          "thirdValue": null,
+          "fourthvalue": null,
+          "fiveValue": null,
+          "crttime": "2026-10-24T19:28:05"
+        }
+      ]
+    },
+    {
+      "requestId": "22092.16185",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 0,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": []
+    }
+  ],
+  "failures": 0,
+  "observedUiError": "SPARK_MODEL_SAVE_FIELD: typeid",
+  "formalField": {
+    "rowid": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+    "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+    "Name": "typeid",
+    "AsName": null,
+    "FieldType": "varchar",
+    "IsOutput": 1,
+    "Expression": "",
+    "Value": null,
+    "ValueFun": "{\"ParamName\":\"rowid\",\"Value\":null,\"Type\":\"SystemData\"}",
+    "IsPKey": 0
+  },
+  "fieldSourceRequestId": "22092.16181"
+}

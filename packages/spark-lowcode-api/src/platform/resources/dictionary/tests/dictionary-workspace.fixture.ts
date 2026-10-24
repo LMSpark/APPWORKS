@@ -5,8 +5,8 @@ import type {DataSpaceDesignApi} from '../../../data-space/design/data-space-des
 import {DictionarySchema} from '../dictionary-schema'
 import {DictionaryWorkspace} from '../dictionary-workspace'
 
-const definitionFields = ['rowid', 'AppId', 'TypeName', 'dictionaryType', 'functiondesc', ...DictionarySchema.fields.map(field => field.titleField)]
-const entryFields = ['rowid', 'typeid', 'ordIdx', ...DictionarySchema.fields.map(field => field.name)]
+const definitionFields = ['rowid', 'AppId', 'TypeName', 'dictionaryType', 'functiondesc', 'crttime', ...DictionarySchema.fields.map(field => field.titleField)]
+const entryFields = ['rowid', 'typeid', 'ordIdx', 'crttime', ...DictionarySchema.fields.map(field => field.name)]
 export const initialDefinition = {rowid: 'D1', AppId: 'APP', TypeName: '配色', dictionaryType: '0', val: '代码', txt: '名称',
   secondValue: '色号', thirdValue: '类别', fourthvalue: '用途', fiveValue: '说明', functiondesc: ''}
 export const initialEntry = {rowid: 'E1', typeid: 'D1', ordIdx: 1, val: '00', txt: '白', exVal_1: '#fff', exVal_2: '基础', exVal_3: '', exVal_4: null}
@@ -16,10 +16,13 @@ export class DictionaryHttp extends HttpClientBase {
   saves: RequestConfig[] = []
   reads: RequestConfig[] = []
   denied: string[] = []
+  deniedByRow: Record<string, string[]> = {}
   hidden: string[] = []
   masked: string[] = []
   denyDeleteIds: string[] = []
   allowAdd = true
+  scopeToken = 'scope'
+  responseLimit?: number
   failBeforeWrite = false
   failAfterWrite = false
   rejectWrite?: {code: number; message: string}
@@ -36,10 +39,23 @@ export class DictionaryHttp extends HttpClientBase {
       if (this.failReads || this.failReadAt === this.reads.length) throw new Error('读取失败')
       const body = config.data as {Table: Array<{Name: string}>}
       const name = body.Table[0]!.Name
-      const rows = this.records[name] ?? []
+      const table = body.Table[0] as {Fields?: Array<{Name?: string; OrderType?: string | null; Order?: number}>}
+      const rows = [...(this.records[name] ?? [])]
+      const orderedFields = (table.Fields ?? []).filter(field => field.Name && field.OrderType
+        && typeof field.Order === 'number' && field.Order > 0).sort((left, right) => right.Order! - left.Order!)
+      rows.sort((left, right) => {
+        for (const field of orderedFields) {
+          const a = left[field.Name!], b = right[field.Name!]
+          const comparison = typeof a === 'number' && typeof b === 'number'
+            ? a - b : String(a ?? '').localeCompare(String(b ?? ''))
+          if (comparison) return field.OrderType === 'descending' ? -comparison : comparison
+        }
+        return 0
+      })
       result = {primaryKeyField: 'rowid', allowAdd: this.allowAdd, lingma_sys_key: `table-${name}`,
-        data: {Items: rows.map(row => ({...row, lingma_sys_key: `row-${row['rowid']}`, lingma_sys_params: {
-          r: [], e: (name === '_Base_DictType' ? definitionFields : entryFields).filter(field => !this.denied.includes(field)),
+        data: {Items: (this.responseLimit === undefined ? rows : rows.slice(0, this.responseLimit)).map(row => ({...row, lingma_sys_key: `row-${row['rowid']}`, lingma_sys_params: {
+          r: [], e: (name === '_Base_DictType' ? definitionFields : entryFields)
+            .filter(field => !this.denied.includes(field) && !this.deniedByRow[String(row['rowid'])]?.includes(field)),
           h: this.hidden, m: this.masked, d: !this.denyDeleteIds.includes(String(row['rowid'])),
         }})), Count: rows.length}}
     } else if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
@@ -71,8 +87,9 @@ export class DictionaryHttp extends HttpClientBase {
     return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
   }
 }
-export function fixture(http = new DictionaryHttp(), create = false, scenarioId = 'SCENE', requiredFields: readonly string[] = []) {
-  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
+export function fixture(http = new DictionaryHttp(), create = false, scenarioId = 'SCENE', requiredFields: readonly string[] = [],
+  ordIdxBounds: Readonly<{min?: number; max?: number}> = {}) {
+  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: http.scopeToken, headers: {'X-AppId': 'APP'}})})
   const models = Object.entries({_Base_DictType: definitionFields, _Base_DictData: entryFields}).map(([name, fields]) => ({
     id: `${name}-id`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
     primaryKey: 'rowid', businessMain: false, raw: {}, fields: fields.map((name, order) => ({id: name,
@@ -82,6 +99,7 @@ export function fixture(http = new DictionaryHttp(), create = false, scenarioId 
   const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(model => [model.metaName, {
     modelBinding: {modelId: model.id, modelName: model.metaName},
     columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey,
+      ...(field.name === 'ordIdx' ? ordIdxBounds : {}),
       ...(requiredFields.includes(`${model.metaName}.${field.name}`) ? {required: true} : {})})),
     views: {default: {autoCurrentFirst: false, autoSelectFirst: false}},
   }]))})

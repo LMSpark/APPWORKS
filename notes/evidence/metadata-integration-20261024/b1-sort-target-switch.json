@@ -1,0 +1,147 @@
+{
+  "from": 93763,
+  "to": 93830,
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "requests": [
+    {
+      "requestId": "22092.16188",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataSet",
+      "rows": 1,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16189",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16190",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Relation",
+      "rows": 0,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16191",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Field",
+      "rows": 47,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16192",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "View_TblList",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16193",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_TblField",
+      "rows": 49,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16194",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 1,
+      "sort": [],
+      "businessRows": [
+        {
+          "rowid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "页面类型",
+          "dictionaryType": null,
+          "functiondesc": "页面类型",
+          "val": null,
+          "txt": null,
+          "secondValue": null,
+          "thirdValue": null,
+          "fourthvalue": null,
+          "fiveValue": null,
+          "crttime": "2026-08-07T10:12:21"
+        }
+      ]
+    },
+    {
+      "requestId": "22092.16195",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 3,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": [
+        {
+          "rowid": "28869181694B4FF5AD7932A5CA363E35",
+          "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "ordIdx": 1,
+          "val": "html",
+          "txt": "html",
+          "exVal_1": "",
+          "exVal_2": "",
+          "exVal_3": "",
+          "exVal_4": "",
+          "crttime": "2026-08-07 10:12:27"
+        },
+        {
+          "rowid": "1C50EE3635824A5DBD14516BCC85663B",
+          "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "ordIdx": 2,
+          "val": "vue",
+          "txt": "vue",
+          "exVal_1": "",
+          "exVal_2": "",
+          "exVal_3": "",
+          "exVal_4": "",
+          "crttime": "2026-08-07 10:12:36"
+        },
+        {
+          "rowid": "1F3A75D749B34BA98121281E4B6A6586",
+          "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "ordIdx": 3,
+          "val": "tsx",
+          "txt": "tsx",
+          "exVal_1": "",
+          "exVal_2": "",
+          "exVal_3": "",
+          "exVal_4": "",
+          "crttime": "2026-08-07 10:12:41"
+        }
+      ]
+    }
+  ],
+  "failures": 0
+}

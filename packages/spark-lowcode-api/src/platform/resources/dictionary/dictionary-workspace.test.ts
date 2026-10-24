@@ -3,6 +3,341 @@ import {DictionarySchema} from './dictionary-schema'
 import {DictionaryHttp, fixture, initialDefinition, initialEntry} from './tests/dictionary-workspace.fixture'
 
 describe('Dictionary resource through formal DataViews', () => {
+  it('initializes creation time once for a new dictionary definition through its native DataView', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictType'] = []
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http, true)
+    try {
+      await workspace.load()
+      const created = workspace.definition.getEditingRow('D1')
+      const createdAt = created?.['crttime']
+      expect(createdAt).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+      workspace.definition.updateEditingValue('D1', 'TypeName', '新字典')
+      workspace.definition.updateEditingValue('D1', 'functiondesc', '正式新增时间合同')
+      await workspace.saveDesign()
+      expect(workspace.definition.getEditingRow('D1')?.['crttime']).toBe(createdAt)
+      const payload = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Added: Array<Record<string, unknown>>}}>
+      expect(payload[0]!.TableName).toBe('_Base_DictType')
+      expect(payload[0]!.CrudModel.Added[0]?.['crttime']).toBe(createdAt)
+    } finally {dataSet.destroy()}
+  })
+
+  it('keeps a new entry creation time stable and out of the sort-only existing-row patch', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData']![0]!['ordIdx'] = 5
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      await workspace.addEntry()
+      const createdId = workspace.entries.getPkKey(workspace.entries.currentRow!)!
+      const createdAt = workspace.entries.getEditingRow(createdId)?.['crttime']
+      expect(createdAt).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+      workspace.entries.updateEditingValue(createdId, 'val', 'new')
+      workspace.entries.updateEditingValue(createdId, 'txt', '新条目')
+      expect(workspace.canApplyDisplayedOrder).toBe(true)
+      await workspace.applyDisplayedOrder()
+      expect(workspace.entries.getEditingRow(createdId)?.['crttime']).toBe(createdAt)
+      await workspace.saveData()
+      expect(workspace.entries.getEditingRow(createdId)?.['crttime']).toBe(createdAt)
+      const payload = http.saves[0]!.data as Array<{TableName: string; CrudModel: {
+        Added: Array<Record<string, unknown>>; Changed: Array<Record<string, unknown>>
+      }}>
+      expect(payload[0]!.TableName).toBe('_Base_DictData')
+      expect(payload[0]!.CrudModel.Added[0]?.['crttime']).toBe(createdAt)
+      expect(payload[0]!.CrudModel.Changed.map(row => Object.fromEntries(Object.entries(row)
+        .filter(([field]) => !field.startsWith('lingma_sys_'))))).toEqual([{rowid: 'E1', ordIdx: 1}])
+    } finally {dataSet.destroy()}
+  })
+
+  it('applies only the displayed order through entry edits and persists the default query order', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = [
+      {...initialEntry, rowid: 'C', ordIdx: 1, val: 'C'},
+      {...initialEntry, rowid: 'A', ordIdx: 2, val: 'A'},
+      {...initialEntry, rowid: 'B', ordIdx: 3, val: 'B'},
+    ]
+    const {workspace, dataSet} = fixture(http)
+    let destroyed = false
+    try {
+      await workspace.load()
+      expect(workspace.entries.rows.map(row => row['rowid'])).toEqual(['C', 'A', 'B'])
+      await workspace.entries.setSort([{field: 'val', direction: 'asc'}])
+      expect(workspace.entries.rows.map(row => row['rowid'])).toEqual(['A', 'B', 'C'])
+      const readsBeforeApply = http.reads.length
+
+      expect(workspace.canApplyDisplayedOrder).toBe(true)
+      await workspace.applyDisplayedOrder()
+
+      expect(http.reads).toHaveLength(readsBeforeApply)
+      expect(http.saves).toHaveLength(0)
+      expect(workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx'])).toEqual([1, 2, 3])
+      expect(workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['val'])).toEqual(['A', 'B', 'C'])
+      await workspace.applyDisplayedOrder()
+      expect(http.saves).toHaveLength(0)
+      await workspace.saveData()
+      expect(http.saves).toHaveLength(1)
+      const submitted = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Changed: Array<Record<string, unknown>>}}>
+      expect(submitted).toHaveLength(1)
+      expect(submitted[0]!.TableName).toBe('_Base_DictData')
+      expect(submitted[0]!.CrudModel.Changed.map(row => Object.fromEntries(Object.entries(row)
+        .filter(([field]) => !field.startsWith('lingma_sys_'))))).toEqual([
+        {rowid: 'A', ordIdx: 1}, {rowid: 'B', ordIdx: 2}, {rowid: 'C', ordIdx: 3},
+      ])
+      expect(http.saves[0]!.data).toHaveLength(1)
+
+      dataSet.destroy()
+      destroyed = true
+      const reopened = fixture(http)
+      await reopened.workspace.load()
+      expect(reopened.workspace.entries.rows.map(row => row['rowid'])).toEqual(['A', 'B', 'C'])
+      reopened.dataSet.destroy()
+    } finally { if (!destroyed) dataSet.destroy() }
+  })
+
+  it.each(['denied', 'hidden'] as const)('rejects displayed-order preflight when ordIdx is %s without changing any overlay or issuing a write', async protection => {
+    const {workspace, dataSet, http} = fixture()
+    http[protection] = ['ordIdx']
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '已有草稿')
+      const before = workspace.entries.getEditingRow('E1')
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(workspace.entries.getEditingRow('E1')).toEqual(before)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('preflights every displayed row before writing when only the later row is denied', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = [
+      {...initialEntry, rowid: 'A', ordIdx: 10, val: 'A'},
+      {...initialEntry, rowid: 'B', ordIdx: 20, val: 'B'},
+      {...initialEntry, rowid: 'C', ordIdx: 30, val: 'C'},
+    ]
+    http.deniedByRow.C = ['ordIdx']
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0]!, 'ordIdx').write).toBe('allowed')
+      expect(workspace.entries.fieldAccess(workspace.entries.rows.at(-1)!, 'ordIdx').write).toBe('denied')
+      const before = workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx'])
+      expect(before).toEqual([10, 20, 30])
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx'])).toEqual(before)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('reports no displayed-order command for an empty loaded collection', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      const readsBefore = http.reads.length
+      expect(workspace.entries.rows).toEqual([])
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await workspace.applyDisplayedOrder()
+      expect(http.reads).toHaveLength(readsBefore)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('ranks only loaded displayed IDs when the formal result reports unloaded rows', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = [
+      {...initialEntry, rowid: 'C', ordIdx: 10, val: 'C'},
+      {...initialEntry, rowid: 'A', ordIdx: 20, val: 'A'},
+      {...initialEntry, rowid: 'B', ordIdx: 30, val: 'B'},
+    ]
+    http.responseLimit = 2
+    const {workspace, dataSet} = fixture(http)
+    try {
+      workspace.entries.queryConfig = {...workspace.entries.queryConfig, allPages: false}
+      await workspace.load()
+      expect(workspace.entries.rows.map(row => row['rowid'])).toEqual(['C', 'A'])
+      expect(workspace.entries.total).toBe(3)
+      expect(workspace.entries.rows.map(row => row['ordIdx'])).toEqual([10, 20])
+      const readsBefore = http.reads.length
+      expect(workspace.canApplyDisplayedOrder).toBe(true)
+      await workspace.applyDisplayedOrder()
+      expect(http.reads).toHaveLength(readsBefore)
+      expect(workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx']))
+        .toEqual([1, 2])
+      expect(workspace.entries.getEditingRow('B')).toBeNull()
+      expect(http.records['_Base_DictData']!.find(row => row['rowid'] === 'B')?.['ordIdx']).toBe(30)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('keeps an unrelated edit and a stable pending create in the same native DataView batch', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData']![0]!['ordIdx'] = 7
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '保留的无关草稿')
+      await workspace.addEntry()
+      const createdId = workspace.entries.getPkKey(workspace.entries.currentRow!)!
+      const createdRow = workspace.entries.getEditingRow(createdId)
+      workspace.entries.updateEditingValue(createdId, 'val', 'new')
+      workspace.entries.updateEditingValue(createdId, 'txt', '新条目')
+      expect(workspace.canApplyDisplayedOrder).toBe(true)
+      await workspace.applyDisplayedOrder()
+      await workspace.applyDisplayedOrder()
+      expect(workspace.entries.getPkKey(workspace.entries.currentRow!)).toBe(createdId)
+      expect(workspace.entries.getEditingRow(createdId)).toMatchObject({ordIdx: 2})
+      expect(workspace.entries.getEditingRow('E1')).toMatchObject({exVal_4: '保留的无关草稿', ordIdx: 1})
+      expect(createdRow?.['rowid']).toBe(createdId)
+      expect(http.saves).toHaveLength(0)
+      await workspace.saveData()
+      expect(http.saves).toHaveLength(1)
+      expect(http.saves[0]!.data).toHaveLength(1)
+      expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData', CrudModel: {
+        Added: [expect.objectContaining({ordIdx: 2})],
+        Changed: [{rowid: 'E1', exVal_4: '保留的无关草稿', ordIdx: 1}],
+      }}])
+    } finally {dataSet.destroy()}
+  })
+
+  it('cancels displayed-order overlays by rereading the original entry values', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = [
+      {...initialEntry, rowid: 'C', ordIdx: 1, val: 'C'},
+      {...initialEntry, rowid: 'A', ordIdx: 2, val: 'A'},
+      {...initialEntry, rowid: 'B', ordIdx: 3, val: 'B'},
+    ]
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      await workspace.entries.setSort([{field: 'val', direction: 'asc'}])
+      expect(workspace.canApplyDisplayedOrder).toBe(true)
+      await workspace.applyDisplayedOrder()
+      await workspace.load(true)
+      expect(Object.fromEntries(workspace.entries.rows.map(row => [row['rowid'], row['ordIdx']]))).toEqual({A: 2, B: 3, C: 1})
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects declared ordIdx bounds before writing any displayed-order overlay', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = [
+      {...initialEntry, rowid: 'A', ordIdx: 10, val: 'A'},
+      {...initialEntry, rowid: 'B', ordIdx: 20, val: 'B'},
+      {...initialEntry, rowid: 'C', ordIdx: 30, val: 'C'},
+    ]
+    const {workspace, dataSet} = fixture(http, false, 'SCENE', [], {max: 2})
+    try {
+      await workspace.load()
+      const before = workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx'])
+      expect(before).toEqual([10, 20, 30])
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(workspace.entries.rows.map(row => workspace.entries.getEditingRow(workspace.entries.getPkKey(row)!)?.['ordIdx'])).toEqual(before)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects a failed or wrong-scope query result before displayed-order edits', async () => {
+    const failed = fixture()
+    failed.http.failReads = true
+    try {
+      await expect(failed.workspace.load()).rejects.toThrow('读取失败')
+      const failedReads = failed.http.reads.length
+      expect(failed.workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => failed.workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(failed.http.reads).toHaveLength(failedReads)
+      expect(failed.http.saves).toHaveLength(0)
+    } finally {failed.dataSet.destroy()}
+
+    const wrongScope = fixture()
+    wrongScope.http.records['_Base_DictData']![0]!['typeid'] = 'OTHER'
+    try {
+      await expect(wrongScope.workspace.load()).rejects.toThrow('归属')
+      expect(wrongScope.workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => wrongScope.workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(wrongScope.http.saves).toHaveLength(0)
+    } finally {wrongScope.dataSet.destroy()}
+  })
+
+  it('rejects when the native DataView query scope no longer matches its accepted result', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      http.scopeToken = 'next-scope'
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(workspace.entries.getEditingPatch('E1')).toBeUndefined()
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects displayed-order execution while the query is loading', async () => {
+    const {workspace, dataSet, http} = fixture()
+    let release!: () => void, started!: () => void
+    const waiting = new Promise<void>(resolve => {started = resolve})
+    const gate = new Promise<void>(resolve => {release = resolve})
+    http.beforeRead = async config => {
+      if (config.url === '/api/DataOperation/GetData') {http.beforeRead = undefined; started(); await gate}
+    }
+    try {
+      const loading = workspace.load()
+      await waiting
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(http.saves).toHaveLength(0)
+      release()
+      await loading
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects displayed-order execution while the native save owner is busy', async () => {
+    const {workspace, dataSet, http} = fixture()
+    let release!: () => void, started!: () => void
+    const waiting = new Promise<void>(resolve => {started = resolve})
+    const gate = new Promise<void>(resolve => {release = resolve})
+    http.afterResponse = async config => {
+      if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+        http.afterResponse = undefined
+        started()
+        await gate
+      }
+    }
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '待保存草稿')
+      const saving = workspace.saveData()
+      await waiting
+      const before = workspace.entries.getEditingRow('E1')
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      expect(workspace.entries.getEditingRow('E1')).toEqual(before)
+      expect(http.saves).toHaveLength(1)
+      release()
+      await saving
+    } finally {dataSet.destroy()}
+  })
+
+  it('does not apply order or replay a write while a save receipt is unknown', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '原有草稿')
+      http.failAfterWrite = true
+      await expect(workspace.saveData()).rejects.toThrow()
+      const before = workspace.entries.getEditingRow('E1')
+      expect(workspace.requiresVerification).toBe(true)
+      expect(workspace.canApplyDisplayedOrder).toBe(false)
+      await expect(Promise.resolve().then(() => workspace.applyDisplayedOrder())).rejects.toThrow()
+      await expect(workspace.saveData()).rejects.toThrow()
+      expect(workspace.entries.getEditingRow('E1')).toEqual(before)
+      expect(http.saves).toHaveLength(1)
+    } finally {dataSet.destroy()}
+  })
+
   it.each(['', '   '])('rejects a new design with empty description %j before writing and retains its input', async description => {
     const http = new DictionaryHttp()
     http.records = {_Base_DictType: [], _Base_DictData: []}

@@ -1,0 +1,110 @@
+{
+  "from": 93833,
+  "to": 93901,
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "requests": [
+    {
+      "requestId": "22092.16196",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataSet",
+      "rows": 1,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16197",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16198",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Relation",
+      "rows": 0,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16199",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_DataModel_Field",
+      "rows": 47,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16200",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "View_TblList",
+      "rows": 2,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16201",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "Base_TblField",
+      "rows": 49,
+      "sort": []
+    },
+    {
+      "requestId": "22092.16202",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictType",
+      "rows": 1,
+      "sort": [],
+      "businessRows": [
+        {
+          "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "B1Sort_20261024_1925F4C2",
+          "dictionaryType": "0",
+          "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+          "val": "编码",
+          "txt": "显示文本",
+          "secondValue": null,
+          "thirdValue": null,
+          "fourthvalue": null,
+          "fiveValue": null,
+          "crttime": "2026-10-24T19:28:05"
+        }
+      ]
+    },
+    {
+      "requestId": "22092.16203",
+      "path": "/api/DataOperation/GetData",
+      "httpStatus": 200,
+      "code": 200,
+      "table": "_Base_DictData",
+      "rows": 0,
+      "sort": [
+        {
+          "field": "rowid",
+          "order": 1,
+          "direction": "ascending"
+        },
+        {
+          "field": "ordIdx",
+          "order": 2,
+          "direction": "ascending"
+        }
+      ],
+      "businessRows": []
+    }
+  ],
+  "failures": 0
+}

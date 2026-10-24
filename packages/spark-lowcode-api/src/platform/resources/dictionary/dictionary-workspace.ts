@@ -4,8 +4,14 @@
  * 边界：不发送HTTP、不保存第二份行数据、不把字典查询授权转换为元记录维护授权。
  * AI用途：设计页绑定definition，独立数据页绑定entries并消费已保存标题，各自通过明确的保存方法提交。
  */
-import {DataView, DataViewFilter, type DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {DataView, DataViewFilter, RequestState, type DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {DictionarySchema} from './dictionary-schema'
+
+/** 与既有字典创建合同一致的本地时间格式；由新增行创建时调用一次。 */
+function formatCreationTime(date = new Date()): string {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
 
 /** 已装配正式模型的字典维护输入；一个实例只维护一个确定的字典。 */
 type DictionaryWorkspaceInput = Readonly<{
@@ -106,7 +112,7 @@ export class DictionaryWorkspace {
         if (this.entries.rows.length > 0) throw new Error('新字典身份下已有条目，不能继续创建')
         if (this.definition.addActionState() !== 'enabled') throw new Error('当前查询不允许新建字典')
         await this.definition.addRow({rowid: this.#input.dictionaryId, AppId: this.#input.applicationId,
-          TypeName: '', dictionaryType: '0', val: '编码', txt: '显示文本'})
+          TypeName: '', dictionaryType: '0', val: '编码', txt: '显示文本', crttime: formatCreationTime()})
       }
       this.assertScope()
       this.definition.setCurrentRow(this.definition.rows[0] ?? null)
@@ -121,7 +127,7 @@ export class DictionaryWorkspace {
     this.assertEditable()
     if (this.#creating) throw new Error('请先保存字典设计，再进入数据维护')
     if (this.entries.addActionState() !== 'enabled') throw new Error('当前查询不允许新增字典条目')
-    const row = await this.entries.addRow({typeid: this.#input.dictionaryId, val: '', txt: ''})
+    const row = await this.entries.addRow({typeid: this.#input.dictionaryId, val: '', txt: '', crttime: formatCreationTime()})
     if (!('rowid' in row) || typeof row['rowid'] !== 'string') throw new Error('新增字典条目没有正式身份')
     this.entries.setCurrentRowById(row['rowid'])
   }
@@ -155,6 +161,64 @@ export class DictionaryWorkspace {
   async saveData(): Promise<void> {
     if (this.#creating || this.#deleting) throw new Error('请先保存字典设计，再维护业务数据')
     await this.save(this.entries)
+  }
+
+  /** 本次已加载条目的显示顺序是否可通过原条目视图暂存。 */
+  get canApplyDisplayedOrder(): boolean { return (this.displayedOrderTargets()?.length ?? 0) > 0 }
+
+  /** 按调用时已显示的条目顺序更新 ordIdx 编辑覆盖；普通保存仍由 DataSet/DataView 提交。 */
+  applyDisplayedOrder(): Promise<void> {
+    try {
+      const targets = this.displayedOrderTargets()
+      if (!targets) throw new Error('当前字典条目不满足设置排序条件')
+      for (const {id, order} of targets) this.entries.updateEditingValue(id, 'ordIdx', order)
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  /** 显示可用性与执行共用的无副作用检查；不查询、不修改或保存数据。 */
+  private displayedOrderTargets(): Array<{id: string | number; order: number}> | undefined {
+    try {
+      if (this.#busy || this.#uncertain || this.#creating || this.#deleting || this.#removed
+        || this.#input.dataSet.destroyed || this.definition.destroyed || this.entries.destroyed
+        || this.definition.hasUnconfirmedSave || this.entries.hasUnconfirmedSave
+        || this.definition.mutating || this.entries.mutating
+        || this.definition.refreshPending || this.entries.refreshPending
+        || this.definition.requestState !== RequestState.Loaded || this.entries.requestState !== RequestState.Loaded
+        || this.definition.loadingError || this.entries.loadingError
+        || this.definition.hasEditingChanges() || this.definition.dirtyTracking.hasPendingChanges()) return undefined
+
+      this.assertScope()
+      if (this.entries.rows.length === 0) return []
+      const column = this.entries.getColumn('ordIdx')
+      if (!column || column.isPrimaryKey === true || this.entries.effectivePkFields.includes('ordIdx')
+        || column.isComputed === true || column.computeExpression !== undefined) return undefined
+      const validator = this.entries.validator
+      if (!validator) return undefined
+
+      const ids = new Set<string | number>(), targets: Array<{id: string | number; order: number}> = []
+      for (const [index, row] of this.entries.rows.entries()) {
+        const id = this.entries.getPkKey(row)
+        if (id === undefined || typeof id === 'number' && !Number.isFinite(id)
+          || typeof id === 'string' && !id.trim() || ids.has(id)) return undefined
+        ids.add(id)
+        this.assertEntry(row)
+        const access = this.entries.fieldAccess(row, 'ordIdx')
+        if (access.read !== 'visible' || access.write !== 'allowed') return undefined
+        const isCreate = this.entries.dirtyTracking.pendingCreateIds.has(id)
+        if (isCreate) {
+          if (this.entries.addActionState() !== 'enabled') return undefined
+        }
+        const order = index + 1
+        if (!Number.isSafeInteger(order) || !validator.validateColumns({...row, ordIdx: order}, new Set(['ordIdx'])).valid) return undefined
+        targets.push({id, order})
+      }
+      return targets
+    } catch {
+      return undefined
+    }
   }
 
   private async save(target: DataView): Promise<void> {

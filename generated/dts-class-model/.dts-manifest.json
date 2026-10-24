@@ -3184,7 +3184,7 @@
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-24T10:26:37.688Z"
+      "sourceModifiedAt": "2026-10-24T11:26:15.367Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
@@ -4699,7 +4699,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue.json",
-      "sourceModifiedAt": "2026-10-24T10:48:47.630Z"
+      "sourceModifiedAt": "2026-10-24T11:19:00.468Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",

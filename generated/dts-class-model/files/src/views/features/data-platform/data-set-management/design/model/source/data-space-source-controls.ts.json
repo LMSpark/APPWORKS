@@ -114,13 +114,34 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "discardRecovered": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "abandonNotApplied": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "canAcceptCurrent": {
+              "enum": [
+                false,
+                true
+              ]
             }
           },
           "required": [
             "status",
             "pending",
             "preview",
-            "verification"
+            "verification",
+            "discardRecovered",
+            "abandonNotApplied",
+            "canAcceptCurrent"
           ],
           "additionalProperties": false
         }

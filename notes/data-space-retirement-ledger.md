@@ -725,6 +725,8 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，B/C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
+**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏及A3.2已提交；A3.3来源替换/同步已完成代码复审、自动化与预览取消烟测，准备提交；下一组A3.4改名，随后A3.5新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
+
 ### 1. 目标、边界与完成口径
 
 把参考元数据平台的完整业务能力整合到本仓现有底座。页面全部通过标准组件绑定本次 PageRuntime 的 DataView；SPARK data 是唯一数据交互入口。正式模型、文件、查询命令、写命令均接入同一 DataSet/DataTable/DataView 链，传输与存储差异封装在数据层内部。只在末端调用 DataSet，而页面仍维护查询、草稿或保存 owner，不算统一。
@@ -955,3 +957,13 @@ flowchart TD
 - 整页源码对照报告已核正：本仓模型目录showDirectory默认false，详情由RendererDialog承载，不能误判为常驻树/内嵌详情；标签数量也须按统一DataTable与DataView归属解释，不能仅凭数量认定偏离。当前只得到待实页对照清单（摘要/画布/目录、模型工作区、关系与参数弹窗）；未证实的视觉差异不直接派工改布局，阶段A整页验收仍待完成。cache/task-a-layout-audit-report.md为辅助证据，唯一状态仍在本台账。
 - A3.2修复轮1/5复审：初审验证缺口已解决，实际新增8项既有异步保护+3项纠错反例（先前中间12项说法更正），最终68项不叠加11项筛选/UI3。剩余2项重要问题：首次native核验成为not-applied后守卫抛错，原签名未持久保留导致二次核验重签；显式discard在try前置saving并逐视图处理，后视图busy可卡死且前视图已被丢弃。进入修复轮2/5，沿同一owner补完整前置检查与异常恢复，不改公共协议。R1原始红灯日志task-a3-2-r1-red-not-applied.log和task-a3-2-r1-red-predispatch.log可复核。
 - A3.2修复轮2/5复审通过：2项P1/P2均ADDRESSED，Spec/Quality Approved，0 open；首次native await前冻结原签名且异常保留，全批discard先预检busy并纳入异常恢复。最终模型删除71项；UI定向3项沿R1有效结果（R2未改UI），不叠加11/3项筛选。主控再次正式生成ClassModel963文件，完整lint/rules/build:fe通过。真实引用阻断/关闭及最终R2新实例正式模型重开通过，0次线上持久化；本组代码收敛可提交，线上永久删除与文件清理验收仍未完成。证据a3-2-acceptance.md、JSON及两截图；阶段A其余owner、运行隔离/未加载保存/跨实例恢复/整页对照保持未完成。
+- A3.2提交核实：92dcc18b1ba3781e8b759cf9f14e76a5a3268a96，父15498d6f6，26个明确暂存文件；提交后工作区干净、ahead 7，未推送。继续A3.3来源替换与字段同步：保留来源映射/引用/参数/合同迁移语义，接原DataSpaceDefinitionSave capture与正式核验，删除此owner的全局abandon和重复回执算法；DB/file仍分段确认，未确认/部分成功不得清file plan。已把A3.2首次await签名与全批discard忙碌预检经验列入具体brief，仍为新低价实施者单写，主控负责审查、生成、真实烟测及本台账。
+- 阶段A真实生命周期验收安排：既有T三个模型明确要求保留，删除/改名/来源迁移不能为烟测破坏这些记录。A3各owner代码收敛后，用新增流程准备一个明确的一次性目标，串行核来源变更/改名/独立重开/最终删除及文件收尾；最终永久删除按实际目标在执行时确认。在该验收完成前，本组真实预览/取消和离线故障反例不核销正式生命周期持久闭环。
+- A3.3过程记录纠正：实施者在旧实现反例原始输出落盘前已修改生产session，先前输出未留存。主控要求仅对该单文件逐字备份/核hash后临时加载92dcc18b1基线运行新增反例，再按hash恢复当前实现；该输出明确标为事后基线复现，不伪称修改前留存的红灯，测试本身错误/已有保护须单列。无其他产品写者、此期间暂停UI操作，不reset或覆盖其他文件。
+- A3.4/A3.5只读准备核定：改名三类DB视图、新增模型+字段两类DB视图实际均沿同一DataSpaceRuntimeApi executor，派生视图继承；场景/工具/布局是DB确认后的独立阶段。新增modelId须由原DataView.addRow产生，Ruling: 保留原本地暂存及身份解析后再构造现有SavePart，避免为接口伪造modelId或无必要扩共享API。后两组brief仅准备，未并行实施；shared ModelSource UI以A3.3最终代码为后续基线。
+- A3.3实施中验证：来源完整174项与UI定向5项曾通过，但随后静态修正过度简化了错误阶段判定，复验出现5项partial/readback被错误置为configuration。主控不采纳中间绿灯为最终验收；实施者恢复“SPARK回执确认不等于领域回读完成”的分层判定，并重新终验。最终报告须保留失败及修复证据，仍未冻结、未线上修改。
+- A3.3文件等待反例核正：最初新增断言因错误文案不同而失败，不能证明缺少行为保护。改按同一模型description晚到草稿、pending状态、原file plan及DB写次数核验，当前与92dcc18b1事后基线均保留草稿并拒绝完成/覆盖；此项记为已有保护/新增证据。实施者已撤回冗余外层生产guard，保留真实旁路修复与必要反例，最终以冻结代码结果为准。
+- A3.3初审进入修复轮1/5：未证实生产缺陷，但三组已批准验证义务尚缺：权威not-applied首次native await与重复核验/显式放弃、confirmed后显式丢弃成功及applied delta、坏回执与原capture身份变化。Ruling: 接受三项P2证据缺口，补真实DataSet/DataView反例，若失败再按范围修复；不重复重构或放宽原合同。当前冻结结果source176、UI5、typecheck/scoped lint/ai-codegen通过；主控正式生成与全仓门禁并行，最终以修复后代码为准。
+- A3.3修复轮1/5复审：权威not-applied与回执/原capture身份矩阵2项ADDRESSED；显式confirmed丢弃仍缺原captured目标在后续领域await中的晚编辑证明（现测试只改无关Base_DataSet）。186项及UI5有效，未发现生产缺陷；进入修复轮2/5，仅补F1捕获目标在同步discard后/领域回读中新增overlay与applied delta的保护证据，失败才修owner。产品代码未变，主控963生成、全lint/rules/build、真实预览/取消/新实例原值均保持有效，线上0次持久化。
+- 阶段A跨实例公共合同只读核定：DataView/RuntimeApi的原未知捕获依赖内存context，destroy后无新实例重挂入口；pagedata的ProjectWorkspace缓存在软关闭时可能尚存，但新定义DataView未接回，scope变化/刷新会丢失。当前调用源码未见两类写入携带持久操作ID，不等于已证实实际服务不支持。Ruling: 将“已有同context精确回读”和“跨实例恢复入口/最小操作凭据缺口”分别记录，A3实例内通过不核销关闭/刷新/重登录未知保证；后续按真实服务既有合同核定公共承接，不猜新协议、不复制业务草稿或凭据、不先制造线上未知写入。只读报告cache/task-cross-instance-recovery-preparation.md，独立能力继续推进。
+- A3.3修复轮2/5复审通过：剩余原captured F1在显式discard后/领域await中的晚overlay与applied delta两项保护已证实；原三项证据缺口全部解决，Spec/Quality Approved，0 open。两轮仅补测试，无生产/helper/UI/fixture更改。最终source188（不叠加聚焦12）、UI5、typecheck/scoped/full lint、ai-codegen、rules、build通过；正式ClassModel生成963文件、文档398文件通过。真实来源预览/同步预览取消→关闭整个设计器→新实例原值与按钮状态通过，0次线上持久化。证据a3-3-acceptance.md/JSON/两截图；可按明确路径提交，完整生命周期及阶段A其余验收仍未核销。

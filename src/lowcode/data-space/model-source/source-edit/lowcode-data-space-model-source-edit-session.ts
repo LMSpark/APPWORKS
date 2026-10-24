@@ -11,6 +11,8 @@ import {LowcodeDataSpaceModelMigration} from '../lowcode-data-space-model-migrat
 import {LowcodeDataSpaceFieldMigration} from '../lowcode-data-space-field-migration'
 import {LowcodeDataSpaceSourceCatalog} from '../lowcode-data-space-source-catalog'
 import {sourceInputReadParameters, sourceInputValidateValue} from '../source-input/lowcode-data-space-source-input-session'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture,
+  type DataSpaceDefinitionCaptureBatch} from '../save/data-space-definition-save'
 
 /** 与新增模型共享的正式来源能力。 */
 type Reader = NonNullable<ModelCreateSources>
@@ -77,6 +79,7 @@ type FieldEdit = {id: string; patch: Record<string, unknown>; snapshot: string}
 type FieldAddition = {id: string; values: Record<string, unknown>; snapshot: string}
 
 export type ModelSourceEditStatus = 'idle' | 'previewing' | 'ready' | 'saving' | 'unknown' | 'readback' | 'unsubmitted' | 'different' | 'configuration'
+export type ModelSourceEditRecoveryOptions = Readonly<{abandonNotApplied?: boolean; discardLocalChanges?: boolean}>
 
 const SOURCE_KEYS = ['Type', 'MetaName', 'DbId', 'DbName'] as const
 
@@ -106,6 +109,8 @@ export type ModelSourceEditFlow = {
   inputs: Map<string, string>
   acceptedContracts: Set<string>
   contractPlan: SourceContractPlan | null
+  capture: DataSpaceDefinitionCaptureBatch | null
+  captureBaseline: Array<{target: DataSpaceDefinitionCaptureBatch['targets'][number]; signature: string}> | null
   fieldEdits: FieldEdit[]
   relationEdits: FieldEdit[]
   modelEdits: FieldEdit[]
@@ -134,7 +139,7 @@ function createModelSourceEditFlow(): ModelSourceEditFlow {
   return {
     status: 'idle', generation: 0, preview: null, baseline: '', expected: '', pendingSnapshot: '', patch: {},
     verifiedSnapshot: '', verification: [], mappings: new Map(), included: new Set(), removals: new Set(),
-    inputs: new Map(), acceptedContracts: new Set(), contractPlan: null, fieldEdits: [], relationEdits: [],
+    inputs: new Map(), acceptedContracts: new Set(), contractPlan: null, capture: null, captureBaseline: null, fieldEdits: [], relationEdits: [],
     modelEdits: [], added: [], removed: [],
   }
 }
@@ -250,9 +255,10 @@ function modelSourceEditSnapshot(host: ModelSourceEditHost, patch: Record<string
 }
 
 function modelSourceEditFlowStatus(host: ModelSourceEditHost) {
+  if (host.flow.capture && (host.flow.capture.receiptInvalid || host.flow.capture.targets.some(target => target.view.hasUnconfirmedSave))) return 'unknown'
   if (host.flow.status === 'saving' || host.flow.status === 'previewing') return host.flow.status
   if (host.flow.status === 'readback' || host.flow.status === 'different' || host.flow.status === 'configuration' || host.flow.status === 'unsubmitted') return host.flow.status
-  if (host.flow.status !== 'idle' && host.views.some(view => view.hasUnconfirmedSave)) return 'unknown'
+  if (host.flow.status !== 'idle' && host.flow.capture?.targets.some(target => target.view.hasUnconfirmedSave)) return 'unknown'
   if (host.flow.status === 'unknown') return 'unknown'
   return host.flow.status
 }
@@ -645,7 +651,14 @@ export function modelSourceEditConfigureInput(host: ModelSourceEditHost, input: 
 /** 返回不含正式记录/授权的候选及流程状态，供预览与关闭保护。 */
 export function modelSourceEditGetState(host: ModelSourceEditHost) {
   const status = modelSourceEditFlowStatus(host)
-  return {status, pending: status !== 'idle', preview: structuredClone(host.flow.preview), verification: structuredClone(host.flow.verification)}
+  const capture = host.flow.capture
+  const discardRecovered = !!capture && capture.resolution === 'confirmed'
+    && capture.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))
+  const abandonNotApplied = !!capture && capture.resolution === 'not-applied'
+  const canAcceptCurrent = !!capture && capture.resolution === 'confirmed' && !host.flow.contractPlan
+    && !capture.targets.some(target => target.view.hasUnconfirmedSave)
+  return {status, pending: status !== 'idle', preview: structuredClone(host.flow.preview), verification: structuredClone(host.flow.verification),
+    discardRecovered, abandonNotApplied, canAcceptCurrent}
 }
 
 /** 比较完整原元数据与候选来源，尚不改变记录。 */
@@ -717,7 +730,6 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
   if (candidate.problems.length) throw new Error(candidate.problems.join('；'))
   if (modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('元数据已变化，请重新预览')
   host.flow.status = 'saving'; host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; host.flow.pendingSnapshot = ''; host.flow.patch = {}
-  let dispatched = false, confirmed = false
   try {
     const prepared = await host.sources.prepare(candidate.prepared.source, host.dataSet)
     await modelSourceEditReload(host)
@@ -839,22 +851,45 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
     modelSourceEditAssertClean(host, true); assertWritable()
     if (host.views.some(view => view.hasEditingChanges()) || modelSourceEditSnapshot(host) !== host.flow.expected
       || host.flow.added.some(item => JSON.stringify(modelSourceEditFieldRow(host, item.id)) !== item.snapshot)) throw new Error('核对配置期间元数据草稿已变化，不能派发')
-    host.lifecycle.onDispatch(); dispatched = true
-    const saved = await host.dataSet.saveChanges({applyEditingRows: false, views: selections.map(item => ({tableName: item.view.tableName, viewId: item.view.viewId, ids: [...item.changed, ...item.added, ...item.removed]}))})
-    modelSourceEditAssertOwner(host)
-    if (!saved.success || saved.data?.failedEditingRows !== 0 || saved.data.viewResults.length !== selections.length || selections.some(item => {
-      const results = saved.data?.viewResults.filter(result => result.tableName === item.view.tableName && result.viewId === item.view.viewId)
-      const result = results?.[0]
-      return results?.length !== 1 || result?.savedCount !== item.changed.length || result.createdCount !== item.added.length || result.deletedCount !== item.removed.length || result.failedCount !== 0
-    })) throw new Error('来源或字段回执未确认全部目标，请核验')
-    confirmed = true
-    if (!await modelSourceEditReadback(host)) throw new Error('来源替换回读与预览不一致')
-    if (host.flow.contractPlan) {host.flow.status = 'configuration'; await host.flow.contractPlan.complete(false)}
-    modelSourceEditFinish(host, true); return host.modelId
+    const targets = selections.map(item => ({tableName: item.view.tableName, viewId: item.view.viewId,
+      ids: [...item.changed, ...item.added, ...item.removed]}))
+    await DataSpaceDefinitionSave.run([{
+      dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId,
+      prepare: async () => {}, apply: async () => {}, check: () => {
+        modelSourceEditAssertOwner(host); assertWritable()
+        if (host.views.some(view => view.hasEditingChanges()) || modelSourceEditSnapshot(host) !== host.flow.expected
+          || host.flow.added.some(item => JSON.stringify(modelSourceEditFieldRow(host, item.id)) !== item.snapshot)) throw new Error('提交前元数据已变化')
+      },
+      targets: () => targets,
+      dispatched: capture => {
+        host.flow.capture = capture
+        host.flow.captureBaseline = capture.targets.map(target => ({target, signature: definitionTargetDraftSignature(target.view, target.ids)}))
+        host.lifecycle.onDispatch()
+      },
+      confirm: async () => {
+        modelSourceEditAssertOwner(host)
+        if (!await modelSourceEditReadback(host)) throw new Error('来源替换回读与预览不一致')
+        if (host.flow.contractPlan) {host.flow.status = 'configuration'; await host.flow.contractPlan.complete(false)}
+        modelSourceEditFinish(host, true)
+      },
+      failed: stage => {
+        if (host.flow.status !== 'configuration') host.flow.status = stage === 'confirmed' ? 'readback' : stage === 'dispatched' ? 'unknown' : 'unsubmitted'
+      },
+    }])
+    return host.modelId
   } catch (error) {
-    if (host.flow.status !== 'configuration') host.flow.status = confirmed ? 'readback' : dispatched ? 'unknown' : 'unsubmitted'
-    if (!dispatched && host.views.every(view => !view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges())) host.flow.status = 'ready'
+    modelSourceEditRestoreSaveStatus(host)
     throw error
+  }
+}
+
+function modelSourceEditRestoreSaveStatus(host: ModelSourceEditHost): void {
+  if (host.flow.status === 'configuration') return
+  const capture = host.flow.capture
+  if (capture) host.flow.status = capture.resolution === 'confirmed' ? 'readback' : 'unknown'
+  else {
+    host.flow.status = 'unsubmitted'
+    if (host.views.every(view => !view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges())) host.flow.status = 'ready'
   }
 }
 
@@ -907,27 +942,121 @@ function modelSourceEditInvalidateChangedSiblings(host: ModelSourceEditHost, ado
 function modelSourceEditVerificationSnapshot(host: ModelSourceEditHost) {return JSON.stringify([modelSourceEditSnapshot(host), host.flow.added.map(item => host.fields.rows.find(row => host.fields.getPkKey(row) === item.id))])}
 
 function modelSourceEditFinish(host: ModelSourceEditHost, updateConsumers = false) {
-  host.flow.status = 'idle'; host.flow.preview = null; host.flow.expected = ''; host.flow.pendingSnapshot = ''; host.flow.patch = {}; host.flow.verifiedSnapshot = ''; host.flow.verification = []; host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; host.flow.mappings.clear(); host.flow.included.clear(); host.flow.removals.clear(); host.flow.inputs.clear(); host.flow.acceptedContracts.clear(); host.flow.contractPlan = null
+  host.flow.status = 'idle'; host.flow.preview = null; host.flow.expected = ''; host.flow.pendingSnapshot = ''; host.flow.patch = {}; host.flow.verifiedSnapshot = ''; host.flow.verification = []; host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; host.flow.mappings.clear(); host.flow.included.clear(); host.flow.removals.clear(); host.flow.inputs.clear(); host.flow.acceptedContracts.clear(); host.flow.contractPlan = null; host.flow.capture = null; host.flow.captureBaseline = null
   if (updateConsumers) host.lifecycle.completed()
 }
 
-/** 仅放弃本操作未改变的delta并核验正式结果；不会重放写入。 */
-export async function modelSourceEditVerify(host: ModelSourceEditHost): Promise<Readonly<{confirmed: boolean; modelId: string | null}>> {
+function modelSourceEditAssertCapture(host: ModelSourceEditHost, batch: DataSpaceDefinitionCaptureBatch): void {
+  modelSourceEditAssertOwner(host)
+  if (!host.flow.captureBaseline || host.flow.capture !== batch) throw new Error('缺少来源替换原始保存捕获，不能核验或清理本地修改')
+  for (const target of batch.targets) {
+    const view = target.view
+    if (host.dataSet.getView(target.tableName, target.viewId) !== view || view.destroyed || JSON.stringify(view.queryContext) !== target.queryContext) {
+      throw new Error('原来源批次视图或查询上下文已变化，未知结果仍保留')
+    }
+    if (view.mutating || [RequestState.Preparing, RequestState.Loading].includes(view.requestState)) throw new Error('原来源批次仍在操作，不能核验或清理')
+  }
+}
+
+function modelSourceEditCaptureChanged(host: ModelSourceEditHost): boolean {
+  const baseline = host.flow.captureBaseline
+  return !baseline || baseline.some(({target, signature}) => definitionTargetDraftSignature(target.view, target.ids) !== signature)
+}
+
+function modelSourceEditDiscardCapture(host: ModelSourceEditHost, batch: DataSpaceDefinitionCaptureBatch): void {
+  modelSourceEditAssertCapture(host, batch)
+  if (batch.targets.some(target => target.view.hasUnconfirmedSave)) throw new Error('原来源批次尚未取得权威结果，不能放弃本地修改')
+  const grouped = new Map<DataView, Set<string>>()
+  for (const target of batch.targets) {
+    const ids = grouped.get(target.view) ?? new Set<string>()
+    target.ids.forEach(id => ids.add(id)); grouped.set(target.view, ids)
+  }
+  for (const [view, ids] of grouped) {
+    const outside = view.rows.some(row => {
+      const id = view.getPkKey(row)
+      return id !== undefined && !ids.has(String(id)) && (view.hasEditingChanges(id) || view.dirtyTracking.hasPendingChanges(id))
+    }) || [...view.dirtyTracking.pendingDeleteIds].some(id => !ids.has(String(id)))
+    if (outside) throw new Error('原来源视图存在范围外草稿，不能放弃本次目标')
+  }
+  for (const [view, ids] of grouped) view.discardPendingChanges([...ids])
+}
+
+/** 默认只核验原批次并保留后续编辑；显式放弃只处理捕获的原目标。 */
+export async function modelSourceEditVerify(host: ModelSourceEditHost, options: ModelSourceEditRecoveryOptions = {}): Promise<Readonly<{confirmed: boolean; modelId: string | null}>> {
   modelSourceEditAssertOwner(host)
   const recovery = modelSourceEditFlowStatus(host)
   if (recovery === 'configuration' && host.flow.contractPlan) {
-    host.dataSet.abandonUnconfirmedSaves()
-    if (!await modelSourceEditReadback(host)) throw new Error('数据库定义已变化，保留待确认的文件迁移；不会重复提交数据库')
-    await host.flow.contractPlan.complete(true); modelSourceEditFinish(host, true)
-    return {confirmed: true, modelId: host.modelId}
+    const batch = host.flow.capture
+    if (batch?.resolution !== 'confirmed') throw new Error('数据库批次没有有效确认，不能继续文件配置阶段')
+    modelSourceEditAssertCapture(host, batch)
+    host.flow.status = 'saving'
+    try {
+      if (!await modelSourceEditReadback(host)) throw new Error('数据库定义已变化，保留待确认的文件迁移；不会重复提交数据库')
+      modelSourceEditAssertCapture(host, batch)
+      await host.flow.contractPlan.complete(true)
+      modelSourceEditAssertCapture(host, batch)
+      modelSourceEditFinish(host, true)
+      return {confirmed: true, modelId: host.modelId}
+    } catch (error) {host.flow.status = 'configuration'; throw error}
   }
   if (!['unknown', 'readback', 'unsubmitted', 'different'].includes(recovery)) throw new Error('没有待核验来源替换或请求仍在进行')
-  host.dataSet.abandonUnconfirmedSaves()
+
+  if (recovery !== 'unsubmitted') {
+    const batch = host.flow.capture
+    if (!batch) throw new Error('缺少来源替换原始保存捕获；不能核验、采用当前结果或放弃本地修改')
+    modelSourceEditAssertCapture(host, batch)
+    if (batch.resolution === 'not-applied') {
+      if (!options.abandonNotApplied) {
+        if (modelSourceEditCaptureChanged(host)) throw new Error('原来源批次确认未生效，但原目标草稿已变化；保留修改并重新核验')
+        host.flow.status = 'different'
+        return {confirmed: false, modelId: null}
+      }
+      if (modelSourceEditCaptureChanged(host)) throw new Error('原来源意图已改变；保留修改，不能放弃')
+      modelSourceEditDiscardCapture(host, batch)
+      modelSourceEditFinish(host, true)
+      return {confirmed: false, modelId: null}
+    }
+    if (options.discardLocalChanges) {
+      if (batch.resolution !== 'confirmed') throw new Error('只有原来源批次已确认后才能放弃后续本地修改')
+      // The user action is synchronous across all original targets before readback can yield.
+      modelSourceEditDiscardCapture(host, batch)
+    }
+    host.flow.status = 'saving'
+    try {
+      let outcome: Awaited<ReturnType<typeof verifyDataSpaceDefinitionCapture>>
+      if (batch.resolution === 'confirmed') outcome = 'already-confirmed'
+      else {
+        const baseline = host.flow.captureBaseline
+        if (!baseline || baseline.some(({target, signature}) => definitionTargetDraftSignature(target.view, target.ids) !== signature)) {
+          throw new Error('原来源目标草稿在核验前已改变；保留修改，不能重新签发原批次')
+        }
+        outcome = await verifyDataSpaceDefinitionCapture(host.dataSet, batch, false)
+      }
+      modelSourceEditAssertCapture(host, batch)
+      if (outcome === 'not-applied') {
+        if (modelSourceEditCaptureChanged(host)) throw new Error('原来源批次确认未生效，但原目标草稿已变化；保留修改并重新核验')
+        host.flow.status = 'different'
+        host.flow.verification.unshift({table: host.models.tableName, id: host.modelId, result: '原来源批次已确认未生效；须明确放弃本次来源意图后才能结束'})
+        return {confirmed: false, modelId: null}
+      }
+      if (outcome === 'accepted-current') throw new Error('来源替换不能采用未确认的当前结果')
+      if (batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))) {
+        host.flow.status = 'readback'
+        if (!options.discardLocalChanges) throw new Error('原来源批次已确认，但目标仍有本地新修改草稿；保留修改，请明确选择放弃本地新修改并核验')
+        return {confirmed: false, modelId: null}
+      }
+      const confirmed = await modelSourceEditReadback(host)
+      if (confirmed && host.flow.contractPlan) {host.flow.status = 'configuration'; await host.flow.contractPlan.complete(false)}
+      if (confirmed) modelSourceEditFinish(host, true); else host.flow.status = 'different'
+      return {confirmed, modelId: confirmed ? host.modelId : null}
+    } catch (error) {if (host.flow.status !== 'configuration') host.flow.status = batch.targets.some(target => target.view.hasUnconfirmedSave) ? 'unknown' : 'readback'; throw error}
+  }
+
+  if (host.flow.capture || host.flow.captureBaseline) throw new Error('派发状态与来源捕获不匹配，不能按未派发流程清理')
   modelSourceEditAssertClean(host, true, true)
-  const unsubmitted = recovery === 'unsubmitted'
   if (host.models.hasEditingChanges(host.modelId)) {
     const patch = host.models.getEditingPatch(host.modelId) ?? {}
-    if (!unsubmitted || Object.keys(patch).length !== Object.keys(host.flow.patch).length
+    if (Object.keys(patch).length !== Object.keys(host.flow.patch).length
       || Object.entries(patch).some(([key, value]) => !Object.is(host.flow.patch[key], value))) throw new Error('本次来源编辑已改变，不能自动放弃')
   }
   if (host.models.dirtyTracking.hasPendingChanges(host.modelId)) {
@@ -935,13 +1064,13 @@ export async function modelSourceEditVerify(host: ModelSourceEditHost): Promise<
   }
   for (const item of host.flow.modelEdits) {
     const patch = host.models.getEditingPatch(item.id)
-    if (patch && (!unsubmitted || Object.keys(patch).length !== Object.keys(item.patch).length
+    if (patch && (Object.keys(patch).length !== Object.keys(item.patch).length
       || Object.entries(patch).some(([key, value]) => !Object.is(item.patch[key], value)))) throw new Error('依赖模型编辑已改变，不能自动放弃')
     if (host.models.dirtyTracking.hasPendingChanges(item.id) && JSON.stringify(modelSourceEditCurrent(host, item.id)) !== item.snapshot) throw new Error('依赖模型草稿已改变，不能自动放弃')
   }
   for (const item of host.flow.fieldEdits) {
     const patch = host.fields.getEditingPatch(item.id)
-    if (patch && (!unsubmitted || Object.keys(patch).length !== Object.keys(item.patch).length
+    if (patch && (Object.keys(patch).length !== Object.keys(item.patch).length
       || Object.entries(patch).some(([key, value]) => !Object.is(item.patch[key], value)))) throw new Error('字段映射编辑已改变，不能自动放弃')
     if (host.fields.dirtyTracking.hasPendingChanges(item.id) && JSON.stringify(modelSourceEditFieldRow(host, item.id)) !== item.snapshot) throw new Error('字段映射草稿已改变，不能自动放弃')
   }
@@ -951,7 +1080,7 @@ export async function modelSourceEditVerify(host: ModelSourceEditHost): Promise<
     && JSON.stringify(host.fields.dirtyTracking.getPendingDeleteSnapshot(item.id)) !== JSON.stringify(item.row)) throw new Error('待删除字段草稿已改变，不能自动放弃')
   for (const item of host.flow.relationEdits) {
     const patch = host.relations.getEditingPatch(item.id)
-    if (patch && (!unsubmitted || Object.keys(patch).length !== 1 || patch['filter'] !== item.patch['filter'])) throw new Error('关系迁移编辑已改变，不能自动放弃')
+    if (patch && (Object.keys(patch).length !== 1 || patch['filter'] !== item.patch['filter'])) throw new Error('关系迁移编辑已改变，不能自动放弃')
     if (host.relations.dirtyTracking.hasPendingChanges(item.id) && JSON.stringify(modelSourceEditRelationRow(host, item.id)) !== item.snapshot) throw new Error('关系迁移草稿已改变，不能自动放弃')
   }
   host.models.discardPendingChanges([host.modelId, ...host.flow.modelEdits.map(item => item.id)])
@@ -959,17 +1088,16 @@ export async function modelSourceEditVerify(host: ModelSourceEditHost): Promise<
   host.relations.discardPendingChanges(host.flow.relationEdits.map(item => item.id))
   host.flow.status = 'saving'
   try {
-    if (unsubmitted) {host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; await modelSourceEditReload(host); host.flow.status = 'ready'; return {confirmed: false, modelId: null}}
-    const confirmed = await modelSourceEditReadback(host)
-    if (confirmed && host.flow.contractPlan) {host.flow.status = 'configuration'; await host.flow.contractPlan.complete(false)}
-    if (confirmed) modelSourceEditFinish(host, true); else host.flow.status = 'different'
-    return {confirmed, modelId: confirmed ? host.modelId : null}
-  } catch (error) {if (host.flow.status !== 'configuration') host.flow.status = 'readback'; throw error}
+    host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []
+    await modelSourceEditReload(host); host.flow.status = 'ready'; return {confirmed: false, modelId: null}
+  } catch (error) {host.flow.status = 'readback'; throw error}
 }
 
 /** 显式采用刚回读的正式状态；不补写，也不宣称原替换已成功。 */
 export function modelSourceEditAcceptCurrent(host: ModelSourceEditHost) {
   modelSourceEditAssertClean(host)
+  if (host.flow.capture?.resolution !== 'confirmed' || host.flow.contractPlan
+    || host.flow.capture.targets.some(target => target.view.hasUnconfirmedSave)) throw new Error('原来源批次未确认或文件配置待处理，不能采用当前结果')
   if (host.flow.status !== 'different' || host.flow.verifiedSnapshot !== modelSourceEditVerificationSnapshot(host)) throw new Error('请先核验当前正式结果')
   // 差异采用不证明原提交成功；正式结果可能含未计划的字段/关系变化，旧消费者须重查。
   modelSourceEditInvalidateChangedSiblings(host, true)
@@ -986,7 +1114,7 @@ export type ModelSourceEditHandle = {
   preview(source: Parameters<Reader['prepare']>[0]): Promise<void>
   discard(): void
   save(): Promise<string>
-  verify(): Promise<Readonly<{confirmed: boolean; modelId: string | null}>>
+  verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{confirmed: boolean; modelId: string | null}>>
   acceptCurrent(): void
 }
 
@@ -1002,7 +1130,7 @@ export function createModelSourceEditHandle(host: ModelSourceEditHost): ModelSou
     preview: source => modelSourceEditPreview(host, source),
     discard: () => modelSourceEditDiscard(host),
     save: () => modelSourceEditSave(host),
-    verify: () => modelSourceEditVerify(host),
+    verify: options => modelSourceEditVerify(host, options),
     acceptCurrent: () => modelSourceEditAcceptCurrent(host),
   }
 }

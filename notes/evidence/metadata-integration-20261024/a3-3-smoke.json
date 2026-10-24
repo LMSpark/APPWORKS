@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-24",
+  "task": "A3.3 source replacement and synchronization",
+  "baseCommit": "92dcc18b1ba3781e8b759cf9f14e76a5a3268a96",
+  "environment": "NewApp actual service through localhost:5273",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetModel": "SourceScope_20261018",
+  "uiPersistenceActions": 0,
+  "checks": [
+    "Opened design from original directory navigation and opened the existing model workspace",
+    "Selected the existing ContentType dictionary in the standard source picker; selection opened replacement preview only",
+    "Preview displayed eight source fields and retained the existing calculated field in differences",
+    "Cancelled replacement preview without invoking confirm replacement",
+    "Opened bound-source synchronization preview: zero additions, zero removals; cancelled without invoking confirm synchronization",
+    "Closed model configuration and the entire design dialog",
+    "Opened a new design instance and verified original registered name, ContentType dictionary source and original description",
+    "New instance save disabled and close configuration enabled; exited to original directory"
+  ],
+  "reopenedDescription": "来源替换后连续保存已验证 20261018",
+  "screenshots": ["a3-3-source-preview.png", "a3-3-source-reopened.png"],
+  "limitations": [
+    "No source mutation or synchronization was persisted online in this smoke test",
+    "No online unknown-result or partial-result fault injection",
+    "Source mutation, rename and deletion persistence remain part of the planned disposable-model lifecycle acceptance",
+    "UI action count is not a count of HTTP requests"
+  ]
+}

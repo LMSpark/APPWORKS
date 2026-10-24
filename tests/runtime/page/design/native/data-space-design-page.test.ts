@@ -5283,6 +5283,7 @@ describe('native data-space design entry', () => {
     if (lost) {
       expect(instance.isDirty).toBe(true)
       expect(sourceButton(editor, 'verify-create').attributes('disabled')).toBeUndefined()
+      expect(sourceButton(editor, 'verify-create').text()).toBe('核验原来源批次（保留本地修改）')
       expect(sourcePreviewDom().element.contains(sourceButton(editor, 'verify-create').element)).toBe(true)
       await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
     }
@@ -5300,7 +5301,7 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(2)
   })
 
-  it('retains the source workspace after explicit adoption without reporting or replaying the original replacement', async () => {
+  it('keeps source recovery pending when the confirmed replacement rereads a different formal result', async () => {
     const source = {type: 'dict' as const, id: 'NEXT', name: 'NextChoices', description: '新字典', dbid: '', databaseName: '', providerId: ''}
     const f = fixture({allowSourceEdit: true, sourceFields: [], modelSources: {
       query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
@@ -5317,23 +5318,14 @@ describe('native data-space design entry', () => {
     await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(true)
     expect(sourcePreviewDom().text()).toContain('正式记录与预览不同')
-    await sourceButton(editor, 'accept-create').trigger('click'); await flushPromises()
+    expect(editor.findAllComponents(RendererButton).some(button => button.attributes('data-action') === 'accept-create')).toBe(false)
+    expect(sourceButton(editor, 'verify-create').text()).toBe('核验原来源批次（保留本地修改）')
     expect(f.sessions).toHaveLength(1)
     expect(original.metadataDataSet.destroyed).toBe(false)
-    const current = f.sessions.at(-1)!
-    expect(current.metadataDataSet.getView('Base_DataModel')!.rows.find(row => row['rowid'] === 'M1')).toMatchObject({
-      MetaName: 'NextChoices', description: '正式描述另有修改',
-    })
     expect(wrapper.get('.design-detail h2').text()).toBe('Orders')
-    expect(wrapper.text()).not.toContain('模型注册名或来源身份已变化')
-    expect(instance.isDirty).toBe(false)
+    expect(sourcePreviewDom().text()).toContain('正式记录与预览不同')
+    expect(instance.isDirty).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    expect(editor.text()).toContain('已采用当前正式结果，未补写或撤销服务器记录')
-    await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', '采用来源结果后的连续编辑')
-    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty, wrapper.text()).toBe(false)
-    expect(f.modelRow()).toMatchObject({MetaName: 'NextChoices', description: '采用来源结果后的连续编辑'})
-    expect(writes(f)).toHaveLength(2)
   })
 
   it.each([false, true])('creates from the directory pending node and protects an unknown receipt: lost=%s', async lost => {
@@ -5356,6 +5348,7 @@ describe('native data-space design entry', () => {
     if (lost) {
       expect(instance.isDirty).toBe(true)
       expect(() => dynamic.closeSystemPageInstance(instance.instanceId)).toThrow('未保存')
+      expect(sourceButton(editor, 'verify-create').text()).toBe('放弃本次本地副本并核验')
       expect(sourceButton(editor, 'create-model').attributes('disabled')).toBeDefined()
       expect(sourceTypeDisabled(editor)).toBe(true)
       expect(editor.findAllComponents(FieldText).find(field => field.props('field') === 'name' && field.find('input').exists())!.get('input').attributes('disabled')).toBeDefined()

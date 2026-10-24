@@ -13,6 +13,7 @@
       "SourceContractChange",
       "SourceContractPlan",
       "ModelSourceEditStatus",
+      "ModelSourceEditRecoveryOptions",
       "ModelSourceEditLifecycle",
       "ModelSourceEditFlow",
       "ModelSourceEditHost",
@@ -652,6 +653,26 @@
         "configuration"
       ]
     },
+    "ModelSourceEditRecoveryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditRecoveryOptions",
+      "properties": {
+        "abandonNotApplied": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "discardLocalChanges": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "ModelSourceEditLifecycle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -814,6 +835,32 @@
           ],
           "title": "SourceContractPlan"
         },
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureBaseline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCapture"
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
+        },
         "fieldEdits": {
           "type": "array",
           "items": {
@@ -874,6 +921,8 @@
         "inputs",
         "acceptedContracts",
         "contractPlan",
+        "capture",
+        "captureBaseline",
         "fieldEdits",
         "relationEdits",
         "modelEdits",
@@ -1159,7 +1208,11 @@
         },
         "method.verify.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ModelSourceEditRecoveryOptions"
+            }
+          },
           "additionalProperties": false
         },
         "method.verify.return": {
@@ -1175,7 +1228,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T03:15:12.839Z",
+  "generatedAt": "2026-10-24T03:51:08.993Z",
   "models": {
     "Reader": {
       "name": "Reader",
@@ -1555,6 +1608,35 @@
         "members": {}
       }
     },
+    "ModelSourceEditRecoveryOptions": {
+      "name": "ModelSourceEditRecoveryOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    abandonNotApplied?: boolean;\n    discardLocalChanges?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    abandonNotApplied?: boolean;\n    discardLocalChanges?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "abandonNotApplied",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "discardLocalChanges",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ModelSourceEditLifecycle": {
       "name": "ModelSourceEditLifecycle",
       "jsdoc": "",
@@ -1726,7 +1808,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelSourceEditStatus;\n    generation: number;\n    preview: Preview | null;\n    baseline: string;\n    expected: string;\n    pendingSnapshot: string;\n    patch: Record<string, unknown>;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    mappings: Map<string, string>;\n    included: Set<string>;\n    removals: Set<string>;\n    inputs: Map<string, string>;\n    acceptedContracts: Set<string>;\n    contractPlan: SourceContractPlan | null;\n    fieldEdits: FieldEdit[];\n    relationEdits: FieldEdit[];\n    modelEdits: FieldEdit[];\n    added: FieldAddition[];\n    removed: Array<{\n        id: string;\n        row: DataRow;\n    }>;\n}",
+        "declarationTypeText": "{\n    status: ModelSourceEditStatus;\n    generation: number;\n    preview: Preview | null;\n    baseline: string;\n    expected: string;\n    pendingSnapshot: string;\n    patch: Record<string, unknown>;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    mappings: Map<string, string>;\n    included: Set<string>;\n    removals: Set<string>;\n    inputs: Map<string, string>;\n    acceptedContracts: Set<string>;\n    contractPlan: SourceContractPlan | null;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureBaseline: Array<{\n        target: DataSpaceDefinitionCaptureBatch['targets'][number];\n        signature: string;\n    }> | null;\n    fieldEdits: FieldEdit[];\n    relationEdits: FieldEdit[];\n    modelEdits: FieldEdit[];\n    added: FieldAddition[];\n    removed: Array<{\n        id: string;\n        row: DataRow;\n    }>;\n}",
         "members": {
           "attributes": [
             {
@@ -1801,6 +1883,16 @@
             },
             {
               "name": "contractPlan",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capture",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "captureBaseline",
               "readable": true,
               "writable": true
             },
@@ -1964,7 +2056,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
         "members": {
           "methods": [
             {
@@ -2169,7 +2261,19 @@
             },
             {
               "name": "verify",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ModelSourceEditRecoveryOptions",
+                    "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

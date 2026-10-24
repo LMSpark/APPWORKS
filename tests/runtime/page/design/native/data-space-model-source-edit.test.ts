@@ -102,6 +102,94 @@ describe('complete source model columns', () => {
   })
 })
 
+describe('source edit capture recovery A3.3', () => {
+  it('does not abandon an unrelated sibling view capture while verifying this source edit', async () => {
+    const {owner, session, f, writes} = await setup({allowFieldEdit: true})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+
+    const sibling = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    sibling.updateEditingValue('A', 'inputParams', '[{"rowid":"P1","Name":"sibling change"}]')
+    expect(sibling.hasEditingChanges('A')).toBe(true)
+    expect((await sibling.applyEditingRows(['A'])).success).toBe(true)
+    f.loseNextResponse()
+    await expect(session.metadataDataSet.saveChanges({applyEditingRows: false, views: [
+      {tableName: sibling.tableName, viewId: sibling.viewId, ids: ['A']},
+    ]})).rejects.toThrow()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true, modelId: 'M1'})
+    expect(writes()).toHaveLength(2)
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+  })
+
+  it('keeps an invalid partial receipt unresolved and blocks accepting the current result', async () => {
+    const {owner, f, writes} = await setup({allowFieldAdd: true, omitFieldReceipt: true, omitFieldWrite: true, formalProjection: true})
+    await owner.includeField({sourceName: 'extra', included: true})
+    await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(() => owner.acceptCurrent()).toThrow()
+  })
+
+  it('does not re-sign a late edit made during the first native capture verification await', async () => {
+    const {owner, session, f, writes, reader} = await setup({allowFieldEdit: true})
+    reader.prepare.mockResolvedValue({...prepared, fields: [field, {...field, Name: 'parentCode', IsPKey: 0}]})
+    await owner.preview(source)
+    await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+
+    const dataSet = session.metadataDataSet
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options)
+      await gate
+      return result
+    })
+    const verification = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    const fields = dataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!
+    fields.updateEditingValue('F2', 'AsName', 'late edit')
+    release()
+    await expect(verification).rejects.toThrow(/新字段编辑|草稿发生变化|本地新修改/)
+
+    expect(fields.getEditingRow('F2')?.['AsName']).toBe('late edit')
+    await expect(owner.verify()).rejects.toThrow(/新字段编辑|草稿发生变化|本地新修改/)
+    expect(fields.getEditingRow('F2')?.['AsName']).toBe('late edit')
+    expect(writes()).toHaveLength(1)
+  })
+
+  it('preflights every captured view before discarding any late edits when a later target is busy', async () => {
+    const {owner, session, reader, f, writes} = await setup({allowFieldEdit: true})
+    owner.discard()
+    reader.prepare.mockResolvedValue({...prepared, fields: [field, {...field, Name: 'parentCode', IsPKey: 0}, prepared.fields[2]!]})
+    await owner.preview(source)
+    await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!
+    models.updateEditingValue('M1', 'description', '后续模型草稿')
+    fields.updateEditingValue('F2', 'AsName', '后续字段草稿')
+    fields.mutating = true
+    const discardModelRows = vi.spyOn(models, 'discardPendingChanges')
+    await expect(owner.verify({discardLocalChanges: true})).rejects.toThrow('原来源批次仍在操作')
+    expect(discardModelRows).not.toHaveBeenCalled()
+    expect(models.getEditingRow('M1')?.['description']).toBe('后续模型草稿')
+    expect(fields.getEditingRow('F2')?.['AsName']).toBe('后续字段草稿')
+    expect(writes()).toHaveLength(1)
+    fields.mutating = false
+  })
+})
+
 describe('explicit replacement field contracts', () => {
   async function replacement(moveKey = false) {
     const result = await setup({formalProjection: true, overviewOnly: true, deferDefinition: true, allowFieldEdit: true,
@@ -458,6 +546,217 @@ describe('explicit source field contract synchronization', () => {
     return {...result, session: reopened, owner: edit, config}
   }
 
+  function acceptCurrentSourceContracts(owner: Awaited<ReturnType<typeof contractSync>>['owner']) {
+    for (const change of owner.getState().preview?.contractChanges ?? []) owner.confirmFieldContract({fieldId: change.id, accepted: true})
+  }
+
+  it('verifies authoritative not-applied through native save, repeats verification, then abandons only the unchanged captured selectors', async () => {
+    const {f, session, owner, writes} = await contractSync('databaseView', 'varchar', {omitModelWrite: true, omitAllFieldChanges: true})
+    acceptCurrentSourceContracts(owner)
+    const fileBefore = f.stored.get('A')
+    const modelBefore = structuredClone(f.modelRow())
+    const dataSet = session.metadataDataSet, nativeSave = dataSet.saveChanges.bind(dataSet)
+    const batches: Parameters<typeof dataSet.saveChanges>[0][] = []
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async options => {batches.push(options); return nativeSave(options)})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    expect(batches).toHaveLength(1)
+
+    const sibling = dataSet.getView('Base_DataSet', 'default')!
+    sibling.updateEditingValue('A', 'inputParams', '[{"Name":"keep-sibling"}]')
+    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
+    expect(owner.getState().status).toBe('different')
+    expect(batches).toHaveLength(2)
+    expect(batches[1]?.views).toEqual(batches[0]?.views)
+    expect(writes()).toHaveLength(1)
+    expect(f.modelRow()).toEqual(modelBefore)
+    expect(f.fileWrites).toHaveLength(0)
+
+    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
+    expect(batches).toHaveLength(2)
+    await owner.verify({abandonNotApplied: true})
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
+    expect(batches).toHaveLength(2)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(f.stored.get('A')).toBe(fileBefore)
+    expect(sibling.getEditingRow('A')?.['inputParams']).toBe('[{"Name":"keep-sibling"}]')
+    expect(sibling.hasEditingChanges('A')).toBe(true)
+  })
+
+  it.each(['overlay', 'applied'] as const)('rejects a late %s edit across first native not-applied verification and preserves the original save count', async editKind => {
+    const {f, session, owner, writes} = await contractSync('databaseView', 'varchar', {omitModelWrite: true, omitAllFieldChanges: true})
+    acceptCurrentSourceContracts(owner)
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const dataSet = session.metadataDataSet, nativeSave = dataSet.saveChanges.bind(dataSet)
+    let enter!: () => void, release!: () => void
+    const entered = new Promise<void>(resolve => {enter = resolve}), gate = new Promise<void>(resolve => {release = resolve})
+    const recoverySaves: Parameters<typeof dataSet.saveChanges>[0][] = []
+    vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      recoverySaves.push(options); enter(); await gate; return nativeSave(options)
+    })
+    const verification = owner.verify()
+    await entered
+    const fields = dataSet.getTable('Base_DataModel_Field')!.viewList.find(view => view.hasUnconfirmedSave)!
+    fields.updateEditingValue('F1', 'FieldType', 'late-local-type')
+    if (editKind === 'applied') expect((await fields.applyEditingRows(['F1'])).success).toBe(true)
+    release()
+    await expect(verification).rejects.toThrow()
+    await expect(owner.verify()).rejects.toThrow()
+    expect(fields.getEditingRow('F1')?.['FieldType']).toBe('late-local-type')
+    expect(recoverySaves).toHaveLength(1)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(() => owner.acceptCurrent()).toThrow()
+  })
+
+  it.each(['malformed', 'duplicate', 'incomplete'] as const)('keeps a %s DataSet receipt unresolved without accepting or replaying the source batch', async receiptKind => {
+    const {f, session, owner, writes} = await contractSync()
+    acceptCurrentSourceContracts(owner)
+    const fileBefore = f.stored.get('A'), dataSet = session.metadataDataSet, nativeSave = dataSet.saveChanges.bind(dataSet)
+    const saveCalls: Parameters<typeof dataSet.saveChanges>[0][] = []
+    vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      saveCalls.push(options)
+      const result = await nativeSave(options)
+      const data = result.data
+      if (!data) throw new Error('native DataSet save returned no receipt data')
+      if (receiptKind === 'malformed') {
+        return {...result, data: {...data, viewResults: data.viewResults.map((view, index) => index === 0 ? {...view, viewId: 'wrong-view'} : view)}}
+      }
+      if (receiptKind === 'duplicate') {
+        const first = data.viewResults[0]
+        return first ? {...result, data: {...data, viewCount: data.viewCount + 1, viewResults: [...data.viewResults, first]}} : result
+      }
+      return {...result, data: {...data, viewCount: Math.max(0, data.viewCount - 1), viewResults: data.viewResults.slice(0, -1)}}
+    })
+    await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    await expect(owner.verify()).rejects.toThrow()
+    expect(() => owner.acceptCurrent()).toThrow()
+    expect(saveCalls).toHaveLength(1)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(f.stored.get('A')).toBe(fileBefore)
+  })
+
+  it.each(['changed-query', 'missing-view', 'replaced-view'] as const)('rejects original capture identity drift (%s) without accept-current, DB replay, or file completion', async identityChange => {
+    const {f, session, owner, writes} = await contractSync()
+    acceptCurrentSourceContracts(owner)
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const dataSet = session.metadataDataSet, table = dataSet.getTable('Base_DataModel_Field')!
+    const original = table.viewList.find(view => view.hasUnconfirmedSave)!
+    if (identityChange === 'changed-query') original.queryContext = {...original.queryContext, proofScope: 'changed'}
+    else {
+      table.destroyView(original.viewId)
+      if (identityChange === 'replaced-view') table.getOrCreateView(original.viewId)
+    }
+    const save = dataSet.saveChanges.bind(dataSet), calls: Parameters<typeof dataSet.saveChanges>[0][] = []
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async options => {calls.push(options); return save(options)})
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    await expect(owner.verify()).rejects.toThrow()
+    expect(() => owner.acceptCurrent()).toThrow()
+    expect(calls).toHaveLength(0)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('discards only captured applied edits, keeps unrelated and post-click drafts, then completes the confirmed file plan once', async () => {
+    const {f, session, owner, writes} = await projectedSync()
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!
+    const loadModel = models.loadFromServer.bind(models)
+    const releaseSave = f.holdModelResponse()
+    const saving = owner.save()
+    await vi.waitFor(() => expect(writes()).toHaveLength(1))
+    f.failNextModelRead(); releaseSave()
+    await expect(saving).rejects.toThrow('model read unavailable')
+    expect(owner.getState().status).toBe('readback')
+    expect(owner.getState().pending).toBe(true)
+    expect(f.fileWrites).toHaveLength(0)
+
+    const fields = dataSet.getTable('Base_DataModel_Field')!.viewList.find(view => view.viewId.startsWith('sourceSync:'))!
+    const fieldId = 'F1'
+    fields.updateEditingValue(fieldId, 'FieldType', 'local-applied-type')
+    expect((await fields.applyEditingRows([fieldId])).success).toBe(true)
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(true)
+    const sibling = dataSet.getView('Base_DataSet', 'default')!
+    sibling.updateEditingValue('A', 'inputParams', '[{"Name":"unrelated-before-click"}]')
+
+    let enter!: () => void, release!: () => void
+    const entered = new Promise<void>(resolve => {enter = resolve}), gate = new Promise<void>(resolve => {release = resolve})
+    vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
+      const result = await loadModel(options); enter(); await gate; return result
+    })
+    const verification = owner.verify({discardLocalChanges: true})
+    expect(fields.hasEditingChanges(fieldId)).toBe(false)
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(false)
+    await entered
+    sibling.updateEditingValue('A', 'inputParams', '[{"Name":"post-click"}]')
+    release()
+    await expect(verification).resolves.toEqual({confirmed: true, modelId: 'M1'})
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
+    expect(fields.hasEditingChanges(fieldId)).toBe(false)
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(false)
+    expect(sibling.getEditingRow('A')?.['inputParams']).toBe('[{"Name":"post-click"}]')
+    expect(sibling.hasEditingChanges('A')).toBe(true)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow()
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(1)
+  })
+
+  it.each(['overlay', 'applied'] as const)('preserves a captured F1 %s edit made during the domain readback after explicit discard', async editKind => {
+    const {f, session, owner, writes} = await projectedSync()
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!
+    const loadModel = models.loadFromServer.bind(models)
+    const releaseSave = f.holdModelResponse()
+    const saving = owner.save()
+    await vi.waitFor(() => expect(writes()).toHaveLength(1))
+    f.failNextModelRead(); releaseSave()
+    await expect(saving).rejects.toThrow('model read unavailable')
+    expect(owner.getState().status).toBe('readback')
+    expect(owner.getState().pending).toBe(true)
+
+    const fields = dataSet.getTable('Base_DataModel_Field')!.viewList.find(view => view.viewId.startsWith('sourceSync:'))!
+    const fieldId = 'F1'
+    fields.updateEditingValue(fieldId, 'FieldType', 'pre-click-applied-type')
+    expect((await fields.applyEditingRows([fieldId])).success).toBe(true)
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(true)
+
+    let enter!: () => void, release!: () => void
+    const entered = new Promise<void>(resolve => {enter = resolve}), gate = new Promise<void>(resolve => {release = resolve})
+    vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
+      const result = await loadModel(options); enter(); await gate; return result
+    })
+    const verification = owner.verify({discardLocalChanges: true})
+    expect(fields.hasEditingChanges(fieldId)).toBe(false)
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(false)
+    await entered
+    fields.updateEditingValue(fieldId, 'FieldType', `late-${editKind}-type`)
+    if (editKind === 'applied') expect((await fields.applyEditingRows([fieldId])).success).toBe(true)
+    release()
+
+    await expect(verification).rejects.toThrow()
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true})
+    expect(fields.getEditingRow(fieldId)?.['FieldType']).toBe(`late-${editKind}-type`)
+    expect(fields.hasEditingChanges(fieldId)).toBe(editKind === 'overlay')
+    expect(fields.dirtyTracking.hasPendingChanges(fieldId)).toBe(editKind === 'applied')
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true})
+    expect(fields.getEditingRow(fieldId)?.['FieldType']).toBe(`late-${editKind}-type`)
+    expect(writes()).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
   it.each(['int', ''])('coordinates the confirmed source contract with fixed named projections and independently reopens the saved design (type=%s)', async nextType => {
     const {f, session, owner, config, writes} = await projectedSync(nextType)
     expect(owner.getState().preview?.viewChanges).toContainEqual(expect.objectContaining({tableName: 'OrdersAlias', viewId: 'shared', fieldId: 'F1'}))
@@ -483,6 +782,22 @@ describe('explicit source field contract synchronization', () => {
     expect(await owner.verify()).toEqual({confirmed: true, modelId: 'M1'})
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
     expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.views.shared.fieldProjection[0]).toMatchObject({type: 'int', primaryKey: false})
+  })
+
+  it('keeps a captured metadata edit made while the file plan is completing', async () => {
+    const {f, session, owner, writes} = await projectedSync()
+    const release = f.holdFileResponse()
+    const saving = owner.save()
+    await vi.waitFor(() => expect(f.fileWrites).toHaveLength(1))
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    models.updateEditingValue('M1', 'description', '文件完成期间的本地修改')
+    release()
+    await expect(saving).rejects.toThrow(/原来源批次目标|正式注册名未确认|其他元数据草稿/)
+    expect(models.getEditingRow('M1')?.['description']).toBe('文件完成期间的本地修改')
+    expect(owner.getState().status).toBe('configuration')
+    await expect(owner.verify()).rejects.toThrow(/原来源批次目标|正式注册名未确认|远端配置已改变|其他元数据草稿/)
+    expect(models.getEditingRow('M1')?.['description']).toBe('文件完成期间的本地修改')
+    expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
   })
 
   it('rejects remote configuration changes before dispatch without losing the other document', async () => {
@@ -748,7 +1063,7 @@ describe('same-contract source replacement', () => {
     expect(owner.getState().verification).toContainEqual(expect.objectContaining({id: 'F2', result: '字段仍存在，删除未确认'}))
     await expect(owner.save()).rejects.toThrow('先核验')
     expect(writes()).toHaveLength(1); expect(f.modelRow().MetaName).toBe('NextOrders')
-    owner.acceptCurrent()
+    expect(() => owner.acceptCurrent()).toThrow()
     const fresh = await f.open('A')
     expect((await fresh.loadModelFields('M1')).rows.some(row => row['rowid'] === 'F2')).toBe(true)
   })
@@ -811,9 +1126,10 @@ describe('same-contract source replacement', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it.each(['replace', 'synchronize'])('invalidates old consumers when adopting a differing %s result without replay', async operation => {
+  it.each(['replace', 'synchronize'])('does not adopt a differing %s result while its original batch is unresolved', async operation => {
     const {owner, f, session, writes} = operation === 'replace' ? await setup() : await synchronize()
     const fields = await session.loadModelFields('M1')
+    const fieldRows = [...fields.rows]
     const other = fields.createQueryView('unrelated-model')
     other.configure({queryContext: {dataSpaceId: 'A', modelId: 'M2'}})
     await other.loadFromServer()
@@ -823,9 +1139,9 @@ describe('same-contract source replacement', () => {
     f.setModelValues({description: '正式结果另有修改'})
     expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
     expect(fields.requestState).toBe(RequestState.Loaded)
-    owner.acceptCurrent()
-    expect(fields.requestState).toBe(RequestState.Idle)
-    expect(fields.rows).toEqual([])
+    expect(() => owner.acceptCurrent()).toThrow()
+    expect(fields.requestState).toBe(RequestState.Loaded)
+    expect(fields.rows).toEqual(fieldRows)
     expect(other.requestState).toBe(RequestState.Loaded); expect(other.rows).toBe(otherRows)
     expect(writes()).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     const reopened = await f.open('A')
@@ -847,7 +1163,7 @@ describe('same-contract source replacement', () => {
     expect(owner.getState().status).toBe('different'); expect(writes()).toHaveLength(1)
   })
 
-  it('checks relation consumers before clearing field consumers when adopting a differing synchronization', async () => {
+  it('does not clear field or relation consumers when a synchronization batch remains unresolved', async () => {
     const {f, writes} = await synchronize()
     const session = await f.open('A'), owner = session.getModelSourceEdit('M1')
     await owner.previewBoundSource()
@@ -857,7 +1173,7 @@ describe('same-contract source replacement', () => {
     f.created.set('Base_DataModel_Relation', [{rowid: 'R', dataSetId: 'A', parentModId: 'M1', childModId: 'M2', filter: '', cascadeDel: 0}])
     await relations.loadFromServer({allPages: true})
     relations.updateEditingValue('R', 'cascadeDel', 1)
-    expect(() => owner.acceptCurrent()).toThrow('其他元数据草稿')
+    expect(() => owner.acceptCurrent()).toThrow('原来源批次未确认')
     expect(fields.requestState).toBe(RequestState.Loaded)
     expect(relations.getEditingRow('R')?.['cascadeDel']).toBe(1)
     expect(owner.getState().status).toBe('different'); expect(writes()).toHaveLength(1)
@@ -878,10 +1194,9 @@ describe('same-contract source replacement', () => {
     expect(inputs.rows[0]?.['Name']).toBe('customerArg')
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     f.setModelValues({description: '正式结果另有修改'}); await owner.verify()
-    owner.acceptCurrent()
-    expect(inputs.requestState).toBe(RequestState.Idle)
-    const reloaded = await session.loadSourceInputFields('M1')
-    expect(reloaded.rows).toContainEqual(expect.objectContaining({rowid: 'F2', Name: 'clientArg', ValueFun: raw}))
+    expect(() => owner.acceptCurrent()).toThrow()
+    expect(inputs.requestState).toBe(RequestState.Loaded)
+    expect(inputs.rows).toContainEqual(expect.objectContaining({rowid: 'F2', Name: 'customerArg', ValueFun: raw}))
     expect(writes()).toHaveLength(1)
   })
 
@@ -1048,7 +1363,7 @@ describe('same-contract source replacement', () => {
     expect((await owner.verify()).confirmed).toBe(false)
     expect(owner.getState().verification).toContainEqual(expect.objectContaining({id: 'F2', result: '字段仍存在，删除未确认'}))
     expect(writes()).toHaveLength(1)
-    owner.acceptCurrent()
+    expect(() => owner.acceptCurrent()).toThrow()
   })
 
   it('synchronizes source parameters by purpose while preserving unrelated definitions', async () => {
@@ -1214,6 +1529,30 @@ describe('same-contract source replacement', () => {
     owner.discard(); expect(owner.getState().status).toBe('idle')
   })
 
+  it('finishes a no-op synchronization without a fabricated database receipt or file write', async () => {
+    const current = {...source, id: 'CURRENT', name: 'OrderSource', dbid: 'DB', databaseName: 'old-database'}
+    const {owner, reader, f, writes} = await setup({allowFieldAdd: true, allowDelete: true, sourceFields: [
+      {...field, rowid: 'F1', dataModelId: 'M1'},
+      {...field, rowid: 'F2', dataModelId: 'M1', Name: 'parentId', IsPKey: 0},
+      {...field, rowid: 'F3', dataModelId: 'M1', Name: 'extra', IsPKey: 0},
+    ]})
+    owner.discard()
+    reader.query.mockResolvedValue({rows: [current], total: 1})
+    reader.prepare.mockResolvedValue({...prepared, source: current,
+      model: {...prepared.model, MetaName: current.name, DbId: current.dbid, DbName: current.databaseName},
+      fields: [field, {...field, Name: 'parentId', IsPKey: 0}, {...field, Name: 'extra', IsPKey: 0}]})
+    await owner.previewBoundSource()
+    expect(owner.getState().preview).toMatchObject({operation: 'synchronize', additions: [], removals: [], contractChanges: [], problems: []})
+    const originalFile = f.stored.get('A')
+
+    await expect(owner.save()).resolves.toBe('M1')
+
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
+    expect(writes()).toHaveLength(0)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(f.stored.get('A')).toBe(originalFile)
+  })
+
   it('maps a renamed source field to its original ID and output, and explicitly introduces a new output field', async () => {
     const {owner, reader, session, f, writes} = await setup({allowFieldAdd: true, allowFieldEdit: true})
     reader.prepare.mockResolvedValue({...prepared, fields: [field, {...field, Name: 'parentCode', IsPKey: 0}, {...field, Name: 'extra', IsPKey: 0}]})
@@ -1250,7 +1589,7 @@ describe('same-contract source replacement', () => {
     expect(writes()).toHaveLength(before)
     if (kind === 'partial') {
       expect(owner.getState().verification.some(item => item.result.includes('未读取'))).toBe(true)
-      owner.acceptCurrent()
+      expect(() => owner.acceptCurrent()).toThrow()
     }
   })
 
@@ -1316,24 +1655,20 @@ describe('same-contract source replacement', () => {
     expect(writes()).toHaveLength(0)
   })
 
-  it.each(['addition', 'removal'].flatMap(kind => [false, true].map(staged => ({kind, staged}))))('preserves a source $kind field edited during repeated recovery, staged=$staged', async ({kind, staged}) => {
-    const {owner, session, f, writes} = kind === 'addition'
-      ? await setup({allowFieldAdd: true, allowFieldEdit: true})
-      : await setup({allowDelete: true, allowFieldEdit: true, omitDeleteWrite: 'Base_DataModel_Field', sourceFields: [
-        {...field, rowid: 'F1', dataModelId: 'M1'}, {...field, rowid: 'F2', dataModelId: 'M1', Name: 'removed', IsPKey: 0, IsOutput: 0},
-      ]})
-    if (kind === 'addition') await owner.includeField({sourceName: 'extra', included: true})
-    else await owner.removeField({fieldId: 'F2', removed: true})
+  it.each([false, true])('preserves a source addition edited during repeated recovery, staged=%s', async staged => {
+    const {owner, session, f, writes} = await setup({allowFieldAdd: true, allowFieldEdit: true})
+    await owner.includeField({sourceName: 'extra', included: true})
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
-    const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!, load = fields.loadFromServer.bind(fields)
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!
     let release!: () => void
     const gate = new Promise<void>(resolve => {release = resolve})
-    const held = vi.spyOn(fields, 'loadFromServer').mockImplementationOnce(async options => {
-      const result = await load(options); await gate; return result
+    const dataSet = session.metadataDataSet, save = dataSet.saveChanges.bind(dataSet)
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await save(options); await gate; return result
     })
     const verifying = expect(owner.verify()).rejects.toThrow(/草稿|编辑/)
     await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
-    const id = kind === 'addition' ? String(fields.rows.find(row => row['Name'] === 'extra')!['rowid']) : 'F2'
+    const id = String(fields.rows.find(row => row['Name'] === 'extra')!['rowid'])
     fields.updateEditingValue(id, 'AsName', 'laterExtra')
     if (staged) expect((await fields.applyEditingRows([id])).success).toBe(true)
     release(); await verifying
@@ -1341,8 +1676,7 @@ describe('same-contract source replacement', () => {
     await expect(owner.verify()).rejects.toThrow(/草稿|编辑/)
     expect(fields.getEditingRow(id)?.['AsName']).toBe('laterExtra'); expect(writes()).toHaveLength(1)
     fields.discardPendingChanges([id])
-    expect((await owner.verify()).confirmed).toBe(kind === 'addition'); expect(writes()).toHaveLength(1)
-    if (kind === 'removal') owner.acceptCurrent()
+    expect((await owner.verify()).confirmed).toBe(true); expect(writes()).toHaveLength(1)
     const fresh = await f.open('A')
     expect(fresh.metadataDataSet.getView('Base_DataModel_Field')!.rows.find(row => row['rowid'] === id)?.['AsName']).toBe('')
   })
@@ -1354,7 +1688,7 @@ describe('same-contract source replacement', () => {
     f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')!
     fields.updateEditingValue('F2', 'AsName', 'subsequent')
-    await expect(owner.verify()).rejects.toThrow('字段映射编辑已改变')
+    await expect(owner.verify()).rejects.toThrow('原来源目标草稿在核验前已改变')
     expect(fields.getEditingRow('F2')?.['AsName']).toBe('subsequent')
     expect(writes()).toHaveLength(1)
   })
@@ -1457,7 +1791,7 @@ describe('same-contract source replacement', () => {
     expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
     if (kind === 'partial') {
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel', id: 'M1.parentField', result: 'parentField引用与预览不同，请处理差异'})
-      owner.acceptCurrent()
+      expect(() => owner.acceptCurrent()).toThrow()
     }
     expect(writes()).toHaveLength(1)
   })
@@ -1607,7 +1941,9 @@ describe('same-contract source replacement', () => {
     expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
     expect(owner.getState().status).toBe('different')
     await expect(owner.save()).rejects.toThrow('先核验')
-    owner.acceptCurrent(); expect(writes()).toHaveLength(1)
+    if (owner.getState().abandonNotApplied) await owner.verify({abandonNotApplied: true})
+    else expect(() => owner.acceptCurrent()).toThrow()
+    expect(writes()).toHaveLength(1)
   })
 
   it('ignores late preview after cancellation and rejects obsolete session results', async () => {

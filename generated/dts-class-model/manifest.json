@@ -12830,6 +12830,7 @@
           "SourceContractChange",
           "SourceContractPlan",
           "ModelSourceEditStatus",
+          "ModelSourceEditRecoveryOptions",
           "ModelSourceEditLifecycle",
           "ModelSourceEditFlow",
           "ModelSourceEditHost",
@@ -19742,6 +19743,10 @@
       "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "ModelSourceEditRecoveryOptions": {
       "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
       "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
     },

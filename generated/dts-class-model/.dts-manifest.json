@@ -3774,7 +3774,7 @@
     "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T03:15:12.839Z"
+      "sourceModifiedAt": "2026-10-24T03:51:08.993Z"
     },
     "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
@@ -4359,7 +4359,7 @@
     "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue.json",
-      "sourceModifiedAt": "2026-10-18T03:54:55.340Z"
+      "sourceModifiedAt": "2026-10-24T03:45:17.017Z"
     },
     "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",

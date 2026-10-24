@@ -150,11 +150,15 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
       </template>
     <template v-if="unresolved">
       <p v-if="state.data?.status === 'configuration'" role="alert">数据库定义已确认，视图配置尚未完整确认。继续核验只接续配置阶段，不会重复提交数据库。</p>
-      <p v-else role="alert">{{ synchronizing ? '字段同步' : modelId ? '来源替换' : '新增' }}尚未完整确认。核验会放弃本次数据库未提交副本并读取正式结果，不会重放数据库写入；有视图迁移时继续配置阶段。</p>
+      <p v-else-if="modelId && state.data && 'abandonNotApplied' in state.data && state.data.abandonNotApplied" role="alert">原数据库批次已确认未生效。可明确放弃本次来源意图；该操作只清理原批次目标，不会改写数据库或视图配置。</p>
+      <p v-else-if="modelId" role="alert">{{ synchronizing ? '字段同步' : '来源替换' }}尚未完整确认。核验原批次会保留本地修改；未知或不完整回执不能采用当前正式结果。</p>
+      <p v-else role="alert">{{ synchronizing ? '字段同步' : '新增' }}尚未完整确认。核验会放弃本次数据库未提交副本并读取正式结果，不会重放数据库写入；有视图迁移时继续配置阶段。</p>
       <ul><li v-for="item in state.data?.verification ?? []" :key="`${item.table}:${item.id}`">{{ item.table }} · {{ item.id }}：{{ item.result }}</li></ul>
       <div class="actions">
-        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? '继续核验视图配置' : '放弃本次本地副本并核验'" />
-        <RendererButton v-if="state.data?.status === 'different'" data-action="accept-create" :disabled="busy || disabled" @click="acceptCurrent" label="接受当前正式结果，结束本次操作" />
+        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? '继续核验视图配置' : modelId ? '核验原来源批次（保留本地修改）' : '放弃本次本地副本并核验'" />
+        <RendererButton v-if="modelId && state.data && 'discardRecovered' in state.data && state.data.discardRecovered" data-action="discard-source-recovery" :disabled="busy || disabled" @click="discardRecovered" label="放弃本地新修改并继续核验" />
+        <RendererButton v-if="modelId && state.data && 'abandonNotApplied' in state.data && state.data.abandonNotApplied" data-action="abandon-source-intent" :disabled="busy || disabled" @click="abandonNotApplied" label="放弃未生效的本次来源意图" />
+        <RendererButton v-if="state.data?.status === 'different' && (!modelId || state.data && 'canAcceptCurrent' in state.data && state.data.canAcceptCurrent)" data-action="accept-create" :disabled="busy || disabled" @click="acceptCurrent" label="接受当前正式结果，结束本次操作" />
       </div>
     </template>
     </component>
@@ -269,11 +273,20 @@ function previewBoundSource(): Promise<void> {
 }
 function verify(): Promise<void> {
   return run(async () => {
-    const result = await owner.value.verify()
+    const result = props.modelId ? await props.session.getModelSourceEdit(props.modelId).verify()
+      : await props.session.getModelCreate().verify()
     if (result.confirmed && result.modelId) return result.modelId
     if (active) message.value = owner.value.getState().status === 'ready' ? '未派发的本地操作已放弃，可以重新预览' : '正式结果与本次预览不一致。请核对下方逐项结果后处理。'
     return undefined
   })
+}
+function discardRecovered(): Promise<void> {
+  if (!props.modelId) return Promise.resolve()
+  return run(() => props.session.getModelSourceEdit(props.modelId!).verify({discardLocalChanges: true}).then(() => undefined))
+}
+function abandonNotApplied(): Promise<void> {
+  if (!props.modelId) return Promise.resolve()
+  return run(() => props.session.getModelSourceEdit(props.modelId!).verify({abandonNotApplied: true}).then(() => undefined))
 }
 function acceptCurrent(): void {
   if (busy.value || props.disabled) return

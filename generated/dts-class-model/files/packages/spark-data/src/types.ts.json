@@ -396,7 +396,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@206083": {
+            "__@iterator@206236": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -451,7 +451,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@206083"
+            "__@iterator@206236"
           ],
           "additionalProperties": false
         },
@@ -1016,7 +1016,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@206083": {
+            "__@iterator@206236": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1071,7 +1071,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@206083"
+            "__@iterator@206236"
           ],
           "additionalProperties": false
         },
@@ -1297,7 +1297,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@206083": {
+            "__@iterator@206236": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1352,7 +1352,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@206083"
+            "__@iterator@206236"
           ],
           "additionalProperties": false
         },
@@ -1590,7 +1590,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@206083": {
+                "__@iterator@206236": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1645,7 +1645,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@206083"
+                "__@iterator@206236"
               ],
               "additionalProperties": false
             },
@@ -1875,7 +1875,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@206083": {
+                "__@iterator@206236": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1930,7 +1930,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@206083"
+                "__@iterator@206236"
               ],
               "additionalProperties": false
             },
@@ -2866,7 +2866,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@206083": {
+                "__@iterator@206236": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2921,7 +2921,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@206083"
+                "__@iterator@206236"
               ],
               "additionalProperties": false
             },
@@ -3151,7 +3151,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@206083": {
+                "__@iterator@206236": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3206,7 +3206,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@206083"
+                "__@iterator@206236"
               ],
               "additionalProperties": false
             },

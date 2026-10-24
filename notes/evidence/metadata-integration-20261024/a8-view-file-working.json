@@ -1,0 +1,716 @@
+{
+  "date": "2026-10-24",
+  "status": "verified-and-restored",
+  "baseCommit": "ce9c6a5c3606ed2d9c2920ef581ed5b3963d0e97",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "baseline": {
+    "requestId": "9000.13518",
+    "canonicalHash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+    "rawHash": "41a28121ee8bba81b326304b31a1168c9a5fcfa041cfdaab41829504fdbe3c4f",
+    "tableCount": 2,
+    "viewCount": 4,
+    "target": {
+      "table": "SourceScope_20261018",
+      "view": "Verification_20261018",
+      "field": "autoSelectFirst",
+      "value": true
+    }
+  },
+  "firstSave": {
+    "from": 79883,
+    "to": 79965,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "9000.13522",
+        "path": "/api/LoginAuthority/refresh",
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13523",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13524",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13525",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 9,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13526",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13527",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13528",
+        "path": "/api/File/UploadFile",
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13529",
+        "path": "/api/File/DownFile",
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13530",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 9,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13531",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "scopeChecks": [
+      {
+        "requestId": "9000.13523",
+        "model": "Base_DataSet",
+        "mentionsT": true,
+        "mentionsTargetModelId": false,
+        "mentionsTargetModelName": false,
+        "identityKeys": [
+          "rowid"
+        ]
+      },
+      {
+        "requestId": "9000.13524",
+        "model": "Base_DataModel",
+        "mentionsT": true,
+        "mentionsTargetModelId": false,
+        "mentionsTargetModelName": true,
+        "identityKeys": [
+          "dataSetId",
+          "rowid"
+        ],
+        "returnedRowIds": [
+          "A7199374E11E24BB0FB6938407224304"
+        ]
+      },
+      {
+        "requestId": "9000.13525",
+        "model": "Base_DataModel_Field",
+        "mentionsT": true,
+        "mentionsTargetModelId": true,
+        "mentionsTargetModelName": false,
+        "identityKeys": [
+          "rowid",
+          "dataSetId",
+          "dataModelId"
+        ]
+      },
+      {
+        "requestId": "9000.13526",
+        "model": "Base_DataModel",
+        "mentionsT": true,
+        "mentionsTargetModelId": false,
+        "mentionsTargetModelName": true,
+        "identityKeys": [
+          "dataSetId",
+          "rowid"
+        ],
+        "returnedRowIds": [
+          "A7199374E11E24BB0FB6938407224304"
+        ]
+      },
+      {
+        "requestId": "9000.13530",
+        "model": "Base_DataModel_Field",
+        "mentionsT": true,
+        "mentionsTargetModelId": true,
+        "mentionsTargetModelName": false,
+        "identityKeys": [
+          "rowid",
+          "dataSetId",
+          "dataModelId"
+        ]
+      }
+    ],
+    "expectedOnlyFieldChange": true,
+    "canonicalHash": "851d256f7ff6ca329617be334f154a35bf82f41803e4dd59177c573e95db28db",
+    "uiConfirmation": "视图配置已保存并回读确认"
+  },
+  "independentReopen": {
+    "files": [
+      {
+        "requestId": "9000.13542",
+        "code": 200,
+        "hash": "851d256f7ff6ca329617be334f154a35bf82f41803e4dd59177c573e95db28db",
+        "exactExpected": true
+      }
+    ],
+    "uiCheckbox": false,
+    "saveDisabled": true
+  },
+  "restoreAttempt": {
+    "from": 80162,
+    "to": 80236,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "9000.13546",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200,
+        "targetScoped": true
+      },
+      {
+        "requestId": "9000.13547",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200,
+        "targetScoped": true
+      },
+      {
+        "requestId": "9000.13548",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 9,
+        "code": 200,
+        "httpStatus": 200,
+        "targetScoped": true
+      },
+      {
+        "requestId": "9000.13549",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200,
+        "targetScoped": true
+      },
+      {
+        "requestId": "9000.13550",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13551",
+        "path": "/api/File/UploadFile",
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13552",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 9,
+        "code": 200,
+        "httpStatus": 200,
+        "targetScoped": true
+      },
+      {
+        "requestId": "9000.13553",
+        "path": "/api/File/DownFile",
+        "httpStatus": 200
+      },
+      {
+        "requestId": "9000.13554",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "files": [
+      {
+        "requestId": "9000.13550",
+        "hash": "851d256f7ff6ca329617be334f154a35bf82f41803e4dd59177c573e95db28db",
+        "equalBaseline": false,
+        "value": false
+      },
+      {
+        "requestId": "9000.13554",
+        "hash": "35783d26dd3479282c6f1fbd91cbe33f322934698c05a84cb6d0387c6a094624",
+        "equalBaseline": false,
+        "value": false
+      }
+    ],
+    "uiCheckboxAfterClick": true,
+    "uiConfirmation": "视图配置已保存并回读确认",
+    "actualCanonicalHash": "35783d26dd3479282c6f1fbd91cbe33f322934698c05a84cb6d0387c6a094624",
+    "baselineDifferences": [
+      {
+        "path": "/tables/SourceScope_20261018/views/Verification_20261018/autoSelectFirst",
+        "beforeType": "boolean",
+        "afterType": "boolean",
+        "before": true,
+        "after": false
+      },
+      {
+        "path": "/tables/SourceScope_20261018/views/default/autoSelectFirst",
+        "beforeType": "undefined",
+        "afterType": "boolean",
+        "after": true
+      }
+    ],
+    "temporaryDifferences": [
+      {
+        "path": "/tables/SourceScope_20261018/views/default/autoSelectFirst",
+        "beforeType": "undefined",
+        "afterType": "boolean",
+        "after": true
+      }
+    ]
+  },
+  "limits": [
+    "Native fileModels Idle is not exposed by UI; no internal Vue state was inspected.",
+    "Second save was an operator mis-targeting error, not a successful restoration or proof of a product binding defect.",
+    "The last independent read matches the entire baseline canonical JSON."
+  ],
+  "operatorCorrection": {
+    "observedTitleBeforeMistakenRestore": "default",
+    "observedPropertyStateBeforeMistakenRestore": "autoSelectFirst 未配置",
+    "cause": "Controller failed to verify that the requested tab switch had actually taken effect; the full AX record showed default before the edit. No product binding defect is established by this operation.",
+    "clearDefault": {
+      "from": 80456,
+      "to": 80530,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "9000.13569",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13570",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13571",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13572",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13573",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13574",
+          "path": "/api/File/UploadFile",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13575",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13576",
+          "path": "/api/File/DownFile",
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13577",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "files": [
+        {
+          "requestId": "9000.13573",
+          "hash": "35783d26dd3479282c6f1fbd91cbe33f322934698c05a84cb6d0387c6a094624",
+          "equalBaseline": false,
+          "equalTemporary": false,
+          "verificationValue": false,
+          "defaultHasProperty": true
+        },
+        {
+          "requestId": "9000.13577",
+          "hash": "851d256f7ff6ca329617be334f154a35bf82f41803e4dd59177c573e95db28db",
+          "equalBaseline": false,
+          "equalTemporary": true,
+          "verificationValue": false,
+          "defaultHasProperty": false
+        }
+      ],
+      "failures": 0
+    },
+    "restoreVerification": {
+      "from": 80539,
+      "to": 80614,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "9000.13578",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13579",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13580",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13581",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13582",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13583",
+          "path": "/api/File/UploadFile",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13584",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13585",
+          "path": "/api/File/DownFile",
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13586",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "files": [
+        {
+          "requestId": "9000.13582",
+          "hash": "851d256f7ff6ca329617be334f154a35bf82f41803e4dd59177c573e95db28db",
+          "equalBaseline": false,
+          "equalTemporary": true,
+          "verificationValue": false,
+          "defaultHasProperty": false
+        },
+        {
+          "requestId": "9000.13586",
+          "hash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+          "equalBaseline": true,
+          "equalTemporary": false,
+          "verificationValue": true,
+          "defaultHasProperty": false
+        }
+      ],
+      "failures": 0
+    },
+    "independentFinalReopen": {
+      "from": 80706,
+      "to": 80808,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "9000.13589",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13590",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13591",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 13,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13592",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 338,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13593",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 11,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13594",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_TblField",
+          "rows": 301,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13595",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13596",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13597",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13598",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13599",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.13600",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "files": [
+        {
+          "requestId": "9000.13597",
+          "hash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+          "equalBaseline": true,
+          "equalTemporary": false,
+          "verificationValue": true,
+          "defaultHasProperty": false
+        }
+      ],
+      "failures": 0
+    },
+    "finalUi": {
+      "selectedView": "SourceScope_20261018 @ Verification_20261018",
+      "autoSelectFirst": true,
+      "saveDisabled": true
+    },
+    "confirmedFileUploadCount": 4,
+    "confirmedDbWriteCount": 0
+  },
+  "finalCodeReadOnlySmoke": {
+    "productSha256": "C3F25836D6011891EFFA3917BBBD49F1E421376B3E64B459D8C5E8D8F06D2D77",
+    "window": {
+      "from": 90269,
+      "to": 90656,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "9000.15139",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15140",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15141",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 13,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15142",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 338,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15143",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 11,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15144",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_TblField",
+          "rows": 301,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15145",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15146",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15147",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15148",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15149",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "9000.15150",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "files": [
+        {
+          "requestId": "9000.15147",
+          "hash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+          "equalBaseline": true,
+          "equalTemporary": false,
+          "verificationValue": true,
+          "defaultHasProperty": false
+        }
+      ],
+      "failures": 0
+    },
+    "selectedView": "SourceScope_20261018 @ Verification_20261018",
+    "autoSelectFirst": true,
+    "saveDisabled": true,
+    "writes": 0
+  }
+}

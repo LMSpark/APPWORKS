@@ -596,8 +596,12 @@ async function commitDefinitions(successMessage: string): Promise<void> {
   // 属性修改已由原生保存回执接纳；结构变化还须读取隐式新增的默认视图及绑定投影。
   const structureChanged = bindingChanged || (saved.data?.createdCount ?? 0) > 0 || (saved.data?.deletedCount ?? 0) > 0
   if (structureChanged) await readbackDefinitions()
-  if (active) message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存'
-    : readbackViews.some(item => item.refreshPending) ? '配置已保存，目录将在当前修改或操作结束后更新' : successMessage
+  if (active) {
+    // DataView状态不是Vue响应式；使dirty计算重新读取保存回执后的原生编辑覆盖，再决定提示。
+    tick.value++
+    message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存'
+      : readbackViews.some(item => item.refreshPending) ? '配置已保存，目录将在当前修改或操作结束后更新' : successMessage
+  }
 }
 async function readbackDefinitions(): Promise<void> {
   const results = await Promise.all(readbackViews.map(item => item.requestRefresh()))

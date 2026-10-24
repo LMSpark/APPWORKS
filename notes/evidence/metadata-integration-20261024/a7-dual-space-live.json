@@ -1,0 +1,1326 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "3efece5ba67823a6ad645352e647c946b0f41258",
+  "harnessSha256": "B1B4036E152629BD1FE8685E62FB8B322A8775352985F10BD3E9016DC4A6E4C5",
+  "scope": {
+    "tenant": "NewApp",
+    "app": "D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "bindings": [
+    "8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataSet@default",
+    "944DEE5A0E5170F903E0E008172C4CD2@SourceScope_20261018@default"
+  ],
+  "viewPlan": [
+    {
+      "space": "C",
+      "modelName": "Base_DataModel",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel",
+      "viewId": "apiInfoModels",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel",
+      "viewId": "designModels",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel",
+      "viewId": "modelOptions",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "apiInfoFields",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "designFields",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "modelInputFields",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "sourceInputFields",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "modelFields",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Field",
+      "viewId": "modelFieldOptions",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 1
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataSet",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataSet",
+      "viewId": "designParameters",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Relation",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataModel_Relation",
+      "viewId": "designRelations",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_Desensitization_Rule",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_TblList",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_TblList",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_TblList",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "_Base_DictType",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "_Base_DictType",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "_Base_DictType",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataServiceInterface",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataServiceInterface",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataServiceInterface",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_JsonData",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_JsonData",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_JsonData",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataViewList",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataViewList",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_DataViewList",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_ViewList",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_ViewList",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "View_ViewList",
+      "viewId": "sourceCandidates",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 10,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_TblField",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "Base_TblField",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "_Base_ParamList",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "fields"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "_Base_ParamList",
+      "viewId": "sourceDetails",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 500,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "fileModels",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId",
+        "definitionProjection"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "graph",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "fields",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId",
+        "definitionProjection"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "C",
+      "modelName": "(未绑定模型)",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": true,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "allPages",
+        "maxRows"
+      ],
+      "queryContextKeys": [
+        "dataSpaceId",
+        "fileName",
+        "pageId",
+        "versionId"
+      ],
+      "allPages": true,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "T",
+      "modelName": "SourceScope_20261018",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": false,
+      "pageSize": 20,
+      "queryOptionKeys": [],
+      "queryContextKeys": [],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "T",
+      "modelName": "SourceScope_20261018",
+      "viewId": "Verification_20261018",
+      "autoLoad": false,
+      "autoLoadConfigured": false,
+      "pageSize": 20,
+      "queryOptionKeys": [],
+      "queryContextKeys": [],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "T",
+      "modelName": "SourceInputScope_20261018",
+      "viewId": "default",
+      "autoLoad": false,
+      "autoLoadConfigured": false,
+      "pageSize": 20,
+      "queryOptionKeys": [],
+      "queryContextKeys": [],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    },
+    {
+      "space": "T",
+      "modelName": "SourceInputScope_20261018",
+      "viewId": "Reference_20261018",
+      "autoLoad": false,
+      "autoLoadConfigured": false,
+      "pageSize": 20,
+      "queryOptionKeys": [
+        "sourceInputMode"
+      ],
+      "queryContextKeys": [],
+      "allPages": false,
+      "outputType": "未声明",
+      "filterLookupCount": 0,
+      "parentCascadeCount": 0
+    }
+  ],
+  "wrongSpace": {
+    "key": "8D1AB14DD8277F3E7017CD38F77B09FD@SourceScope_20261018@default",
+    "rejected": true,
+    "independentRuntime": true,
+    "disposed": true
+  },
+  "queryWindow": {
+    "from": 74647,
+    "to": 74670,
+    "hasMore": false,
+    "truncated": false,
+    "requests": [
+      {
+        "requestId": "9000.12721",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 20
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1,
+        "count": 1
+      },
+      {
+        "requestId": "9000.12722",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "SourceScope_20261018",
+        "pageParam": {
+          "index": 1,
+          "size": 20
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 4,
+        "count": 4
+      }
+    ]
+  },
+  "observedNavigationWindow": {
+    "requestedFrom": 70452,
+    "firstRetainedSequence": 73734,
+    "to": 74729,
+    "truncated": true,
+    "hasMore": false,
+    "limitation": "Initial module-load events were evicted; this is a retained-window audit, not a complete navigation audit.",
+    "requests": [
+      {
+        "sequence": 74412,
+        "requestId": "9000.12697",
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200
+      },
+      {
+        "sequence": 74413,
+        "requestId": "9000.12698",
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200
+      },
+      {
+        "sequence": 74418,
+        "requestId": "9000.12699",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 2
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1
+      },
+      {
+        "sequence": 74419,
+        "requestId": "9000.12700",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 13
+      },
+      {
+        "sequence": 74426,
+        "requestId": "9000.12701",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 2
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1
+      },
+      {
+        "sequence": 74427,
+        "requestId": "9000.12702",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 2
+      },
+      {
+        "sequence": 74428,
+        "requestId": "9000.12703",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Relation",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 0
+      },
+      {
+        "sequence": 74437,
+        "requestId": "9000.12704",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 11
+      },
+      {
+        "sequence": 74449,
+        "requestId": "9000.12705",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 338
+      },
+      {
+        "sequence": 74450,
+        "requestId": "9000.12706",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "View_TblList",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 11
+      },
+      {
+        "sequence": 74468,
+        "requestId": "9000.12707",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_TblField",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 301
+      },
+      {
+        "sequence": 74483,
+        "requestId": "9000.12708",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 3
+      },
+      {
+        "sequence": 74498,
+        "requestId": "9000.12709",
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200
+      },
+      {
+        "sequence": 74499,
+        "requestId": "9000.12710",
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200
+      },
+      {
+        "sequence": 74507,
+        "requestId": "9000.12711",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 2
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1
+      },
+      {
+        "sequence": 74508,
+        "requestId": "9000.12712",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 13
+      },
+      {
+        "sequence": 74516,
+        "requestId": "9000.12713",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 2
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1
+      },
+      {
+        "sequence": 74517,
+        "requestId": "9000.12714",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 2
+      },
+      {
+        "sequence": 74518,
+        "requestId": "9000.12715",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Relation",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 0
+      },
+      {
+        "sequence": 74527,
+        "requestId": "9000.12716",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 338
+      },
+      {
+        "sequence": 74528,
+        "requestId": "9000.12717",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "View_TblList",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 11
+      },
+      {
+        "sequence": 74551,
+        "requestId": "9000.12718",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 11
+      },
+      {
+        "sequence": 74558,
+        "requestId": "9000.12719",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_TblField",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 301
+      },
+      {
+        "sequence": 74569,
+        "requestId": "9000.12720",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataModel_Field",
+        "pageParam": {
+          "index": 1,
+          "size": 500
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 3
+      },
+      {
+        "sequence": 74649,
+        "requestId": "9000.12721",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "Base_DataSet",
+        "pageParam": {
+          "index": 1,
+          "size": 20
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 1
+      },
+      {
+        "sequence": 74653,
+        "requestId": "9000.12722",
+        "path": "/api/DataOperation/GetData",
+        "modelName": "SourceScope_20261018",
+        "pageParam": {
+          "index": 1,
+          "size": 20
+        },
+        "httpStatus": 200,
+        "code": 200,
+        "rows": 4
+      }
+    ]
+  },
+  "release": {
+    "visibleConfirmed": true,
+    "rendererRemoved": true,
+    "queryCount": 2,
+    "additionalApiRequests": 0,
+    "truncated": false
+  },
+  "limitations": [
+    "Read-only isolated local harness; no production page rule was persisted.",
+    "Different model names in real C/T; same-name isolation covered only by fixtures.",
+    "No live multi-space write or switching proof."
+  ]
+}

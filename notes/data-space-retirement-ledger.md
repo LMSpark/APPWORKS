@@ -1116,3 +1116,11 @@ flowchart TD
 - 真实SPA范围验收：主目录353→应用筛选5→重置353，第二页20条，均正式Count与分页回执；异应用px_lsq_status ID D39BC0D2B65836CD7D80AC84C53C5B99按rowid读1定义7条目，编辑描述取消、关闭再开原值未变；切回保留字典327D…为1定义0条目。新建缺应用保存被本地拒绝（0请求），正式选项绑定元数据管理后取消。13个分段完整窗口无Document/失败/业务写入；开发HMR不算SPA验收步骤；没有新资源或删除。
 - 当前状态：主目录范围修复、应用筛选/清空、跨应用读取与取消隔离已实测；新建成功保存后同窗状态及跨应用保存是自动化证明，未冒充本批线上写验收。应用选项服务当前只回1条，其它AppId保留原标识。详见evidence/metadata-integration-20261024/b1-scope-acceptance.md、b1-scope-spa-windows.json。原typeid与完整B1其它缺口继续开放，最终整批复核与明确路径提交收尾中，不推送。
 - 最终整批复核完成：Spec/Quality PASS、新增发现0；独立核对9源码/13日志hash及退出码，18生成差异（12仅symbolID、6本组投影）一致。13个SPA窗口共51个GetData，全部HTTP/Code200；page2与page1无重复，353→5→353及异应用7条/保留字典0条均核准，0Document/失败/写请求。按40个明确路径暂存本批实现、正式生成物、收紧基线与证据后本地提交，不推送；提交身份以Git记录为准。完整整合goal继续active，原typeid及B1后续能力未核销。
+
+### 2026-10-24 B1条目新增合同续核
+- 上一goal轮判定为progress：目录范围修复已提交59e1e5f0e，工作区当前干净，真实353/5/353证据改变并完成了目录动作；不是重复阻断等待。本轮回到typeid/SystemData正式输出与新增保存语义，由新低价助手只读追踪参考前端及Java源码责任链，主控核当前模型/数据层合同。不改Java、不直接改正式元数据、不先解除计算字段守卫。先取得能决定修复归属的新证据，再开放反例与实施；完整goal仍active。
+- 新证据：原生只读DataView链18个GetData、0写入尝试；正式typeid仍为varchar+SystemData(rowid)，前端computed=true；既有D39…字典7条typeid均正确，保留327D…字典仍0条。Java参考合并保留模型ValueFun，REQUEST不删除它；普通varchar的值函数可改变SELECT来源列，未知SystemData(rowid)在所核参考版本返回null并回退typeid。上述源链与真实读取相符，但不是部署服务新增合同。参考版本及精确证据见evidence/metadata-integration-20261024/b1-typeid-contract-review.md、b1-typeid-contract-read.json。
+- Ruling：否决按FieldType单独放开computed/写入的候选，也不增加SystemData(rowid)特例；普通物理类型仍可能由ValueFun改读另一个列，写回Name会语义错配。独立合同复核同意现有证据不足以支持通用放开，保持原保存守卫。代价是当前配置未更正前，条目新增及真实排序保存仍受阻。
+- 精确更正候选已提交用户范围确认：仅共享模型FBC266CB81A3E3D1D6D67F9B9D7FFF04的字段6DEED3F0B04C4AD1B369843C4AD35FD5，将ValueFun原文清为''；不改Name/FieldType/IsOutput/身份/权限，不含字典设计或条目。这超出本批“排序不夹带设计定义”的范围且影响模型全部消费者，尚未得到确认、尚未写入。确认后仍须核当次原DataView权限及基线，经现有字段编辑/保存责任链提交、正式回读与SPA重开后，再继续已批准的保留测试字典三条新增和排序烟测。未确认不推进依赖写入，未把等待当批准。
+- SPA只读定位完成：正式目录按69B…空间ID查询到“字典数据编辑”，打开_Base_DictData→字段呈现，typeid显示上述原值，保存/放弃修改禁用；仅选中目标行，无编辑、保存或删除。截图b1-typeid-before-correction.png。该空间另显示“尚无视图配置”及旧布局结构无效，作为独立存量差距登记，不夹带修复。当前保留此无草稿工作区供确认。
+- 等待范围答复期间继续完整B1的独立AI候选合同核定：新gpt-6-luna助手仅追本仓现有AI会话/标准组件/服务owner与DataView暂存路径，避免重复已核参考六字段语义；未开放产品写入或服务调用。报告存cache/task-b1-ai-contract-report.md，主控核准后才安排下一反例。

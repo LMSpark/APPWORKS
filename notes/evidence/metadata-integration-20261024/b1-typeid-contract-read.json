@@ -1,0 +1,436 @@
+{
+  "status": "confirmed",
+  "mode": "native-DataView-readonly",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+  "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+  "field": {
+    "id": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+    "name": "typeid",
+    "type": "varchar",
+    "computed": true,
+    "raw": {
+      "rowid": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+      "Name": "typeid",
+      "AsName": null,
+      "FieldType": "varchar",
+      "IsOutput": 1,
+      "IsPKey": 0,
+      "ValueFun": "{\"ParamName\":\"rowid\",\"Value\":null,\"Type\":\"SystemData\"}",
+      "Expression": "",
+      "type": "dataModel",
+      "dataModelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+      "dataSetId": "69B79AB779DF4C12A5595DACDF3283F1"
+    }
+  },
+  "queryResults": [
+    {
+      "dictionaryId": "D39BC0D2B65836CD7D80AC84C53C5B99",
+      "total": 7,
+      "rows": [
+        {
+          "rowid": "1FA1E830BE424166963215B4EF9704A7",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "closed_lost",
+          "ordIdx": 6
+        },
+        {
+          "rowid": "2C2A08F0AC5A42B38FC9ACFB83344B97",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "contacted",
+          "ordIdx": 2
+        },
+        {
+          "rowid": "3B3261AA5258454A820E9AADB22DE2A1",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "interested",
+          "ordIdx": 3
+        },
+        {
+          "rowid": "8B29F8FC4DF546E9A88456188970F1CB",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "dormant",
+          "ordIdx": 7
+        },
+        {
+          "rowid": "913A7A9EFCC64DAC81BA300F435D87B2",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "negotiating",
+          "ordIdx": 4
+        },
+        {
+          "rowid": "C036406932174DFC83A6099B6B675A8E",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "closed_won",
+          "ordIdx": 5
+        },
+        {
+          "rowid": "E922756EC61241DC81F48F7504BCADB2",
+          "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+          "val": "new",
+          "ordIdx": 1
+        }
+      ],
+      "columns": [
+        {
+          "name": "author",
+          "type": "varchar"
+        },
+        {
+          "name": "rowid",
+          "type": "varchar"
+        },
+        {
+          "name": "functiondesc",
+          "type": "varchar"
+        },
+        {
+          "name": "crttime",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_1",
+          "type": "varchar"
+        },
+        {
+          "name": "typeid",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_3",
+          "type": "varchar"
+        },
+        {
+          "name": "ordIdx",
+          "type": "tinyint"
+        },
+        {
+          "name": "createuser",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_2",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_4",
+          "type": "varchar"
+        },
+        {
+          "name": "val",
+          "type": "varchar"
+        },
+        {
+          "name": "txt",
+          "type": "varchar"
+        },
+        {
+          "name": "_pk",
+          "type": "varchar",
+          "isComputed": true
+        }
+      ]
+    },
+    {
+      "dictionaryId": "327D74EC0ABC4196AA75C56D944B8201",
+      "total": 0,
+      "rows": [],
+      "columns": [
+        {
+          "name": "author",
+          "type": "varchar"
+        },
+        {
+          "name": "rowid",
+          "type": "varchar"
+        },
+        {
+          "name": "functiondesc",
+          "type": "varchar"
+        },
+        {
+          "name": "crttime",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_1",
+          "type": "varchar"
+        },
+        {
+          "name": "typeid",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_3",
+          "type": "varchar"
+        },
+        {
+          "name": "ordIdx",
+          "type": "tinyint"
+        },
+        {
+          "name": "createuser",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_2",
+          "type": "varchar"
+        },
+        {
+          "name": "exVal_4",
+          "type": "varchar"
+        },
+        {
+          "name": "val",
+          "type": "varchar"
+        },
+        {
+          "name": "txt",
+          "type": "varchar"
+        },
+        {
+          "name": "_pk",
+          "type": "varchar",
+          "isComputed": true
+        }
+      ]
+    }
+  ],
+  "requestCount": 18,
+  "entryRequests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "outputFieldMode": "REQUEST",
+      "tables": [
+        {
+          "name": "_Base_DictData",
+          "filter": {
+            "Type": "cond",
+            "Field": "typeid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+            }
+          },
+          "fields": [
+            {
+              "Name": "author",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "rowid",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "functiondesc",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "crttime",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_1",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "typeid",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_3",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "ordIdx",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_2",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_4",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "val",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "txt",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            }
+          ]
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "outputFieldMode": "REQUEST",
+      "tables": [
+        {
+          "name": "_Base_DictData",
+          "filter": {
+            "Type": "cond",
+            "Field": "typeid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "327D74EC0ABC4196AA75C56D944B8201"
+            }
+          },
+          "fields": [
+            {
+              "Name": "author",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "rowid",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "functiondesc",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "crttime",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_1",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "typeid",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_3",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "ordIdx",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_2",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "exVal_4",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "val",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            },
+            {
+              "Name": "txt",
+              "IsOutput": true,
+              "Group": 0,
+              "Order": 0,
+              "OrderType": null
+            }
+          ]
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      }
+    }
+  ],
+  "blockedMutations": 0,
+  "sourceSha256": "A5353D9B25BA97A5E4A635A5BA32B8B5B0361E2694B9B8928D86062DA925083C"
+}

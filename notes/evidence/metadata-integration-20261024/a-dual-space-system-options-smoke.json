@@ -1,0 +1,550 @@
+{
+  "date": "2026-10-24",
+  "productBase": "774de1bbbfd764849a0bb7766c7a1865fc4d3acf",
+  "scope": "existing provider configuration and dictionary options; no persistence",
+  "providerId": "6FAFEDC601F94E4282D14061C4A93714",
+  "headerId": "B812E1CEBE1AD24BD1602A4E2F4026AF",
+  "configSpace": "446B5D94A71587E9BD4D325A4DF5F6F8",
+  "dictionarySpace": "69B79AB779DF4C12A5595DACDF3283F1",
+  "componentKeys": [
+    "446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default",
+    "69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default"
+  ],
+  "options": [
+    {
+      "id": "54A79D15D2874970BFC55B94B20CBBBF",
+      "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+      "value": "expired",
+      "label": "过期使用"
+    },
+    {
+      "id": "A4BFD854B0984B858DCA9B17E5768D52",
+      "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+      "value": "all",
+      "label": "固定使用"
+    },
+    {
+      "id": "BC3391B838E242E787300021C31C667D",
+      "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+      "value": "auth",
+      "label": "认证使用"
+    }
+  ],
+  "originalType": "all",
+  "localSelectionLabel": "认证使用",
+  "reopenedSelectionLabel": "固定使用",
+  "reopenedType": "all",
+  "headerBusinessRowsUnchanged": true,
+  "responseCodes": {
+    "dictionary": 200,
+    "before": 200,
+    "reopened": 200
+  },
+  "requestCount": 62,
+  "writeRequestCount": 0,
+  "eventCaptureTruncated": false,
+  "requests": [
+    {
+      "id": "9000.3960",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.3961",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.3962",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.3963",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.3964",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.3965",
+      "path": "/api/DataOperation/GetData",
+      "space": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.3966",
+      "path": "/api/DataOperation/GetData",
+      "space": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "models": [
+        "Base_UserInfo"
+      ]
+    },
+    {
+      "id": "9000.3967",
+      "path": "/api/DataOperation/GetData",
+      "space": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "models": [
+        "Base_UserInfo"
+      ]
+    },
+    {
+      "id": "9000.3968",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.3969",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.3970",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.3971",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.3972",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.3973",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.3974",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.3975",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Relation"
+      ]
+    },
+    {
+      "id": "9000.3976",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.3977",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.3978",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.3979",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictType"
+      ]
+    },
+    {
+      "id": "9000.3980",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictData"
+      ]
+    },
+    {
+      "id": "9000.3981",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.3982",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    },
+    {
+      "id": "9000.3983",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.3984",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider_Headers"
+      ]
+    },
+    {
+      "id": "9000.3985",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    },
+    {
+      "id": "9000.3986",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.3987",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.3988",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.3989",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.3990",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.3991",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.3992",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.3993",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Relation"
+      ]
+    },
+    {
+      "id": "9000.3994",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.3995",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.3996",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.3997",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictType"
+      ]
+    },
+    {
+      "id": "9000.3998",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictData"
+      ]
+    },
+    {
+      "id": "9000.3999",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.4000",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    },
+    {
+      "id": "9000.4001",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.4002",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider_Headers"
+      ]
+    },
+    {
+      "id": "9000.4003",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    },
+    {
+      "id": "9000.4004",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.4005",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.4006",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.4007",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.4008",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.4009",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataSet"
+      ]
+    },
+    {
+      "id": "9000.4010",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel"
+      ]
+    },
+    {
+      "id": "9000.4011",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Relation"
+      ]
+    },
+    {
+      "id": "9000.4012",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_DataModel_Field"
+      ]
+    },
+    {
+      "id": "9000.4013",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "View_TblList"
+      ]
+    },
+    {
+      "id": "9000.4014",
+      "path": "/api/DataOperation/GetData",
+      "space": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "models": [
+        "Base_TblField"
+      ]
+    },
+    {
+      "id": "9000.4015",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictType"
+      ]
+    },
+    {
+      "id": "9000.4016",
+      "path": "/api/DataOperation/GetData",
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "models": [
+        "_Base_DictData"
+      ]
+    },
+    {
+      "id": "9000.4017",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.4018",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    },
+    {
+      "id": "9000.4019",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider"
+      ]
+    },
+    {
+      "id": "9000.4020",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_InterfaceProvider_Headers"
+      ]
+    },
+    {
+      "id": "9000.4021",
+      "path": "/api/DataOperation/GetData",
+      "space": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "models": [
+        "Base_Interface_PublicParam"
+      ]
+    }
+  ],
+  "limits": [
+    "fixed system spaces only; not C/T arbitrary spaces",
+    "no backend write or API invocation",
+    "no online stale-space or unknown-result fault injection",
+    "first AGENT_E2E_PROVIDER had no header rows; used existing provider without adding data"
+  ]
+}

@@ -2,6 +2,8 @@
 
 状态：恢复、目录入口和布局窄组验收通过，完整 B1 尚未完成。修复基线 `7365d8d845556fc1816ed4ac34632e06d8e82ea6`；唯一计划及状态仍是[删除记录](../../data-space-retirement-ledger.md)。
 
+本报告的“独立重开”“新实例”均指同一 SPA 内关闭并重新挂载工作区组件及其 PageRuntime/DataSet，应用壳和目录导航保持；不是浏览器整页刷新或新开独立应用。字典数据工作区使用目录宿主传入的唯一目标身份，路由/query 不变。其它业务入口仍按正式导航身份使用现有 SPA 路由、页签或局部工作区，不由此统一改成弹窗。
+
 ## 已证实的原问题
 
 - `DictionaryWorkspace.load(true)` 在原提交仍未知时直接放弃 native capture 并丢弃草稿。HTTP 夹具经过真实 DataSet/DataView/DataSpaceRuntimeApi：部分字段生效、部分删除、核验读失败三项反例失败，原生核验本身保留 capture，字典重读入口将其清除。原始领域测试 37 项，34 过、3 红；晚编辑已有 DataView 替换守卫保护，未据此重复实现草稿算法。

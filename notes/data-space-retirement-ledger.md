@@ -1365,4 +1365,25 @@ flowchart TD
 - 最终路径只读复验g4-spa-relocation-readback：8次GetData、0业务保存/0AI创建/0Document/0截断；正式条目仍7条，空业务提示宽1020px、开始生成禁用，通用host可clean release。该复验不再次消耗AI或生成/保存测试行；此前完整连续SPA证据单独冻结保留。
 - 精确暂存范围：DataTable列投影和原DataSet移除预检、通用AI配置/会话及标准组件、shared host与字典替换及对应测试、正式generated/dts-class-model、backend-api-contracts两份生成台账、仅收紧的directory-limits-baseline、.env.example、唯一台账和本批两个防重标记及ai-data-entry-foundation证据目录。不得暂存.env.local、缓存、凭据、未脱敏在途日志；不含Java或原D工作区。完整SPA证据共224个manifest条目（含证据字节保留属性），README是证据索引而非第二计划。
 - 本批功能验收完成后只作本地提交，不自动推送。后续仍按唯一台账推进：旧turn停止终态、原Agent创建unknown、B1删除引用完整性/下游消费以及其余资源专题；不能用新实例通过替代旧capture处置。测试字典与7条数据保留供后续使用。
+
+### 2026-10-25 B1 下游消费与删除完整性续核
+
+- 开工基线为 `codex/ai-data-entry` / `fe003c69da209edf488b29431e764181995ec465`，工作区干净；通用AI批量录入G1—G4已提交，不重新派工。原Agent创建未知结果进程31708仍存活，旧5273标签页仍保留CANCELLING/结果未知及关闭保护，不清理或重放。
+- 本轮沿原B1范围继续：低价助手只读核对删除引用链与可证明边界；主控在5274原SPA核对下游消费。既有T空间正式目录为3模型，字典模型SourceScope_20261018绑定ContentType，不能当作B1测试字典消费者。
+
+| 工作与接口 | 冲突核对与裁决 |
+| --- | --- |
+| 下游验收消费正式模型/视图；G4保留字典及7条记录 | Ruling: 使用既有测试空间新增独立保留消费模型（若无现成对应模型），通过正式来源选择与SPARK data保存；不改原三个模型或字典数据，不把手造夹具作为正式消费。来源仍由正式字典ID确定；若配置错误会污染测试空间，须独立读回且记录精确身份。 |
+| 删除引用研究消费现有metadata查询；普通保存范围 | Ruling: 引用检查只研究删除业务命令，不加入普通保存或全空间扫描；零命中不证明全局无引用。未冻结可行合同前不开放产品写入，也不做资源删除试探。 |
+| 本轮浏览器取证；已归档G4证据 | 使用新观察器和新文件，G4冻结证据不覆盖；正常流程保持同一SPA，原未知捕获分别保留。 |
+
+- 正式来源弹窗“确定”会直接执行已有模型新增保存链，并非仅准备草稿：本次已沿原SPARK data创建 `B1Sort_20261024_1925F4C2`，模型ID `F9F01665D4A98E1FF996CD8A48D3C373`，T空间ID `944DEE5A0E5170F903E0E008172C4CD2`，来源字典ID仍为 `327D74EC0ABC4196AA75C56D944B8201`。请求2180.3831仅含1模型和8字段Added，Changed/Deleted均空，HTTP/Code200；布局独立保存并回读由界面明确提示，本观察器未覆盖文件请求，不将UI提示冒称网络证明。
+- 首次运行预览未通过：请求2180.3844/3845返回HTTP401，随后既有readRequestScope拒绝已失效登录上下文。未改身份守卫；已正常关闭clean工作区、重新使用已授权NewApp测试会话登录。创建与失败观察窗冻结为b1-consumer-inspection-network.json（48请求、1 CRUD、0 Document）；登录/应用恢复另作边界，后续新观察窗独立验证重开和查询，不拼成连续无认证中断的全流程。
+- 删除上下文反例已由同一gpt-6-luna实证：成功加载后公开entries.resetState使空集成为Idle 0/0，原canRemoveDefinition仍true且可暂存定义删除；公开requestRefresh处于Loading时亦可暂存条目和定义。后一条权限拒绝已有全批保护。原始RED为98项95通过/3失败；主控已要求修正执行反例的拒绝断言（正确实现应抛错后继续验无修改）并补对称状态用例，产品尚未开放。此为公开领域API缺陷，不夸大为正常页面初次加载可达，也不代表全局引用检查已解决。
+- 认证恢复后真实下游取得新证据：正式模型预览返回七条八字段；随后新增`b1Consumer`命名视图，保存`valueField=val`和`labelField=txt`。实读表明命名视图不会自动继承模型排序，故经标准排序编辑器显式配置`ordIdx asc`，不改模型定义排序。两次文件保存HTTP/Code200并DownFile/content正式回读，其他tables与layout摘要均未变。完整键`944DEE5A0E5170F903E0E008172C4CD2@B1Sort_20261024_1925F4C2@b1Consumer`在同SPA关闭整个设计工作区后独立重开并查询，仍七条、0/0/1/2/3/4/5，逐字段与G4保留数据一致。
+- 消费窗口证据边界：48个GetData、0Document、0截断、0数据库CRUD；其中47个回执HTTP/Code200，最后clean close触发的目录查询2180.5413冻结时尚未返回，后续HMR后无法再取该响应体，明确未核实。模型、命名视图及七条业务数据结果均已完整收到。两个文件保存另有独立观察回执；不将0数据库CRUD误写成0文件写入。审计脚本已显式纳入未完成目录请求，最初审计失败及后续空响应访问错误输出保留。
+- 删除上下文有效RED v3为101项96通过/5失败；两处将原缺陷写成目标状态的早期断言已纠正且保留版本记录。产品最终仅在原canRemoveDefinition增加4行DataSet/两view存活、Loaded、无loadingError/refreshPending/mutating/unknown检查；执行继续复用同一只读预检。领域101/101，workspace/catalog/four-file runtime143/143，根typecheck与scoped lint通过；新增测试中同步destroy误await导致的首轮lint失败已修正并留证。独立复审Spec/Quality通过，未发现新阻断，产品冻结hash见本组报告。
+- 本轮核销范围为“字典来源正式模型+字段新增回读、命名视图独立保存重开、标准表格运行消费”及“删除前查询状态守卫”。全局引用完整性、专门业务选项组件交互与旧AI捕获终态继续开放；未执行资源删除。工程正式生成/rules/build及证据归档完成后按明确路径本地提交，不推送。
+- 最终工程验收完成：正式ClassModel生成971 DTS/1983 symbols/1600索引，3110既有语义缺口保持；DictionaryWorkspace/DataView正式目录、成员概要和指南查询成功。完整lint、rules、build全部exit0；正式consumer台账611端点/210消费者。实际14个ClassModel差异中12个仅编译器symbol ID、其余为本组workspace投影及清单；consumer台账仅测试行号刷新。既有2条AI模型warning、知识查询24678占用提示及构建依赖注释/CodeMirror动态导入提示留在原始输出，不宣称零告警。
+- 归档位于`evidence/metadata-integration-20261025/b1-consumer-delete-context/`，包含RED/GREEN、门禁、独立复审、网络/文件回执、截图与逐文件SHA256。主控交付审计核11项门禁、2源码hash及生成差异通过；暂存范围只含这2源码测试、14正式ClassModel JSON、1正式consumer台账、本唯一台账和该证据目录。本轮本地提交不推送，提交身份以Git记录为准；原Agent未知结果进程31708及旧浏览器捕获继续保留，完整整合goal仍active。
 - 暂存前发现历史空index.lock（01:25生成，无活动Git进程），已将空锁原样移存cache后继续，未改index内容。冻结证据含原始尾空行和Markdown硬换行，不能为diff清理而改写；仅在本证据目录加.gitattributes禁止文本字节转换及空白格式检查，并对暂存blob逐个复核manifest，源代码仍受原格式检查。

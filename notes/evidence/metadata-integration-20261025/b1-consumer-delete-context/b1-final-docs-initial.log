@@ -1,0 +1,5 @@
+$ node tools/verify-docs.mjs
+Doc governance verification failed: 2 violation(s).
+  notes/evidence/metadata-integration-20261025/b1-consumer-delete-context/b1-delete-context-red-v2.md:1 file names must not carry v1/v2 style versions; put versions in ver metadata
+  notes/evidence/metadata-integration-20261025/b1-consumer-delete-context/b1-delete-context-red-v3.md:1 file names must not carry v1/v2 style versions; put versions in ver metadata
+[ELIFECYCLE] Command failed with exit code 1.

@@ -1,0 +1,7 @@
+
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-lowcode-api\src\platform\resources\dictionary\dictionary-workspace.test.ts
+  827:7  error  Unexpected `await` of a non-Promise (non-"Thenable") value  @typescript-eslint/await-thenable
+  863:7  error  Unexpected `await` of a non-Promise (non-"Thenable") value  @typescript-eslint/await-thenable
+
+✖ 2 problems (2 errors, 0 warnings)
+

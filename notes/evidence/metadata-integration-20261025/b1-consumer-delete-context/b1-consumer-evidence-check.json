@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "modelId": "F9F01665D4A98E1FF996CD8A48D3C373",
+  "spaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "dictionaryId": "327D74EC0ABC4196AA75C56D944B8201",
+  "creation": {
+    "modelAdded": 1,
+    "fieldsAdded": 8,
+    "changed": 0,
+    "deleted": 0
+  },
+  "fileSaves": 2,
+  "otherTablesAndLayoutUnchangedDuringViewSaves": true,
+  "authBoundary": "Two HTTP 401 responses ended the initial window; normal reauthentication precedes the independent runtime window.",
+  "sameSpaRuntime": {
+    "queries": 48,
+    "completeQueryReceipts": 47,
+    "unfinishedClosingCatalogQueries": [
+      "2180.5413"
+    ],
+    "documents": 0,
+    "eventTruncations": 0,
+    "businessWrites": 0,
+    "modelQueries": 3,
+    "reopenedRowCount": 7,
+    "dataMatchesRetainedDictionary": true
+  },
+  "viewKey": "944DEE5A0E5170F903E0E008172C4CD2@B1Sort_20261024_1925F4C2@b1Consumer",
+  "retained": true,
+  "limits": [
+    "No permanent deletion executed.",
+    "No global absence-of-reference proof.",
+    "Named view table preview verified; dedicated business select component consumption remains separate."
+  ]
+}

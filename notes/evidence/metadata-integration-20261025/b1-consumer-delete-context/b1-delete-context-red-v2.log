@@ -1,0 +1,166 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not treat an empty reset entry view as a complete deletion snapshot
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage a definition deletion from an empty entry view after resetState
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the definition view is independently refreshing
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the entries view is independently refreshing
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stderr | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the definition view is independently refreshing
+❌ [DataView] requestData 失败 [_Base_DictType@default]: DATA_VIEW_UNSAVED_CHANGES: _Base_DictType@default 必须先保存或明确放弃修改 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1797:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1809:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2062:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts:823:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the entries view is independently refreshing
+❌ [DataView] requestData 失败 [_Base_DictData@default]: DATA_VIEW_UNSAVED_CHANGES: _Base_DictData@default 必须先保存或明确放弃修改 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1797:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1809:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2062:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts:858:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts (101 tests | 4 failed) 422ms
+     × does not treat an empty reset entry view as a complete deletion snapshot 8ms
+     × does not stage a definition deletion from an empty entry view after resetState 7ms
+     × does not stage deletion while the definition view is independently refreshing 10ms
+     × does not stage deletion while the entries view is independently refreshing 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not treat an empty reset entry view as a complete deletion snapshot
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:756:45
+    754|       expect(workspace.entries.total).toBe(0)
+    755|       expect(workspace.entries.requestState).toBe(RequestState.Idle)
+    756|       expect(workspace.canRemoveDefinition).toBe(false)
+       |                                             ^
+    757|     } finally {dataSet.destroy()}
+    758|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage a definition deletion from an empty entry view after resetState
+AssertionError: expected { removalRejected: false, …(5) } to deeply equal { removalRejected: true, …(5) }
+
+- Expected
++ Received
+
+  {
+-   "canRemoveAfterReset": false,
+-   "definitionDeletes": [],
+-   "definitionRows": 1,
++   "canRemoveAfterReset": true,
++   "definitionDeletes": [
++     "D1",
++   ],
++   "definitionRows": 0,
+    "entryDeletes": [],
+-   "pending": false,
+-   "removalRejected": true,
++   "pending": true,
++   "removalRejected": false,
+  }
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:772:10
+    770|         entryDeletes: [...workspace.entries.dirtyTracking.pendingDelet…
+    771|         definitionDeletes: [...workspace.definition.dirtyTracking.pend…
+    772|       }).toEqual({removalRejected: true, canRemoveAfterReset: false, d…
+       |          ^
+    773|         entryDeletes: [], definitionDeletes: [], pending: false})
+    774|       expect(http.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the definition view is independently refreshing
+AssertionError: expected { stateDuringRefresh: 2, …(4) } to deeply equal { stateDuringRefresh: 2, …(4) }
+
+- Expected
++ Received
+
+  {
+-   "canRemoveDuringRefresh": false,
+-   "definitionDeletes": [],
+-   "entryDeletes": [],
+-   "removalRejected": true,
++   "canRemoveDuringRefresh": true,
++   "definitionDeletes": [
++     "D1",
++   ],
++   "entryDeletes": [
++     "E1",
++   ],
++   "removalRejected": false,
+    "stateDuringRefresh": 2,
+  }
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:818:10
+    816|         entryDeletes: [...workspace.entries.dirtyTracking.pendingDelet…
+    817|         definitionDeletes: [...workspace.definition.dirtyTracking.pend…
+    818|       }).toEqual({stateDuringRefresh: RequestState.Loading, canRemoveD…
+       |          ^
+    819|         entryDeletes: [], definitionDeletes: []})
+    820|       expect(http.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not stage deletion while the entries view is independently refreshing
+AssertionError: expected { stateDuringRefresh: 2, …(4) } to deeply equal { stateDuringRefresh: 2, …(4) }
+
+- Expected
++ Received
+
+  {
+-   "canRemoveDuringRefresh": false,
+-   "definitionDeletes": [],
+-   "entryDeletes": [],
+-   "removalRejected": true,
++   "canRemoveDuringRefresh": true,
++   "definitionDeletes": [
++     "D1",
++   ],
++   "entryDeletes": [
++     "E1",
++   ],
++   "removalRejected": false,
+    "stateDuringRefresh": 2,
+  }
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:852:10
+    850|         entryDeletes: [...workspace.entries.dirtyTracking.pendingDelet…
+    851|         definitionDeletes: [...workspace.definition.dirtyTracking.pend…
+    852|       }).toEqual({stateDuringRefresh: RequestState.Loading, canRemoveD…
+       |          ^
+    853|         entryDeletes: [], definitionDeletes: []})
+    854|       expect(workspace.pending).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 97 passed (101)
+   Start at  04:40:11
+   Duration  2.26s (transform 1.17s, setup 0ms, import 1.53s, tests 422ms, environment 0ms)
+

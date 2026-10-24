@@ -304,6 +304,10 @@ export class DictionaryWorkspace {
 
   /** 完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。 */
   get canRemoveDefinition(): boolean {
+    const views = [this.definition, this.entries]
+    if (this.#input.dataSet.destroyed || views.some(view => view.destroyed
+      || view.requestState !== RequestState.Loaded || view.loadingError !== null
+      || view.refreshPending || view.mutating || view.hasUnconfirmedSave)) return false
     const row = this.definition.rows[0]
     return !this.#busy && !this.#creating && !this.#removed && !this.pending
       && this.definition.rows.length === 1 && !!row && row['rowid'] === this.#input.dictionaryId

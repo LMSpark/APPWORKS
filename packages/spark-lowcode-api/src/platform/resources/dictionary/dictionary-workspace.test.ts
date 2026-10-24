@@ -1,4 +1,5 @@
 import {describe, expect, it, vi} from 'vitest'
+import {RequestState} from '@spark-appworks/spark-data'
 import {DictionarySchema} from './dictionary-schema'
 import {DictionaryHttp, fixture, initialDefinition, initialEntry} from './tests/dictionary-workspace.fixture'
 
@@ -738,6 +739,170 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.entries.rows).toHaveLength(1)
     expect(http.saves).toHaveLength(0)
     dataSet.destroy()
+  })
+  it('does not treat an empty reset entry view as a complete deletion snapshot', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      expect(workspace.entries.rows).toHaveLength(0)
+      expect(workspace.entries.total).toBe(0)
+      workspace.entries.resetState()
+
+      expect(workspace.entries.rows).toHaveLength(0)
+      expect(workspace.entries.total).toBe(0)
+      expect(workspace.entries.requestState).toBe(RequestState.Idle)
+      expect(workspace.canRemoveDefinition).toBe(false)
+    } finally {dataSet.destroy()}
+  })
+  it('does not stage a definition deletion from an empty entry view after resetState', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      workspace.entries.resetState()
+
+      const canRemoveAfterReset = workspace.canRemoveDefinition
+      const removalRejected = await expect(workspace.removeDefinition()).rejects
+        .toThrow('当前查询未授权删除字典及其全部条目').then(() => true, () => false)
+      expect({removalRejected, canRemoveAfterReset, definitionRows: workspace.definition.rows.length,
+        entryDeletes: [...workspace.entries.dirtyTracking.pendingDeleteIds],
+        definitionDeletes: [...workspace.definition.dirtyTracking.pendingDeleteIds], pending: workspace.pending,
+      }).toEqual({removalRejected: true, canRemoveAfterReset: false, definitionRows: 1,
+        entryDeletes: [], definitionDeletes: [], pending: false})
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('does not stage deletion when the definition view has been independently reset', async () => {
+    const {workspace, http, dataSet} = fixture()
+    try {
+      await workspace.load()
+      workspace.definition.resetState()
+      const canRemoveAfterReset = workspace.canRemoveDefinition
+      const removalRejected = await expect(workspace.removeDefinition()).rejects
+        .toThrow('字典来源身份不存在或不唯一').then(() => true, () => false)
+
+      expect({canRemoveAfterReset, removalRejected, entryRows: workspace.entries.rows.length,
+        entryDeletes: [...workspace.entries.dirtyTracking.pendingDeleteIds],
+        definitionDeletes: [...workspace.definition.dirtyTracking.pendingDeleteIds], pending: workspace.pending,
+      }).toEqual({canRemoveAfterReset: false, removalRejected: true, entryRows: 1,
+        entryDeletes: [], definitionDeletes: [], pending: false})
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('does not stage deletion while the definition view is independently refreshing', async () => {
+    const {workspace, http, dataSet} = fixture()
+    let markEntered!: () => void
+    let releaseQuery!: () => void
+    const entered = new Promise<void>(resolve => {markEntered = resolve})
+    const held = new Promise<void>(resolve => {releaseQuery = resolve})
+    let refreshing: Promise<unknown> | undefined
+    http.beforeRead = async config => {
+      const name = (config.data as {Table: Array<{Name: string}>}).Table[0]!.Name
+      if (name === '_Base_DictType' && http.reads.length > 1) {
+        markEntered()
+        await held
+      }
+    }
+    try {
+      await workspace.load()
+      refreshing = workspace.definition.requestRefresh()
+      await entered
+      const stateDuringRefresh = workspace.definition.requestState
+      const canRemoveDuringRefresh = workspace.canRemoveDefinition
+      const removalRejected = await expect(workspace.removeDefinition()).rejects
+        .toThrow('当前查询未授权删除字典及其全部条目').then(() => true, () => false)
+
+      expect({stateDuringRefresh, canRemoveDuringRefresh, removalRejected,
+        entryDeletes: [...workspace.entries.dirtyTracking.pendingDeleteIds],
+        definitionDeletes: [...workspace.definition.dirtyTracking.pendingDeleteIds],
+      }).toEqual({stateDuringRefresh: RequestState.Loading, canRemoveDuringRefresh: false, removalRejected: true,
+        entryDeletes: [], definitionDeletes: []})
+      expect(http.saves).toHaveLength(0)
+    } finally {
+      releaseQuery()
+      await refreshing?.catch(() => undefined)
+      dataSet.destroy()
+    }
+  })
+  it('does not stage deletion while the entries view is independently refreshing', async () => {
+    const {workspace, http, dataSet} = fixture()
+    let markEntered!: () => void
+    let releaseQuery!: () => void
+    const entered = new Promise<void>(resolve => {markEntered = resolve})
+    const held = new Promise<void>(resolve => {releaseQuery = resolve})
+    let refreshing: Promise<unknown> | undefined
+    http.beforeRead = async config => {
+      const name = (config.data as {Table: Array<{Name: string}>}).Table[0]!.Name
+      if (name === '_Base_DictData' && http.reads.length > 2) {
+        markEntered()
+        await held
+      }
+    }
+    try {
+      await workspace.load()
+      refreshing = workspace.entries.requestRefresh()
+      await entered
+      const stateDuringRefresh = workspace.entries.requestState
+      const canRemoveDuringRefresh = workspace.canRemoveDefinition
+
+      const removalRejected = await expect(workspace.removeDefinition()).rejects
+        .toThrow('当前查询未授权删除字典及其全部条目').then(() => true, () => false)
+      expect({stateDuringRefresh, canRemoveDuringRefresh, removalRejected,
+        entryDeletes: [...workspace.entries.dirtyTracking.pendingDeleteIds],
+        definitionDeletes: [...workspace.definition.dirtyTracking.pendingDeleteIds],
+      }).toEqual({stateDuringRefresh: RequestState.Loading, canRemoveDuringRefresh: false, removalRejected: true,
+        entryDeletes: [], definitionDeletes: []})
+      expect(workspace.pending).toBe(false)
+      expect(http.saves).toHaveLength(0)
+    } finally {
+      releaseQuery()
+      await refreshing?.catch(() => undefined)
+      dataSet.destroy()
+    }
+  })
+  it('preflights every entry delete permission before staging any child or definition deletion', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData']!.push({...initialEntry, rowid: 'E2', ordIdx: 2, val: '01', txt: '黑'})
+    http.denyDeleteIds = ['E2']
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+
+      expect(workspace.canRemoveDefinition).toBe(false)
+      await expect(workspace.removeDefinition()).rejects.toThrow('当前查询未授权删除字典及其全部条目')
+      expect(workspace.entries.dirtyTracking.pendingDeleteIds.size).toBe(0)
+      expect(workspace.definition.dirtyTracking.pendingDeleteIds.size).toBe(0)
+      expect(workspace.pending).toBe(false)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('restores a reset entry view before a legal deletion and cancels that deletion through workspace reload', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      workspace.entries.resetState()
+      expect(workspace.canRemoveDefinition).toBe(false)
+
+      const refreshed = await workspace.entries.requestRefresh()
+      expect(refreshed.success).toBe(true)
+      expect(workspace.entries.requestState).toBe(RequestState.Loaded)
+      expect(workspace.canRemoveDefinition).toBe(true)
+      await workspace.removeDefinition()
+      expect(workspace.pending).toBe(true)
+      expect(http.saves).toHaveLength(0)
+
+      await workspace.load(true)
+      expect(workspace.definition.rows).toHaveLength(1)
+      expect(workspace.entries.rows).toHaveLength(0)
+      expect(workspace.canRemoveDefinition).toBe(true)
+      expect(workspace.pending).toBe(false)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
   })
   it('edits extensions without requiring unmodified legacy titles or encoding type', async () => {
     const {workspace, http, dataSet} = fixture()

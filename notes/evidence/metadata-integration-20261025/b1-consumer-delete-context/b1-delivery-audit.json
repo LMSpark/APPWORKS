@@ -1,0 +1,79 @@
+{
+  "passed": true,
+  "sourceHashes": {
+    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": "6b6f940bdb71e8e18b4f8521b75f1cc9484277b84e916c5a48d1d3af8a4c9b1f",
+    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts": "4d814d27c9e5836fd6bbd29f4c4770f6807e3a2e05966de3a2f27001c98ccd9b"
+  },
+  "gates": [
+    "b1-delete-context-green-domain-final",
+    "b1-delete-context-green-runtime-final",
+    "b1-delete-context-green-typecheck-final",
+    "b1-delete-context-green-lint-final",
+    "b1-delete-formal-generation",
+    "b1-delete-full-lint",
+    "b1-delete-full-rules",
+    "b1-delete-full-build",
+    "b1-delete-lowcode-contracts",
+    "b1-delete-contract-knowledge",
+    "b1-consumer-evidence-check"
+  ],
+  "generated": [
+    {
+      "path": "generated/dts-class-model/.dts-manifest.json",
+      "onlyCompilerSymbolIds": false
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+      "onlyCompilerSymbolIds": true
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
+      "onlyCompilerSymbolIds": false
+    }
+  ],
+  "noJavaOrCredentialPaths": true
+}

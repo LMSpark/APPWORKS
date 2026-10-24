@@ -3199,7 +3199,7 @@
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-24T19:43:54.615Z"
+      "sourceModifiedAt": "2026-10-24T20:45:45.016Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",

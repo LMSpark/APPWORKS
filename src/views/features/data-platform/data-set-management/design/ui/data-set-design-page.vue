@@ -30,7 +30,7 @@
         </RendererDetail>
         <p v-if="workbenchError" role="alert">{{ workbenchError }}</p>
       </section>
-      <p v-for="message in definitionMessages" :key="message" role="status">{{ message }}</p>
+      <p v-for="message in definitionMessages" :key="message" :class="{'definition-status': definitionNotice}" role="status">{{ message }}</p>
       <p v-for="message in treeMessages" :key="message" role="alert" data-tree-warning>{{ message }}</p>
       <RendererButton v-if="treeMessages.length" data-action="show-unplaced" @click="selectNode('unplaced')" label="查看未归类定义" />
       <div class="design-layout" :class="{'design-layout--directory': showDirectory}">
@@ -77,6 +77,7 @@
               <p>{{ title }} · {{ targetId }}；模型 {{ rebuildPreview.modelCount }} 个，关系 {{ rebuildPreview.relationCount }} 条。</p>
               <p>仅重建布局，无法恢复原有自定义坐标和标签。模型、字段、关系、视图、级联及数据权限配置保持原样。</p>
               <RendererGraph data-layout-rebuild :data-view-key="graphBinding.nodes" :edge-data-view-key="rebuildEdgeViewKey"
+                background-pattern="dots" node-appearance="card"
                 label-field="Name" description-field="description" node-caption-field="Type" :node-caption-options="DataSpaceWorkbench.sourcePresentation"
                 :node-badge-rules="modelBadgeRules" node-default-badge="普通模型" edge-source-field="source" edge-target-field="target"
                 :node-positions="rebuildPreview.positions" style="height:420px" disabled />
@@ -89,7 +90,7 @@
             <p>采用后放弃本地布局，刷新为刚预览的远端配置；已提交的服务器写入保持有效。</p>
             <RendererButton data-action="adopt-layout" label="放弃本地布局并采用远端" :disabled="busy" @click="layoutAction('adopt')" />
           </details>
-          <RendererGraph ref="graph" :toolbar="graphToolbar" :viewport-controls="false" :on-arrange="arrangeLayout" :data-view-key="graphBinding.nodes" :additional-node-sources="graphBinding.sources" v-bind="unboundEdgeViewKey ? {additionalEdgeDataViewKey: unboundEdgeViewKey} : {}" :edge-data-view-key="graphBinding.edges"
+          <RendererGraph ref="graph" :toolbar="graphToolbar" background-pattern="dots" node-appearance="card" :viewport-controls="false" :on-arrange="arrangeLayout" :data-view-key="graphBinding.nodes" :additional-node-sources="graphBinding.sources" v-bind="unboundEdgeViewKey ? {additionalEdgeDataViewKey: unboundEdgeViewKey} : {}" :edge-data-view-key="graphBinding.edges"
             label-field="Name" description-field="description" node-caption-field="Type" :node-caption-options="DataSpaceWorkbench.sourcePresentation"
             :node-badge-rules="modelBadgeRules" node-default-badge="普通模型" edge-source-field="parentTable" edge-target-field="childTable"
             :edge-node-keys="graphBinding.endpoints" :node-positions="graphBinding.positions" :current="graphCurrent"
@@ -794,35 +795,37 @@ async function deleteGraphSelection(expectedSelection: string): Promise<void> {
 }
 const graphToolbar = computed(() => {
   const selection = selectedId.value
-  return {wrap: true, children: [
-  {type: 'r-button', props: {'data-action': 'select-graph-current', label: '选择', disabled: busy.value, onClick: () => graph.value?.selectCurrent()}},
-  {type: 'r-button', props: {'data-action': 'add-model-node', label: '新增模型', buttonType: 'primary', disabled: definitionPending.value || parameterOpen.value || detailOpen.value || !layoutState.value?.editable, onClick: addModelNode}},
-  {type: 'r-button', props: {'data-action': 'center-graph', label: '居中', disabled: busy.value, onClick: () => graph.value?.center()}},
-  {type: 'r-button', props: {'data-action': 'fit-graph', label: '全图', disabled: busy.value, onClick: () => graph.value?.fitView()}},
+  const iconStyle = {plain: true, round: true, buttonSize: 'small'}
+  const secondaryStyle = {plain: true, buttonSize: 'small'}
+  return {wrap: true, class: 'data-space-design-graph-toolbar', children: [
+  {type: 'r-button', props: {'data-action': 'select-graph-current', label: '选择', icon: 'Aim', ...iconStyle, disabled: busy.value, onClick: () => graph.value?.selectCurrent()}},
+  {type: 'r-button', props: {'data-action': 'add-model-node', label: '新增模型', buttonType: 'primary', icon: 'Plus', ...iconStyle, disabled: definitionPending.value || parameterOpen.value || detailOpen.value || !layoutState.value?.editable, onClick: addModelNode}},
+  {type: 'r-button', props: {'data-action': 'center-graph', label: '居中', icon: 'Aim', ...iconStyle, disabled: busy.value, onClick: () => graph.value?.center()}},
+  {type: 'r-button', props: {'data-action': 'fit-graph', label: '全图', icon: 'FullScreen', ...iconStyle, disabled: busy.value, onClick: () => graph.value?.fitView()}},
   {type: 'r-button', props: {'data-action': 'arrange-graph', label: '对齐',
-    disabled: busy.value || definitionPending.value || parameterOpen.value || detailOpen.value || !layoutState.value?.editable, onClick: () => graph.value?.arrange()}},
-  {type: 'r-button', props: {'data-action': 'zoom-in-graph', label: '放大', disabled: busy.value, onClick: () => graph.value?.zoomIn()}},
-  {type: 'r-button', props: {'data-action': 'zoom-out-graph', label: '缩小', disabled: busy.value, onClick: () => graph.value?.zoomOut()}},
-  {type: 'r-button', props: {label: '输入参数', onClick: () => selectNode('parameters')}},
-  {type: 'r-button', props: {'data-action': 'copy-api', label: '复制API', dataViewKey: parameterViewKey.value,
+    icon: 'Grid', ...iconStyle, disabled: busy.value || definitionPending.value || parameterOpen.value || detailOpen.value || !layoutState.value?.editable, onClick: () => graph.value?.arrange()}},
+  {type: 'r-button', props: {'data-action': 'zoom-in-graph', label: '放大', icon: 'ZoomIn', ...iconStyle, disabled: busy.value, onClick: () => graph.value?.zoomIn()}},
+  {type: 'r-button', props: {'data-action': 'zoom-out-graph', label: '缩小', icon: 'ZoomOut', ...iconStyle, disabled: busy.value, onClick: () => graph.value?.zoomOut()}},
+  {type: 'r-button', props: {label: '输入参数', ...iconStyle, onClick: () => selectNode('parameters')}},
+  {type: 'r-button', props: {'data-action': 'copy-api', label: '复制API', icon: 'DocumentCopy', ...iconStyle, dataViewKey: parameterViewKey.value,
     visible: !!parameterViewKey.value, disabled: loading.value || hasPending.value || parameterOpen.value, onClick: copyApi}},
-  {type: 'r-button', props: {'data-action': 'remove-graph-selection', label: '删除', buttonType: 'danger',
+  {type: 'r-button', props: {'data-action': 'remove-graph-selection', label: '删除', buttonType: 'danger', icon: 'Delete', ...iconStyle,
     dataViewKey: unboundSelectedId.value ? unboundViewKey.value : unboundEdgeSelectedId.value ? unboundEdgeViewKey.value
       : selected.value?.table === 'DataTableBindingDefinition' ? fileBindingKey.value : graphCurrent.value?.kind === 'edge' ? graphBinding.value?.edges : graphBinding.value?.nodes,
     disabled: graphDeleteBlocked.value, onClick: () => deleteGraphSelection(selection)}},
-  {type: 'r-button', props: {'data-action': 'save-layout', label: '保存布局', buttonType: 'primary',
+  {type: 'r-button', props: {'data-action': 'save-layout', label: '保存布局', buttonType: 'primary', icon: 'DocumentChecked', ...iconStyle,
     disabled: busy.value || !layoutPending.value || !!layoutState.value?.error || layoutState.value?.status !== 'idle', onClick: () => layoutAction('save')}},
   ], tail: {children: [
-  {type: 'r-button', props: {'data-action': 'toggle-directory', label: showDirectory.value ? '收起模型目录' : '模型目录',
+  {type: 'r-button', props: {'data-action': 'toggle-directory', label: showDirectory.value ? '收起模型目录' : '模型目录', ...secondaryStyle,
     'aria-expanded': showDirectory.value, 'aria-controls': 'data-space-directory', onClick: () => {showDirectory.value = !showDirectory.value}}},
-  {type: 'r-button', props: {label: '重新打开', disabled: loading.value || hasPending.value || parameterOpen.value, onClick: load}},
-  {type: 'r-button', props: {label: '模型关系', dataViewKey: graphBinding.value?.edges, onClick: () => selectNode('native-relations')}},
-  {type: 'r-button', props: {label: '数据级联', onClick: () => selectNode('cascades')}},
-  {type: 'r-button', props: {'data-action': 'cancel-layout', label: '取消布局修改',
+  {type: 'r-button', props: {label: '重新打开', ...secondaryStyle, disabled: loading.value || hasPending.value || parameterOpen.value, onClick: load}},
+  {type: 'r-button', props: {label: '模型关系', ...secondaryStyle, dataViewKey: graphBinding.value?.edges, onClick: () => selectNode('native-relations')}},
+  {type: 'r-button', props: {label: '数据级联', ...secondaryStyle, onClick: () => selectNode('cascades')}},
+  {type: 'r-button', props: {'data-action': 'cancel-layout', label: '取消布局修改', ...secondaryStyle,
     disabled: busy.value || !layoutPending.value || layoutState.value?.staged, onClick: () => layoutAction('cancel')}},
-  {type: 'r-button', props: {'data-action': 'verify-layout', label: '核验布局保存',
+  {type: 'r-button', props: {'data-action': 'verify-layout', label: '核验布局保存', ...secondaryStyle,
     visible: layoutState.value?.staged && layoutState.value.status === 'unknown', disabled: busy.value, onClick: () => layoutAction('verify')}},
-  {type: 'r-button', props: {'data-action': 'preview-layout', label: '预览远端布局文件',
+  {type: 'r-button', props: {'data-action': 'preview-layout', label: '预览远端布局文件', ...secondaryStyle,
     visible: layoutPending.value, disabled: busy.value, onClick: () => layoutAction('preview')}},
 ]}}})
 const graphCurrent = computed(() => {
@@ -1192,6 +1195,10 @@ const definitionMessages = computed(() => {
     return [...current.definitionDiagnostics]
   } catch (cause) {return [readError(cause)]}
 })
+const definitionNotice = computed(() => {
+  try {return ['absent', 'unloaded'].includes(session.value?.definitionStatus ?? '')}
+  catch {return false}
+})
 const parameterViewKey = computed(() => session.value?.metadataDataSet.scenarioId
   ? buildDataViewKey('Base_DataSet', 'default', session.value.metadataDataSet.scenarioId) : undefined)
 const parameterState = computed(() => {
@@ -1364,7 +1371,7 @@ onBeforeUnmount(() => {
   --spark-radius-lg:12px; --spark-radius-md:8px; --spark-radius-pill:999px;
   --spark-space-1:4px; --spark-space-2:8px; --spark-space-3:12px; --spark-space-4:16px;
   --spark-font-size-xs:11px; --spark-font-size-sm:12px; --spark-font-size-base:14px; --spark-font-size-lg:16px; --spark-font-size-xl:18px;
-  padding:1rem; min-width:0; height:100%; box-sizing:border-box; overflow:auto; color:var(--el-text-color-primary);
+  padding:0; min-width:0; height:100%; box-sizing:border-box; overflow:auto; color:var(--el-text-color-primary);
 }
 header {display: flex; justify-content: space-between; align-items: center; gap: 1rem; border-bottom: 1px solid var(--el-border-color); margin-bottom: 1rem;}
 h1 {font-size: 1.35rem; margin: 0;} h2 {font-size: 1.15rem; margin-top: 0; overflow-wrap: anywhere;}
@@ -1376,6 +1383,13 @@ nav {border-right: 1px solid var(--el-border-color); padding-right: 1rem; overfl
 .design-canvas {min-width:0; min-height:560px; display:flex; flex-direction:column; gap:10px;}
 .design-canvas > .renderer-graph {height:calc(100vh - 340px); min-height:460px;}
 .design-canvas > p {color: var(--el-text-color-secondary);}
+.definition-status {margin:4px 0; color:var(--el-text-color-secondary); font-size:12px;}
+.design-canvas :deep(.data-space-design-graph-toolbar .data-space-design-graph-toolbar) {
+  padding:8px 10px;
+  border:1px solid var(--el-border-color-light);
+  border-radius:8px;
+  background:var(--el-fill-color-lighter);
+}
 nav button {background: transparent; border: 0; color: inherit; cursor: pointer; text-align: left; font: inherit; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 .design-detail {min-width: 0; padding: .5rem;}
 dl {display: grid; grid-template-columns: minmax(8rem, 25%) minmax(0, 1fr); gap: .75rem;}

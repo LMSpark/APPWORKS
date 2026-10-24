@@ -5,7 +5,7 @@
 AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据容器内部。
 -->
 <template>
-  <div ref="canvasElement" class="graph-canvas" data-testid="graph-canvas">
+  <div ref="canvasElement" class="graph-canvas" :class="{'graph-canvas--dots': props.backgroundPattern === 'dots'}" data-testid="graph-canvas">
     <VueFlow
       :id="flowId"
       :nodes="flowNodes"
@@ -35,7 +35,7 @@ AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据�
       @connect="onConnect"
     >
       <template #node-graph-node="{ data, id }">
-        <article class="graph-node" :class="[{'graph-node--connectable': canConnect(id)}, data.badge ? `graph-node--${data.badge.tone}` : '']">
+        <article class="graph-node" :class="[{'graph-node--connectable': canConnect(id), 'graph-node--card': props.nodeAppearance === 'card'}, data.badge ? `graph-node--${data.badge.tone}` : '']">
           <Handle type="target" :position="Position.Left" :connectable="canConnect(id)" />
           <div v-if="data.caption || data.badge" class="graph-node__meta">
             <span v-if="data.caption" class="graph-node__caption" :title="data.caption">{{ data.caption }}</span>
@@ -303,6 +303,12 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
   border-radius: 6px;
   background: var(--el-bg-color, #fff);
 }
+.graph-canvas--dots {
+  background-color: var(--el-bg-color, #fff);
+  background-image: radial-gradient(circle, var(--el-border-color, #dcdfe6) 1px, transparent 1.2px);
+  background-position: 10px 10px;
+  background-size: 20px 20px;
+}
 
 :deep(.vue-flow) {
   position: absolute;
@@ -348,6 +354,51 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
 .graph-node--info {border-left:4px solid var(--el-color-info);}
 .graph-node--danger {border-left:4px solid var(--el-color-danger); background:var(--el-color-danger-light-9);}
 .graph-node--danger .graph-node__badge {color:var(--el-color-danger); background:var(--el-color-danger-light-8);}
+.graph-node--card {
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+  border-radius: 16px;
+}
+.graph-node--card .graph-node__meta {
+  min-height: 18px;
+  font-size: 11px;
+}
+.graph-node--card .graph-node__title {
+  display: -webkit-box;
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.graph-node--card .graph-node__description {
+  flex: 1;
+  min-height: 0;
+  padding: 8px 14px 10px;
+  white-space: normal;
+  line-height: 16px;
+}
+.graph-node--card:not(.graph-node--connectable) {overflow: hidden;}
+.graph-node--card::before {
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 76px;
+  border-radius: 15px 15px 0 0;
+  background: var(--el-fill-color-lighter, #f5f7fa);
+  pointer-events: none;
+  content: '';
+}
+.graph-node--card .graph-node__meta,
+.graph-node--card .graph-node__title {
+  z-index: 1;
+  margin-right: 14px;
+  margin-left: 14px;
+}
+.graph-node--card .graph-node__meta {margin-top: 10px;}
+.graph-node--card .graph-node__description {z-index: 1;}
 .graph-canvas__controls {position:absolute; bottom:16px; left:16px; z-index:5; display:flex; border:1px solid var(--el-border-color); border-radius:6px; overflow:hidden; box-shadow:var(--el-box-shadow-light);}
 .graph-canvas__controls button {border:0; border-right:1px solid var(--el-border-color); background:var(--el-bg-color); color:var(--el-text-color-primary); padding:8px 12px; cursor:pointer; font-size:14px;}
 .graph-canvas__controls button:last-child {border-right:0;}
@@ -355,4 +406,5 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
 :deep(.vue-flow__handle) { opacity: 0; pointer-events: none; }
 .graph-node--connectable {overflow: visible;}
 :deep(.graph-node--connectable > .vue-flow__handle) {opacity: 1; pointer-events: all; width: 10px; height: 10px; background: var(--el-color-primary, #409eff);}
+.graph-node--card > :deep(.vue-flow__handle) {z-index: 2;}
 </style>

@@ -12,6 +12,7 @@ AI用途：绑定节点与关系视图，通过字段名和显式端点映射恢
     <div class="renderer-graph-body">
     <p v-for="message in projection.messages" :key="message" role="alert">{{ message }}</p>
     <GraphCanvas ref="canvas" :nodes="projection.nodes" :edges="projection.edges" :context-key="contextKey"
+      :background-pattern="props.backgroundPattern" :node-appearance="props.nodeAppearance"
       :viewport-controls="props.viewportControls"
       :disabled="props.disabled === true" :selected-id="selectedId" :draggable-ids="draggableIds"
       :connectable="connectableIds.length > 0" :connectable-ids="connectableIds" @select="select" @move="move" @connect="connect" />
@@ -36,7 +37,7 @@ import type {GraphCanvasNode, GraphCanvasEdge, GraphCanvasPoint} from './GraphCa
 import type {GraphSelection, GraphArrange, GraphNodeSource, RendererGraphApi, RGraphProps} from './RendererGraph.props'
 import {GraphLayout} from './GraphLayout'
 
-const props = withDefaults(defineProps<RGraphProps>(), {type: 'r-graph', dataMember: 'rows', edgeDataMember: 'rows', edgeSourceField: 'source', edgeTargetField: 'target', viewportControls: true})
+const props = withDefaults(defineProps<RGraphProps>(), {type: 'r-graph', dataMember: 'rows', edgeDataMember: 'rows', edgeSourceField: 'source', edgeTargetField: 'target', viewportControls: true, backgroundPattern: 'none', nodeAppearance: 'default'})
 const {isVisible, sparkConsume, sparkProvide, sparkRemove} = useSparkPageComponent(props)
 const {toolbarConfig, toolbarPositionValue, toolbarClassValue} = useContainerToolbar({toolbarNode: () => props.toolbar})
 const nodes = useContainerDataSource({dataViewKey: toRef(props, 'dataViewKey'), sparkConsume})

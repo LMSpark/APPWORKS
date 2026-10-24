@@ -77,6 +77,27 @@ async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideId
 }
 
 describe('standard graph DataView binding', () => {
+  it('opts into graph presentation without changing the default projection or DataView', async () => {
+    const {wrapper, input, nodes} = await fixture()
+    const canvas = wrapper.get('.graph-canvas')
+    const flow = wrapper.getComponent(VueFlow)
+    const originalRows = [...nodes.rows]
+    const originalFlowNodes = flow.props('nodes')
+
+    expect(canvas.classes()).not.toContain('graph-canvas--dots')
+    expect(wrapper.find('.graph-node--card').exists()).toBe(false)
+
+    input.backgroundPattern = 'dots'
+    input.nodeAppearance = 'card'
+    await flushPromises()
+
+    expect(wrapper.get('.graph-canvas').classes()).toContain('graph-canvas--dots')
+    expect(wrapper.findAll('.graph-node--card')).toHaveLength(2)
+    expect(flow.props('nodes')).toBe(originalFlowNodes)
+    expect(nodes.rows).toEqual(originalRows)
+    expect(nodes.hasEditingChanges()).toBe(false)
+  })
+
   it('offers controlled alignment through original keys without changing node or edge data', async () => {
     const onArrange = vi.fn()
     const {wrapper, input, nodes, ds} = await fixture({draggableKeys: ['A', 'B'], onArrange,

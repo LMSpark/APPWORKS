@@ -128,6 +128,18 @@
       "type": "object",
       "title": "GraphCanvasProps",
       "properties": {
+        "backgroundPattern": {
+          "enum": [
+            "none",
+            "dots"
+          ]
+        },
+        "nodeAppearance": {
+          "enum": [
+            "default",
+            "card"
+          ]
+        },
         "nodes": {
           "type": "array",
           "items": {
@@ -184,7 +196,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-10T22:34:24.140Z",
+  "generatedAt": "2026-10-24T08:35:33.716Z",
   "models": {
     "GraphCanvasPoint": {
       "name": "GraphCanvasPoint",
@@ -354,16 +366,28 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+            "typeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "backgroundPattern",
+              "jsdoc": "背景呈现；点阵只改变视觉，不改变画布交互或坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeAppearance",
+              "jsdoc": "节点呈现；卡片样式不改变固定几何或投影文字。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "nodes",
               "jsdoc": "已授权的节点绘制投影。",

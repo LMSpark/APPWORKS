@@ -91,6 +91,10 @@ export type GraphNodeSource = Readonly<{
 export type RGraphProps = SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {
   /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */
   toolbar?: RToolbarProps
+  /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */
+  backgroundPattern?: 'none' | 'dots'
+  /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */
+  nodeAppearance?: 'default' | 'card'
   /** 节点取rows或selectedRows；默认rows。 */
   dataMember?: 'rows' | 'selectedRows'
   /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */

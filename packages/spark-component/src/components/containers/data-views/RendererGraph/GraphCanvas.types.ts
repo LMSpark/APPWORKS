@@ -49,6 +49,10 @@ export type GraphCanvasEdge = Readonly<{
 
 /** 内部纯绘图合同；业务页通过RendererGraph绑定DataView。 */
 export type GraphCanvasProps = Readonly<{
+  /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */
+  backgroundPattern?: 'none' | 'dots' | undefined
+  /** 节点呈现；卡片样式不改变固定几何或投影文字。 */
+  nodeAppearance?: 'default' | 'card' | undefined
   /** 已授权的节点绘制投影。 */
   nodes: readonly GraphCanvasNode[]
   /** 已授权且端点可解析的关系投影。 */

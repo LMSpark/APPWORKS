@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "3efece5ba67823a6ad645352e647c946b0f41258",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "wide": {
+    "width": 1280,
+    "height": 720,
+    "cards": [
+      {
+        "cssHeight": "120px",
+        "cssWidth": "232px",
+        "handles": [
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          },
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          }
+        ],
+        "headerRadius": "15px 15px 0px 0px",
+        "title": "SourceInputScope_20261018"
+      },
+      {
+        "cssHeight": "120px",
+        "cssWidth": "232px",
+        "handles": [
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          },
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          }
+        ],
+        "headerRadius": "15px 15px 0px 0px",
+        "title": "SourceScope_20261018"
+      },
+      {
+        "cssHeight": "120px",
+        "cssWidth": "232px",
+        "handles": [
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          },
+          {
+            "hitSelf": true,
+            "opacity": "1",
+            "pointerEvents": "all",
+            "zIndex": "2"
+          }
+        ],
+        "headerRadius": "15px 15px 0px 0px",
+        "title": "ArrayScope_20261018"
+      }
+    ],
+    "toolbarSingleSurface": true
+  },
+  "narrow": {
+    "allButtonsWithinViewport": true,
+    "buttons": [
+      {
+        "label": "选择",
+        "right": 116.40625,
+        "width": 64,
+        "x": 52.40625
+      },
+      {
+        "label": "新增模型",
+        "right": 220.40625,
+        "width": 88,
+        "x": 132.40625
+      },
+      {
+        "label": "居中",
+        "right": 300.40625,
+        "width": 64,
+        "x": 236.40625
+      },
+      {
+        "label": "全图",
+        "right": 380.40625,
+        "width": 64,
+        "x": 316.40625
+      },
+      {
+        "label": "对齐",
+        "right": 460.40625,
+        "width": 64,
+        "x": 396.40625
+      },
+      {
+        "label": "放大",
+        "right": 540.40625,
+        "width": 64,
+        "x": 476.40625
+      },
+      {
+        "label": "缩小",
+        "right": 620.40625,
+        "width": 64,
+        "x": 556.40625
+      },
+      {
+        "label": "输入参数",
+        "right": 132.40625,
+        "width": 72,
+        "x": 60.40625
+      },
+      {
+        "label": "复制API",
+        "right": 232.421875,
+        "width": 84.015625,
+        "x": 148.40625
+      },
+      {
+        "label": "删除",
+        "right": 312.421875,
+        "width": 64,
+        "x": 248.421875
+      },
+      {
+        "label": "保存布局",
+        "right": 416.421875,
+        "width": 88,
+        "x": 328.421875
+      },
+      {
+        "label": "模型目录",
+        "right": 303.59375,
+        "width": 74,
+        "x": 229.59375
+      },
+      {
+        "label": "重新打开",
+        "right": 393.59375,
+        "width": 74,
+        "x": 319.59375
+      },
+      {
+        "label": "模型关系",
+        "right": 483.59375,
+        "width": 74,
+        "x": 409.59375
+      },
+      {
+        "label": "数据级联",
+        "right": 573.59375,
+        "width": 74,
+        "x": 499.59375
+      },
+      {
+        "label": "取消布局修改",
+        "right": 687.59375,
+        "width": 98,
+        "x": 589.59375
+      }
+    ],
+    "page": {
+      "clientWidth": 657,
+      "scrollWidth": 657
+    },
+    "toolbar": {
+      "clientWidth": 655,
+      "scrollWidth": 655
+    },
+    "viewport": {
+      "height": 720,
+      "width": 760
+    }
+  },
+  "actions": [
+    "fit",
+    "zoom in",
+    "zoom out",
+    "center",
+    "open and close DataView-bound directory",
+    "open and cancel input parameters without edits",
+    "double-click SourceScope model and close without edits",
+    "close complete designer"
+  ],
+  "requestWindow": {
+    "cursorStart": 69959,
+    "cursorEnd": 70425,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "9000.12036",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "table": null,
+        "rows": null
+      },
+      {
+        "requestId": "9000.12037",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1
+      },
+      {
+        "requestId": "9000.12038",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 13
+      },
+      {
+        "requestId": "9000.12039",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 338
+      },
+      {
+        "requestId": "9000.12040",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 11
+      },
+      {
+        "requestId": "9000.12041",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 301
+      },
+      {
+        "requestId": "9000.12042",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1
+      },
+      {
+        "requestId": "9000.12043",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 3
+      },
+      {
+        "requestId": "9000.12044",
+        "path": "/api/File/content/text",
+        "code": 200,
+        "table": null,
+        "rows": null
+      },
+      {
+        "requestId": "9000.12045",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0
+      },
+      {
+        "requestId": "9000.12046",
+        "path": "/api/DataOperation/GetData",
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 10
+      }
+    ],
+    "writes": 0
+  },
+  "limitations": [
+    "DOM hit testing confirms six handle centers are not covered; no relation creation was performed.",
+    "Reference comparison uses retained screenshot and source, not reopened reference live service.",
+    "This is main canvas presentation acceptance, not complete page equivalence."
+  ]
+}

@@ -1,0 +1,354 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "87632d28cf86f91d4cf487b3001daa756de5eacb",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "preserveModels": [
+    {
+      "id": "87639E48BFD673CFAA2E6601FABD1467",
+      "name": "SourceInputScope_20261018"
+    },
+    {
+      "id": "A7199374E11E24BB0FB6938407224304",
+      "name": "SourceScope_20261018"
+    },
+    {
+      "id": "E912160BC0FA9AE6448D209D4428DDBE",
+      "name": "ArrayScope_20261018"
+    }
+  ],
+  "baseline": {
+    "models": {
+      "responseCode": 200,
+      "count": 3,
+      "hasNextPage": null,
+      "ids": [
+        "87639E48BFD673CFAA2E6601FABD1467",
+        "A7199374E11E24BB0FB6938407224304",
+        "E912160BC0FA9AE6448D209D4428DDBE"
+      ],
+      "sha256": "7853d6ff3fb2c1ab18007bca88b2a927666730ecc3027b537a3155d9733f5049"
+    },
+    "relations": {
+      "responseCode": 200,
+      "count": 0,
+      "hasNextPage": null,
+      "ids": [],
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "fields": {
+      "responseCode": 200,
+      "count": 16,
+      "hasNextPage": null,
+      "ids": [
+        "01DA1CE9BBB6151D32E982ACE587C96D",
+        "1969C2E14C5704E19FA501672553CF7E",
+        "229A3CF16BF55E6781035F447153C654",
+        "235C494A677CACB1D51280916661148E",
+        "36AA9C0871FED59900FFE5753599080C",
+        "532074D7F026276D6E92D5299FBD8506",
+        "6E56F4A8149F99C33B217239F55B514B",
+        "794C1A795F8DC57864D3441208F2A2C8",
+        "7B3F6EE7AD677BFC1067C83875D15736",
+        "8C762A517CC9F02DBE2323F6F5119B38",
+        "90DE022F38D067897FDC3E2975F60A83",
+        "B65D0D55826587CFC571CD6967DC5E2C",
+        "B7B798B32B8610E9975DFA24CA527105",
+        "C2D17E1D21C353AFE0C788DDA2883828",
+        "D09311045F22EF5FAB50630C59E77245",
+        "D3E4E26B6981C6875AE22A2F0383B6C0"
+      ],
+      "sha256": "91c0d9de41c33db4e6560c611d330b318d3e20eba5760ceb51a19ed1aef16a6a"
+    },
+    "pagedataSha256": "41a28121ee8bba81b326304b31a1168c9a5fcfa041cfdaab41829504fdbe3c4f"
+  },
+  "stages": [
+    {
+      "stage": "create",
+      "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "name": "ContentType",
+      "fields": [
+        {
+          "id": "04F9AB1FD1DA7D2471FF08749F6986E1",
+          "name": "val"
+        },
+        {
+          "id": "34FC89D9F864B2D67FE1B1C40E2B1A24",
+          "name": "ordIdx"
+        },
+        {
+          "id": "79F61A749383FAA4FC80234F74598C09",
+          "name": "rowid"
+        },
+        {
+          "id": "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+          "name": "exVal_1"
+        },
+        {
+          "id": "8C679E44D4D4D17152754A65E8F67889",
+          "name": "exVal_4"
+        },
+        {
+          "id": "A64309CF271064C98A0697C8EB8D0C6E",
+          "name": "exVal_2"
+        },
+        {
+          "id": "B0CFE46367BC8C47FD20B592F5602946",
+          "name": "txt"
+        },
+        {
+          "id": "EA974D64EF0BC175E40D01AFCBFBBE2F",
+          "name": "exVal_3"
+        }
+      ],
+      "fieldCount": 8,
+      "dbResponseCode": 200,
+      "layoutResponseCode": 200,
+      "layoutFileHash": "a6dd061104f16a3de69abe35b8aebe0ee775b2696bf3bcdb1832d5246874169f",
+      "observedUi": "模型已创建，节点位置已保存并回读确认",
+      "uiGap": "目录显示字段0；精确目标回读1588为8字段，1592是其他绑定模型的过滤读取，不能当本模型回读",
+      "requests": [
+        {
+          "id": "9000.1569",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1570",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1571",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1572",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1573",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1574",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1575",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1576",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1577",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1578",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1579",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1580",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1581",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1582",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1583",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1584",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1585",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1586",
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD"
+        },
+        {
+          "id": "9000.1587",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1588",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1589",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1590",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1591",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1592",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1593",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "id": "9000.1594",
+          "path": "/api/File/content/text"
+        },
+        {
+          "id": "9000.1595",
+          "path": "/api/File/UploadFile"
+        },
+        {
+          "id": "9000.1596",
+          "path": "/api/File/DownFile"
+        },
+        {
+          "id": "9000.1597",
+          "path": "/api/File/content/text"
+        }
+      ],
+      "fieldReadbackRequestId": "9000.1588"
+    },
+    {
+      "stage": "source-replacement",
+      "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "oldSource": "ContentType",
+      "newSource": "shif",
+      "requestId": "9000.1637",
+      "modelReadbackRequestId": "9000.1638",
+      "fieldReadbackRequestId": "9000.1639",
+      "fieldIds": [
+        "04F9AB1FD1DA7D2471FF08749F6986E1",
+        "34FC89D9F864B2D67FE1B1C40E2B1A24",
+        "79F61A749383FAA4FC80234F74598C09",
+        "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+        "8C679E44D4D4D17152754A65E8F67889",
+        "A64309CF271064C98A0697C8EB8D0C6E",
+        "B0CFE46367BC8C47FD20B592F5602946",
+        "EA974D64EF0BC175E40D01AFCBFBBE2F"
+      ],
+      "fieldIdsPreserved": true,
+      "dbResponseCode": 200,
+      "fileWriteCount": 0
+    },
+    {
+      "stage": "rename",
+      "requestId": "9000.1657",
+      "dbResponseCode": 200,
+      "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "oldName": "ContentType",
+      "newName": "IntegrationLifecycle_20261024",
+      "source": "shif",
+      "changed": [
+        {
+          "table": "Base_DataModel",
+          "rows": [
+            {
+              "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+              "Name": "IntegrationLifecycle_20261024"
+            }
+          ]
+        }
+      ],
+      "fileWriteCount": 0
+    },
+    {
+      "stage": "standalone-field-create",
+      "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "requestId": "9000.1684",
+      "requestTables": [
+        {
+          "table": "Base_DataModel_Field",
+          "added": [
+            {
+              "id": "CDF7370A52E2BCFC47628BF0A68E5555",
+              "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+              "spaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+              "name": "LifecycleComputed_20261024"
+            }
+          ],
+          "changedCount": 0,
+          "deletedCount": 0
+        }
+      ],
+      "responseCode": 200,
+      "exactReadbackRequestId": "9000.1685",
+      "readback": {
+        "id": "CDF7370A52E2BCFC47628BF0A68E5555",
+        "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+        "name": "LifecycleComputed_20261024"
+      }
+    },
+    {
+      "stage": "independent-reopen",
+      "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "name": "IntegrationLifecycle_20261024",
+      "source": "shif",
+      "fieldIds": [
+        "04F9AB1FD1DA7D2471FF08749F6986E1",
+        "34FC89D9F864B2D67FE1B1C40E2B1A24",
+        "79F61A749383FAA4FC80234F74598C09",
+        "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+        "8C679E44D4D4D17152754A65E8F67889",
+        "A64309CF271064C98A0697C8EB8D0C6E",
+        "B0CFE46367BC8C47FD20B592F5602946",
+        "CDF7370A52E2BCFC47628BF0A68E5555",
+        "EA974D64EF0BC175E40D01AFCBFBBE2F"
+      ],
+      "fieldCount": 9,
+      "computedId": "CDF7370A52E2BCFC47628BF0A68E5555",
+      "requests": {
+        "model": "9000.1697",
+        "fields": "9000.1701",
+        "file": "9000.1698"
+      }
+    }
+  ],
+  "status": "create-source-rename-field-reopen-verified; deletion-awaits-user-confirmation; preview-cancelled",
+  "newModel": {
+    "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+    "initialName": "ContentType",
+    "currentName": "IntegrationLifecycle_20261024"
+  },
+  "deletePreview": {
+    "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+    "modelName": "IntegrationLifecycle_20261024",
+    "fieldIds": [
+      "04F9AB1FD1DA7D2471FF08749F6986E1",
+      "34FC89D9F864B2D67FE1B1C40E2B1A24",
+      "79F61A749383FAA4FC80234F74598C09",
+      "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+      "8C679E44D4D4D17152754A65E8F67889",
+      "A64309CF271064C98A0697C8EB8D0C6E",
+      "B0CFE46367BC8C47FD20B592F5602946",
+      "CDF7370A52E2BCFC47628BF0A68E5555",
+      "EA974D64EF0BC175E40D01AFCBFBBE2F"
+    ],
+    "modelCount": 1,
+    "fieldCount": 9,
+    "relationCount": 0,
+    "layoutPosition": {
+      "x": 150,
+      "y": 270
+    },
+    "modelBinding": false,
+    "originalThreeExcluded": true
+  }
+}

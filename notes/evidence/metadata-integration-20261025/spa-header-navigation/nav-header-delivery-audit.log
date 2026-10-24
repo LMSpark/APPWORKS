@@ -1,0 +1,32 @@
+{
+  "gates": [
+    "nav-header-root-final-tests",
+    "nav-header-root-typecheck",
+    "nav-header-root-lint",
+    "nav-header-generate",
+    "nav-header-rules",
+    "nav-header-build",
+    "nav-header-generated-audit"
+  ],
+  "sourceHashes": {
+    "src/layout/AppHeader.vue": "5888AA244F79DFB7062D5AC368F59AE40AF0613F914A4A8843EB4244E4A08143",
+    "src/layout/NavHeaderBar.vue": "141E12C410FF7FA4E3C2D86DB9B0CD6DC7B6F366659F3679CE82ECDEA8592C5B",
+    "tests/ui/component/nav-header-bar.test.ts": "CAEAFE9F97FDCECEE1D642D3267C6BB4E564001AE932FFDC613F8DC9001427E4"
+  },
+  "layoutSteps": 4,
+  "entriesPerStep": 14,
+  "headerHeight": 48,
+  "finalViewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "networkQueryCount": 1,
+  "networkDocumentCount": 0,
+  "networkNonQueryCount": 0,
+  "dictionaryCount": 353,
+  "limitations": [
+    "Current formal navigation has no parent/flat dropdown children or dividerAfter configuration; nested styles and separators were source reviewed and component tested, not live configured.",
+    "First module target is an existing placeholder; enterprise target has preexisting missing page registry; data-code target lacks formal _Base_CodeDesign model.",
+    "Only 1024, 1280 and 2300 desktop widths tested."
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "center": {
+    "height": 24,
+    "overflow": "hidden",
+    "width": 695.125,
+    "x": 392.875,
+    "y": 11.5
+  },
+  "items": [
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "SPARK 工具",
+      "width": 99.6875,
+      "x": -44.90625,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 24,
+      "name": "数据库管理",
+      "width": 117,
+      "x": 58.78125,
+      "y": 11.5
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "外部服务管理",
+      "width": 112,
+      "x": 179.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "半结构化数据",
+      "width": 112,
+      "x": 295.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "文件数据管理",
+      "width": 112,
+      "x": 411.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "结构化配置",
+      "width": 98,
+      "x": 527.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "数据空间管理",
+      "width": 112,
+      "x": 629.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "业务流程管理",
+      "width": 112,
+      "x": 745.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "业务报表管理",
+      "width": 112,
+      "x": 861.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": true,
+      "height": 22.390625,
+      "name": "安全防护管理",
+      "width": 112,
+      "x": 977.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "应用系统管理",
+      "width": 112,
+      "x": 1093.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "人力资源管理",
+      "width": 112,
+      "x": 1209.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "系统支持管理",
+      "width": 112,
+      "x": 1325.78125,
+      "y": 12.296875
+    },
+    {
+      "centerHits": false,
+      "height": 22.390625,
+      "name": "企业管理",
+      "width": 84,
+      "x": 1441.78125,
+      "y": 12.296875
+    }
+  ],
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

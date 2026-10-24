@@ -12331,7 +12331,7 @@
         "sourceFile": "src/layout/NavHeaderBar.vue",
         "packageName": "app",
         "modulePath": "layout/NavHeaderBar",
-        "jsdoc": "@module app:layout/NavHeaderBar\n职责：提供主应用 NavHeaderBar 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
+        "jsdoc": "@module app:layout/NavHeaderBar\n职责：用 Element Plus 横向菜单呈现应用壳已授权的 RuntimeNavigationItem，并通过唯一 useNav 上下文处理选择。\n边界：不创建导航数据、权限判定或路由；菜单溢出只改变现有 items 的呈现位置，活动身份仍由 useNav 提供。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 layout/NavHeaderBar。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

@@ -1,0 +1,54 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (5 tests | 2 failed) 1151ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 94ms
+     × recalculates the same menu for badge and item changes, then removes its open teleported popper on unmount 68ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:162:32
+    160|     expect(menu.exists()).toBe(true)
+    161|     const moreTitle = wrapper.find('.el-sub-menu--hide-arrow .el-sub-m…
+    162|     expect(moreTitle.exists()).toBe(true)
+       |                                ^
+    163|     await moreTitle.trigger('mouseenter')
+    164|     await waitForMenuPopper()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > recalculates the same menu for badge and item changes, then removes its open teleported popper on unmount
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:220:32
+    218|
+    219|     const moreTitle = wrapper.find('.el-sub-menu--hide-arrow .el-sub-m…
+    220|     expect(moreTitle.exists()).toBe(true)
+       |                                ^
+    221|     await moreTitle.trigger('mouseenter')
+    222|     await waitForMenuPopper()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  05:43:04
+   Duration  13.28s (transform 7.54s, setup 153ms, import 10.40s, tests 1.15s, environment 1.23s)
+

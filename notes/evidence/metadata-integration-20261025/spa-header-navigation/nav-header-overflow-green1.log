@@ -1,0 +1,47 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (5 tests | 2 failed) 1017ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 16ms
+     × recalculates the same menu for badge and item changes, then removes its open teleported popper on unmount 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:152:32
+    150|     expect(menu.exists()).toBe(true)
+    151|     const moreTitle = wrapper.find('.el-sub-menu--hide-arrow .el-sub-m…
+    152|     expect(moreTitle.exists()).toBe(true)
+       |                                ^
+    153|     await moreTitle.trigger('mouseenter')
+    154|     await waitForMenuPopper()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > recalculates the same menu for badge and item changes, then removes its open teleported popper on unmount
+AssertionError: expected [ '入口甲', '入口乙', '入口丙' ] to not include '入口丙'
+ ❯ tests/ui/component/nav-header-bar.test.ts:191:32
+    189|       .map(node => node.textContent?.trim())
+    190|     expect(directLabels()).toContain('入口甲')
+    191|     expect(directLabels()).not.toContain('入口丙')
+       |                                ^
+    192|
+    193|     badges.value = new Map([['first', '999999']])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  05:42:32
+   Duration  14.05s (transform 8.24s, setup 177ms, import 11.22s, tests 1.02s, environment 1.27s)
+

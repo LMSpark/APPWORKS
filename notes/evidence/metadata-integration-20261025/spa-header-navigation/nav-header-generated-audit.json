@@ -1,0 +1,96 @@
+{
+  "files": 16,
+  "onlyCompilerSymbolIdFiles": 12,
+  "audit": [
+    {
+      "file": "generated/dts-class-model/.dts-manifest.json",
+      "onlyCompilerSymbolIds": false,
+      "otherChangedPaths": [
+        "/entries/src/layout/AppHeader.vue/sourceModifiedAt",
+        "/entries/src/layout/NavHeaderBar.vue/sourceModifiedAt"
+      ]
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+      "onlyCompilerSymbolIds": true,
+      "otherChangedPaths": []
+    },
+    {
+      "file": "generated/dts-class-model/files/src/layout/AppHeader.vue.json",
+      "onlyCompilerSymbolIds": false,
+      "otherChangedPaths": [
+        "/generatedAt"
+      ]
+    },
+    {
+      "file": "generated/dts-class-model/files/src/layout/NavHeaderBar.vue.json",
+      "onlyCompilerSymbolIds": false,
+      "otherChangedPaths": [
+        "/module/jsdoc",
+        "/generatedAt"
+      ]
+    },
+    {
+      "file": "generated/dts-class-model/manifest.json",
+      "onlyCompilerSymbolIds": false,
+      "otherChangedPaths": [
+        "/files/src/layout/NavHeaderBar.vue/module/jsdoc"
+      ]
+    }
+  ]
+}

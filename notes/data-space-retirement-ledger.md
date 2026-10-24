@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，阶段B的独立字典样板B1并行推进，C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`已提交正式消费模型/命名视图七条读回证据及删除查询状态守卫；本轮现有API头部标准字典下拉的选择、取消与重开也已实服验证。现有GetData经正式临时DataView已实服查到已知引用，默认视图未变；全局删除引用完整性仍开放；默认视口顶栏入口裁切新差距已留证。原旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active，最新明细与证据边界见末尾续核记录。
+**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`已提交正式消费模型/命名视图七条读回证据及删除查询状态守卫；`1f8885312`已提交标准字典下拉实服消费与已知正向引用查询证据，全局删除引用完整性仍开放。本轮顶栏裁切两文件修复及P2复审已通过，默认1280/窄1024/宽2300共14入口可达，工程门禁及归档明细见末尾；目标页面注册/正式模型缺口另记，不因导航修复核销。B2只读研究已厘清同步POST源码合同及字段设计可能触发DDL，未开放写入。原旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active。
 
 ### 1. 目标、边界与完成口径
 
@@ -1408,3 +1408,27 @@ flowchart TD
 - 最终只读探针已实服通过（`b1-reference-probe-live-binding.exit=0`）：12个请求由1次正常登录、10个GetData（含2个正常应用选择查询）和1个正式pagedata文本读取组成；0业务写、0写入尝试。唯一引用查询以C场景正式Base_DataModel临时视图、`Type='字典' AND DbId='327D74EC0ABC4196AA75C56D944B8201'`及六个身份字段发送，inputParams为空，没有dataSetId过滤。结果Loaded，rows=total=1，六字段经原fieldAccess核可见，精确命中既有模型`F9F01665D4A98E1FF996CD8A48D3C373`及T空间。原default仍保留T的GetInputParam过滤、queryContext、4/4行与相同配置/行集SHA；临时视图及本次DataSet均已destroy。正式脚本hash为`E3CC0077743EEF3821F43CFBEE13DFB2516BDB3111BAF9C134AF58E418D67E60`。
 - 核销边界：本组证明实际部署可沿现有SPARK data查询已知正向引用，不能证明跨空间全集、所有授权边界或零命中时可安全删除。没有改字典删除产品入口，也没有资源删除；完整B1引用完整性继续开放。已完成的专门业务select路径与本次正向查询不重复核验；后续独立能力可继续推进，默认视口导航裁切须单独修复。原未知Agent进程31708与旧浏览器页继续保留。
 - 本组独立复核两项通过：业务select实服观察窗，以及最终正向引用查询/默认视图隔离。证据归档`evidence/metadata-integration-20261025/b1-business-select-reference/`共42文件（manifest逐项核41份内容）；包含原始成功与失败输出、脚本、读回、源码hash、复核和截图。文档治理`pnpm run verify:docs`通过458文件，原始输出保留cache的`b1-select-reference-docs.log/exit`。明确暂存范围仅本唯一台账与此证据目录，产品、测试、ClassModel及Java均无修改；本组按该范围本地提交，不推送。
+
+### 2026-10-25 SPA 顶栏入口裁切修复
+
+- 状态：本组实施、独立复审和真实SPA验收完成，归档后本地提交；完整整合仍implementing。基线`1f888531293a8677533173dfde97a243e5934acb`，开始时工作树干净。延续用户授权的SPA验收、gpt-6-luna单一产品写者及主控复核/烟测；本组解决已记录的真实导航入口裁切，不改变数据权限、路由、后端或B1列定义。用户纠偏再次按当前源码核准：`allowAIAdd`归DataTable.columns/DataColumn，DataView只投影，不另存开关。
+- 新RED证据由主控在现有5274 SPA采集：DOM视口1280×720，中心槽位x=392.875、width=695.125、height=24、overflow=hidden；8个根入口中心不能命中自身。原报告按截图观察记1270，本轮以DOM实测1280为准，不改写历史原始证据。cache保存`nav-header-overflow-before.json/png`。
+
+| 本组任务与共享接口 | 裁决与验收 |
+| --- | --- |
+| AppHeader中心槽位；NavHeaderBar导航布局 | Ruling: 优先复用已安装Element Plus横向菜单的ellipsis与弹层定位，保持单行header及正文高度合同；不采用影响AppLayout/DevSystem高度的多行重排。现有侧栏只证明本仓使用el-menu，不证明已有横向实例。若内置合同不能保持既有交互，先在本组重新裁决。 |
+| 导航呈现；useNav.navigateTo及isNodeActive | Ruling: 原items与useNav仍是唯一导航与活动状态来源；保留父项点击导航、子项单次导航、隐藏/禁用及分隔/徽标语义，不增加路由或权限算法。Element Plus内部选中状态不得替代正式SPA活动身份。 |
+| 组件交互测试；真实布局烟测 | Ruling: 先补真实组件交互RED，主控核反例后开放AppHeader/NavHeaderBar产品修改。jsdom不证明布局；1280默认视口、宽视口、更多入口及子菜单边缘可达性由真实SPA测量/点击证明。旧tab4及未知进程31708不动，观察窗口独立留证。 |
+| 生成物与工程门禁；单写者 | Ruling: 公共props不新增；仍核本地声明/实现，正式生成器刷新后审计实际产物差异。主控执行受影响导航/应用宿主测试、typecheck、lint、generate、verify:rules、build；修改或失败才重跑。唯一台账记录结果，提交范围列明后本地提交，不推送。 |
+
+- B2数据库资源只读研究已保存cache的`b2-database-current-contract.md`，未开放实施或服务写入。初读本仓POST适配与端点索引/Feign GET不一致；继续追到Java controller后确认同时映射POST/GET，POST推荐、GET仅旧客户端兼容，本仓POST符合此源码合同，部署支持仍未实测。不得试发两种写命令。另确认字段设计保存的系统CRUD会转`operateField/editField`，`cnname`注释变化也可能触发物理DDL；已撤销“只改描述保证零DDL”的研究假设。Java仅只读，本组没有注册、同步、设计保存或DDL。该研究不核销数据库专题实际服务验收。
+- 实施前typecheck基线exit0。主控核准交互RED4（测试SHA256 `A317E470EF1DA5B91534666D3859FCA95E5F5CAF296128A8A62401D51D4D880C`）：3项既有导航回归通过，1项内置overflow路径不存在而失败；像素裁切仍以真实SPA RED证明。早期RED1/3包含测试selector误点父容器的失败，原始输出保留，不记成产品缺陷。独立预检通过两文件方案，要求补动态items/badge、分隔线、active拒绝/外部切换及弹层卸载覆盖；已交单写者成组实施，冻结后由主控独立复验。
+- 首次冻结主控导航/应用宿主组合43/43通过；独立复审仍发现3项P2：teleport后的More根项正式active与库active中性化遗漏、divider伪元素漏覆盖、父submenu的:not条件误放title。实际popup有horizontal类，但缺本组件data-v祖先，scoped/deep规则不能命中。主控实服从More选择“企业管理”已同SPA到达目标；正式active类存在但fontWeight400/无阴影，反例保存`nav-header-active-popup-red.json/png`。修复round1/5已交原写者，仅原三文件；通过测试不核销这些样式缺口。
+- 末尾入口指向的“入驻管理”显示原有System Page Mapping Error，页面路径`features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page`、pageId `5914FF981A7DF228ED88BBDB71353470`未注册；证明该导航入口可触达，不证明目标业务页完成。此存量页面差距单列，本组不扩为页面迁移。
+- 修复round1/5完成：3项P2均ADDRESSED，另外aria-current仅给原activePath末端节点，祖先模块保持活动样式但不冒充当前页。菜单仍仅消费原items/useNav，未增导航/权限/数据真源。More popup用稳定类下的窄规则，横向分隔伪元素附着对应项；父标题按所属li正式活动类渲染。主控实服已见活动字重由400恢复600、工作区标签返回后只剩结构化配置活动。没有正式parent/flat子菜单或divider配置可在线验证，相关语义由组件测试与源码复核覆盖，未改正式菜单凑烟测；伪元素不宣称已实服目视验收。
+- 主控最终导航/页面身份/应用切换组合44/44、typecheck、完整lint、正式ClassModel生成及verify:rules均exit0。生成971 DTS/1983 symbols/1600索引，3110既有语义缺口保持；16份生成差异已独立脚本核对：12份只有编译器symbol ID，其余为AppHeader/NavHeaderBar模块时间、NavHeaderBar JSDoc及相应清单。壳组件确有模块产物，但models/symbols为空，未新增公开组件属性合同；不采用实施报告“无生成合同”的宽泛表述。2条既有AI模型warning及测试esbuild/oxc提示保留。
+- 真实SPA仅用原导航、侧栏和工作区标签，在当前worktree的5274前端验证：1280默认、1024侧栏展开及2300侧栏收起；每档14项（主栏+More）均能命中自身且在视口内，标题/账号区不被主栏盖住；宽2300无More，顶栏始终48px。已点击首项SPARK工具、More末项企业管理、中部结构化配置、侧栏数据字典，并通过原工作区标签返回。最终恢复默认视口，只保留字典工作区；没有整页刷新、业务保存或删除。
+- 网络证据纠偏：旧capability未采到实际查询，不以空事件记录证明零请求。重新绑定tab5后以正式“刷新”验证采集，独立有效窗口包含该刷新、首末导航及已有字典标签返回；1个GetData请求`2180.9846`、HTTP/Code200、Count353/Items20，0Document、0非查询请求、0截断。三档布局证据与该有效网络窗口范围分别存入`nav-header-spa-evidence.json`，不把前一窗口补算进来。当前字典仍显示353项。
+- 同一烟测另见已有目标缺口：SPARK工具默认Template DSL为占位页；结构化配置默认数据编码因正式`_Base_CodeDesign`不唯一或不属于当前空间而阻断。仅登记页面/资源合同待核项，未假称其业务闭环完成。测试产生的这三个干净工作区标签已关闭，旧tab4未知AI轮次和进程31708保持。
+- build最终exit0，保留依赖PURE注释及CodeMirror动态导入提示。交付审计核对7项工程门禁、3份冻结源码SHA256、4组布局快照及有效网络窗口全部通过。证据归档`evidence/metadata-integration-20261025/spa-header-navigation/`；最初归档docs检查因复审文件名中的FINAL词失败，已仅改归档名为`nav-header-overflow-rereview.md`，原内容不变，失败输出单独保留。最终文档检查输出为`nav-header-docs-final.log/.exit`。
+- 精确暂存范围为AppHeader/NavHeaderBar两源文件、一个导航组件测试、16份正式ClassModel生成JSON、本唯一台账及上述证据目录；不含Java、环境凭据、旧证据目录或其他工作区。归档manifest核对每份内容的原始字节SHA256，暂存后再次核对Git blob；只作本地提交，不推送。B1引用完整性、既有未知AI结果及其他专题仍在原台账继续推进，不将本导航修复视作完整整合完成。

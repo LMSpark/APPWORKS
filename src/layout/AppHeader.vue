@@ -284,9 +284,9 @@ function handleUserCommand(command: string | number | object) {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .app-header__right {

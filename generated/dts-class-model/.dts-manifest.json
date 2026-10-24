@@ -3599,7 +3599,7 @@
     "src/layout/AppHeader.vue": {
       "sourceFile": "src/layout/AppHeader.vue",
       "shardFile": "files/src/layout/AppHeader.vue.json",
-      "sourceModifiedAt": "2026-10-17T08:20:00.801Z"
+      "sourceModifiedAt": "2026-10-24T21:42:28.385Z"
     },
     "src/layout/AppLayout.vue": {
       "sourceFile": "src/layout/AppLayout.vue",
@@ -3629,7 +3629,7 @@
     "src/layout/NavHeaderBar.vue": {
       "sourceFile": "src/layout/NavHeaderBar.vue",
       "shardFile": "files/src/layout/NavHeaderBar.vue.json",
-      "sourceModifiedAt": "2026-08-09T21:31:57.372Z"
+      "sourceModifiedAt": "2026-10-24T21:52:07.019Z"
     },
     "src/layout/ThemeConfigurator.vue": {
       "sourceFile": "src/layout/ThemeConfigurator.vue",

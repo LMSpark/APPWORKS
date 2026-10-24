@@ -1,0 +1,18 @@
+{
+  "entry": {
+    "ariaCurrent": "page",
+    "boxShadow": "none",
+    "class": "el-menu-item nav-header-bar__item nav-header-bar__item--active",
+    "color": "rgb(48, 49, 51)",
+    "fontWeight": "400"
+  },
+  "more": [
+    {
+      "height": 21,
+      "width": 52,
+      "x": 956.5625,
+      "y": 12.5
+    }
+  ],
+  "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page"
+}

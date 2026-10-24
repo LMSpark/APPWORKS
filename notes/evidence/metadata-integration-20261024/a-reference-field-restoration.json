@@ -1,0 +1,265 @@
+{
+  "date": "2026-10-24",
+  "status": "restored-and-independently-verified",
+  "actualService": true,
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "modelId": "A7199374E11E24BB0FB6938407224304",
+  "referenceRequest": {
+    "id": "8580.672",
+    "table": "Base_DataModel_Field",
+    "changed": 2,
+    "deleted": 4,
+    "responseCode": 200,
+    "explicitSaveOrDeleteClick": false
+  },
+  "baseline": {
+    "requestId": "9000.1564",
+    "sha256": "9accd72042840d7f7a501f585e60da3be3bf7c6bcb3640756569f18470787f77",
+    "originalFields": 16
+  },
+  "scriptSha256": "6b3dfa8343acd11e86b521ca3580977b5bf2cc9b00de8102c2162a58201a8395",
+  "preflight": {
+    "ownerContract": {
+      "datasetScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "viewTargetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "modelName": "Base_DataModel_Field",
+      "primaryKey": "rowid",
+      "commitMode": "immediate"
+    },
+    "current": {
+      "fields": 21,
+      "modelCount": 4,
+      "relationCount": 0
+    },
+    "patchRows": [
+      {
+        "rowid": "90DE022F38D067897FDC3E2975F60A83",
+        "field": "AsName",
+        "observedValue": "baseline-null",
+        "action": "preserve-without-update"
+      },
+      {
+        "rowid": "B65D0D55826587CFC571CD6967DC5E2C",
+        "field": "ValueFun",
+        "observedValue": "baseline-null",
+        "action": "preserve-without-update"
+      }
+    ],
+    "localStaging": {
+      "mode": "process-local-staging-only",
+      "ids": [
+        "36AA9C0871FED59900FFE5753599080C",
+        "794C1A795F8DC57864D3441208F2A2C8",
+        "B7B798B32B8610E9975DFA24CA527105",
+        "D09311045F22EF5FAB50630C59E77245"
+      ],
+      "stagedCount": 4,
+      "selectorMatchesExactRestoreIds": true,
+      "saveCalls": 0,
+      "dataViewDisposedAfterOutput": true
+    },
+    "writeGuard": {
+      "dataSetSaveCalls": 0,
+      "queryViewSaveCalls": 0,
+      "blockedSaveCalls": 0,
+      "blockedFileWrites": 0
+    }
+  },
+  "save": {
+    "entry": "DataView.addRow -> DataSet.saveChanges",
+    "selector": [
+      "36AA9C0871FED59900FFE5753599080C",
+      "794C1A795F8DC57864D3441208F2A2C8",
+      "B7B798B32B8610E9975DFA24CA527105",
+      "D09311045F22EF5FAB50630C59E77245"
+    ],
+    "receipt": {
+      "viewCount": 1,
+      "createdCount": 4,
+      "savedCount": 0,
+      "deletedCount": 0,
+      "failedCount": 0,
+      "appliedEditingRows": 0,
+      "failedEditingRows": 0
+    },
+    "acceptedRows": {
+      "fieldCount": 25,
+      "temporaryBusinessHash": "4a228199c362e276183e263b7067c32fcee6c18984c395171f4a370272663f41",
+      "modelBusinessHash": "6b2cdc39c13643addbd996665381798509a95c63d52e4315717ccedb1eb1c6e9",
+      "affectedIds": [
+        "36AA9C0871FED59900FFE5753599080C",
+        "794C1A795F8DC57864D3441208F2A2C8",
+        "B7B798B32B8610E9975DFA24CA527105",
+        "D09311045F22EF5FAB50630C59E77245"
+      ],
+      "businessValuesMatchBaseline": true,
+      "exactOriginalRowids": true,
+      "baselineNullPatchesUnchanged": true
+    },
+    "writeGuard": {
+      "dataSetSaveCalls": 1,
+      "queryViewSaveCalls": 1,
+      "blockedSaveCalls": 0,
+      "blockedFileWrites": 0
+    },
+    "automaticRetry": false
+  },
+  "independentVerify": {
+    "entry": "new process and new design session; formal DataView query",
+    "originalFields": 16,
+    "totalFields": 25,
+    "temporaryModel": {
+      "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "fieldCount": 9,
+      "fieldIds": [
+        "04F9AB1FD1DA7D2471FF08749F6986E1",
+        "34FC89D9F864B2D67FE1B1C40E2B1A24",
+        "79F61A749383FAA4FC80234F74598C09",
+        "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+        "8C679E44D4D4D17152754A65E8F67889",
+        "A64309CF271064C98A0697C8EB8D0C6E",
+        "B0CFE46367BC8C47FD20B592F5602946",
+        "CDF7370A52E2BCFC47628BF0A68E5555",
+        "EA974D64EF0BC175E40D01AFCBFBBE2F"
+      ],
+      "businessProjectionSha256": "4a228199c362e276183e263b7067c32fcee6c18984c395171f4a370272663f41"
+    },
+    "modelCount": 4,
+    "relationCount": 0,
+    "originalBusinessProjectionSha256": "5d31eb39ef8dff83cad4edd162f5fbbd7dafff9ba1542c4f8d7e1adcae893743",
+    "protectedStateSha256": "813d73ddfafaf7f498a89087f33cfe12fa0353e4c5033d0164d0716f78ba6b2a",
+    "modelsBusinessSha256": "6b2cdc39c13643addbd996665381798509a95c63d52e4315717ccedb1eb1c6e9",
+    "pagedataSha256": "a6dd061104f16a3de69abe35b8aebe0ee775b2696bf3bcdb1832d5246874169f",
+    "auditDifferences": [
+      {
+        "rowid": "36AA9C0871FED59900FFE5753599080C",
+        "fields": [
+          "createtime",
+          "updatetime"
+        ]
+      },
+      {
+        "rowid": "794C1A795F8DC57864D3441208F2A2C8",
+        "fields": [
+          "createtime",
+          "updatetime"
+        ]
+      },
+      {
+        "rowid": "90DE022F38D067897FDC3E2975F60A83",
+        "fields": [
+          "updatetime"
+        ]
+      },
+      {
+        "rowid": "B65D0D55826587CFC571CD6967DC5E2C",
+        "fields": [
+          "updatetime"
+        ]
+      },
+      {
+        "rowid": "B7B798B32B8610E9975DFA24CA527105",
+        "fields": [
+          "createtime",
+          "updatetime"
+        ]
+      },
+      {
+        "rowid": "D09311045F22EF5FAB50630C59E77245",
+        "fields": [
+          "createtime",
+          "updatetime"
+        ]
+      }
+    ],
+    "writeGuard": {
+      "dataSetSaveCalls": 0,
+      "queryViewSaveCalls": 0,
+      "blockedSaveCalls": 0,
+      "blockedFileWrites": 0
+    }
+  },
+  "limits": [
+    "Audit timestamps changed as listed; no claim of byte-identical database rows.",
+    "One DataSet save invocation, not a counted HTTP-write claim.",
+    "Reference source was stopped; full visual acceptance remains incomplete.",
+    "Temporary lifecycle model and nine fields retained; deletion confirmation remains pending."
+  ],
+  "nativeUi": {
+    "entry": "catalog -> new T design instance -> SourceScope fields",
+    "fieldNames": [
+      "rowid",
+      "ordIdx",
+      "val",
+      "exVal_2",
+      "exVal_1",
+      "txt",
+      "RetirementProbe_20261018",
+      "exVal_3",
+      "exVal_4"
+    ],
+    "saveEnabled": false,
+    "apiRequests": [
+      {
+        "id": "9000.5634",
+        "path": "/api/LoginAuthority/refresh"
+      },
+      {
+        "id": "9000.5635",
+        "path": "/api/File/content/text"
+      },
+      {
+        "id": "9000.5636",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5637",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5638",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5639",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5640",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5641",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5642",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5643",
+        "path": "/api/File/content/text"
+      },
+      {
+        "id": "9000.5644",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5645",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5646",
+        "path": "/api/DataOperation/GetData"
+      }
+    ],
+    "requestTypes": {
+      "/api/LoginAuthority/refresh": 1,
+      "/api/File/content/text": 2,
+      "/api/DataOperation/GetData": 10
+    },
+    "networkTruncated": false,
+    "screenshot": "a-reference-fields-restored-ui.png"
+  }
+}

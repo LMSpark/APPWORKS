@@ -156,7 +156,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
               const targets = name === 'Base_DataModel' ? modelTargets : name === 'Base_DataModel_Field' ? fieldTargets : relationTargets
               const target = targets.get(String(item['lingma_sys_key']))
               if (!target || !wireRows(name, target).some(row => row['rowid'] === item['rowid'])) throw new Error('delete has no current query identity')
-              if (options.omitDeleteWrite !== name) deleted.add(`${target}:${name}:${String(item['rowid'])}`)
+              if (options.omitDeleteWrite !== name && options.omitDeleteWrite !== '*') deleted.add(`${target}:${name}:${String(item['rowid'])}`)
             }
             if (options.omitDeleteReceipt !== name) receipts.push({[name]: crud['Deleted'].map(item => ({rowid: isRecord(item) ? item['rowid'] : undefined}))})
           }
@@ -210,7 +210,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
               if (!isRecord(item) || !options.allowDelete || options.denyDeleteIds?.includes(String(item['rowid']))) throw new Error('delete denied')
               const target = fieldTargets.get(String(item['lingma_sys_key']))
               if (!target || !wireRows('Base_DataModel_Field', target).some(row => row['rowid'] === item['rowid'])) throw new Error('delete has no current query identity')
-              if (options.omitDeleteWrite !== 'Base_DataModel_Field') deleted.add(`${target}:Base_DataModel_Field:${String(item['rowid'])}`)
+              if (options.omitDeleteWrite !== 'Base_DataModel_Field' && options.omitDeleteWrite !== '*') deleted.add(`${target}:Base_DataModel_Field:${String(item['rowid'])}`)
               removed.push({rowid: item['rowid']})
             }
             for (const change of crud['Changed']) {

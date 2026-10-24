@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-24",
+  "scope": "A3.2 model deletion UI preflight only",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetSpaceName": "LivePilot_T_20261017",
+  "modelName": "SourceScope_20261018",
+  "entry": "original navigation directory -> design dialog -> graph node -> delete preview",
+  "observations": [
+    "The graph Delete action opened the existing model removal preview; it did not display a confirmed deletion result.",
+    "The formal binding check returned: 模型仍有视图绑定：SourceScope_20261018，请先解除并保存",
+    "Close configuration was available after the check.",
+    "After closing the complete design dialog and opening a new instance, the canvas still showed the three existing model nodes, including SourceScope_20261018.",
+    "On the final R2 code, a separate new design instance loaded the formal SourceScope_20261018 model workspace: source ContentType (dictionary), description 来源替换后连续保存已验证 20261018, Save disabled and Close configuration enabled."
+  ],
+  "uiPersistenceActions": 0,
+  "actualPermanentDeletionTested": false,
+  "unknownOrPartialServiceFailureInjected": false,
+  "screenshot": "a3-2-delete-binding-guard.png",
+  "reopenedScreenshot": "a3-2-model-reopened.png",
+  "limitations": [
+    "This smoke verifies the real preview/binding guard and exit flow, not a successful permanent delete or file-layout cleanup.",
+    "Original-capture recovery, partial writes and late edits are covered by local native DataSet/DataView fixture tests; they are not represented as live service fault injection.",
+    "The existing retained test models were not modified or removed."
+  ]
+}

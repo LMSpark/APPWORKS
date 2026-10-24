@@ -22,10 +22,10 @@ AI用途：行已消失时仍保留核验入口，不把取消当作撤销已派
       <RendererButton data-action="cancel-remove-model" :disabled="busy" @click="cancel" label="取消删除" />
     </template>
     <template v-if="['unknown', 'readback', 'different'].includes(state.status)">
-      <p role="alert">删除结果尚未完全确认。只重新查询，不会自动重复删除。</p>
+      <p role="alert">删除结果尚未完全确认。核验将沿原提交捕获向 SPARK 请求正式恢复回执，再回读模型、字段和关系；不会重复删除。</p>
       <ul><li v-for="item in state.verification" :key="`${item.table}:${item.id}`">{{ item.table }}/{{ item.id }}：{{ item.result }}</li></ul>
       <RendererButton data-action="verify-remove-model" :disabled="busy" @click="run('verify')" label="核验删除结果" />
-      <RendererButton v-if="state.status === 'different'" data-action="accept-remove-model" :disabled="busy" @click="accept" label="采用当前结果并结束操作" />
+      <RendererButton v-if="state.canDiscardNotApplied" data-action="discard-not-applied-remove-model" :disabled="busy" @click="discardNotApplied" label="放弃本次未执行的删除并重读" />
     </template>
     <template v-if="state.status === 'configuration'">
       <p role="alert">数据库记录已删除并回读确认，布局文件尚未处理完成。继续将核对当前远端配置，只清理此模型坐标；不会再次删除数据库记录。</p>
@@ -62,8 +62,12 @@ async function run(action: 'preview' | 'save' | 'verify'): Promise<void> {
 function cancel(): void {
   try {owner.value.cancel(); error.value = ''; tick.value++; emit('changed'); emit('ended', false, true)} catch (cause) {error.value = describe(cause)}
 }
-function accept(): void {
-  try {owner.value.acceptCurrent(); error.value = ''; tick.value++; emit('changed'); emit('ended', false, true)} catch (cause) {error.value = describe(cause)}
+async function discardNotApplied(): Promise<void> {
+  if (!active || busy.value) return
+  busy.value = true; error.value = ''; emit('begin', props.modelId)
+  try {await owner.value.discardNotApplied(); if (active) {tick.value++; emit('changed'); emit('ended', false, true)}}
+  catch (cause) {if (active) error.value = describe(cause)}
+  finally {if (active) {busy.value = false; tick.value++; emit('changed')}}
 }
 /** 画布删除入口复用相同预览及权限检查；此命令不派发删除。 */
 defineExpose({preview: () => run('preview')})

@@ -46,6 +46,65 @@
       ],
       "additionalProperties": false
     },
+    "RemovalDraftSignatures": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "RemovalDraftSignatures",
+      "items": {
+        "type": "array",
+        "items": false,
+        "prefixItems": [
+          {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "ModelRemoveRecoverySignatures": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveRecoverySignatures",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": false,
+            "prefixItems": [
+              {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "scope": {
+          "$ref": "#/$defs/RemovalDraftSignatures"
+        }
+      },
+      "required": [
+        "targets",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceModelRemovalFilePlan": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -163,6 +222,15 @@
             ],
             "additionalProperties": false
           }
+        },
+        "recoveryCapture": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
+        "verifiedSnapshot": {
+          "type": "string"
+        },
+        "recoverySignatures": {
+          "$ref": "#/$defs/ModelRemoveRecoverySignatures"
         }
       },
       "required": [
@@ -174,7 +242,8 @@
         "confirmed",
         "databaseComplete",
         "filePlan",
-        "verification"
+        "verification",
+        "verifiedSnapshot"
       ],
       "additionalProperties": false
     },
@@ -327,16 +396,19 @@
           "type": "object",
           "title": "Promise<boolean>"
         },
-        "method.acceptCurrent.params": {
+        "method.discardNotApplied.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.acceptCurrent.return": true
+        "method.discardNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
       }
     }
   },
-  "generatedAt": "2026-10-23T06:52:20.941Z",
+  "generatedAt": "2026-10-24T03:18:51.867Z",
   "models": {
     "Removal": {
       "name": "Removal",
@@ -365,6 +437,51 @@
               "name": "snapshot",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RemovalDraftSignatures": {
+      "name": "RemovalDraftSignatures",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyArray<readonly [DataView, readonly string[], string]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyArray<readonly [DataView, readonly string[], string]>",
+            "targetName": "ReadonlyArray"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ModelRemoveRecoverySignatures": {
+      "name": "ModelRemoveRecoverySignatures",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    targets: ReadonlyArray<readonly [DataView, readonly string[], string]>;\n    scope: RemovalDraftSignatures;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    targets: ReadonlyArray<readonly [DataView, readonly string[], string]>;\n    scope: RemovalDraftSignatures;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targets",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -479,7 +596,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelRemoveStatus;\n    entries: Removal[];\n    staged: Set<Removal>;\n    baseline: string;\n    name: string;\n    confirmed: boolean;\n    databaseComplete: boolean;\n    filePlan: LowcodeDataSpaceModelRemovalFilePlan | null;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
+        "declarationTypeText": "{\n    status: ModelRemoveStatus;\n    entries: Removal[];\n    staged: Set<Removal>;\n    baseline: string;\n    name: string;\n    confirmed: boolean;\n    databaseComplete: boolean;\n    filePlan: LowcodeDataSpaceModelRemovalFilePlan | null;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    recoveryCapture?: DataSpaceDefinitionCaptureBatch;\n    verifiedSnapshot: string;\n    recoverySignatures?: ModelRemoveRecoverySignatures;\n}",
         "members": {
           "attributes": [
             {
@@ -526,6 +643,21 @@
               "name": "verification",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "recoveryCapture",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "verifiedSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recoverySignatures",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -680,7 +812,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelRemoveGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelRemoveGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    discardNotApplied(): Promise<void>;\n}",
         "members": {
           "methods": [
             {
@@ -748,11 +880,17 @@
               }
             },
             {
-              "name": "acceptCurrent",
+              "name": "discardNotApplied",
               "parameters": [],
               "type": {
-                "type": "intrinsic",
-                "name": "void"
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             }
           ]

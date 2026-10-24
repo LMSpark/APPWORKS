@@ -1,4 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
+import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -128,8 +129,8 @@ describe('formal model removal', () => {
     if (lost) {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
-      expect(await operation.verify()).toBe(false)
-      expect(f.fileWrites).toHaveLength(0)
+      expect(await operation.verify()).toBe(true)
+      expect(f.fileWrites).toHaveLength(1)
     } else {
       expect(await operation.save()).toBe(true)
       expect(JSON.parse(f.stored.get('A')!).layout.modelPositions).toEqual({M2: {x: 3, y: 4}})
@@ -160,8 +161,8 @@ describe('formal model removal', () => {
       f.loseNextResponse()
       await expect(operation.save()).rejects.toThrow()
       await expect(operation.save()).rejects.toThrow(/重复|核验/)
-      // A lost delete receipt stays unresolved even after empty readback; no replay.
-      expect(await operation.verify()).toBe(false)
+      // SPARK's original native capture returns the recovery receipt; the command still rechecks the domain readback.
+      expect(await operation.verify()).toBe(true)
     } else expect(await operation.save()).toBe(true)
     const reopened = await f.open('A')
     expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M2'])
@@ -249,8 +250,8 @@ describe('formal model removal', () => {
     expect(writes(f)).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
     expect(f.stored.get('A')).toBe(originalFile)
-    operation.acceptCurrent()
-    expect(operation.getState().pending).toBe(false)
+    await expect(operation.discardNotApplied()).rejects.toThrow()
+    expect(operation.getState().pending).toBe(true)
     await session.loadMetadataViews([table as 'Base_DataModel_Field' | 'Base_DataModel_Relation'])
     expect(session.metadataDataSet.getView(table)?.rows.some(value => value['rowid'] === row.rowid)).toBe(true)
   })
@@ -274,6 +275,85 @@ describe('formal model removal', () => {
     expect(writes(f)).toHaveLength(1)
   })
 
+  it.each(['editing overlay', 'native dirty delta'])('does not restamp a late %s during explicit not-applied refresh', async kind => {
+    const f = fixture({omitDeleteWrite: '*', allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState().canDiscardNotApplied).toBe(true)
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!, load = models.loadFromServer.bind(models)
+    let injected = false
+    vi.spyOn(models, 'loadFromServer').mockImplementation(async options => {
+      const result = await load(options)
+      if (!injected) {
+        injected = true
+        models.updateEditingValue('M2', 'description', `late discard ${kind}`)
+        if (kind === 'native dirty delta') expect((await models.applyEditingRows(['M2'])).success).toBe(true)
+      }
+      return result
+    })
+    await expect(operation.discardNotApplied()).rejects.toThrow(/草稿|编辑|变化/)
+    expect(injected).toBe(true)
+    if (kind === 'native dirty delta') expect(models.dirtyTracking.hasPendingChanges('M2')).toBe(true)
+    else expect(models.getEditingPatch('M2')).toEqual({description: `late discard ${kind}`})
+    expect(operation.getState().pending).toBe(true)
+    await expect(operation.verify()).rejects.toThrow(/草稿|变化|新草稿/)
+    expect(operation.getState().canDiscardNotApplied).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    models.discardPendingChanges(['M2'])
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState().pending).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each(['editing overlay', 'native dirty delta'])('preserves the pre-verify baseline for a late %s during first native verification', async kind => {
+    const f = fixture({omitDeleteWrite: '*', allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!, save = dataSet.saveChanges.bind(dataSet)
+    let injected = false
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const isOriginalTargetBatch = args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))
+      try {return await save(args)} catch (error) {
+        if (isOriginalTargetBatch && !injected) {
+          injected = true
+          models.updateEditingValue('M2', 'description', `late verify ${kind}`)
+          if (kind === 'native dirty delta') expect((await models.applyEditingRows(['M2'])).success).toBe(true)
+        }
+        throw error
+      }
+    })
+    await expect(operation.verify()).rejects.toThrow(/新草稿|变化|编辑/)
+    expect(injected).toBe(true)
+    expect(operation.getState().pending).toBe(true)
+    expect(operation.getState().canDiscardNotApplied).toBe(false)
+    expect(writes(f).length).toBeGreaterThanOrEqual(1)
+    if (kind === 'editing overlay') expect(models.getEditingPatch('M2')).toEqual({description: `late verify ${kind}`})
+    else expect(models.getEditingRow('M2')?.['description']).toBe(`late verify ${kind}`)
+    await expect(operation.verify()).rejects.toThrow(/新草稿|变化|编辑/)
+    expect(operation.getState().canDiscardNotApplied).toBe(false)
+    expect(operation.getState().pending).toBe(true)
+    if (kind === 'editing overlay') expect(models.getEditingPatch('M2')).toEqual({description: `late verify ${kind}`})
+    else expect(models.getEditingRow('M2')?.['description']).toBe(`late verify ${kind}`)
+  })
+
+  it('preflights every not-applied target before discarding any intent when a later view is busy', async () => {
+    const f = fixture({omitDeleteWrite: '*'}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true, pending: true})
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelremove:M1')!
+    fields.requestState = RequestState.Loading
+    fields.events.emit('requestStateChanged', RequestState.Loading)
+    await expect(operation.discardNotApplied()).rejects.toThrow(/正忙|DATA_VIEW_DISCARD_BUSY/)
+    expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true, pending: true})
+    expect(models.dirtyTracking.pendingDeleteIds.has('M1')).toBe(true)
+    expect(fields.dirtyTracking.pendingDeleteIds.has('F1')).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
   it('rechecks database completion when resuming a layout failure', async () => {
     const f = fixture()
     f.stored.set('A', JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}}))
@@ -286,8 +366,8 @@ describe('formal model removal', () => {
     expect(operation.getState().status).toBe('different')
     expect(operation.getState().verification.some(item => item.id === 'AFTER-CONFIRM')).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
-    operation.acceptCurrent()
-    expect(operation.getState().pending).toBe(false)
+    await expect(operation.discardNotApplied()).rejects.toThrow()
+    expect(operation.getState().pending).toBe(true)
   })
 
   it.each([false, true])('includes the model layout in the preview and keeps unrelated native relations after deletion; provenance=%s', async provenance => {
@@ -311,15 +391,15 @@ describe('formal model removal', () => {
     if (provenance) expect(reopened.definitionDataSet?.resourceRelations).toEqual(resourceRelations)
   })
 
-  it('keeps unknown database deletion separate from layout and never writes the file', async () => {
+  it('recovers database deletion through SPARK before completing its separate layout plan', async () => {
     const f = fixture()
     const text = JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}})
     f.stored.set('A', text)
     const operation = (await f.open('A')).getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
-    expect(await operation.verify()).toBe(false)
-    expect(f.stored.get('A')).toBe(text); expect(f.fileWrites).toHaveLength(0)
+    expect(await operation.verify()).toBe(true)
+    expect(f.stored.get('A')).not.toBe(text); expect(f.fileWrites).toHaveLength(1)
   })
 
   it('verifies a lost file receipt without replaying the confirmed database delete or file write', async () => {
@@ -457,16 +537,218 @@ describe('formal model removal', () => {
     expect(writes(f)).toHaveLength(0)
   })
 
-  it('keeps an unknown deletion unresolved after empty readback and never replays writes', async () => {
+  it('recovers an applied deletion from the original SPARK capture and does not replay writes', async () => {
     const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview(); f.loseNextResponse()
     await expect(operation.save()).rejects.toThrow()
     expect(operation.getState().status).toBe('unknown')
     const count = writes(f).length
-    expect(await operation.verify()).toBe(false)
-    expect(operation.getState().status).toBe('different')
+    expect(await operation.verify()).toBe(true)
+    expect(operation.getState().pending).toBe(false)
     expect(writes(f)).toHaveLength(count)
-    operation.acceptCurrent(); expect(operation.getState().pending).toBe(false)
+  })
+
+  it('does not abandon a sibling native save capture while recovering model removal', async () => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    const models = session.metadataDataSet.getView('Base_DataModel')!
+    const sibling = models.createQueryView('model-remove-sibling')
+    await sibling.refresh()
+    sibling.updateEditingValue('M2', 'description', 'sibling native save')
+    f.loseNextResponse()
+    await expect(session.metadataDataSet.saveChanges({views: [{tableName: 'Base_DataModel', viewId: sibling.viewId, ids: ['M2']}]})).rejects.toThrow()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+    await expect(operation.verify()).rejects.toThrow(/未确认保存/)
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+    expect(operation.getState().pending).toBe(true)
+  })
+
+  it('preserves a sibling native delta created during original capture recovery', async () => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel')!, save = dataSet.saveChanges.bind(dataSet)
+    let sibling: ReturnType<typeof models.createQueryView> | undefined
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const result = await save(args)
+      if (!sibling && args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
+        sibling = models.createQueryView('model-remove-late-sibling')
+        await sibling.refresh()
+        sibling.updateEditingValue('M2', 'description', 'late native delta')
+        f.loseNextResponse()
+        await expect(dataSet.saveChanges({views: [{tableName: 'Base_DataModel', viewId: sibling.viewId, ids: ['M2']}]})).rejects.toThrow()
+      }
+      return result
+    })
+    await expect(operation.verify()).rejects.toThrow(/未确认保存/)
+    expect(sibling?.hasUnconfirmedSave).toBe(true)
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(2)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('keeps removal unresolved when its original native capture disappeared without a receipt', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    const count = writes(f).length
+    session.metadataDataSet.abandonUnconfirmedSaves()
+    await expect(operation.verify()).rejects.toThrow(/捕获已消失|未知结果仍保留/)
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(count)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('rolls back only locally staged removal after predispatch cleanup was blocked by a foreign edit', async () => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview()
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!, remove = models.removeRow.bind(models)
+    vi.spyOn(models, 'removeRow').mockImplementation(async id => {
+      const result = await remove(id)
+      if (id === 'M1') models.updateEditingValue('M2', 'description', 'foreign edit blocks local rollback')
+      return result
+    })
+    await expect(operation.save()).rejects.toThrow(/草稿|编辑/)
+    expect(operation.getState()).toMatchObject({status: 'readback', pending: true})
+    expect(models.dirtyTracking.pendingDeleteIds.has('M1')).toBe(true)
+    expect(models.getEditingPatch('M2')).toEqual({description: 'foreign edit blocks local rollback'})
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
+    models.discardEditingRows(['M2'])
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState()).toMatchObject({status: 'ready', pending: true})
+    expect(models.dirtyTracking.pendingDeleteIds.has('M1')).toBe(false)
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
+    operation.cancel()
+    expect(operation.getState().pending).toBe(false)
+  })
+
+  it('requires an explicit exact discard after SPARK confirms the original deletion was not applied', async () => {
+    const f = fixture({omitDeleteWrite: '*'}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState()).toMatchObject({status: 'different', canDiscardNotApplied: true})
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    await operation.discardNotApplied()
+    expect(operation.getState().pending).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')?.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
+  })
+
+  it('keeps a partially applied original batch pending when SPARK cannot issue a complete receipt', async () => {
+    const f = fixture({omitDeleteWrite: 'Base_DataModel_Field'}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    await expect(operation.verify()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE/)
+    expect(operation.getState().pending).toBe(true)
+    expect(operation.getState().canDiscardNotApplied).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('retains target edits made during native capture recovery', async () => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1')
+    await operation.preview(); f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!
+    const save = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const result = await save(args)
+      if (args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
+        models.updateEditingValue('M2', 'description', 'late edit during recovery')
+      }
+      return result
+    })
+    await expect(operation.verify()).rejects.toThrow(/新字段编辑/)
+    expect(models.getEditingPatch('M2')).toEqual({description: 'late edit during recovery'})
+    expect(operation.getState().pending).toBe(true)
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each(['editing overlay', 'native dirty delta'])('keeps a new %s created after normal save dispatch', async kind => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1'), dataSet = session.metadataDataSet
+    await operation.preview()
+    const models = dataSet.getView('Base_DataModel', 'default')!, save = dataSet.saveChanges.bind(dataSet)
+    let injected = false
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const result = await save(args)
+      if (!injected && args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) {
+        injected = true
+        models.updateEditingValue('M2', 'description', `late ${kind}`)
+        if (kind === 'native dirty delta') expect((await models.applyEditingRows(['M2'])).success).toBe(true)
+      }
+      return result
+    })
+    await expect(operation.save()).rejects.toThrow(/编辑|草稿|delta|等待期间/)
+    expect(injected).toBe(true)
+    expect(operation.getState()).toMatchObject({pending: true, status: 'readback'})
+    if (kind === 'native dirty delta') expect(models.dirtyTracking.hasPendingChanges('M2')).toBe(true)
+    else expect(models.getEditingPatch('M2')).toEqual({description: `late ${kind}`})
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each(['editing overlay', 'native dirty delta'])('keeps a new %s created during domain dependency readback', async kind => {
+    const f = fixture({allowSourceEdit: true}), session = await f.open('A'), operation = session.getModelRemove('M1'), dataSet = session.metadataDataSet
+    await operation.preview()
+    const models = dataSet.getView('Base_DataModel', 'default')!, fields = dataSet.getView('Base_DataModel_Field', 'modelremove:M1')!
+    const load = fields.loadFromServer.bind(fields)
+    let dispatched = false, injected = false
+    const save = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const result = await save(args)
+      if (args?.views?.some(view => view.tableName === 'Base_DataModel' && view.ids?.includes('M1'))) dispatched = true
+      return result
+    })
+    vi.spyOn(fields, 'loadFromServer').mockImplementation(async options => {
+      const result = await load(options)
+      if (dispatched && !injected) {
+        injected = true
+        models.updateEditingValue('M2', 'description', `late query ${kind}`)
+        if (kind === 'native dirty delta') expect((await models.applyEditingRows(['M2'])).success).toBe(true)
+      }
+      return result
+    })
+    await expect(operation.save()).rejects.toThrow(/编辑|草稿|新编辑|native delta/)
+    expect(injected).toBe(true)
+    expect(operation.getState()).toMatchObject({pending: true, status: 'readback'})
+    if (kind === 'native dirty delta') expect(models.dirtyTracking.hasPendingChanges('M2')).toBe(true)
+    else expect(models.getEditingPatch('M2')).toEqual({description: `late query ${kind}`})
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each([
+    {phase: 'normal save', kind: 'editing overlay'}, {phase: 'normal save', kind: 'native dirty delta'},
+    {phase: 'continuation', kind: 'editing overlay'}, {phase: 'continuation', kind: 'native dirty delta'},
+  ])('keeps a new $kind created during filePlan.complete() in $phase', async ({phase, kind}) => {
+    const f = fixture()
+    f.stored.set('A', JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}}))
+    const session = await f.open('A'), operation = session.getModelRemove('M1'), dataSet = session.metadataDataSet
+    await operation.preview()
+    if (phase === 'continuation') {
+      f.loseNextFileResponse()
+      await expect(operation.save()).rejects.toThrow()
+      expect(operation.getState().status).toBe('configuration')
+    }
+    const models = dataSet.getView('Base_DataModel', 'default')!, save = dataSet.saveChanges.bind(dataSet)
+    let injected = false
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async args => {
+      const result = await save(args)
+      if (!injected && args?.views?.some(view => view.tableName === 'DataSpaceLayoutDefinition')) {
+        injected = true
+        models.updateEditingValue('M2', 'description', `late layout ${kind}`)
+        if (kind === 'native dirty delta') expect((await models.applyEditingRows(['M2'])).success).toBe(true)
+      }
+      return result
+    })
+    if (phase === 'normal save') await expect(operation.save()).rejects.toThrow(/编辑|草稿|等待期间/)
+    else await expect(operation.verify()).rejects.toThrow(/编辑|草稿|等待期间/)
+    expect(injected).toBe(true)
+    expect(operation.getState()).toMatchObject({status: 'configuration', pending: true})
+    expect(operation.getState().preview?.records).toBeDefined()
+    if (kind === 'native dirty delta') expect(models.dirtyTracking.hasPendingChanges('M2')).toBe(true)
+    else expect(models.getEditingPatch('M2')).toEqual({description: `late layout ${kind}`})
+    expect(writes(f)).toHaveLength(1)
   })
 
   it('does not claim success for a positive receipt with a surviving field', async () => {
@@ -524,7 +806,7 @@ describe('formal model removal', () => {
   it('retains incomplete receipts as unresolved and readback failures can recover without replay', async () => {
     const partial = fixture({omitDeleteReceipt: 'Base_DataModel_Field'}), first = (await partial.open('A')).getModelRemove('M1')
     await first.preview(); await expect(first.save()).rejects.toThrow(/回执/)
-    expect(await first.verify()).toBe(false)
+    expect(await first.verify()).toBe(true)
     const f = fixture(), session = await f.open('A'), operation = session.getModelRemove('M1')
     await operation.preview()
     const save = session.metadataDataSet.saveChanges.bind(session.metadataDataSet)

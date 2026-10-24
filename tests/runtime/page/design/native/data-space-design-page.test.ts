@@ -3915,7 +3915,6 @@ describe('native data-space design entry', () => {
         expect(wrapper.find('[data-action="verify-remove-model"]').exists()).toBe(true)
         await sourceButton(wrapper,'verify-remove-model').trigger('click');await flushPromises()
         expect(writes(f)).toHaveLength(1)
-        await sourceButton(wrapper,'accept-remove-model').trigger('click');await flushPromises()
       }
       expect(instance.isDirty).toBe(false);expect(wrapper.find('.design-detail').exists()).toBe(false)
       expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')!.rows.map(row=>row['rowid'])).toEqual(['M2'])
@@ -4039,7 +4038,7 @@ describe('native data-space design entry', () => {
     expect(sourceButton(wrapper, 'remove-graph-selection').attributes('disabled')).toBeUndefined()
   })
 
-  it('keeps deletion verification reachable after the selected model row disappeared', async () => {
+  it('uses the original SPARK capture to verify a lost model deletion response', async () => {
     const f = fixture({missing: true, allowDelete: true, sourceFields: [{rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel'}]})
     const {wrapper, instance} = await page()
     await select(wrapper, 'Orders')
@@ -4050,11 +4049,26 @@ describe('native data-space design entry', () => {
     expect(instance.isDirty).toBe(true)
     const count = writes(f).length
     await wrapper.get('[data-action="verify-remove-model"]').trigger('click'); await flushPromises()
-    expect(wrapper.text()).toContain('缺少完整删除回执')
-    expect(writes(f)).toHaveLength(count)
-    await wrapper.get('[data-action="accept-remove-model"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false)
+    expect(writes(f)).toHaveLength(count)
     expect(wrapper.findAll('[data-design-node]').some(node => node.text() === 'Orders')).toBe(false)
+  })
+
+  it('offers an explicit discard only after SPARK confirms the whole deletion was not applied', async () => {
+    const f = fixture({missing: true, allowDelete: true, omitDeleteWrite: '*', sourceFields: [{rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel'}]})
+    const {wrapper, instance} = await page()
+    await select(wrapper, 'Orders')
+    await previewGraphModelRemoval(wrapper)
+    f.loseNextResponse()
+    await wrapper.get('[data-action="confirm-remove-model"]').trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="verify-remove-model"]').trigger('click'); await flushPromises()
+    expect(wrapper.find('[data-action="discard-not-applied-remove-model"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('SPARK 确认原批次未执行')
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    await wrapper.get('[data-action="discard-not-applied-remove-model"]').trigger('click'); await flushPromises()
+    expect(instance.isDirty).toBe(false)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')!.rows.map(row => row['rowid'])).toEqual(['M1', 'M2'])
   })
 
   it('keeps layout recovery reachable after confirmed deletion and does not replay the database write', async () => {
@@ -4076,7 +4090,7 @@ describe('native data-space design entry', () => {
     expect((await f.open('A')).viewState?.config['layout']).toEqual({modelPositions: {M2: {x: 3, y: 4}}})
   })
 
-  it('shows newly discovered dependent records and lets the user adopt the incomplete deletion result', async () => {
+  it('keeps newly discovered dependent records pending without an adopt-current bypass', async () => {
     const f = fixture({missing: true, allowDelete: true, sourceFields: [{rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel'}]})
     const originalFile = JSON.stringify({scenarioId: 'A', tables: {}, layout: {modelPositions: {M1: {x: 1, y: 2}}}})
     f.stored.set('A', originalFile)
@@ -4093,14 +4107,11 @@ describe('native data-space design entry', () => {
     expect(wrapper.text()).toContain('LATE-FIELD：新增从属记录仍存在；不在原删除清单')
     expect(wrapper.find('[data-action="resume-remove-model-layout"]').exists()).toBe(false)
     expect(instance.isDirty).toBe(true)
+    expect(wrapper.find('[data-action="accept-remove-model"]').exists()).toBe(false)
     await wrapper.get('[data-action="verify-remove-model"]').trigger('click'); await flushPromises()
-    await wrapper.get('[data-action="accept-remove-model"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
-    expect(wrapper.text()).toContain('不代表原删除完整成功')
-    expect(wrapper.text()).toContain('未归类定义（1）')
-    expect(dataSet.getView('Base_DataModel_Field')!.requestState).toBe(RequestState.Idle)
-    await select(wrapper, '记录 1 · late · LATE-FIELD')
-    expect(wrapper.get('[data-definition-detail]').text()).toContain('LATE-FIELD')
+    expect(instance.isDirty).toBe(true)
+    expect(wrapper.find('[data-action="accept-remove-model"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('新增从属记录仍存在')
     expect(dataSet.getView('Base_DataModel_Field')!.requestState).toBe(RequestState.Idle)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
     expect(f.stored.get('A')).toBe(originalFile)

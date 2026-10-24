@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，B/C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.5已提交；A3.6独立字段新增已通过审查、门禁与取消/重开烟测，进入本地提交。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
+**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.6已提交；普通模型说明未加载保存已通过真实页面、网络与恢复验收，当前继续一次性模型生命周期。阶段A完整生命周期持久烟测、双空间真实组件绑定、其他来源未加载保存、跨实例未知恢复及整页对照仍未完成。
 
 ### 1. 目标、边界与完成口径
 
@@ -992,3 +992,6 @@ flowchart TD
 - A3.6最终冻结待审：field-create全套48/48，定向UI2项是同套件子集、不叠加；主控核raw起始14:16:57/14:17:18及exit0。typecheck、3文件scoped lint、ai-codegen1375、page-thin均0。删除无消费者verifiedSnapshot后JSON基线3→1，由父级正式--update收紧（a3-6-parent-page-thin-update.log、a3-6-page-thin-delta.json），无规则放宽。三文件及基线冻结快照/hash已留，独立审查进行中；真实烟测尚未完成。未加载保存只读准备已确认普通模型说明可单目标保存，但必须记录实际保存窗口网络请求，不能把A2已加载字段联合保存或页面显示当作该项通过。
 - A3.6独立审查Spec/Task quality PASS，0 P1/P2，4文件冻结hash一致。正式ClassModel963文件、semantic gaps3110；12外围产物经归一化核仅编译符号数字ID变化。全lint/build及工作区UI3/352skip通过。首次完整rules在lowcode-contracts因外部参考源码目录新增两条NoticeSourceController路由而失败，已保留原始exit1；按正式生成器刷新派生台账609→611，仅记录source-characterized静态事实，未修改/启动Java，也不证明实际服务新增接口可用。刷新后重验进行中。
 - A3.6验收完成可提交：最终field-create48、独立UI子集2、工作区UI3/352skip，独立审查PASS，typecheck/scoped/full lint、正式生成963、AI-codegen、完整rules刷新后及build均通过。原同DataSet全局abandon残留已清，not-applied与confirmed明确丢弃语义分开；page-thin3→1。真实独立字段填写/取消/重开空值、整个设计器独立重开原3模型/9字段通过，32条API仅查询/文件读取、0次UI持久化。a3-6-acceptance.md/JSON/三截图归档；真实创建删除、未加载保存等阶段A余项仍未核销。
+- A3.6提交核实：b81a6c5d9b50e8345dea938f511ffd9d5005e86d，父2f43753c2，27个明确暂存文件与提交路径逐项一致；提交后工作区干净、ahead11，未推送。继续阶段A未加载保存真实验收，通过CDP只读观察实际页面请求；只改T中SourceScope说明，独立重开确认后恢复原值，原三模型及字段/配置保留。
+- 阶段A未加载保存真实验收PASS（普通模型说明范围）：新实例不展开字段/关系/参数，仅改T SourceScope说明；保存及恢复两个窗口各只有1条Base_DataModel CRUD，Changed仅原ID的description，0新增/删除、0补查、0文件写入；两次独立重开分别确认新值和原值。正式前后3模型/16字段/0关系，字段及关系业务列hash、pagedata原文hash相同，另外2模型不变，目标仅updatetime变化。证据a-unloaded-save-acceptance.md/JSON/三截图。元数据宿主初始化及画布查询不混作保存补查；本项不扩称所有来源均通过。
+- 阶段A整页显示待办（真实烟测发现）：普通模型保存的Loading阶段短暂展示DATA_SPACE_MODEL_CONTEXT及“提交尚未完全确认”，完成后清除并释放状态；记录为显示问题，不把正常正在回读误报未知结果。未修，最终整页审查须覆盖，不能静默核销。

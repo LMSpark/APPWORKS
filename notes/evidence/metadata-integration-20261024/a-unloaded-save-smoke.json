@@ -1,0 +1,188 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "b81a6c5d9b50e8345dea938f511ffd9d5005e86d",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetModelId": "A7199374E11E24BB0FB6938407224304",
+  "entry": "fresh designer -> SourceScope model structure -> description only; fields, relations and input panels not expanded",
+  "baseline": {
+    "models": {
+      "responseCode": 200,
+      "count": 3,
+      "hasNextPage": null,
+      "ids": [
+        "87639E48BFD673CFAA2E6601FABD1467",
+        "A7199374E11E24BB0FB6938407224304",
+        "E912160BC0FA9AE6448D209D4428DDBE"
+      ],
+      "sha256": "b76f6c5a097e184599eb1997c03e944525c36b8c9ca06d1324b54d1a91e9b6da"
+    },
+    "relations": {
+      "responseCode": 200,
+      "count": 0,
+      "hasNextPage": null,
+      "ids": [],
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "fields": {
+      "responseCode": 200,
+      "count": 16,
+      "hasNextPage": null,
+      "ids": [
+        "01DA1CE9BBB6151D32E982ACE587C96D",
+        "1969C2E14C5704E19FA501672553CF7E",
+        "229A3CF16BF55E6781035F447153C654",
+        "235C494A677CACB1D51280916661148E",
+        "36AA9C0871FED59900FFE5753599080C",
+        "532074D7F026276D6E92D5299FBD8506",
+        "6E56F4A8149F99C33B217239F55B514B",
+        "794C1A795F8DC57864D3441208F2A2C8",
+        "7B3F6EE7AD677BFC1067C83875D15736",
+        "8C762A517CC9F02DBE2323F6F5119B38",
+        "90DE022F38D067897FDC3E2975F60A83",
+        "B65D0D55826587CFC571CD6967DC5E2C",
+        "B7B798B32B8610E9975DFA24CA527105",
+        "C2D17E1D21C353AFE0C788DDA2883828",
+        "D09311045F22EF5FAB50630C59E77245",
+        "D3E4E26B6981C6875AE22A2F0383B6C0"
+      ],
+      "sha256": "91c0d9de41c33db4e6560c611d330b318d3e20eba5760ceb51a19ed1aef16a6a"
+    },
+    "pagedataSha256": "41a28121ee8bba81b326304b31a1168c9a5fcfa041cfdaab41829504fdbe3c4f"
+  },
+  "save": {
+    "fromCursor": 1086,
+    "toCursor": 1097,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "id": "9000.1538",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "method": "POST",
+        "payload": [
+          {
+            "table": "Base_DataModel",
+            "addedCount": 0,
+            "changed": [
+              {
+                "rowid": "A7199374E11E24BB0FB6938407224304",
+                "description": "来源替换后连续保存已验证 20261018；unloaded-save-20261024",
+                "changedBusinessKeys": [
+                  "description"
+                ]
+              }
+            ],
+            "deletedCount": 0
+          }
+        ]
+      }
+    ],
+    "responseCode": 200,
+    "credentialsOmitted": true
+  },
+  "restore": {
+    "fromCursor": 1286,
+    "toCursor": 1297,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "id": "9000.1551",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "method": "POST",
+        "payload": [
+          {
+            "table": "Base_DataModel",
+            "addedCount": 0,
+            "changed": [
+              {
+                "rowid": "A7199374E11E24BB0FB6938407224304",
+                "description": "来源替换后连续保存已验证 20261018",
+                "changedBusinessKeys": [
+                  "description"
+                ]
+              }
+            ],
+            "deletedCount": 0
+          }
+        ]
+      }
+    ],
+    "responseCode": 200,
+    "credentialsOmitted": true
+  },
+  "independentReopenConfirmedEditedValue": true,
+  "independentReopenConfirmedOriginalValue": true,
+  "after": {
+    "models": {
+      "responseCode": 200,
+      "count": 3,
+      "hasNextPage": null,
+      "ids": [
+        "87639E48BFD673CFAA2E6601FABD1467",
+        "A7199374E11E24BB0FB6938407224304",
+        "E912160BC0FA9AE6448D209D4428DDBE"
+      ],
+      "sha256": "7853d6ff3fb2c1ab18007bca88b2a927666730ecc3027b537a3155d9733f5049"
+    },
+    "relations": {
+      "responseCode": 200,
+      "count": 0,
+      "hasNextPage": null,
+      "ids": [],
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "fields": {
+      "responseCode": 200,
+      "count": 16,
+      "hasNextPage": null,
+      "ids": [
+        "01DA1CE9BBB6151D32E982ACE587C96D",
+        "1969C2E14C5704E19FA501672553CF7E",
+        "229A3CF16BF55E6781035F447153C654",
+        "235C494A677CACB1D51280916661148E",
+        "36AA9C0871FED59900FFE5753599080C",
+        "532074D7F026276D6E92D5299FBD8506",
+        "6E56F4A8149F99C33B217239F55B514B",
+        "794C1A795F8DC57864D3441208F2A2C8",
+        "7B3F6EE7AD677BFC1067C83875D15736",
+        "8C762A517CC9F02DBE2323F6F5119B38",
+        "90DE022F38D067897FDC3E2975F60A83",
+        "B65D0D55826587CFC571CD6967DC5E2C",
+        "B7B798B32B8610E9975DFA24CA527105",
+        "C2D17E1D21C353AFE0C788DDA2883828",
+        "D09311045F22EF5FAB50630C59E77245",
+        "D3E4E26B6981C6875AE22A2F0383B6C0"
+      ],
+      "sha256": "91c0d9de41c33db4e6560c611d330b318d3e20eba5760ceb51a19ed1aef16a6a"
+    },
+    "pagedataSha256": "41a28121ee8bba81b326304b31a1168c9a5fcfa041cfdaab41829504fdbe3c4f"
+  },
+  "modelDifferences": [
+    {
+      "id": "87639E48BFD673CFAA2E6601FABD1467",
+      "name": "SourceInputScope_20261018",
+      "changedKeys": []
+    },
+    {
+      "id": "A7199374E11E24BB0FB6938407224304",
+      "name": "SourceScope_20261018",
+      "changedKeys": [
+        "updatetime"
+      ]
+    },
+    {
+      "id": "E912160BC0FA9AE6448D209D4428DDBE",
+      "name": "ArrayScope_20261018",
+      "changedKeys": []
+    }
+  ],
+  "hashPolicy": "sort rows by rowid and object keys; omit lingma_sys_* credentials/system columns; field hashes include every remaining returned column; pagedata hashes exact Result text",
+  "result": "PASS: one model description per save, no dependent query/file write in either save window; 16 fields, 0 relationships and pagedata unchanged; two other models unchanged; target business values restored with updatetime changed",
+  "limits": [
+    "Fresh metadata host bootstrap reads metadata schema definitions; those are outside ordinary-save window",
+    "Graph relationship read occurs before save, so this does not claim zero initial graph reads",
+    "No unknown-result fault injection",
+    "Transient MODEL_CONTEXT error and unknown-state text during normal save cleared on completion; visual gap recorded separately"
+  ]
+}

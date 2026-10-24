@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-24",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "newModel": {
+    "id": "43F47E82A1DD772037298712EDE1D002",
+    "name": "ContentType",
+    "source": "ContentType"
+  },
+  "baseline": {
+    "directoryRequest": "9000.6475",
+    "fieldCount": 25,
+    "hash": "3e1938e454ce58acaac7f307a16ecdf6fea46517075968acdcd9aee7f3369503"
+  },
+  "create": {
+    "requestId": "9000.6497",
+    "code": 200,
+    "tables": [
+      {
+        "table": "Base_DataModel_Field",
+        "added": [
+          "3CEFFFDBD244171D1742F55AF01B30C0",
+          "F5445428C95086C027E3756A792C6530",
+          "6C13B4088DF555DD66CB18AA81A2610F",
+          "273155945892716AA7A9346B0484A5AB",
+          "8575A2FA8106528D280A4EDD98FF0E2E",
+          "F9182A571B9E65D5C477EE2AA2CAD70A",
+          "74E5B17925631FB71EDA742D3F69F4BC",
+          "3FFE3EAFE236EBD218A06DE6E58357A2"
+        ],
+        "changed": 0,
+        "deleted": 0
+      },
+      {
+        "table": "Base_DataModel",
+        "added": [
+          "43F47E82A1DD772037298712EDE1D002"
+        ],
+        "changed": 0,
+        "deleted": 0
+      }
+    ],
+    "exactReadRequest": "9000.6499",
+    "exactFieldCount": 8
+  },
+  "sameInstance": {
+    "directoryRequest": "9000.6505",
+    "total": 33,
+    "newFieldCount": 8,
+    "uiLabelEight": true,
+    "previous25FieldsUnchanged": true,
+    "previousFourModelsUnchangedAgainstFinalA4Read": true
+  },
+  "layout": {
+    "beforeRead": "9000.6506",
+    "upload": "9000.6507",
+    "uploadCode": 200,
+    "afterRead": "9000.6509",
+    "readCode": 200,
+    "onlyNewModelPositionAdded": true,
+    "newPosition": {
+      "x": 460,
+      "y": 270
+    },
+    "tablesUnchanged": true
+  },
+  "independentReopen": {
+    "modelRead": "9000.6519",
+    "models": 5,
+    "initialUiUnloaded": true,
+    "directoryRead": "9000.6522",
+    "directoryCount": 33,
+    "exactRead": "9000.6524",
+    "exactCount": 8,
+    "exactIds": [
+      "273155945892716AA7A9346B0484A5AB",
+      "3CEFFFDBD244171D1742F55AF01B30C0",
+      "3FFE3EAFE236EBD218A06DE6E58357A2",
+      "6C13B4088DF555DD66CB18AA81A2610F",
+      "74E5B17925631FB71EDA742D3F69F4BC",
+      "8575A2FA8106528D280A4EDD98FF0E2E",
+      "F5445428C95086C027E3756A792C6530",
+      "F9182A571B9E65D5C477EE2AA2CAD70A"
+    ],
+    "uiEight": true,
+    "relationsRead": "9000.6521",
+    "relations": 0,
+    "previous25FieldsUnchanged": true,
+    "writeRequests": [],
+    "windowUntruncated": true
+  },
+  "cleanup": "Both temporary models and all 17 owned fields removed after separate human confirmations; independently reopened original 3 models/16 fields/0 relations and original bindings verified. See a5-lifecycle-cleanup.json.",
+  "limits": [
+    "Real same-instance Loaded directory refresh and independent reopen passed; Idle creation, deferred dirty refresh, failed read, and multi-page coverage are automated fixture evidence.",
+    "Original four-model comparison uses final A4 formal read 9000.5670; field baseline was queried immediately before A5 creation.",
+    "Choosing a source and confirming in the source selector performs creation in this existing UI."
+  ]
+}

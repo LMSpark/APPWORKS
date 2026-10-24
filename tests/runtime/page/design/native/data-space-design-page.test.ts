@@ -8,7 +8,7 @@ import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/
 import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
+import {DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
 import {FilterExpressionEditor, RendererFilterExpression, SparkJsonEditor} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
@@ -1571,7 +1571,7 @@ beforeEach(() => {
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
-afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); sourceRuntimes.splice(0).forEach(runtime => runtime.dispose()); fixtures.splice(0).forEach(f => f.dispose()); vi.unstubAllGlobals()})
+afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); sourceRuntimes.splice(0).forEach(runtime => runtime.dispose()); fixtures.splice(0).forEach(f => f.dispose()); vi.restoreAllMocks(); vi.unstubAllGlobals()})
 const SourceTable = defineComponent({props: {data: {type: Array as PropType<Record<string, unknown>[]>, default: () => []}},
   setup(props, {slots}) {provide('source-test-rows', computed(() => props.data)); return () => h('div', slots['default']?.())}})
 const SourceColumn = defineComponent({props: {prop: String}, setup(props, {slots}) {
@@ -1718,6 +1718,40 @@ function writes(f: ReturnType<typeof dataSpacePageFixture>) {
 async function createDirectoryNode(wrapper: VueWrapper) {
   await select(wrapper, '模型（2）')
   await sourceButton(wrapper, 'add-directory-model').trigger('click'); await flushPromises()
+}
+type DesignTreeNode = {id: string; label?: string; children?: DesignTreeNode[]}
+function designTreeNodes(wrapper: Pick<VueWrapper, 'getComponent'>): DesignTreeNode[] {
+  const visit = (nodes: DesignTreeNode[]): DesignTreeNode[] => nodes.flatMap(node => [node, ...(node.children ? visit(node.children) : [])])
+  return visit(wrapper.getComponent(ElTree).props('data') as DesignTreeNode[])
+}
+function createdFieldCountLabel(wrapper: Pick<VueWrapper, 'getComponent'>, modelId: string): string | undefined {
+  const model = designTreeNodes(wrapper).find(node => node.id === JSON.stringify(['Base_DataModel', modelId]))
+  return model?.children?.find(node => node.id.endsWith(':fields'))?.label
+}
+function defaultFieldDirectoryReads(f: ReturnType<typeof dataSpacePageFixture>, start = 0) {
+  return f.requests.slice(start).filter(request => request.url === '/api/DataOperation/GetData'
+    && isRecord(request.data) && Array.isArray(request.data['Table']) && isRecord(request.data['Table'][0])
+    && request.data['Table'][0]['Name'] === 'Base_DataModel_Field'
+    && JSON.stringify(request.data['Table'][0]['Filter']).includes('dataSetId')
+    && !JSON.stringify(request.data['Table'][0]['Filter']).includes('dataModelId'))
+}
+async function createDictionaryModelFromDirectory(wrapper: VueWrapper, f: ReturnType<typeof dataSpacePageFixture>, lost = false): Promise<string> {
+  await createDirectoryNode(wrapper)
+  const editor = wrapper.getComponent(DataSpaceModelSource)
+  await openSourcePicker(editor)
+  const table = editor.getComponent(RendererTable)
+  const candidates = resolveDataViewKey(table.props('dataViewKey'), f.sessions[0]!.metadataDataSet)!
+  table.getComponent(SourceTable).vm.$emit('current-change', candidates.rows[0]); await flushPromises()
+  await select(wrapper, 'Orders')
+  if (lost) f.loseNextResponse()
+  await sourceButton(editor, 'preview-source').trigger('click'); await flushPromises()
+  if (lost) {
+    expect(sourceButton(editor, 'verify-create').text()).toBe('核验原模型及字段批次（保留本地修改）')
+    await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+  }
+  const row = f.created.get('Base_DataModel')?.[0]
+  if (typeof row?.['rowid'] !== 'string') throw new Error('model creation did not return a formal row identity')
+  return row['rowid']
 }
 async function cancelDirectoryNode(wrapper: VueWrapper) {
   await sourceButton(wrapper, 'close-definition').trigger('click'); await flushPromises()
@@ -5493,9 +5527,12 @@ describe('native data-space design entry', () => {
 
   it.each([false, true])('creates from the directory pending node and protects an unknown receipt: lost=%s', async lost => {
     const source = {type: 'dict' as const, id: 'DICT', name: 'Choices', description: '候选', dbid: '', databaseName: '', providerId: ''}
+    const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
+      AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
     const f = fixture({allowModelAdd: true, allowFieldAdd: true, modelSources: {
       query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
-        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''}, fields: []}),
+        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''},
+        fields: [field, {...field, Name: 'label', description: '名称', IsPKey: 0}]}),
     }})
     const {wrapper, instance, dynamic} = await page()
     await createDirectoryNode(wrapper)
@@ -5521,11 +5558,153 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('.design-detail h2').text()).toBe('Choices')
     expect(wrapper.text()).toContain('模型（3）'); expect(instance.isDirty).toBe(false)
     expect(f.created.get('Base_DataModel')?.[0]).toMatchObject({Name: 'Choices', MetaName: 'Choices'})
+    const createdModelId = String(f.created.get('Base_DataModel')?.[0]?.['rowid'])
+    expect(createdFieldCountLabel(wrapper, createdModelId)).toBe('字段（2）')
+    expect(f.created.get('Base_DataModel_Field')?.filter(row => row['dataModelId'] === createdModelId)).toHaveLength(2)
     expect(JSON.stringify(writes(f))).not.toContain('ModelSourceControls_')
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
     const reopened = await f.open('A'), id = f.created.get('Base_DataModel')?.[0]?.['rowid'] as string
     expect(reopened.definitionDataSet?.layout?.modelPositions?.[id]).toBeDefined()
     expect(Object.keys(reopened.definitionDataSet?.layout?.unboundNodes ?? {})).toEqual([])
+  })
+
+  it('refreshes the displayed full field directory through the successful created-model page path', async () => {
+    const source = {type: 'dict' as const, id: 'DICT', name: 'Choices', description: '候选', dbid: '', databaseName: '', providerId: ''}
+    const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
+      AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+    const sourceFields = ['F1', 'F3', 'F4'].map((rowid, index) => ({rowid, dataSetId: 'A', dataModelId: index === 2 ? 'M2' : 'M1',
+      Name: `existing${index}`, type: 'dataModel', FieldType: 'varchar', ValueFun: ''}))
+    const f = fixture({allowModelAdd: true, allowFieldAdd: true, sourceFields, modelSources: {
+      query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
+        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''},
+        fields: [field, {...field, Name: 'label', description: '名称', IsPKey: 0}]}),
+    }})
+    const {wrapper, instance} = await page()
+    const session = f.sessions[0]!, directory = session.metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    expect(directory.requestState).toBe(RequestState.Loaded)
+    expect(directory.rows).toHaveLength(3)
+    directory.pageSize = 2
+    const requestStart = f.requests.length
+
+    await createDirectoryNode(wrapper)
+    const editor = wrapper.getComponent(DataSpaceModelSource)
+    await openSourcePicker(editor)
+    const table = editor.getComponent(RendererTable)
+    const candidates = resolveDataViewKey(table.props('dataViewKey'), session.metadataDataSet)!
+    table.getComponent(SourceTable).vm.$emit('current-change', candidates.rows[0]); await flushPromises()
+    await select(wrapper, 'Orders')
+    await sourceButton(editor, 'preview-source').trigger('click'); await flushPromises()
+
+    const created = f.created.get('Base_DataModel')?.[0]
+    expect(created).toMatchObject({Name: 'Choices', MetaName: 'Choices'})
+    const modelId = String(created?.['rowid'])
+    expect(createdFieldCountLabel(wrapper, modelId), JSON.stringify({state: directory.requestState, total: directory.total,
+      rows: directory.rows.map(row => ({rowid: row['rowid'], dataModelId: row['dataModelId']})), refreshPending: directory.refreshPending,
+      defaultReads: defaultFieldDirectoryReads(f, requestStart).map(request => request.data)})).toBe('字段（2）')
+    expect(instance.isDirty).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+    expect(f.created.get('Base_DataModel_Field')?.filter(row => row['dataModelId'] === modelId)).toHaveLength(2)
+
+    const directoryReads = defaultFieldDirectoryReads(f, requestStart)
+    expect(directoryReads.map(request => isRecord(request.data) && isRecord(request.data['PageParam'])
+      ? request.data['PageParam']['index'] : undefined)).toEqual([1, 2, 3])
+    expect(directory.rows.filter(row => row['dataModelId'] === modelId)).toHaveLength(2)
+  })
+
+  it('keeps the default field directory lazy when creation starts from an untouched Idle directory', async () => {
+    const source = {type: 'dict' as const, id: 'DICT', name: 'Choices', description: '候选', dbid: '', databaseName: '', providerId: ''}
+    const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
+      AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+    const f = fixture({overviewOnly: true, allowModelAdd: true, allowFieldAdd: true, modelSources: {
+      query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
+        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''},
+        fields: [field, {...field, Name: 'label', description: '名称', IsPKey: 0}]}),
+    }})
+    const {wrapper} = await page()
+    const directory = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    expect(directory.requestState).toBe(RequestState.Idle)
+    const requestStart = f.requests.length
+    const modelId = await createDictionaryModelFromDirectory(wrapper, f)
+
+    expect(directory.requestState).toBe(RequestState.Idle)
+    expect(directory.rows).toEqual([])
+    expect(defaultFieldDirectoryReads(f, requestStart)).toEqual([])
+    expect(createdFieldCountLabel(wrapper, modelId)).toBe('字段（未加载）')
+    expect(f.created.get('Base_DataModel_Field')?.filter(row => row['dataModelId'] === modelId)).toHaveLength(2)
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('defers a loaded field directory refresh across a draft and updates after its cancellation', async () => {
+    const source = {type: 'dict' as const, id: 'DICT', name: 'Choices', description: '候选', dbid: '', databaseName: '', providerId: ''}
+    const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
+      AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+    const f = fixture({allowModelAdd: true, allowFieldAdd: true, modelSources: {
+      query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
+        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''},
+        fields: [field, {...field, Name: 'label', description: '名称', IsPKey: 0}]}),
+    }})
+    const {wrapper} = await page()
+    const directory = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    expect(directory.requestState).toBe(RequestState.Loaded)
+    const requestRefresh = DataView.prototype.requestRefresh
+    let staged = false
+    vi.spyOn(DataView.prototype, 'requestRefresh').mockImplementation(async function (this: DataView, ...args) {
+      if (this === directory && !staged) {
+        staged = true
+        const release = f.holdNextQuery()
+        const pending = requestRefresh.apply(this, args)
+        directory.updateEditingValue('F1', 'ValueFun', 'unrelated draft')
+        release()
+        return pending
+      }
+      return requestRefresh.apply(this, args)
+    })
+    const modelId = await createDictionaryModelFromDirectory(wrapper, f)
+
+    expect(directory.refreshPending).toBe(true)
+    expect(createdFieldCountLabel(wrapper, modelId)).toBe('字段（待更新）')
+    expect(directory.getEditingRow('F1')?.['ValueFun']).toBe('unrelated draft')
+    expect(directory.rows.some(row => row['dataModelId'] === modelId)).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+    directory.discardEditingRows()
+    await vi.waitFor(() => expect(directory.rows.filter(row => row['dataModelId'] === modelId)).toHaveLength(2))
+    expect(directory.refreshPending).toBe(false)
+    expect(createdFieldCountLabel(wrapper, modelId)).toBe('字段（2）')
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('keeps confirmed model creation and layout success when the directory refresh fails', async () => {
+    const source = {type: 'dict' as const, id: 'DICT', name: 'Choices', description: '候选', dbid: '', databaseName: '', providerId: ''}
+    const field = {type: 'dataModel' as const, Name: 'id', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
+      AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+    const f = fixture({allowModelAdd: true, allowFieldAdd: true, modelSources: {
+      query: async () => ({rows: [source], total: 1}), prepare: async () => ({source, model: {
+        Type: '字典', MetaName: source.name, description: source.description, DbId: 'DICT', DbName: '', JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''},
+        fields: [field, {...field, Name: 'label', description: '名称', IsPKey: 0}]}),
+    }})
+    const {wrapper, instance} = await page()
+    const directory = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    const loadFromServer = DataView.prototype.loadFromServer
+    let directoryReadFailed = false, directoryReadCalls = 0
+    vi.spyOn(DataView.prototype, 'loadFromServer').mockImplementation(async function (this: DataView, ...args) {
+      if (this === directory) {
+        directoryReadCalls++
+        if (!directoryReadFailed) {directoryReadFailed = true; f.failNextFieldRead()}
+      }
+      return loadFromServer.apply(this, args)
+    })
+    const modelId = await createDictionaryModelFromDirectory(wrapper, f)
+
+    expect(directoryReadFailed).toBe(true)
+    expect(directoryReadCalls).toBe(1)
+    expect(directory.requestState).toBe(RequestState.Failed)
+    expect(directory.loadingError?.message).toContain('field read unavailable')
+    expect(createdFieldCountLabel(wrapper, modelId)).toBe('字段（读取失败）')
+    expect(f.created.get('Base_DataModel')?.filter(row => row['rowid'] === modelId)).toHaveLength(1)
+    expect(f.created.get('Base_DataModel_Field')?.filter(row => row['dataModelId'] === modelId)).toHaveLength(2)
+    expect(writes(f)).toHaveLength(1)
+    expect(f.fileWrites).toHaveLength(1)
+    expect(instance.isDirty).toBe(false)
   })
 
   it('explicitly discards confirmed create drafts through the bound UI and finishes layout without replay', async () => {

@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-24",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "humanConfirmedSeparately": true,
+  "deletions": [
+    {
+      "modelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "name": "IntegrationLifecycle_20261024",
+      "requestId": "9000.6542",
+      "code": 200,
+      "tables": [
+        {
+          "table": "Base_DataModel_Field",
+          "added": 0,
+          "changed": 0,
+          "deleted": [
+            "04F9AB1FD1DA7D2471FF08749F6986E1",
+            "34FC89D9F864B2D67FE1B1C40E2B1A24",
+            "79F61A749383FAA4FC80234F74598C09",
+            "7E1472A8A6D5F0584BC4E4F8EBD6228A",
+            "8C679E44D4D4D17152754A65E8F67889",
+            "A64309CF271064C98A0697C8EB8D0C6E",
+            "B0CFE46367BC8C47FD20B592F5602946",
+            "CDF7370A52E2BCFC47628BF0A68E5555",
+            "EA974D64EF0BC175E40D01AFCBFBBE2F"
+          ]
+        },
+        {
+          "table": "Base_DataModel",
+          "added": 0,
+          "changed": 0,
+          "deleted": [
+            "7026EA5EB0FC7DEE00E001C7031E3892"
+          ]
+        }
+      ],
+      "fileUpload": "9000.6548",
+      "fileReadback": "9000.6550",
+      "fileUploadCode": 200,
+      "fileReadCode": 200,
+      "windowUntruncated": true
+    },
+    {
+      "modelId": "43F47E82A1DD772037298712EDE1D002",
+      "name": "ContentType",
+      "requestId": "9000.6560",
+      "code": 200,
+      "tables": [
+        {
+          "table": "Base_DataModel_Field",
+          "added": 0,
+          "changed": 0,
+          "deleted": [
+            "273155945892716AA7A9346B0484A5AB",
+            "3CEFFFDBD244171D1742F55AF01B30C0",
+            "3FFE3EAFE236EBD218A06DE6E58357A2",
+            "6C13B4088DF555DD66CB18AA81A2610F",
+            "74E5B17925631FB71EDA742D3F69F4BC",
+            "8575A2FA8106528D280A4EDD98FF0E2E",
+            "F5445428C95086C027E3756A792C6530",
+            "F9182A571B9E65D5C477EE2AA2CAD70A"
+          ]
+        },
+        {
+          "table": "Base_DataModel",
+          "added": 0,
+          "changed": 0,
+          "deleted": [
+            "43F47E82A1DD772037298712EDE1D002"
+          ]
+        }
+      ],
+      "fileUpload": "9000.6566",
+      "fileReadback": "9000.6568",
+      "fileUploadCode": 200,
+      "fileReadCode": 200,
+      "windowUntruncated": true
+    }
+  ],
+  "independentReopen": {
+    "modelQuery": "9000.6578",
+    "models": [
+      {
+        "id": "87639E48BFD673CFAA2E6601FABD1467",
+        "name": "SourceInputScope_20261018"
+      },
+      {
+        "id": "A7199374E11E24BB0FB6938407224304",
+        "name": "SourceScope_20261018"
+      },
+      {
+        "id": "E912160BC0FA9AE6448D209D4428DDBE",
+        "name": "ArrayScope_20261018"
+      }
+    ],
+    "fieldQuery": "9000.6581",
+    "fields": 16,
+    "relationQuery": "9000.6580",
+    "relations": 0,
+    "fileRead": "9000.6579",
+    "original3ModelsUnchanged": true,
+    "original16FieldsUnchanged": true,
+    "modelsHash": "7853d6ff3fb2c1ab18007bca88b2a927666730ecc3027b537a3155d9733f5049",
+    "fieldsHash": "5d9dd329650faaf78d3d473f1391c1f792b18c5aaa27c1750c9659dee2706259",
+    "onlyTemporaryLayoutPositionsRemoved": true,
+    "bindingNames": [
+      "SourceScope_20261018",
+      "SourceInputScope_20261018"
+    ],
+    "noWriteRequests": true,
+    "windowUntruncated": true
+  },
+  "boundaries": [
+    "Each model and its fields used one precise CRUD call; the two file cleanup writes were independently acknowledged and reread, not a cross-source transaction.",
+    "Comparison baseline includes the previously verified reference-incident restoration. Its historical audit timestamp differences remain documented separately.",
+    "No automatic replay or unrelated model/field update was dispatched."
+  ]
+}

@@ -4404,7 +4404,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-23T21:53:02.049Z"
+      "sourceModifiedAt": "2026-10-24T08:03:58.934Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",

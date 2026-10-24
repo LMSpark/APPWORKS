@@ -518,7 +518,11 @@ const hierarchy = computed(() => {
       })
     }
     const views = nodes('DataViewDefinition', 'viewId', row['rowid'])
-    node.children = [{id: `${node.id}:fields`, label: `字段（${view('Base_DataModel_Field')?.requestState === RequestState.Loaded ? fields.length : '未加载'}）`, children: fields},
+    const fieldDirectory = view('Base_DataModel_Field')
+    const fieldCount = fieldDirectory?.refreshPending ? '待更新'
+      : fieldDirectory?.requestState === RequestState.Loaded ? fields.length
+        : fieldDirectory?.requestState === RequestState.Failed ? '读取失败' : '未加载'
+    node.children = [{id: `${node.id}:fields`, label: `字段（${fieldCount}）`, children: fields},
       {id: `${node.id}:views`, label: `数据视图（${views.length}）`, table: 'Base_DataModel', rowKey: row['rowid'], workspace: 'views', children: views}]
     return [node]
   })
@@ -964,6 +968,11 @@ async function selectCreatedModel(id: string): Promise<void> {
   try {
     if (pendingId) layout?.bindCreatedNode(pendingId, id)
     await current.refresh()
+    const directory = current.metadataDataSet.getView('Base_DataModel_Field', 'default')
+    if (directory && (directory.requestState !== RequestState.Idle || directory.rows.length > 0)) {
+      // A failed directory read belongs to the DataView; it must not replay or roll back the confirmed model create.
+      await directory.requestRefresh()
+    }
     if (pendingId && active && session.value === current) {await layout?.save(); layoutMessage.value = layout?.pending
       ? '模型已创建，本轮节点位置保存已确认，仍有修改待保存' : '模型已创建，节点位置已保存并回读确认'}
   }

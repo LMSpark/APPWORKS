@@ -783,6 +783,7 @@
         "default": {
           "autoLoad": false,
           "pageSize": 500,
+          "queryConfig": { "allPages": true, "maxRows": 50000 },
           "sortExpression": [{ "field": "rowid", "direction": "asc" }],
           "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "dataSpaceId" } }
         },

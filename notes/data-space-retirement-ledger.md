@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，阶段B的独立字典样板B1并行推进，C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.6及A4（6040c40bd）、A5（3efece5ba）、A6（ce1dda7cc）、A7（ce9c6a5c3）已提交。用户确认的两临时模型、17字段及布局坐标已删除并独立核验；保留原3模型/16字段/0关系及原绑定。参考误写恢复已提交f57f1be19，业务原值一致、审计时间差异单列，参考前端保持停止。A6限主画布/原内建工具栏呈现完成；A7真实C/T不同模型的完整键标准组件绑定、两条有界查询、错空间拒绝与释放已归档，不等于同名模型或写隔离的线上证明。A8文件单属性保存、整文件保留与独立重开已验证；恢复时主控未确认页签切换而误改default，已逐步纠正且完整文件精确恢复，未证实产品绑定错位。另已修正成功回执后提示读取过期computed的问题，独立审查及最终工程门禁通过，冻结代码只读重开仍为原基线、0写入；A8已提交c93668b44并按用户要求推送；A9参数弹窗窄屏修复及关系/级联草稿取消已验收并提交7365d8d84，未推送。跨实例未知恢复及完整整页对照仍开放，不以局部完成核销阶段A；独立的B1字典样板已完成语义核定，原生恢复反例3红已证实并进入窄修复；数据维护入口真实空白的宿主修正排队，尚未线上写入。
+**当前断点（2026-10-24）：** A1—A9已按下方逐组记录提交；A8及之前已按用户要求推送，后续提交不自动推送。阶段A的完整整页对照、跨实例未知恢复等差距仍开放。B1恢复、目录宿主入口、标准表格工具栏与批量排序已实施并提交；主目录错误AppId过滤已修正，实测353→应用筛选5→清空353，跨应用字典7条读取/取消/重开通过（59e1e5f0e）。真实三条新增、排序保存及独立重开仍受共享typeid ValueFun阻断，精确字段更正已提范围确认，未获答复、未写入。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201），1定义0条目，不删除。AI候选及删除外部引用/下游消费继续核定；本轮已取得只读服务证据与V1源码候选路线，未执行AI或业务写入。具体当前状态见末尾“B1 AI 服务与候选入口续核”。
 
 ### 1. 目标、边界与完成口径
 
@@ -1126,3 +1126,11 @@ flowchart TD
 - 等待范围答复期间继续完整B1的独立AI候选合同核定：新gpt-6-luna助手仅追本仓现有AI会话/标准组件/服务owner与DataView暂存路径，避免重复已核参考六字段语义；未开放产品写入或服务调用。报告存cache/task-b1-ai-contract-report.md，主控核准后才安排下一反例。
 - 合同续核证据已按4个明确路径提交0865a733fcb0e9248aa5febdbe45ab9ee9348a2d，父59e1e5f0e；仅台账/证据，无产品变更，不推送。JSON身份/计数与敏感键检查通过，diff --check通过；没有因只读文档变更重复运行产品全套测试。
 - AI只读报告已返回，主控仍未核准实施合同：可复用AiAgentHost/session→ai-turn-bridge→LowcodeRealtimeApi，字典专用registration/结构化输出消费及在线可用配置尚需核定。入口按既有“设计与业务数据分离”归数据维护，无须再向用户确认；报告中确认后保留另一份候选直到保存、另造生成行专属撤销/保存范围的建议不采纳。确认前可有短命只读候选，确认后只归原entries DataView，编辑、取消、提交继续走既有入口，保留原有条目草稿语义。下一步核现有page-design/project-planning的实际Host注册与输出链，形成可执行反例合同；不得把源码有AI客户端当作在线AI已验证。
+
+### 2026-10-24 B1 AI 服务与候选入口续核
+- 上一goal轮为progress：typeid的真实只读/SQL投影证据排除了FieldType单独放开写入，并形成唯一字段更正范围；台账/证据已提交0865a733f、95af068ce。新轮核Git基线95af068ce、10-17 ahead7、工作区干净；原配置范围确认仍未答复，不重问、不执行依赖写入。本轮推进独立AI能力，完整goal继续active。
+- 主控新核：ai-turn-bridge直接将本地businessRegistrationId作为后端agentId，startAgentTurn仅传agentId/message；现有pageDesign/projectPlanning从落盘workflow激活本地Host，不创建后端Agent或传入本地工具定义。Ruling：不能因Host可register就给字典新造agentId并宣称已有服务。继续由gpt-6-luna只读追参考MetadataAiAssistant真实transport、配置来源、返回事件，与本仓现有chat/turn API逐项对照；先选实际合同，再开放反例及单写者实施。标准SparkAgentPanel目前只接trace数组，未具备DataView绑定合同，不能直接当字典候选数据组件使用。
+- 服务只读续核：参考实际为applicationAi资源→/sap/agent-loop→文本块/tagged-content，本仓Host走旧/api/ai/turns，协议不同。真实GET诊断：新Agent管理get?id=1为1004 Agent不存在；SAP/旧turn为method not allowed；chat为No static resource；Agent分页与V1目录均Code200/9项。没有执行AI POST、工具或业务写入，GET不证明POST执行；新Agent管理不存在1不外推为SAP配置不存在1。初始两次诊断因allowlist漏原activateApplication的GetData失败，修正后成功，非服务失败。
+- V1合同裁决：参考源码将Agent工具声明和执行map统一，非READ_ONLY/ALWAYS先进入审批；旧loop全局工具重载和SAP命令执行不能当候选文本边界。元数据助手配置有写工具/requireApproval=0，不足以否定V1强制审批路线，也不能当线上已验证。下一候选路径为正式元数据Agent、消费方不提供approve、遇工具审批即停止，只将人工确认后的文本候选写原entries DataView；先核SPARK data调用/回执/停止合同和反例，不新造AgentID、不借用其它业务Agent、不放开保存守卫。V1客户端/候选链尚未实施，真实生成/审批/取消未验。
+- 删除引用只读核定：模型DbId保存字典rowid，外部API固定名称字典为另一消费者；现有删除仅覆盖定义/条目。已知Base_DataModel精确引用查询可发现正引用，但当前视图单空间范围的零命中不能证明全局无引用。报告初版Loaded风险被主控收窄：正常页面双查询成功才ready，未证实初始Idle删定义可达；公开API外部resetState反例仍待验证，不新增重复守卫、不一概禁删、不造系统字典保留规则。Java专用删除亦未在该方法核DbId，线上完整约束未证实，未删除试探。
+- 当前SPA仍保留字典数据编辑→_Base_DictData字段呈现，typeid为原SystemData(rowid)，保存与放弃本地修改禁用，无草稿。原精确字段更正确认未答复，不重问、不执行依赖写入。证据b1-ai-service-contract.json及b1-ai-and-delete-contract-review.md归档；本轮仅文档与只读证据，产品/测试/生成物未变，不重复产品全门禁。完整B1及阶段A剩余项继续开放；本轮取得V1实际目录与执行边界新证据，属于进展而非重复阻断。

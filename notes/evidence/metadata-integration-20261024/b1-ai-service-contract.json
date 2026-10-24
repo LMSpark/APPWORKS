@@ -1,0 +1,235 @@
+{
+  "capturedAt": "2026-10-24T13:06:25.866Z",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "appWorksHead": "95af068ce2ec84f66bc234348fe81c736f801b75",
+  "referenceFrontendHead": "791c464b8c6b3c7049ea36ab57546c3481e4d889",
+  "javaReferenceHead": "f1620968b6902d799ccc0ae16fc57c86205da03d",
+  "kind": "readonly-contract-discovery",
+  "runs": [
+    {
+      "source": "b1-ai-live-contract.json",
+      "sha256": "19f9f1590eec3d75a39a068974f915983ca061bcd30bd35bb23d02c51a743e62",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/LoginAuthority/UserLoginByEnt"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai-agent/get"
+        },
+        {
+          "method": "GET",
+          "path": "/api/sap/agent-loop"
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai/turns"
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai/chat"
+        }
+      ],
+      "results": [
+        {
+          "method": "GET",
+          "path": "/api/ai-agent/get",
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 1004,
+          "classification": {
+            "routeMissing": false,
+            "methodNotAllowed": false,
+            "agentAbsent": true,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "agent": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/sap/agent-loop",
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 500,
+          "classification": {
+            "routeMissing": false,
+            "methodNotAllowed": true,
+            "agentAbsent": false,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "agent": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai/turns",
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 500,
+          "classification": {
+            "routeMissing": false,
+            "methodNotAllowed": true,
+            "agentAbsent": false,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "agent": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai/chat",
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 500,
+          "classification": {
+            "routeMissing": true,
+            "methodNotAllowed": false,
+            "agentAbsent": false,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "agent": null
+        }
+      ],
+      "aiInvocationCount": 0,
+      "businessWriteCount": 0
+    },
+    {
+      "source": "b1-ai-agent-page.json",
+      "sha256": "8f3be9cd9223f7b707d45b388db3c637c9ab26a14490d7f4a59f2ba5cde947fc",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/LoginAuthority/UserLoginByEnt"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai-agent/page"
+        }
+      ],
+      "results": [
+        {
+          "method": "GET",
+          "path": "/api/ai-agent/page",
+          "index": 1,
+          "size": 20,
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 200,
+          "classification": {
+            "routeMissing": false,
+            "methodNotAllowed": false,
+            "agentAbsent": false,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "count": 9,
+          "returnedAgentCount": 9,
+          "selectedAgents": [
+            {
+              "id": "agent-metadata-admin",
+              "agentName": "元数据管理助手",
+              "enabled": 1,
+              "maxToolRounds": 30,
+              "enableSubtask": 1,
+              "requireApproval": 0,
+              "functionCount": 29,
+              "declaresMetadataApply": true,
+              "declaresDataApply": false
+            },
+            {
+              "id": "agent-001",
+              "agentName": "默认助手",
+              "enabled": 1,
+              "maxToolRounds": 20,
+              "enableSubtask": 1,
+              "requireApproval": 0,
+              "functionCount": 24,
+              "declaresMetadataApply": true,
+              "declaresDataApply": true
+            }
+          ]
+        }
+      ],
+      "aiInvocationCount": 0,
+      "businessWriteCount": 0
+    },
+    {
+      "source": "b1-ai-v1-agents.json",
+      "sha256": "770ebe3c3e2694e0dc2289166acc5be76b9f5a837a87960c36b57ab435dc0916",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/api/LoginAuthority/UserLoginByEnt"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "POST",
+          "path": "/api/DataOperation/GetData"
+        },
+        {
+          "method": "GET",
+          "path": "/api/ai/v1/agents"
+        }
+      ],
+      "results": [
+        {
+          "method": "GET",
+          "path": "/api/ai/v1/agents",
+          "status": 200,
+          "contentType": "application/json; charset=utf-8",
+          "code": 200,
+          "classification": {
+            "routeMissing": false,
+            "methodNotAllowed": false,
+            "agentAbsent": false,
+            "accessDenied": false,
+            "requiresAuthentication": false
+          },
+          "count": 9,
+          "returnedAgentCount": 9,
+          "selectedAgents": [
+            {
+              "id": "agent-metadata-admin",
+              "agentName": "元数据管理助手"
+            },
+            {
+              "id": "agent-001",
+              "agentName": "默认助手"
+            }
+          ]
+        }
+      ],
+      "aiInvocationCount": 0,
+      "businessWriteCount": 0
+    }
+  ],
+  "limits": [
+    "These are separate diagnostic runs, not a complete browser network window.",
+    "GET method rejection does not prove POST execution or deployment parity with Java reference.",
+    "AI invocation, generated candidates, tool execution, configuration mutation and business persistence were not tested.",
+    "Authenticated HTTP owner used only for read-only contract discovery; a product integration must go through SPARK data.",
+    "Raw prompts, credentials, auth headers and permission envelopes are excluded."
+  ]
+}

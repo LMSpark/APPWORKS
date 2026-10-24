@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/dictionary/dictionary-ai-candidates",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates\n职责：将已完成的AI轮次投影为只读字典候选，并在人工确认时写入原条目DataView。\n边界：复用AiTurnResource、DictionaryWorkspace与原DataSet保存；不持有业务行副本或第二保存器。\nAI用途：字典数据维护页的候选预览、状态核验、停止和确认流程。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DictionaryAiCandidates"
+    ]
+  },
+  "$defs": {
+    "DictionaryAiCandidatesInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionaryAiCandidatesInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "workspace": {
+          "$ref": "dictionary-workspace.ts.json#/$defs/DictionaryWorkspace"
+        },
+        "aiTurns": {
+          "$ref": "../../../realtime/ai-turn-resource.ts.json#/$defs/AiTurnResource"
+        },
+        "agentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workspace",
+        "aiTurns",
+        "agentId"
+      ],
+      "additionalProperties": false
+    },
+    "DictionaryAiCandidates": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionaryAiCandidates",
+      "properties": {
+        "input": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "candidates": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turn": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        },
+        "duplicateCount": {
+          "type": "number"
+        },
+        "canStart": {
+          "type": "boolean"
+        },
+        "canRefresh": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        },
+        "canConfirm": {
+          "type": "boolean"
+        },
+        "confirmationError": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "waitingForUnsupportedTool": {
+          "type": "boolean"
+        },
+        "shouldAutoRefresh": {
+          "type": "boolean"
+        },
+        "blocksWorkspace": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DictionaryAiCandidatesInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.start.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.start.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.confirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-24T15:46:41.076Z",
+  "models": {
+    "DictionaryAiCandidatesInput": {
+      "name": "DictionaryAiCandidatesInput",
+      "jsdoc": "装配字典AI候选owner所需的原生运行对象。\n@remarks 所有数据与状态仍归属于本次DataSet中的DataView及已有业务owner。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次字典页面运行实例拥有的正式DataSet。 */\n    dataSet: DataSet;\n    /** 复用原字典定义与条目DataView的业务owner。 */\n    workspace: DictionaryWorkspace;\n    /** 只通过其正式DataView操作AI轮次的资源owner。 */\n    aiTurns: AiTurnResource;\n    /** 由正式Agent目录核验的固定Agent身份。 */\n    agentId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次字典页面运行实例拥有的正式DataSet。 */\n    dataSet: DataSet;\n    /** 复用原字典定义与条目DataView的业务owner。 */\n    workspace: DictionaryWorkspace;\n    /** 只通过其正式DataView操作AI轮次的资源owner。 */\n    aiTurns: AiTurnResource;\n    /** 由正式Agent目录核验的固定Agent身份。 */\n    agentId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次字典页面运行实例拥有的正式DataSet。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspace",
+              "jsdoc": "复用原字典定义与条目DataView的业务owner。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "aiTurns",
+              "jsdoc": "只通过其正式DataView操作AI轮次的资源owner。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "agentId",
+              "jsdoc": "由正式Agent目录核验的固定Agent身份。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DictionaryAiCandidates": {
+      "name": "DictionaryAiCandidates",
+      "jsdoc": "已装配正式字典工作空间的AI候选owner；输入、候选与轮次均以本DataSet中的DataView表示。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "在原字典DataSet中装配需求与只读候选DataView；禁止表名冲突覆盖已有定义。\n@param input.dataSet 本次页面实例的原DataSet。\n@param input.workspace 当前唯一字典的正式definition/entries owner。\n@param input.aiTurns 现有AiTurnResource；其HTTP只由本资源的DataView executor发出。\n@param input.agentId 正式Agent ID；生成前还会刷新目录并精确核验。",
+          "signatureText": "constructor(input: DictionaryAiCandidatesInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "DictionaryAiCandidatesInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "jsdoc": "单行需求输入视图；标准字段组件编辑requirements覆盖，不持有页面数组。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidates",
+              "jsdoc": "只读候选预览视图；行由完成轮次查询即时解析，不含AI生成的身份或排序。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "复用AiTurnResource正式轮次查询视图，供状态表单绑定与显式刷新。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "轮次是否仍需查询/停止，或输入/候选仍需用户处理。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "当前命令或正式查询错误；由宿主显示原始可读拒绝原因。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "duplicateCount",
+              "jsdoc": "最近一次结果中去重跳过的候选数量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canStart",
+              "jsdoc": "仅在可进行新的Agent请求时为true。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRefresh",
+              "jsdoc": "轮次可查询时为true；未知提交必须先沿原命令视图核验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "jsdoc": "已知非终态轮次可以请求停止；等待人工工具状态仍保留此入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canConfirm",
+              "jsdoc": "候选来源仍有效且原workspace可以全批暂存时为true。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmationError",
+              "jsdoc": "向用户展示与确认资格完全相同的原DataView预检拒绝原因。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "按已确认轮次状态返回给用户的状态文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "waitingForUnsupportedTool",
+              "jsdoc": "生成器等待审批或客户端工具时不给工具回执，只提示用户停止或查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shouldAutoRefresh",
+              "jsdoc": "宿主按此状态以1500ms串行刷新；首读失败由生命周期暂停，显式查询可恢复。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blocksWorkspace",
+              "jsdoc": "AI命令或已知非终态期间，宿主锁定原字典业务操作；已完成候选预览不锁定。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "start",
+              "jsdoc": "以当前正式定义、权限可读的已加载编码及需求创建一个Agent轮次；ACK不视作完成。\n@throws 当前定义/新增权限无效、Agent不存在或原命令回执未知时拒绝新建。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "沿原requests/cancellations DataView核验未知提交，或按已确认turnId刷新正式状态并解析终态候选。\n不重放未知POST；状态查询失败由调用方暂停自动更新并保留手动查询入口。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "请求停止已知非终态轮次；cancel ACK仍须再由refresh查询正式状态。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "只把完整预检通过的候选批次暂存到原entries；部分异常后禁止整批重试。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "清除候选派生结果和输入意图，不取消远端轮次或丢弃原entries草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放本owner对源定义的事件订阅；目标切换/页面卸载时由宿主先调用。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

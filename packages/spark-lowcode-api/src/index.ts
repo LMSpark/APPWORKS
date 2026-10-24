@@ -106,6 +106,7 @@ export type {
 export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
 export { DictionarySchema } from './platform/resources/dictionary/dictionary-schema.js'
 export { DictionaryWorkspace } from './platform/resources/dictionary/dictionary-workspace.js'
+export { DictionaryAiCandidates } from './platform/resources/dictionary/dictionary-ai-candidates.js'
 export { DataCodeDesignClient } from './platform/resources/data-code/data-code-design-client.js'
 export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'
 export { LogicViewDesignClient } from './platform/resources/logic-view/logic-view-design-client.js'

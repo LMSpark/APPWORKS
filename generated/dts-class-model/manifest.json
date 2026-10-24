@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 964,
+  "scannedFileCount": 965,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10924,6 +10924,21 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/dictionary/dictionary-ai-candidates",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-ai-candidates\n职责：将已完成的AI轮次投影为只读字典候选，并在人工确认时写入原条目DataView。\n边界：复用AiTurnResource、DictionaryWorkspace与原DataSet保存；不持有业务行副本或第二保存器。\nAI用途：字典数据维护页的候选预览、状态核验、停止和确认流程。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DictionaryAiCandidates"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts.json",
       "module": {
@@ -18340,6 +18355,10 @@
     "DialogFullscreenOptions": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts.json"
+    },
+    "DictionaryAiCandidates": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json"
     },
     "DictionarySchema": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",

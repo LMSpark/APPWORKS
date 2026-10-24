@@ -5,7 +5,7 @@
  * AI用途：原路径列表绑定导航场景，设置/条目共用已有字典数据编辑场景。
  */
 import {buildDataViewKey, DataViewFilter, type DataSet} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {AiTurnResource, DATA_SPACE_DESIGN_FORM_KEY, DictionaryAiCandidates, type DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
@@ -25,6 +25,14 @@ function applicationOptionsView() {
 export class LowcodeDictionary {
   /** 设置与条目已有正式空间的身份，来自已核对的场景配置。 */
   static readonly editorScenarioId = editorConfig.scenarioId
+
+  /** 仅由数据页AI入口延迟调用；AI轮次继续使用本实例DataSet和当前scope。 */
+  static createAiCandidates(dataSet: DataSet, workspace: DictionaryWorkspace): DictionaryAiCandidates {
+    const {assertCurrent} = this.scope()
+    return new DictionaryAiCandidates({dataSet, workspace,
+      aiTurns: new AiTurnResource({dataSet, http: lowcodeHttp, guard: assertCurrent}),
+      agentId: 'agent-metadata-admin'})
+  }
 
   /** 按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。 */
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
@@ -126,9 +134,11 @@ export class LowcodeDictionary {
 
   private static scope(): Readonly<{assertCurrent: () => void}> {
     const scope = lowcodeApi.readRequestScope()
-    if (!scope.headers['X-AppId']) throw new Error('请先选择应用')
+    const appId = scope.headers['X-AppId']
+    if (!appId) throw new Error('请先选择应用')
     return {assertCurrent: () => {
-      if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('字典请求所属应用或登录身份已变化')
+      const current = lowcodeApi.readRequestScope()
+      if (current.token !== scope.token || current.headers['X-AppId'] !== appId) throw new Error('字典请求所属应用或登录身份已变化')
     }}
   }
 }

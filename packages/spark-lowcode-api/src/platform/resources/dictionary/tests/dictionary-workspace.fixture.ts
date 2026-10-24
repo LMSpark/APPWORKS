@@ -89,18 +89,21 @@ export class DictionaryHttp extends HttpClientBase {
   }
 }
 export function fixture(http = new DictionaryHttp(), create = false, scenarioId = 'SCENE', requiredFields: readonly string[] = [],
-  ordIdxBounds: Readonly<{min?: number; max?: number}> = {}) {
+  ordIdxBounds: Readonly<{min?: number; max?: number}> = {},
+  columnOverrides: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {}) {
   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: http.scopeToken, headers: {'X-AppId': 'APP'}})})
   const models = Object.entries({_Base_DictType: definitionFields, _Base_DictData: entryFields}).map(([name, fields]) => ({
     id: `${name}-id`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
     primaryKey: 'rowid', businessMain: false, raw: {}, fields: fields.map((name, order) => ({id: name,
       modelId: `${name}-id`, name, canonicalName: name, primaryKey: name === 'rowid', description: name,
-      type: name === 'ordIdx' ? 'tinyint' : 'string', output: true, computed: false, order, orderType: '', raw: {}})),
+      type: columnOverrides[name]?.['type'] === 'number' ? 'number' : columnOverrides[name]?.['type'] === 'string' ? 'string'
+        : name === 'ordIdx' ? 'tinyint' : 'string', output: true, computed: false, order, orderType: '', raw: {}})),
   })) satisfies Array<Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>
   const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(model => [model.metaName, {
     modelBinding: {modelId: model.id, modelName: model.metaName},
     columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey,
       ...(field.name === 'ordIdx' ? ordIdxBounds : {}),
+      ...(columnOverrides[field.name] ?? {}),
       ...(requiredFields.includes(`${model.metaName}.${field.name}`) ? {required: true} : {})})),
     views: {default: {autoCurrentFirst: false, autoSelectFirst: false}},
   }]))})

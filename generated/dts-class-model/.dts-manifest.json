@@ -2964,7 +2964,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-24T13:55:05.653Z"
+      "sourceModifiedAt": "2026-10-24T15:49:11.396Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3176,6 +3176,11 @@
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts.json",
       "sourceModifiedAt": "2026-10-23T17:51:12.225Z"
     },
+    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json",
+      "sourceModifiedAt": "2026-10-24T15:46:41.076Z"
+    },
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts.json",
@@ -3184,7 +3189,7 @@
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-24T11:59:46.310Z"
+      "sourceModifiedAt": "2026-10-24T15:59:15.743Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
@@ -3954,7 +3959,7 @@
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
       "shardFile": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
-      "sourceModifiedAt": "2026-10-24T12:08:42.631Z"
+      "sourceModifiedAt": "2026-10-24T15:04:40.240Z"
     },
     "src/lowcode/resources/excel-import/excel-import-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/excel-import/excel-import-design-ops.ts",
@@ -4694,7 +4699,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-24T12:01:38.315Z"
+      "sourceModifiedAt": "2026-10-24T15:38:17.344Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
@@ -4704,7 +4709,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue.json",
-      "sourceModifiedAt": "2026-10-24T11:19:00.468Z"
+      "sourceModifiedAt": "2026-10-24T15:30:45.909Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",

@@ -5,7 +5,7 @@
  * AI用途：复用正式DataSet、PageRuntime和草稿保护，保持两类页面独立。
  */
 import {computed, onBeforeUnmount, ref, shallowRef, toValue, watch, type MaybeRefOrGetter} from 'vue'
-import {DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
+import {type DictionaryAiCandidates, DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
@@ -30,12 +30,66 @@ type DictionaryPageInput = Readonly<{
 export function useDictionaryWorkspace(input: DictionaryPageInput) {
   const {sparkProvide, sparkRemove} = useSparkComponent({type: input.pageId})
   const workspace = shallowRef<DictionaryWorkspace>()
+  const aiCandidates = shallowRef<DictionaryAiCandidates>()
+  const aiVisible = ref(false), aiRefreshPaused = ref(false)
   const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0)
-  let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
-  const pending = computed(() => {revision.value; return workspace.value?.pending === true})
+  let runtime: PageRuntime | undefined, dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
+  let aiPollTimer: ReturnType<typeof setTimeout> | undefined
+  const pending = computed(() => {revision.value; return workspace.value?.pending === true || aiCandidates.value?.pending === true})
   const uncertain = computed(() => {revision.value; return workspace.value?.requiresVerification === true})
+  const aiLocked = computed(() => {revision.value; return aiCandidates.value?.blocksWorkspace === true})
   useSystemPageDirtySource({get isDirty() {return busy.value || pending.value}})
   function changed(): void {revision.value++; input.onPending?.(busy.value || pending.value)}
+  function clearAiPoll(): void {
+    if (aiPollTimer !== undefined) clearTimeout(aiPollTimer)
+    aiPollTimer = undefined
+  }
+  function syncAiPoll(): void {
+    clearAiPoll()
+    const owner = aiCandidates.value
+    if (!owner || aiRefreshPaused.value || !owner.shouldAutoRefresh || !active) return
+    const own = generation
+    aiPollTimer = setTimeout(async () => {
+      if (!active || own !== generation || owner !== aiCandidates.value || busy.value || !owner.shouldAutoRefresh) return
+      const succeeded = await run(() => owner.refresh())
+      if (!isCurrentAiOwner(owner, own)) return
+      if (!succeeded) aiRefreshPaused.value = true
+      changed()
+      syncAiPoll()
+    }, 1500)
+  }
+  function disposeAi(): void {
+    clearAiPoll()
+    aiCandidates.value?.dispose()
+    aiCandidates.value = undefined
+    aiVisible.value = false
+    aiRefreshPaused.value = false
+  }
+  function openAi(): void {
+    if (!ready.value || !workspace.value || input.create) return
+    if (!aiCandidates.value && dataSet) aiCandidates.value = LowcodeDictionary.createAiCandidates(dataSet, workspace.value)
+    if (!aiCandidates.value) return
+    aiVisible.value = true
+    changed()
+  }
+  async function runAi(action: (owner: DictionaryAiCandidates) => Promise<void>, manualQuery = false): Promise<boolean> {
+    const owner = aiCandidates.value
+    if (!owner) return false
+    const own = generation
+    if (manualQuery) aiRefreshPaused.value = false
+    const succeeded = await run(() => action(owner))
+    if (!isCurrentAiOwner(owner, own)) return false
+    if (!succeeded && manualQuery && (owner.turn.loadingError instanceof Error || owner.candidates.loadingError instanceof Error)) {
+      aiRefreshPaused.value = true
+    }
+    changed()
+    syncAiPoll()
+    return succeeded
+  }
+  function discardAi(): void { aiCandidates.value?.discard(); changed() }
+  function isCurrentAiOwner(owner: DictionaryAiCandidates, own: number): boolean {
+    return active && own === generation && owner === aiCandidates.value
+  }
   async function run(action: () => Promise<void>): Promise<boolean> {
     if (!active || !ready.value || busy.value) return false
     const own = generation, id = toValue(input.dictionaryId)
@@ -55,7 +109,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
     const own = ++generation
     const isCurrent = (): boolean => active && own === generation
     ready.value = false; loading.value = true; busy.value = false; error.value = ''
-    unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); workspace.value = undefined
+    unsubscribe?.(); unsubscribe = undefined; disposeAi(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined; workspace.value = undefined
     changed()
     try {
       if (!id?.trim()) throw new Error('请通过dictionaryId参数指定唯一字典')
@@ -80,15 +134,15 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       try {
         current = new PageRuntime({pageId: input.pageId, scenarioIds,
           loadScenario: scenarioId => {
-            const dataSet = dataSets.get(scenarioId)
-            if (!dataSet) throw new Error(`字典页面请求了未装配的数据空间 ${scenarioId}`)
-            return Promise.resolve(dataSet)
+            const scenarioDataSet = dataSets.get(scenarioId)
+            if (!scenarioDataSet) throw new Error(`字典页面请求了未装配的数据空间 ${scenarioId}`)
+            return Promise.resolve(scenarioDataSet)
           }})
       } catch (cause) {
-        for (const dataSet of dataSets.values()) dataSet.destroy()
+        for (const scenarioDataSet of dataSets.values()) scenarioDataSet.destroy()
         throw cause
       }
-      runtime = current; await current.load()
+      runtime = current; dataSet = opened.dataSet; await current.load()
       if (!isCurrent()) {current.dispose(); return}
       const owner = new DictionaryWorkspace({dataSet: opened.dataSet, dictionaryId: id, ...(input.create ? {create: true} : {})})
       workspace.value = owner; await owner.load()
@@ -100,12 +154,12 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
     } catch (cause) {
       if (active && own === generation) {
         unsubscribe?.(); unsubscribe = undefined
-        sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; workspace.value = undefined
+        sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined; workspace.value = undefined
         error.value = cause instanceof Error ? cause.message : String(cause)
       }
     }
     finally {if (active && own === generation) loading.value = false}
   }, {immediate: true})
-  onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
-  return {workspace, ready, loading, busy, error, revision, pending, uncertain, run, discard}
+  onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); unsubscribe = undefined; disposeAi(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined})
+  return {workspace, aiCandidates, aiVisible, aiLocked, ready, loading, busy, error, revision, pending, uncertain, run, runAi, openAi, discardAi, discard}
 }

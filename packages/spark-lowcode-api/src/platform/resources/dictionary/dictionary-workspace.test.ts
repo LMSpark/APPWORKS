@@ -870,6 +870,223 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(http.saves).toHaveLength(0)
     dataSet.destroy()
   })
+  it('exposes batch candidate staging through the existing entries DataView', async () => {
+    const {workspace, dataSet} = fixture()
+    try {
+      await workspace.load()
+      expect((workspace as unknown as {appendEntries?: unknown}).appendEntries).toBeTypeOf('function')
+    } finally {dataSet.destroy()}
+  })
+  it('preflights every candidate before staging any entry and preserves existing edits', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '先前条目草稿')
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await expect(appendEntries.call(workspace, [
+        {val: 'AI-1', txt: '有效候选', exVal_4: '保留扩展'},
+        {val: '', txt: '后一个候选无效'},
+      ])).rejects.toThrow()
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('先前条目草稿')
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('stages valid candidates in entries and leaves persistence to the existing saveData command', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '已有修改')
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await appendEntries.call(workspace, [{val: 'AI-1', txt: '建议条目', exVal_1: '#abc', exVal_2: '类别', exVal_3: null, exVal_4: '扩展'}])
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+      expect(workspace.entries.rows).toHaveLength(2)
+      expect(workspace.entries.rows.find(row => row['val'] === 'AI-1')).toMatchObject({
+        typeid: 'D1', val: 'AI-1', txt: '建议条目', exVal_1: '#abc', exVal_2: '类别', exVal_3: null, exVal_4: '扩展',
+      })
+      expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('已有修改')
+      expect(http.saves).toHaveLength(0)
+      await workspace.saveData()
+      expect(http.saves).toHaveLength(1)
+      expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData'}])
+      expect(http.records['_Base_DictData']).toHaveLength(2)
+    } finally {dataSet.destroy()}
+  })
+  it('persists ordIdx 0 on AI Added rows without changing existing rows or their drafts', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '保留既有草稿')
+      await workspace.appendEntries([{val: 'AI-1', txt: '候选'}])
+      const addedId = [...workspace.entries.dirtyTracking.pendingCreateIds][0]
+      expect(workspace.entries.getEditingRow(addedId!)?.['ordIdx']).toBe(0)
+      expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('保留既有草稿')
+      await workspace.saveData()
+      const groups = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Added: Array<Record<string, unknown>>; Changed: Array<Record<string, unknown>>}}>
+      expect(groups).toMatchObject([{TableName: '_Base_DictData', CrudModel: {Added: [expect.objectContaining({val: 'AI-1', ordIdx: 0})],
+        Changed: [{rowid: 'E1', exVal_4: '保留既有草稿'}]}}])
+      expect(http.records['_Base_DictData']?.find(row => row['val'] === 'AI-1')).toMatchObject({typeid: 'D1', ordIdx: 0})
+      expect(http.records['_Base_DictData']?.find(row => row['rowid'] === 'E1')?.['ordIdx']).toBe(1)
+    } finally {dataSet.destroy()}
+  })
+  it.each(['computed', 'allowAdd', 'min'])('preflights ordIdx %s for the whole AI batch and preserves existing drafts', async restriction => {
+    const http = new DictionaryHttp()
+    if (restriction === 'allowAdd') http.allowAdd = false
+    const setup = restriction === 'min' ? fixture(http, false, 'SCENE', [], {min: 1}) : fixture(http)
+    try {
+      await setup.workspace.load()
+      setup.workspace.entries.updateEditingValue('E1', 'exVal_4', '保留既有草稿')
+      if (restriction === 'computed') setup.dataSet.getTable('_Base_DictData')!.updateColumn('ordIdx', {isComputed: true, computeExpression: '1'})
+      await expect(setup.workspace.appendEntries([{val: 'AI-1', txt: '有效候选'}, {val: 'AI-2', txt: '后续候选'}])).rejects.toThrow()
+      expect(setup.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(setup.workspace.entries.rows).toHaveLength(1)
+      expect(setup.workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('保留既有草稿')
+      expect(setup.http.saves).toHaveLength(0)
+    } finally {setup.dataSet.destroy()}
+  })
+  it('initializes manually added entries with ordIdx 0 and persists that same value', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      await workspace.addEntry()
+      const row = workspace.entries.currentRow!
+      const id = workspace.entries.getPkKey(row)!
+      expect(workspace.entries.getEditingRow(id)?.['ordIdx']).toBe(0)
+      expect(workspace.entries.getEditingRow(id)?.['val']).toBe('')
+      expect(workspace.entries.getEditingRow(id)?.['txt']).toBe('')
+      workspace.entries.updateEditingValue(id, 'val', 'HAND-1')
+      workspace.entries.updateEditingValue(id, 'txt', '手工条目')
+      await workspace.saveData()
+      const groups = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Added: Array<Record<string, unknown>>}}>
+      expect(groups).toMatchObject([{TableName: '_Base_DictData', CrudModel: {Added: [expect.objectContaining({ordIdx: 0})]}}])
+      expect(http.records['_Base_DictData']?.find(item => item['rowid'] === id)?.['ordIdx']).toBe(0)
+    } finally {dataSet.destroy()}
+  })
+  it.each(['computed', 'allowAdd', 'min'])('refuses manual add before creating a row when ordIdx is %s', async restriction => {
+    const http = new DictionaryHttp()
+    if (restriction === 'allowAdd') http.allowAdd = false
+    const setup = restriction === 'min' ? fixture(http, false, 'SCENE', [], {min: 1}) : fixture(http)
+    try {
+      await setup.workspace.load()
+      setup.workspace.entries.updateEditingValue('E1', 'exVal_4', '保留既有草稿')
+      if (restriction === 'computed') setup.dataSet.getTable('_Base_DictData')!.updateColumn('ordIdx', {isComputed: true, computeExpression: '1'})
+      await expect(setup.workspace.addEntry()).rejects.toThrow()
+      expect(setup.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(setup.workspace.entries.rows).toHaveLength(1)
+      expect(setup.workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('保留既有草稿')
+      expect(setup.http.saves).toHaveLength(0)
+    } finally {setup.dataSet.destroy()}
+  })
+  it('allows manual and candidate additions when ordIdx is denied only on the existing row', async () => {
+    const {workspace, dataSet, http} = fixture()
+    http.denied = ['ordIdx']
+    try {
+      await workspace.load()
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0]!, 'ordIdx').write).toBe('denied')
+      await workspace.addEntry()
+      expect(workspace.entries.getEditingRow(workspace.entries.getPkKey(workspace.entries.currentRow!)!)?.['ordIdx']).toBe(0)
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await appendEntries.call(workspace, [{val: 'AI-1', txt: '候选'}])
+      const aiId = [...workspace.entries.dirtyTracking.pendingCreateIds].find(id =>
+        workspace.entries.getEditingRow(id)?.['val'] === 'AI-1')
+      expect(workspace.entries.getEditingRow(aiId!)?.['ordIdx']).toBe(0)
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(2)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('preserves existing and new entry drafts after the original save explicitly refuses the batch', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', '原条目草稿')
+      await workspace.appendEntries([{val: 'AI-1', txt: '候选'}])
+      const addedId = [...workspace.entries.dirtyTracking.pendingCreateIds][0]
+      http.rejectWrite = {code: 1004, message: '明确拒绝保存'}
+      await expect(workspace.saveData()).rejects.toThrow('明确拒绝保存')
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.has(addedId!)).toBe(true)
+      expect(workspace.entries.getEditingRow(addedId!)?.['ordIdx']).toBe(0)
+      expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('原条目草稿')
+      expect(http.records['_Base_DictData']).toHaveLength(1)
+    } finally {dataSet.destroy()}
+  })
+  it.each(['val', 'typeid', 'crttime', 'exVal_4'])('uses new-row input rules instead of borrowing existing-row %s permission', async field => {
+    const {workspace, dataSet, http} = fixture()
+    http.denied = [field]
+    try {
+      await workspace.load()
+      expect(workspace.entries.fieldAccess(workspace.entries.rows[0]!, field).write).toBe('denied')
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await appendEntries.call(workspace, [{val: 'AI-1', txt: '候选', exVal_4: '扩展'}])
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+      expect(workspace.entries.rows).toHaveLength(2)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('refuses candidate staging when the current query hides dictionaryType', async () => {
+    const {workspace, dataSet, http} = fixture()
+    http.hidden = ['dictionaryType']
+    try {
+      await workspace.load()
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await expect(appendEntries.call(workspace, [{val: 'AI-1', txt: '候选'}])).rejects.toThrow(/编码类型不可读/)
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+    } finally {dataSet.destroy()}
+  })
+  it('refuses candidate staging when the native query does not allow new rows', async () => {
+    const {workspace, dataSet, http} = fixture()
+    http.allowAdd = false
+    try {
+      await workspace.load()
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await expect(appendEntries.call(workspace, [{val: 'AI-1', txt: '候选'}])).rejects.toThrow()
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(workspace.entries.rows).toHaveLength(1)
+    } finally {dataSet.destroy()}
+  })
+  it('rejects reserved identity and non-business properties from AI input', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await expect(appendEntries.call(workspace, [{rowid: 'AI-ROW', typeid: 'D1', val: 'AI-1', txt: '候选'}])).rejects.toThrow()
+      await expect(appendEntries.call(workspace, [{val: 'AI-1', txt: '候选', ordIdx: 1}])).rejects.toThrow()
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('treats an empty candidate batch as a no-op on the native DataView', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.entries.updateEditingValue('E1', 'exVal_4', 'existing draft')
+      const before = workspace.entries.getEditingRow('E1')
+      const appendEntries = (workspace as unknown as {appendEntries(values: readonly Readonly<Record<string, unknown>>[]): Promise<void>}).appendEntries
+      await appendEntries.call(workspace, [])
+      expect(workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(workspace.entries.getEditingRow('E1')).toEqual(before)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
+  })
+  it('rejects computed reserved columns and formal maxLength constraints before adding any row', async () => {
+    const computed = fixture()
+    try {
+      await computed.workspace.load()
+      computed.dataSet.getTable('_Base_DictData')!.updateColumn('typeid', {isComputed: true, computeExpression: "'D1'"})
+      await expect(computed.workspace.appendEntries([{val: 'AI-1', txt: '候选'}])).rejects.toThrow()
+      expect(computed.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(computed.workspace.entries.rows).toHaveLength(1)
+      expect(computed.http.saves).toHaveLength(0)
+    } finally {computed.dataSet.destroy()}
+
+    const lengthLimited = fixture(new DictionaryHttp(), false, 'SCENE', [], {}, {exVal_4: {maxLength: 3}})
+    try {
+      await lengthLimited.workspace.load()
+      await expect(lengthLimited.workspace.appendEntries([{val: 'AI-1', txt: '候选', exVal_4: '超过长度'}])).rejects.toThrow()
+      expect(lengthLimited.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(lengthLimited.workspace.entries.rows).toHaveLength(1)
+      expect(lengthLimited.http.saves).toHaveLength(0)
+    } finally {lengthLimited.dataSet.destroy()}
+  })
   it.each(['0', 0, '-1.5', '1e2'])('accepts numeric code %s without converting stored values', value => {
     const row = {...initialEntry, val: value}
     DictionarySchema.validateEntry(row, {...initialDefinition, dictionaryType: '1'})

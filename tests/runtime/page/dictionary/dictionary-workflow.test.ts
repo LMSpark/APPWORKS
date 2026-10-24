@@ -5,13 +5,15 @@ import {defineComponent, h, ref, type Ref} from 'vue'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererButton, RendererForm, RendererTable} from '@spark-appworks/spark-component'
 import {DataSet} from '@spark-appworks/spark-data'
+import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+import {lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import DictionaryDesign from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
 import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
+vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: () => ({token: 'TEST-SCOPE', headers: {'X-AppId': 'APP'}})}, lowcodeHttp: {}}))
 const originalStubs = {...config.global.stubs}
 const sets: DataSet[] = [], wrappers: VueWrapper[] = []
 const hosts = new WeakMap<VueWrapper, {dynamic: ReturnType<typeof createDynamicRouter>; designId: Ref<string>; dataId: Ref<string | undefined>}>()
@@ -37,6 +39,7 @@ beforeEach(() => {
 afterEach(() => {
   wrappers.splice(0).forEach(wrapper => wrapper.unmount())
   sets.splice(0).forEach(ds => ds.destroy())
+  delete (lowcodeHttp as unknown as {request?: unknown}).request
   vi.restoreAllMocks(); vi.unstubAllGlobals(); config.global.stubs = originalStubs
 })
 async function open(kind: 'design' | 'data', create = false, dictionaryId: string | undefined = 'D1', applicationScenarioId = 'APPLICATION-CATALOG') {
@@ -68,6 +71,11 @@ function field(wrapper: VueWrapper, label: string) {
   if (!item) throw new Error(`字段不存在: ${label}\n${wrapper.text()}`)
   return item
 }
+async function fillAiRequirements(wrapper: VueWrapper): Promise<void> {
+  const form = wrapper.findAllComponents(RendererForm).find(item => String(item.props('dataViewKey')).includes('@DictionaryAiInput@'))
+  if (!form) throw new Error('AI需求DataView表单未装配')
+  await form.get('textarea').setValue('根据已保存字段生成候选条目')
+}
 async function selectEntry(wrapper: VueWrapper) {
   await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
   await flushPromises()
@@ -91,10 +99,440 @@ function secondDictionary(): DictionaryHttp {
   return next
 }
 
+class WorkflowAiHttp extends HttpClientBase {
+  readonly requests: RequestConfig[] = []
+  readonly responses: unknown[] = []
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    this.requests.push(config)
+    const response = this.responses.shift()
+    if (response === undefined) throw new Error(`Unexpected AI request ${config.method} ${config.url}`)
+    const result = typeof response === 'function' ? await (response as () => Promise<unknown>)() : response
+    return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
+  }
+}
+
+class ExplicitCancelRefusalHttp extends WorkflowAiHttp {
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    if (String(config.url).endsWith('/cancel')) {
+      this.requests.push(config)
+      return {data: {Code: 1004, Message: 'cancel explicitly refused'}, status: 200, statusText: 'OK', headers: {}}
+    }
+    return super.executeRequest(config)
+  }
+}
+
+function bindWorkflowAiHttp(http: WorkflowAiHttp): void {
+  (lowcodeHttp as unknown as {request: (config: RequestConfig) => Promise<HttpResponse<unknown>>}).request = config => http.request(config)
+}
+
 describe('Dictionary independent design and data pages', () => {
   it('shows dictionary heading with saved type name', async () => {
     const data = await open('data')
     expect(data.text()).toContain('当前方案：配色')
+  })
+  it('binds requirements and preview to their DataViews, confirms into entries, then uses original cancel/save', async () => {
+    const aiHttp = new WorkflowAiHttp()
+    bindWorkflowAiHttp(aiHttp)
+    const agents = [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}]
+    const ack1 = {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null}
+    const turn1 = {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+      assistantDraft: JSON.stringify([{val: 'AI-1', txt: '候选一', exVal_1: '一', exVal_2: '二', exVal_3: '三', exVal_4: '四'}]),
+      errorCode: null, errorMessage: null}
+    const ack2 = {conversationId: 'C2', turnId: 'T2', status: 'QUEUED', acceptedAt: null}
+    const turn2 = {id: 'T2', conversationId: 'C2', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+      assistantDraft: JSON.stringify([{val: 'AI-2', txt: '候选二', exVal_1: null, exVal_2: null, exVal_3: null, exVal_4: null}]),
+      errorCode: null, errorMessage: null}
+    aiHttp.responses.push(agents, ack1, turn1, agents, ack2, turn2)
+    const data = await open('data')
+    await selectEntry(data)
+    await field(data, '说明').get('input').setValue('只留在原条目覆盖')
+    await button(data, 'AI 候选').trigger('click')
+    const dataSet = sets[0]!
+    const inputForm = data.findAllComponents(RendererForm).find(form => form.props('dataViewKey') === `${dataSet.scenarioId}@DictionaryAiInput@default`)
+    const preview = data.findAllComponents(RendererTable).find(table => table.props('dataViewKey') === `${dataSet.scenarioId}@DictionaryAiCandidates@default`)
+    expect(inputForm).toBeDefined()
+    expect(preview).toBeDefined()
+    await inputForm!.get('textarea').setValue('保留六字段和已有扩展值')
+
+    const entries = dataSet.getView('_Base_DictData', 'default')!
+    await button(data, '生成候选').trigger('click')
+    await flushPromises()
+    expect(entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(entries.getEditingRow('E1')?.['exVal_4']).toBe('只留在原条目覆盖')
+    expect(dataSet.getView('DictionaryAiCandidates', 'default')?.rows).toMatchObject([{val: 'AI-1', exVal_4: '四'}])
+    expect(button(data, '放弃候选').attributes('disabled')).toBeUndefined()
+    await button(data, '确认加入草稿').trigger('click')
+    await flushPromises()
+    expect(entries.dirtyTracking.pendingCreateIds.size).toBe(1)
+    expect(entries.getEditingRow('E1')?.['exVal_4']).toBe('只留在原条目覆盖')
+    expect(http.saves).toHaveLength(0)
+
+    await button(data, '取消数据修改并重读').trigger('click')
+    await flushPromises()
+    expect(entries.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(entries.rows).toHaveLength(1)
+    expect(entries.rows[0]?.['exVal_4']).toBeNull()
+    expect(http.saves).toHaveLength(0)
+
+    const inputAgain = data.findAllComponents(RendererForm).find(form => form.props('dataViewKey') === `${dataSet.scenarioId}@DictionaryAiInput@default`)
+    await inputAgain!.get('textarea').setValue('重新生成后确认')
+    await button(data, '生成候选').trigger('click')
+    await flushPromises()
+    await button(data, '确认加入草稿').trigger('click')
+    await flushPromises()
+    await button(data, '保存数据').trigger('click')
+    await flushPromises()
+    expect(http.saves).toHaveLength(1)
+    expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData'}])
+    expect(http.records['_Base_DictData']).toHaveLength(2)
+    expect(http.records['_Base_DictData']?.find(row => row['val'] === 'AI-2')).toMatchObject({
+      typeid: 'D1', val: 'AI-2', txt: '候选二', exVal_1: null, exVal_2: null, exVal_3: null, exVal_4: null,
+    })
+  })
+  it('queries a tool-waiting turn after cancel ACK and shows the terminal status without manual refresh', async () => {
+    const aiHttp = new WorkflowAiHttp()
+    bindWorkflowAiHttp(aiHttp)
+    aiHttp.responses.push(
+      [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+      {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+      {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'WAITING_CLIENT_TOOL',
+        assistantDraft: null, errorCode: null, errorMessage: null},
+    )
+    const data = await open('data')
+    await button(data, 'AI 候选').trigger('click')
+    await fillAiRequirements(data)
+    await button(data, '生成候选').trigger('click')
+    await flushPromises()
+    expect(data.text()).toContain('当前轮次等待审批或客户端工具')
+    expect(button(data, '放弃候选').attributes('disabled')).toBeDefined()
+    aiHttp.responses.push(true, {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'CANCELLED',
+      assistantDraft: null, errorCode: null, errorMessage: null})
+    await button(data, '停止生成').trigger('click')
+    await flushPromises()
+    expect(aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')).toHaveLength(2)
+    expect(data.text()).toContain('轮次状态：CANCELLED')
+    expect(button(data, '停止生成').attributes('disabled')).toBeDefined()
+  })
+  it.each(['WAITING_CLIENT_TOOL', 'RUNNING'])('pauses automatic reads after %s cancellation ACK has a failed status GET, then resumes on manual query', async status => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status,
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        true,
+        async () => {throw new Error('post-cancel status query failed')},
+      )
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      expect(turnReads()).toHaveLength(1)
+
+      await button(data, '停止生成').trigger('click')
+      await flushPromises()
+      expect(turnReads()).toHaveLength(2)
+      await vi.advanceTimersByTimeAsync(5000)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(2)
+
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      await button(data, '查询结果').trigger('click')
+      await flushPromises()
+      expect(turnReads()).toHaveLength(3)
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+        assistantDraft: '[]', errorCode: null, errorMessage: null})
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(4)
+      expect(data.text()).toContain('轮次状态：COMPLETED')
+    } finally {vi.useRealTimers()}
+  })
+  it('resumes polling when stopping after a prior read failure yields a fresh nonterminal GET', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        async () => {throw new Error('automatic status query failed')},
+      )
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(2)
+      expect(data.text()).toContain('待核验')
+
+      aiHttp.responses.push(true, {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      await button(data, '停止生成').trigger('click')
+      await flushPromises()
+      expect(turnReads()).toHaveLength(3)
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+        assistantDraft: '[]', errorCode: null, errorMessage: null})
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(4)
+      expect(data.text()).toContain('轮次状态：COMPLETED')
+    } finally {vi.useRealTimers()}
+  })
+  it('does not automatically verify an unknown cancel when the stop action throws', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        async () => {throw new Error('cancel ACK lost')},
+      )
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      expect(turnReads()).toHaveLength(1)
+      await button(data, '停止生成').trigger('click')
+      await flushPromises()
+      const cancelPosts = () => aiHttp.requests.filter(request => request.method === 'POST' && String(request.url).endsWith('/cancel'))
+      expect(cancelPosts()).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(5000)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(1)
+      expect(cancelPosts()).toHaveLength(1)
+    } finally {vi.useRealTimers()}
+  })
+  it('keeps polling a known RUNNING turn when cancel returns an explicit business refusal', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new ExplicitCancelRefusalHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+          assistantDraft: '[]', errorCode: null, errorMessage: null},
+      )
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      const cancelPosts = () => aiHttp.requests.filter(request => request.method === 'POST' && String(request.url).endsWith('/cancel'))
+      expect(turnReads()).toHaveLength(1)
+
+      await button(data, '停止生成').trigger('click')
+      await flushPromises()
+      expect(cancelPosts()).toHaveLength(1)
+      expect(sets[0]!.getView('AiTurnCancel', 'default')!.hasUnconfirmedSave).toBe(false)
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(2)
+      expect(cancelPosts()).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(3)
+      expect(data.text()).toContain('轮次状态：COMPLETED')
+      expect(cancelPosts()).toHaveLength(1)
+    } finally {vi.useRealTimers()}
+  })
+  it('auto-refreshes QUEUED/RUNNING AI turns every 1500ms serially and clears the timer at terminal state', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push([{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}])
+      aiHttp.responses.push({conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null})
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      let releaseRunning!: (value: unknown) => void
+      aiHttp.responses.push(() => new Promise(resolve => { releaseRunning = resolve }))
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+        assistantDraft: '[]', errorCode: null, errorMessage: null})
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      const dataSet = sets[0]!
+      const inputViewKey = `${dataSet.scenarioId}@DictionaryAiInput@default`
+      const turnViewKey = `${dataSet.scenarioId}@AiTurnStatus@default`
+      const candidatesViewKey = `${dataSet.scenarioId}@DictionaryAiCandidates@default`
+      expect(data.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === inputViewKey)).toBe(true)
+      expect(data.findAllComponents(RendererForm).some(form => form.props('dataViewKey') === turnViewKey)).toBe(true)
+      expect(data.findAllComponents(RendererTable).some(table => table.props('dataViewKey') === candidatesViewKey)).toBe(true)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      expect(turnReads()).toHaveLength(1)
+
+      await vi.advanceTimersByTimeAsync(1499)
+      expect(turnReads()).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(1)
+      await Promise.resolve()
+      expect(turnReads()).toHaveLength(2)
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(turnReads()).toHaveLength(2)
+
+      releaseRunning({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(3)
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(turnReads()).toHaveLength(3)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+  it.each(['target-switch', 'unmount'])('disposes the AI owner and clears its poll timer on %s', async action => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push([{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}])
+      aiHttp.responses.push({conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null})
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const oldDataSet = sets[0]!
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      expect(turnReads()).toHaveLength(1)
+
+      if (action === 'target-switch') {
+        http = secondDictionary()
+        hosts.get(data)!.dataId.value = 'D2'
+        await flushPromises()
+      } else data.unmount()
+      expect(oldDataSet.destroyed).toBe(true)
+      await vi.advanceTimersByTimeAsync(10000)
+      expect(turnReads()).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+  it('does not let an old in-flight poll pause a newly selected dictionary AI owner', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    let releaseOld!: (value: unknown) => void
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null},
+        {id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        () => new Promise(resolve => {releaseOld = resolve}),
+      )
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(1500)
+      await Promise.resolve()
+      const t1Reads = () => aiHttp.requests.filter(request => String(request.url) === '/api/ai/v1/turns/T1')
+      expect(t1Reads()).toHaveLength(2)
+
+      http = secondDictionary()
+      hosts.get(data)!.dataId.value = 'D2'
+      await flushPromises()
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      aiHttp.responses.push(
+        [{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}],
+        {conversationId: 'C2', turnId: 'T2', status: 'QUEUED', acceptedAt: null},
+        {id: 'T2', conversationId: 'C2', agentId: 'agent-metadata-admin', status: 'RUNNING',
+          assistantDraft: null, errorCode: null, errorMessage: null},
+        {id: 'T2', conversationId: 'C2', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+          assistantDraft: '[]', errorCode: null, errorMessage: null},
+      )
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const t2Reads = () => aiHttp.requests.filter(request => String(request.url) === '/api/ai/v1/turns/T2')
+      expect(t2Reads()).toHaveLength(1)
+
+      releaseOld({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'FAILED',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      await flushPromises()
+      expect(data.text()).not.toContain('AI轮次请求结果未知')
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(t2Reads()).toHaveLength(2)
+    } finally { vi.useRealTimers() }
+  })
+  it('pauses automatic refresh on the first read error and resumes after manual retry', async () => {
+    vi.useFakeTimers()
+    const aiHttp = new WorkflowAiHttp()
+    try {
+      bindWorkflowAiHttp(aiHttp)
+      aiHttp.responses.push([{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}])
+      aiHttp.responses.push({conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null})
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'QUEUED',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      aiHttp.responses.push(async () => { throw new Error('temporary status read failure') })
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'RUNNING',
+        assistantDraft: null, errorCode: null, errorMessage: null})
+      aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+        assistantDraft: '[]', errorCode: null, errorMessage: null})
+      const data = await open('data')
+      await button(data, 'AI 候选').trigger('click')
+      await fillAiRequirements(data)
+      await button(data, '生成候选').trigger('click')
+      await flushPromises()
+      const turnReads = () => aiHttp.requests.filter(request => request.method === 'GET' && String(request.url) === '/api/ai/v1/turns/T1')
+      expect(turnReads()).toHaveLength(1)
+
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(2)
+      expect(data.text()).toContain('待核验')
+      const {dynamic} = hosts.get(data)!
+      const instance = dynamic.getSystemPageInstance(data.vm.$router.currentRoute.value)!
+      expect(instance.isDirty).toBe(true)
+      expect(() => dynamic.closeSystemPageInstance(instance.instanceId)).toThrow('未保存')
+      expect(button(data, '生成候选').attributes('disabled')).toBeDefined()
+      expect(button(data, '查询结果').attributes('disabled')).toBeUndefined()
+      expect(button(data, '停止生成').attributes('disabled')).toBeUndefined()
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(turnReads()).toHaveLength(2)
+
+      await button(data, '查询结果').trigger('click')
+      await flushPromises()
+      expect(turnReads()).toHaveLength(3)
+      await vi.advanceTimersByTimeAsync(1500)
+      await flushPromises()
+      expect(turnReads()).toHaveLength(4)
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(turnReads()).toHaveLength(4)
+    } finally {
+      vi.useRealTimers()
+    }
   })
   it.each(['target-switch', 'unmount'])('ignores a late formal query after %s and does not start further reads for it', async action => {
     const previous = http

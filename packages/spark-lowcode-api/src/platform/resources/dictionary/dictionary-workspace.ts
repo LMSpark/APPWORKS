@@ -13,6 +13,10 @@ function formatCreationTime(date = new Date()): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype
+}
+
 /** 已装配正式模型的字典维护输入；一个实例只维护一个确定的字典。 */
 type DictionaryWorkspaceInput = Readonly<{
   /** 正式字典定义与条目模型装配出的运行空间。 */
@@ -123,9 +127,49 @@ export class DictionaryWorkspace {
     this.assertEditable()
     if (this.#creating) throw new Error('请先保存字典设计，再进入数据维护')
     if (this.entries.addActionState() !== 'enabled') throw new Error('当前查询不允许新增字典条目')
-    const row = await this.entries.addRow({typeid: this.#input.dictionaryId, val: '', txt: '', crttime: formatCreationTime()})
+    const values = {typeid: this.#input.dictionaryId, val: '', txt: '', crttime: formatCreationTime(), ordIdx: 0}
+    this.assertNewEntryWritable(values, new Set(['ordIdx']))
+    const row = await this.entries.addRow(values)
     if (!('rowid' in row) || typeof row['rowid'] !== 'string') throw new Error('新增字典条目没有正式身份')
     this.entries.setCurrentRowById(row['rowid'])
+  }
+
+  /**
+   * 只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。
+   * @param values 只包含字典六个业务字段的候选条目。
+   * @returns 当前批次可写时为undefined；否则为拒绝原因。
+   */
+  entryAppendError(values: ReadonlyArray<Readonly<Record<string, unknown>>>): string | undefined {
+    try { this.prepareEntryAppend(values); return undefined }
+    catch (error) { return error instanceof Error ? error.message : String(error) }
+  }
+
+  /**
+   * 全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。
+   * @param values 只包含 val、txt、exVal_1 至 exVal_4 的候选条目，不接受身份、排序或其它字段。
+   * @throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。
+   */
+  async appendEntries(values: ReadonlyArray<Readonly<Record<string, unknown>>>): Promise<void> {
+    const prepared = this.prepareEntryAppend(values)
+    if (prepared.length === 0) return
+    this.#busy = true
+    let added = 0
+    try {
+      for (const candidate of prepared) {
+        this.assertEntryAppendContext()
+        const row = await this.entries.addRow(candidate)
+        added++
+        this.assertEntryAppendContext()
+        const id = this.entries.getPkKey(row)
+        if (id === undefined) throw new Error('候选条目新增后缺少正式身份')
+        if (added === 1) this.entries.setCurrentRowById(id)
+      }
+    } catch (error) {
+      if (added > 0) throw new Error(`候选条目部分已加入原草稿，请在原条目处理：${error instanceof Error ? error.message : String(error)}`)
+      throw error
+    } finally {
+      this.#busy = false
+    }
   }
 
   /** 删除先进入DataView暂存态；正式提交仍由统一批量保存校验每条权限。 */
@@ -315,6 +359,86 @@ export class DictionaryWorkspace {
   private assertEditable(): void {
     if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
     this.assertScope()
+  }
+
+  private prepareEntryAppend(values: ReadonlyArray<Readonly<Record<string, unknown>>>): Array<Record<string, unknown>> {
+    if (!Array.isArray(values)) throw new Error('候选条目必须是数组')
+    if (values.length === 0) return []
+    this.assertEntryAppendContext()
+    if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
+    if (this.#creating || this.#deleting || this.#removed) throw new Error('当前字典状态不允许新增条目')
+    if (this.definition.hasEditingChanges() || this.definition.dirtyTracking.hasPendingChanges()) {
+      throw new Error('字典定义有未保存修改，不能确认候选条目')
+    }
+    if (this.entries.addActionState() !== 'enabled') throw new Error('当前查询不允许新增字典条目')
+    const validator = this.entries.validator
+    if (!validator) throw new Error('字典条目缺少正式列校验器')
+    const fields = new Set(DictionarySchema.fields.map(field => field.name))
+    const writeFields = new Set([...fields, 'typeid', 'crttime', 'ordIdx'])
+    for (const field of writeFields) {
+      if (this.entries.newRowFieldAccess(field).write !== 'allowed') throw new Error(`当前查询不允许新增字段 ${field}`)
+    }
+    const output: Array<Record<string, unknown>> = []
+    for (const value of values) {
+      if (!isPlainRecord(value)) {
+        throw new Error('候选条目必须是普通对象')
+      }
+      const keys = Reflect.ownKeys(value)
+      const stringKeys = keys.filter((key): key is string => typeof key === 'string')
+      if (stringKeys.length !== keys.length || stringKeys.some(key => !fields.has(key))) throw new Error('候选条目包含非业务字段或身份字段')
+      const candidate = Object.fromEntries(stringKeys.map(key => [key, value[key]]))
+      const normalized: Record<string, unknown> = {}
+      for (const field of DictionarySchema.fields) {
+        const fieldValue = candidate[field.name]
+        if (field.name === 'val') {
+          if (typeof fieldValue !== 'string' && typeof fieldValue !== 'number') throw new Error('字典条目编码必须是文本或数值')
+          if (typeof fieldValue === 'number' && !Number.isFinite(fieldValue)) throw new Error('字典条目编码必须是有限数值')
+          normalized[field.name] = fieldValue
+        } else if (field.name === 'txt') {
+          if (typeof fieldValue !== 'string') throw new Error('字典条目显示文本必须是文本')
+          normalized[field.name] = fieldValue
+        } else {
+          if (fieldValue !== undefined && fieldValue !== null && typeof fieldValue !== 'string') {
+            throw new Error(`字典扩展字段 ${field.name} 必须是文本`)
+          }
+          normalized[field.name] = fieldValue ?? null
+        }
+      }
+      const definition = this.definition.getEditingRow(this.#input.dictionaryId)
+      if (!definition) throw new Error('字典定义已失效')
+      const definitionRow = this.definition.rows.find(row => row['rowid'] === this.#input.dictionaryId) ?? null
+      if (this.definition.fieldAccess(definitionRow, 'dictionaryType').read !== 'visible'
+        || definition['dictionaryType'] !== '0' && definition['dictionaryType'] !== '1') {
+        throw new Error('字典编码类型不可读或无效，不能确认候选')
+      }
+      DictionarySchema.validateEntry(normalized, definition)
+      const actualWrite = {...normalized, typeid: this.#input.dictionaryId, crttime: formatCreationTime(), ordIdx: 0}
+      this.assertNewEntryWritable(actualWrite, writeFields)
+      output.push(actualWrite)
+    }
+    this.assertEntryAppendContext()
+    return output
+  }
+
+  private assertEntryAppendContext(): void {
+    if (this.#input.dataSet.destroyed || this.definition.destroyed || this.entries.destroyed) throw new Error('字典DataSet已销毁')
+    if (this.definition.hasUnconfirmedSave || this.entries.hasUnconfirmedSave) throw new Error('字典提交结果待核验，不能确认候选')
+    if (this.definition.mutating || this.entries.mutating || this.definition.refreshPending || this.entries.refreshPending) {
+      throw new Error('字典查询或提交仍在进行，不能确认候选')
+    }
+    if (this.definition.requestState !== RequestState.Loaded || this.entries.requestState !== RequestState.Loaded
+      || this.definition.loadingError || this.entries.loadingError) throw new Error('字典定义或条目查询尚未有效完成')
+    this.assertScope()
+    this.definition.readSnapshot()
+    this.entries.readSnapshot()
+  }
+  private assertNewEntryWritable(values: Readonly<Record<string, unknown>>, fields: ReadonlySet<string>): void {
+    for (const field of fields) {
+      if (this.entries.newRowFieldAccess(field).write !== 'allowed') throw new Error(`当前查询不允许新增字段 ${field}`)
+    }
+    const validation = this.entries.validator?.validateColumns(values, fields)
+    if (!validation) throw new Error('字典条目缺少正式列校验器')
+    if (!validation.valid) throw new Error(validation.errors[0]?.message ?? '字典条目不符合正式列规则')
   }
   private assertScope(): void {
     const row = this.definition.rows[0]

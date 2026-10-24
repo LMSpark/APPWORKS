@@ -17,6 +17,19 @@ AI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖
       <RendererTable :data-view-key="entryKey" :children="entryFields" :toolbar="entryToolbar" :stripe="true" :highlight-current-row="true"
         :on-row-click="chooseEntry" :show-data-view-meta="false" />
       <RendererForm v-if="entrySelected" :data-view-key="entryKey" :children="editFields" grid-min-width="220px" :show-data-view-meta="false" />
+      <section v-if="aiVisible && aiCandidates" class="dictionary-ai-candidates" aria-label="AI候选">
+        <header>
+          <h2>AI 候选</h2>
+          <p>确认仅加入条目草稿，仍需保存数据；AI结果不会直接保存业务条目。</p>
+        </header>
+        <p v-if="aiCandidates.waitingForUnsupportedTool" role="status">当前轮次等待审批或客户端工具；本页不提交工具结果，可查询或停止。</p>
+        <p v-if="aiCandidates.status">轮次状态：{{ aiCandidates.status }}</p>
+        <p v-if="aiCandidates.error" role="alert">{{ aiCandidates.error }}</p>
+        <p v-if="aiCandidates.confirmationError" class="ai-reason">{{ aiCandidates.confirmationError }}</p>
+        <RendererForm :data-view-key="aiInputKey" :children="aiInputFields" grid-min-width="220px" :show-data-view-meta="false" />
+        <RendererForm :data-view-key="aiTurnKey" :children="aiTurnFields" grid-min-width="220px" :show-data-view-meta="false" />
+        <RendererTable :data-view-key="aiCandidatesKey" :children="candidateFields" :toolbar="aiToolbar" :stripe="true" :show-data-view-meta="false" />
+      </section>
     </template>
   </section>
 </template>
@@ -37,12 +50,15 @@ const emit = defineEmits<{
   /** 宿主关闭保护状态；草稿、保存中或保存结果未知时为 true，须阻止关闭以免丢失待核验工作。 */
   pending: [value: boolean]
 }>()
-const {workspace, ready, loading, busy, error, revision, uncertain, run} = useDictionaryWorkspace({
+const {workspace, aiCandidates, aiVisible, aiLocked, ready, loading, busy, error, revision, uncertain, run, runAi, openAi, discardAi} = useDictionaryWorkspace({
   dictionaryId: () => props.dictionaryId,
   pageId: 'dictionary-data-page',
   onPending: value => emit('pending', value),
 })
 const entryKey = buildDataViewKey('_Base_DictData', 'default', LowcodeDictionary.editorScenarioId)
+const aiInputKey = buildDataViewKey('DictionaryAiInput', 'default', LowcodeDictionary.editorScenarioId)
+const aiTurnKey = buildDataViewKey('AiTurnStatus', 'default', LowcodeDictionary.editorScenarioId)
+const aiCandidatesKey = buildDataViewKey('DictionaryAiCandidates', 'default', LowcodeDictionary.editorScenarioId)
 const dictionaryHeading = computed(() => {
   revision.value
   const id = props.dictionaryId
@@ -66,20 +82,46 @@ const entryFields = computed<SparkNode[]>(() => {
 const entryToolbar = computed<RToolbarProps>(() => {
   revision.value
   return {wrap: true, children: [
-    {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || uncertain.value,
+    {type: 'r-button', props: {label: 'AI 候选', dataViewKey: entryKey, disabled: busy.value || uncertain.value,
+      onClick: openAi}},
+    {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || aiLocked.value || uncertain.value,
       onClick: () => run(() => workspace.value!.addEntry())}},
-    {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || uncertain.value || !entryRemovable.value,
+    {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || aiLocked.value || uncertain.value || !entryRemovable.value,
       onClick: removeEntry}},
     {type: 'r-button', props: {label: '设置排序', dataViewKey: entryKey,
-      disabled: busy.value || uncertain.value || workspace.value?.canApplyDisplayedOrder !== true,
+      disabled: busy.value || aiLocked.value || uncertain.value || workspace.value?.canApplyDisplayedOrder !== true,
       onClick: () => run(() => workspace.value!.applyDisplayedOrder())}},
-    {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || uncertain.value,
+    {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || aiLocked.value || uncertain.value,
       onClick: () => run(() => workspace.value!.saveData())}},
-    {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey, disabled: busy.value,
+    {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey, disabled: busy.value || aiLocked.value,
       onClick: () => run(() => workspace.value!.load(true))}},
 ]}
 })
-const editFields = computed<SparkNode[]>(() => entryFields.value.map(node => ({...node, props: {...node.props, readonly: busy.value}})))
+const editFields = computed<SparkNode[]>(() => entryFields.value.map(node => ({...node, props: {...node.props, readonly: busy.value || aiLocked.value}})))
+const aiInputFields = computed<SparkNode[]>(() => [{type: 'r-textarea', props: {field: 'requirements', label: '生成需求', rows: 4, readonly: aiLocked.value}}])
+const aiTurnFields = computed<SparkNode[]>(() => [
+  {type: 'r-text', props: {field: 'status', label: '轮次状态', readonly: true}},
+  {type: 'r-text', props: {field: 'errorMessage', label: '轮次错误', readonly: true}},
+])
+const candidateFields = computed<SparkNode[]>(() => DictionarySchema.fields.map(field => ({type: 'r-text', props: {
+  field: field.name, label: workspace.value?.fieldLabel(field.name) ?? field.defaultLabel, width: 155, readonly: true,
+}})))
+const aiToolbar = computed<RToolbarProps>(() => {
+  revision.value
+  const owner = aiCandidates.value
+  return {wrap: true, children: [
+    {type: 'r-button', props: {label: '生成候选', dataViewKey: aiInputKey, buttonType: 'primary', disabled: busy.value || !owner?.canStart,
+      onClick: () => runAi(async candidate => {await candidate.start(); await candidate.refresh()}, true)}},
+    {type: 'r-button', props: {label: '查询结果', dataViewKey: aiTurnKey, disabled: busy.value || !owner?.canRefresh,
+      onClick: () => runAi(candidate => candidate.refresh(), true)}},
+    {type: 'r-button', props: {label: '停止生成', dataViewKey: aiTurnKey, disabled: busy.value || !owner?.canCancel,
+      onClick: () => runAi(async candidate => {await candidate.cancel(); await candidate.refresh()}, true)}},
+    {type: 'r-button', props: {label: '确认加入草稿', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || !owner?.canConfirm,
+      onClick: () => runAi(candidate => candidate.confirm())}},
+    {type: 'r-button', props: {label: '放弃候选', dataViewKey: aiCandidatesKey, disabled: busy.value || aiLocked.value,
+      onClick: discardAi}},
+  ]}
+})
 function chooseEntry(row: DataRow): void {workspace.value?.entries.setCurrentRow(row)}
 async function removeEntry(): Promise<void> {
   const owner = workspace.value, row = owner?.entries.currentRow

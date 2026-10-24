@@ -1,0 +1,246 @@
+{
+  "base": "5e700403d3817685d8238d2709590628b8f9c740",
+  "branch": "10-17",
+  "scope": "B1 AI candidates through original SPARK data; no Java or push",
+  "sources": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
+      "sha256": "39eee67f0edbc0f31d590a3c4b64827e5de2038d6a5d89c30a20a935333c80f7"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sha256": "45e4faff141a2ef3e4cbd92d4c446556684badc22914ae32b3cb5f841d272ad1"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts",
+      "sha256": "e5ac93f39e676246ab9d4a93e9616a6ddfd3d8426d809dd1e752eae6a38b7bfa"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-ai-candidates.test.ts",
+      "sha256": "8765c28a57d5c0a4f75a5d0a2a9bc2ccfd61814191a179f15ccb9d73c122f392"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sha256": "39ee785e500ca32fe6eb889e1558ac80d5a6737d06595b27cfbd23aa67e03930"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/index.ts",
+      "sha256": "714d6948380bed07079fcdfd84aee7bae0c8a050c7f453c69325ecb7d3670914"
+    },
+    {
+      "path": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
+      "sha256": "6d6afb39e84cac862f6657bef44b5d5aa0c80009c130d3bce9ab3c47a5c8f7f1"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
+      "sha256": "a593d2b911262f4b2622600bcd329754df6f839184724aab7dab159e2966a291"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "sha256": "b545947f35994fe1aa40cad046d6167806a2f0745b47934f0d7829b5dcbbf112"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-workflow.test.ts",
+      "sha256": "c95a9e6435ce055eae65b88aebc7a0ba06b85c2b8280898efc7c54e2e85856f1"
+    }
+  ],
+  "tests": {
+    "domain": 123,
+    "runtime": 44,
+    "catalog": 39,
+    "aiResourceClient": 35,
+    "nonOverlappingTotal": 241,
+    "unchangedCoverageLogs": [
+      "node_modules/.cache/metadata-integration-20261024/b1-candidate-root-domain.log",
+      "node_modules/.cache/metadata-integration-20261024/b1-candidate-root-ui.log"
+    ]
+  },
+  "checks": [
+    {
+      "name": "domain",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-domain-green-final.log",
+      "sha256": "4091afb27f4db3dc9d39a336cea1317fd0ae066d0cc5e527f00d0d90b74f2492"
+    },
+    {
+      "name": "runtime",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-runtime-green-final.log",
+      "sha256": "e11aa90bd76f79bcc6f13b91d77daf5e232ec7a813fac5e82cec0d7d25224338"
+    },
+    {
+      "name": "typecheck",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-typecheck.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-lint.log",
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "name": "generate",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-generate.log",
+      "sha256": "f023dc73edcc55d27de07a2b83bb39d66f3a1db1fdb2a2a3dbfa65f34100206f"
+    },
+    {
+      "name": "consumer-contracts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-contracts.log",
+      "sha256": "8ef343db259e7bf93d2218d2cd9b95204f094a66b492c757d8c812bcec30bb1e"
+    },
+    {
+      "name": "rules",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-rules.log",
+      "sha256": "6de5eeaf3b15f154a7942c28fa3cceb260aabec6b04cafbecfa151ee4fdd57d9"
+    },
+    {
+      "name": "build",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-build.log",
+      "sha256": "9d9c8c8ce6de300049f8f6084a5064ee0ef413d1d44422f25a4986b2b5da1382"
+    },
+    {
+      "name": "knowledge",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-final-knowledge.log",
+      "sha256": "eff2d99202f970f4a0effb3926f096324633553ccfaa05e1155eb0981bbd79ac"
+    },
+    {
+      "name": "package-typecheck",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-candidate-r5-package-typecheck.log",
+      "sha256": "0bf7f83633ff1bdc03b9cf172e3317bd82dade060c36804280a83ec036c42852"
+    }
+  ],
+  "packageDiagnosticBaseline": {
+    "count": 5,
+    "unchanged": true,
+    "passed": false
+  },
+  "generatedAudit": {
+    "checked": [
+      {
+        "path": "generated/dts-class-model/.dts-manifest.json",
+        "classification": "expected-contract-or-manifest"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+        "classification": "compiler-symbol-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/index.ts.json",
+        "classification": "generation-time-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
+        "classification": "expected-contract-or-manifest"
+      },
+      {
+        "path": "generated/dts-class-model/files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
+        "classification": "expected-contract-or-manifest"
+      },
+      {
+        "path": "generated/dts-class-model/files/src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts.json",
+        "classification": "generation-time-only"
+      },
+      {
+        "path": "generated/dts-class-model/files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue.json",
+        "classification": "generation-time-only"
+      },
+      {
+        "path": "generated/dts-class-model/manifest.json",
+        "classification": "expected-contract-or-manifest"
+      }
+    ],
+    "newFiles": [
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json"
+    ],
+    "ownGaps": []
+  },
+  "reviews": [
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review.md",
+      "sha256": "aca5a778abf5b3510090a97c9b8a0480717807fecf248fbb5e8e1d072130e406"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review-r1.md",
+      "sha256": "457800bfdc87baa053aa5594b07e148e9d9cdf898583ac499ee9ef661c4ac129"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review-r2.md",
+      "sha256": "e92353de12f56d5908a4ac1927b9fe0788411a84a13da76867aa16ae5aa2bd1c"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review-r3.md",
+      "sha256": "35944619a01a7e5278450a135a1f8c58171dbfc5db22a0dbf2ba8f71ece37c93"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review-r4.md",
+      "sha256": "85102fedd820bc37b583392d125e87da5072da084a7ddc9f4b111f21e35187bf"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-review-r5.md",
+      "sha256": "7e1e8ca976459771e4d0dadd66f0a334075619cd5de3adea4b73b34193751c34"
+    }
+  ],
+  "deferred": [
+    "Empty candidate table may retain Total 2 after confirmation",
+    "Consumed candidate can display source-changed explanation",
+    "B1 delete-reference integrity and downstream consumers remain outside this batch",
+    "Stage A outstanding whole-page parity and cross-instance unknown recovery remain open"
+  ],
+  "finalReview": {
+    "path": "node_modules/.cache/metadata-integration-20261024/b1-candidate-workflow-final-review.md",
+    "sha256": "69464923154c79d27f2a8c4d01e04e05aee971e73ed97c701e4b3fb940d9440d",
+    "verdict": "ready for local commit with explicit pending live acceptance"
+  }
+}

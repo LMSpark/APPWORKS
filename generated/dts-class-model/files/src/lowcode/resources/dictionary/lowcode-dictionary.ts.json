@@ -30,6 +30,21 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.createAiCandidates.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "workspace": {
+              "$ref": "../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json#/$defs/DictionaryWorkspace"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createAiCandidates.return": {
+          "$ref": "../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-ai-candidates.ts.json#/$defs/DictionaryAiCandidates"
+        },
         "method.loadCatalog.params": {
           "type": "object",
           "properties": {
@@ -81,7 +96,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T12:08:42.631Z",
+  "generatedAt": "2026-10-24T15:04:40.240Z",
   "models": {
     "LowcodeDictionary": {
       "name": "LowcodeDictionary",
@@ -103,6 +118,30 @@
             }
           ],
           "methods": [
+            {
+              "name": "createAiCandidates",
+              "jsdoc": "仅由数据页AI入口延迟调用；AI轮次继续使用本实例DataSet和当前scope。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workspace",
+                  "type": {
+                    "type": "reference",
+                    "name": "DictionaryWorkspace"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DictionaryAiCandidates"
+              }
+            },
             {
               "name": "loadCatalog",
               "jsdoc": "按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。",

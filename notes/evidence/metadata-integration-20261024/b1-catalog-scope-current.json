@@ -1,0 +1,61 @@
+{
+  "from": 93977,
+  "to": 93996,
+  "truncated": false,
+  "hasMore": false,
+  "queries": [
+    {
+      "requestId": "22092.16205",
+      "requestFields": [
+        "Table",
+        "OutputFieldMode",
+        "PageParam"
+      ],
+      "table": "_Base_DictType",
+      "filter": {
+        "Type": "cond",
+        "Field": "AppId",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "D99A1DCE9894698799101EFD70F8FC76"
+        }
+      },
+      "code": 200,
+      "count": 5,
+      "rows": 5,
+      "visibleDictionaries": [
+        {
+          "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "B1Sort_20261024_1925F4C2"
+        },
+        {
+          "rowid": "583B0BB885A14469850A685A135705E0",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "app_request_type"
+        },
+        {
+          "rowid": "88717CBDAF6145D3B39D491B7B853D80",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "app_auth_status"
+        },
+        {
+          "rowid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "数据目录参数处理方式"
+        },
+        {
+          "rowid": "1F475ECA5D144E3B8FC9F04FF980B344",
+          "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+          "TypeName": "页面类型"
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      }
+    }
+  ]
+}

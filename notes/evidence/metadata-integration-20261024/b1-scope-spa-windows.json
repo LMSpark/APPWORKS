@@ -1,0 +1,2897 @@
+[
+  {
+    "step": "all-catalog-refresh",
+    "from": 122905,
+    "to": 122916,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.20787",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 20,
+        "sort": [
+          {
+            "field": "crttime",
+            "order": 2,
+            "direction": "descending"
+          },
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "B1Sort_20261024_1925F4C2",
+            "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+            "crttime": "2026-10-24T19:28:05"
+          },
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T12:42:45"
+          },
+          {
+            "rowid": "53C6BBBCD1A034AE148177C8A8EED612",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_level",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T12:31:00"
+          },
+          {
+            "rowid": "358CED06DAB59B9704FCE01825672A0C",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T12:28:33"
+          },
+          {
+            "rowid": "B8CB842D277F1FEAB79061A26605AA8D",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_跟进状态",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T11:11:38"
+          },
+          {
+            "rowid": "FFEDA1DE445C7DD7F9F4F1E5172AB9CC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户等级",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T11:09:59"
+          },
+          {
+            "rowid": "C90A64BF3C5CCF175D831E6E66A369DC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户来源",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T11:03:08"
+          },
+          {
+            "rowid": "8B1A8D505F7FF8858B2AAA329B025D15",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "审核状态",
+            "functiondesc": "二次分配审核状态",
+            "crttime": "2026-09-21T10:11:10"
+          },
+          {
+            "rowid": "DB4948CD953AD3BA5D773ED704C10C23",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "aa_",
+            "functiondesc": "1",
+            "crttime": "2026-09-14T09:40:34"
+          },
+          {
+            "rowid": "0396C8A48E2A4BF5994C9E1CD6693335",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "补贴类型",
+            "functiondesc": "补贴类型",
+            "crttime": "2026-09-11T17:04:55"
+          },
+          {
+            "rowid": "C184D6765B22ABE14D85CAAF8B91F901",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "外派地域",
+            "functiondesc": "外派地域",
+            "crttime": "2026-09-11T14:13:17"
+          },
+          {
+            "rowid": "82C8D0B46B254C00FF72C344C3FFA1DA",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_followType",
+            "functiondesc": "跟进类型",
+            "crttime": "2026-09-10T15:06:44"
+          },
+          {
+            "rowid": "6E5320429769FCBEFAAF0DFF97C5C854",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_level",
+            "functiondesc": "重要程度",
+            "crttime": "2026-09-10T11:16:19"
+          },
+          {
+            "rowid": "1DEACF0E2051BAA95CB2B10CBE317375",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-09-10T11:15:40"
+          },
+          {
+            "rowid": "9A0C06A209559DDB94E763B3AB03BC79",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_industry",
+            "functiondesc": "行业",
+            "crttime": "2026-09-10T11:10:50"
+          },
+          {
+            "rowid": "70037BC5326E91F459539D05AE482F9A",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_job_posting_status",
+            "functiondesc": "发布状态字典",
+            "crttime": "2026-09-07T15:53:32"
+          },
+          {
+            "rowid": "03DE7DA410F4782C89F9C91032104D15",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_tax_treatment",
+            "functiondesc": "计税类型",
+            "crttime": "2026-09-05T16:34:56"
+          },
+          {
+            "rowid": "6D60C590AEF8C8C685E531586CD63B07",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_yes_no",
+            "functiondesc": "是否类开关",
+            "crttime": "2026-08-31T11:33:36"
+          },
+          {
+            "rowid": "670C341E41F51B993C472A4508972F23",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_visible_scope",
+            "functiondesc": "可见范围",
+            "crttime": "2026-08-31T11:31:50"
+          },
+          {
+            "rowid": "BA4589B3E38D3DB2306F9987A42F0AFA",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_setting_permission",
+            "functiondesc": "设置权限",
+            "crttime": "2026-08-31T11:30:04"
+          }
+        ],
+        "filter": null,
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 353
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "page2",
+    "from": 122916,
+    "to": 122929,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.20788",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 20,
+        "sort": [
+          {
+            "field": "crttime",
+            "order": 2,
+            "direction": "descending"
+          },
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "BD7CFEE7782CBE4811BC577EDF2F8930",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_slip_display",
+            "functiondesc": "工资条显示",
+            "crttime": "2026-08-31T11:28:41"
+          },
+          {
+            "rowid": "099F6F7686F68FC3713FFB81133AF588",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_default_source",
+            "functiondesc": "默认值来源",
+            "crttime": "2026-08-31T11:28:05"
+          },
+          {
+            "rowid": "A1AE2884DA0350F76C96148F9EAEC69C",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_unit",
+            "functiondesc": "单位",
+            "crttime": "2026-08-31T11:25:18"
+          },
+          {
+            "rowid": "BD550D050ACB3BF4BCE0514C071BF0D9",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_data_type",
+            "functiondesc": "数据类型",
+            "crttime": "2026-08-31T11:23:18"
+          },
+          {
+            "rowid": "E5476CCDA966DD68F693FF55C8943BF9",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_input_mode",
+            "functiondesc": "录入模式",
+            "crttime": "2026-08-31T11:21:59"
+          },
+          {
+            "rowid": "953FA1FAEDBF861435EF10B2A80EA6CC",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_direction",
+            "functiondesc": "项目方向",
+            "crttime": "2026-08-31T11:18:22"
+          },
+          {
+            "rowid": "760DE4A0007EB87F80034620C275606F",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_category",
+            "functiondesc": "工资项分类",
+            "crttime": "2026-08-31T11:15:59"
+          },
+          {
+            "rowid": "BD591A3790967E4D1DA4147E42CF33F2",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_template_mode",
+            "functiondesc": "考核模板模式",
+            "crttime": "2026-08-28T09:11:56"
+          },
+          {
+            "rowid": "003709DDDB8469AC580AFFABFDEE70EE",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_result_grade",
+            "functiondesc": "考核结果等级",
+            "crttime": "2026-08-28T09:11:00"
+          },
+          {
+            "rowid": "2903AD8310C17372B720A872E39F05BF",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_interview_status",
+            "functiondesc": "绩效面谈状态",
+            "crttime": "2026-08-28T09:10:14"
+          },
+          {
+            "rowid": "323592417665E776AEAC91D60919F5CB",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_result_status",
+            "functiondesc": "考核结果状态",
+            "crttime": "2026-08-28T09:09:04"
+          },
+          {
+            "rowid": "A8A6AB0DFAB8408BA56FD5128B272C8F",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_review_status",
+            "functiondesc": "绩效复核状态",
+            "crttime": "2026-08-28T09:08:09"
+          },
+          {
+            "rowid": "B9678A96FBC4AFA44529151E253EDE3B",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_monthly_status",
+            "functiondesc": "月度计划状态",
+            "crttime": "2026-08-28T09:06:46"
+          },
+          {
+            "rowid": "8754A009263F1B450A53AE17D7D3419E",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_annual_status",
+            "functiondesc": "年度指标状态",
+            "crttime": "2026-08-28T09:04:55"
+          },
+          {
+            "rowid": "369B89D6BBF84E32A52AE4DE91F09605",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_enable_status",
+            "functiondesc": "启用状态",
+            "crttime": "2026-08-28T09:03:54"
+          },
+          {
+            "rowid": "5B3F54CFAF21A9E3472382ED749BB09A",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_indicator_type",
+            "functiondesc": "指标类型",
+            "crttime": "2026-08-28T09:01:41"
+          },
+          {
+            "rowid": "626D33EDE19E3DA4746B619547FA9BA5",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_matrix_evaluator_role",
+            "functiondesc": "评价人角色",
+            "crttime": "2026-08-28T08:59:48"
+          },
+          {
+            "rowid": "231755CDD6EE0142F7D1A0F46DB2D0F5",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_performance_period_type",
+            "functiondesc": "考核周期类型",
+            "crttime": "2026-08-28T08:58:21"
+          },
+          {
+            "rowid": "D06B4B5E43F54BABE53031E5C7D5170C",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "是否在职",
+            "functiondesc": "0=在职，1=不在职。",
+            "crttime": "2026-08-27T15:19:21"
+          },
+          {
+            "rowid": "BA27051E84AB363D91604A0A28089C9D",
+            "AppId": "F9B8BF725F964A91FC69345EAF501505",
+            "TypeName": "360督办任务级别",
+            "functiondesc": "360督办任务级别",
+            "crttime": "2026-08-27T12:56:59"
+          }
+        ],
+        "filter": null,
+        "page": {
+          "index": 2,
+          "size": 20
+        },
+        "total": 353
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "filter-current-app",
+    "from": 122935,
+    "to": 122958,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.20790",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 5,
+        "sort": [
+          {
+            "field": "crttime",
+            "order": 2,
+            "direction": "descending"
+          },
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "B1Sort_20261024_1925F4C2",
+            "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+            "crttime": "2026-10-24T19:28:05"
+          },
+          {
+            "rowid": "583B0BB885A14469850A685A135705E0",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "app_request_type",
+            "functiondesc": "应用授权类型",
+            "crttime": "2026-08-21T10:10:35"
+          },
+          {
+            "rowid": "88717CBDAF6145D3B39D491B7B853D80",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "app_auth_status",
+            "functiondesc": "应用授权状态",
+            "crttime": "2026-08-21T10:09:49"
+          },
+          {
+            "rowid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "数据目录参数处理方式",
+            "functiondesc": "数据目录参数处理方式",
+            "crttime": "2026-08-07T10:22:06"
+          },
+          {
+            "rowid": "1F475ECA5D144E3B8FC9F04FF980B344",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "页面类型",
+            "functiondesc": "页面类型",
+            "crttime": "2026-08-07T10:12:21"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "AppId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D99A1DCE9894698799101EFD70F8FC76"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 5
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "reset-app-filter",
+    "from": 122958,
+    "to": 122977,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.20791",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 20,
+        "sort": [
+          {
+            "field": "crttime",
+            "order": 2,
+            "direction": "descending"
+          },
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "B1Sort_20261024_1925F4C2",
+            "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+            "crttime": "2026-10-24T19:28:05"
+          },
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T12:42:45"
+          },
+          {
+            "rowid": "53C6BBBCD1A034AE148177C8A8EED612",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_level",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T12:31:00"
+          },
+          {
+            "rowid": "358CED06DAB59B9704FCE01825672A0C",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T12:28:33"
+          },
+          {
+            "rowid": "B8CB842D277F1FEAB79061A26605AA8D",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_跟进状态",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T11:11:38"
+          },
+          {
+            "rowid": "FFEDA1DE445C7DD7F9F4F1E5172AB9CC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户等级",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T11:09:59"
+          },
+          {
+            "rowid": "C90A64BF3C5CCF175D831E6E66A369DC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户来源",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T11:03:08"
+          },
+          {
+            "rowid": "8B1A8D505F7FF8858B2AAA329B025D15",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "审核状态",
+            "functiondesc": "二次分配审核状态",
+            "crttime": "2026-09-21T10:11:10"
+          },
+          {
+            "rowid": "DB4948CD953AD3BA5D773ED704C10C23",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "aa_",
+            "functiondesc": "1",
+            "crttime": "2026-09-14T09:40:34"
+          },
+          {
+            "rowid": "0396C8A48E2A4BF5994C9E1CD6693335",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "补贴类型",
+            "functiondesc": "补贴类型",
+            "crttime": "2026-09-11T17:04:55"
+          },
+          {
+            "rowid": "C184D6765B22ABE14D85CAAF8B91F901",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "外派地域",
+            "functiondesc": "外派地域",
+            "crttime": "2026-09-11T14:13:17"
+          },
+          {
+            "rowid": "82C8D0B46B254C00FF72C344C3FFA1DA",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_followType",
+            "functiondesc": "跟进类型",
+            "crttime": "2026-09-10T15:06:44"
+          },
+          {
+            "rowid": "6E5320429769FCBEFAAF0DFF97C5C854",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_level",
+            "functiondesc": "重要程度",
+            "crttime": "2026-09-10T11:16:19"
+          },
+          {
+            "rowid": "1DEACF0E2051BAA95CB2B10CBE317375",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-09-10T11:15:40"
+          },
+          {
+            "rowid": "9A0C06A209559DDB94E763B3AB03BC79",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_industry",
+            "functiondesc": "行业",
+            "crttime": "2026-09-10T11:10:50"
+          },
+          {
+            "rowid": "70037BC5326E91F459539D05AE482F9A",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_job_posting_status",
+            "functiondesc": "发布状态字典",
+            "crttime": "2026-09-07T15:53:32"
+          },
+          {
+            "rowid": "03DE7DA410F4782C89F9C91032104D15",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_tax_treatment",
+            "functiondesc": "计税类型",
+            "crttime": "2026-09-05T16:34:56"
+          },
+          {
+            "rowid": "6D60C590AEF8C8C685E531586CD63B07",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_yes_no",
+            "functiondesc": "是否类开关",
+            "crttime": "2026-08-31T11:33:36"
+          },
+          {
+            "rowid": "670C341E41F51B993C472A4508972F23",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_visible_scope",
+            "functiondesc": "可见范围",
+            "crttime": "2026-08-31T11:31:50"
+          },
+          {
+            "rowid": "BA4589B3E38D3DB2306F9987A42F0AFA",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_setting_permission",
+            "functiondesc": "设置权限",
+            "crttime": "2026-08-31T11:30:04"
+          }
+        ],
+        "filter": null,
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 353
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "foreign-design-open",
+    "from": 127843,
+    "to": 127909,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21562",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21563",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "_Base_DictData",
+                  "_Base_DictType"
+                ]
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21564",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "dataSetId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21565",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "69B79AB779DF4C12A5595DACDF3283F1p000",
+                  "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                ]
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 47
+      },
+      {
+        "requestId": "22092.21566",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "or",
+          "Filters": [
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictData"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21567",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "883991528A5B4BE3B351AA30B085D9DC",
+              "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            ]
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 49
+      },
+      {
+        "requestId": "22092.21568",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 1,
+        "sort": [],
+        "businessRows": [
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "dictionaryType": null,
+            "functiondesc": "客户状态",
+            "val": null,
+            "txt": null,
+            "secondValue": null,
+            "thirdValue": null,
+            "fourthvalue": null,
+            "fiveValue": null,
+            "crttime": "2026-10-12T12:42:45"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21569",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 7,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "E922756EC61241DC81F48F7504BCADB2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 1,
+            "val": "new",
+            "txt": "新用户",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:04"
+          },
+          {
+            "rowid": "2C2A08F0AC5A42B38FC9ACFB83344B97",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 2,
+            "val": "contacted",
+            "txt": "已联系",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:15"
+          },
+          {
+            "rowid": "3B3261AA5258454A820E9AADB22DE2A1",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 3,
+            "val": "interested",
+            "txt": "有意向",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:34"
+          },
+          {
+            "rowid": "913A7A9EFCC64DAC81BA300F435D87B2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 4,
+            "val": "negotiating",
+            "txt": "谈判中",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:46"
+          },
+          {
+            "rowid": "C036406932174DFC83A6099B6B675A8E",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 5,
+            "val": "closed_won",
+            "txt": "已成交",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:55"
+          },
+          {
+            "rowid": "1FA1E830BE424166963215B4EF9704A7",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 6,
+            "val": "closed_lost",
+            "txt": "已流失",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:03"
+          },
+          {
+            "rowid": "8B29F8FC4DF546E9A88456188970F1CB",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 7,
+            "val": "dormant",
+            "txt": "无回应",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:21"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "typeid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 7
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "foreign-draft-cancel",
+    "from": 127909,
+    "to": 127919,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [],
+    "failures": 0
+  },
+  {
+    "step": "foreign-data-open-after-cancel",
+    "from": 127919,
+    "to": 127979,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21570",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21571",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "_Base_DictData",
+                  "_Base_DictType"
+                ]
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21572",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "dataSetId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21573",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "69B79AB779DF4C12A5595DACDF3283F1p000",
+                  "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                ]
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 47
+      },
+      {
+        "requestId": "22092.21574",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "or",
+          "Filters": [
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictData"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21575",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "883991528A5B4BE3B351AA30B085D9DC",
+              "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            ]
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 49
+      },
+      {
+        "requestId": "22092.21576",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 1,
+        "sort": [],
+        "businessRows": [
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "dictionaryType": null,
+            "functiondesc": "客户状态",
+            "val": null,
+            "txt": null,
+            "secondValue": null,
+            "thirdValue": null,
+            "fourthvalue": null,
+            "fiveValue": null,
+            "crttime": "2026-10-12T12:42:45"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21577",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 7,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "E922756EC61241DC81F48F7504BCADB2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 1,
+            "val": "new",
+            "txt": "新用户",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:04"
+          },
+          {
+            "rowid": "2C2A08F0AC5A42B38FC9ACFB83344B97",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 2,
+            "val": "contacted",
+            "txt": "已联系",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:15"
+          },
+          {
+            "rowid": "3B3261AA5258454A820E9AADB22DE2A1",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 3,
+            "val": "interested",
+            "txt": "有意向",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:34"
+          },
+          {
+            "rowid": "913A7A9EFCC64DAC81BA300F435D87B2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 4,
+            "val": "negotiating",
+            "txt": "谈判中",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:46"
+          },
+          {
+            "rowid": "C036406932174DFC83A6099B6B675A8E",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 5,
+            "val": "closed_won",
+            "txt": "已成交",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:55"
+          },
+          {
+            "rowid": "1FA1E830BE424166963215B4EF9704A7",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 6,
+            "val": "closed_lost",
+            "txt": "已流失",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:03"
+          },
+          {
+            "rowid": "8B29F8FC4DF546E9A88456188970F1CB",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 7,
+            "val": "dormant",
+            "txt": "无回应",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:21"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "typeid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 7
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "foreign-design-reopen-original",
+    "from": 127984,
+    "to": 128050,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21579",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21580",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "_Base_DictData",
+                  "_Base_DictType"
+                ]
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21581",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "dataSetId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21582",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "69B79AB779DF4C12A5595DACDF3283F1p000",
+                  "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                ]
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 47
+      },
+      {
+        "requestId": "22092.21583",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "or",
+          "Filters": [
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictData"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21584",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "883991528A5B4BE3B351AA30B085D9DC",
+              "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            ]
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 49
+      },
+      {
+        "requestId": "22092.21585",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 1,
+        "sort": [],
+        "businessRows": [
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "dictionaryType": null,
+            "functiondesc": "客户状态",
+            "val": null,
+            "txt": null,
+            "secondValue": null,
+            "thirdValue": null,
+            "fourthvalue": null,
+            "fiveValue": null,
+            "crttime": "2026-10-12T12:42:45"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21586",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 7,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "E922756EC61241DC81F48F7504BCADB2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 1,
+            "val": "new",
+            "txt": "新用户",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:04"
+          },
+          {
+            "rowid": "2C2A08F0AC5A42B38FC9ACFB83344B97",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 2,
+            "val": "contacted",
+            "txt": "已联系",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:15"
+          },
+          {
+            "rowid": "3B3261AA5258454A820E9AADB22DE2A1",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 3,
+            "val": "interested",
+            "txt": "有意向",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:34"
+          },
+          {
+            "rowid": "913A7A9EFCC64DAC81BA300F435D87B2",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 4,
+            "val": "negotiating",
+            "txt": "谈判中",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:46"
+          },
+          {
+            "rowid": "C036406932174DFC83A6099B6B675A8E",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 5,
+            "val": "closed_won",
+            "txt": "已成交",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:43:55"
+          },
+          {
+            "rowid": "1FA1E830BE424166963215B4EF9704A7",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 6,
+            "val": "closed_lost",
+            "txt": "已流失",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:03"
+          },
+          {
+            "rowid": "8B29F8FC4DF546E9A88456188970F1CB",
+            "typeid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "ordIdx": 7,
+            "val": "dormant",
+            "txt": "无回应",
+            "exVal_1": "",
+            "exVal_2": "",
+            "exVal_3": "",
+            "exVal_4": "",
+            "crttime": "2026-10-12 12:44:21"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "typeid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "D39BC0D2B65836CD7D80AC84C53C5B99"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 7
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "retained-dictionary-separate-workspace",
+    "from": 128053,
+    "to": 128126,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21587",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21588",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "_Base_DictData",
+                  "_Base_DictType"
+                ]
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21589",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "dataSetId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21590",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "69B79AB779DF4C12A5595DACDF3283F1p000",
+                  "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                ]
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 47
+      },
+      {
+        "requestId": "22092.21591",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "or",
+          "Filters": [
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictData"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21592",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "883991528A5B4BE3B351AA30B085D9DC",
+              "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            ]
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 49
+      },
+      {
+        "requestId": "22092.21593",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 1,
+        "sort": [],
+        "businessRows": [
+          {
+            "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "B1Sort_20261024_1925F4C2",
+            "dictionaryType": "0",
+            "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+            "val": "编码",
+            "txt": "显示文本",
+            "secondValue": null,
+            "thirdValue": null,
+            "fourthvalue": null,
+            "fiveValue": null,
+            "crttime": "2026-10-24T19:28:05"
+          }
+        ],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "327D74EC0ABC4196AA75C56D944B8201"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21594",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 0,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "typeid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "327D74EC0ABC4196AA75C56D944B8201"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 0
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "create-options-and-empty-target",
+    "from": 128129,
+    "to": 128232,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21595",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21596",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "_Base_DictData",
+                  "_Base_DictType"
+                ]
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21597",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "dataSetId",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21598",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "69B79AB779DF4C12A5595DACDF3283F1p000",
+                  "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                ]
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 47
+      },
+      {
+        "requestId": "22092.21599",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 2,
+        "sort": [],
+        "filter": {
+          "Type": "or",
+          "Filters": [
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictData"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 2
+      },
+      {
+        "requestId": "22092.21600",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 49,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "883991528A5B4BE3B351AA30B085D9DC",
+              "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+            ]
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 49
+      },
+      {
+        "requestId": "22092.21601",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataSet",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "EDB0E34486FFB903E896E5C281230961"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21602",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "EDB0E34486FFB903E896E5C281230961"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "Name",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "Base_AppSystemList"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21603",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_DataModel_Field",
+        "rows": 23,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "EDB0E34486FFB903E896E5C281230961"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dataModelId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "EDB0E34486FFB903E896E5C281230961p002"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "type",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "dataModel"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 23
+      },
+      {
+        "requestId": "22092.21604",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "View_TblList",
+        "rows": 1,
+        "sort": [],
+        "filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "tblname",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "Base_AppSystemList"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "dbid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+              }
+            }
+          ]
+        },
+        "page": {
+          "index": 1,
+          "size": 2
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21605",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_TblField",
+        "rows": 34,
+        "sort": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "1FD4DFAF725F4F759A45700BC6838F3C"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 500
+        },
+        "total": 34
+      },
+      {
+        "requestId": "22092.21606",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "Base_AppSystemList",
+        "rows": 1,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "AppDesc",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "filter": null,
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 1
+      },
+      {
+        "requestId": "22092.21607",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 0,
+        "sort": [],
+        "businessRows": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "1A28158857C74A428B47FEF3D2C44570"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 0
+      },
+      {
+        "requestId": "22092.21608",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictData",
+        "rows": 0,
+        "sort": [
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          },
+          {
+            "field": "ordIdx",
+            "order": 2,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [],
+        "filter": {
+          "Type": "cond",
+          "Field": "typeid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": "1A28158857C74A428B47FEF3D2C44570"
+          }
+        },
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 0
+      }
+    ],
+    "failures": 0
+  },
+  {
+    "step": "missing-application-save-rejected",
+    "from": 128232,
+    "to": 128237,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [],
+    "failures": 0
+  },
+  {
+    "step": "select-formal-app-and-cancel-create",
+    "from": 128237,
+    "to": 128244,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [],
+    "failures": 0
+  },
+  {
+    "step": "final-clean-catalog",
+    "from": 128244,
+    "to": 128258,
+    "truncated": false,
+    "hasMore": false,
+    "documentRequests": 0,
+    "requests": [
+      {
+        "requestId": "22092.21609",
+        "path": "/api/DataOperation/GetData",
+        "httpStatus": 200,
+        "code": 200,
+        "table": "_Base_DictType",
+        "rows": 20,
+        "sort": [
+          {
+            "field": "crttime",
+            "order": 2,
+            "direction": "descending"
+          },
+          {
+            "field": "rowid",
+            "order": 1,
+            "direction": "ascending"
+          }
+        ],
+        "businessRows": [
+          {
+            "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+            "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+            "TypeName": "B1Sort_20261024_1925F4C2",
+            "functiondesc": "B1 批量排序 SPA 验收专用，保留供后续 B1 使用",
+            "crttime": "2026-10-24T19:28:05"
+          },
+          {
+            "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_status",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T12:42:45"
+          },
+          {
+            "rowid": "53C6BBBCD1A034AE148177C8A8EED612",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_level",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T12:31:00"
+          },
+          {
+            "rowid": "358CED06DAB59B9704FCE01825672A0C",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_lsq_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T12:28:33"
+          },
+          {
+            "rowid": "B8CB842D277F1FEAB79061A26605AA8D",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_跟进状态",
+            "functiondesc": "客户状态",
+            "crttime": "2026-10-12T11:11:38"
+          },
+          {
+            "rowid": "FFEDA1DE445C7DD7F9F4F1E5172AB9CC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户等级",
+            "functiondesc": "客户等级",
+            "crttime": "2026-10-12T11:09:59"
+          },
+          {
+            "rowid": "C90A64BF3C5CCF175D831E6E66A369DC",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "lxt_客户来源",
+            "functiondesc": "客户来源",
+            "crttime": "2026-10-12T11:03:08"
+          },
+          {
+            "rowid": "8B1A8D505F7FF8858B2AAA329B025D15",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "审核状态",
+            "functiondesc": "二次分配审核状态",
+            "crttime": "2026-09-21T10:11:10"
+          },
+          {
+            "rowid": "DB4948CD953AD3BA5D773ED704C10C23",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "aa_",
+            "functiondesc": "1",
+            "crttime": "2026-09-14T09:40:34"
+          },
+          {
+            "rowid": "0396C8A48E2A4BF5994C9E1CD6693335",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "补贴类型",
+            "functiondesc": "补贴类型",
+            "crttime": "2026-09-11T17:04:55"
+          },
+          {
+            "rowid": "C184D6765B22ABE14D85CAAF8B91F901",
+            "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E",
+            "TypeName": "外派地域",
+            "functiondesc": "外派地域",
+            "crttime": "2026-09-11T14:13:17"
+          },
+          {
+            "rowid": "82C8D0B46B254C00FF72C344C3FFA1DA",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_followType",
+            "functiondesc": "跟进类型",
+            "crttime": "2026-09-10T15:06:44"
+          },
+          {
+            "rowid": "6E5320429769FCBEFAAF0DFF97C5C854",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_level",
+            "functiondesc": "重要程度",
+            "crttime": "2026-09-10T11:16:19"
+          },
+          {
+            "rowid": "1DEACF0E2051BAA95CB2B10CBE317375",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_source",
+            "functiondesc": "客户来源",
+            "crttime": "2026-09-10T11:15:40"
+          },
+          {
+            "rowid": "9A0C06A209559DDB94E763B3AB03BC79",
+            "AppId": "06CB53EAB3046DB1C39912418F2978D0",
+            "TypeName": "px_crm_industry",
+            "functiondesc": "行业",
+            "crttime": "2026-09-10T11:10:50"
+          },
+          {
+            "rowid": "70037BC5326E91F459539D05AE482F9A",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "hr_job_posting_status",
+            "functiondesc": "发布状态字典",
+            "crttime": "2026-09-07T15:53:32"
+          },
+          {
+            "rowid": "03DE7DA410F4782C89F9C91032104D15",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_tax_treatment",
+            "functiondesc": "计税类型",
+            "crttime": "2026-09-05T16:34:56"
+          },
+          {
+            "rowid": "6D60C590AEF8C8C685E531586CD63B07",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_yes_no",
+            "functiondesc": "是否类开关",
+            "crttime": "2026-08-31T11:33:36"
+          },
+          {
+            "rowid": "670C341E41F51B993C472A4508972F23",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_visible_scope",
+            "functiondesc": "可见范围",
+            "crttime": "2026-08-31T11:31:50"
+          },
+          {
+            "rowid": "BA4589B3E38D3DB2306F9987A42F0AFA",
+            "AppId": "359875B2804FCDBD0F2DCC567D2A22F1",
+            "TypeName": "salary_item_setting_permission",
+            "functiondesc": "设置权限",
+            "crttime": "2026-08-31T11:30:04"
+          }
+        ],
+        "filter": null,
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "total": 353
+      }
+    ],
+    "failures": 0
+  }
+]

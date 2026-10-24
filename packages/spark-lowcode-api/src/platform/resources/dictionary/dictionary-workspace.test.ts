@@ -3,6 +3,25 @@ import {DictionarySchema} from './dictionary-schema'
 import {DictionaryHttp, fixture, initialDefinition, initialEntry} from './tests/dictionary-workspace.fixture'
 
 describe('Dictionary resource through formal DataViews', () => {
+  it('opens and saves a readable selected dictionary from another application without changing its AppId', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictType']![0]!['AppId'] = 'OTHER-APP'
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      expect(workspace.definition.rows).toHaveLength(1)
+      expect(workspace.definition.rows[0]?.['AppId']).toBe('OTHER-APP')
+      workspace.definition.updateEditingValue('D1', 'TypeName', '跨应用可读字典')
+      await workspace.saveDesign()
+      expect(http.records['_Base_DictType']![0]).toMatchObject({rowid: 'D1', AppId: 'OTHER-APP', TypeName: '跨应用可读字典'})
+      const payload = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Changed: Array<Record<string, unknown>>}}>
+      expect(payload).toHaveLength(1)
+      expect(payload[0]!.TableName).toBe('_Base_DictType')
+      expect(payload[0]!.CrudModel.Changed[0]).toMatchObject({rowid: 'D1', TypeName: '跨应用可读字典'})
+      expect(payload[0]!.CrudModel.Changed[0]).not.toHaveProperty('AppId')
+    } finally {dataSet.destroy()}
+  })
+
   it('initializes creation time once for a new dictionary definition through its native DataView', async () => {
     const http = new DictionaryHttp()
     http.records['_Base_DictType'] = []
@@ -13,6 +32,8 @@ describe('Dictionary resource through formal DataViews', () => {
       const created = workspace.definition.getEditingRow('D1')
       const createdAt = created?.['crttime']
       expect(createdAt).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+      expect(created?.['AppId']).toBe('')
+      workspace.definition.updateEditingValue('D1', 'AppId', 'APP')
       workspace.definition.updateEditingValue('D1', 'TypeName', '新字典')
       workspace.definition.updateEditingValue('D1', 'functiondesc', '正式新增时间合同')
       await workspace.saveDesign()
@@ -20,6 +41,58 @@ describe('Dictionary resource through formal DataViews', () => {
       const payload = http.saves[0]!.data as Array<{TableName: string; CrudModel: {Added: Array<Record<string, unknown>>}}>
       expect(payload[0]!.TableName).toBe('_Base_DictType')
       expect(payload[0]!.CrudModel.Added[0]?.['crttime']).toBe(createdAt)
+    } finally {dataSet.destroy()}
+  })
+
+  it('requires an application selection before saving a new definition and preserves creation time', async () => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictType'] = []
+    http.records['_Base_DictData'] = []
+    const {workspace, dataSet} = fixture(http, true)
+    try {
+      await workspace.load()
+      const createdAt = workspace.definition.getEditingRow('D1')?.['crttime']
+      workspace.definition.updateEditingValue('D1', 'TypeName', '缺少应用')
+      workspace.definition.updateEditingValue('D1', 'functiondesc', '必须先选择应用')
+      await expect(workspace.saveDesign()).rejects.toThrow('新建字典必须选择所属应用')
+      expect(http.saves).toHaveLength(0)
+      workspace.definition.updateEditingValue('D1', 'AppId', 'APP-SELECTED')
+      await workspace.saveDesign()
+      expect(http.records['_Base_DictType']![0]).toMatchObject({rowid: 'D1', AppId: 'APP-SELECTED', crttime: createdAt})
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects changing AppId on an existing definition without submitting a reassignment', async () => {
+    const {workspace, dataSet, http} = fixture()
+    try {
+      await workspace.load()
+      workspace.definition.updateEditingValue('D1', 'AppId', 'OTHER-APP')
+      await expect(workspace.saveDesign()).rejects.toThrow('字典所属应用不可修改')
+      expect(http.saves).toHaveLength(0)
+      expect(http.records['_Base_DictType']![0]?.['AppId']).toBe('APP')
+    } finally {dataSet.destroy()}
+  })
+
+  it.each(['', null])('preserves a historical AppId value %j while saving other fields on an existing definition', async appId => {
+    const http = new DictionaryHttp()
+    http.records['_Base_DictType']![0]!['AppId'] = appId
+    const {workspace, dataSet} = fixture(http)
+    try {
+      await workspace.load()
+      workspace.definition.updateEditingValue('D1', 'TypeName', '共享字典')
+      await workspace.saveDesign()
+      expect(http.records['_Base_DictType']![0]).toMatchObject({rowid: 'D1', AppId: appId, TypeName: '共享字典'})
+      const payload = http.saves[0]!.data as Array<{CrudModel: {Changed: Array<Record<string, unknown>>}}>
+      expect(payload[0]!.CrudModel.Changed[0]).not.toHaveProperty('AppId')
+    } finally {dataSet.destroy()}
+  })
+
+  it('requires AppId to remain formally readable on an existing definition', async () => {
+    const {workspace, dataSet, http} = fixture()
+    http.hidden = ['AppId']
+    try {
+      await expect(workspace.load()).rejects.toThrow('字典所属应用不可读或缺少正式字段')
+      expect(http.saves).toHaveLength(0)
     } finally {dataSet.destroy()}
   })
 
@@ -346,6 +419,7 @@ describe('Dictionary resource through formal DataViews', () => {
       await workspace.load()
       workspace.definition.updateEditingValue('D1', 'TypeName', '未描述设计')
       workspace.definition.updateEditingValue('D1', 'functiondesc', description)
+      workspace.definition.updateEditingValue('D1', 'AppId', 'APP')
       await expect(workspace.saveDesign()).rejects.toThrow('功能描述')
       expect(http.saves).toHaveLength(0)
       expect(workspace.definition.getEditingRow('D1')?.['TypeName']).toBe('未描述设计')
@@ -616,6 +690,7 @@ describe('Dictionary resource through formal DataViews', () => {
     http.records = {_Base_DictType: [], _Base_DictData: []}
     const {workspace, dataSet} = fixture(http, true)
     await workspace.load()
+    workspace.definition.updateEditingValue('D1', 'AppId', 'APP')
     workspace.definition.updateEditingValue('D1', 'TypeName', '新字典')
     workspace.definition.updateEditingValue('D1', 'functiondesc', '新字典用途')
     http.failAfterWrite = true
@@ -695,6 +770,7 @@ describe('Dictionary resource through formal DataViews', () => {
     workspace.definition.updateEditingValue('D1', 'functiondesc', '新字典用途')
     await expect(workspace.addEntry()).rejects.toThrow('先保存字典设计')
     await expect(workspace.saveData()).rejects.toThrow('先保存字典设计')
+    workspace.definition.updateEditingValue('D1', 'AppId', 'APP')
     await workspace.saveDesign()
     await workspace.addEntry()
     expect(workspace.entries.fieldAccess(workspace.entries.rows[0]!, 'exVal_4').write).toBe('allowed')

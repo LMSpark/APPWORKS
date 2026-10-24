@@ -21,7 +21,8 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
     </template>
     <RendererDialog :model-value="!!editingId" :title="workspaceKind === 'design' ? '字典方案设计' : '字典数据维护'" width="min(1100px, 94vw)"
       :close-disabled="editorPending" @update:model-value="close">
-      <DictionarySetting v-if="editingId && workspaceKind === 'design'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId" :create="creating"
+      <DictionarySetting v-if="editingId && workspaceKind === 'design'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
+        :application-scenario-id="scenarioId" :create="creating"
         @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
       <DictionaryData v-else-if="editingId && workspaceKind === 'data'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
         @pending="editorPending = $event" />
@@ -56,6 +57,7 @@ const selected = computed(() => {
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey('_Base_DictType', 'default', scenarioId.value))
+const applicationsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '新增字典', permAction: 'create', disabled: loading.value || editorPending.value, onClick: createDictionary}},
   {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value || editorPending.value, onClick: openSelected}},
@@ -75,6 +77,8 @@ const hasUnresolvedCreator = computed(() => {
 })
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'TypeName', label: '字典名称', width: 230}},
+  {type: 'r-select', props: {field: 'AppId', label: '所属应用', width: 180, optionDataViewKey: applicationsKey.value,
+    optionLabelField: 'AppDesc', optionValueField: 'rowid'}},
   {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', width: 320}},
   {type: 'r-tree-select', props: {field: 'StructureTypeID', label: '领域分类', width: 180,
     optionDataViewKey: buildDataViewKey('Base_StructureType', 'default', scenarioId.value)}},
@@ -83,6 +87,8 @@ const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'crttime', label: '创建时间', width: 180}},
 ])
 const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children: [
+  {type: 'r-select', props: {field: 'AppId', label: '所属应用', clearable: true, filterable: true,
+    optionDataViewKey: applicationsKey.value, optionLabelField: 'AppDesc', optionValueField: 'rowid'}},
   {type: 'r-tree-select', props: {field: 'StructureTypeID', label: '领域分类', checkStrictly: true, filterable: true,
     optionDataViewKey: buildDataViewKey('Base_StructureType', 'default', scenarioId.value)}},
   {type: 'r-text', props: {field: 'TypeName', label: '字典名称', placeholder: '按字典名称筛选'}},

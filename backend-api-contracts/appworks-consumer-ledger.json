@@ -919,31 +919,31 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 284,
+      "sourceLine": 357,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 303,
+      "sourceLine": 376,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 531,
+      "sourceLine": 605,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 36,
+      "sourceLine": 37,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 61,
+      "sourceLine": 62,
       "scope": "publishable-lowcode-api"
     },
     {

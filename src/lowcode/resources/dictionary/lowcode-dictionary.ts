@@ -12,18 +12,27 @@ import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-ass
 import {loadScenarioDataSet} from '../../data-space/lowcode-data-space-runtime'
 import editorConfig from '../../../../config/pages/data-platform/data-dictionary/pagedata.json'
 
+function applicationOptionsView() {
+  return {
+    autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false,
+    queryConfig: {allPages: true, fields: ['rowid', 'AppDesc', 'AppName']},
+    sortExpression: [{field: 'AppDesc', direction: 'asc'}, {field: 'rowid', direction: 'asc'}],
+    valueField: 'rowid', labelField: 'AppDesc',
+  }
+}
+
 /** 组合根负责scope，页面和专题对象不接触请求凭据。 */
 export class LowcodeDictionary {
   /** 设置与条目已有正式空间的身份，来自已核对的场景配置。 */
   static readonly editorScenarioId = editorConfig.scenarioId
 
-  /** 按导航正式场景装配目录视图；不以另一导航或首个同名模型替代。 */
+  /** 按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。 */
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = this.scope()
+    const {assertCurrent} = this.scope()
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent}
     const [space, ...models] = await Promise.all([
       lowcodeApi.dataSpace.design.readSpaceDefinition(input),
-      ...['_Base_DictType', 'Base_StructureType', 'Base_UserInfo'].map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
+      ...['_Base_DictType', 'Base_StructureType', 'Base_UserInfo', 'Base_AppSystemList'].map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
     ])
     assertCurrent()
     const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: Object.fromEntries(models.map(model => [
@@ -33,6 +42,8 @@ export class LowcodeDictionary {
           queryConfig: {filterLookups: [{field: 'createuser', sourceViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId),
             matchField: 'UserName', valueField: 'ROWID'}]},
           sortExpression: [{field: 'crttime', direction: 'desc'}, {field: 'rowid', direction: 'asc'}],
+        } : model.metaName === 'Base_AppSystemList' ? {
+          ...applicationOptionsView(),
         } : {
           queryConfig: {allPages: true}, sortExpression: [{field: model.primaryKey, direction: 'asc'}],
           ...(model.metaName === 'Base_UserInfo' ? {valueField: 'ROWID', labelField: 'UserName'} : {
@@ -43,15 +54,6 @@ export class LowcodeDictionary {
     ])), resourceRelations: [], viewCascades: []}))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations: []})
     try {
-      // 本次调用的本地输入，不冒充后端模型；常驻范围与用户可清除的筛选独立。
-      const scopeTable = dataSet.addTable('DictionaryCatalogInput', [{name: 'AppId', type: 'string', isPrimaryKey: true}])
-      scopeTable.resourceType = 'static-data'
-      scopeTable.addRows([{AppId: applicationId}])
-      const scopeView = scopeTable.getView('default')
-      if (!scopeView) throw new Error('字典目录输入视图缺失')
-      scopeView.setCurrentRowById(applicationId)
-      dataSet.addCascade({parentTable: 'DictionaryCatalogInput', parentViewId: 'default', childTable: '_Base_DictType', childViewId: 'default',
-        filterBindings: [{sourceField: 'AppId', targetField: 'AppId'}], autoLoad: false})
       const view = dataSet.getView('_Base_DictType', 'default')
       if (!view) throw new Error('字典目录视图缺失')
       const results = await Promise.allSettled(models.map(async model => {
@@ -66,13 +68,42 @@ export class LowcodeDictionary {
     } catch (error) {dataSet.destroy(); throw error}
   }
 
-  /** 装配两个已注册元模型的定义/条目视图；目标字典由专题输入及过滤约束。 */
-  static async loadEditor(): Promise<Readonly<{dataSet: DataSet; applicationId: string}>> {
-    const {applicationId, assertCurrent} = this.scope()
+  /** 装配字典定义/条目运行空间；目标身份只由调用方的dictionaryId确定。 */
+  static async loadEditor(): Promise<Readonly<{dataSet: DataSet}>> {
+    const {assertCurrent} = this.scope()
     const {dataSet} = await loadScenarioDataSet({scenarioId: this.editorScenarioId,
       config: new ScenarioViewConfig(this.editorScenarioId, JSON.stringify(editorConfig)), assertCurrent})
-    try {assertCurrent(); return {dataSet, applicationId}}
+    try {assertCurrent(); return {dataSet}}
     catch (error) {dataSet.destroy(); throw error}
+  }
+
+  /** 独立装配正式应用选项DataSet；页面运行时拥有并销毁它，不借用目录或编辑器实例。 */
+  static async loadApplicationOptions(scenarioId: string): Promise<DataSet> {
+    if (!scenarioId.trim()) throw new Error('字典新建缺少正式应用选项场景')
+    const {assertCurrent} = this.scope()
+    const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent}
+    const [space, model] = await Promise.all([
+      lowcodeApi.dataSpace.design.readSpaceDefinition(input),
+      lowcodeApi.dataSpace.design.readModel({...input, metaName: 'Base_AppSystemList'}),
+    ])
+    assertCurrent()
+    for (const name of ['rowid', 'AppDesc']) if (!model.fields.some(field => field.name === name)) {
+      throw new Error(`正式应用模型缺少选项字段 ${name}`)
+    }
+    const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: {
+      Base_AppSystemList: {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: {
+        ...applicationOptionsView(),
+      }},
+    }}, resourceRelations: [], viewCascades: []}))
+    const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: [model], relations: []})
+    try {
+      const view = dataSet.getView('Base_AppSystemList', 'default')
+      if (!view) throw new Error('正式应用选项视图缺失')
+      await view.refresh()
+      assertCurrent()
+      if (view.loadingError) throw view.loadingError
+      return dataSet
+    } catch (error) {dataSet.destroy(); throw error}
   }
 
   /** 读取完整字段标题定义；来源可跨应用共享，范围和权限由正式查询判定。调用方负责销毁返回的DataSet。 */
@@ -93,11 +124,10 @@ export class LowcodeDictionary {
     } catch (error) {dataSet.destroy(); throw error}
   }
 
-  private static scope(): Readonly<{applicationId: string; assertCurrent: () => void}> {
+  private static scope(): Readonly<{assertCurrent: () => void}> {
     const scope = lowcodeApi.readRequestScope()
-    const applicationId = scope.headers['X-AppId']
-    if (!applicationId) throw new Error('请先选择应用')
-    return {applicationId, assertCurrent: () => {
+    if (!scope.headers['X-AppId']) throw new Error('请先选择应用')
+    return {assertCurrent: () => {
       if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('字典请求所属应用或登录身份已变化')
     }}
   }

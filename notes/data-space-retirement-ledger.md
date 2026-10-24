@@ -1098,3 +1098,21 @@ flowchart TD
 - 现场收尾：待保存时关闭被禁用；取消后正式读回1定义0条目，再关闭→页面类型新实例（其原3条）→关闭→专用字典新实例，均正式只读且目标隔离。专用字典保留空定义，3条本地草稿已取消，0资源删除。各验收窗口无Document请求，正常切换未刷新或重新登录；开发期HMR不当作SPA验收步骤。
 - 本批状态：实施/标准绑定/公开合同生成/工程门禁/任务复核完成；真实排序保存及重开=待验收（typeid值函数合同阻断）；保留资源=完成；唯一台账及证据归档=完成，最终整批复核及提交待收尾。不核销完整B1的AI候选、删除外部引用、下游消费，也不核销阶段A既有差距。详情evidence/metadata-integration-20261024/b1-sort-acceptance.md、b1-sort-verification.json、b1-sort-typeid-gap.md。
 - 最终整批复核完成：Spec/Quality PASS，新增缺陷0，5个源码/测试及13个命令日志hash与冻结证据一致。主控接受declined-to-judge边界：线上事实仅覆盖所记窗口、不替SystemData确定写入例外、不承诺同步外部失效的跨行事务、不扩到完整B1和历史提交。按已核35个明确路径提交本批实现/生成物/证据；不推送、不删除工作区或保留字典。线上排序状态继续待验收，提交身份由本批Git记录核准。
+
+### 2026-10-24 用户纠偏：字典目录不应只有当前几条
+
+- 现场核查已完成、目录范围修复尚未实施。正式目录刷新请求22092.16205（窗口93977—93996完整）查询_Base_DictType，PageParam={index:1,size:20}，HTTP/Code200，Count=5、Items=5；唯一显式过滤为AppId等于D99A1DCE9894698799101EFD70F8FC76。5条包含4条既有字典及本次保留的B1Sort测试定义。这是当前应用过滤后的总数，不能作为全部字典数量，也不是20条分页截断。
+- 当前LowcodeDictionary.loadCatalog用DictionaryCatalogInput及常驻级联强制AppId，目录没有应用筛选和应用列；参考现行application-scope-binding明确主metadata入口默认AppId空、可筛选/清除，只有project子系统入口才锁定绑定AppId，API在AppId非空时才加等值过滤。当前普通导航没有该project标记；此前恢复把主目录收窄为当前应用，属于待纠正的语义差距。
+- 后续修复须一起核目录全部可读范围、可选应用筛选/应用名称显示、新建明确归属及从选中正式记录进入设计/数据的归属合同；不能只删列表过滤后让异应用字典在现有编辑owner处继续因应用不符失败，也不能扩张数据权限或按账号放行。全部/其它应用/共享字典的实际总数本次尚未执行正式无AppId查询，不能凭参考源码猜测数量。本次未改产品查询或正式元数据，未进行业务写入。证据evidence/metadata-integration-20261024/b1-catalog-scope-current.json与b1-dictionary-catalog-scope.md；原typeid阻断继续保留。
+- 继续执行裁定：上一轮为有效进展（正式过滤/Count证据改变下一动作），本轮进入目录范围修复。先由新低价单写者补完整范围/选项/跨应用工作区的可证伪用例，主控并行核正式应用模型与真实只读总数；不将去掉一条过滤当作闭环。维持当前工作区和唯一台账，缓存brief/report为执行材料，产品代码在反例与正式模型合同核准后才开放。
+- 正式只读补证：经原 LowcodeDictionary.loadEditor→DataView.loadFromServer 去业务AppId条件（仅诊断进程内配置），保持原请求应用与权限，page1/20返回Count353、20条，含多个AppId；未拉全字典、无保存请求。目录真实场景经同一SPA关闭/重开确认EDB0E34486FFB903E896E5C281230961；该空间正式应用模型Base_AppSystemList=EDB0E34486FFB903E896E5C281230961p002存在，editor69B…空间没有同名模型。应用选项按原runtime组装独立DataView且Filter null，当前正式Count1（元数据管理），不能据此伪造其它应用名称/选项或隐藏其字典；未解析归属保留原值。证据b1-catalog-scope-native-read.json。
+- Phase1反例核准：目录fixture初次不执行Filter导致假绿，修正后35旧测试通过/1有效RED；跨应用workspace58旧测试通过/1有效RED。原始日志和hash保留cache/task-b1-scope-report.md。主控开放Phase2单一gpt-6-luna写者。
+- Ruling: 本批纠正实际主目录，不新增当前仓没有消费者的fixedApplicationId/项目子系统框架；参考子系统合同仅记录，未来真实宿主接入时保持固定范围。原因是当前导航为普通主目录且无project标记；若将来出现范围宿主须单独验收，不能把本批无过滤作为所有入口默认。
+- Ruling: 新建设计的应用选择使用目录正式场景的独立选项DataSet，PageRuntime同时声明editor和选项空间并独占销毁；不把父目录DataSet交给子工作区，不在editor伪造应用模型。既有字典按唯一dictionaryId加载正式归属，拒绝原AppId变更；新建原DataView草稿AppId空，保存要求显式非空选择。原因是X-AppId为请求上下文，不是所有字典归属；代价为新建设计多一个正式选项空间查询，旧异步释放须覆盖。
+- 标准合同查询已核目录→概要→指南：RTableProps.filter、RSelectProps及继承SparkOptionFieldProps.optionDataViewKey、SparkFieldSemanticProps.field/clearable、RFormProps、PageRuntimeOptions、DictionaryWorkspace。首次直接查RSelect自有属性缺项来自继承归属，沿声明查后全部成功，未另造组件。b1-scope-knowledge.json保存对应正式查询；生成物沿上一提交正式生成链，源码变更后再正式刷新。
+- 范围修复冻结初审：目录+workflow70/70、领域64/64通过。正式ClassModel生成退出0；主控typecheck发现测试可选prop传undefined不合exactOptionalPropertyTypes，lint发现DataView未使用导入，均保留原始失败输出。独立复核P2：新建保存后弹窗仍按初始create显示可改AppId，下一次保存被域层拒绝，形成不可提交的脏值；首次冻结Spec/Quality needs correction。
+- Ruling: 范围修复轮1/5将首次保存后的UI状态改由原DataView新增跟踪/已保存身份派生，收起或锁定AppId并正确显示既有定义操作；不增加新draft真源。连同两项工程门禁错误交原gpt-6-luna单写者，补同一弹窗的保存后反例，覆盖受影响测试后复审。已开始只读SPA窗口可保留作为本轮前版证据，涉及设计保存后状态必须在最终源码重验。
+- 范围修复轮1/5复审：原3项ADDRESSED、新增0；最终135项定向测试（领域64、目录/工作区71）通过。主控typecheck/lint/正式ClassModel/consumer生成/build退出0；rules首次要求收紧page-thin旧豁免，按正式--update仅移除DictionaryCatalogInput那一项，复跑退出0。18个生成差异中12个仅symbolID、6个本组投影/声明；保留原两fromJson与构建告警。
+- 真实SPA范围验收：主目录353→应用筛选5→重置353，第二页20条，均正式Count与分页回执；异应用px_lsq_status ID D39BC0D2B65836CD7D80AC84C53C5B99按rowid读1定义7条目，编辑描述取消、关闭再开原值未变；切回保留字典327D…为1定义0条目。新建缺应用保存被本地拒绝（0请求），正式选项绑定元数据管理后取消。13个分段完整窗口无Document/失败/业务写入；开发HMR不算SPA验收步骤；没有新资源或删除。
+- 当前状态：主目录范围修复、应用筛选/清空、跨应用读取与取消隔离已实测；新建成功保存后同窗状态及跨应用保存是自动化证明，未冒充本批线上写验收。应用选项服务当前只回1条，其它AppId保留原标识。详见evidence/metadata-integration-20261024/b1-scope-acceptance.md、b1-scope-spa-windows.json。原typeid与完整B1其它缺口继续开放，最终整批复核与明确路径提交收尾中，不推送。
+- 最终整批复核完成：Spec/Quality PASS、新增发现0；独立核对9源码/13日志hash及退出码，18生成差异（12仅symbolID、6本组投影）一致。13个SPA窗口共51个GetData，全部HTTP/Code200；page2与page1无重复，353→5→353及异应用7条/保留字典0条均核准，0Document/失败/写请求。按40个明确路径暂存本批实现、正式生成物、收紧基线与证据后本地提交，不推送；提交身份以Git记录为准。完整整合goal继续active，原typeid及B1后续能力未核销。

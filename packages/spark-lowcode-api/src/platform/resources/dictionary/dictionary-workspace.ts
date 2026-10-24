@@ -19,8 +19,6 @@ type DictionaryWorkspaceInput = Readonly<{
   dataSet: DataSet
   /** 本次唯一字典资源身份。 */
   dictionaryId: string
-  /** 当前应用范围，由正式宿主提供。 */
-  applicationId: string
   /** 新建时仍先正式查询空目标，取得新增权限与保存基线。 */
   create?: boolean
 }>
@@ -41,7 +39,7 @@ export class DictionaryWorkspace {
 
   /** 接受正式模型装配的DataSet；业务过滤进入视图配置，分页重查也保留同一范围。 */
   constructor(input: DictionaryWorkspaceInput) {
-    if (!input.dictionaryId.trim() || !input.applicationId.trim()) throw new Error('字典身份和应用不能为空')
+    if (!input.dictionaryId.trim()) throw new Error('字典身份不能为空')
     const definition = input.dataSet.getView('_Base_DictType', 'default')
     const entries = input.dataSet.getView('_Base_DictData', 'default')
     if (!definition || !entries) throw new Error('字典维护空间缺少正式定义或条目视图')
@@ -51,10 +49,8 @@ export class DictionaryWorkspace {
     this.entries = entries
     definition.queryContext = {rowid: input.dictionaryId}
     entries.queryContext = {rowid: input.dictionaryId}
-    definition.configure({filterExpression: DataViewFilter.group({logic: 'and', filters: [
-      {field: 'rowid', operator: 'eq', value: input.dictionaryId},
-      {field: 'AppId', operator: 'eq', value: input.applicationId},
-    ]}).toJSON(), queryConfig: {allPages: true}, commitMode: 'staged'})
+    definition.configure({filterExpression: DataViewFilter.condition({field: 'rowid', operator: 'eq', value: input.dictionaryId}).toJSON(),
+      queryConfig: {allPages: true}, commitMode: 'staged'})
     entries.configure({filterExpression: DataViewFilter.condition({field: 'typeid', operator: 'eq', value: input.dictionaryId}).toJSON(),
       queryConfig: {allPages: true}, sortExpression: [{field: 'ordIdx', direction: 'asc'}, {field: 'rowid', direction: 'asc'}],
       commitMode: 'staged', valueField: 'val', labelField: 'txt'})
@@ -111,7 +107,7 @@ export class DictionaryWorkspace {
       if (this.#creating && this.definition.rows.length === 0) {
         if (this.entries.rows.length > 0) throw new Error('新字典身份下已有条目，不能继续创建')
         if (this.definition.addActionState() !== 'enabled') throw new Error('当前查询不允许新建字典')
-        await this.definition.addRow({rowid: this.#input.dictionaryId, AppId: this.#input.applicationId,
+        await this.definition.addRow({rowid: this.#input.dictionaryId, AppId: '',
           TypeName: '', dictionaryType: '0', val: '编码', txt: '显示文本', crttime: formatCreationTime()})
       }
       this.assertScope()
@@ -235,6 +231,10 @@ export class DictionaryWorkspace {
     const row = this.definition.getEditingRow(this.#input.dictionaryId)
     if (!row) throw new Error('字典定义已失效')
     const definitionChanges = this.changedFields(this.definition, this.#input.dictionaryId)
+    if (definitionChanges?.includes('AppId')) throw new Error('字典所属应用不可修改')
+    if (this.#creating && (typeof row['AppId'] !== 'string' || !row['AppId'].trim())) {
+      throw new Error('新建字典必须选择所属应用')
+    }
     DictionarySchema.validateDefinition(row, definitionChanges)
     for (const entry of this.entries.rows) {
       const id = this.entries.getPkKey(entry)
@@ -318,9 +318,11 @@ export class DictionaryWorkspace {
   }
   private assertScope(): void {
     const row = this.definition.rows[0]
-    if (this.definition.rows.length !== 1 || row?.['rowid'] !== this.#input.dictionaryId
-      || this.definition.fieldAccess(row, 'AppId').read !== 'visible' || row['AppId'] !== this.#input.applicationId) {
-      throw new Error('字典定义不属于本次应用或无法核验身份')
+    if (this.definition.rows.length !== 1 || row?.['rowid'] !== this.#input.dictionaryId) {
+      throw new Error('字典来源身份不存在或不唯一')
+    }
+    if (!Object.hasOwn(row, 'AppId') || this.definition.fieldAccess(row, 'AppId').read !== 'visible') {
+      throw new Error('字典所属应用不可读或缺少正式字段')
     }
     for (const entry of this.entries.rows) this.assertEntry(entry)
   }

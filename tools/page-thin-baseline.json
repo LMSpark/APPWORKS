@@ -54,9 +54,6 @@
   "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts": {
     "static-copy": 1
   },
-  "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
-    "static-copy": 1
-  },
   "src/lowcode/resources/structured-config/structured-config-catalog.ts": {
     "static-copy": 1
   },

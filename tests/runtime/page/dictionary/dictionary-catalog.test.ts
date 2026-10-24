@@ -5,12 +5,13 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
-import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter} from '@spark-appworks/spark-component'
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
+import DictionarySetting from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
 import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
@@ -28,6 +29,7 @@ const models = Object.entries({
   _Base_DictType: ['rowid', 'AppId', 'TypeName', 'functiondesc', 'StructureTypeID', 'createuser', 'crttime'],
   Base_StructureType: ['rowid', 'Mrowid', 'Name'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
 }).map(([name, fields]) => ({
   id: `${name}-model`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
   primaryKey: name === 'Base_UserInfo' ? 'ID' : 'rowid', businessMain: false, raw: {},
@@ -46,6 +48,7 @@ class CatalogHttp extends HttpClientBase {
   hideStructureName = false
   unresolvedCreator = false
   userRows = [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}]
+  appRows = [{rowid: 'APP', AppDesc: '应用说明', AppName: '应用名称'}]
   dictionaryRows: Array<Record<string, unknown>> = [
     {rowid: 'D1', AppId: 'APP', TypeName: '配色', createuser: 'U-ROW', StructureTypeID: 'S1'},
   ]
@@ -61,17 +64,21 @@ class CatalogHttp extends HttpClientBase {
     let rows: Record<string, unknown>[] = name === '_Base_DictType'
       ? this.dictionaryRows.map(row => ({...row, createuser: this.unresolvedCreator ? 'OLD-ID' : row['createuser']}))
       : name === 'Base_UserInfo' ? this.userRows
+      : name === 'Base_AppSystemList' ? this.appRows
       : [{rowid: 'S1', Mrowid: '000000', Name: '基础'}]
-    if (name === 'Base_UserInfo' && body.Table[0]?.Filter) {
+    if (body.Table[0]?.Filter) {
       const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(body.Table[0].Filter))
       rows = rows.filter(row => filter.matches(row))
     }
+    const count = rows.length
+    const page = (config.data as {PageParam?: {index: number; size: number}}).PageParam
+    if (page) rows = rows.slice((page.index - 1) * page.size, page.index * page.size)
     return {data: {Code: 200, Result: {primaryKeyField: name === 'Base_UserInfo' ? 'ID' : 'rowid', allowAdd: this.allowAdd,
       lingma_sys_key: 'table-key', data: {Items: rows.map(row => ({...row, lingma_sys_key: 'row-key',
         lingma_sys_params: {r: [], e: [], h: name === 'Base_UserInfo'
           ? [...(this.hideUserName ? ['UserName'] : []), ...(this.hideUserValue ? ['ROWID'] : [])]
           : name === 'Base_StructureType' && this.hideStructureName ? ['Name'] : [],
-          m: name === 'Base_UserInfo' && this.maskUserName ? ['UserName'] : [], d: false}})), Count: rows.length}}},
+          m: name === 'Base_UserInfo' && this.maskUserName ? ['UserName'] : [], d: false}})), Count: count}}},
       status: 200, statusText: 'OK', headers: {}}
   }
 }
@@ -104,7 +111,7 @@ beforeEach(() => {
   vi.spyOn(LowcodeDictionary, 'loadEditor').mockImplementation(async () => {
     const {dataSet} = fixture(dictionaryHttp, false, LowcodeDictionary.editorScenarioId)
     sets.push(dataSet)
-    return {dataSet, applicationId: 'APP'}
+    return {dataSet}
   })
 })
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); sets.splice(0).forEach(ds => ds.destroy()); vi.restoreAllMocks(); vi.unstubAllGlobals(); config.global.stubs = originalStubs})
@@ -135,6 +142,40 @@ async function openCatalog(routePath = '/catalog') {
 }
 
 describe('dictionary catalog formal view assembly', () => {
+  it('loads application options from their own formal DataSet without rereading catalog models', async () => {
+    const dataSet = await LowcodeDictionary.loadApplicationOptions('CATALOG'); sets.push(dataSet)
+    const options = dataSet.getView('Base_AppSystemList', 'default')!
+    expect(dataSet.scenarioId).toBe('CATALOG')
+    expect(Object.keys(dataSet.tables)).toEqual(['Base_AppSystemList'])
+    expect(options.valueField).toBe('rowid')
+    expect(options.labelField).toBe('AppDesc')
+    expect(options.rows).toMatchObject([{rowid: 'APP', AppDesc: '应用说明', AppName: '应用名称'}])
+    expect(service.readModel).toHaveBeenCalledTimes(1)
+    expect(service.readModel).toHaveBeenCalledWith(expect.objectContaining({dataSpaceId: 'CATALOG', metaName: 'Base_AppSystemList'}))
+    expect(http.requests.map(request => (request.data as {Table: Array<{Name: string}>}).Table[0]?.Name)).toEqual(['Base_AppSystemList'])
+  })
+
+  it('loads every formally returned dictionary in the unscoped directory, including other and empty AppIds', async () => {
+    http.dictionaryRows = [
+      {rowid: 'D1', AppId: 'APP', TypeName: '当前应用'},
+      {rowid: 'D2', AppId: 'OTHER-APP', TypeName: '其它应用'},
+      {rowid: 'D3', AppId: null, TypeName: '共享目录'},
+      {rowid: 'D4', AppId: '', TypeName: '未归属目录'},
+    ]
+    const dataSet = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(dataSet)
+    const view = dataSet.getView('_Base_DictType', 'default')!
+    expect(view.rows.map(row => row['rowid'])).toEqual(['D1', 'D2', 'D3', 'D4'])
+    expect(view.total).toBe(4)
+    expect(http.requests.filter(request => (request.data as {Table?: Array<{Name: string}>}).Table?.[0]?.Name === '_Base_DictType'))
+      .toHaveLength(1)
+    expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('OTHER-APP')
+  })
+  it('keeps the request scope guard while not deriving the directory filter from X-AppId', async () => {
+    service.readRequestScope.mockReturnValue({token: 'scope', headers: {}})
+    await expect(LowcodeDictionary.loadCatalog('CATALOG')).rejects.toThrow('请先选择应用')
+    expect(http.requests).toHaveLength(0)
+  })
+
   it('consumes the catalog add permission while retaining browsing and refresh', async () => {
     http.allowAdd = false
     const {wrapper} = await openCatalog()
@@ -166,7 +207,7 @@ describe('dictionary catalog formal view assembly', () => {
     expect(http.requests[0]!.data).toMatchObject({Table: [{Name: '_Base_DictType', Fields: expect.arrayContaining([
       expect.objectContaining({Name: 'TypeName', OrderType: 'descending'}),
     ])}]})
-    expect(JSON.stringify(http.requests[0]!.data)).toContain('"Value":"APP"')
+    expect(JSON.stringify(http.requests[0]!.data)).not.toContain('"Value":"APP"')
   })
   it.each(['000000', 0, ''])('roundtrips an explicit root parent %j without treating unrelated orphans as roots', rootParentValue => {
     const config = new ScenarioViewConfig('CATALOG', JSON.stringify({scenarioId: 'CATALOG', tables: {
@@ -189,22 +230,52 @@ describe('dictionary catalog formal view assembly', () => {
     expect(ds.getView('Base_StructureType', 'default')?.treeConfig).toMatchObject({idField: 'rowid', parentIdField: 'Mrowid', textField: 'Name'})
     expect(ds.getView('_Base_DictType', 'default')?.rows[0]).toMatchObject({createuser: 'U-ROW', StructureTypeID: 'S1'})
   })
-  it('keeps the application constraint when user filters are changed, cleared, sorted and paged', async () => {
+  it('filters by a selected application, clears back to the full native scope, and preserves server page totals', async () => {
+    http.dictionaryRows = Array.from({length: 23}, (_, index) => ({rowid: `D${index + 1}`,
+      AppId: index % 2 ? 'OTHER' : 'APP', TypeName: `字典${index + 1}`}))
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
     const view = ds.getView('_Base_DictType', 'default')!
     http.requests.length = 0
-    await view.executeFilter({field: 'TypeName', operator: 'contains', value: '配'})
-    await view.setSort([{field: 'TypeName', direction: 'desc'}])
+    await view.executeFilter({field: 'AppId', operator: 'eq', value: 'APP'})
+    expect(view.rows).toHaveLength(12)
+    expect(view.total).toBe(12)
+    await view.setPageSize(10)
     await view.setPage(2)
+    expect(view.rows).toHaveLength(2)
+    expect(view.total).toBe(12)
+    expect(http.requests.at(-1)?.data).toMatchObject({PageParam: {index: 2, size: 10}})
     await view.executeFilter(undefined)
-    expect(http.requests).toHaveLength(4)
-    for (const request of http.requests) {
-      const body = request.data as {Table: Array<{Filter: unknown}>}
-      const text = JSON.stringify(body.Table[0]?.Filter)
-      expect(text).toContain('"Field":"AppId"')
-      expect(text).toContain('"Value":"APP"')
-    }
+    expect(view.rows).toHaveLength(10)
+    expect(view.total).toBe(23)
+    expect(http.requests.at(-1)?.data).toMatchObject({PageParam: {index: 1, size: 10}})
+    expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('"Field":"AppId"')
     expect(view.filterExpression).toBeUndefined()
+  })
+  it('selects and clears the standard AppId filter through its bound application DataView', async () => {
+    http.dictionaryRows = [
+      {rowid: 'D1', AppId: 'APP', TypeName: '当前应用字典'},
+      {rowid: 'D2', AppId: 'OTHER', TypeName: '其它应用字典'},
+    ]
+    const {wrapper} = await openCatalog()
+    const table = wrapper.findComponent(RendererTable)
+    const filter = table.findComponent(RendererFilter)
+    const appItem = filter.findAll('.el-form-item').find(item => item.find('label').text() === '所属应用')!
+    const select = appItem.find('.el-select')
+    expect(select.exists()).toBe(true)
+    await select.find('.el-select__wrapper').trigger('click'); await flushPromises()
+    const appOption = Array.from(document.querySelectorAll('.el-select-dropdown__item')).find(item => item.textContent?.includes('应用说明'))
+    expect(appOption).toBeDefined()
+    await new DOMWrapper(appOption!).trigger('click'); await flushPromises()
+    expect(table.find('.el-table__body').text()).toContain('当前应用字典')
+    expect(table.find('.el-table__body').text()).not.toContain('其它应用字典')
+    expect(JSON.stringify(http.requests.at(-1)?.data)).toContain('"Value":"APP"')
+    await select.find('.el-select__wrapper').trigger('mouseenter')
+    const clear = select.find('.el-select__clear')
+    expect(clear.exists()).toBe(true)
+    await clear.trigger('click'); await flushPromises()
+    expect(table.find('.el-table__body').text()).toContain('其它应用字典')
+    expect(table.find('.el-table__body').text()).toContain('当前应用字典')
+    expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('"Value":"APP"')
   })
   it('reports auxiliary query failures and releases the partially assembled DataSet', async () => {
     http.failUsers = true
@@ -223,9 +294,8 @@ describe('dictionary catalog formal view assembly', () => {
     await view.executeFilter({field: 'createuser', operator: 'contains', value: '张'})
     expect(http.requests).toHaveLength(2)
     const request = http.requests.at(-1)?.data as {Table: Array<{Filter: unknown}>}
-    expect(DataViewFilterCodec.decode(request.Table[0]!.Filter).toJSON()).toMatchObject({logic: 'and', filters: [
-      {field: 'AppId', value: 'APP'}, {field: 'createuser', operator: 'in', value: ['U-ROW', 'U-ROW2']},
-    ]})
+    expect(DataViewFilterCodec.decode(request.Table[0]!.Filter).toJSON()).toMatchObject(
+      {field: 'createuser', operator: 'in', value: ['U-ROW', 'U-ROW2']})
     expect(view.filterExpression).toEqual({field: 'createuser', operator: 'contains', value: '张'})
     expect(users.rows).toBe(rows)
     expect(users.getSelectedValues()).toEqual(['U-PK'])
@@ -239,7 +309,7 @@ describe('dictionary catalog formal view assembly', () => {
     const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(request.Table[0]!.Filter))
     expect(filter.matches({AppId:'APP',createuser:'无人匹配ID',TypeName:'其他字典'})).toBe(false)
     expect(filter.matches({AppId:'APP',createuser:'U-ROW',TypeName:'特定字典'})).toBe(true)
-    expect(filter.matches({AppId:'OTHER',createuser:'U-ROW',TypeName:'特定字典'})).toBe(false)
+    expect(filter.matches({AppId:'OTHER',createuser:'U-ROW',TypeName:'特定字典'})).toBe(true)
   })
   it.each(['hideUserName','maskUserName','hideUserValue','failUsers'] as const)('does not dispatch the catalog query when creator lookup %s fails', async flag => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
@@ -258,7 +328,7 @@ describe('dictionary catalog formal view assembly', () => {
     expect(http.requests).toHaveLength(8)
     for (const request of http.requests.filter(request => (request.data as {Table:Array<{Name:string}>}).Table[0]!.Name === '_Base_DictType')) {
       expect(JSON.stringify(request.data)).toContain('U-ROW')
-      expect(JSON.stringify(request.data)).toContain('APP')
+      expect(JSON.stringify(request.data)).not.toContain('APP')
     }
     await view.executeFilter(undefined)
     expect(http.requests).toHaveLength(9)
@@ -355,10 +425,10 @@ describe('dictionary catalog formal view assembly', () => {
     await filter.findAll('.el-form-item').find(item => item.find('label').text() === '字典名称')!.get('input').setValue('配色')
     await flushPromises()
     expect(JSON.stringify(http.requests.at(-1)?.data)).toContain('配色')
-    expect(JSON.stringify(http.requests.at(-1)?.data)).toContain('APP')
+    expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('"Value":"APP"')
     const reset = filter.findAll('button').find(button => button.text().includes('重置'))!
     await reset.trigger('click'); await flushPromises()
-    expect(JSON.stringify(http.requests.at(-1)?.data)).toContain('APP')
+    expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('"Value":"APP"')
     expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('配色')
     await filter.findAll('.el-form-item').find(item => item.find('label').text() === '创建人')!.get('input').setValue('张')
     await flushPromises()
@@ -451,8 +521,8 @@ describe('dictionary catalog formal view assembly', () => {
   })
 
   it('saves D1 from the catalog host, closes its runtime, and opens an isolated D2 workspace', async () => {
-    http.dictionaryRows.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', createuser: 'U-ROW', StructureTypeID: 'S1'})
-    dictionaryHttp.records['_Base_DictType']!.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', dictionaryType: '0',
+    http.dictionaryRows.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '双目标', createuser: 'U-ROW', StructureTypeID: 'S1'})
+    dictionaryHttp.records['_Base_DictType']!.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '双目标', dictionaryType: '0',
       val: '代码', txt: '名称', secondValue: '色号', thirdValue: '类别', fourthvalue: 'D2用途', fiveValue: 'D2说明', functiondesc: ''})
     dictionaryHttp.records['_Base_DictData']!.push({rowid: 'E2', typeid: 'D2', ordIdx: 1, val: '20', txt: '黑',
       exVal_1: '#000', exVal_2: '基础', exVal_3: '', exVal_4: 'D2原值'})
@@ -460,6 +530,7 @@ describe('dictionary catalog formal view assembly', () => {
     const catalogTable = wrapper.findComponent(RendererTable)
     const catalogRows = catalogTable.findAll('.el-table__body .el-table__row')
     expect(catalogRows).toHaveLength(2)
+    expect(catalogTable.find('.el-table__body').text()).toContain('OTHER-APP')
 
     await catalogRows[0]!.trigger('click')
     await flushPromises()
@@ -522,6 +593,28 @@ describe('dictionary catalog formal view assembly', () => {
     expect(dictionaryHttp.records['_Base_DictData']![0]!['exVal_4']).toBe('D1目录入口保存')
     expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_3']).toBe('D2目录入口保存')
     expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_4']).toBe('D2原值')
+
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
+    expect(d2RuntimeDataSet.destroyed).toBe(true)
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '方案设计')!.trigger('click'); await flushPromises()
+    const d2Design = wrapper.findComponent(DictionarySetting)
+    await d2Design.findAll('.el-form-item').find(item => item.find('label').text() === '功能描述')!.get('input').setValue('跨应用设计保存')
+    await wrapper.findAll('button').find(button => button.text() === '保存设计')!.trigger('click'); await flushPromises()
+    expect(dictionaryHttp.records['_Base_DictType']![1]).toMatchObject({rowid: 'D2', AppId: 'OTHER-APP', functiondesc: '跨应用设计保存'})
+    expect(dictionaryHttp.saves[2]!.data).toMatchObject([{TableName: '_Base_DictType', CrudModel: {
+      Changed: [expect.objectContaining({rowid: 'D2', functiondesc: '跨应用设计保存'})],
+    }}])
+    expect((dictionaryHttp.saves[2]!.data as Array<{CrudModel: {Changed: Array<Record<string, unknown>>}}>)
+      [0]!.CrudModel.Changed[0]).not.toHaveProperty('AppId')
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
+    const reopened = wrapper.findComponent(DictionaryData)
+    expect(reopened.text()).toContain('当前方案：双目标（D2）')
+    expect(reopened.findComponent(RendererTable).text()).toContain('D2目录入口保存')
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click'); await flushPromises()
+    expect(sets.at(-1)?.destroyed).toBe(true)
   })
 
   it('sorts and saves displayed entry order inside the catalog host, then isolates the next dictionary', async () => {

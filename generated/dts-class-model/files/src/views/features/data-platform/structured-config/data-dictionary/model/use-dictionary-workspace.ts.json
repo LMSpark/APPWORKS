@@ -24,6 +24,10 @@
         "create": {
           "type": "boolean"
         },
+        "applicationScenarioId": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<string | undefined>"
+        },
         "pageId": {
           "type": "string"
         }
@@ -43,18 +47,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T17:31:42.287Z",
+  "generatedAt": "2026-10-24T12:01:38.315Z",
   "models": {
     "DictionaryPageInput": {
       "name": "DictionaryPageInput",
       "jsdoc": "独立字典页面的实例输入，不包含角色或业务行数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+            "typeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。 */\n    applicationScenarioId?: MaybeRefOrGetter<string | undefined>;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -69,6 +73,12 @@
             {
               "name": "create",
               "jsdoc": "仅设计页可新建定义；数据页必须消费已保存方案。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationScenarioId",
+              "jsdoc": "新建设计的正式应用选项场景；该空间与字典编辑空间由当前PageRuntime分别拥有。",
               "readable": true,
               "writable": false
             },

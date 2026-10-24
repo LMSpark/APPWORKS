@@ -13,6 +13,7 @@ export const initialEntry = {rowid: 'E1', typeid: 'D1', ordIdx: 1, val: '00', tx
 type Row = Record<string, unknown>
 export class DictionaryHttp extends HttpClientBase {
   records: Record<string, Row[]> = {_Base_DictType: [{...initialDefinition}], _Base_DictData: [{...initialEntry}]}
+  appRows: Row[] = [{rowid: 'APP', AppDesc: '应用说明', AppName: '应用名称'}]
   saves: RequestConfig[] = []
   reads: RequestConfig[] = []
   denied: string[] = []
@@ -40,7 +41,7 @@ export class DictionaryHttp extends HttpClientBase {
       const body = config.data as {Table: Array<{Name: string}>}
       const name = body.Table[0]!.Name
       const table = body.Table[0] as {Fields?: Array<{Name?: string; OrderType?: string | null; Order?: number}>}
-      const rows = [...(this.records[name] ?? [])]
+      const rows = [...(name === 'Base_AppSystemList' ? this.appRows : this.records[name] ?? [])]
       const orderedFields = (table.Fields ?? []).filter(field => field.Name && field.OrderType
         && typeof field.Order === 'number' && field.Order > 0).sort((left, right) => right.Order! - left.Order!)
       rows.sort((left, right) => {
@@ -54,7 +55,7 @@ export class DictionaryHttp extends HttpClientBase {
       })
       result = {primaryKeyField: 'rowid', allowAdd: this.allowAdd, lingma_sys_key: `table-${name}`,
         data: {Items: (this.responseLimit === undefined ? rows : rows.slice(0, this.responseLimit)).map(row => ({...row, lingma_sys_key: `row-${row['rowid']}`, lingma_sys_params: {
-          r: [], e: (name === '_Base_DictType' ? definitionFields : entryFields)
+          r: [], e: (name === '_Base_DictType' ? definitionFields : name === '_Base_DictData' ? entryFields : ['rowid', 'AppDesc', 'AppName'])
             .filter(field => !this.denied.includes(field) && !this.deniedByRow[String(row['rowid'])]?.includes(field)),
           h: this.hidden, m: this.masked, d: !this.denyDeleteIds.includes(String(row['rowid'])),
         }})), Count: rows.length}}
@@ -104,7 +105,26 @@ export function fixture(http = new DictionaryHttp(), create = false, scenarioId 
     views: {default: {autoCurrentFirst: false, autoSelectFirst: false}},
   }]))})
   for (const model of models) runtime.bindModelView(dataSet.getView(model.metaName, 'default')!, model)
-  const workspace = new DictionaryWorkspace({dataSet, dictionaryId: 'D1', applicationId: 'APP', create})
+  const workspace = new DictionaryWorkspace({dataSet, dictionaryId: 'D1', create})
   return {dataSet, workspace, http}
+}
+
+/** Separate application option space with real DataView query permissions for page integration tests. */
+export async function applicationOptionsFixture(http: DictionaryHttp, scenarioId: string) {
+  const fields = ['rowid', 'AppDesc', 'AppName']
+  const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {id: 'Base_AppSystemList-model', name: 'Base_AppSystemList', metaName: 'Base_AppSystemList',
+    sourceType: 'table', sourceId: 'DB', sourceName: 'Base_AppSystemList', primaryKey: 'rowid', businessMain: false, raw: {},
+    fields: fields.map((name, order) => ({id: name, modelId: 'Base_AppSystemList-model', name, canonicalName: name,
+      primaryKey: name === 'rowid', description: name, type: 'string', output: true, computed: false, order, orderType: '', raw: {}}))}
+  const dataSet = DataSet.fromJson({scenarioId, tables: {Base_AppSystemList: {
+    modelBinding: {modelId: model.id, modelName: model.metaName},
+    columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey})),
+    views: {default: {valueField: 'rowid', labelField: 'AppDesc', queryConfig: {allPages: true}}},
+  }}})
+  const view = dataSet.getView('Base_AppSystemList', 'default')!
+  new DataSpaceRuntimeApi({http, readScope: () => ({token: http.scopeToken, headers: {'X-AppId': 'APP'}})}).bindModelView(view, model)
+  await view.refresh()
+  if (view.loadingError) {dataSet.destroy(); throw view.loadingError}
+  return dataSet
 }
 

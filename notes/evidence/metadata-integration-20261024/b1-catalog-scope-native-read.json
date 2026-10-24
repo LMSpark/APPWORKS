@@ -1,0 +1,713 @@
+{
+  "status": "confirmed",
+  "mode": "native-DataView-readonly",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "catalog": {
+    "modelName": "_Base_DictType",
+    "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+    "total": 353,
+    "rowCount": 20,
+    "page": 1,
+    "pageSize": 20,
+    "rows": [
+      {
+        "rowid": "327D74EC0ABC4196AA75C56D944B8201",
+        "TypeName": "B1Sort_20261024_1925F4C2",
+        "AppId": "D99A1DCE9894698799101EFD70F8FC76"
+      },
+      {
+        "rowid": "D39BC0D2B65836CD7D80AC84C53C5B99",
+        "TypeName": "px_lsq_status",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "53C6BBBCD1A034AE148177C8A8EED612",
+        "TypeName": "px_lsq_level",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "358CED06DAB59B9704FCE01825672A0C",
+        "TypeName": "px_lsq_source",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "B8CB842D277F1FEAB79061A26605AA8D",
+        "TypeName": "lxt_跟进状态",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "FFEDA1DE445C7DD7F9F4F1E5172AB9CC",
+        "TypeName": "lxt_客户等级",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "C90A64BF3C5CCF175D831E6E66A369DC",
+        "TypeName": "lxt_客户来源",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "8B1A8D505F7FF8858B2AAA329B025D15",
+        "TypeName": "审核状态",
+        "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E"
+      },
+      {
+        "rowid": "DB4948CD953AD3BA5D773ED704C10C23",
+        "TypeName": "aa_",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "0396C8A48E2A4BF5994C9E1CD6693335",
+        "TypeName": "补贴类型",
+        "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E"
+      },
+      {
+        "rowid": "C184D6765B22ABE14D85CAAF8B91F901",
+        "TypeName": "外派地域",
+        "AppId": "111C3B0B36FB87DBB06C0BF7DA61F61E"
+      },
+      {
+        "rowid": "82C8D0B46B254C00FF72C344C3FFA1DA",
+        "TypeName": "px_crm_followType",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "6E5320429769FCBEFAAF0DFF97C5C854",
+        "TypeName": "px_crm_level",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "1DEACF0E2051BAA95CB2B10CBE317375",
+        "TypeName": "px_crm_source",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "9A0C06A209559DDB94E763B3AB03BC79",
+        "TypeName": "px_crm_industry",
+        "AppId": "06CB53EAB3046DB1C39912418F2978D0"
+      },
+      {
+        "rowid": "70037BC5326E91F459539D05AE482F9A",
+        "TypeName": "hr_job_posting_status",
+        "AppId": "359875B2804FCDBD0F2DCC567D2A22F1"
+      },
+      {
+        "rowid": "03DE7DA410F4782C89F9C91032104D15",
+        "TypeName": "salary_tax_treatment",
+        "AppId": "359875B2804FCDBD0F2DCC567D2A22F1"
+      },
+      {
+        "rowid": "6D60C590AEF8C8C685E531586CD63B07",
+        "TypeName": "salary_item_yes_no",
+        "AppId": "359875B2804FCDBD0F2DCC567D2A22F1"
+      },
+      {
+        "rowid": "670C341E41F51B993C472A4508972F23",
+        "TypeName": "salary_item_visible_scope",
+        "AppId": "359875B2804FCDBD0F2DCC567D2A22F1"
+      },
+      {
+        "rowid": "BA4589B3E38D3DB2306F9987A42F0AFA",
+        "TypeName": "salary_item_setting_permission",
+        "AppId": "359875B2804FCDBD0F2DCC567D2A22F1"
+      }
+    ]
+  },
+  "appModels": [
+    {
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "status": "present",
+      "id": "EDB0E34486FFB903E896E5C281230961p002",
+      "metaName": "Base_AppSystemList",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "name": "rowid"
+        },
+        {
+          "name": "publisher_ent"
+        },
+        {
+          "name": "AppType"
+        },
+        {
+          "name": "WeChartimg"
+        },
+        {
+          "name": "DeveloperId"
+        },
+        {
+          "name": "EntId"
+        },
+        {
+          "name": "IsProjectRelation"
+        },
+        {
+          "name": "WeChatUrl"
+        },
+        {
+          "name": "DeveloperName"
+        },
+        {
+          "name": "isWeChat"
+        },
+        {
+          "name": "isSass"
+        },
+        {
+          "name": "WebUrl"
+        },
+        {
+          "name": "IsSys"
+        },
+        {
+          "name": "Memo"
+        },
+        {
+          "name": "NameStr"
+        },
+        {
+          "name": "AppDesc"
+        },
+        {
+          "name": "CreateUser"
+        },
+        {
+          "name": "EntShortName"
+        },
+        {
+          "name": "isdel"
+        },
+        {
+          "name": "Icon"
+        },
+        {
+          "name": "CreateTime"
+        },
+        {
+          "name": "AppName"
+        },
+        {
+          "name": "CrossEnt"
+        }
+      ]
+    },
+    {
+      "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "status": "unavailable",
+      "message": "正式数据空间模型必须唯一且属于当前数据空间: Base_AppSystemList"
+    }
+  ],
+  "applicationOptions": [
+    {
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "total": 1,
+      "rowCount": 1,
+      "rows": [
+        {
+          "rowid": "D99A1DCE9894698799101EFD70F8FC76",
+          "AppName": "DataSchemaManage",
+          "AppDesc": "元数据管理"
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_AppSystemList",
+          "filter": null
+        }
+      ]
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_NavigationInfo",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "SysId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D99A1DCE9894698799101EFD70F8FC76"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "prowId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "000000"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "_Base_DictData",
+                    "_Base_DictType"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Relation",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "69B79AB779DF4C12A5595DACDF3283F1p000",
+                    "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_DictData"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_DictType"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "883991528A5B4BE3B351AA30B085D9DC",
+                "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "_Base_DictType",
+          "filter": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EDB0E34486FFB903E896E5C281230961p002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "1FD4DFAF725F4F759A45700BC6838F3C"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "EDB0E34486FFB903E896E5C281230961"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "tables": [
+        {
+          "name": "Base_AppSystemList",
+          "filter": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      }
+    }
+  ],
+  "blockedMutations": 0
+}

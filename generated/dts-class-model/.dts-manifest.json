@@ -3184,7 +3184,7 @@
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-24T11:26:15.367Z"
+      "sourceModifiedAt": "2026-10-24T11:59:46.310Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
@@ -3949,7 +3949,7 @@
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
       "shardFile": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
-      "sourceModifiedAt": "2026-10-10T16:28:07.751Z"
+      "sourceModifiedAt": "2026-10-24T12:08:42.631Z"
     },
     "src/lowcode/resources/excel-import/excel-import-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/excel-import/excel-import-design-ops.ts",
@@ -4689,12 +4689,12 @@
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-10T17:31:42.287Z"
+      "sourceModifiedAt": "2026-10-24T12:01:38.315Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-24T10:48:44.170Z"
+      "sourceModifiedAt": "2026-10-24T11:58:42.452Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
@@ -4704,7 +4704,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue.json",
-      "sourceModifiedAt": "2026-10-24T10:12:01.618Z"
+      "sourceModifiedAt": "2026-10-24T12:08:34.453Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",

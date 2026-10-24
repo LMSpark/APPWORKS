@@ -50,7 +50,20 @@
         },
         "method.loadEditor.return": {
           "type": "object",
-          "title": "Promise<Readonly<{\n        dataSet: DataSet;\n        applicationId: string;\n    }>>"
+          "title": "Promise<Readonly<{\n        dataSet: DataSet;\n    }>>"
+        },
+        "method.loadApplicationOptions.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadApplicationOptions.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
         },
         "method.loadDefinition.params": {
           "type": "object",
@@ -68,7 +81,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T16:28:07.751Z",
+  "generatedAt": "2026-10-24T12:08:42.631Z",
   "models": {
     "LowcodeDictionary": {
       "name": "LowcodeDictionary",
@@ -92,7 +105,7 @@
           "methods": [
             {
               "name": "loadCatalog",
-              "jsdoc": "按导航正式场景装配目录视图；不以另一导航或首个同名模型替代。",
+              "jsdoc": "按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。",
               "parameters": [
                 {
                   "name": "scenarioId",
@@ -115,7 +128,7 @@
             },
             {
               "name": "loadEditor",
-              "jsdoc": "装配两个已注册元模型的定义/条目视图；目标字典由专题输入及过滤约束。",
+              "jsdoc": "装配字典定义/条目运行空间；目标身份只由调用方的dictionaryId确定。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -127,9 +140,32 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        dataSet: DataSet;\n        applicationId: string;\n    }"
+                        "name": "{\n        dataSet: DataSet;\n    }"
                       }
                     ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadApplicationOptions",
+              "jsdoc": "独立装配正式应用选项DataSet；页面运行时拥有并销毁它，不借用目录或编辑器实例。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
                   }
                 ]
               }

@@ -1,0 +1,200 @@
+{
+  "base": "287785b1b785d4af1916d20b0e15c550e86431dc",
+  "sources": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
+      "sha256": "ae0f20b3e98609ca27848402a21d8a5053a61b7fdca0af87ad8151844c1475f6"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sha256": "a9451d209c2aa8378b62e248f1e5b2cdb95d3d048db9dd075251a5cd117328a5"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sha256": "7ddd5b9a6e44c710dee5230b041a624021f1aee0c5d57aac42015c762c8e7031"
+    },
+    {
+      "path": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
+      "sha256": "cbb8b9d080d0bef3e5e5a98374f64ab21b2def20c5c25897a9f47c5f4397c85d"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
+      "sha256": "9a066a07ace37e4ac96516b145fe28d72c1127ac156a46c11b25766f4780d384"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "sha256": "d7a1ecefb1a8922808846e22c27bab73ed2c83a59a4faa8b75129e72a8f1cbba"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "sha256": "6691d561e6baaa710b386ab6617548e02d6ae15a005bbdff8c82577ff3983d9b"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "sha256": "491ff76e1eb184b29f6a0784a58fc788b293f82bf81dfe082068d4620c4bec06"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-workflow.test.ts",
+      "sha256": "ee319a2316448df77d4bdfc33a355607e284a0dda0a5ec854c8f16974b6b1b86"
+    }
+  ],
+  "commands": [
+    {
+      "key": "red-catalog",
+      "command": "pnpm exec vitest run dictionary-catalog.test.ts",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/red-catalog.log",
+      "logSha256": "c803ba591a8e4922798affa6606e35a89fdd48efab07571eb2ecb38131ff6a58"
+    },
+    {
+      "key": "red-domain",
+      "command": "package cwd vitest run dictionary-workspace.test.ts",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/red-workspace.log",
+      "logSha256": "30fca2a976fcc4fb2d8e08bdd67b073c7436a22645634d14fbf474284f935acb"
+    },
+    {
+      "key": "green-domain",
+      "command": "pnpm --filter @spark-appworks/spark-lowcode-api exec vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/phase2-workspace-tests.log",
+      "logSha256": "6f4a73392b5833847b7dd9b352c114119bc30575d9a59fbc7f34a58721203928"
+    },
+    {
+      "key": "round1-red",
+      "command": "vitest same dialog regression",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/round1-same-dialog-red.log",
+      "logSha256": "fde17100f75d029a58d45fcab2cddd07d99359a5c14d61000d78ac1ba0477cef"
+    },
+    {
+      "key": "final-page-tests",
+      "command": "pnpm exec vitest run tests/runtime/page/dictionary/dictionary-workflow.test.ts tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/round1-page-tests.log",
+      "logSha256": "ece332cca841003a09173b82982b62b27ec69fc6f7e8d035231c380311f136c1"
+    },
+    {
+      "key": "typecheck",
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-typecheck.log",
+      "logSha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "key": "lint",
+      "command": "pnpm run lint",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-lint.log",
+      "logSha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "key": "generate",
+      "command": "pnpm run generate:class-model-surface",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-generate.log",
+      "logSha256": "a8e0b63930c51ad649850e384903502c3466d708d7935d74f444f8f7d2056044"
+    },
+    {
+      "key": "contracts",
+      "command": "pnpm run generate:lowcode-contracts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-contracts.log",
+      "logSha256": "ede69eda729cb5244859e00ba7002124766cf5f8cc144930b3e38967d824a62d"
+    },
+    {
+      "key": "build",
+      "command": "pnpm run build",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-build.log",
+      "logSha256": "4bb7ad4d8a715f29eea954450f5f1539f3331cb2aef07d94443c918a44b7c3aa"
+    },
+    {
+      "key": "knowledge",
+      "command": "pnpm exec tsx --no-cache node_modules/.cache/metadata-integration-20261024/b1-scope-final-knowledge.mjs",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-knowledge.log",
+      "logSha256": "ae292737b55a49024af53cbdac1b1917fa9c81f9be7f08b318028a3c73801671"
+    },
+    {
+      "key": "rules-first",
+      "command": "pnpm run verify:rules",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-rules.log",
+      "logSha256": "9a8c94ac0337a0bfe7f75318fe1c6d4616f935ff853cd0773d84ff020a0ca8b2"
+    },
+    {
+      "key": "rules-final",
+      "command": "pnpm run verify:rules",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-scope-final-rules2.log",
+      "logSha256": "cecd0c383e0028deacc354009d6875c0563de72be3a954450e6d9bfc427c2a48"
+    }
+  ],
+  "focusedTests": {
+    "domain": 64,
+    "pages": 71,
+    "total": 135
+  },
+  "smoke": {
+    "windows": 13,
+    "allComplete": true,
+    "documentRequests": 0,
+    "businessWriteRequests": 0,
+    "resourceDeletions": 0
+  },
+  "generated": {
+    "generatedFiles": 18,
+    "expectedSourceAndManifestFiles": 6,
+    "peripheralSymbolChanges": [
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      }
+    ]
+  }
+}

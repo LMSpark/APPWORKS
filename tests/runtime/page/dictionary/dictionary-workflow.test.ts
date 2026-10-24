@@ -1,14 +1,14 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, ref, type Ref} from 'vue'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererButton, RendererForm, RendererTable} from '@spark-appworks/spark-component'
-import type {DataSet} from '@spark-appworks/spark-data'
+import {DataSet} from '@spark-appworks/spark-data'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import DictionaryDesign from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
-import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
+import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
@@ -26,7 +26,12 @@ beforeEach(() => {
   vi.spyOn(LowcodeDictionary, 'loadEditor').mockImplementation(async () => {
     const {dataSet} = fixture(http, false, LowcodeDictionary.editorScenarioId)
     sets.push(dataSet)
-    return {dataSet, applicationId: 'APP'}
+    return {dataSet}
+  })
+  vi.spyOn(LowcodeDictionary, 'loadApplicationOptions').mockImplementation(async scenarioId => {
+    const dataSet = await applicationOptionsFixture(http, scenarioId)
+    sets.push(dataSet)
+    return dataSet
   })
 })
 afterEach(() => {
@@ -34,10 +39,11 @@ afterEach(() => {
   sets.splice(0).forEach(ds => ds.destroy())
   vi.restoreAllMocks(); vi.unstubAllGlobals(); config.global.stubs = originalStubs
 })
-async function open(kind: 'design' | 'data', create = false, dictionaryId: string | undefined = 'D1') {
+async function open(kind: 'design' | 'data', create = false, dictionaryId: string | undefined = 'D1', applicationScenarioId = 'APPLICATION-CATALOG') {
   const designId = ref('D1')
   const dataId = ref(dictionaryId)
-  const page = kind === 'design' ? defineComponent({setup: () => () => h(DictionaryDesign, {dictionaryId: designId.value, create})})
+  const page = kind === 'design' ? defineComponent({setup: () => () => h(DictionaryDesign, {dictionaryId: designId.value,
+      ...(create ? {applicationScenarioId} : {}), create})})
     : defineComponent({setup: () => () => h(DictionaryData, {dictionaryId: dataId.value})})
   const router = createRouter({history: createMemoryHistory(), routes: []})
   const dynamic = createDynamicRouter({router, pageComponent: page, componentMap: {'/dictionary': page},
@@ -208,7 +214,7 @@ describe('Dictionary independent design and data pages', () => {
     const previous = http
     const stale = fixture(previous, false, LowcodeDictionary.editorScenarioId).dataSet
     sets.push(stale)
-    let release!: (value: {dataSet: DataSet; applicationId: string}) => void
+    let release!: (value: {dataSet: DataSet}) => void
     vi.mocked(LowcodeDictionary.loadEditor).mockImplementationOnce(() => new Promise(resolve => {release = resolve}))
     const data = await open('data')
     expect(data.text()).toContain('正在读取字典数据')
@@ -217,7 +223,7 @@ describe('Dictionary independent design and data pages', () => {
     Object.assign(http.records['_Base_DictData']![0]!, {rowid: 'E2', typeid: 'D2', exVal_4: '新目标数据'})
     hosts.get(data)!.dataId.value = 'D2'; await flushPromises()
     expect(data.findComponent(RendererTable).text()).toContain('新目标数据')
-    release({dataSet: stale, applicationId: 'APP'}); await flushPromises()
+    release({dataSet: stale}); await flushPromises()
     expect(stale.destroyed).toBe(true)
     expect(data.findComponent(RendererTable).text()).toContain('新目标数据')
     expect(data.find('[role="alert"]').exists()).toBe(false)
@@ -231,11 +237,11 @@ describe('Dictionary independent design and data pages', () => {
   it('destroys a late assembly after the data page unmounts without querying or saving it', async () => {
     const stale = fixture(http, false, LowcodeDictionary.editorScenarioId).dataSet
     sets.push(stale)
-    let release!: (value: {dataSet: DataSet; applicationId: string}) => void
+    let release!: (value: {dataSet: DataSet}) => void
     vi.mocked(LowcodeDictionary.loadEditor).mockImplementationOnce(() => new Promise(resolve => {release = resolve}))
     const data = await open('data')
     data.unmount()
-    release({dataSet: stale, applicationId: 'APP'}); await flushPromises()
+    release({dataSet: stale}); await flushPromises()
     expect(stale.destroyed).toBe(true)
     expect(http.reads).toHaveLength(0)
     expect(http.saves).toHaveLength(0)
@@ -436,6 +442,11 @@ describe('Dictionary independent design and data pages', () => {
   it('creates a design before entering data maintenance and persists a new six-field entry', async () => {
     http.records = {_Base_DictType: [], _Base_DictData: []}
     const design = await open('design', true)
+    expect(field(design, '所属应用').exists()).toBe(true)
+    await field(design, '所属应用').get('.el-select__wrapper').trigger('click'); await flushPromises()
+    const option = Array.from(document.querySelectorAll('.el-select-dropdown__item')).find(item => item.textContent?.includes('应用说明'))
+    expect(option).toBeDefined()
+    await new DOMWrapper(option!).trigger('click'); await flushPromises()
     await field(design, '字典名称').get('input').setValue('新字典')
     await button(design, '保存设计').trigger('click'); await flushPromises()
     expect(design.get('[role="alert"]').text()).toContain('功能描述')
@@ -454,6 +465,68 @@ describe('Dictionary independent design and data pages', () => {
     await button(data, '保存数据').trigger('click'); await flushPromises()
     expect(http.records['_Base_DictData']).toMatchObject([{typeid: 'D1', val: 'A', txt: '新条目', exVal_4: '第五输出'}])
     expect(http.saves).toHaveLength(2)
+    expect(sets[0]!.destroyed).toBe(true)
+    expect(sets[1]!.destroyed).toBe(true)
+  })
+  it('locks the new definition AppId after the first save while allowing another design edit in the same dialog', async () => {
+    http.records = {_Base_DictType: [], _Base_DictData: []}
+    const design = await open('design', true)
+    await field(design, '所属应用').get('.el-select__wrapper').trigger('click'); await flushPromises()
+    const option = Array.from(document.querySelectorAll('.el-select-dropdown__item')).find(item => item.textContent?.includes('应用说明'))
+    expect(option).toBeDefined()
+    await new DOMWrapper(option!).trigger('click'); await flushPromises()
+    await field(design, '字典名称').get('input').setValue('同窗新建')
+    await field(design, '功能描述').get('input').setValue('首次保存')
+    await button(design, '保存设计').trigger('click'); await flushPromises()
+
+    expect(design.findComponent(DictionaryDesign).emitted('saved')).toHaveLength(1)
+    expect(design.findAll('.el-form-item').some(item => item.find('label').text() === '所属应用')).toBe(false)
+    expect(button(design, '删除字典资源…').exists()).toBe(true)
+    await field(design, '功能描述').get('input').setValue('保存后继续编辑')
+    await button(design, '保存设计').trigger('click'); await flushPromises()
+
+    expect(design.find('[role="alert"]').exists()).toBe(false)
+    expect(design.findComponent(DictionaryDesign).emitted('saved')).toHaveLength(2)
+    expect(http.records['_Base_DictType']![0]).toMatchObject({AppId: 'APP', functiondesc: '保存后继续编辑'})
+    expect(http.saves).toHaveLength(2)
+    expect((http.saves[1]!.data as Array<{CrudModel: {Changed: Array<Record<string, unknown>>}}>)
+      [0]!.CrudModel.Changed[0]).not.toHaveProperty('AppId')
+  })
+  it('rejects a duplicate option scenario before opening data and releases a stale editor before loading options', async () => {
+    const duplicate = await open('design', true, 'D1', LowcodeDictionary.editorScenarioId)
+    expect(duplicate.get('[role="alert"]').text()).toContain('必须属于不同正式数据空间')
+    expect(LowcodeDictionary.loadEditor).not.toHaveBeenCalled()
+    expect(LowcodeDictionary.loadApplicationOptions).not.toHaveBeenCalled()
+    duplicate.unmount()
+
+    const stale = fixture(http, false, LowcodeDictionary.editorScenarioId).dataSet
+    sets.push(stale)
+    let release!: (value: {dataSet: DataSet}) => void
+    vi.mocked(LowcodeDictionary.loadEditor).mockImplementationOnce(() => new Promise(resolve => {release = resolve}))
+    const page = await open('design', true)
+    page.unmount()
+    release({dataSet: stale}); await flushPromises()
+    expect(stale.destroyed).toBe(true)
+    expect(LowcodeDictionary.loadApplicationOptions).not.toHaveBeenCalled()
+  })
+  it('blocks creation without an application and does not provide AppId editing for an existing definition', async () => {
+    http.records = {_Base_DictType: [], _Base_DictData: []}
+    const creating = await open('design', true)
+    await field(creating, '字典名称').get('input').setValue('未选应用')
+    await field(creating, '功能描述').get('input').setValue('必须选择正式应用')
+    await button(creating, '保存设计').trigger('click'); await flushPromises()
+    expect(creating.get('[role="alert"]').text()).toContain('新建字典必须选择所属应用')
+    expect(http.saves).toHaveLength(0)
+    await field(creating, '所属应用').get('.el-select__wrapper').trigger('click'); await flushPromises()
+    const option = Array.from(document.querySelectorAll('.el-select-dropdown__item')).find(item => item.textContent?.includes('应用说明'))
+    expect(option).toBeDefined()
+    await new DOMWrapper(option!).trigger('click'); await flushPromises()
+    await button(creating, '保存设计').trigger('click'); await flushPromises()
+    expect(http.records['_Base_DictType']![0]).toMatchObject({AppId: 'APP', TypeName: '未选应用'})
+    creating.unmount()
+
+    const editing = await open('design')
+    expect(editing.findAll('.el-form-item').some(item => item.find('label').text() === '所属应用')).toBe(false)
   })
   it('keeps local draft cancellation available when deletion of existing entries is denied', async () => {
     http.denyDeleteIds = ['E1']

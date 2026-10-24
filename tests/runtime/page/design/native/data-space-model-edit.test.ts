@@ -175,6 +175,39 @@ describe('formal model configuration maintenance', () => {
     expect(owner.getState()).toEqual({status: 'idle', pending: false})
   })
 
+  it.each(['row identity', 'identity field permission'] as const)('does not certify a pending model mutation after %s becomes invalid', async invalidation => {
+    const {owner, f, view} = await setup()
+    owner.stage('description', 'saving')
+    const release = f.holdModelResponse()
+    const saving = owner.save()
+    await vi.waitFor(() => expect(view.mutating).toBe(true))
+    const originalName = view.rows[0]?.['Name']
+    if (invalidation === 'row identity') view.rows[0]!['Name'] = 'changed identity'
+    else {
+      const fieldAccess = view.fieldAccess.bind(view)
+      vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => field === 'Name'
+        ? {...fieldAccess(row, field), read: 'invisible'}
+        : fieldAccess(row, field))
+    }
+    expect(() => owner.isKnownPendingMutation()).toThrow()
+    if (invalidation === 'row identity') view.rows[0]!['Name'] = originalName
+    else vi.mocked(view.fieldAccess).mockRestore()
+    release()
+    await saving
+  })
+
+  it('certifies a normal pending mutation only while the full model identity remains valid', async () => {
+    const {owner, f, view} = await setup()
+    owner.stage('description', 'saving')
+    const release = f.holdModelResponse()
+    const saving = owner.save()
+    await vi.waitFor(() => expect(view.mutating).toBe(true))
+    expect(owner.isKnownPendingMutation()).toBe(true)
+    release()
+    await saving
+    expect(owner.isKnownPendingMutation()).toBe(false)
+  })
+
   it.each(['unknown', 'readback'])('recovers %s without repeating a model write', async mode => {
     const {owner, f, writes} = await setup()
     owner.stage('description', mode)

@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-24",
+  "scope": "A4 known pending save display; ordinary model real-service smoke",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetModelId": "7026EA5EB0FC7DEE00E001C7031E3892",
+  "original": "内容类型",
+  "marker": "内容类型｜A4保存提示烟测 20261024",
+  "saves": [
+    {
+      "requestId": "9000.5647",
+      "code": 200,
+      "apiRequestCount": 1,
+      "untruncated": true,
+      "pendingTextPresent": true,
+      "contextErrorPresent": false,
+      "unknownWarningPresent": false,
+      "changes": [
+        {
+          "table": "Base_DataModel",
+          "added": 0,
+          "changed": [
+            {
+              "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+              "fields": [
+                "rowid",
+                "description"
+              ],
+              "description": "内容类型｜A4保存提示烟测 20261024"
+            }
+          ],
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "requestId": "9000.5660",
+      "code": 200,
+      "apiRequestCount": 1,
+      "untruncated": true,
+      "pendingTextPresent": true,
+      "contextErrorPresent": false,
+      "unknownWarningPresent": false,
+      "changes": [
+        {
+          "table": "Base_DataModel",
+          "added": 0,
+          "changed": [
+            {
+              "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+              "fields": [
+                "rowid",
+                "description"
+              ],
+              "description": "内容类型"
+            }
+          ],
+          "deleted": 0
+        }
+      ]
+    }
+  ],
+  "markerIndependentlyReopened": true,
+  "finalReadback": {
+    "requestId": "9000.5670",
+    "code": 200,
+    "totalModels": 4,
+    "target": {
+      "id": "7026EA5EB0FC7DEE00E001C7031E3892",
+      "name": "IntegrationLifecycle_20261024",
+      "description": "内容类型"
+    },
+    "uiSaveDisabled": true,
+    "uiCloseEnabled": true,
+    "unknownWarningPresent": false,
+    "apiRequests": [
+      {
+        "id": "9000.5663",
+        "path": "/api/File/content/text"
+      },
+      {
+        "id": "9000.5664",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5665",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5666",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5667",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5668",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5669",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5670",
+        "path": "/api/DataOperation/GetData"
+      },
+      {
+        "id": "9000.5671",
+        "path": "/api/File/content/text"
+      },
+      {
+        "id": "9000.5672",
+        "path": "/api/DataOperation/GetData"
+      }
+    ],
+    "windowUntruncated": true
+  },
+  "limits": [
+    "Pending text proven by captured accessibility state; saved screenshot was captured after request completed.",
+    "Standalone field saving and unknown/invalid identity controls are automated fixture evidence, not a new live field creation.",
+    "Temporary lifecycle model and its nine fields retained pending deletion confirmation."
+  ]
+}

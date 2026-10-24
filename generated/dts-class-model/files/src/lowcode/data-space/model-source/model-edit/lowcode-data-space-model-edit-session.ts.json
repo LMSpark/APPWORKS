@@ -157,6 +157,14 @@
           ],
           "additionalProperties": false
         },
+        "method.isKnownPendingMutation.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isKnownPendingMutation.return": {
+          "type": "boolean"
+        },
         "method.readRequestScheme.params": {
           "type": "object",
           "properties": {},
@@ -642,7 +650,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T20:01:41.031Z",
+  "generatedAt": "2026-10-24T07:02:28.037Z",
   "models": {
     "ModelEditStatus": {
       "name": "ModelEditStatus",
@@ -880,6 +888,15 @@
               "type": {
                 "type": "unknown",
                 "name": "{\n        status: ModelEditStatus;\n        pending: boolean;\n    }"
+              }
+            },
+            {
+              "name": "isKnownPendingMutation",
+              "jsdoc": "仅确认可安全显示的已知在途保存；不读取编辑值、不放宽查询或提交守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {

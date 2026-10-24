@@ -35,7 +35,8 @@ AI用途：计算字段新增、取消及未知结果核验。
       <p v-if="functionState?.warning" role="status">{{ functionState.warning }}</p>
       <p v-if="error" role="alert">{{ error }}</p>
       <p v-if="state.verification" role="status">{{ state.verification }}</p>
-      <p v-if="state.status !== 'editing'" role="status">新增尚未完全确认，请先核验；不会重复提交。</p>
+      <p v-if="['unknown', 'readback', 'different'].includes(state.status)" role="alert">新增尚未完全确认，请先核验；不会重复提交。</p>
+      <p v-else-if="state.status === 'saving'" role="status">正在保存新增字段…</p>
       <template #footer>
         <RendererButton :data-view-key="state.dataViewKey" data-action="cancel-field-create" label="取消" :disabled="locked || dialogOpen" @click="cancel" />
         <RendererButton :data-view-key="state.dataViewKey" data-action="save-field-create" :label="workspaceActions ? '确定' : '保存计算字段'" button-type="primary" :disabled="locked || dialogOpen" @click="run('save')" />

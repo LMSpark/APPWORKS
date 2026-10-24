@@ -3800,6 +3800,50 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1)
   }, 30_000)
 
+  it('retains mixed-capture recovery guidance when the captured model identity becomes unreadable', async () => {
+    const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'ordIdx', type: 'dataModel', FieldType: 'int', IsOutput: 1, description: '排序字段'},
+    ]})
+    const {wrapper} = await page(); await select(wrapper, 'Orders')
+    const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
+    await openModelFieldsTab(wrapper)
+    const fieldView = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const fieldEditor = wrapper.get('[aria-label="字段配置编辑"]')
+    fieldEditor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fieldView.rows[0]); await flushPromises()
+    await fieldEditor.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await writeBound(fieldContractDom(), 'description', 'unknown联合字段')
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', 'unknown联合模型')
+    f.loseNextResponse()
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+
+    const modelView = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    const modelOwner = session.getModelEdit('M1')
+    expect(writes(f)).toHaveLength(1)
+    expect(modelOwner.requiresWorkspaceRecovery()).toBe(true)
+    expect(fieldView.hasUnconfirmedSave).toBe(true)
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+
+    const modelEditor = wrapper.getComponent(DataSpaceModelEditor)
+    const model = modelView.rows.find(row => row['rowid'] === 'M1')!
+    const originalName = model['Name']
+    model['Name'] = 'ChangedWhileCaptureUnknown'
+    modelEditor.vm.$emit('changed'); await flushPromises()
+    await flushPromises()
+    expect(modelEditor.get('[role="alert"]').text()).toContain('DATA_SPACE_MODEL_CONTEXT')
+    expect(modelEditor.text()).toContain('原批次还包含字段或来源参数')
+    expect(modelEditor.get('[data-action="verify-model"]').text()).toContain('查看联合批次核验入口')
+    expect(writes(f)).toHaveLength(1)
+
+    model['Name'] = originalName
+    await tabs.get('#tab-fields').trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(fieldView.hasUnconfirmedSave).toBe(false)
+    expect(modelView.hasUnconfirmedSave).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+  }, 30_000)
+
   it('closes a view configuration without measuring hidden request labels or creating edits',async()=>{
     fixture()
     const warnings=vi.spyOn(console,'warn').mockImplementation(()=>{})
@@ -6041,11 +6085,101 @@ describe('native data-space design entry', () => {
     f.loseNextResponse()
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(true)
+    expect(editor.text()).toContain('提交尚未完全确认')
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
+    expect(editor.find('[data-action="verify-model"]').exists()).toBe(true)
     await editor.get('[data-action="verify-model"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false)
     expect(editor.text()).toContain('未重复提交'); expect(writes(f)).toHaveLength(1)
   })
+
+  it('keeps a known pending model write locked without showing the unknown-result warning', async () => {
+    const f = fixture()
+    const {wrapper} = await page()
+    await select(wrapper, 'Orders')
+    const editor = wrapper.get('[aria-label="模型配置编辑"]')
+    await editor.get('[data-model-field="description"] input').setValue('保存中')
+    const release = f.holdModelResponse()
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click')
+    await vi.waitFor(() => expect(writes(f)).toHaveLength(1))
+    await flushPromises()
+
+    const pendingText = editor.text()
+    const saveDisabled = wrapper.get('[data-action="save-model-workspace"]').attributes('disabled') !== undefined
+    const cancelDisabled = editor.get('[data-action="cancel-model"]').attributes('disabled') !== undefined
+    const verifyDisabled = editor.get('[data-action="verify-model"]').attributes('disabled') !== undefined
+    const visibleInputs = editor.findAll('input')
+    const visibleInputsLocked = visibleInputs.length === 0 || visibleInputs.every(input =>
+      input.attributes('disabled') !== undefined || input.attributes('readonly') !== undefined)
+    const writesWhilePending = writes(f).length
+
+    release(); await flushPromises()
+    expect(editor.text()).toContain('模型配置已保存并回读')
+    expect(f.modelRow()).toMatchObject({description: '保存中'})
+    expect(writes(f)).toHaveLength(1)
+    expect(pendingText).toContain('正在保存模型配置')
+    expect(pendingText).not.toContain('提交尚未完全确认')
+    expect(saveDisabled).toBe(true)
+    expect(cancelDisabled).toBe(true)
+    expect(verifyDisabled).toBe(true)
+    expect(visibleInputsLocked).toBe(true)
+    expect(writesWhilePending).toBe(1)
+  })
+
+  it.each(['row identity', 'identity field permission'] as const)('keeps an invalid %s visible during a pending model write', async invalidation => {
+    const f = fixture(), session = await f.open('A'), editor = await modelEditor(session)
+    wrappers.push(editor)
+    await flushPromises()
+    await editor.get('[data-model-field="description"] input').setValue('in flight')
+    const release = f.holdModelResponse()
+    await editor.get('[data-action="save-model"]').trigger('click')
+    await vi.waitFor(() => expect(writes(f)).toHaveLength(1))
+    const view = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    const row = view.rows.find(item => item['rowid'] === 'M1')!
+    if (invalidation === 'row identity') row['Name'] = 'ChangedWhileSaving'
+    else {
+      const fieldAccess = view.fieldAccess.bind(view)
+      vi.spyOn(view, 'fieldAccess').mockImplementation((target, field) => field === 'Name'
+        ? {...fieldAccess(target, field), read: 'invisible', write: 'denied', component: 'hidden', writeMode: 'readonly'}
+        : fieldAccess(target, field))
+    }
+    await editor.setProps({revision: 1}); await flushPromises()
+
+    expect(editor.text()).not.toContain('正在保存模型配置')
+    expect(editor.get('[role="alert"]').text()).toMatch(/身份|不可读/)
+    expect(writes(f)).toHaveLength(1)
+    release(); await flushPromises()
+  })
+
+  it('keeps a session-scope failure inside the mounted model editor error boundary', async () => {
+    const f = fixture(), session = await f.open('A'), editor = await modelEditor(session)
+    wrappers.push(editor)
+    await flushPromises()
+    f.invalidate()
+    await editor.setProps({revision: 1}); await flushPromises()
+
+    expect(editor.get('[role="alert"]').text()).toContain('SCOPE_STALE')
+    expect(writes(f)).toHaveLength(0)
+  })
+
+  it('does not report success or dispatch again after the model query target changes during save', async () => {
+    const f = fixture()
+    const {wrapper} = await page()
+    await select(wrapper, 'Orders')
+    const editor = wrapper.get('[aria-label="模型配置编辑"]')
+    await editor.get('[data-model-field="description"] input').setValue('target changed during save')
+    const release = f.holdModelResponse()
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click')
+    await vi.waitFor(() => expect(writes(f)).toHaveLength(1))
+    const view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel', 'default')!
+    view.queryContext = {dataSpaceId: 'OTHER'}
+
+    release(); await flushPromises()
+    expect(editor.text()).toContain('DATA_SPACE_MODEL_CONTEXT')
+    expect(editor.text()).not.toContain('模型配置已保存并回读')
+    expect(writes(f)).toHaveLength(1)
+  })
+
 
   it('renders model field permissions without exposing hidden configuration', async () => {
     const f = fixture({hidden: true}); f.setModelValues({description: 'secret'})

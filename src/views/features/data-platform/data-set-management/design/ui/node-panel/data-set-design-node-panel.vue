@@ -65,12 +65,13 @@ AI用途：模型节点的配置编辑、取消、保存回读与未知结果核
       </RendererTable>
     </RendererSection>
     </div>
-    <p v-if="(state.status !== 'idle' || sourceState.status !== 'idle')" role="alert">提交尚未完全确认，请先核验；不会自动重复写入。</p>
-    <p v-if="owner.requiresWorkspaceRecovery()" role="alert">原批次还包含字段或来源参数；模型页核验不会处理联合提交。请进入“3 字段呈现”页签，使用“重新核验字段配置”完成全批次核验与回读。</p>
+    <p v-if="state.saving" role="status">正在保存模型配置…</p>
+    <p v-else-if="(state.status !== 'idle' || sourceState.status !== 'idle')" role="alert">提交尚未完全确认，请先核验；不会自动重复写入。</p>
+    <p v-if="state.requiresWorkspaceRecovery" role="alert">原批次还包含字段或来源参数；模型页核验不会处理联合提交。请进入“3 字段呈现”页签，使用“重新核验字段配置”完成全批次核验与回读。</p>
     <div class="actions">
       <RendererButton v-if="!workspaceActions" button-type="primary" data-action="save-model" :disabled="blocked || !(state.pending || sourceState.pending) || dialogOpen" @click="save" label="保存模型配置" />
       <RendererButton data-action="cancel-model" :disabled="busy || disabled || state.status !== 'idle' || !(state.pending || sourceState.pending) || dialogOpen" @click="discard" label="放弃本地修改" />
-      <RendererButton v-if="state.status !== 'idle' || state.error || sourceState.status !== 'idle'" data-action="verify-model" :disabled="busy || disabled || dialogOpen" @click="verify" :label="owner.requiresWorkspaceRecovery() ? '查看联合批次核验入口' : owner.hasInvalidReceipt() ? '读取并采用当前正式结果' : state.pending || sourceState.pending ? '放弃本地修改并核验' : '重新核验模型'" />
+      <RendererButton v-if="state.status !== 'idle' || state.error || sourceState.status !== 'idle'" data-action="verify-model" :disabled="busy || disabled || dialogOpen" @click="verify" :label="state.requiresWorkspaceRecovery ? '查看联合批次核验入口' : state.invalidReceipt ? '读取并采用当前正式结果' : state.pending || sourceState.pending ? '放弃本地修改并核验' : '重新核验模型'" />
     </div>
   </section>
 </template>
@@ -189,10 +190,20 @@ for (const {viewId, field} of candidateViews) {
 const describe = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const state = computed(() => {
   props.revision; tick.value
-  try {return {...owner.value.getState(), data: owner.value.read(), error: ''}}
+  let status: ReturnType<typeof owner.value.getState> | undefined
+  let recovery = {requiresWorkspaceRecovery: false, invalidReceipt: false}
+  try {
+    const modelOwner = owner.value
+    status = modelOwner.getState()
+    recovery = {requiresWorkspaceRecovery: modelOwner.requiresWorkspaceRecovery(), invalidReceipt: modelOwner.hasInvalidReceipt()}
+    if (status.status === 'pending' && modelOwner.isKnownPendingMutation()) {
+      return {...status, data: null, error: '', saving: true, ...recovery}
+    }
+    return {...status, data: modelOwner.read(), error: '', saving: false, ...recovery}
+  }
   catch (cause) {
-    const status = (() => {try {return owner.value.getState()} catch {return {status: 'idle', pending: false}}})()
-    return {...status, data: null, error: describe(cause)}
+    return {...status ?? {status: 'idle' as const, pending: false}, data: null, error: describe(cause), saving: false,
+      ...recovery}
   }
 })
 const groups = computed(() => [

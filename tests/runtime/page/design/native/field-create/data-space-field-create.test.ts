@@ -98,6 +98,40 @@ describe('computed field creation', () => {
     expect(f.created.get('Base_DataModel_Field')).toContainEqual(expect.objectContaining({Name: 'standardComputed', ValueFun: '{"Type":"GetConstValue","Value":0}'}))
     expect(f.fileWrites).toEqual([])
   })
+  it('keeps a known pending standalone field write locked without showing the unknown-result warning', async () => {
+    const f = fixture({missing: true, sourceFields: []}), wrapper = await page()
+    const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
+    const arrow = model.element.closest('.el-tree-node__content')?.querySelector('.el-tree-node__expand-icon')
+    expect(arrow).toBeTruthy()
+    await new DOMWrapper(arrow!).trigger('click'); await flushPromises()
+    await wrapper.findAll('[data-design-node]').find(item => item.text() === '字段（0）')!.trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="create-field"]').trigger('click'); await flushPromises()
+    const owner = f.sessions[0]!.getFieldCreate('M1')
+    const form = wrapper.findAllComponents(RendererForm).find(item => item.props('dataViewKey')?.includes('@FieldCreate_'))!
+    await form.findAllComponents(FieldText).find(item => item.props('field') === 'Name')!.get('input').setValue('pendingComputed')
+    await flushPromises()
+    const release = f.holdModelResponse()
+    await new DOMWrapper(document.body).get('[data-action="save-field-create"]').trigger('click')
+    await vi.waitFor(() => expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1))
+    await flushPromises()
+
+    const pendingText = wrapper.text()
+    const pendingStatus = owner.getState().status
+    const saveDisabled = new DOMWrapper(document.body).get('[data-action="save-field-create"]').attributes('disabled') !== undefined
+    const cancelDisabled = new DOMWrapper(document.body).get('[data-action="cancel-field-create"]').attributes('disabled') !== undefined
+    const writesWhilePending = f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD').length
+
+    release(); await flushPromises()
+    expect(owner.getState().status).toBe('idle')
+    expect(f.created.get('Base_DataModel_Field')).toContainEqual(expect.objectContaining({Name: 'pendingComputed'}))
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
+    expect(pendingStatus).toBe('saving')
+    expect(pendingText).toContain('正在保存新增字段')
+    expect(pendingText).not.toContain('新增尚未完全确认')
+    expect(saveDisabled).toBe(true)
+    expect(cancelDisabled).toBe(true)
+    expect(writesWhilePending).toBe(1)
+  })
   it('opens a standard bound input view and cancels without a database or file write', async () => {
     const f = fixture(), wrapper = await page()
     const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
@@ -496,6 +530,8 @@ describe('computed field creation', () => {
     await form.findAllComponents(FieldText).find(item => item.props('field') === 'Name')!.get('input').setValue('notApplied')
     f.loseNextResponse()
     await new DOMWrapper(document.body).get('[data-action="save-field-create"]').trigger('click'); await flushPromises()
+    expect(new DOMWrapper(document.body).findAll('[role="alert"]').some(item => item.text().includes('新增尚未完全确认'))).toBe(true)
+    expect(new DOMWrapper(document.body).findAll('[data-action="verify-field-create"]')).toHaveLength(1)
     await new DOMWrapper(document.body).get('[data-action="verify-field-create"]').trigger('click'); await flushPromises()
     expect(new DOMWrapper(document.body).find('[data-action="abandon-field-create"]').exists()).toBe(true)
     await new DOMWrapper(document.body).get('[data-action="abandon-field-create"]').trigger('click'); await flushPromises()

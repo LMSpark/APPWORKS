@@ -25894,7 +25894,7 @@
       "chainBreak": "ModelEditSession.getRecoveryCapture 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "declarationLine": 138,
+      "declarationLine": 142,
       "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
       "declarationKind": "class"
     },
@@ -25906,7 +25906,7 @@
       "chainBreak": "ModelEditSession.hasInvalidReceipt 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "declarationLine": 139,
+      "declarationLine": 143,
       "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
       "declarationKind": "class"
     },
@@ -25918,7 +25918,7 @@
       "chainBreak": "ModelEditSession.requiresWorkspaceRecovery 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "declarationLine": 140,
+      "declarationLine": 144,
       "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
       "declarationKind": "class"
     },
@@ -25930,7 +25930,7 @@
       "chainBreak": "ModelEditSession.verifyRecovery 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "declarationLine": 141,
+      "declarationLine": 145,
       "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
       "declarationKind": "class"
     },

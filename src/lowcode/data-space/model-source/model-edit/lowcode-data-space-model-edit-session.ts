@@ -84,11 +84,16 @@ export class ModelEditSession {
   }
 
   private current(): DataRow {
+    return this.resolveCurrent(false)
+  }
+
+  /** 只供正在派发的保存状态展示；复用完整身份/权限核验，不改变 current() 的严格拒绝合同。 */
+  private resolveCurrent(allowMutation: boolean): DataRow {
     this.assertOwner()
     const rows = this.#view.rows.filter(row => this.#view.getPkKey(row) === this.modelId)
     const row = rows[0]
     if (!row || rows.length !== 1 || row['rowid'] !== this.modelId || row['dataSetId'] !== this.targetId
-      || this.#view.requestState !== RequestState.Loaded || this.#view.mutating) {
+      || this.#view.requestState !== RequestState.Loaded || this.#view.mutating && !allowMutation) {
       throw new Error('DATA_SPACE_MODEL_CONTEXT: 模型身份、归属或当前查询状态无效')
     }
     const identity = this.identity(row)
@@ -152,6 +157,13 @@ export class ModelEditSession {
     const primary = this.#primary
     return {status: this.flowStatus(), pending: this.#view.hasEditingChanges(this.modelId) || this.#view.dirtyTracking.hasPendingChanges(this.modelId)
       || primary?.changes.some(change => primary.fields.hasEditingChanges(change.id) || primary.fields.dirtyTracking.hasPendingChanges(change.id)) === true}
+  }
+
+  /** 仅确认可安全显示的已知在途保存；不读取编辑值、不放宽查询或提交守卫。 */
+  isKnownPendingMutation(): boolean {
+    if (this.#status !== 'pending' || !this.#view.mutating) return false
+    this.resolveCurrent(true)
+    return true
   }
 
   /** 请求方案页签字段；与 {@link read} 互补，不重复结构域。 */

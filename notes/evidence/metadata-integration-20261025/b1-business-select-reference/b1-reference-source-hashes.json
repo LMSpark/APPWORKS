@@ -1,0 +1,14 @@
+{
+  "referenceHead": "f1620968b6902d799ccc0ae16fc57c86205da03d",
+  "files": [
+    {
+      "path": "E:\\lowcode-jdk17\\lowcode-mainbody\\src\\main\\java\\com\\htong\\controller\\BasicFunController.java",
+      "sha256": "D4A6BA2C3825153DF764A521C290AD8C834F489B4D238C4870B903FFAC8C9234"
+    },
+    {
+      "path": "E:\\lowcode-jdk17\\lowcode-mainbody\\src\\main\\java\\com\\htong\\service\\impl\\DictServiceImpl.java",
+      "sha256": "651B2E5FCE592FA76F81262E8252998B0AF0F57DB6F6871CF3D5EAF20EF24AB1"
+    }
+  ],
+  "scope": "Read-only source evidence, not deployed-service proof"
+}

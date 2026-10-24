@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-10-24T21:03:45.925Z",
+  "sourceHead": "a176ae2f56ccd507f34d7e36d4489bba28422c94",
+  "requests": 44,
+  "completeReceipts": 44,
+  "documentLoads": 0,
+  "nonQueryRequests": 0,
+  "truncated": false,
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "providerId": "8DAD6968DF1B4AE7A99887FCEAC66D91",
+  "dictionaryId": "D7F531C8DA4842B682DD9248A8539DFC",
+  "dictionaryScenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+  "headerScenarioId": "446B5D94A71587E9BD4D325A4DF5F6F8",
+  "definitionRequests": [
+    "2180.6198",
+    "2180.6216"
+  ],
+  "entryRequests": [
+    "2180.6199",
+    "2180.6217"
+  ],
+  "headerRequests": [
+    "2180.6203",
+    "2180.6221"
+  ],
+  "originalAndReopenedHeaderCounts": [
+    0,
+    0
+  ],
+  "dictionaryOptionsUnchanged": true,
+  "limitations": [
+    "UI screenshots show selected labels, not hidden DataView memory.",
+    "Dispose is inferred from source and fresh queries; no runtime destroyed property was inspected.",
+    "Original navigation was clipped at default width; temporary 2300px viewport was reset after navigation.",
+    "No save, permanent delete, or global reference integrity was tested."
+  ],
+  "artifacts": {
+    "b1-select-options.png": {
+      "bytes": 70239,
+      "sha256": "9bac70fb5603bced69752cbee147e807147b0d605249226045ce2e61f07ba9d1"
+    },
+    "b1-select-draft.png": {
+      "bytes": 63647,
+      "sha256": "3e20d1db61a2df65a497675fff2c97ad56917ddce708de5eb2841895bed4e087"
+    },
+    "b1-select-reopened-empty.png": {
+      "bytes": 64349,
+      "sha256": "aeb31eb9b73aef52836f93827fadba6600c3053634dbb3cc0b84569f22451d9d"
+    },
+    "b1-select-nav-clipped.png": {
+      "bytes": 59904,
+      "sha256": "630042bc809ce85b8eb271b827e6f05a2588bf243b9413cc9531f40d3cab92e4"
+    },
+    "b1-business-select-network.json": {
+      "bytes": 99902,
+      "sha256": "4a35bcaa7460e00a42684b994ee036b8abe9dc6170e94f49321a6bc07fa41c5d"
+    },
+    "b1-business-select-identities.json": {
+      "bytes": 7853,
+      "sha256": "45c1faa100338a61740b45e65319e20d5bb371acaf878951b375a36f800276d1"
+    }
+  }
+}

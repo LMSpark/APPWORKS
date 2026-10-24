@@ -1,0 +1,3570 @@
+{
+  "kind": "B1-existing-business-select-SPA",
+  "documentLoads": [],
+  "errors": [],
+  "steps": [
+    {
+      "step": "start",
+      "time": "2026-10-24T20:58:35.114Z",
+      "requests": 0
+    },
+    {
+      "step": "catalog-SPA-navigation",
+      "time": "2026-10-24T21:00:20.437Z",
+      "requests": 8
+    },
+    {
+      "step": "open-request-design",
+      "time": "2026-10-24T21:00:27.575Z",
+      "requests": 12
+    },
+    {
+      "step": "design-query-complete",
+      "time": "2026-10-24T21:00:53.931Z",
+      "requests": 26
+    },
+    {
+      "step": "open-dictionary-options-no-save",
+      "time": "2026-10-24T21:01:06.348Z",
+      "requests": 26
+    },
+    {
+      "step": "selected-and-close-protected",
+      "time": "2026-10-24T21:01:26.364Z",
+      "requests": 26
+    },
+    {
+      "step": "discard-close",
+      "time": "2026-10-24T21:01:31.026Z",
+      "requests": 26
+    },
+    {
+      "step": "reopen-same-provider",
+      "time": "2026-10-24T21:01:35.303Z",
+      "requests": 30
+    },
+    {
+      "step": "reopened-loaded",
+      "time": "2026-10-24T21:02:12.324Z",
+      "requests": 44
+    },
+    {
+      "step": "clean-close-final",
+      "time": "2026-10-24T21:02:40.477Z",
+      "requests": 44
+    }
+  ],
+  "requests": [
+    {
+      "id": "2180.6179",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16228,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataSet",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8CBB62EBC873A38DB9E6EEF177AFC731"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "552cec17f583e2e45b6c45187597b6898f2eea3fe576b64759f89e1620ac5be2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6180",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16229,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "8CBB62EBC873A38DB9E6EEF177AFC731"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "Base_InterfaceProvider",
+                      "Base_UserInfo"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "c29db3b3617018d8434a21fb5b20cd2e5a0ede3d0ba115339bac6503e55d7dbd",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6181",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16240,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Field",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "8CBB62EBC873A38DB9E6EEF177AFC731"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "8CBB62EBC873A38DB9E6EEF177AFC731p000",
+                      "8CBB62EBC873A38DB9E6EEF177AFC731p001"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "2764ecf453864d8934371abbad2ceec118d308a36cc6178285b6b8e0d4bcde38",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 51,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6182",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16241,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "View_TblList",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_InterfaceProvider"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_UserInfo"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "791d16f906ec9a92ca9360dea7b69e06798b68d3a07a9c054df4b86172ed93a2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6183",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16249,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_TblField",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "747639AF23E2467FB5D8DB0E4CAD97B6",
+                  "C50CD4A8899A4415A2F4B687E234FC9D"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "072f46f2c9408b398ccaee164f57ea92b4481355a7e9bb036b9ee4c2750ff4f0",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 69,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6184",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16261,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "BaseURL",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "d19c167fcdb130ea127bbc2828c500a6cef2ec9e3320bcb568de6a32c1795322",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 11,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6185",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16262,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_UserInfo",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_UserInfo",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "ID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ROWID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "UserName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "db8becbd35d4db8ee97c86c720015d7b6ddab80c19499c07c4fb2698ef49ae50",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 32,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6186",
+      "step": "catalog-SPA-navigation",
+      "sequence": 16270,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_UserInfo",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_UserInfo",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "ID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ROWID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "UserName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 2,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "3674645f561a5317bb1b1d93f271c4c1fcaaf4b18f47b78548db342ba502e2fc",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 32,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6187",
+      "step": "open-request-design",
+      "sequence": 16288,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataSet",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "9f57acf7b4c0971a44ae48a6c2327a5998f00d8756c27eafeb39a5330471f4b1",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6188",
+      "step": "open-request-design",
+      "sequence": 16289,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "Base_DataServiceInterface",
+                      "Base_InterfaceProvider",
+                      "Base_InterfaceProvider_Headers",
+                      "Base_Interface_PublicParam",
+                      "Base_TblField"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "cce018661d6054cdce866aae0636b6972489ccba1e5d53446f561e625f856a21",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 5,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6189",
+      "step": "open-request-design",
+      "sequence": 16301,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Field",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p000",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p001",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p002",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p005",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p006"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "1c83ff55ea3e2d82986bffe8d3317e574ecf6e35cb04db538f4e5eb029cca358",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 138,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6190",
+      "step": "open-request-design",
+      "sequence": 16302,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "View_TblList",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_DataServiceInterface"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_InterfaceProvider"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_InterfaceProvider_Headers"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_Interface_PublicParam"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_TblField"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "fc828fd0c6abde497d693c7915ab0ab1460b43f99cb7bed8a53cfe375e8ddd48",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 5,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6191",
+      "step": "design-query-complete",
+      "sequence": 16315,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_TblField",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "572EA1D83DBF470EB8129098B1758911",
+                  "747639AF23E2467FB5D8DB0E4CAD97B6",
+                  "842EC4BAD69D481590BF17A37686C1CD",
+                  "AFEFC2A869FD46AD84E65C58C5CB3EF1",
+                  "D70244CD788C4159B100F7850997E72F"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "62548add45827947b9b41a4694e83775daa8add24e09f6ccda82362e5721226b",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 154,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6192",
+      "step": "design-query-complete",
+      "sequence": 16323,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataSet",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "0677c802f23b5d641146f65bfc952e3edf0d73b456ece3c78c2fcee4794c45a1",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6193",
+      "step": "design-query-complete",
+      "sequence": 16324,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "_Base_DictData",
+                      "_Base_DictType"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "832fa1265151f07e025851566bb01c79d9246ab367e7eaa908440ff8fcbe4636",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6194",
+      "step": "design-query-complete",
+      "sequence": 16325,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Relation",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Relation",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "17b2ff77bdcbd0ee08ef4ceaf00fdd78750680923d706e7884d0b746cf255cd6",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6195",
+      "step": "design-query-complete",
+      "sequence": 16339,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Field",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "69B79AB779DF4C12A5595DACDF3283F1p000",
+                      "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "60d9f45a4f47808fab340a3ce106f23e750030fac2ae2d9148f399c3da850615",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 47,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6196",
+      "step": "design-query-complete",
+      "sequence": 16340,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "View_TblList",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_DictData"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_DictType"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "f718c75c941c5938ff0507ced6fc31e33d981d816793fb44a3e7eeb713aa7dad",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6197",
+      "step": "design-query-complete",
+      "sequence": 16353,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_TblField",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "883991528A5B4BE3B351AA30B085D9DC",
+                  "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "74c95634acfb14925ef188b265a30434071189fb41191ae04eac851542d02cc2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 49,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6198",
+      "step": "design-query-complete",
+      "sequence": 16365,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "_Base_DictType",
+      "request": {
+        "Table": [
+          {
+            "Name": "_Base_DictType",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "TypeName",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "接口公共头部信息使用类型"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "dictionaryType",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "fiveValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "author",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ModName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "StructureTypeID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "remark",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "TypeName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "val",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "secondValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "txt",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "thirdValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "AppId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "fourthvalue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "04c859346771526efce13f618027e1c6281c1003a535998a5683312cbe3c9966",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": [
+          {
+            "rowid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "TypeName": "接口公共头部信息使用类型"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2180.6199",
+      "step": "design-query-complete",
+      "sequence": 16372,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "_Base_DictData",
+      "request": {
+        "Table": [
+          {
+            "Name": "_Base_DictData",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "typeid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D7F531C8DA4842B682DD9248A8539DFC"
+              }
+            },
+            "inputParams": [
+              {
+                "Name": "rowid",
+                "Value": "D7F531C8DA4842B682DD9248A8539DFC"
+              }
+            ],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "author",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_1",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "typeid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_3",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ordIdx",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_2",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_4",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "val",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "txt",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "b685d04e41d47a6122c7101ab5d6ef4c3e76c4e9c8dc18db2e28f7af579e1f9b",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 3,
+        "Items": [
+          {
+            "rowid": "54A79D15D2874970BFC55B94B20CBBBF",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "expired",
+            "txt": "过期使用",
+            "ordIdx": 2
+          },
+          {
+            "rowid": "A4BFD854B0984B858DCA9B17E5768D52",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "all",
+            "txt": "固定使用",
+            "ordIdx": 0
+          },
+          {
+            "rowid": "BC3391B838E242E787300021C31C667D",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "auth",
+            "txt": "认证使用",
+            "ordIdx": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2180.6200",
+      "step": "design-query-complete",
+      "sequence": 16379,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "BaseURL",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "c26ba4b6f9cc68ac2bcfe023f95ef46d3ac6cb7b03f12f785dc0a809b2656ecb",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6201",
+      "step": "design-query-complete",
+      "sequence": 16386,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_Interface_PublicParam",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_Interface_PublicParam",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "providerId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "providerId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "desc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "interfaceId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "outputfield",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "interfaceName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "accessPath",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "9699c10be8fea061729322790680cf328fe2d64f074aaed313dccb741f8c4a5b",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6202",
+      "step": "design-query-complete",
+      "sequence": 16393,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "TokenPrefix",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "90a17a9b2505b30e97637a9a494f2c509d2406db2a6d80490c14c288fbc0ac19",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6203",
+      "step": "design-query-complete",
+      "sequence": 16400,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider_Headers",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider_Headers",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "proId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "proId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "type",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "158579fd2f51fd80627c724b45b3ffe4d64eb286e2a3c0119fd2430ee83993dc",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6204",
+      "step": "design-query-complete",
+      "sequence": 16407,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_Interface_PublicParam",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_Interface_PublicParam",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "providerId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "providerId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "desc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "9699c10be8fea061729322790680cf328fe2d64f074aaed313dccb741f8c4a5b",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6205",
+      "step": "reopen-same-provider",
+      "sequence": 16434,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataSet",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "f5841967ce39624f07cc246bc406e71190108f7df19d2f5f8dd8b240db4feb96",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6206",
+      "step": "reopen-same-provider",
+      "sequence": 16435,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "Base_DataServiceInterface",
+                      "Base_InterfaceProvider",
+                      "Base_InterfaceProvider_Headers",
+                      "Base_Interface_PublicParam",
+                      "Base_TblField"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "87eef69205e014aea0b45e4097363ce20d3e25d4b62867199ff4dff0c7cb856d",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 5,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6207",
+      "step": "reopen-same-provider",
+      "sequence": 16447,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Field",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "446B5D94A71587E9BD4D325A4DF5F6F8"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p000",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p001",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p002",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p005",
+                      "446B5D94A71587E9BD4D325A4DF5F6F8p006"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "3af1f49ccd4b808edb2fd75777688647c01745acc911798f3da831c8a4dd9534",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 138,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6208",
+      "step": "reopen-same-provider",
+      "sequence": 16448,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "View_TblList",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_DataServiceInterface"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_InterfaceProvider"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_InterfaceProvider_Headers"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_Interface_PublicParam"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_TblField"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "6f83efed8e3980b713503aa7f93f3607f3fc1bb2a0c0cb4bcdb9304d70d11b53",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 5,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6209",
+      "step": "reopened-loaded",
+      "sequence": 16457,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_TblField",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "572EA1D83DBF470EB8129098B1758911",
+                  "747639AF23E2467FB5D8DB0E4CAD97B6",
+                  "842EC4BAD69D481590BF17A37686C1CD",
+                  "AFEFC2A869FD46AD84E65C58C5CB3EF1",
+                  "D70244CD788C4159B100F7850997E72F"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "12bee42d6b5be9a828e32de65bebb0b73658f4bcb57c056408a9c52ee11c0b52",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 154,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6210",
+      "step": "reopened-loaded",
+      "sequence": 16469,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataSet",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "0a44506318f55bdaffefdc8b6d0dbbe59b0600d9a35947be1a9d4a61f27de83f",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6211",
+      "step": "reopened-loaded",
+      "sequence": 16470,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "_Base_DictData",
+                      "_Base_DictType"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "ecbb385bfb525584b98f07816f261c29338aba3a9f3342caf1e7d9860af18b7c",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6212",
+      "step": "reopened-loaded",
+      "sequence": 16471,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Relation",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Relation",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "68ffe82508255f6779963eb614bd27df007504cb0db0e5fa4b61f3ede5bfa21a",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6213",
+      "step": "reopened-loaded",
+      "sequence": 16480,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_DataModel_Field",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "69B79AB779DF4C12A5595DACDF3283F1"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "69B79AB779DF4C12A5595DACDF3283F1p000",
+                      "FBC266CB81A3E3D1D6D67F9B9D7FFF04"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "49e0d382e821cf0bd3decc53c943277466b78ad5a46f218c5b1536a3662a533b",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 47,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6214",
+      "step": "reopened-loaded",
+      "sequence": 16481,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "View_TblList",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_DictData"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_DictType"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "8cacc9629a51394ff07bb4bddf682bb0bebb5a86c0751bea0e1be25a5bc3c891",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 2,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6215",
+      "step": "reopened-loaded",
+      "sequence": 16499,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_TblField",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "883991528A5B4BE3B351AA30B085D9DC",
+                  "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "f5b49daa1b1390b023f2a60acc03f0dd6b98479239b3d563f05bc67bbd0173d7",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 49,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6216",
+      "step": "reopened-loaded",
+      "sequence": 16511,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "_Base_DictType",
+      "request": {
+        "Table": [
+          {
+            "Name": "_Base_DictType",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "TypeName",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "接口公共头部信息使用类型"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "dictionaryType",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "fiveValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "author",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ModName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "StructureTypeID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "remark",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "TypeName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "val",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "secondValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "txt",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "thirdValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "AppId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "fourthvalue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "8fbb4bd0ebaa1c0b888443644d58257e4e994583a1f4ecb81b2b4f85069795ca",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": [
+          {
+            "rowid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "TypeName": "接口公共头部信息使用类型"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2180.6217",
+      "step": "reopened-loaded",
+      "sequence": 16518,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "_Base_DictData",
+      "request": {
+        "Table": [
+          {
+            "Name": "_Base_DictData",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "typeid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D7F531C8DA4842B682DD9248A8539DFC"
+              }
+            },
+            "inputParams": [
+              {
+                "Name": "rowid",
+                "Value": "D7F531C8DA4842B682DD9248A8539DFC"
+              }
+            ],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "author",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_1",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "typeid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_3",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ordIdx",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_2",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "exVal_4",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "val",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "txt",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "9c370d8a63f7323ae3aef4e39087f7ffeb5fcda663006ee9a4ec0ff310aeef6d",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 3,
+        "Items": [
+          {
+            "rowid": "54A79D15D2874970BFC55B94B20CBBBF",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "expired",
+            "txt": "过期使用",
+            "ordIdx": 2
+          },
+          {
+            "rowid": "A4BFD854B0984B858DCA9B17E5768D52",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "all",
+            "txt": "固定使用",
+            "ordIdx": 0
+          },
+          {
+            "rowid": "BC3391B838E242E787300021C31C667D",
+            "typeid": "D7F531C8DA4842B682DD9248A8539DFC",
+            "val": "auth",
+            "txt": "认证使用",
+            "ordIdx": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "2180.6218",
+      "step": "reopened-loaded",
+      "sequence": 16525,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "BaseURL",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "77e059c6f32af97c6d72c5b01a5527e8a6c3eb8d0168884ddd2d30364d1ae21f",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6219",
+      "step": "reopened-loaded",
+      "sequence": 16532,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_Interface_PublicParam",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_Interface_PublicParam",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "providerId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "providerId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "desc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "interfaceId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "outputfield",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "interfaceName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "accessPath",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "d05d3fd1fb07180928898346686beb15af9ad6ee0d0cd58052158a9a2c1e1ea9",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6220",
+      "step": "reopened-loaded",
+      "sequence": 16539,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "TokenPrefix",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "09c3c748e050795a595dd052a3031de1a3070c2b778be1cde30c6e3fafb1d067",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6221",
+      "step": "reopened-loaded",
+      "sequence": 16546,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_InterfaceProvider_Headers",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_InterfaceProvider_Headers",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "proId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "proId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramValue",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "type",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "1d2b3d5b5e216bfe51fd458b6a468a1f9f2ffb73310f289f7631fad2ce0e44a0",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    },
+    {
+      "id": "2180.6222",
+      "step": "reopened-loaded",
+      "sequence": 16553,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "table": "Base_Interface_PublicParam",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_Interface_PublicParam",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "providerId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8DAD6968DF1B4AE7A99887FCEAC66D91"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "providerId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "paramName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "desc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "httpStatus": 200,
+      "responseSha256": "5338865f097f14c69de1beb4a0d8da0da113c2289fe323d99398649a85657f28",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 0,
+        "Items": []
+      }
+    }
+  ]
+}

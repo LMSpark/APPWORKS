@@ -1,0 +1,8 @@
+{
+  "status": "blocked",
+  "stage": "login",
+  "errorType": "RequestError",
+  "safeCode": "RUNTIME_CONSUMPTION_FAILED",
+  "blockedMutations": 0,
+  "requestTrace": []
+}

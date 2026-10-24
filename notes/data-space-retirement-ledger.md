@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，阶段B的独立字典样板B1并行推进，C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录范围353及筛选、共享typeid精确更正、三条新增排序取消/仅ordIdx保存/同一SPA关闭切换重开已通过。候选流程6cab104已本地提交34路径，原真实两Added保存及Count5读回成立；保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）1定义5条目，不删除。旧turn2114024898052624384尚无终态，原SPA显示CANCELLING及查询错误，关闭禁用，旧保存后关闭切换重开未核销。当前优先落实用户纠偏：AI批量新增通用标准组件；allowAIAdd归DataTable.columns/DataColumn；系统提示词按Agent配置固定，用户仅输入业务提示。隔离worktree ai-data-entry以6cab104开工，唯一活动台账在该worktree；原D盘服务/现场保持。实施设计已完成独立复核，gpt-6-luna开始G1正式列元信息的基线/失败反例，尚未开放产品；完整设计和状态见末尾“当前成组实施设计”。B1删除引用/下游消费继续开放，完整goal active。
+**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`已提交正式消费模型/命名视图七条读回证据及删除查询状态守卫；本轮现有API头部标准字典下拉的选择、取消与重开也已实服验证。现有GetData经正式临时DataView已实服查到已知引用，默认视图未变；全局删除引用完整性仍开放；默认视口顶栏入口裁切新差距已留证。原旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active，最新明细与证据边界见末尾续核记录。
 
 ### 1. 目标、边界与完成口径
 
@@ -1387,3 +1387,24 @@ flowchart TD
 - 最终工程验收完成：正式ClassModel生成971 DTS/1983 symbols/1600索引，3110既有语义缺口保持；DictionaryWorkspace/DataView正式目录、成员概要和指南查询成功。完整lint、rules、build全部exit0；正式consumer台账611端点/210消费者。实际14个ClassModel差异中12个仅编译器symbol ID、其余为本组workspace投影及清单；consumer台账仅测试行号刷新。既有2条AI模型warning、知识查询24678占用提示及构建依赖注释/CodeMirror动态导入提示留在原始输出，不宣称零告警。
 - 归档位于`evidence/metadata-integration-20261025/b1-consumer-delete-context/`，包含RED/GREEN、门禁、独立复审、网络/文件回执、截图与逐文件SHA256。主控交付审计核11项门禁、2源码hash及生成差异通过；暂存范围只含这2源码测试、14正式ClassModel JSON、1正式consumer台账、本唯一台账和该证据目录。本轮本地提交不推送，提交身份以Git记录为准；原Agent未知结果进程31708及旧浏览器捕获继续保留，完整整合goal仍active。
 - 暂存前发现历史空index.lock（01:25生成，无活动Git进程），已将空锁原样移存cache后继续，未改index内容。冻结证据含原始尾空行和Markdown硬换行，不能为diff清理而改写；仅在本证据目录加.gitattributes禁止文本字节转换及空白格式检查，并对暂存blob逐个复核manifest，源代码仍受原格式检查。
+
+### 2026-10-25 B1 标准选项消费与引用查询续核
+
+- 本轮基线为已本地提交的`a176ae2f5`，开始时工作区干净，未推送。用户关于“是否AI生成属于DataTable列定义”的纠偏再次按源码核准：`DataColumn.allowAIAdd`由正式字段装配进`DataTable.columns`；`DataView.columns`仅投影所属列，通用AI字段资格沿该投影收窄。当前无需再新增DataView配置或复制开关；原“未传到DataView”不足以准确指出丢失曾发生在正式模型列装配环节。
+
+| 本组任务与共享接口 | 裁决 |
+| --- | --- |
+| 现有API公共头部的字典选项；B1保留测试字典 | Ruling: 验证真实固定名称字典消费者，不替换其来源或创建测试专用业务页；仅暂存选择后取消，独立重开核对零写入。若真实消费者不成立，登记缺口，不改共享数据凑验收。 |
+| 只读引用合同研究；单空间设计器元数据 | Ruling: 区分现有单空间视图、当前企业可读设计范围、跨租户全实例；允许研究已存在GetData精确过滤的独立临时视图，不改default范围、不扫描所有空间、不加入普通保存。源码合同不能冒充部署支持或全局无引用证明。 |
+| 浏览器观察与独立脚本准备 | Ruling: 主控独占浏览器操作；原gpt-6-luna写者只准备cache探针，复核前不发在线请求。原Agent未知结果进程及旧页捕获保持，所有新观察另存文件。 |
+
+- 实际从应用导航进入外部服务目录，选择已有`AGENT_E2E_PROVIDER`（`8DAD6968DF1B4AE7A99887FCEAC66D91`），打开请求方案的公共请求头。字典`接口公共头部信息使用类型`正式ID为`D7F531C8DA4842B682DD9248A8539DFC`；首次2180.6198/6199与重开2180.6216/6217分别查唯一类型和三条条目，`typeid`精确匹配，返回expired/过期使用、all/固定使用、auth/认证使用且前后未变。
+- 标准`r-select`的选项完整键为`69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default`，编辑目标为`446B5D94A71587E9BD4D325A4DF5F6F8@Base_InterfaceProvider_Headers@default`。请求身份白名单独立核对相应x-FormKey，全部X-AppId仍为D99A1DCE9894698799101EFD70F8FC76；未记录token/密码/原权限凭据。
+- 原公共头部为0条，仅暂存名称`B1-smoke-20261025-select-cancel`的新行；展开选项、选择“认证使用”后原表格与表单均显示同一标签。普通关闭点击保持草稿与对话框；“放弃修改并关闭”使临时行及弹层消失。同一SPA重新打开，独立发起18个查询，头部2180.6221仍Count=0，与首次2180.6203一致。最终clean close成功。此处验证可见标签与取消/重开行为，不声称读取了隐藏DataView状态或实测destroyed属性。
+- 完整观察窗44次GetData均HTTP/Code200，0Document、0非查询API、0截断、0缺失响应；展开选择及取消不增加查询或写入。主控审计脚本exit0；独立复核认可本消费者路径。未保存服务商配置或字典，不执行资源删除。本轮未修改产品代码，不重复上组生成/typecheck/build以制造新产品验收记录。
+- 导航实际差距：默认视口顶栏居中导航宽度超过容器，外部服务等左侧入口被裁切，普通点击未导航。临时将视口加宽到2300后通过同一原导航进入，再立即reset恢复默认；窗口内没有Document加载。默认宽度入口可达性仍未通过，截图独立保留，不能用宽视口成功核销宿主布局差距。
+- 新的引用合同证据来自只读Java参考源码及现有SPARK data适配：GetData注释描述APPLICATION_DESIGN按当前企业自有与有效授权发布设计并集查询，Filter继续收窄；这比“只能查已知单空间”的研究范围更宽，但尚未验证当前部署。未找到专用字典引用接口；旧DeleteDict源码仅删类型及条目。正在准备使用正式Base_DataModel临时DataView按Type/DbId精确查询的只读探针；未经复核和实服结果前，不新增删除逻辑或声称引用完整性已成立。
+- 探针预检与失败记录：主控先退回额外readModel/rebind及错误目标空间，改用正式`defaultView.createQueryView()`；复核保持原默认视图、清空临时queryContext、精确输出/过滤和只读路径白名单。首轮live在未认证登录时错误要求租户头，第二轮在应用选择完成前错误要求应用scope，第三轮正式装配成功后因把DataViewFilter实例传入filterExpression而本地失败，均属cache探针缺陷，未改产品或伪称服务失败。另一次分支顺序错误在主控源码复审时拦下，未live。三份失败JSON和三组原始log/exit及失败版本均保留；正式登录/应用选择合同与业务scope分别核对。过滤修复由真实DataSet/DataView/createQueryView及原查询编码离线复现，主控独立14项断言exit0；最终使用`.toJSON()`。
+- 最终只读探针已实服通过（`b1-reference-probe-live-binding.exit=0`）：12个请求由1次正常登录、10个GetData（含2个正常应用选择查询）和1个正式pagedata文本读取组成；0业务写、0写入尝试。唯一引用查询以C场景正式Base_DataModel临时视图、`Type='字典' AND DbId='327D74EC0ABC4196AA75C56D944B8201'`及六个身份字段发送，inputParams为空，没有dataSetId过滤。结果Loaded，rows=total=1，六字段经原fieldAccess核可见，精确命中既有模型`F9F01665D4A98E1FF996CD8A48D3C373`及T空间。原default仍保留T的GetInputParam过滤、queryContext、4/4行与相同配置/行集SHA；临时视图及本次DataSet均已destroy。正式脚本hash为`E3CC0077743EEF3821F43CFBEE13DFB2516BDB3111BAF9C134AF58E418D67E60`。
+- 核销边界：本组证明实际部署可沿现有SPARK data查询已知正向引用，不能证明跨空间全集、所有授权边界或零命中时可安全删除。没有改字典删除产品入口，也没有资源删除；完整B1引用完整性继续开放。已完成的专门业务select路径与本次正向查询不重复核验；后续独立能力可继续推进，默认视口导航裁切须单独修复。原未知Agent进程31708与旧浏览器页继续保留。
+- 本组独立复核两项通过：业务select实服观察窗，以及最终正向引用查询/默认视图隔离。证据归档`evidence/metadata-integration-20261025/b1-business-select-reference/`共42文件（manifest逐项核41份内容）；包含原始成功与失败输出、脚本、读回、源码hash、复核和截图。文档治理`pnpm run verify:docs`通过458文件，原始输出保留cache的`b1-select-reference-docs.log/exit`。明确暂存范围仅本唯一台账与此证据目录，产品、测试、ClassModel及Java均无修改；本组按该范围本地提交，不推送。

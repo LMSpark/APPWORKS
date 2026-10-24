@@ -1,0 +1,935 @@
+{
+  "status": "blocked",
+  "stage": "temporary-view-query",
+  "errorType": "Error",
+  "safeCode": "RUNTIME_CONSUMPTION_FAILED",
+  "blockedMutations": 0,
+  "requestTrace": [
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "method": "POST",
+      "loginTenant": "NewApp"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "formKey": "7AB874097A1E8711A42FD845939A6E05",
+      "bootstrapQuery": "application-catalog"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "formKey": "7AB874097A1E8711A42FD845939A6E05",
+      "bootstrapQuery": "navigation-root"
+    },
+    {
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_DataSet",
+      "filter": {
+        "Type": "cond",
+        "Field": "rowid",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        }
+      },
+      "fields": [
+        {
+          "Name": "rowid",
+          "IsOutput": true
+        },
+        {
+          "Name": "Name",
+          "IsOutput": true
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "inputParams": [],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_DataModel",
+      "filter": {
+        "Type": "and",
+        "Filters": [
+          {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            }
+          },
+          {
+            "Type": "cond",
+            "Field": "Name",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "Base_DataModel",
+                "Base_DataModel_Field",
+                "Base_DataModel_Relation",
+                "Base_DataServiceInterface",
+                "Base_DataSet",
+                "Base_DataViewList",
+                "Base_Desensitization_Rule",
+                "Base_JsonData",
+                "Base_TblField",
+                "View_TblList",
+                "View_ViewList",
+                "_Base_DictType",
+                "_Base_ParamList"
+              ]
+            }
+          }
+        ]
+      },
+      "fields": null,
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_DataModel_Field",
+      "filter": {
+        "Type": "and",
+        "Filters": [
+          {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            }
+          },
+          {
+            "Type": "cond",
+            "Field": "dataModelId",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp005",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp006",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp007",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp008",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp009",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp010",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp011",
+                "8D1AB14DD8277F3E7017CD38F77B09FDp013"
+              ]
+            }
+          },
+          {
+            "Type": "cond",
+            "Field": "type",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "dataModel"
+            }
+          }
+        ]
+      },
+      "fields": null,
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "View_TblList",
+      "filter": {
+        "Type": "or",
+        "Filters": [
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Field"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Relation"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataServiceInterface"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataSet"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataViewList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_Desensitization_Rule"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_JsonData"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_DictType"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          },
+          {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ParamList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "fields": null,
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_TblField",
+      "filter": {
+        "Type": "cond",
+        "Field": "tblid",
+        "Operator": "in",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": [
+            "30045651CCCE46B0A2783C40481D55F3",
+            "38EC64F5FEE74113B8499F1A498AD8BC",
+            "5438CCE06B5F4D21B8110CEBF2565E0F",
+            "6F8C35ECCE554F4881C965D271DF5FC8",
+            "76C3DEEF94924984A54ACF02DA3F4497",
+            "7A8ED1ED52394612A00AB6B40CB062D7",
+            "81F00D878D684AE9A7E077578F04249E",
+            "842EC4BAD69D481590BF17A37686C1CD",
+            "8F88BCBF0B3043D08993A14758EF3D94",
+            "A0E03EE0DB6B4A8D8657F9F2D61966FD",
+            "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+          ]
+        }
+      },
+      "fields": null,
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_DataSet",
+      "filter": {
+        "Type": "cond",
+        "Field": "rowid",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "944DEE5A0E5170F903E0E008172C4CD2"
+        }
+      },
+      "fields": [
+        {
+          "Name": "ReportID",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "rowid",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 1,
+          "OrderType": "ascending"
+        },
+        {
+          "Name": "wfid",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updateuser",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "createuser",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "description",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "Name",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "flowstate",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updatetime",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "createtime",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "lingma_sys_is_delete",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "inputParams",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [
+        {
+          "Name": "dataSpaceId",
+          "Value": "944DEE5A0E5170F903E0E008172C4CD2"
+        }
+      ],
+      "probeFilter": false
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "appId": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantId": "NewApp",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "model": "Base_DataModel",
+      "filter": {
+        "Type": "cond",
+        "Field": "dataSetId",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "944DEE5A0E5170F903E0E008172C4CD2"
+        }
+      },
+      "fields": [
+        {
+          "Name": "lingma_sys_ent",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "DbName",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "addApi",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updateApi",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "PId",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "ShortName",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updatetime",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "Filter",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "cacheType",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "IsBusiness",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "topValue",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "lingma_sys_is_delete",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "ReportID",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "Type",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "selfType",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "updateuser",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "MetaName",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "PrimaryKeyFields",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "description",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "wfid",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "JoinFilter",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "flowstate",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "parentField",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "dataSetId",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "RequestComplete",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "items",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "createtime",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "OutputType",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "JoinType",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "ForeignKeyFields",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "requestType",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "Name",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "hasChildField",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "DISTINCT",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "DbId",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "deleteApi",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "IsBusinessMain",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        },
+        {
+          "Name": "rowid",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 1,
+          "OrderType": "ascending"
+        },
+        {
+          "Name": "createuser",
+          "IsOutput": true,
+          "Group": 0,
+          "Order": 0,
+          "OrderType": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "inputParams": [
+        {
+          "Name": "dataSpaceId",
+          "Value": "944DEE5A0E5170F903E0E008172C4CD2"
+        }
+      ],
+      "probeFilter": false
+    }
+  ]
+}

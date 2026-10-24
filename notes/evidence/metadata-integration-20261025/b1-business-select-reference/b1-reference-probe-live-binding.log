@@ -1,0 +1,75 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+WebSocket server error: Port 24678 is already in use
+🐛 [DataView] 销毁 DataView: Base_DataModel:b1_reference_probe_1792877033777_a7eb64012572b
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:apiInfoModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:designModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:modelOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:apiInfoFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:designFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFieldOptions
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:designParameters
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:designRelations
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_ParamList:default
+🐛 [DataView] 销毁 DataView: _Base_ParamList:sourceDetails
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+{
+  "status": "confirmed",
+  "mode": "formal-SPARK-DataView-readonly",
+  "requestCount": 12,
+  "probeRequestCount": 1,
+  "rows": 1,
+  "total": 1,
+  "matches": [
+    {
+      "rowid": "F9F01665D4A98E1FF996CD8A48D3C373",
+      "Name": "B1Sort_20261024_1925F4C2",
+      "Type": "字典",
+      "DbId": "327D74EC0ABC4196AA75C56D944B8201",
+      "MetaName": "B1Sort_20261024_1925F4C2",
+      "dataSetId": "944DEE5A0E5170F903E0E008172C4CD2"
+    }
+  ],
+  "cleanup": {
+    "temporaryViewDestroyed": true,
+    "dataSetDestroyed": true
+  },
+  "blockedMutations": 0
+}

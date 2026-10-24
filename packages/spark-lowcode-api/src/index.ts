@@ -38,6 +38,7 @@ export type {
 } from './platform/data-space/data-space.js'
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
 export { DataSpaceQueryAggregation } from './platform/data-space/runtime/query/data-space-query-aggregation.js'
+export { AiTurnResource } from './realtime/ai-turn-resource.js'
 export { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
 export { PermissionApi } from './platform/permission/permission-api.js'
 export { PermissionDesignApi } from './platform/permission/design/permission-design-api.js'

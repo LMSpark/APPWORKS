@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 196,
-  "directUnmatchedCount": 135,
+  "consumerCount": 202,
+  "directUnmatchedCount": 137,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -992,6 +992,42 @@
       "expression": "/api/DataWorkFlowDesign/write",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
       "sourceLine": 20,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/agents",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 54,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 110,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns/T1",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 248,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns/T1",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 267,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/agents",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+      "sourceLine": 233,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+      "sourceLine": 257,
       "scope": "publishable-lowcode-api"
     },
     {

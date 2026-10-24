@@ -1134,3 +1134,25 @@ flowchart TD
 - V1合同裁决：参考源码将Agent工具声明和执行map统一，非READ_ONLY/ALWAYS先进入审批；旧loop全局工具重载和SAP命令执行不能当候选文本边界。元数据助手配置有写工具/requireApproval=0，不足以否定V1强制审批路线，也不能当线上已验证。下一候选路径为正式元数据Agent、消费方不提供approve、遇工具审批即停止，只将人工确认后的文本候选写原entries DataView；先核SPARK data调用/回执/停止合同和反例，不新造AgentID、不借用其它业务Agent、不放开保存守卫。V1客户端/候选链尚未实施，真实生成/审批/取消未验。
 - 删除引用只读核定：模型DbId保存字典rowid，外部API固定名称字典为另一消费者；现有删除仅覆盖定义/条目。已知Base_DataModel精确引用查询可发现正引用，但当前视图单空间范围的零命中不能证明全局无引用。报告初版Loaded风险被主控收窄：正常页面双查询成功才ready，未证实初始Idle删定义可达；公开API外部resetState反例仍待验证，不新增重复守卫、不一概禁删、不造系统字典保留规则。Java专用删除亦未在该方法核DbId，线上完整约束未证实，未删除试探。
 - 当前SPA仍保留字典数据编辑→_Base_DictData字段呈现，typeid为原SystemData(rowid)，保存与放弃本地修改禁用，无草稿。原精确字段更正确认未答复，不重问、不执行依赖写入。证据b1-ai-service-contract.json及b1-ai-and-delete-contract-review.md归档；本轮仅文档与只读证据，产品/测试/生成物未变，不重复产品全门禁。完整B1及阶段A剩余项继续开放；本轮取得V1实际目录与执行边界新证据，属于进展而非重复阻断。
+
+### 2026-10-24 B1 AI 候选数据通道实施
+
+- 上一轮为progress：V1正式目录可达及与旧执行链不同的强制审批证据改变接入方向；已提交4f4baf8fa，当前10-17 ahead8、开工时工作区干净。仍未取得typeid更正确认。本轮在完整B1范围内实现必要的V1 SPARK data语义资源，不把通道完成当成候选页面完成。
+- 派工：新gpt-6-luna单写者b1_ai_candidate_data，Phase1仅合同和原生反例；主控否决报告重提空工具Agent前置、页面候选数组与部分新增后保留整批候选重试。Ruling：复用已有metadata Agent及V1审批边界；只读候选须绑定DataView，确认后归原entries；意外部分新增报告原entries状态，禁止重复导入或第二回滚通道。
+
+| 阶段/共享合同 | 产出与消费核对 | 裁决 |
+| --- | --- | --- |
+| V1资源自身 | 4个DataView分别Agent读取、请求命令、轮次读取、取消命令；创建ACK不等于完成，cancel ACK不等于CANCELLED | 使用原DataSet命令/只读query，不新建SSE或私有轮询真源 |
+| V1资源→字典候选编排 | 数据层返回正式身份/状态/文本；领域层后续校验已保存定义与六字段并写entries | 本组不夹带字典设计或条目保存，接口先测试后串行接线 |
+| V1资源→原保存恢复 | 原native capture保存未知；无turnId没有已核只读幂等查找 | verify不得重POST或返回undefined猜未执行；取消有turnId可GET核状态 |
+| 候选编排→SPA宿主 | 原关闭保护/实例释放承接在途和未知，旧响应不能进入新目标 | 后续必须验证正式目录关闭切换，通道测试不替代SPA验收 |
+| 公共API→ClassModel/工程门禁 | 类公开DataView成员、输入和JSDoc由正式生成器投影 | 不手改生成物；无必要不改spark-data、旧AI链或Java |
+
+- 主控已冻结首组路径为AiTurnResource类、原生DataView/HTTP行为测试及index导出（brief在ignored cache/task-b1-ai-turn-resource-brief.md）；不新增realtime HTTP公开面。所有HTTP藏在绑定executor内部；Agent不由此类选择。创建本地错误、明确拒绝、网络/坏ACK未知分别验；共享DataSet其它草稿保持，重复保存不能重复创建。
+- ClassModel取证纠正：实施者误用生成命令附带--help且未保留session/exit，只能确认看见启动输出；不能据此说完成或没写产物。主控未发现该生成node进程仍活跃，重新执行正式无附加参数命令，session17267已明确exit0，963 DTS/1969 symbols/1588 classIndex；完整日志及exit存cache/b1-ai-class-model-before.*。随后由正式知识provider查询目录→概要→指南，结果在cache/b1-ai-resource-knowledge.json，完成状态以查询输出为准。
+- 首组冻结复核未通过：主控与独立任务审查一致确认两项Important：AjaxResult Code500/HTTP5xx被当明确拒绝，可能丢unknown；取消本地校验异常被错误包成unknown。另有公开成员JSDoc不足。进入修复轮1/5，仍由原gpt-6-luna写者补反例及修复；不进行真实AI POST。目录当前SPA再次只读显示353条/每页20，未刷新整页，截图保存在既有cache。
+- 修复轮1/5：两项行为缺陷复审ADDRESSED，35项（资源33/client2）与scoped/full lint退出0。最小LowcodeClient可选preserveHttpError/retry保留HTTP错误并阻止命令重试，旧调用默认不变。公开生命周期JSDoc仍欠明确重建语义，进入R2仅补该注释，不重复已通过行为测试；正式生成及指南须随注释再刷新。原生只读资源烟测9个Agent通过，原业务视图保持，0AI调用/业务写入。
+- R2生命周期注释复审ADDRESSED。真实通道生成成功：turn2113991086958579712，ACK QUEUED→正式RUNNING→COMPLETED，文本217字符含六字段A/B/C；一次创建POST，工具执行列表为空，0业务保存，原定义/条目视图状态保持。仅通道证明，未接候选UI，也未验证线上审批/取消。主工程typecheck/lint、字典领域64及目录/工作区71、build通过；rules首次因consumer ledger过期失败，正式生成待补。生成审查另发现本组5个新语义缺口（模块用途与构造输入type/3成员JSDoc），R3只补注释，由正式生成和指南验收，不能把旧3110个缺口一并带成已修复。
+- R3构造指南已补，正式生成回3110原基线、当前模块0语义缺口；复核要求模块用途明确后续候选页面尚未接线。rules第二次发现resources子目录9→10违反既有上限。Ruling：不扩宽基线，将新轮次资源和测试归入既有realtime目录（现2文件），保留类和四视图合同、不改旧实时接口；仅导出/相对路径和文档变化，正式生成负责旧产物清理。R4继续用户指定gpt-6-luna单写者（用户低价实施要求优先于技能一般升级建议）。
+- R4路径与用途复审PASS，0 open Important；新路径35项通过，迁移前后移除注释并规范化导入路径的编译JS一致，真实生成证据可用于同一行为版本，不重复创建AI轮次。最终领域64/目录工作区71与通道客户端35共170项互不重叠测试通过；主工程typecheck/full lint/正式ClassModel及consumer生成/完整rules/build退出0。本组生成模块0语义缺口，原3110缺口未变；12外围产物仅编译符号数字变化。保留既有构建与AI模型告警。包级typecheck五个既有字典测试错误仍记录为未通过，文件Git blob与HEAD相同。
+- 本窄组状态：AI轮次SPARK data通道、任务复核、正式目录/概要/指南和原生真实生成烟测完成；候选领域/标准组件预览与确认、SPA在途/unknown保护、真实审批取消、删除引用/下游消费仍待后续。typeid范围确认仍未答复、真实三条新增/排序保存尚未核销。下一组从已保存字典定义和六字段校验进入候选DataView与原entries暂存，不建立第二草稿/保存器。证据b1-ai-resource-acceptance.md/readonly.json/live.json/verification.json已归档，暂存范围为5源码测试、正式生成物和本组台账证据，随后本地提交，不推送。

@@ -1,0 +1,250 @@
+{
+  "base": "4f4baf8fa8fce5d5cfd23c85016c7e0b8f451bc5",
+  "sources": [
+    {
+      "path": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+      "sha256": "56f0e18db9cf904f7cb8a6621ba08e04a71bba070057e1260ad8794469cb5d6c"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sha256": "e5166464dafc6f50ebf25ceca562388d5c333423013fa70dfe71884d82995aa3"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+      "sha256": "94f2064d86d2080f8301c5edb42a41b27d1a866b9bba2bde5efa51ad90b8255d"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/core/lowcode-client.test.ts",
+      "sha256": "162a5fd8c6d7a970e6640d6786dab5624ed5042c1954200753789e4621ac0ec3"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/index.ts",
+      "sha256": "bf8be8bc1d198fa97ad670408c493ada532b76ad5240019c3c8545d01a040846"
+    }
+  ],
+  "commands": [
+    {
+      "key": "red",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-fix-round1-02-red.log",
+      "logSha256": "b57859594d5092f9def42ba4bff5b6cc2b37dd07cec04f0fe0acf8b34a778f0c"
+    },
+    {
+      "key": "R1-tests",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-fix-round1-06-vitest.log",
+      "logSha256": "210df704b64655825d1ca16201d6bf3710944fc39f22fcfe461051a5bd1afdd7"
+    },
+    {
+      "key": "R4-tests",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-r4-vitest.log",
+      "logSha256": "7f6fd350e72033ade8bfbc7edf0d1949015c6d86bc893794ff72106e100a7a27"
+    },
+    {
+      "key": "R4-lint",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-r4-eslint.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "key": "R4-dirs",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-r4-directory-limits.log",
+      "logSha256": "d7b3d8e05bec9b3fad6f35fb9b60addc2db2bd339cde512bab291a89db667345"
+    },
+    {
+      "key": "domain-tests",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-domain-tests.log",
+      "logSha256": "6feaae01dcd473ae5c78a63a56cf752a87f51945ee7cf1789c37ef7414e73f30"
+    },
+    {
+      "key": "page-tests",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-page-tests.log",
+      "logSha256": "50c73820e5545c21301c49f66d24070bb243ba7ae2b7575977fc599b2a4de9ec"
+    },
+    {
+      "key": "root-typecheck",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-r4-typecheck.log",
+      "logSha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "key": "full-lint",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-lint.log",
+      "logSha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "key": "class-model",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-r4-generate.log",
+      "logSha256": "7cb3e025edf0e777de58777a0ecbd872b3fc327490f67d97d11c802958ee0191"
+    },
+    {
+      "key": "consumer-contracts",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-r4-contracts.log",
+      "logSha256": "8ef343db259e7bf93d2218d2cd9b95204f094a66b492c757d8c812bcec30bb1e"
+    },
+    {
+      "key": "rules-stale",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-rules.log",
+      "logSha256": "e46a6adf368d874990c311ba007450fdc7112c7a227340b84b6250684e4f5209"
+    },
+    {
+      "key": "rules-directory",
+      "exit": 1,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-rules2.log",
+      "logSha256": "9474d2671d25bc12a3366abc1b5c3a84468f8414f25dbd54f8bd17aca46904fe"
+    },
+    {
+      "key": "rules-final",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-rules3.log",
+      "logSha256": "b9501360b7c3a9def333d4663cc3be4432923aa3597b6b732a42af7bfff34ae5"
+    },
+    {
+      "key": "build",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-r4-build.log",
+      "logSha256": "20a24f9440aeab3467a7150c878e2b25657f7e55b88c6f1933b4ac903d1f87f2"
+    },
+    {
+      "key": "knowledge",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-r4-knowledge.log",
+      "logSha256": "177b5eac978913b7d691ebee9b2a8dde426598968952853ef6df6fcfff1effd4"
+    },
+    {
+      "key": "generated-check",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-final-r4-generated-check.log",
+      "logSha256": "f710e2670b5b177bc1fa7a9527936856a0a85bbd98de8f24e8cf94cfde7db6e0"
+    },
+    {
+      "key": "readonly-live",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-readonly.log",
+      "logSha256": "e7af2254b766b0826b9abf0c540cfa2afb5ea5dab38a76343af38a34690c7475"
+    },
+    {
+      "key": "create-live",
+      "exit": 0,
+      "log": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-live.log",
+      "logSha256": "cfbff18716b8fc397053a6d53d2d345866910470d849117a68725e4bb0ff88c8"
+    },
+    {
+      "key": "package-typecheck-baseline",
+      "exit": 2,
+      "log": "node_modules/.cache/metadata-integration-20261024/task-b1-ai-turn-resource-phase2-09-typecheck.log",
+      "logSha256": "c58025e3bb95b79e7a6a87db63344eaeb82b047f19e93241410d1d7c3b297b99"
+    }
+  ],
+  "affectedTests": {
+    "resourceAndClient": 35,
+    "dictionaryDomain": 64,
+    "dictionaryCatalogAndWorkflow": 71,
+    "nonOverlappingTotal": 170
+  },
+  "generated": {
+    "changedTrackedGenerated": 16,
+    "newGeneratedFiles": [
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json"
+    ],
+    "peripheralSymbolChanges": [
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      }
+    ],
+    "ownSemanticGaps": []
+  },
+  "moveOnlyProof": {
+    "sameEmittedRuntimeAfterImportNormalization": true
+  },
+  "knownBaselineTypecheck": {
+    "file": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+    "gitBlob": "4ee950e7880ec1e180318064ba5ca31352f09ebd",
+    "unchanged": true,
+    "errorCount": 5
+  },
+  "liveProof": "b1-ai-resource-live.json",
+  "readonlyProof": "b1-ai-resource-readonly.json",
+  "reviewReports": [
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-review-initial.md",
+      "sha256": "df58a36ff9009a0484250284afb637e3a65ae61ad72cc1477a8435a93e8705f5"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-review-r1.md",
+      "sha256": "aeaf0304e5b56b7ada055d557c35f429279901551396d740cc97d0c690f81789"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-review-r2.md",
+      "sha256": "de4b519e57af1f6769f05ca35f0ec3d0ca982fd13b70479b08c58e8231141faf"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-review-r3.md",
+      "sha256": "7d92712ceb3bfa92243fc053bca4339671712b188d40d67365f540cd79c88432"
+    },
+    {
+      "path": "node_modules/.cache/metadata-integration-20261024/b1-ai-resource-review-r4.md",
+      "sha256": "5a2e61f088165991822c1c9ea91b3e1bdb5cc8263120241feb8ebb2b1b0814b4"
+    }
+  ],
+  "remaining": [
+    "dictionary candidate preview/confirmation integration",
+    "SPA candidate lifecycle acceptance",
+    "live approval/cancellation flow",
+    "typeid correction confirmation and real entry/sort persistence",
+    "dictionary delete references and downstream consumers"
+  ]
+}

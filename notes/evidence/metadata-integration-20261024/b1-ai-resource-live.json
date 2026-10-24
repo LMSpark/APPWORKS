@@ -1,0 +1,94 @@
+{
+  "kind": "native-ai-resource-live-smoke",
+  "turnId": "2113991086958579712",
+  "conversationId": "2113991086929219584",
+  "ackStatus": "QUEUED",
+  "terminalStatus": "COMPLETED",
+  "states": [
+    {
+      "status": "RUNNING",
+      "at": "2026-10-24T13:48:46.116Z"
+    },
+    {
+      "status": "COMPLETED",
+      "at": "2026-10-24T13:48:47.241Z"
+    }
+  ],
+  "draftLength": 217,
+  "draftHash": "ce5314904ad96d3cb1365ee10ebd5c835541d8b43d7a9d3e734d690b53dd802a",
+  "candidateShape": true,
+  "values": [
+    "A",
+    "B",
+    "C"
+  ],
+  "errorCode": null,
+  "errorMessagePresent": false,
+  "toolExecutions": [],
+  "createPostCount": 1,
+  "cancelPostCount": 0,
+  "originalViewsPreserved": true,
+  "businessWriteCount": 0,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/UserLoginByEnt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/agents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/v1/turns"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/turns/2113991086958579712"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/turns/2113991086958579712"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/turns/2113991086958579712/tool-executions"
+    }
+  ],
+  "notes": [
+    "Native DataView/DataSet transport proof only; candidate UI and SPA integration not yet implemented.",
+    "No tool approval or client-result capability. Tool audit is a native read-only semantic view; tool arguments/results not retained."
+  ]
+}

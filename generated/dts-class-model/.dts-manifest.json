@@ -2949,7 +2949,7 @@
     "packages/spark-lowcode-api/src/core/lowcode-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/core/lowcode-client.ts.json",
-      "sourceModifiedAt": "2026-10-05T10:07:52.890Z"
+      "sourceModifiedAt": "2026-10-24T13:43:20.082Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
@@ -2964,7 +2964,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-23T17:51:12.233Z"
+      "sourceModifiedAt": "2026-10-24T13:55:05.653Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3235,6 +3235,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts.json",
       "sourceModifiedAt": "2026-10-23T17:51:12.230Z"
+    },
+    "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json",
+      "sourceModifiedAt": "2026-10-24T13:55:04.081Z"
     },
     "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",

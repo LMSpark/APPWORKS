@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/ai-turn-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/ai-turn-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/ai-turn-resource\n职责：把 V1 Agent 目录、创建轮次、轮次状态和取消命令装配为同一 DataSet 的语义 DataView。\n边界：HTTP 仅由 DataView query/save owner 调用；不提供审批、前端工具结果、候选解析或独立轮询状态。\nAI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。当前仅提供四个轮次 DataView；字典候选解析、预览和人工确认留给后续领域与页面接线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiTurnResource"
+    ]
+  },
+  "$defs": {
+    "AiTurnResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiTurnResourceInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true
+      }
+    },
+    "AiTurnResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiTurnResource",
+      "properties": {
+        "agents": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "requests": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turns": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "cancellations": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiTurnResourceInput"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-24T13:55:04.081Z",
+  "models": {
+    "AiTurnResourceInput": {
+      "name": "AiTurnResourceInput",
+      "jsdoc": "构造 AI 轮次语义资源所需的当前运行实例依赖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前目标的原生 DataSet；四个资源视图直接装配在此实例上。 */\n    dataSet: DataSet;\n    /** 由宿主提供的认证 HTTP 客户端；资源在 DataView owner 内发起 V1 请求。 */\n    http: HttpClientBase;\n    /** 同步检查当前租户、应用和目标范围仍有效；失效时应拒绝本次访问。 */\n    guard: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前目标的原生 DataSet；四个资源视图直接装配在此实例上。 */\n    dataSet: DataSet;\n    /** 由宿主提供的认证 HTTP 客户端；资源在 DataView owner 内发起 V1 请求。 */\n    http: HttpClientBase;\n    /** 同步检查当前租户、应用和目标范围仍有效；失效时应拒绝本次访问。 */\n    guard: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "当前目标的原生 DataSet；四个资源视图直接装配在此实例上。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "jsdoc": "由宿主提供的认证 HTTP 客户端；资源在 DataView owner 内发起 V1 请求。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "guard",
+              "jsdoc": "同步检查当前租户、应用和目标范围仍有效；失效时应拒绝本次访问。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiTurnResource": {
+      "name": "AiTurnResource",
+      "jsdoc": "四个 AI 语义资源视图；所有写入只通过对应 DataView/DataSet saveChanges 提交。\n请求主键为本地生成的 idempotencyKey。若创建 ACK 丢失且没有可信 turnId，核验明确失败并保留 DataView 原 capture，不重放 POST。\n四个视图依附传入的 DataSet，并随该 DataSet 销毁。guard 表示租户、应用或目标失效后，必须为新目标重新装配资源，不能复用旧视图或结果。\n创建 ACK 仅表示轮次已受理，不代表生成终态；取消 ACK 仅表示取消请求回执，不代表轮次已停止。停止状态须通过 turns 刷新正式读回核验。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "把 V1 AI 轮次资源绑定到调用方现有 DataSet。\n@param input.dataSet 本次运行实例的原 DataSet；不得传入另一个目标空间的副本。\n@param input.http 现有认证 HTTP 客户端；本资源在 DataView executor 内封装协议请求。\n@param input.guard 每次请求前后校验当前应用/目标身份仍有效。\n@throws 任一保留表名已存在时，在新增任何表之前拒绝装配。",
+          "signatureText": "constructor(input: AiTurnResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "AiTurnResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "agents",
+              "jsdoc": "Read-only AgentCatalogItem projection: id (primary key), agentName, description.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requests",
+              "jsdoc": "Staged create command: idempotencyKey primary key; agentId/message/conversationId inputs; turnId/status/acceptedAt receipt fields. ACK is not a generation terminal state.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turns",
+              "jsdoc": "Read-only TurnRecord projection; set queryContext.turnId before refresh. Empty/missing ID returns no rows without HTTP.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancellations",
+              "jsdoc": "Staged cancel command: operationId primary key, turnId input, requested boolean|null ACK and observedStatus readback. ACK is not proof of stop; verify through turns.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -73,6 +73,15 @@
             false,
             true
           ]
+        },
+        "retry": {
+          "type": "number"
+        },
+        "preserveHttpError": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -82,7 +91,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-05T10:07:52.890Z",
+  "generatedAt": "2026-10-24T13:43:20.082Z",
   "models": {
     "LowcodeClient": {
       "name": "LowcodeClient",
@@ -136,11 +145,11 @@
       "jsdoc": "单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -173,6 +182,18 @@
             },
             {
               "name": "authenticated",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retry",
+              "jsdoc": "Override HttpClientBase retry defaults for this request only.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preserveHttpError",
+              "jsdoc": "Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body.",
               "readable": true,
               "writable": false
             }

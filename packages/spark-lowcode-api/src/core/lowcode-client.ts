@@ -24,6 +24,7 @@ export class LowcodeClient {
       ...(command.data === undefined ? {} : { data: command.data }),
       ...(command.params === undefined ? {} : { params: { ...command.params } }),
       ...(command.headers === undefined ? {} : { headers: { ...command.headers } }),
+      ...(command.retry === undefined ? {} : {retry: command.retry}),
       ...(command.authenticated === false ? { meta: { lowcodeSkipAuth: true } } : {}),
     }
 
@@ -31,6 +32,7 @@ export class LowcodeClient {
     try {
       response = await this.http.request<unknown>(config)
     } catch (error) {
+      if (command.preserveHttpError === true && isRequestError(error)) throw error
       if (!isRequestError(error) || error.response === undefined) throw error
       response = error.response
     }
@@ -67,4 +69,8 @@ export type LowcodeClientCommand = Readonly<{
   params?: Readonly<Record<string, unknown>>
   headers?: Readonly<Record<string, string>>
   authenticated?: boolean
+  /** Override HttpClientBase retry defaults for this request only. */
+  retry?: number
+  /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */
+  preserveHttpError?: boolean
 }>

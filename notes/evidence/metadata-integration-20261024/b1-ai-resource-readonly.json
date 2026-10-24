@@ -1,0 +1,100 @@
+{
+  "kind": "native-resource-readonly-smoke",
+  "status": "passed",
+  "stage": "agents-native-refresh",
+  "errorMessage": null,
+  "agentCount": 9,
+  "agents": [
+    {
+      "id": "2111533250102038528",
+      "name": "合成验收-系统规程回读-71B-20261018",
+      "descriptionType": "string"
+    },
+    {
+      "id": "2111201590840004608",
+      "name": "智能投标工艺助手（冻结资料）",
+      "descriptionType": "string"
+    },
+    {
+      "id": "2099446928935882752",
+      "name": "通用Excel配置工艺AI",
+      "descriptionType": "string"
+    },
+    {
+      "id": "agent-app-builder",
+      "name": "应用搭建助手",
+      "descriptionType": "string"
+    },
+    {
+      "id": "agent-external-config",
+      "name": "外部接口配置助手",
+      "descriptionType": "string"
+    },
+    {
+      "id": "agent-code-designer",
+      "name": "编码设计助手",
+      "descriptionType": "string"
+    },
+    {
+      "id": "agent-metadata-admin",
+      "name": "元数据管理助手",
+      "descriptionType": "string"
+    },
+    {
+      "id": "2084893060373811200",
+      "name": "E2E",
+      "descriptionType": "string"
+    },
+    {
+      "id": "agent-001",
+      "name": "默认助手",
+      "descriptionType": "string"
+    }
+  ],
+  "requestState": 3,
+  "originalViewsPreserved": true,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/UserLoginByEnt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/agents"
+    }
+  ],
+  "aiInvocationCount": 0,
+  "businessWriteCount": 0
+}

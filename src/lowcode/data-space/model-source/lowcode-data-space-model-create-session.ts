@@ -5,6 +5,8 @@
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {PageDataSpaceModelSourceReader as SourceReader} from './lowcode-data-space-source-catalog'
 import {LowcodeDataSpaceArrayDraft, type ArrayDefinition} from './array/lowcode-data-space-array-draft'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyAndDiscardDataSpaceDefinitionCapture,
+  verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from './save/data-space-definition-save'
 
 export type ModelCreateSources = SourceReader | undefined
 type Source = Parameters<NonNullable<SourceReader>['prepare']>[0]
@@ -18,8 +20,10 @@ export type ModelCreateFlow = {
   generation: number
   preview: Candidate | null
   staged: Staged[]
+  capture: DataSpaceDefinitionCaptureBatch | null
+  captureSignatures: Array<{view: DataView; ids: string[]; signature: string}> | null
+  readbackSignatures: Array<{view: DataView; ids: string[]; signature: string}> | null
   unresolved: boolean
-  verifiedSnapshot: string
   verification: Array<{table: string; id: string; result: string}>
 }
 
@@ -52,7 +56,8 @@ export function createModelCreateHost(input: ModelCreateHostInput): ModelCreateH
   const host: ModelCreateHost = {
     models, fieldSource: fields, fields: undefined, fieldContext: '', modelContext: JSON.stringify(models.queryContext),
     dataSet, targetId, sources,
-    flow: {status: 'idle', generation: 0, preview: null, staged: [], unresolved: false, verifiedSnapshot: '', verification: []},
+    flow: {status: 'idle', generation: 0, preview: null, staged: [], capture: null, captureSignatures: null,
+      readbackSignatures: null, unresolved: false, verification: []},
     lifecycle,
   }
   assertOwner(host)
@@ -87,6 +92,9 @@ function assertOwner(host: ModelCreateHost): void {
 function modelCreateViews(host: ModelCreateHost): DataView[] {return host.fields ? [host.models, host.fields] : [host.models]}
 
 function releaseFields(host: ModelCreateHost): void {
+  if (host.fields && (host.fields.hasUnconfirmedSave || host.fields.hasEditingChanges() || host.fields.dirtyTracking.hasPendingChanges())) {
+    throw new Error('新增字段视图仍有原始捕获或本地修改，不能释放')
+  }
   host.fields?.dataTable?.destroyView(host.fields.viewId)
   host.fields = undefined; host.fieldContext = ''
 }
@@ -152,7 +160,12 @@ export function modelCreateGetState(host: ModelCreateHost) {
     try {validateName(host, host.flow.preview.name)} catch (error) {nameError = error instanceof Error ? error.message : String(error)}
   }
   const status = flowStatus(host)
-  return {status, pending: status !== 'idle', preview: structuredClone(host.flow.preview), nameError, verification: structuredClone(host.flow.verification)}
+  const batch = host.flow.capture
+  return {status, pending: status !== 'idle', modelId: host.flow.staged.find(item => item.view === host.models)?.id ?? null,
+    canAbandonNotApplied: status === 'different' && host.flow.capture?.resolution === 'not-applied',
+    canDiscardLocalChanges: status === 'readback' && batch?.resolution === 'confirmed'
+      && batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id))),
+    preview: structuredClone(host.flow.preview), nameError, verification: structuredClone(host.flow.verification)}
 }
 
 export function modelCreateSetName(host: ModelCreateHost, name: string): void {
@@ -234,8 +247,8 @@ export async function modelCreateCreateArray(host: ModelCreateHost, input: Array
 async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
   prepare: () => Promise<{model: Readonly<Record<string, unknown>>; fields: ReadonlyArray<Readonly<Record<string, unknown>>>}>): Promise<string> {
   validateName(host, name)
-  host.flow.status = 'saving'; host.flow.staged = []; host.flow.unresolved = false
-  let dispatched = false; let confirmed = false
+  host.flow.status = 'saving'; host.flow.staged = []; host.flow.captureSignatures = null
+  host.flow.readbackSignatures = null; host.flow.unresolved = false
   try {
     const prepared = await prepare()
     assertClean(host)
@@ -253,42 +266,102 @@ async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
     if (host.models.addActionState() !== 'enabled' || prepared.fields.length && fields.addActionState() !== 'enabled'
       || host.flow.staged.some(item => !item.view.dirtyTracking.isPendingCreate(item.id)
         || JSON.stringify(item.view.rows.find(row => item.view.getPkKey(row) === item.id)) !== item.snapshot)) throw new Error('提交前新增权限或草稿已变化')
-    const views = modelCreateViews(host).map(view => ({tableName: view.tableName, viewId: view.viewId,
+    const targets = () => modelCreateViews(host).map(view => ({tableName: view.tableName, viewId: view.viewId,
       ids: host.flow.staged.filter(item => item.view === view).map(item => item.id)})).filter(view => view.ids.length)
-    host.lifecycle.onDispatch(); dispatched = true
-    const saved = await host.dataSet.saveChanges({applyEditingRows: false, views})
+    const part = {
+      dataSet: host.dataSet, targetId: host.targetId, modelId,
+      prepare: () => Promise.resolve().then(() => {assertOwner(host); assertClean(host, true); assertStaged(host)}),
+      apply: async () => {},
+      check: () => {assertOwner(host); assertClean(host, true); assertStaged(host)},
+      targets,
+      dispatched: (capture: DataSpaceDefinitionCaptureBatch) => {
+        host.flow.capture = capture
+        host.flow.captureSignatures = capture.targets.map(target => ({view: target.view, ids: [...target.ids],
+          signature: definitionTargetDraftSignature(target.view, target.ids)}))
+        host.lifecycle.onDispatch()
+      },
+      confirm: async () => {
+        assertOwner(host)
+        if (!await modelCreateReadback(host)) {host.flow.status = 'different'; throw new Error('新增回读与预览不一致，请核验正式结果')}
+      },
+      settled: () => modelCreateFinish(host),
+      failed: (stage: 'preparing' | 'applying' | 'dispatched' | 'confirmed') => {
+        if (stage === 'dispatched' || stage === 'confirmed') {
+          const confirmed = stage === 'confirmed' || host.flow.capture?.resolution === 'confirmed'
+          host.flow.status = confirmed ? modelCreateReadbackFailureStatus(host) : 'unknown'
+          return
+        }
+        host.flow.status = 'unsubmitted'
+      },
+    }
+    await DataSpaceDefinitionSave.run([part])
     assertOwner(host)
-    if (!saved.success || saved.data?.viewResults.length !== views.length || saved.data.failedEditingRows !== 0
-      || views.some(view => {
-        const results = saved.data?.viewResults.filter(result => result.tableName === view.tableName && result.viewId === view.viewId)
-        const result = results?.[0]
-        return results?.length !== 1 || result?.createdCount !== view.ids.length || result.savedCount !== 0 || result.deletedCount !== 0 || result.failedCount !== 0
-      })) throw new Error('模型或字段新增回执不完整，请核验')
-    confirmed = true
-    if (!await modelCreateReadback(host)) throw new Error('新增回读与预览不一致，请核验正式结果')
-    modelCreateFinish(host); return modelId
+    return modelId
   } catch (error) {
-    host.flow.status = confirmed ? 'readback' : dispatched ? (hasUnconfirmedDispatch(host) ? 'unsubmitted' : 'unknown') : 'unsubmitted'
-    if (!dispatched) {
+    const capture = host.flow.capture
+    if (capture === null) {
+      host.flow.status = 'unsubmitted'
       try {discardOwned(host); host.flow.staged = []; releaseFields(host); host.flow.status = 'ready'} catch { /* 保留不明归属或已改变的草稿。 */ }
+    } else if (capture.resolution === 'confirmed') {
+      host.flow.status = modelCreateReadbackFailureStatus(host)
+    } else {
+      host.flow.status = hasUnconfirmedDispatch(host) ? 'unknown' : 'readback'
     }
     throw error
   }
 }
 
-function snapshot(host: ModelCreateHost): string {return JSON.stringify(modelCreateViews(host).map(view => view.rows))}
+function assertStaged(host: ModelCreateHost): void {
+  if (host.flow.unresolved || !host.flow.staged.length) throw new Error('新增身份未完整确认，不能派发')
+  const expected = modelCreateViews(host).flatMap(view => host.flow.staged.filter(item => item.view === view).map(item => item.id))
+  for (const item of host.flow.staged) {
+    if (host.dataSet.getView(item.view.tableName, item.view.viewId) !== item.view || item.view.destroyed
+      || item.view.hasUnconfirmedSave || item.view.mutating || item.view.requestState === RequestState.Loading
+      || JSON.stringify(item.view.queryContext) !== (item.view === host.models ? host.modelContext : host.fieldContext)) {
+      throw new Error('模型新增原视图或查询范围已变化，不能派发')
+    }
+    const row = item.view.rows.find(current => item.view.getPkKey(current) === item.id)
+    if (!row || !item.view.dirtyTracking.isPendingCreate(item.id) || JSON.stringify(row) !== item.snapshot
+      || !rowMatches(row, item.values) || item.view.addActionState() !== 'enabled') throw new Error('模型或字段新增草稿/权限已变化')
+  }
+  if (new Set(expected).size !== expected.length) throw new Error('模型新增身份重复，不能派发')
+}
+
+function modelCreateReadbackFailureStatus(host: ModelCreateHost): 'different' | 'readback' {
+  return host.flow.verification.some(item => item.result !== '已一致') ? 'different' : 'readback'
+}
 
 async function modelCreateReadback(host: ModelCreateHost): Promise<boolean> {
-  assertClean(host, false, true)
+  const batch = host.flow.capture
+  if (batch?.resolution !== 'confirmed') throw new Error('新增原DataSet批次尚未取得完整正式回执')
+  assertCaptureOwner(host, batch)
+  if (host.flow.readbackSignatures?.some(item => definitionTargetDraftSignature(item.view, item.ids) !== item.signature)) {
+    throw new Error('新增领域回读开始前原目标已有后续修改；保留修改，请重新处理')
+  }
+  host.flow.readbackSignatures ??= batch.targets.map(target => ({view: target.view, ids: [...target.ids],
+    signature: definitionTargetDraftSignature(target.view, target.ids)}))
+  const edited = new Set<DataView>(), listeners = new Map<DataView, (event: unknown) => void>()
+  for (const view of new Set(batch.targets.map(target => target.view))) {
+    const listener = () => edited.add(view)
+    view.events.on('editingFieldChanged', listener); listeners.set(view, listener)
+  }
+  const assertReadbackUnchanged = () => {
+    assertCaptureOwner(host, batch)
+    const changed = host.flow.readbackSignatures?.some(item => edited.has(item.view)
+      || definitionTargetDraftSignature(item.view, item.ids) !== item.signature)
+    if (changed) throw new Error('新增领域回读期间出现后续修改；已保留修改，请重新核验')
+  }
+  try {
+    assertClean(host, false, true)
   for (const view of modelCreateViews(host)) {
     if (view === host.fields) await view.refresh()
     else await view.loadFromServer({allPages: true, maxRows: 50000})
-    assertOwner(host)
+    assertReadbackUnchanged()
     if (view.requestState !== RequestState.Loaded || view.loadingError) throw new Error('新增模型或字段回读失败')
     assertClean(host, false, true)
   }
+  assertReadbackUnchanged()
   assertClean(host)
-  host.flow.verifiedSnapshot = snapshot(host)
   host.flow.verification = host.flow.staged.map(item => {
     const rows = item.view.rows.filter(row => item.view.getPkKey(row) === item.id)
     const row = rows[0]
@@ -298,34 +371,120 @@ async function modelCreateReadback(host: ModelCreateHost): Promise<boolean> {
     return {table: item.view.tableName, id: item.id, result}
   })
   return host.flow.verification.every(item => item.result === '已一致')
+  } finally {listeners.forEach((listener, view) => view.events.off('editingFieldChanged', listener))}
+}
+
+function assertCaptureOwner(host: ModelCreateHost, batch: DataSpaceDefinitionCaptureBatch): void {
+  assertOwner(host)
+  for (const target of batch.targets) {
+    if (host.dataSet.getView(target.tableName, target.viewId) !== target.view || target.view.destroyed
+      || JSON.stringify(target.view.queryContext) !== target.queryContext) throw new Error('新增原保存目标视图或查询范围已变化；未知结果仍保留')
+    if (target.view.mutating || target.view.requestState === RequestState.Loading) throw new Error('新增原保存目标仍在操作；未修改本地状态')
+  }
 }
 
 function modelCreateFinish(host: ModelCreateHost): void {
-  releaseFields(host); host.flow.status = 'idle'; host.flow.staged = []; host.flow.preview = null
-  host.flow.verifiedSnapshot = ''; host.flow.verification = []; host.flow.unresolved = false
+  releaseFields(host); host.flow.status = 'idle'; host.flow.staged = []; host.flow.capture = null; host.flow.captureSignatures = null
+  host.flow.readbackSignatures = null; host.flow.preview = null
+  host.flow.verification = []; host.flow.unresolved = false
 }
 
 export async function modelCreateVerify(host: ModelCreateHost): Promise<Readonly<{confirmed: boolean; modelId: string | null}>> {
   assertOwner(host)
   const recovery = flowStatus(host)
   if (!['unknown', 'readback', 'unsubmitted', 'different'].includes(recovery)) throw new Error('没有可核验的新增或请求仍在进行')
-  host.dataSet.abandonUnconfirmedSaves()
-  const unsubmitted = recovery === 'unsubmitted'
-  discardOwned(host)
+  const batch = host.flow.capture
+  if (!batch) {
+    if (recovery !== 'unsubmitted') throw new Error('缺少模型新增原SPARK捕获；不能根据数据读回来认定或清理本次创建')
+    discardOwned(host)
+    host.flow.staged = []; releaseFields(host); host.flow.status = 'ready'; return {confirmed: false, modelId: null}
+  }
+  assertCaptureOwner(host, batch)
+  const modelId = host.flow.staged.find(item => item.view === host.models)?.id ?? null
+  if (!modelId) throw new Error('缺少原模型新增身份，未知结果仍保留')
+  if (batch.resolution === 'not-applied' && host.flow.captureSignatures?.some(item => definitionTargetDraftSignature(item.view, item.ids) !== item.signature)) {
+    throw new Error('原新增批次已确认未生效，但原目标草稿已变化；保留修改，不能放弃原意图')
+  }
+  const before = host.flow.captureSignatures
+  if (batch.resolution !== 'confirmed' && batch.resolution !== 'not-applied' && batch.targets.some(target => target.view.hasUnconfirmedSave)
+    && (!before || before.some(item => definitionTargetDraftSignature(item.view, item.ids) !== item.signature))) {
+    throw new Error('原新增目标草稿在核验前已变化；保留修改，不能重新签发原批次')
+  }
   host.flow.status = 'saving'
   try {
-    if (unsubmitted) {host.flow.staged = []; releaseFields(host); host.flow.status = 'ready'; return {confirmed: false, modelId: null}}
-    const modelId = host.flow.staged.find(item => item.view === host.models)?.id ?? null
+    if (batch.resolution !== 'confirmed' && batch.resolution !== 'not-applied') {
+      const outcome = await verifyDataSpaceDefinitionCapture(host.dataSet, batch, false)
+      assertCaptureOwner(host, batch)
+      if (outcome === 'not-applied') {
+        if (host.flow.captureSignatures?.some(item => definitionTargetDraftSignature(item.view, item.ids) !== item.signature)) {
+          throw new Error('原新增核验期间目标草稿已变化；保留修改，不能放弃原意图')
+        }
+        host.flow.status = 'different'
+        host.flow.verification = [{table: host.models.tableName, id: modelId, result: '原模型及字段批次已确认未生效；须明确放弃本次创建意图'}]
+        return {confirmed: false, modelId: null}
+      }
+      if (outcome !== 'confirmed' && outcome !== 'already-confirmed') throw new Error('原模型新增批次尚未取得完整SPARK回执')
+    }
+    if (batch.resolution === 'not-applied') {
+      host.flow.status = 'different'
+      host.flow.verification = [{table: host.models.tableName, id: modelId, result: '原模型及字段批次已确认未生效；须明确放弃本次创建意图'}]
+      return {confirmed: false, modelId: null}
+    }
+    const laterChanges = batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))
+    if (laterChanges) {host.flow.status = 'readback'; throw new Error('原新增批次已确认，但目标仍有本地后续修改；保留修改后再核验')}
     const confirmed = await modelCreateReadback(host)
-    if (confirmed) modelCreateFinish(host); else host.flow.status = 'different'
-    return {confirmed, modelId: confirmed ? modelId : null}
-  } catch (error) {host.flow.status = 'readback'; throw error}
+    if (confirmed) {modelCreateFinish(host); return {confirmed: true, modelId}}
+    host.flow.status = 'different'
+    return {confirmed: false, modelId}
+  } catch (error) {
+    if (host.flow.status !== 'different') host.flow.status = batch.resolution === 'confirmed' ? 'readback'
+      : batch.targets.some(target => target.view.hasUnconfirmedSave) ? 'unknown' : 'readback'
+    throw error
+  }
 }
 
-export function modelCreateAcceptCurrent(host: ModelCreateHost): void {
-  if (host.flow.status !== 'different' || host.flow.verifiedSnapshot !== snapshot(host)) throw new Error('请先核验当前正式结果')
-  assertClean(host)
+export async function modelCreateAbandonNotApplied(host: ModelCreateHost): Promise<void> {
+  const batch = host.flow.capture
+  const signatures = host.flow.captureSignatures
+  if (host.flow.status !== 'different' || batch?.resolution !== 'not-applied' || !signatures
+    || signatures.some(item => definitionTargetDraftSignature(item.view, item.ids) !== item.signature)) {
+    throw new Error('只有原模型新增批次确认未生效且原目标意图未变化时，才能放弃本次创建')
+  }
+  assertCaptureOwner(host, batch)
+  if (batch.targets.some(target => target.view.hasUnconfirmedSave)) throw new Error('原模型新增批次仍有未决捕获；未放弃任何创建意图')
+  await verifyAndDiscardDataSpaceDefinitionCapture(host.dataSet, batch, {discardLocalChanges: true, acceptCurrentOnInvalidReceipt: false})
+  assertCaptureOwner(host, batch)
+  for (const target of batch.targets) target.view.discardEditingRows([...target.ids])
+  if (batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))) {
+    throw new Error('放弃原模型新增意图后仍有目标修改；保留恢复状态')
+  }
   modelCreateFinish(host)
+}
+
+export async function modelCreateDiscardLocalChanges(host: ModelCreateHost): Promise<string> {
+  const batch = host.flow.capture
+  const state = modelCreateGetState(host)
+  const modelId = state.modelId ?? undefined
+  if (!state.canDiscardLocalChanges || batch?.resolution !== 'confirmed' || !modelId) {
+    throw new Error('只有数据库完整确认后原模型/字段目标存在后续本地修改时，才能明确放弃这些修改并继续核验')
+  }
+  // Preflight all captured views and identities before synchronously discarding any target.
+  assertCaptureOwner(host, batch)
+  if (batch.targets.some(target => target.view.hasUnconfirmedSave)) throw new Error('原模型新增批次仍有未决捕获；未放弃任何后续修改')
+  for (const target of batch.targets) {
+    for (const id of target.ids) {
+      if (target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)) continue
+      // A target may already have been refreshed after the confirmed write; it remains an exact identity.
+      if (!target.view.rows.some(row => target.view.getPkKey(row) === id)) throw new Error('原模型新增目标身份已变化；未放弃任何后续修改')
+    }
+  }
+  for (const target of batch.targets) target.view.discardPendingChanges([...target.ids])
+  batch.discarded = true
+  host.flow.readbackSignatures = null
+  host.flow.status = 'readback'
+  const result = await modelCreateVerify(host)
+  if (!result.confirmed || result.modelId !== modelId) throw new Error('本地后续修改已明确放弃，但模型与字段正式回读仍未完整确认')
+  return modelId
 }
 
 export type ModelCreateHandle = {
@@ -336,7 +495,8 @@ export type ModelCreateHandle = {
   save(): Promise<string>
   createArray(input: ArrayDefinition): Promise<string>
   verify(): Promise<Readonly<{confirmed: boolean; modelId: string | null}>>
-  acceptCurrent(): void
+  abandonNotApplied(): Promise<void>
+  discardLocalChanges(): Promise<string>
 }
 
 export function createModelCreateHandle(host: ModelCreateHost): ModelCreateHandle {
@@ -348,6 +508,7 @@ export function createModelCreateHandle(host: ModelCreateHost): ModelCreateHandl
     save: () => modelCreateSave(host),
     createArray: input => modelCreateCreateArray(host, input),
     verify: () => modelCreateVerify(host),
-    acceptCurrent: () => modelCreateAcceptCurrent(host),
+    abandonNotApplied: () => modelCreateAbandonNotApplied(host),
+    discardLocalChanges: () => modelCreateDiscardLocalChanges(host),
   }
 }

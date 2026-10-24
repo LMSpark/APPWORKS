@@ -3694,7 +3694,7 @@
     "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:20.974Z"
+      "sourceModifiedAt": "2026-10-24T05:48:26.203Z"
     },
     "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
@@ -4359,7 +4359,7 @@
     "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue.json",
-      "sourceModifiedAt": "2026-10-24T03:45:17.017Z"
+      "sourceModifiedAt": "2026-10-24T05:39:06.241Z"
     },
     "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
@@ -4444,7 +4444,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayCreate.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayCreate.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayCreate.vue.json",
-      "sourceModifiedAt": "2026-10-15T07:22:34.862Z"
+      "sourceModifiedAt": "2026-10-24T05:46:05.313Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",

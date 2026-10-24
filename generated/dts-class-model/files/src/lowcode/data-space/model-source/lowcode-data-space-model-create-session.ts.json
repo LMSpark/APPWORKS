@@ -209,14 +209,70 @@
             "$ref": "#/$defs/Staged"
           }
         },
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureSignatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "view",
+              "ids",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "readbackSignatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "view",
+              "ids",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
+        },
         "unresolved": {
           "enum": [
             false,
             true
           ]
-        },
-        "verifiedSnapshot": {
-          "type": "string"
         },
         "verification": {
           "type": "array",
@@ -247,8 +303,10 @@
         "generation",
         "preview",
         "staged",
+        "capture",
+        "captureSignatures",
+        "readbackSignatures",
         "unresolved",
-        "verifiedSnapshot",
         "verification"
       ],
       "additionalProperties": false
@@ -424,16 +482,28 @@
           "type": "object",
           "title": "Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
         },
-        "method.acceptCurrent.params": {
+        "method.abandonNotApplied.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.acceptCurrent.return": true
+        "method.abandonNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
       }
     }
   },
-  "generatedAt": "2026-10-23T06:52:20.974Z",
+  "generatedAt": "2026-10-24T05:48:26.203Z",
   "models": {
     "ModelCreateSources": {
       "name": "ModelCreateSources",
@@ -582,7 +652,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelCreateStatus;\n    generation: number;\n    preview: Candidate | null;\n    staged: Staged[];\n    unresolved: boolean;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
+        "declarationTypeText": "{\n    status: ModelCreateStatus;\n    generation: number;\n    preview: Candidate | null;\n    staged: Staged[];\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    readbackSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    unresolved: boolean;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
         "members": {
           "attributes": [
             {
@@ -606,12 +676,22 @@
               "writable": true
             },
             {
-              "name": "unresolved",
+              "name": "capture",
               "readable": true,
               "writable": true
             },
             {
-              "name": "verifiedSnapshot",
+              "name": "captureSignatures",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readbackSignatures",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "unresolved",
               "readable": true,
               "writable": true
             },
@@ -765,7 +845,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    abandonNotApplied(): Promise<void>;\n    discardLocalChanges(): Promise<string>;\n}",
         "members": {
           "methods": [
             {
@@ -887,11 +967,31 @@
               }
             },
             {
-              "name": "acceptCurrent",
+              "name": "abandonNotApplied",
               "parameters": [],
               "type": {
-                "type": "intrinsic",
-                "name": "void"
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardLocalChanges",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
               }
             }
           ]

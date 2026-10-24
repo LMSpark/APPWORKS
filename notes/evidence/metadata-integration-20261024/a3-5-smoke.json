@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-24",
+  "task": "A3.5 model and array creation capture recovery",
+  "baseCommit": "cb08072ab9284e716d358e85c6048dd947ccf32c",
+  "environment": "NewApp actual service through localhost:5273",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetSpaceName": "LivePilot_T_20261017",
+  "uiPersistenceActions": 0,
+  "temporaryArrayName": "ArrayCreate_Cancel_20261024",
+  "checks": [
+    "Opened a temporary unbound canvas model and the bound source picker",
+    "Loaded real dictionary candidates and selected ContentType; cancelled without confirming creation",
+    "Opened array creation and entered a temporary name and description through standard bound fields",
+    "Opened and cancelled the header editor; native FieldJson row toolbar and primary-key header remained",
+    "Cancelled array creation; reopening showed blank name and description, one primary-key header and no rows",
+    "Closed the pending model window and cancelled the unsaved layout node",
+    "Closed the entire designer and opened an independent instance from the directory",
+    "Model directory and canvas showed the original three models, with no pending node or temporary array",
+    "Opened SourceScope and confirmed original name, ContentType source, original description, save disabled and close enabled",
+    "Returned to the original directory"
+  ],
+  "preservedModelNames": ["SourceInputScope_20261018", "SourceScope_20261018", "ArrayScope_20261018"],
+  "reopenedDescription": "来源替换后连续保存已验证 20261018",
+  "screenshots": ["a3-5-source-picker.png", "a3-5-array-draft.png", "a3-5-reopened.png"],
+  "limitations": [
+    "No model or array was persisted online in this group",
+    "Unknown, partial and late-edit fault cases are local real-DataView fixture evidence",
+    "UI action count is not an HTTP request count",
+    "Actual disposable model lifecycle and cross-instance unknown recovery remain pending"
+  ]
+}

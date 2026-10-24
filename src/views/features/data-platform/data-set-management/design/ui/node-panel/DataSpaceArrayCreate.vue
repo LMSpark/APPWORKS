@@ -19,7 +19,9 @@ AI用途：设计页数组新建入口，确认、取消和未知结果处理。
         :readonly="locked" :on-editing-change="value=>rowEditing=value" />
     </RendererForm>
     <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="unresolved" role="alert">新增结果尚未完整确认，请先核验，不能重复提交。</p>
+    <p v-if="unresolved" role="alert">{{ state.canAbandonNotApplied ? '原模型/字段批次已确认未生效；可明确放弃本次数组新增意图。'
+      : state.canDiscardLocalChanges ? '数据库新增批次已完整确认，但模型/字段目标仍有后续修改；明确放弃后续修改后才继续回读。'
+        : '模型/字段批次尚未完整确认；核验会保留原捕获与本地修改，不会重放数据库写入。' }}</p>
     <ul v-if="unresolved"><li v-for="item in state.verification" :key="item.table+item.id">{{ item.table }}：{{ item.result }}</li></ul>
     <template #footer>
       <RendererToolbar :data-view-key="draft.key" justify="end" :children="footer" />
@@ -50,7 +52,8 @@ const footer=computed<SparkNode[]>(()=>[
   {type:'r-button',props:{label:'取消','data-action':'cancel-new-array',disabled:locked.value||rowEditing.value,onClick:cancel}},
   {type:'r-button',props:{label:'保存',buttonType:'primary','data-action':'save-new-array',disabled:locked.value||rowEditing.value||!canAdd.value,onClick:save}},
   ...unresolved.value?[{type:'r-button',props:{label:'重新核验','data-action':'verify-new-array',disabled:busy.value,onClick:verify}}]:[],
-  ...state.value.status==='different'?[{type:'r-button',props:{label:'接受当前正式结果，结束本次操作','data-action':'accept-new-array',disabled:busy.value,onClick:accept}}]:[],
+  ...state.value.canAbandonNotApplied?[{type:'r-button',props:{label:'放弃未生效的本次数组新增','data-action':'abandon-not-applied-array',disabled:busy.value,onClick:abandonNotApplied}}]:[],
+  ...state.value.canDiscardLocalChanges?[{type:'r-button',props:{label:'放弃模型及字段后续修改并继续核验','data-action':'discard-confirmed-array-edits',disabled:busy.value,onClick:discardConfirmedEdits}}]:[],
 ])
 function changed():void{tick.value++;emit('changed')}
 function show():void {
@@ -73,6 +76,15 @@ async function verify():Promise<void> {
   busy.value=true;error.value=''
   try{const result=await owner.value.verify();if(result.confirmed&&result.modelId){close();emit('created',result.modelId)}}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
 }
-function accept():void{try{owner.value.acceptCurrent();close()}catch(cause){error.value=String(cause)}}
+async function abandonNotApplied():Promise<void> {
+  if(busy.value)return
+  busy.value=true;error.value=''
+  try{await owner.value.abandonNotApplied();close()}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
+}
+async function discardConfirmedEdits():Promise<void> {
+  if(busy.value)return
+  busy.value=true;error.value=''
+  try{const id=await owner.value.discardLocalChanges();close();emit('created',id)}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
+}
 onBeforeUnmount(()=>{draft.value?.dispose();emit('pending',false)})
 </script>

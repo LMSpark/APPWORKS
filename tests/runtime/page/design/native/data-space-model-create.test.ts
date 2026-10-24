@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataView} from '@spark-appworks/spark-data'
+import {createModelCreateHost, modelCreatePreview, modelCreateSave, modelCreateVerify} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create-session'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -260,6 +261,143 @@ describe('native model creation with formal metadata ownership', () => {
     expect(writes()).toHaveLength(1); expect(owner.getState().pending).toBe(false)
   })
 
+  it('preserves an unrelated sibling DataView capture while verifying the model create', async () => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+
+    const sibling = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    sibling.updateEditingValue('A', 'inputParams', '[{"rowid":"P1","Name":"sibling change"}]')
+    expect((await sibling.applyEditingRows(['A'])).success).toBe(true)
+    f.loseNextResponse()
+    await expect(session.metadataDataSet.saveChanges({applyEditingRows: false, views: [
+      {tableName: sibling.tableName, viewId: sibling.viewId, ids: ['A']},
+    ]})).rejects.toThrow()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true})
+    expect(writes()).toHaveLength(2)
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+  })
+
+  it('refuses to infer or discard an unknown create when its original capture is missing', async () => {
+    const {session, reader, f, writes} = await setup()
+    const host = createModelCreateHost({dataSet: session.metadataDataSet, targetId: session.targetId, sources: reader,
+      lifecycle: {assertCurrent: () => undefined, onDispatch: () => undefined}})
+    await modelCreatePreview(host, source)
+    f.loseNextResponse()
+    await expect(modelCreateSave(host)).rejects.toThrow()
+    const modelId = host.flow.staged.find(item => item.view === host.models)?.id
+    expect(modelId).toBeTruthy()
+    host.flow.capture = null
+    await expect(modelCreateVerify(host)).rejects.toThrow('缺少模型新增原SPARK捕获')
+    expect(host.models.dirtyTracking.isPendingCreate(modelId!)).toBe(true)
+    expect(host.flow.staged.some(item => item.id === modelId)).toBe(true)
+    expect(writes()).toHaveLength(1)
+  })
+
+  it.each(['overlay', 'applied'] as const)('preserves a later model %s edit through the first native verification await and retry', async kind => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const modelId = owner.getState().modelId!
+    const dataSet = session.metadataDataSet, models = dataSet.getView('Base_DataModel', 'default')!
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options)
+      await gate
+      return result
+    })
+    const verification = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    models.updateEditingValue(modelId, 'description', `late ${kind}`)
+    if (kind === 'applied') expect((await models.applyEditingRows([modelId])).success).toBe(true)
+    release()
+    await expect(verification).rejects.toThrow()
+    expect(models.getEditingRow(modelId)?.['description'] ?? models.rows.find(row => row['rowid'] === modelId)?.['description']).toBe(`late ${kind}`)
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    await expect(owner.verify()).rejects.toThrow()
+    expect(writes()).toHaveLength(1)
+
+    if (kind === 'overlay') models.discardEditingRows([modelId])
+    else models.discardPendingChanges([modelId])
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true, modelId})
+    expect(writes()).toHaveLength(1)
+  })
+
+  it.each(['overlay', 'applied'] as const)('keeps the derived field DataView alive when a later %s edit arrives during verification', async kind => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const modelId = owner.getState().modelId!, dataSet = session.metadataDataSet
+    const fields = dataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)!
+    const fieldId = [...fields.dirtyTracking.pendingCreateIds][0] as string
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options)
+      await gate
+      return result
+    })
+    const verification = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    fields.updateEditingValue(fieldId, 'description', `late field ${kind}`)
+    if (kind === 'applied') expect((await fields.applyEditingRows([fieldId])).success).toBe(true)
+    release()
+    await expect(verification).rejects.toThrow()
+    expect(dataSet.getView('Base_DataModel_Field', fields.viewId)).toBe(fields)
+    expect(fields.getEditingRow(fieldId)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === fieldId)?.['description']).toBe(`late field ${kind}`)
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    await expect(owner.verify()).rejects.toThrow()
+    expect(dataSet.getView('Base_DataModel_Field', fields.viewId)).toBe(fields)
+    expect(fields.getEditingRow(fieldId)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === fieldId)?.['description']).toBe(`late field ${kind}`)
+    expect(writes()).toHaveLength(1)
+
+    if (kind === 'overlay') fields.discardEditingRows([fieldId])
+    else fields.discardPendingChanges([fieldId])
+    await expect(owner.verify()).resolves.toMatchObject({confirmed: true, modelId})
+    expect(dataSet.getView('Base_DataModel_Field', fields.viewId)).toBeUndefined()
+    expect(writes()).toHaveLength(1)
+  })
+
+  it.each(['model', 'field'] as const)('preserves a later %s edit during the domain readback await', async target => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const modelId = owner.getState().modelId!, dataSet = session.metadataDataSet
+    const view = target === 'model' ? dataSet.getView('Base_DataModel', 'default')!
+      : dataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)!
+    const id = target === 'model' ? modelId : [...view.dirtyTracking.pendingCreateIds][0] as string
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.fn()
+    if (target === 'model') {
+      const load = view.loadFromServer.bind(view)
+      vi.spyOn(view, 'loadFromServer').mockImplementationOnce(async options => {
+        held(); const result = await load(options); await gate; return result
+      })
+    } else {
+      const refresh = view.refresh.bind(view)
+      vi.spyOn(view, 'refresh').mockImplementationOnce(async () => {
+        held(); const result = await refresh(); await gate; return result
+      })
+    }
+    const verification = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    view.updateEditingValue(id, 'description', `late ${target} readback edit`)
+    release()
+    await expect(verification).rejects.toThrow()
+    expect(view.getEditingRow(id)?.['description']).toBe(`late ${target} readback edit`)
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    expect(writes()).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow()
+    expect(view.getEditingRow(id)?.['description']).toBe(`late ${target} readback edit`)
+    expect(writes()).toHaveLength(1)
+  })
+
   it('confirms a missing receipt by exact readback, without creating a second set', async () => {
     const {owner, writes} = await setup({omitFieldReceipt: true})
     await expect(owner.save()).rejects.toThrow('回执')
@@ -267,17 +405,204 @@ describe('native model creation with formal metadata ownership', () => {
     expect(writes()).toHaveLength(1)
   })
 
-  it('keeps a partial write unresolved until explicitly adopting the read formal state', async () => {
-    const {owner, f, writes} = await setup({omitFieldReceipt: true, omitFieldWrite: true})
+  it('keeps generated IDs and recovery state when the DataSet receipt duplicates a target', async () => {
+    const {owner, session, f, writes} = await setup()
+    const dataSet = session.metadataDataSet, nativeSave = dataSet.saveChanges.bind(dataSet)
+    const intercepted = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options)
+      const data = result.data
+      if (!data) return result
+      return {...result, data: {...data, viewCount: data.viewCount + 1, viewResults: [...data.viewResults, ...data.viewResults]}}
+    })
+    const before = dataSet.getView('Base_DataModel', 'default')!.dirtyTracking.pendingCreateIds.size
+    await expect(owner.save()).rejects.toThrow('回执')
+    const modelId = owner.getState().modelId
+    expect(intercepted).toHaveBeenCalledTimes(1)
+    expect(modelId).toBeTruthy()
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    expect(f.created.get('Base_DataModel')?.some(row => row['rowid'] === modelId)).toBe(true)
+    expect(writes()).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState()).toMatchObject({pending: true, modelId})
+    expect(dataSet.getView('Base_DataModel', 'default')!.dirtyTracking.pendingCreateIds.size).toBe(before)
+    expect(writes()).toHaveLength(1)
+    expect('acceptCurrent' in owner).toBe(false)
+  })
+
+  it('keeps partial model creation unresolved and blocks generic accept-current', async () => {
+    const {owner, session, f, writes} = await setup({omitFieldReceipt: true, omitFieldWrite: true})
     await expect(owner.save()).rejects.toThrow()
-    expect(() => owner.acceptCurrent()).toThrow('先核验')
-    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
-    expect(owner.getState().status).toBe('different')
+    expect('acceptCurrent' in owner).toBe(false)
+    const modelId = owner.getState().modelId
+    await expect(owner.verify()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId})
+    expect(session.metadataDataSet.getView('Base_DataModel', 'default')!.hasUnconfirmedSave).toBe(true)
     await expect(owner.save()).rejects.toThrow('先核验')
-    owner.acceptCurrent(); expect(owner.getState().pending).toBe(false)
+    expect('acceptCurrent' in owner).toBe(false)
+    expect(owner.getState().pending).toBe(true)
+    expect(f.created.get('Base_DataModel')?.[0]?.['rowid']).toBe(modelId)
     expect(f.created.get('Base_DataModel')).toHaveLength(1)
     expect(f.created.get('Base_DataModel_Field')).toBeUndefined()
     expect(writes()).toHaveLength(1)
+  })
+
+  it('retains the original generated identity until explicitly abandoning an authoritative not-applied capture', async () => {
+    const {owner, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const modelId = owner.getState().modelId
+    expect(modelId).toBeTruthy()
+    expect(owner.getState().status).toBe('unknown')
+    expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
+    expect(owner.getState()).toMatchObject({status: 'different', pending: true, modelId, canAbandonNotApplied: true})
+    expect(owner.getState().preview).not.toBeNull()
+    expect(writes()).toHaveLength(1)
+    await expect(owner.save()).rejects.toThrow('先核验')
+
+    await owner.abandonNotApplied()
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false, modelId: null, preview: null, canAbandonNotApplied: false})
+    expect(f.created.get('Base_DataModel')).toBeUndefined()
+    expect(f.created.get('Base_DataModel_Field')).toBeUndefined()
+    expect(writes()).toHaveLength(1)
+    await expect(owner.save()).rejects.toThrow('先预览')
+  })
+
+  it('preflights all original targets before abandoning a not-applied model create', async () => {
+    const {owner, session, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    await owner.verify()
+    const modelId = owner.getState().modelId!
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)
+    expect(fields).toBeDefined()
+    fields!.mutating = true
+    await expect(owner.abandonNotApplied()).rejects.toThrow('仍在操作')
+    expect(models.dirtyTracking.isPendingCreate(modelId)).toBe(true)
+    expect(owner.getState()).toMatchObject({status: 'different', modelId, pending: true})
+    expect(writes()).toHaveLength(1)
+    fields!.mutating = false
+    await owner.abandonNotApplied()
+    expect(owner.getState().status).toBe('idle')
+  })
+
+  it.each(['model-overlay', 'model-applied', 'field-overlay', 'field-applied'] as const)(
+    'preserves a post-click %s edit while explicitly abandoning a not-applied create', async edit => {
+      const {owner, session, f, writes} = await setup({omitModelWrite: true, omitFieldWrite: true})
+      f.loseNextResponse()
+      await expect(owner.save()).rejects.toThrow()
+      await owner.verify()
+      const modelId = owner.getState().modelId!, fields = session.metadataDataSet.getView('Base_DataModel_Field', `createModel:${owner.getState().modelId}`)!
+      const isField = edit.startsWith('field'), id = isField ? [...fields.dirtyTracking.pendingCreateIds][0] as string : modelId
+      const view = isField ? fields : session.metadataDataSet.getView('Base_DataModel', 'default')!
+      const abandoning = owner.abandonNotApplied()
+      view.updateEditingValue(id, 'description', `post-click ${edit}`)
+      if (edit.endsWith('applied')) expect((await view.applyEditingRows([id])).success).toBe(true)
+      await expect(abandoning).rejects.toThrow()
+      expect(owner.getState()).toMatchObject({status: 'different', pending: true, modelId})
+      expect(view.getEditingRow(id)?.['description'] ?? view.rows.find(row => view.getPkKey(row) === id)?.['description']).toBe(`post-click ${edit}`)
+      expect(writes()).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+    })
+
+  it.each(['model-overlay', 'model-applied', 'field-overlay', 'field-applied'] as const)(
+    'explicitly discards only the confirmed create target after a %s edit and completes readback', async edit => {
+      const {owner, session, f, writes} = await setup()
+      f.loseNextResponse()
+      await expect(owner.save()).rejects.toThrow()
+      const modelId = owner.getState().modelId!, dataSet = session.metadataDataSet
+      const isField = edit.startsWith('field')
+      const view = isField ? dataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)!
+        : dataSet.getView('Base_DataModel', 'default')!
+      const id = isField ? [...view.dirtyTracking.pendingCreateIds][0] as string : modelId
+      const nativeSave = dataSet.saveChanges.bind(dataSet)
+      let release!: () => void
+      const gate = new Promise<void>(resolve => {release = resolve})
+      const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+        const result = await nativeSave(options); await gate; return result
+      })
+      const verification = owner.verify()
+      await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+      view.updateEditingValue(id, 'description', `discard confirmed ${edit}`)
+      if (edit.endsWith('applied')) expect((await view.applyEditingRows([id])).success).toBe(true)
+      release()
+      await expect(verification).rejects.toThrow()
+      expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+
+      await expect(owner.discardLocalChanges()).resolves.toBe(modelId)
+      expect(owner.getState()).toMatchObject({status: 'idle', pending: false, modelId: null})
+      expect(writes()).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+      expect(view.getEditingRow(id)?.['description'] ?? view.rows.find(row => view.getPkKey(row) === id)?.['description']).not.toBe(`discard confirmed ${edit}`)
+    })
+
+  it.each(['model-overlay', 'model-applied', 'field-overlay', 'field-applied'] as const)(
+    'preserves a post-click %s edit during explicit confirmed-create domain readback', async edit => {
+      const {owner, session, f, writes} = await setup()
+      f.loseNextResponse()
+      await expect(owner.save()).rejects.toThrow()
+      const modelId = owner.getState().modelId!, dataSet = session.metadataDataSet
+      const isField = edit.startsWith('field'), view = isField
+        ? dataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)!
+        : dataSet.getView('Base_DataModel', 'default')!
+      const id = isField ? [...view.dirtyTracking.pendingCreateIds][0] as string : modelId
+      const nativeSave = dataSet.saveChanges.bind(dataSet)
+      let releaseNative!: () => void
+      const nativeGate = new Promise<void>(resolve => {releaseNative = resolve})
+      const nativeHeld = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+        const result = await nativeSave(options); await nativeGate; return result
+      })
+      const verification = owner.verify()
+      await vi.waitFor(() => expect(nativeHeld).toHaveBeenCalledTimes(1))
+      view.updateEditingValue(id, 'description', `original ${edit}`)
+      releaseNative()
+      await expect(verification).rejects.toThrow()
+
+      let releaseReadback!: () => void
+      const readbackGate = new Promise<void>(resolve => {releaseReadback = resolve})
+      const entered = vi.fn()
+      if (isField) {
+        const refresh = view.refresh.bind(view)
+        vi.spyOn(view, 'refresh').mockImplementationOnce(async () => {entered(); const result = await refresh(); await readbackGate; return result})
+      } else {
+        const load = view.loadFromServer.bind(view)
+        vi.spyOn(view, 'loadFromServer').mockImplementationOnce(async options => {entered(); const result = await load(options); await readbackGate; return result})
+      }
+      const discarding = owner.discardLocalChanges()
+      await vi.waitFor(() => expect(entered).toHaveBeenCalledTimes(1))
+      view.updateEditingValue(id, 'description', `post-click ${edit}`)
+      if (edit.endsWith('applied')) expect((await view.applyEditingRows([id])).success).toBe(true)
+      releaseReadback()
+      await expect(discarding).rejects.toThrow()
+      expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+      expect(view.getEditingRow(id)?.['description'] ?? view.rows.find(row => view.getPkKey(row) === id)?.['description']).toBe(`post-click ${edit}`)
+      expect(writes()).toHaveLength(1)
+      expect(f.fileWrites).toHaveLength(0)
+    })
+
+  it('preflights every confirmed-create target before discarding any local draft', async () => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const modelId = owner.getState().modelId!, dataSet = session.metadataDataSet
+    const models = dataSet.getView('Base_DataModel', 'default')!
+    const fields = dataSet.getView('Base_DataModel_Field', `createModel:${modelId}`)!
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {const result = await nativeSave(options); await gate; return result})
+    const verification = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    models.updateEditingValue(modelId, 'description', 'keep until all targets ready')
+    release(); await expect(verification).rejects.toThrow()
+    fields.mutating = true
+    await expect(owner.discardLocalChanges()).rejects.toThrow()
+    expect(models.getEditingRow(modelId)?.['description']).toBe('keep until all targets ready')
+    expect(owner.getState()).toMatchObject({status: 'readback', pending: true, modelId})
+    expect(writes()).toHaveLength(1)
+    fields.mutating = false
+    await expect(owner.discardLocalChanges()).resolves.toBe(modelId)
+    expect(owner.getState().pending).toBe(false)
   })
 
   it('does not overwrite a different model draft during readback', async () => {
@@ -306,6 +631,18 @@ describe('native model creation with formal metadata ownership', () => {
     await vi.waitFor(() => expect(writes()).toHaveLength(1))
     session.dispose(); release(); await saving
     await expect(owner.verify()).rejects.toThrow('释放')
+    expect(writes()).toHaveLength(1)
+  })
+
+  it('retains the original save capture when its DataView query context changes', async () => {
+    const {owner, session, f, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    models.queryContext = {...models.queryContext, modelId: 'M2'}
+    await expect(owner.verify()).rejects.toThrow('查询或目标已变化')
+    expect(models.hasUnconfirmedSave).toBe(true)
+    expect(owner.getState()).toMatchObject({status: 'unknown', pending: true, modelId: expect.any(String)})
     expect(writes()).toHaveLength(1)
   })
 

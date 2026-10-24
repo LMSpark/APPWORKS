@@ -71,15 +71,20 @@ describe('array definition creation through the formal model batch',()=>{
     expect(writes()).toHaveLength(0)
     expect(session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.hasPendingChanges()).toBe(false)
   })
-  it('verifies a lost receipt without replay and preserves a partial result for explicit adoption',async()=>{
+  it('verifies a lost complete receipt without replay and preserves partial array creation for recovery',async()=>{
     const one=await setup();one.f.loseNextResponse()
     await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow()
     await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow('先核验')
     expect(await one.owner.verify()).toMatchObject({confirmed:true});expect(one.writes()).toHaveLength(1)
     const two=await setup({omitFieldWrite:true,omitFieldReceipt:true})
     await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow()
-    expect(await two.owner.verify()).toMatchObject({confirmed:false})
-    expect(two.owner.getState().status).toBe('different');two.owner.acceptCurrent()
+    await expect(two.owner.verify()).rejects.toThrow()
+    const modelId=two.owner.getState().modelId!
+    expect(two.owner.getState()).toMatchObject({status:'unknown',pending:true,modelId})
+    expect(two.session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.isPendingCreate(modelId)).toBe(true)
+    expect(two.session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSave).toBe(true)
+    expect('acceptCurrent' in two.owner).toBe(false)
+    await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow('先核验')
     expect(two.writes()).toHaveLength(1)
   })
   it('rejects changed targets and cleans only local draft resources on cancel',async()=>{

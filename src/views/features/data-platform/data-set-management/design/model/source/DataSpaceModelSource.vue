@@ -152,13 +152,16 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
       <p v-if="state.data?.status === 'configuration'" role="alert">数据库定义已确认，视图配置尚未完整确认。继续核验只接续配置阶段，不会重复提交数据库。</p>
       <p v-else-if="modelId && state.data && 'abandonNotApplied' in state.data && state.data.abandonNotApplied" role="alert">原数据库批次已确认未生效。可明确放弃本次来源意图；该操作只清理原批次目标，不会改写数据库或视图配置。</p>
       <p v-else-if="modelId" role="alert">{{ synchronizing ? '字段同步' : '来源替换' }}尚未完整确认。核验原批次会保留本地修改；未知或不完整回执不能采用当前正式结果。</p>
-      <p v-else role="alert">{{ synchronizing ? '字段同步' : '新增' }}尚未完整确认。核验会放弃本次数据库未提交副本并读取正式结果，不会重放数据库写入；有视图迁移时继续配置阶段。</p>
+      <p v-else-if="state.data && 'canDiscardLocalChanges' in state.data && state.data.canDiscardLocalChanges" role="alert">数据库新增批次已完整确认，但模型或字段目标仍有后续本地修改。默认核验会保留修改；只有明确放弃这些原目标修改后才继续正式回读。</p>
+      <p v-else role="alert">{{ synchronizing ? '字段同步' : '新增' }}尚未完整确认。核验会检查原SPARK批次并保留模型与字段本地修改，不会重放数据库写入；确认后如仍有后续修改，可单独明确放弃再继续回读。</p>
       <ul><li v-for="item in state.data?.verification ?? []" :key="`${item.table}:${item.id}`">{{ item.table }} · {{ item.id }}：{{ item.result }}</li></ul>
       <div class="actions">
-        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? '继续核验视图配置' : modelId ? '核验原来源批次（保留本地修改）' : '放弃本次本地副本并核验'" />
+        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? '继续核验视图配置' : modelId ? '核验原来源批次（保留本地修改）' : '核验原模型及字段批次（保留本地修改）'" />
+        <RendererButton v-if="!modelId && state.data && 'canAbandonNotApplied' in state.data && state.data.canAbandonNotApplied" data-action="abandon-not-applied-create" :disabled="busy || disabled" @click="abandonNotAppliedCreate" label="放弃未生效的本次新增" />
+        <RendererButton v-if="!modelId && state.data && 'canDiscardLocalChanges' in state.data && state.data.canDiscardLocalChanges" data-action="discard-confirmed-create-edits" :disabled="busy || disabled" @click="discardConfirmedCreateEdits" label="放弃模型及字段后续修改并继续核验" />
         <RendererButton v-if="modelId && state.data && 'discardRecovered' in state.data && state.data.discardRecovered" data-action="discard-source-recovery" :disabled="busy || disabled" @click="discardRecovered" label="放弃本地新修改并继续核验" />
         <RendererButton v-if="modelId && state.data && 'abandonNotApplied' in state.data && state.data.abandonNotApplied" data-action="abandon-source-intent" :disabled="busy || disabled" @click="abandonNotApplied" label="放弃未生效的本次来源意图" />
-        <RendererButton v-if="state.data?.status === 'different' && (!modelId || state.data && 'canAcceptCurrent' in state.data && state.data.canAcceptCurrent)" data-action="accept-create" :disabled="busy || disabled" @click="acceptCurrent" label="接受当前正式结果，结束本次操作" />
+        <RendererButton v-if="props.modelId && state.data?.status === 'different' && state.data && 'canAcceptCurrent' in state.data && state.data.canAcceptCurrent" data-action="accept-create" :disabled="busy || disabled" @click="acceptCurrent" label="接受当前正式结果，结束本次操作" />
       </div>
     </template>
     </component>
@@ -288,10 +291,18 @@ function abandonNotApplied(): Promise<void> {
   if (!props.modelId) return Promise.resolve()
   return run(() => props.session.getModelSourceEdit(props.modelId!).verify({abandonNotApplied: true}).then(() => undefined))
 }
+function abandonNotAppliedCreate(): Promise<void> {
+  if (props.modelId) return Promise.resolve()
+  return run(() => props.session.getModelCreate().abandonNotApplied())
+}
+function discardConfirmedCreateEdits(): Promise<void> {
+  if (props.modelId) return Promise.resolve()
+  return run(() => props.session.getModelCreate().discardLocalChanges())
+}
 function acceptCurrent(): void {
-  if (busy.value || props.disabled) return
+  if (!props.modelId || busy.value || props.disabled) return
   try {
-    owner.value.acceptCurrent(); message.value = '已采用当前正式结果，未补写或撤销服务器记录'; error.value = ''; changed()
+    props.session.getModelSourceEdit(props.modelId).acceptCurrent(); message.value = '已采用当前正式结果，未补写或撤销服务器记录'; error.value = ''; changed()
   }
   catch (cause) {error.value = describe(cause)}
 }

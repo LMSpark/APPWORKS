@@ -262,7 +262,8 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
             const rows = command['CrudModel']['Added'].filter(isRecord)
             if (table === 'Base_DataModel_Field' && (!fieldAddAllowed || rows.some(row => typeof row['dataSetId'] !== 'string'
               || !wireRows('Base_DataModel', row['dataSetId']).some(model => model['rowid'] === row['dataModelId'])))) throw new Error('field addition lacks permission or model ownership')
-            if (!(table === 'Base_DataModel_Field' && options.omitFieldWrite)) created.set(table, [...created.get(table) ?? [], ...rows])
+            if (!(table === 'Base_DataModel_Field' && options.omitFieldWrite)
+              && !(table === 'Base_DataModel' && options.omitModelWrite)) created.set(table, [...created.get(table) ?? [], ...rows])
             if (!(table === 'Base_DataModel_Field' && options.omitFieldReceipt)) receipts.push({[table]: rows})
           }
           await modelResponse

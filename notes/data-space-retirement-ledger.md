@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，B/C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2及A3.3已提交；A3.4代码与本组验收完成，随后A3.5模型新增、A3.6字段新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
+**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.4已提交；A3.5模型/数组新增已通过本组验收、待提交，随后A3.6字段新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
 
 ### 1. 目标、边界与完成口径
 
@@ -980,3 +980,9 @@ flowchart TD
 - A3.4 fix round 2/5复审：新增无关source-input owner跟踪P2已ADDRESSED，Spec/Quality PASS，0 open；真实反例先取hasPendingSourceInputs再重取owner，旧实现会丢pending守卫，修正后原草稿/owner保持。66项+UI7项/typecheck/scoped/full lint/生成963/build通过，新实例原名/来源/说明与按钮状态通过。完整verify:rules末项page-thin失败：rename新增stagedRows行快照使JSON基线3→4。进入R3/5工程门禁修复：移除新增的重复行真源并沿原生DataView变更合同保留提交前精确清理；禁止调高基线、改正则或换行/临时变量规避计数。该门禁失败未计通过，原始a3-4-r2-rules.log保留。
 - A3.4 R3门禁裁定：实施者移除新增stagedRows及核实无消费者的pendingRows后，JSON行快照计数降到2，原基线3。允许并要求由父级在冻结后执行正式 `node tools/verify-page-thin.mjs --update` 收紧3→2；禁止为维持计数留下冗余或手工放宽。当前“已减少，请收紧”与先前4>3超限区分记录，行为测试继续，不另向用户申请内部工程决策。
 - A3.4 fix round 3/5复审通过：page-thin问题ADDRESSED，Spec/Quality PASS，0 open。删除stagedRows与无消费者pendingRows，按正式DataView dirtyTracking.getDiff/编辑覆盖判断原patch；原生基线缺失拒绝清理。父级正式--update仅将rename JSON基线3→2（其他生成排序/换行），再生成ClassModel963文件；最终rename66、UI7、fixture影响面6项、typecheck/scoped/full lint、ai-codegen、完整rules、build均通过。真实预览/取消后最终R3新实例原三模型/原名/来源/说明及按钮状态通过，0次UI持久化；证据a3-4-acceptance.md/JSON/两截图。A3.4代码收敛可提交，阶段A完整生命周期与跨实例等余项未核销；未推送。
+- A3.4提交核实：cb08072ab9284e716d358e85c6048dd947ccf32c，父a049bc3a6，27个明确暂存文件；提交后工作区干净、ahead 9，未推送。已提交HEAD残留全DataSet abandon仅model-create及field-create两处，按A3.5/A3.6继续。A3.5第一阶段只开放测试和原始证据，新低价实施者不能先改产品；主控读旧代码真实行为反例后再发第二阶段。创建ID仍用原DataView.addRow生成，DB/布局文件独立确认，不用假ID或另造保存状态。
+- A3.5第一阶段完成：仅改原model-create测试，31项中29项既有保护通过、2项真实旧行为失败；raw a3-5-baseline-red-20261024-131857.log/exit1已由主控核对。实际第二个Base_DataSet unknown capture被创建verify全局清掉；模型已创建/字段未写入时generic acceptCurrent可清pending。无产品/fixture改动，非错误文案或setup红灯。开放第二阶段原owner接共享原capture保存/核验，保持生成ID、双视图范围、领域回读与布局后续分段；补齐brief异步/原回执/UI矩阵再冻结，既有29绿灯不算新增成果。
+- 并行只读准备（不切换阶段）：字典样板source-map已写cache/task-dictionary-semantics-preparation.md，参考HEAD仍791c464b8c6b3c7049ea36ab57546c3481e4d889。已区分参考三专用API owner、本仓现成DictionaryWorkspace两DataView/两保存与标准绑定静态链；补明新建ID责任及设计/条目/辅助排序字段归属。未跑服务/测试，静态连接不等于真实闭环；字典值类型、删除引用、独立保存回读及下游消费保留待核，既有ValueFun/rowid/DISTINCT仅引用历史范围。阶段仍A3.5，不另建活动总计划。
+- A3.5首次冻结报告为create46、UI5及静态通过；主控预检未接受完成：创建核验默认保留晚编辑，UI却仍说放弃副本；缺少brief要求的confirmed后明确丢弃原目标新编辑并接续核验动作，可能把创建恢复锁在readback。create acceptCurrent只改成恒抛错的死API，须删除被替代入口并保留source-edit合法分支。主控保留首次冻结5文件快照，回派同实施者仅补这批已有范围的接口/按钮/行为证据；增加直接数据库来源2例与source-edit共享UI保护，非另开计划。not-applied点击后编辑已有新证据先核报告，不误判为尚无覆盖；两种明确丢弃语义仍须区分。
+- A3.5既有消费者范围补核：typecheck定位DataSpaceArrayCreate.vue:76及原array-create测试:82仍调用已删除的create acceptCurrent。主控读源码确认其复用getModelCreate().createArray同一模型/字段批次，旧partial adoption会提前清未决创建，不能因旧测试存在而恢复数组特判。批准仅扩至该UI、原array-create测试及现有设计页直接数组新增用例；两文件修改前快照已留。沿同一创建核验、明确未生效放弃及confirmed后明确丢弃接口接线，保留表头/JSON输入语义与正常生命周期，不改A3.1数组编辑owner、不另建恢复体系。完整创建及受影响UI复验后再独立审查。
+- A3.5最终冻结及验收：普通模型与数组新增沿同一原capture恢复，删除全DataSet abandon/重复回执/partial acceptCurrent；明确未生效放弃与confirmed后丢弃分开，派生字段视图保留未决捕获及草稿。父级拒绝临时isReadback规避门禁，最终实际复用canDiscardLocalChanges资格并删除重复判断和薄alias，未改基线。独立审查Spec/Task quality PASS、0 open P1/P2；7文件hash一致。最终create55、array-create7、UI15/340skip、其他owner fixture影响7/329skip通过，各套件不叠加；typecheck/scoped/full lint、ai-codegen、完整rules、build通过。正式ClassModel生成963文件，12外围产物仅编译符号数字ID变化，semantic gaps3108仍保留。真实来源选中取消、数组草稿/表头取消重开空值、取消布局节点后整个设计器独立重开原三模型与SourceScope原值通过，0次UI持久化；a3-5-acceptance.md/JSON/三截图已归档。本组可提交，实际创建到删除联合闭环与阶段A其余验收未核销。

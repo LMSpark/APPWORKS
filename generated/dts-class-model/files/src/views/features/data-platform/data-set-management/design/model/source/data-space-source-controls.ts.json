@@ -30,6 +30,24 @@
                 true
               ]
             },
+            "modelId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "canAbandonNotApplied": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "canDiscardLocalChanges": {
+              "enum": [
+                false,
+                true
+              ]
+            },
             "preview": {
               "type": [
                 "null",
@@ -67,6 +85,9 @@
           "required": [
             "status",
             "pending",
+            "modelId",
+            "canAbandonNotApplied",
+            "canDiscardLocalChanges",
             "preview",
             "nameError",
             "verification"

@@ -99,7 +99,7 @@
         </section>
       </div>
             <RendererDialog v-if="selectedId === 'parameters' && parameterViewKey" v-model="parameterVisible" :data-view-key="parameterViewKey" data-member="currentRow"
-              title="输入参数设置" width="860px" :grid-columns="1" append-to-body :close-on-click-modal="false"
+              title="输入参数设置" width="min(860px, calc(100vw - 32px))" :grid-columns="1" append-to-body :close-on-click-modal="false"
               :close-on-press-escape="canCloseParameters" :show-close="canCloseParameters">
               <p v-if="parameterState.error" role="alert">{{ parameterState.error }}</p>
               <DataSpaceParametersEditor v-else-if="parameterOpen" :data-view-key="parameterViewKey"

@@ -1,0 +1,445 @@
+{
+  "date": "2026-10-24",
+  "base": "c93668b44ad60df2bb6deebf952c64175aaac72d",
+  "status": "verified",
+  "productSha256": "E0B6DAFCB97674DDD1D77C818D2DA03700E59E06832FF375C508F275B28EFA35",
+  "targetSpace": "944DEE5A0E5170F903E0E008172C4CD2",
+  "before": {
+    "viewport": {
+      "width": 760,
+      "height": 900
+    },
+    "dialogWidth": 860,
+    "dialogX": 0,
+    "confirmOutsideViewport": true,
+    "screenshot": "a9-parameters-overflow-before.png"
+  },
+  "after": {
+    "narrow": {
+      "box": {
+        "clientWidth": 728,
+        "height": 316.984375,
+        "scrollWidth": 728,
+        "width": 728,
+        "x": 16,
+        "y": 135
+      },
+      "buttons": [
+        {
+          "bottom": 435.984375,
+          "centerHit": true,
+          "inside": true,
+          "right": 648,
+          "text": "取消",
+          "x": 588,
+          "y": 403.984375
+        },
+        {
+          "bottom": 435.984375,
+          "centerHit": true,
+          "inside": true,
+          "right": 728,
+          "text": "确定",
+          "x": 668,
+          "y": 403.984375
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 760
+      }
+    },
+    "wide": {
+      "box": {
+        "clientWidth": 860,
+        "scrollWidth": 860,
+        "width": 860,
+        "x": 210
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "inside": true,
+          "text": "取消"
+        },
+        {
+          "centerHit": true,
+          "inside": true,
+          "text": "确定"
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 1280
+      }
+    }
+  },
+  "localDraftChecks": {
+    "relation": {
+      "id": "A9RelationDraft_20261024",
+      "parent": "SourceScope_20261018",
+      "child": "SourceInputScope_20261018",
+      "cancelled": true,
+      "independentReopenEmpty": true
+    },
+    "cascade": {
+      "id": "A9QueryDraft_20261024",
+      "kind": "query",
+      "cancelled": true,
+      "independentReopenEmpty": true
+    }
+  },
+  "files": {
+    "initial": {
+      "requestId": "22092.2302",
+      "hash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+      "temporaryRelationPresent": false,
+      "temporaryCascadePresent": false
+    },
+    "final": {
+      "requestId": "22092.2320",
+      "hash": "9c9351f320c1eeac9fa2b3efa45b0f4061bbd89c89265d94db31316bc2a4a5a9",
+      "temporaryRelationPresent": false,
+      "temporaryCascadePresent": false
+    },
+    "wholeJsonUnchanged": true
+  },
+  "windows": {
+    "before": {
+      "from": 235,
+      "to": 645,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "22092.1493",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1494",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1495",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 13,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1496",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 338,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1497",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 11,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1498",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_TblField",
+          "rows": 301,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1499",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1500",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1501",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1502",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.1503",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 10,
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "failures": 0
+    },
+    "after": {
+      "from": 5371,
+      "to": 5892,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "22092.2294",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2295",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2296",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 13,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2297",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 338,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2298",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 11,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2299",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_TblField",
+          "rows": 301,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2300",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2301",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2302",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2303",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2304",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2305",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2306",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2307",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 9,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2308",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 2,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2309",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2310",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 10,
+          "code": 200
+        }
+      ],
+      "failures": 0
+    },
+    "reopen": {
+      "from": 5906,
+      "to": 6014,
+      "truncated": false,
+      "hasMore": false,
+      "requests": [
+        {
+          "requestId": "22092.2312",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2313",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2314",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 13,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2315",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Field",
+          "rows": 338,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2316",
+          "path": "/api/DataOperation/GetData",
+          "table": "View_TblList",
+          "rows": 11,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2317",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_TblField",
+          "rows": 301,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2318",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataSet",
+          "rows": 1,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2319",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel",
+          "rows": 3,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2320",
+          "path": "/api/File/content/text",
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2321",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        },
+        {
+          "requestId": "22092.2322",
+          "path": "/api/DataOperation/GetData",
+          "table": "Base_DataModel_Relation",
+          "rows": 0,
+          "code": 200,
+          "httpStatus": 200
+        }
+      ],
+      "failures": 0
+    }
+  },
+  "scope": "Only listed observation windows; module hot-reload interval excluded. No saved relation/cascade or downstream execution claimed.",
+  "lateResponses": [
+    {
+      "requestId": "22092.2310",
+      "httpStatus": 200,
+      "sequence": 5894,
+      "afterWindowEnd": 5892,
+      "note": "Catalog refresh response arrived after the local after-window cursor; request and Code 200 are recorded in that window."
+    }
+  ]
+}

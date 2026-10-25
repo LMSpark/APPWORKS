@@ -28,7 +28,8 @@ AI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖
         <p v-if="aiCandidates.confirmationError" class="ai-reason">{{ aiCandidates.confirmationError }}</p>
         <RendererForm :data-view-key="aiInputKey" :children="aiInputFields" grid-min-width="220px" :show-data-view-meta="false" />
         <RendererForm :data-view-key="aiTurnKey" :children="aiTurnFields" grid-min-width="220px" :show-data-view-meta="false" />
-        <RendererTable :data-view-key="aiCandidatesKey" :children="candidateFields" :toolbar="aiToolbar" :stripe="true" :show-data-view-meta="false" />
+        <RendererTable :data-view-key="aiCandidatesKey" :children="candidateFields" :toolbar="aiToolbar" :stripe="true"
+          :show-data-view-meta="true" />
       </section>
     </template>
   </section>

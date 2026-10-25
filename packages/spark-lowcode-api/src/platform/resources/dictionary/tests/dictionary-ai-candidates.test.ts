@@ -463,10 +463,32 @@ describe('DictionaryAiCandidates native DataSet workflow', () => {
       f.workspace.entries.updateEditingValue('E1', 'exVal_4', '业务草稿')
       f.workspace.definition.updateEditingValue('D1', 'TypeName', '新标题草稿')
       expect(f.candidates.canConfirm).toBe(false)
+      expect(f.candidates.confirmationError).toContain('字典来源已变化')
       expect(f.candidates.confirmationError).not.toMatch(/\(\d+\/\d+\)/)
       await expect(f.candidates.confirm()).rejects.toThrow()
       expect(f.workspace.entries.dirtyTracking.pendingCreateIds.size).toBe(0)
       expect(f.workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('业务草稿')
+      expect(f.candidates.candidates.rows).toHaveLength(0)
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('reports source invalidation and consumption independently after confirmation', async () => {
+    const f = await fixtureWithAi()
+    try {
+      f.aiHttp.responses.push([{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选'}])
+      f.aiHttp.responses.push({conversationId: 'C1', turnId: 'T1', status: 'QUEUED', acceptedAt: null})
+      await f.candidates.start()
+      f.aiTurns.turns.queryContext = {turnId: 'T1'}
+      f.aiHttp.responses.push({id: 'T1', conversationId: 'C1', agentId: 'agent-metadata-admin', status: 'COMPLETED',
+        assistantDraft: '[{"val":"AI-1","txt":"建议条目"}]', errorCode: null, errorMessage: null})
+      await f.candidates.refresh()
+      await f.candidates.confirm()
+
+      f.workspace.definition.updateEditingValue('D1', 'TypeName', '变更后的来源')
+
+      expect(f.candidates.confirmationError).toContain('字典来源已变化')
+      expect(f.candidates.confirmationError).toContain('已确认或已消费')
+      expect(f.candidates.canConfirm).toBe(false)
       expect(f.candidates.candidates.rows).toHaveLength(0)
     } finally { f.dataSet.destroy() }
   })

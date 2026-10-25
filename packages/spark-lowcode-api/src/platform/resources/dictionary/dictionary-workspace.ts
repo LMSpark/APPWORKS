@@ -301,29 +301,12 @@ export class DictionaryWorkspace {
     await this.load()
   }
 
-  /** 完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。 */
-  get canRemoveDefinition(): boolean {
-    const row = this.definition.rows[0]
-    return !this.#busy && !this.#creating && !this.#removed && !this.pending
-      && this.definition.rows.length === 1 && !!row && row['rowid'] === this.#input.dictionaryId
-      && this.entries.rows.length === this.entries.total
-      && this.definition.deleteActionState(row) === 'enabled'
-      && this.entries.rows.every(entry => this.entries.deleteActionState(entry) === 'enabled')
-  }
+  /** 删除前必须证明数据库、配置与代码消费者均已完成引用核验；当前无此全局合同。 */
+  get canRemoveDefinition(): boolean { return false }
 
-  /** 显式暂存定义及全部条目删除，逐条核当次权限，批量提交顺序先条目后定义。 */
-  async removeDefinition(): Promise<void> {
-    this.assertEditable()
-    if (this.pending) throw new Error('请先保存或取消当前编辑后再删除字典')
-    if (this.entries.rows.length !== this.entries.total) throw new Error('字典条目未完整读取，不能删除字典')
-    if (!this.canRemoveDefinition) throw new Error('当前查询未授权删除字典及其全部条目')
-    for (const entry of [...this.entries.rows]) {
-      const id = this.entries.getPkKey(entry)
-      if (id === undefined) throw new Error('字典条目缺少身份')
-      await this.entries.removeRow(id)
-    }
-    await this.definition.removeRow(this.#input.dictionaryId)
-    this.#deleting = true
+  /** 全局引用覆盖尚不可证明时，拒绝删除而不暂存任何DataView变更。 */
+  removeDefinition(): Promise<void> {
+    return Promise.reject(new Error('尚无覆盖数据库、配置和代码消费者的全局引用检查，暂不允许删除字典资源。'))
   }
 
   private async commit(target: DataView): Promise<void> {

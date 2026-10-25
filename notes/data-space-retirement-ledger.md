@@ -1191,3 +1191,11 @@ flowchart TD
 - 冻结后门禁完成：领域123、runtime44，未变目录39及AI资源客户端35共241项非重叠覆盖；root typecheck/full lint/正式ClassModel/consumer生成/verify:rules/build全部exit0。原包级5条测试tsc诊断未变，原3110语义缺口及构建告警保留；12项正式指南成功，新候选模块0缺口。生成物20项差异均已分类，不手改。
 - 归档：evidence/metadata-integration-20261024/b1-candidate-acceptance.md、b1-candidate-live-proof.json、b1-candidate-verification.json分别记录合同/验收边界、白名单真实请求回执及冻结/命令hash。候选与原保存唯一通道复核通过；实施/工程检查可收敛，停止终态/本次保存后重开仍待验收，两项UI minor和完整B1删除引用/下游消费继续开放。拟暂存10源码测试+20正式生成物+唯一台账+3归档文件，最终整批证据复核后本地提交，不推送。
 - 最终整批收敛复核通过：10源码、10门禁日志、6轮复审、原始SPA与截图hash均相符，34路径精确匹配。发现归档摘录将cancel的布尔Result丢成空对象，已更正为true并独立复核；它只表示请求受理，CANCELLING与重开两项false保持。产品新增发现0；本批作为已实施且仍有明确线上验收待办的结果，按清单逐路径暂存并本地提交，提交身份以Git记录为准。现场最后仍CANCELLING，关闭保护保留；完整goal继续active，不推送、不删除测试资源。
+
+### 2026-10-26 B1续接：候选空态与字典删除失败关闭
+- 共享DataView的`clearAll/resetState`现在清零total；`clearAll`将残留total纳入“是否有状态”判断，只有旧总数时也发出cleared。标准`DataViewMetaBar`在启用时对空视图显示“总数 0”，AI候选表显式启用标准meta bar。
+- 候选源失效标志独立于轮次消费标志；现有`confirmationError`可同时说明“字典来源已变化”和“该批候选已确认或已消费”，`canConfirm`仍拒绝两种状态且未改变原entries暂存/保存责任链。
+- 删除引用核查确认当前`DataSpaceDesignApi.readModels/readModelBatch`以单个`dataSpaceId`过滤，不能据局部零结果证明全局无引用；`LowcodeDataSpaceModelSourceReader.dictionaryFields`将字典rowid作为模型DbId，`LowcodeApiProvider.loadHeaderTypes`还按固定字典名称读取代码消费者。没有可证明覆盖所有数据库、配置、代码消费者的全局SPARK DataView合同，因此整字典删除入口禁用，命令不暂存、不保存，并显示明确缺口；无级联、无线上删除。
+- 自动化：DataView事件测试27/27；字典候选与工作区测试120/120；字典目录/工作流页面测试83/83。根typecheck、全仓lint、`pnpm run build`通过。`pnpm run verify:rules`在`verify:lowcode-contracts`因`appworks-consumer-ledger.json`过期退出；本次源码差异无新增或修改的`/api/`路径字面量，未运行生成器覆盖无关台账。规则链其余独立门禁（含verify-ai-model、blueprint、ajax/send-code/wire parity、dirs、page-thin）分别通过；不宣称完整verify:rules通过。
+- 线上状态本轮未取得新的正式GET：浏览器工具搜索未返回可用工具，故未触碰现有CANCELLING轮次、不绕过关闭保护。最近正式证据仍是turn2114024898052624384处于CANCELLING；保存后关闭/切换/重开与精确五条读回仍待服务终态和可用SPA验收。现场测试字典不删除，本轮无线上业务写入。
+- 当前阶段：本地候选UI与删除失败关闭实现及定向/构建验证完成；B1整体仍active，线上终态/重开与全局引用查询合同缺口开放。没有commit或push。下一次继续只从本条及本台账唯一断点读取。

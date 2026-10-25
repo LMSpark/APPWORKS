@@ -545,26 +545,17 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(http.reads).toHaveLength(3)
     dataSet.destroy()
   })
-  it('retains the unknown deletion batch when only the entry deletion reached the owner', async () => {
+  it('fails closed on dictionary deletion without complete global reference coverage', async () => {
     const {workspace, http, dataSet} = fixture()
-    await workspace.load()
-    await workspace.removeDefinition()
-    http.failAfterWrite = true
-    http.afterWriteBeforeFailure = () => {http.records['_Base_DictType']!.push({...initialDefinition})}
-    await expect(workspace.saveDesign()).rejects.toThrow()
-    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
-    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
-    http.failAfterWrite = false
-
-    await expect(workspace.load(true)).rejects.toThrow(/部分生效|无法按主键核验/)
-
-    expect(http.saves).toHaveLength(1)
-    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
-    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
-    expect(workspace.pending).toBe(true)
-    expect(workspace.removed).toBe(false)
-    expect(http.reads).toHaveLength(4)
-    dataSet.destroy()
+    try {
+      await workspace.load()
+      expect(workspace.canRemoveDefinition).toBe(false)
+      await expect(workspace.removeDefinition()).rejects.toThrow(/数据库、配置和代码消费者/)
+      expect(workspace.pending).toBe(false)
+      expect(workspace.definition.rows).toHaveLength(1)
+      expect(workspace.entries.rows).toHaveLength(1)
+      expect(http.saves).toHaveLength(0)
+    } finally {dataSet.destroy()}
   })
   it('does not discard the original capture or draft when recovery verification reads fail', async () => {
     const {workspace, http, dataSet} = fixture()
@@ -729,16 +720,6 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(http.saves).toHaveLength(0)
     dataSet.destroy()
   })
-  it('stages child deletions and definition deletion in one owner and cancels without persisting', async () => {
-    const {workspace, http, dataSet} = fixture()
-    await workspace.load(); await workspace.removeDefinition()
-    expect(workspace.pending).toBe(true)
-    await workspace.load(true)
-    expect(workspace.definition.rows).toHaveLength(1)
-    expect(workspace.entries.rows).toHaveLength(1)
-    expect(http.saves).toHaveLength(0)
-    dataSet.destroy()
-  })
   it('edits extensions without requiring unmodified legacy titles or encoding type', async () => {
     const {workspace, http, dataSet} = fixture()
     Object.assign(http.records['_Base_DictType']![0]!, {val: null, txt: null, dictionaryType: null})
@@ -786,53 +767,6 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(http.saves[1]!.data).toHaveLength(1)
     expect(workspace.entries.rows[0]).toMatchObject({typeid: 'D1', val: 'new', txt: '新增条目', exVal_4: '扩展四'})
     expect(workspace.pending).toBe(false)
-    dataSet.destroy()
-  })
-  it('submits entry deletions before definition through the formal batch owner', async () => {
-    const {workspace, http, dataSet} = fixture()
-    await workspace.load()
-    await workspace.removeDefinition()
-    await workspace.saveDesign()
-    expect(http.saves).toHaveLength(1)
-    expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData'}, {TableName: '_Base_DictType'}])
-    expect(http.records['_Base_DictType']).toEqual([])
-    expect(http.records['_Base_DictData']).toEqual([])
-    expect(workspace.pending).toBe(false)
-    dataSet.destroy()
-  })
-  it('rereads both resources after a lost deletion receipt without repeating deletion', async () => {
-    const {workspace, http, dataSet} = fixture()
-    await workspace.load(); await workspace.removeDefinition()
-    http.failAfterWrite = true
-    await expect(workspace.saveDesign()).rejects.toThrow()
-    await expect(workspace.saveDesign()).rejects.toThrow()
-    await workspace.load(true)
-    expect(workspace.removed).toBe(true)
-    expect(workspace.pending).toBe(false)
-    expect(http.saves).toHaveLength(1)
-    expect(http.reads.map(config => (config.data as {Table: Array<{Name: string}>}).Table[0]!.Name)).toEqual([
-      '_Base_DictType', '_Base_DictData', '_Base_DictData', '_Base_DictType', '_Base_DictType', '_Base_DictData',
-    ])
-    dataSet.destroy()
-  })
-  it('allows reread after a confirmed deletion whose follow-up query failed', async () => {
-    const {workspace, http, dataSet} = fixture()
-    await workspace.load()
-    await workspace.removeDefinition()
-    http.failReadAt = http.reads.length + 1
-
-    await expect(workspace.saveDesign()).rejects.toThrow('读取失败')
-
-    expect(http.saves).toHaveLength(1)
-    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
-    expect(workspace.definition.hasUnconfirmedSave).toBe(false)
-    expect(workspace.requiresVerification).toBe(false)
-    http.failReadAt = undefined
-
-    await workspace.load(true)
-
-    expect(workspace.removed).toBe(true)
-    expect(http.saves).toHaveLength(1)
     dataSet.destroy()
   })
   it('refuses mixed design and data edits without dispatching either save', async () => {

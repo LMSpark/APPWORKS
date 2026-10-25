@@ -206,15 +206,17 @@ describe('DataView 独立事件监听（currentRowChanged / selectedRowsChanged 
     )
   })
 
-  it('clearAll 触发 cleared 事件', () => {
+  it('clearAll 归零服务端总数并在只有总数残留时触发 cleared 事件', () => {
     const ds = createTestDataSet()
     const deptView = ds.getView('Departments')!
     deptView.selection.setCurrentRow(deptView.rows[0]!)
+    deptView.updateFromServer({rows: [], total: 2})
 
     const handler = vi.fn()
     deptView.events.on('cleared', handler)
     deptView.clearAll()
 
+    expect(deptView.total).toBe(0)
     expect(handler).toHaveBeenCalled()
   })
 

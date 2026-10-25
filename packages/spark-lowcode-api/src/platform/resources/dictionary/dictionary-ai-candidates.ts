@@ -65,6 +65,7 @@ export class DictionaryAiCandidates {
   readonly #unsubscribe: Array<() => void> = []
   #sourceRevision = 0
   #captureRevision = -1
+  #sourceInvalidated = false
   #turnId: string | undefined
   #conversationId: string | undefined
   #turnAgentId: string | undefined
@@ -154,8 +155,9 @@ export class DictionaryAiCandidates {
   }
   /** 候选来源仍有效且原workspace可以全批暂存时为true。 */
   get canConfirm(): boolean {
-    if (this.#disposed || this.#busy || this.#aiTurns.requests.hasUnconfirmedSave || this.#aiTurns.cancellations.hasUnconfirmedSave || this.#consumedTurnId === this.#turnId
-      || this.status !== 'COMPLETED' || this.candidates.rows.length === 0 || !this.isCurrentSource()) return false
+    if (this.#disposed || this.#busy || this.#aiTurns.requests.hasUnconfirmedSave
+      || this.#aiTurns.cancellations.hasUnconfirmedSave || this.isConsumed() || this.status !== 'COMPLETED'
+      || this.candidates.rows.length === 0 || this.#sourceInvalidated || !this.isCurrentSource()) return false
     return this.confirmationError === ''
   }
   /** 向用户展示与确认资格完全相同的原DataView预检拒绝原因。 */
@@ -163,15 +165,18 @@ export class DictionaryAiCandidates {
     if (this.#disposed) return 'AI候选owner已释放'
     if (this.#busy) return 'AI候选命令正在进行'
     if (this.#aiTurns.requests.hasUnconfirmedSave || this.#aiTurns.cancellations.hasUnconfirmedSave) return 'AI轮次或停止请求结果待核验'
-    if (!this.#turnId || this.status !== 'COMPLETED') return '请先查询到已完成的AI轮次'
-    if (this.#captureRevision !== this.#sourceRevision) return '字典来源已变化，请重新生成候选'
+    if (!this.#turnId) return '请先查询到已完成的AI轮次'
+    const stateMessages: string[] = []
+    if (this.#sourceInvalidated) stateMessages.push('字典来源已变化，请重新生成候选')
+    if (this.isConsumed()) stateMessages.push('该批候选已确认或已消费')
+    if (stateMessages.length > 0) return stateMessages.join('；')
+    if (this.status !== 'COMPLETED') return '请先查询到已完成的AI轮次'
     const currentTurn = this.currentTurnRow()
     if (currentTurn?.['id'] !== this.#turnId || currentTurn['agentId'] !== this.#turnAgentId
       || currentTurn['conversationId'] !== this.#conversationId || currentTurn['status'] !== 'COMPLETED') {
       return '当前AI轮次状态或身份尚未由有效查询确认'
     }
     try { this.readSource() } catch (error) { return error instanceof Error ? error.message : String(error) }
-    if (this.#consumedTurnId === this.#turnId) return '该批候选已确认或已消费'
     if (this.candidates.rows.length === 0) return '当前没有可确认的候选条目'
     try {
       const candidates = this.readCandidates()
@@ -217,6 +222,7 @@ export class DictionaryAiCandidates {
     this.#turnId = undefined
     this.#conversationId = undefined
     this.#turnAgentId = undefined
+    this.#sourceInvalidated = false
     this.#duplicateCount = 0
     this.clearPreview()
     try {
@@ -241,6 +247,7 @@ export class DictionaryAiCandidates {
       this.#captureRevision = source.revision
       this.#aiTurns.turns.clearAll()
       if (source.revision !== this.#sourceRevision) {
+        this.#sourceInvalidated = true
         this.#captureRevision = -1
         throw new Error('字典来源在AI请求期间已变化；该轮次仍可查询或停止，但不能生成当前来源候选')
       }
@@ -523,6 +530,7 @@ export class DictionaryAiCandidates {
   }
 
   private isUnconfirmed(view: DataView): boolean { return view.hasUnconfirmedSave }
+  private isConsumed(): boolean { return this.#turnId !== undefined && this.#consumedTurnId === this.#turnId }
 
   private currentTurnRow(): DataRow | undefined {
     if (!this.#turnId || this.turn.requestState !== RequestState.Loaded || this.turn.loadingError) return undefined
@@ -540,6 +548,7 @@ export class DictionaryAiCandidates {
   private invalidateSource(): void {
     if (this.#disposed) return
     this.#sourceRevision++
+    if (this.#turnId) this.#sourceInvalidated = true
     this.#captureRevision = -1
     this.clearPreview()
   }

@@ -471,6 +471,9 @@ describe('dictionary catalog formal view assembly', () => {
     for (const label of ['新增条目', '删除当前条目', '保存数据', '取消数据修改并重读']) {
       expect(dataPage.findAll('button').some(button => button.text() === label)).toBe(true)
     }
+    await dataPage.findAll('button').find(button => button.text() === 'AI 候选')!.trigger('click')
+    await flushPromises()
+    expect(dataPage.find('[aria-label="AI候选"]').text()).toContain('总数 0')
   })
 
   it('keeps the data workspace open while dirty, then closes after ordinary cancel rereads', async () => {

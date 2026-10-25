@@ -3212,6 +3212,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   clearAll(): void {
     this.assertResultReplacementAllowed()
     const had = this.rows.length > 0
+      || this.total !== 0
       || this.currentRow !== null
       || this.selectedRows.length > 0
       || this.requestState !== RequestState.Idle
@@ -3240,6 +3241,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
     const selectionChanged = this._currentRowId !== null || this._keylessCurrentRow !== null || this._selectedRowIds.length > 0 || this._keylessSelectedRows.length > 0
     this.rows = []
+    this.total = 0
     this._rowsVersion++
     this._currentRowId = null
     this._keylessCurrentRow = null

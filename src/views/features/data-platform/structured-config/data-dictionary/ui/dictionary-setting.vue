@@ -13,8 +13,9 @@ AI用途：实现专题方案设计页时保留元数据空间和已保存方案
     <RendererButton :data-view-key="definitionKey" :label="uncertain ? '核验原提交（保留本地修改）' : '取消设计修改并重读'" :disabled="busy" @click="reload" />
     <RendererButton :data-view-key="definitionKey" label="放弃设计修改并关闭" :disabled="busy || uncertain" @click="cancel" />
     <RendererButton v-if="!isCreating" :data-view-key="definitionKey" label="删除字典资源…" :disabled="busy || !definitionRemovable" @click="confirmDelete = true" />
+    <p v-if="!isCreating" role="status">尚无覆盖数据库、配置和代码消费者的全局引用检查，暂不允许删除字典资源。</p>
     <RendererDialog :data-view-key="definitionKey" :model-value="confirmDelete" title="删除字典资源" width="480px" @update:model-value="confirmDelete = false">
-      <p>此操作将删除字典定义及其全部条目。只有当前查询允许删除每条记录时才能提交。</p>
+      <p>此操作将删除字典定义及其全部条目；全局引用范围尚未验证，当前不可提交。</p>
       <RendererButton label="取消" :disabled="busy" @click="confirmDelete = false" />
       <RendererButton label="确认删除" button-type="danger" :disabled="busy || !definitionRemovable" @click="removeDefinition" />
     </RendererDialog>

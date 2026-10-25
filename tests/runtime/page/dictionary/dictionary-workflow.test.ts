@@ -697,7 +697,8 @@ describe('Dictionary independent design and data pages', () => {
     expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
     await button(design, '取消设计修改并重读').trigger('click'); await flushPromises()
     expect((field(design, '第五文本标题').get('input').element as HTMLInputElement).value).toBe('说明')
-    expect(button(design, '删除字典资源…').attributes('disabled')).toBeUndefined()
+    expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
+    expect(design.get('[role="status"]').text()).toContain('全局引用检查')
     expect(http.saves).toHaveLength(0)
   })
   it('rebinds a clean target switch to the new identity and saves only its entries', async () => {
@@ -990,21 +991,20 @@ describe('Dictionary independent design and data pages', () => {
     expect(http.records['_Base_DictData']).toHaveLength(0)
     expect(http.records['_Base_DictType']).toHaveLength(1)
   })
-  it('disables resource removal when any child record is not deletable', async () => {
+  it('fails closed on resource removal when global reference coverage is unavailable', async () => {
     http.denyDeleteIds = ['E1']
     const design = await open('design')
     expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
+    expect(design.get('[role="status"]').text()).toContain('数据库、配置和代码消费者')
     expect(http.saves).toHaveLength(0)
   })
-  it('confirms resource removal and verifies entries and definition are gone through the same owner', async () => {
+  it('keeps resource removal disabled without complete database, configuration, and code reference coverage', async () => {
     const design = await open('design')
-    await button(design, '删除字典资源…').trigger('click'); await flushPromises()
-    const confirm = design.findAllComponents(RendererButton).find(item => item.props('label') === '确认删除')!
-    await confirm.get('button').trigger('click'); await flushPromises()
-    expect(design.findComponent(DictionaryDesign).emitted('deleted')).toHaveLength(1)
-    expect(http.saves).toHaveLength(1)
-    expect(http.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData'}, {TableName: '_Base_DictType'}])
-    expect(http.records['_Base_DictType']).toHaveLength(0)
-    expect(http.records['_Base_DictData']).toHaveLength(0)
+    expect(button(design, '删除字典资源…').attributes('disabled')).toBeDefined()
+    expect(design.text()).toContain('尚无覆盖数据库、配置和代码消费者的全局引用检查')
+    expect(design.findAllComponents(RendererButton).some(item => item.props('label') === '确认删除')).toBe(false)
+    expect(http.saves).toHaveLength(0)
+    expect(http.records['_Base_DictType']).toHaveLength(1)
+    expect(http.records['_Base_DictData']).toHaveLength(1)
   })
 })

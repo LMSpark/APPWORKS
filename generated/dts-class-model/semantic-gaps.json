@@ -32426,7 +32426,7 @@
       "chainBreak": "LowcodeDatabaseTableView.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/lowcode-database-table-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
-      "declarationLine": 40,
+      "declarationLine": 42,
       "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
       "declarationKind": "class"
     },

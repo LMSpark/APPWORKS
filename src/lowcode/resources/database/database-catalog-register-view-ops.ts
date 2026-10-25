@@ -9,8 +9,8 @@ import {
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_VIEW_REGISTER_TABLE,
+  RegistrationDefaultFieldsNotAppliedError,
 } from './lowcode-database-table-view'
-import {RegistrationDefaultFieldsNotAppliedError} from './lowcode-database-dataset-extensions'
 
 export type DatabaseCatalogRegisterTableItem = Readonly<{
   tableName: string

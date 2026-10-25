@@ -1571,7 +1571,11 @@ beforeEach(() => {
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
-afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); sourceRuntimes.splice(0).forEach(runtime => runtime.dispose()); fixtures.splice(0).forEach(f => f.dispose()); vi.restoreAllMocks(); vi.unstubAllGlobals()})
+afterEach(() => {
+  wrappers.splice(0).forEach(wrapper => wrapper.unmount()); sourceRuntimes.splice(0).forEach(runtime => runtime.dispose()); fixtures.splice(0).forEach(f => f.dispose()); vi.restoreAllMocks(); vi.unstubAllGlobals()
+  // 卸载后仍可能残留 append-to-body 的弹层；后续用例按 document 查询，必须从干净 body 开始。
+  document.body.innerHTML = ''
+})
 const SourceTable = defineComponent({props: {data: {type: Array as PropType<Record<string, unknown>[]>, default: () => []}},
   setup(props, {slots}) {provide('source-test-rows', computed(() => props.data)); return () => h('div', slots['default']?.())}})
 const SourceColumn = defineComponent({props: {prop: String}, setup(props, {slots}) {
@@ -5770,9 +5774,18 @@ describe('native data-space design entry', () => {
     if (result !== 'model-only') f.created.delete('Base_DataModel')
     if (result === 'absent') f.created.delete('Base_DataModel_Field')
     await sourceButton(editor, 'verify-create').trigger('click'); await flushPromises()
+    if (result !== 'absent') {
+      // 部分生效的原批次按正式合同不可核验：保持未知、不重发，须重开页面查询实际结果。
+      expect(editor.text()).toContain('SPARK_SAVE_UNVERIFIABLE')
+      expect(f.sessions[0]!.getModelCreate().getState().status).toBe('unknown')
+      expect(writes(f)).toHaveLength(1)
+      expect(f.created.get('Base_DataModel') ?? []).toHaveLength(result === 'model-only' ? 1 : 0)
+      expect(f.created.get('Base_DataModel_Field') ?? []).toHaveLength(result === 'model-only' ? 0 : 2)
+      return
+    }
     expect(f.sessions[0]!.getModelCreate().getState().status).toBe('different')
-    expect(sourcePreviewDom().text()).toContain('未读取到此记录')
-    await sourceButton(editor, 'accept-create').trigger('click'); await flushPromises()
+    expect(editor.text()).toContain('正式结果与本次预览不一致')
+    await sourceButton(editor, 'abandon-not-applied-create').trigger('click'); await flushPromises()
     expect(f.sessions[0]!.hasPendingModelCreate()).toBe(false)
     expect(editor.emitted('created')).toBeUndefined()
     expect(wrapper.get('.design-detail h2').text()).toBe('待配置模型')
@@ -5781,28 +5794,7 @@ describe('native data-space design entry', () => {
     await cancelDirectoryNode(wrapper)
     expect(instance.isDirty).toBe(false)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    if (result === 'model-only') {
-      options.omitFieldWrite = false; options.omitFieldReceipt = false
-      await select(wrapper, 'Recovered')
-      const recovered = wrapper.getComponent(DataSpaceModelSource)
-      await sourceButton(recovered, 'sync-source').trigger('click'); await flushPromises()
-      expect(sourcePreviewDom().text()).toContain('新增 2 个字段')
-      expect(sourceButton(recovered, 'confirm-sync-source').attributes('disabled'), sourcePreviewDom().text()).toBeUndefined()
-      await sourceButton(recovered, 'confirm-sync-source').trigger('click'); await flushPromises()
-      expect(writes(f)).toHaveLength(2)
-      expect(f.created.get('Base_DataModel')).toHaveLength(1)
-      const fresh = await f.open('A')
-      expect((await fresh.loadModelFields(modelId)).rows.map(row => row['Name']).sort()).toEqual(['id', 'title'])
-      await fresh.metadataDataSet.getView('DataViewDefinition')!.addRow({dataSetId: 'A', tableName: 'RecoveredTable',
-        dataModelId: modelId, dataModelName: 'Recovered', viewId: 'list'})
-      expect((await fresh.metadataDataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}]})).success).toBe(true)
-      const consumer = await f.open('A')
-      await consumer.loadDefinition()
-      const dataView = consumer.definitionDataSet!.getView('RecoveredTable', 'list')!
-      expect(resolveDataViewKey('A@Recovered@list', consumer.definitionDataSet!)).toBe(dataView)
-      expect((await dataView.loadFromServer()).success).toBe(true)
-      expect(dataView.rows).toMatchObject([{id: 'R1', title: '恢复后数据'}])
-    } else if (result === 'absent') {
+    {
       await createDirectoryNode(wrapper)
       const retry = wrapper.getComponent(DataSpaceModelSource)
       await openSourcePicker(retry)
@@ -5814,11 +5806,6 @@ describe('native data-space design entry', () => {
       expect(f.created.get('Base_DataModel')![0]!['rowid']).not.toBe(modelId)
       expect(wrapper.get('.design-detail h2').text()).toBe('Recovered')
       expect(instance.isDirty).toBe(false)
-    } else {
-      expect(f.created.get('Base_DataModel')).toBeUndefined()
-      expect(f.created.get('Base_DataModel_Field')).toHaveLength(2)
-      expect(f.created.get('Base_DataModel_Field')!.every(row => row['dataModelId'] === modelId)).toBe(true)
-      expect(writes(f)).toHaveLength(1)
     }
   }, 10000)
 
@@ -7138,7 +7125,7 @@ describe('native data-space design entry', () => {
     const dialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('title') === '输入参数设置')
     expect(dialog?.props('modelValue')).toBe(true)
     expect(dialog?.props('dataViewKey')).toContain('@Base_DataSet@default')
-    expect(dialog?.props('width')).toBe('860px')
+    expect(dialog?.props('width')).toBe('min(860px, calc(100vw - 32px))')
     expect(sourceButton(wrapper, 'close-parameters').text()).toBe('取消')
     expect(sourceButton(wrapper, 'save-parameters').text()).toBe('确定')
     await editParameter(wrapper, '描述 1', '取消的草稿')

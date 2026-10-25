@@ -165,7 +165,11 @@ describe('formal primary key configuration', () => {
     expect(writes()).toHaveLength(1)
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')
-    await owner.reload(owner.getState().pending)
+    if (mode === 'unknown' && owner.requiresWorkspaceRecovery()) {
+      await expect(owner.reload(true)).rejects.toThrow(/3 字段呈现.*重新核验字段配置/)
+      await owner.verifyRecovery(true)
+      await owner.reload(false)
+    } else await owner.reload(owner.getState().pending)
     expect(fields.rows.find(row => row['rowid'] === 'F2')?.['IsPKey']).toBe(1)
     expect(writes()).toHaveLength(1)
   })

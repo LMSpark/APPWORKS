@@ -3789,7 +3789,7 @@
     "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json",
-      "sourceModifiedAt": "2026-10-24T03:51:08.993Z"
+      "sourceModifiedAt": "2026-10-25T09:25:10.941Z"
     },
     "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
@@ -3889,7 +3889,7 @@
     "src/lowcode/resources/database/database-catalog-register-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-register-view-ops.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.805Z"
+      "sourceModifiedAt": "2026-10-25T09:22:44.794Z"
     },
     "src/lowcode/resources/database/database-catalog-relation-form-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
@@ -3959,7 +3959,7 @@
     "src/lowcode/resources/database/lowcode-database-table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
       "shardFile": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.819Z"
+      "sourceModifiedAt": "2026-10-25T09:22:43.169Z"
     },
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
@@ -4579,7 +4579,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.832Z"
+      "sourceModifiedAt": "2026-10-25T09:21:24.249Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",

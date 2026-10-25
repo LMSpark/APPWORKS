@@ -60,6 +60,8 @@ export const DATABASE_VIEW_REGISTER_TABLE = 'DatabaseViewRegister'
 
 export const DATABASE_CATALOG_DB_MODEL = '_base_dbInfo'
 export {DATABASE_SERVER_MODEL as DATABASE_CATALOG_SERVER_MODEL}
+/** 注册回执的明确结果类型；view-ops 经本目录入口消费，不直接依赖命令适配器。 */
+export {RegistrationDefaultFieldsNotAppliedError} from './lowcode-database-dataset-extensions'
 export const DATABASE_CATALOG_TABLE_MODEL = '_Base_TblList'
 export const DATABASE_CATALOG_VIEW_MODEL = '_Base_ViewList'
 export const DATABASE_CATALOG_FIELD_MODEL = 'Base_TblField'

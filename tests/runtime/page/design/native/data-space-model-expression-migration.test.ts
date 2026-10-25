@@ -121,7 +121,7 @@ describe('model filter references without SQL identity inference', () => {
     expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
     if (kind === 'partial') {
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel_Field', id: 'F5.ValueFun', result: 'copied.ValueFun与预览不同，请处理差异'})
-      owner.acceptCurrent()
+      expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
     }
     else expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field', 'default')!.rows.find(row => row['rowid'] === 'F5')).toHaveProperty('ValueFun', after)
     expect(writes()).toHaveLength(1)
@@ -312,7 +312,7 @@ describe('model filter references without SQL identity inference', () => {
     expect((await owner.verify()).confirmed).toBe(kind === 'unknown')
     if (kind === 'partial') {
       expect(owner.getState().verification).toContainEqual({table: 'Base_DataModel', id: 'M2.Filter', result: 'Customers.Filter与预览不同，请处理差异'})
-      owner.acceptCurrent()
+      expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
     }
     expect(writes()).toHaveLength(1)
   })

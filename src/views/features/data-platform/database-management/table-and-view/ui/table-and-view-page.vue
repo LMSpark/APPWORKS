@@ -682,7 +682,7 @@ async function closeObjectRegister(): Promise<void> {
 async function loadObjectRegisterList(type: RegisterObjectType): Promise<void> {
   if (objectRegisterHasPending.value) throw new Error('本批命令尚未完成，不能刷新或替换列表')
   const ds = dataSet.value
-  const db = dbView.value
+    const db = dbView.value
   if (!ds || !db) throw new Error('目录未就绪')
   const dbId = databaseCatalogDbSelectedId(db)
   if (!dbId) throw new Error('请先选择数据库')
@@ -1403,7 +1403,7 @@ watch(() => relationEndpointSignature(), () => {void loadRelationExpressionCatal
 async function syncDesignMetadata(): Promise<void> {
   await act(async () => {
     const ds = dataSet.value
-    const db = dbView.value
+  const db = dbView.value
     const tables = tableView.value
     const fields = fieldTableView.value
     if (!ds || !db || !tables || !fields) return
@@ -1470,7 +1470,7 @@ const chooseDatabase: NonNullable<RTableProps['onRowClick']> = async (...args: P
     fieldTableView.value?.clearAll()
     fieldViewView.value?.clearAll()
     view.setCurrentRow(original)
-    view.setSelectedRows([original])
+  view.setSelectedRows([original])
   } catch (cause) {
     actionError.value = cause instanceof Error ? cause.message : String(cause)
     return

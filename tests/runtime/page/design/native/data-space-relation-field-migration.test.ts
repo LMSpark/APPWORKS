@@ -108,7 +108,8 @@ describe('source field and formal relation migration', () => {
     if (kind === 'partial') {
       expect(owner.getState().status).toBe('different')
       expect(owner.getState().verification.some(item => item.table === 'Base_DataModel_Relation' && item.result.includes('不同'))).toBe(true)
-      owner.acceptCurrent()
+      expect(() => owner.acceptCurrent()).toThrow('文件配置待处理')
+      expect(writes()).toHaveLength(1)
     }
   })
 

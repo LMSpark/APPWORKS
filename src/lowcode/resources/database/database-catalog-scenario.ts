@@ -1,311 +1,60 @@
 /**
  * @module app:lowcode/resources/database/database-catalog-scenario
- * 职责：解析数据库目录 FormKey。dataSpaceId = 正式 Base_DataSet.rowid = 运行 DataSet.scenarioId = x-FormKey，不是导航 nodeId。
- * 蓝图 hidden 节点若把 nodeId 写入 dataSpace.scenarioId 则无效；合并蓝图标题与候选后再 readModelBatch。
- * getDatabaseCatalog 仅用于 FormKey 探测（sourceDataSpaces），不参与页面列表/CRUD，不是第二套 DataSet 读链。
+ * 职责：校验数据库目录宿主明确提供的正式 Base_DataSet.rowid，不推断或替换页面身份。
+ * AI用途：维护目录装配时，确保一次查询只属于本次正式导航绑定的数据空间。
  */
-import { getNavTree } from '@spark-appworks/spark-app'
-import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { DATA_SPACE_DESIGN_FORM_KEY, type LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
-import { isRecord } from '@spark-appworks/spark-utils'
-import { lowcodeApi } from '../../lowcode-runtime'
+import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {lowcodeApi} from '../../lowcode-runtime'
 
-type DatabaseCatalogResolveCacheKey = Readonly<{
-  scopeToken: string
-  applicationId: string
-  preferred: string
-  fingerprint: string
-}>
-
-type DatabaseCatalogResolveCacheWrite = DatabaseCatalogResolveCacheKey & Readonly<{dataSpaceId: string}>
-
-const DATABASE_NAV_PATH_MARKERS = ['database-management', 'DataBaseManage'] as const
-
-const DATABASE_CATALOG_NAVIGATION_TITLES = new Set(['数据库管理', '数据资源管理', '结构化配置'])
-
-function isDatabaseManagementPath(path: string | undefined): boolean {
-  if (!path) return false
-  return DATABASE_NAV_PATH_MARKERS.some(marker => path.includes(marker))
-}
-
-function walkDatabaseScenarioIds(items: readonly RuntimeNavigationItem[], sink: string[]): void {
-  for (const item of items) {
-    if (isDatabaseManagementPath(item.path) && typeof item.blueprintScenarioId === 'string') {
-      const id = item.blueprintScenarioId.trim()
-      if (id && id.toUpperCase() !== item.id.toUpperCase()) sink.push(id)
-    }
-    if (item.children?.length) walkDatabaseScenarioIds(item.children, sink)
-  }
-}
-
-function orderCatalogScenarioCandidates(
-  preferredScenarioId: string,
-  candidates: readonly string[],
-  navigationNodeId?: string,
-): readonly string[] {
-  const preferred = preferredScenarioId.trim()
-  const unique = [...new Set(candidates.map(id => id.trim()).filter(Boolean))]
-  const nav = navigationNodeId?.trim()
-  const misboundPreferred = preferred.toUpperCase() === nav?.toUpperCase()
-  const withoutNavDuplicate = nav
-    ? unique.filter(id => id.toUpperCase() !== nav.toUpperCase())
-    : unique
-  if (!preferred) return withoutNavDuplicate
-  if (misboundPreferred) return [...withoutNavDuplicate.filter(id => id !== preferred), preferred]
-  return [preferred, ...withoutNavDuplicate.filter(id => id !== preferred)]
-}
-
+/** 数据空间身份说明，供精确身份失败提示使用。 */
 export const DATABASE_CATALOG_RESOLVE_HINT =
-  'dataSpaceId 须为 Base_DataSet.rowid（= DataSet.scenarioId = x-FormKey），不是导航 nodeId。'
-  + ' 见 notes/research-database-catalog-dataset-identity.md 与 notes/evidence/database-management-i5/live-pilot-formal-model-gap.json'
+  'dataSpaceId 须为 Base_DataSet.rowid（= DataSet.scenarioId = x-FormKey），且必须来自当前正式页面绑定。'
 
+/**
+ * 目录装配可选的宿主预检结果。
+ * resolvedDataSpaceId 仅用于传递已确认的同一目标；不能覆盖页面导航绑定。
+ */
 export type DatabaseCatalogLoadOptions = Readonly<{
-  /** 当前系统页导航 nodeId；与 blueprintScenarioId 相同时视为误绑，解析时降权。 */
-  navigationNodeId?: string
-  /** Hub 已 batch 校验的 DataSet rowid；传入则 loadCatalog 跳过二次 resolve。 */
+  /** 宿主已核验的正式 Base_DataSet.rowid；必须与当前页面目标一致。 */
   resolvedDataSpaceId?: string
+  /** 旧管理入口传入的正式数据库行主键；仅用于本 DataView 的精确过滤。 */
+  databaseId?: string
 }>
 
-const CACHE_STORAGE_PREFIX = 'spark:dbCatalogFormKey:'
-const memoryResolveCache = new Map<string, string>()
-
-/** 测试或 scope 切换时清空解析缓存。 */
-export function clearDatabaseCatalogResolveCache(): void {
-  memoryResolveCache.clear()
-  if (typeof sessionStorage !== 'undefined') sessionStorage.clear()
-}
-
-export function metaNamesFingerprint(metaNames: readonly string[]): string {
-  return [...metaNames].sort().join('|')
-}
-
-function cacheMemoryKey(input: DatabaseCatalogResolveCacheKey): string {
-  return `${input.scopeToken}\0${input.applicationId}\0${input.preferred}\0${input.fingerprint}`
-}
-
-function readResolveCache(input: DatabaseCatalogResolveCacheKey): string | undefined {
-  const mem = memoryResolveCache.get(cacheMemoryKey(input))
-  if (mem) return mem
-  if (typeof sessionStorage === 'undefined') return undefined
-  try {
-    const raw = sessionStorage.getItem(`${CACHE_STORAGE_PREFIX}${input.applicationId}:${input.preferred}`)
-    if (!raw) return undefined
-    const parsed: unknown = JSON.parse(raw)
-    if (!isRecord(parsed)) return undefined
-    if (
-      parsed['fingerprint'] !== input.fingerprint
-      || parsed['scopeToken'] !== input.scopeToken
-      || typeof parsed['dataSpaceId'] !== 'string'
-    ) return undefined
-    return parsed['dataSpaceId'].trim() || undefined
-  } catch {
-    return undefined
-  }
-}
-
-function writeResolveCache(input: DatabaseCatalogResolveCacheWrite): void {
-  memoryResolveCache.set(cacheMemoryKey(input), input.dataSpaceId)
-  if (typeof sessionStorage === 'undefined') return
-  try {
-    sessionStorage.setItem(
-      `${CACHE_STORAGE_PREFIX}${input.applicationId}:${input.preferred}`,
-      JSON.stringify({fingerprint: input.fingerprint, dataSpaceId: input.dataSpaceId, scopeToken: input.scopeToken}),
-    )
-  } catch {
-    /* quota / private mode */
-  }
-}
-
-export type DatabaseCatalogFormalTier = 'full' | 'serverOnly'
-
-export type DatabaseCatalogTieredResolve = Readonly<{
-  dataSpaceId: string
-  tier: DatabaseCatalogFormalTier
-}>
-
-export type DatabaseCatalogResolveDiagnostics = Readonly<{
-  candidateCount?: number
-  misboundPreferred?: boolean
-}>
-
-export const DATABASE_CATALOG_SERVER_ONLY_NOTICE =
-  '当前 FormKey 下仅 Base_serverInfo 正式模型可用，库/表/视图五表 readModelBatch 未齐。'
-  + ' 见 notes/evidence/database-management-i5/live-pilot-formal-model-gap.json'
-
-export function formatDatabaseCatalogResolveFailure(
-  lastError: unknown,
-  diagnostics: DatabaseCatalogResolveDiagnostics = {},
-): Error {
-  const detail = lastError instanceof Error ? lastError.message : String(lastError)
-  const extra: string[] = []
-  if (diagnostics.misboundPreferred) extra.push('导航 blueprintScenarioId 与 nodeId 相同，已降权。')
-  if (diagnostics.candidateCount !== undefined) extra.push(`已尝试 ${diagnostics.candidateCount} 个候选 FormKey。`)
-  const tail = extra.length > 0 ? ` ${extra.join(' ')}` : ''
-  return new Error(`${DATABASE_CATALOG_RESOLVE_HINT}${tail} ${detail}`)
-}
-
-function resolveDiagnostics(
-  preferred: string,
-  navigationNodeId: string | undefined,
-  candidateCount: number,
-): DatabaseCatalogResolveDiagnostics {
-  const nav = navigationNodeId?.trim()
-  const misboundPreferred = Boolean(preferred.toUpperCase() === nav?.toUpperCase())
-  return {candidateCount, misboundPreferred}
-}
-
-/** 从蓝图 flat 记录收集数据库目录相关 dataSpace.scenarioId（与历史 DBMS 标题集合一致）。 */
-export function collectBlueprintDatabaseCatalogScenarioIds(
-  records: readonly LowcodeProjectBlueprintRecord[],
-): readonly string[] {
-  const result: string[] = []
-  for (const record of records) {
-    const scenarioId = record.dataSpace?.scenarioId.trim()
-    if (!scenarioId) continue
-    const title = record.navigation?.title ?? record.capability.name
-    const target = record.navigation?.target?.toLowerCase() ?? ''
-    if (DATABASE_CATALOG_NAVIGATION_TITLES.has(title) || target.includes('databasecodelist')) result.push(scenarioId)
-  }
-  return [...new Set(result)]
-}
-
-/** 当前路由 FormKey 优先，再合并数据库管理相关导航节点的 blueprintScenarioId。 */
-export function collectDatabaseCatalogScenarioCandidates(preferredScenarioId: string): readonly string[] {
-  const ordered: string[] = []
-  const preferred = preferredScenarioId.trim()
-  if (preferred) ordered.push(preferred)
-  const root = getNavTree()
-  if (root !== null && root.items.length > 0) walkDatabaseScenarioIds(root.items, ordered)
-  return [...new Set(ordered)]
-}
-
-/** 仅 identity 探测：从 GetBaseData 聚合结果反推有效 FormKey，不返回目录行给 UI。 */
-async function collectCatalogProbeScenarioIds(candidates: readonly string[]): Promise<readonly string[]> {
-  if (candidates.length === 0) return []
-  try {
-    const catalog = await lowcodeApi.catalog.getDatabaseCatalog.call(lowcodeApi.catalog, candidates)
-    const keys = Object.values(catalog.sourceDataSpaces)
-      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-    return [...new Set(keys)]
-  } catch {
-    return []
-  }
-}
-
-async function buildDatabaseCatalogScenarioCandidates(
-  preferredScenarioId: string,
-  navigationNodeId?: string,
-): Promise<readonly string[]> {
-  const preferred = preferredScenarioId.trim()
-  const nav = collectDatabaseCatalogScenarioCandidates(preferredScenarioId)
-  const blueprint: string[] = []
-  const application = lowcodeApi.application.get()
-  if (application !== null) {
-    const records = await lowcodeApi.blueprint.readRecords(application.application.id)
-    blueprint.push(...collectBlueprintDatabaseCatalogScenarioIds(records))
-  }
-  const probeSeed = [...new Set([...(preferred ? [preferred] : []), ...blueprint, ...nav])]
-  const probe = await collectCatalogProbeScenarioIds(probeSeed)
-  const merged = [...new Set([...(preferred ? [preferred] : []), ...blueprint, ...probe, ...nav])]
-  return orderCatalogScenarioCandidates(preferred, merged, navigationNodeId)
+/** 将查询失败明确保留为当前正式目标失败，不附加候选空间诊断。 */
+export function formatDatabaseCatalogResolveFailure(cause: unknown): Error {
+  const detail = cause instanceof Error ? cause.message : String(cause)
+  return new Error(`${DATABASE_CATALOG_RESOLVE_HINT} ${detail}`)
 }
 
 type ResolveDatabaseCatalogScenarioInput = Readonly<{
+  /** 当前正式页面绑定的 DataSet.scenarioId。 */
   preferredScenarioId: string
+  /** 本次页面必须存在的正式模型集合。 */
   metaNames: readonly string[]
+  /** 身份/应用发生变化时中止当前核验。 */
   assertCurrent: () => void
-  navigationNodeId?: string
 }>
 
-async function verifyCatalogDataSpaceId(
-  dataSpaceId: string,
-  metaNames: readonly string[],
-  assertCurrent: () => void,
-): Promise<void> {
-  assertCurrent()
+/**
+ * 只对宿主给出的精确 FormKey 执行正式模型批量核验。
+ * 缺少目标或模型时直接失败，不搜索导航、蓝图或目录中的其它数据空间。
+ */
+export async function resolveDatabaseCatalogScenarioId(input: ResolveDatabaseCatalogScenarioInput): Promise<string> {
+  const dataSpaceId = input.preferredScenarioId.trim()
+  if (!dataSpaceId) throw formatDatabaseCatalogResolveFailure(new Error('页面缺少正式 dataSpaceId'))
+  input.assertCurrent()
   await lowcodeApi.dataSpace.design.readModelBatch({
     designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
     dataSpaceId,
-    metaNames,
-    assertCurrent,
+    metaNames: input.metaNames,
+    assertCurrent: input.assertCurrent,
   })
+  input.assertCurrent()
+  return dataSpaceId
 }
 
-/** 在候选 FormKey 上批量 readModelBatch，返回首个指定 metaNames 均可正式装配的空间 ID。 */
-export async function resolveDatabaseCatalogScenarioId(input: ResolveDatabaseCatalogScenarioInput): Promise<string> {
-  const preferred = input.preferredScenarioId.trim()
-  if (!preferred) throw formatDatabaseCatalogResolveFailure(new Error('数据库目录缺少导航绑定的 dataSpaceId'))
-  const fingerprint = metaNamesFingerprint(input.metaNames)
-  const scope = lowcodeApi.readRequestScope()
-  const application = lowcodeApi.application.get()
-  const applicationId = application === null ? '' : application.application.id
-  const cacheKey = {scopeToken: scope.token, applicationId, preferred, fingerprint}
-  const cached = applicationId ? readResolveCache(cacheKey) : undefined
-  if (cached) {
-    try {
-      await verifyCatalogDataSpaceId(cached, input.metaNames, input.assertCurrent)
-      return cached
-    } catch {
-      /* 缓存失效，继续候选探测 */
-    }
-  }
-  const candidates = await buildDatabaseCatalogScenarioCandidates(preferred, input.navigationNodeId)
-  if (candidates.length === 0) {
-    throw formatDatabaseCatalogResolveFailure(
-      new Error('无候选 FormKey'),
-      resolveDiagnostics(preferred, input.navigationNodeId, 0),
-    )
-  }
-  const diagnostics = resolveDiagnostics(preferred, input.navigationNodeId, candidates.length)
-  let lastError: unknown
-  for (const dataSpaceId of candidates) {
-    try {
-      await verifyCatalogDataSpaceId(dataSpaceId, input.metaNames, input.assertCurrent)
-      if (applicationId) writeResolveCache({...cacheKey, dataSpaceId})
-      return dataSpaceId
-    } catch (error) {
-      lastError = error
-    }
-  }
-  throw formatDatabaseCatalogResolveFailure(lastError ?? new Error('候选数据空间均缺少完整正式模型'), diagnostics)
-}
-
-type ResolveDatabaseCatalogTieredInput = Readonly<{
-  preferredScenarioId: string
-  fullMetaNames: readonly string[]
-  serverMetaNames: readonly string[]
-  assertCurrent: () => void
-  navigationNodeId?: string
-}>
-
-/** Hub：先五表 batch，失败则在同候选顺序上试 Base_serverInfo，仍是一个 rowid。 */
-export async function resolveDatabaseCatalogScenarioTiered(
-  input: ResolveDatabaseCatalogTieredInput,
-): Promise<DatabaseCatalogTieredResolve> {
-  try {
-    const dataSpaceId = await resolveDatabaseCatalogScenarioId({
-      preferredScenarioId: input.preferredScenarioId,
-      metaNames: input.fullMetaNames,
-      assertCurrent: input.assertCurrent,
-      ...(input.navigationNodeId === undefined ? {} : {navigationNodeId: input.navigationNodeId}),
-    })
-    return {dataSpaceId, tier: 'full'}
-  } catch (fullError) {
-    try {
-      const dataSpaceId = await resolveDatabaseCatalogScenarioId({
-        preferredScenarioId: input.preferredScenarioId,
-        metaNames: input.serverMetaNames,
-        assertCurrent: input.assertCurrent,
-        ...(input.navigationNodeId === undefined ? {} : {navigationNodeId: input.navigationNodeId}),
-      })
-      return {dataSpaceId, tier: 'serverOnly'}
-    } catch {
-      throw fullError instanceof Error ? fullError : formatDatabaseCatalogResolveFailure(fullError)
-    }
-  }
-}
-
-/** loadCatalog 统一解析 dataSpaceId；Hub 已 batch 校验的 resolved 不再探测或二次 batch。 */
+/** loadCatalog 统一确认 DataSpace 身份；预检值只能与当前页面目标相同。 */
 export type ResolveDatabaseCatalogDataSpaceIdInput = Readonly<{
   preferredScenarioId: string
   metaNames: readonly string[]
@@ -314,12 +63,14 @@ export type ResolveDatabaseCatalogDataSpaceIdInput = Readonly<{
 }>
 
 export async function resolveDatabaseCatalogDataSpaceId(input: ResolveDatabaseCatalogDataSpaceIdInput): Promise<string> {
-  const preset = input.options.resolvedDataSpaceId?.trim()
-  if (preset) return preset
+  const preferred = input.preferredScenarioId.trim()
+  const resolved = input.options.resolvedDataSpaceId?.trim()
+  if (resolved && resolved !== preferred) {
+    throw formatDatabaseCatalogResolveFailure(new Error('宿主预检身份与当前页面绑定不一致'))
+  }
   return resolveDatabaseCatalogScenarioId({
-    preferredScenarioId: input.preferredScenarioId,
+    preferredScenarioId: preferred,
     metaNames: input.metaNames,
     assertCurrent: input.assertCurrent,
-    ...(input.options.navigationNodeId === undefined ? {} : {navigationNodeId: input.options.navigationNodeId}),
   })
 }

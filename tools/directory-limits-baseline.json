@@ -32,7 +32,7 @@
     "dirs": 8
   },
   "tests/runtime/page/database": {
-    "files": 19,
+    "files": 15,
     "dirs": 0
   },
   "tests/runtime/page/design/native": {

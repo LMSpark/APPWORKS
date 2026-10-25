@@ -1,0 +1,35 @@
+{
+  "requestId": "2180.61125",
+  "table": "Base_TblRln",
+  "counts": {
+    "added": 0,
+    "changed": 1,
+    "deleted": 0
+  },
+  "changedFieldNames": [
+    "rowid",
+    "rlname",
+    "lingma_sys_key"
+  ],
+  "changed": [
+    {
+      "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+      "rlname": "B2Relation_20261025_mvn5o60s_verified"
+    }
+  ],
+  "code": 200,
+  "readCode": 200,
+  "readRequestId": "2180.61126",
+  "readRow": {
+    "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+    "pkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+    "pktbid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+    "pktable": "testTB1",
+    "fkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+    "fktbid": "313440ED9A37613ED0F729340652D7E7",
+    "fktable": "test_user",
+    "rlname": "B2Relation_20261025_mvn5o60s_verified",
+    "RelshipExp": "{\"Type\": \"cond\", \"Field\": \"test_user.age\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"testTB1.id\"}}",
+    "IsCascadeDeletion": 0
+  }
+}

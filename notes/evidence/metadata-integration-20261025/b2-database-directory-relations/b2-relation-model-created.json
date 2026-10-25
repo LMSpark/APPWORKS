@@ -1,0 +1,1932 @@
+{
+  "recordedAt": "2026-10-25T00:35:52.431Z",
+  "spaceId": "A8FB2B2B161125A16FD15ED9581CD15B",
+  "modelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+  "sourceId": "563DD472B3C74CAC82AA78EE79B38E08",
+  "startCursor": 166314,
+  "endCursor": 166493,
+  "truncated": false,
+  "documentRequests": 0,
+  "failures": [],
+  "submitted": [
+    {
+      "table": "Base_DataModel_Field",
+      "added": [
+        {
+          "rowid": "3D9ECC8C1850D0F032410DAD8FD16D0A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rlname",
+          "FieldType": "varchar",
+          "description": "表关系名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C7B5A5FF2D5667007AAC9B14E9DEBA40",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktbid",
+          "FieldType": "varchar",
+          "description": "子表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "96AA03F77121B7F5F93EBDAF09610100",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createuser",
+          "FieldType": "varchar",
+          "description": "创建人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "8FC1BEF81EA7D5E7720A1F4B04252712",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createtime",
+          "FieldType": "datetime",
+          "description": "创建时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EE0BA3777B838C8EC68C6906666FA4CA",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updateuser",
+          "FieldType": "varchar",
+          "description": "修改人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A49E0244ECC16597845F1ABC0EDD740",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updatetime",
+          "FieldType": "datetime",
+          "description": "修改时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "58B738EE339FF47955B8EA82A44EBBD8",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "wfid",
+          "FieldType": "varchar",
+          "description": "流程实例 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "153D60D5381BD0EE93166FDBBBD90EA6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "flowstate",
+          "FieldType": "int",
+          "description": "流程状态",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0B1C3D67D98706FE30927FBE17CD1F33",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "ReportID",
+          "FieldType": "varchar",
+          "description": "报表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "2C7B3A6191A6FBCCB25670FE222032F6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "description",
+          "FieldType": "varchar",
+          "description": "摘要",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "E9577B6E19957F0032048F1B0DF1F061",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "memo",
+          "FieldType": "varchar",
+          "description": "描述",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "036FEDE8168FAAE3679E7D8AD2930B1A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_appid",
+          "FieldType": "varchar",
+          "description": "应用系统标识",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A33F35D415FFAA179F025527D80235B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_is_delete",
+          "FieldType": "bigint",
+          "description": "逻辑删除标记",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "7AA737526C0D072C5008B31B31625965",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbname",
+          "FieldType": "varchar",
+          "description": "子表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EEFAA26B6182F7350BB081B8C0C9737B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktable",
+          "FieldType": "varchar",
+          "description": "主表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "23A81056EC60FABCB29133C37A636338",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbid",
+          "FieldType": "varchar",
+          "description": "主表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0A5856A0B1AF6450A47889A34D53F748",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbname",
+          "FieldType": "varchar",
+          "description": "主表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "F1D182EA16919442A72D417706926BD0",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkType",
+          "FieldType": "varchar",
+          "description": "主表类型",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B5D805902023BBF7CC4D2BEB7014B77C",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktbid",
+          "FieldType": "varchar",
+          "description": "主表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C4558AA1550D91388DF473945D600F01",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rowid",
+          "FieldType": "VARCHAR",
+          "description": "唯一标识 ID",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B2381009BD57B2B776B1E4217CF2C5DF",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbid",
+          "FieldType": "varchar",
+          "description": "子表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "BF43E8361A963F2EEB6C23CEAFC97C43",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_ent",
+          "FieldType": "varchar",
+          "description": "企业标识",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "DCDB19A7488D8D0999C161E19943E618",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "IsCascadeDeletion",
+          "FieldType": "int",
+          "description": "是否级联删除",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "E81F15028848BD4E119E9981CEC05D56",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktable",
+          "FieldType": "varchar",
+          "description": "子表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "D4AAE73687B71C37AA59CD03506BFE5B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "RelshipExp",
+          "FieldType": "json",
+          "description": "关系表达式,格式{\"Type\": \"and\", \"Filters\": [{\"Type\": \"cond\", \"Field\": \"子表名.子表字段名\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"父表名.父表字段名\"}}]}",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        }
+      ],
+      "changed": 0,
+      "deleted": 0
+    },
+    {
+      "table": "Base_DataModel",
+      "added": [
+        {
+          "rowid": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "Base_TblRln",
+          "MetaName": "Base_TblRln",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "表关系定义主表"
+        }
+      ],
+      "changed": 0,
+      "deleted": 0
+    }
+  ],
+  "requests": [
+    {
+      "sequence": 166315,
+      "requestId": "2180.31278",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "count": 1,
+      "rows": [
+        {
+          "rowid": "563DD472B3C74CAC82AA78EE79B38E08",
+          "DbName": "QYVirtualPlat"
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166320,
+      "requestId": "2180.31279",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "count": 25,
+      "rows": [
+        {
+          "rowid": "003CD7B591A749CEBBE5E7C9652AD2D3",
+          "description": "关系名称。用户自定义的描述性名称，如 '用户信息表 -> 资格注册', '请假 > 请假类型'。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "04108455B81F485B9285FD543F83DA12",
+          "description": "子表 ID。引用 _Base_TblList.rowid 字段，标识关系中的子表/从表对象。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "1b3631f6434f11f09d3e0242ac11000a",
+          "description": "创建人 ID。引用 Base_UserInfo.rowid 字段，记录关系定义者。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25252a7d434f11f09d3e0242ac11000a",
+          "description": "关系定义创建时间。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25265154434f11f09d3e0242ac11000a",
+          "description": "最后修改人 ID。引用 Base_UserInfo.rowid 字段。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252756a5434f11f09d3e0242ac11000a",
+          "description": "最后修改时间。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252848aa434f11f09d3e0242ac11000a",
+          "description": "关联流程实例 ID。引用 WFOBJ_FLOW.rowid 字段，用于关系定义变更的审批流程。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25294107434f11f09d3e0242ac11000a",
+          "description": "流程状态标记。若涉及关系定义审批，此字段跟踪进度。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252a35c6434f11f09d3e0242ac11000a",
+          "description": "关联报表 ID。引用 Base_ReportInfo.rowid 字段，可能用于链接到表关系分析报表（预留字段）。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252b1d8c434f11f09d3e0242ac11000a",
+          "description": "关系的简短摘要。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "27DD10C45A8E4BD7928746335500F9FA",
+          "description": "关系的详细备注或说明信息。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "31537de89d1311f185000242ac110008",
+          "description": "默认应用系统标识字段；请求携带 X-AppId 时用于应用级数据隔离，由系统在增删改查中自动维护",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "49257AEECA2A4346AB524482945AF3BD",
+          "description": "逻辑删除标记。1=已删除，0=正常。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "4AEE8EE23EE8A0FA5857124CEE67D3A1",
+          "description": "子表数据库名称快照。冗余字段，便于识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "5BA1359F62694B82BC1302F1D69E66D5",
+          "description": "主表名称快照。存储物理表名，便于快速识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "5DC4B4959461D033AAAB20A4F3CAA87B",
+          "description": "主表数据库 ID。引用 _base_dbInfo.rowid 字段，若涉及跨库关联，此处指定主表所在的物理库。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "6534D4DCC8883A60E6C96A4486D9F2CE",
+          "description": "主表数据库名称快照。冗余字段，便于识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "6A3135D621C941C1AD6556473340EA5E",
+          "description": "主表对象类型。如 '表', '视图'，标识主表的物理形态。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "A59E373903D0485EBE6C7372D3E72923",
+          "description": "主表 ID。引用 _Base_TblList.rowid 字段，标识关系中的父表/主表对象。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "A8DA5F6772914A5598C7CB7DB3F7C520",
+          "description": "主键唯一标识 ID。",
+          "IsPKey": 1
+        },
+        {
+          "rowid": "B2EAB4B78C354F4B67D88EFCA8FD2F1C",
+          "description": "子表数据库 ID。引用 _base_dbInfo.rowid 字段，指定子表所在的物理库。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "C4249902F8A049CDB7502B0E41279D0F",
+          "description": "企业标识字段。用于多租户数据隔离，确保关系定义仅对特定租户可见或生效。",
+          "IsPKey": 1
+        },
+        {
+          "rowid": "D2BC688CC1844CBCA5BC8326DA69463B",
+          "description": "级联删除标记。1=启用（删除主表记录时自动删除关联子表记录），0=禁用。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "D3F824F8A3C446E98271950176364438",
+          "description": "子表名称快照。存储物理表名，便于快速识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "E846188A6CB865CD7716BEB8A29A901D",
+          "description": "关系表达式 (JSON)。定义具体的连接条件和过滤逻辑（如 '{\"Type\":\"cond\", \"Field\":\"pid\", \"Operator\":\"equal\", \"RefField\":\"id\"}'），用于自动化 Join 操作和 ORM 映射。",
+          "IsPKey": 0
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166327,
+      "requestId": "2180.31280",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "count": 1,
+      "rows": [
+        {
+          "rowid": "563DD472B3C74CAC82AA78EE79B38E08",
+          "DbName": "QYVirtualPlat"
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166334,
+      "requestId": "2180.31281",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "count": 25,
+      "rows": [
+        {
+          "rowid": "003CD7B591A749CEBBE5E7C9652AD2D3",
+          "description": "关系名称。用户自定义的描述性名称，如 '用户信息表 -> 资格注册', '请假 > 请假类型'。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "04108455B81F485B9285FD543F83DA12",
+          "description": "子表 ID。引用 _Base_TblList.rowid 字段，标识关系中的子表/从表对象。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "1b3631f6434f11f09d3e0242ac11000a",
+          "description": "创建人 ID。引用 Base_UserInfo.rowid 字段，记录关系定义者。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25252a7d434f11f09d3e0242ac11000a",
+          "description": "关系定义创建时间。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25265154434f11f09d3e0242ac11000a",
+          "description": "最后修改人 ID。引用 Base_UserInfo.rowid 字段。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252756a5434f11f09d3e0242ac11000a",
+          "description": "最后修改时间。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252848aa434f11f09d3e0242ac11000a",
+          "description": "关联流程实例 ID。引用 WFOBJ_FLOW.rowid 字段，用于关系定义变更的审批流程。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "25294107434f11f09d3e0242ac11000a",
+          "description": "流程状态标记。若涉及关系定义审批，此字段跟踪进度。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252a35c6434f11f09d3e0242ac11000a",
+          "description": "关联报表 ID。引用 Base_ReportInfo.rowid 字段，可能用于链接到表关系分析报表（预留字段）。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "252b1d8c434f11f09d3e0242ac11000a",
+          "description": "关系的简短摘要。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "27DD10C45A8E4BD7928746335500F9FA",
+          "description": "关系的详细备注或说明信息。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "31537de89d1311f185000242ac110008",
+          "description": "默认应用系统标识字段；请求携带 X-AppId 时用于应用级数据隔离，由系统在增删改查中自动维护",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "49257AEECA2A4346AB524482945AF3BD",
+          "description": "逻辑删除标记。1=已删除，0=正常。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "4AEE8EE23EE8A0FA5857124CEE67D3A1",
+          "description": "子表数据库名称快照。冗余字段，便于识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "5BA1359F62694B82BC1302F1D69E66D5",
+          "description": "主表名称快照。存储物理表名，便于快速识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "5DC4B4959461D033AAAB20A4F3CAA87B",
+          "description": "主表数据库 ID。引用 _base_dbInfo.rowid 字段，若涉及跨库关联，此处指定主表所在的物理库。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "6534D4DCC8883A60E6C96A4486D9F2CE",
+          "description": "主表数据库名称快照。冗余字段，便于识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "6A3135D621C941C1AD6556473340EA5E",
+          "description": "主表对象类型。如 '表', '视图'，标识主表的物理形态。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "A59E373903D0485EBE6C7372D3E72923",
+          "description": "主表 ID。引用 _Base_TblList.rowid 字段，标识关系中的父表/主表对象。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "A8DA5F6772914A5598C7CB7DB3F7C520",
+          "description": "主键唯一标识 ID。",
+          "IsPKey": 1
+        },
+        {
+          "rowid": "B2EAB4B78C354F4B67D88EFCA8FD2F1C",
+          "description": "子表数据库 ID。引用 _base_dbInfo.rowid 字段，指定子表所在的物理库。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "C4249902F8A049CDB7502B0E41279D0F",
+          "description": "企业标识字段。用于多租户数据隔离，确保关系定义仅对特定租户可见或生效。",
+          "IsPKey": 1
+        },
+        {
+          "rowid": "D2BC688CC1844CBCA5BC8326DA69463B",
+          "description": "级联删除标记。1=启用（删除主表记录时自动删除关联子表记录），0=禁用。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "D3F824F8A3C446E98271950176364438",
+          "description": "子表名称快照。存储物理表名，便于快速识别。",
+          "IsPKey": 0
+        },
+        {
+          "rowid": "E846188A6CB865CD7716BEB8A29A901D",
+          "description": "关系表达式 (JSON)。定义具体的连接条件和过滤逻辑（如 '{\"Type\":\"cond\", \"Field\":\"pid\", \"Operator\":\"equal\", \"RefField\":\"id\"}'），用于自动化 Join 操作和 ORM 映射。",
+          "IsPKey": 0
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166341,
+      "requestId": "2180.31282",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "D2B9B94A1641BB87E6D3D9251A14D70D"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "count": 0,
+      "rows": [],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166348,
+      "requestId": "2180.31283",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166355,
+      "requestId": "2180.31284",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+            }
+          }
+        }
+      ],
+      "count": 7,
+      "rows": [
+        {
+          "rowid": "A8FB2B2B161125A16FD15ED9581CD15Bp000",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "_base_dbInfo",
+          "MetaName": "_base_dbInfo",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "数据库实例配置表"
+        },
+        {
+          "rowid": "A8FB2B2B161125A16FD15ED9581CD15Bp001",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "_Base_TblList",
+          "MetaName": "_Base_TblList",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "表数据"
+        },
+        {
+          "rowid": "A8FB2B2B161125A16FD15ED9581CD15Bp002",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "_Base_ViewList",
+          "MetaName": "_Base_ViewList",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "数据库视图定义表"
+        },
+        {
+          "rowid": "A8FB2B2B161125A16FD15ED9581CD15Bp003",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "Base_TblField",
+          "MetaName": "Base_TblField",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "字段定义元数据表"
+        },
+        {
+          "rowid": "A8FB2B2B161125A16FD15ED9581CD15Bp004",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "Base_UserInfo",
+          "MetaName": "Base_UserInfo",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "用户基础信息表"
+        },
+        {
+          "rowid": "c3b123b6-dfa6-414c-82e4-d6fdda079ceb",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "Base_AppAndSource_Relation",
+          "MetaName": "Base_AppAndSource_Relation",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "系统资源关联映射表"
+        },
+        {
+          "rowid": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "Name": "Base_TblRln",
+          "MetaName": "Base_TblRln",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "表关系定义主表"
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166362,
+      "requestId": "2180.31285",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "D2B9B94A1641BB87E6D3D9251A14D70D"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "count": 25,
+      "rows": [
+        {
+          "rowid": "036FEDE8168FAAE3679E7D8AD2930B1A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_appid",
+          "FieldType": "varchar",
+          "description": "应用系统标识",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0A5856A0B1AF6450A47889A34D53F748",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbname",
+          "FieldType": "varchar",
+          "description": "主表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0B1C3D67D98706FE30927FBE17CD1F33",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "ReportID",
+          "FieldType": "varchar",
+          "description": "报表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "153D60D5381BD0EE93166FDBBBD90EA6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "flowstate",
+          "FieldType": "int",
+          "description": "流程状态",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "23A81056EC60FABCB29133C37A636338",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbid",
+          "FieldType": "varchar",
+          "description": "主表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "2C7B3A6191A6FBCCB25670FE222032F6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "description",
+          "FieldType": "varchar",
+          "description": "摘要",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "3D9ECC8C1850D0F032410DAD8FD16D0A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rlname",
+          "FieldType": "varchar",
+          "description": "表关系名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "58B738EE339FF47955B8EA82A44EBBD8",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "wfid",
+          "FieldType": "varchar",
+          "description": "流程实例 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A33F35D415FFAA179F025527D80235B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_is_delete",
+          "FieldType": "bigint",
+          "description": "逻辑删除标记",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A49E0244ECC16597845F1ABC0EDD740",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updatetime",
+          "FieldType": "datetime",
+          "description": "修改时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "7AA737526C0D072C5008B31B31625965",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbname",
+          "FieldType": "varchar",
+          "description": "子表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "8FC1BEF81EA7D5E7720A1F4B04252712",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createtime",
+          "FieldType": "datetime",
+          "description": "创建时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "96AA03F77121B7F5F93EBDAF09610100",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createuser",
+          "FieldType": "varchar",
+          "description": "创建人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B2381009BD57B2B776B1E4217CF2C5DF",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbid",
+          "FieldType": "varchar",
+          "description": "子表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B5D805902023BBF7CC4D2BEB7014B77C",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktbid",
+          "FieldType": "varchar",
+          "description": "主表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "BF43E8361A963F2EEB6C23CEAFC97C43",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_ent",
+          "FieldType": "varchar",
+          "description": "企业标识",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C4558AA1550D91388DF473945D600F01",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rowid",
+          "FieldType": "VARCHAR",
+          "description": "唯一标识 ID",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C7B5A5FF2D5667007AAC9B14E9DEBA40",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktbid",
+          "FieldType": "varchar",
+          "description": "子表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "D4AAE73687B71C37AA59CD03506BFE5B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "RelshipExp",
+          "FieldType": "json",
+          "description": "关系表达式,格式{\"Type\": \"and\", \"Filters\": [{\"Type\": \"cond\", \"Field\": \"子表名.子表字段名\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"父表名.父表字段名\"}}]}",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "DCDB19A7488D8D0999C161E19943E618",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "IsCascadeDeletion",
+          "FieldType": "int",
+          "description": "是否级联删除",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "E81F15028848BD4E119E9981CEC05D56",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktable",
+          "FieldType": "varchar",
+          "description": "子表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "E9577B6E19957F0032048F1B0DF1F061",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "memo",
+          "FieldType": "varchar",
+          "description": "描述",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EE0BA3777B838C8EC68C6906666FA4CA",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updateuser",
+          "FieldType": "varchar",
+          "description": "修改人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EEFAA26B6182F7350BB081B8C0C9737B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktable",
+          "FieldType": "varchar",
+          "description": "主表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "F1D182EA16919442A72D417706926BD0",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkType",
+          "FieldType": "varchar",
+          "description": "主表类型",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166383,
+      "requestId": "2180.31286",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166390,
+      "requestId": "2180.31287",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166397,
+      "requestId": "2180.31288",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166404,
+      "requestId": "2180.31289",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166411,
+      "requestId": "2180.31290",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "file": "A8FB2B2B161125A16FD15ED9581CD15B.json",
+      "filePath": "SysForm",
+      "resultShape": "string"
+    },
+    {
+      "sequence": 166419,
+      "requestId": "2180.31291",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166426,
+      "requestId": "2180.31292",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 404,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166433,
+      "requestId": "2180.31293",
+      "path": "/api/File/UploadFile",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166440,
+      "requestId": "2180.31294",
+      "path": "/api/File/DownFile",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B"
+    },
+    {
+      "sequence": 166447,
+      "requestId": "2180.31295",
+      "path": "/api/File/content/text",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "file": "pagedata.json",
+      "filePath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/A8FB2B2B161125A16FD15ED9581CD15B",
+      "resultShape": "string"
+    },
+    {
+      "sequence": 166458,
+      "requestId": "2180.31296",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel_Relation",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+            }
+          }
+        }
+      ],
+      "count": 0,
+      "rows": [],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166469,
+      "requestId": "2180.31297",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_Desensitization_Rule",
+          "filter": null
+        }
+      ],
+      "count": 17,
+      "rows": [
+        {
+          "rowid": "1C5CBAB1552F4968A0E4B2B549127CEB"
+        },
+        {
+          "rowid": "909D035C1EF549C8BA6F9656043ACD33"
+        },
+        {
+          "rowid": "97024D55F49A456D94F932E2719D1D2D"
+        },
+        {
+          "rowid": "A123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "B123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "C123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "D123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "D5BD4D380DC180B69AC86C06C6B59BD5"
+        },
+        {
+          "rowid": "E123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "F123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "G123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "H123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "I123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "J123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "K123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "L123456789ABCDEF0123456789ABCDEF"
+        },
+        {
+          "rowid": "M123456789ABCDEF0123456789ABCDEF"
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166474,
+      "requestId": "2180.31298",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D2B9B94A1641BB87E6D3D9251A14D70D"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "count": 25,
+      "rows": [
+        {
+          "rowid": "036FEDE8168FAAE3679E7D8AD2930B1A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_appid",
+          "FieldType": "varchar",
+          "description": "应用系统标识",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0A5856A0B1AF6450A47889A34D53F748",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbname",
+          "FieldType": "varchar",
+          "description": "主表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "0B1C3D67D98706FE30927FBE17CD1F33",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "ReportID",
+          "FieldType": "varchar",
+          "description": "报表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "153D60D5381BD0EE93166FDBBBD90EA6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "flowstate",
+          "FieldType": "int",
+          "description": "流程状态",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "23A81056EC60FABCB29133C37A636338",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkdbid",
+          "FieldType": "varchar",
+          "description": "主表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "2C7B3A6191A6FBCCB25670FE222032F6",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "description",
+          "FieldType": "varchar",
+          "description": "摘要",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "3D9ECC8C1850D0F032410DAD8FD16D0A",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rlname",
+          "FieldType": "varchar",
+          "description": "表关系名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "58B738EE339FF47955B8EA82A44EBBD8",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "wfid",
+          "FieldType": "varchar",
+          "description": "流程实例 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A33F35D415FFAA179F025527D80235B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_is_delete",
+          "FieldType": "bigint",
+          "description": "逻辑删除标记",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "6A49E0244ECC16597845F1ABC0EDD740",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updatetime",
+          "FieldType": "datetime",
+          "description": "修改时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "7AA737526C0D072C5008B31B31625965",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbname",
+          "FieldType": "varchar",
+          "description": "子表数据库名",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "8FC1BEF81EA7D5E7720A1F4B04252712",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createtime",
+          "FieldType": "datetime",
+          "description": "创建时间",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "96AA03F77121B7F5F93EBDAF09610100",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "createuser",
+          "FieldType": "varchar",
+          "description": "创建人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B2381009BD57B2B776B1E4217CF2C5DF",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fkdbid",
+          "FieldType": "varchar",
+          "description": "子表数据库 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "B5D805902023BBF7CC4D2BEB7014B77C",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktbid",
+          "FieldType": "varchar",
+          "description": "主表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "BF43E8361A963F2EEB6C23CEAFC97C43",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "lingma_sys_ent",
+          "FieldType": "varchar",
+          "description": "企业标识",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C4558AA1550D91388DF473945D600F01",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "rowid",
+          "FieldType": "VARCHAR",
+          "description": "唯一标识 ID",
+          "IsPKey": 1,
+          "IsOutput": 1,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "C7B5A5FF2D5667007AAC9B14E9DEBA40",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktbid",
+          "FieldType": "varchar",
+          "description": "子表 ID",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "D4AAE73687B71C37AA59CD03506BFE5B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "RelshipExp",
+          "FieldType": "json",
+          "description": "关系表达式,格式{\"Type\": \"and\", \"Filters\": [{\"Type\": \"cond\", \"Field\": \"子表名.子表字段名\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"父表名.父表字段名\"}}]}",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "DCDB19A7488D8D0999C161E19943E618",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "IsCascadeDeletion",
+          "FieldType": "int",
+          "description": "是否级联删除",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        }
+      ],
+      "resultShape": "object"
+    },
+    {
+      "sequence": 166481,
+      "requestId": "2180.31299",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "httpStatus": 200,
+      "code": 200,
+      "query": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D2B9B94A1641BB87E6D3D9251A14D70D"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "count": 25,
+      "rows": [
+        {
+          "rowid": "E81F15028848BD4E119E9981CEC05D56",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "fktable",
+          "FieldType": "varchar",
+          "description": "子表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "E9577B6E19957F0032048F1B0DF1F061",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "memo",
+          "FieldType": "varchar",
+          "description": "描述",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EE0BA3777B838C8EC68C6906666FA4CA",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "updateuser",
+          "FieldType": "varchar",
+          "description": "修改人",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "EEFAA26B6182F7350BB081B8C0C9737B",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pktable",
+          "FieldType": "varchar",
+          "description": "主表名称",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        },
+        {
+          "rowid": "F1D182EA16919442A72D417706926BD0",
+          "dataSetId": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "dataModelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+          "Name": "pkType",
+          "FieldType": "varchar",
+          "description": "主表类型",
+          "IsPKey": 0,
+          "IsOutput": 0,
+          "allowAIAdd": 0,
+          "AsName": "",
+          "ValueFun": ""
+        }
+      ],
+      "resultShape": "object"
+    }
+  ],
+  "semanticFollowup": "rlname=表关系名, RelshipExp=json关系表达式; output configuration not edited yet",
+  "layoutReadback": {
+    "scenarioId": "A8FB2B2B161125A16FD15ED9581CD15B",
+    "schemaVersion": 2,
+    "tables": {},
+    "layout": {
+      "modelPositions": {
+        "A8FB2B2B161125A16FD15ED9581CD15Bp000": {
+          "x": 170,
+          "y": 110
+        },
+        "A8FB2B2B161125A16FD15ED9581CD15Bp001": {
+          "x": 446,
+          "y": 110
+        },
+        "A8FB2B2B161125A16FD15ED9581CD15Bp002": {
+          "x": 722,
+          "y": 110
+        },
+        "A8FB2B2B161125A16FD15ED9581CD15Bp003": {
+          "x": 998,
+          "y": 110
+        },
+        "A8FB2B2B161125A16FD15ED9581CD15Bp004": {
+          "x": 1274,
+          "y": 110
+        },
+        "c3b123b6-dfa6-414c-82e4-d6fdda079ceb": {
+          "x": 1550,
+          "y": 110
+        },
+        "D2B9B94A1641BB87E6D3D9251A14D70D": {
+          "x": 150,
+          "y": 450
+        }
+      }
+    }
+  }
+}

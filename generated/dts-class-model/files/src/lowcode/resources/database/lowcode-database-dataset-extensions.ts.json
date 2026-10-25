@@ -74,8 +74,7 @@
             }
           },
           "required": [
-            "commandInput",
-            "unregisteredDbNames"
+            "commandInput"
           ],
           "additionalProperties": false
         }
@@ -268,7 +267,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T06:52:15.192Z",
+  "generatedAt": "2026-10-24T22:46:13.710Z",
   "models": {
     "DatabaseCommandAttachInput": {
       "name": "DatabaseCommandAttachInput",
@@ -309,7 +308,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames?: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -318,7 +317,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames?: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],

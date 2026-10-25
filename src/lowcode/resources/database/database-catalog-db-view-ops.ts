@@ -1,22 +1,20 @@
 /**
  * @module app:lowcode/resources/database/database-catalog-db-view-ops
- * 职责：_base_dbInfo 注册/编辑编排（非 query/save owner）。
+ * 职责：_base_dbInfo 单行新增编排（非 query/save owner）。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_CATALOG_DB_MODEL,
-  DATABASE_UNREGISTERED_DB_NAMES_TABLE,
 } from './lowcode-database-table-view'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
 import {databaseCatalogDbSelectedId} from './database-catalog-table-view-ops'
 
 const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark'] as const
-
-export type DatabaseCatalogDbEditState = Readonly<{id: string; mode: 'add'; row: DataRow}>
+export type DatabaseCatalogDbEditState = Readonly<{id: string | number; mode: 'add'; row: DataRow}>
 
 export type DatabaseCatalogDbEditingUi = Readonly<{
-  id: string
+  id: string | number
   mode: 'add'
   unconfirmed: boolean
   readbackFailed: boolean
@@ -46,10 +44,6 @@ export function databaseCatalogServerSelectedId(view: DataView): string {
   return values.length === 1 && typeof values[0] === 'string' ? values[0] : ''
 }
 
-function row(view: DataView, id: string): DataRow | undefined {
-  return view.rows.find(item => view.getPkKey(item) === id)
-}
-
 export function databaseCatalogDbEditing(view: DataView, edit: DatabaseCatalogDbEditState | undefined): DatabaseCatalogDbEditingUi | undefined {
   if (!edit) return undefined
   const unconfirmed = view.hasUnconfirmedSave
@@ -62,32 +56,45 @@ function idleDb(view: DataView, edit: DatabaseCatalogDbEditState | undefined): b
     && !view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges()
 }
 
+function selectedServer(view: DataView): Readonly<{id: string; row: DataRow; name: string; type: string}> | undefined {
+  if (view.requestState !== RequestState.Loaded || view.loadingError || view.mutating || view.hasUnconfirmedSave
+    || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) return undefined
+  const id = databaseCatalogServerSelectedId(view)
+  const matches = id ? view.rows.filter(item => String(view.getPkKey(item) ?? '') === id) : []
+  const serverRow = matches.length === 1 ? matches[0] : undefined
+  if (!serverRow || view.fieldAccess(serverRow, 'ServerName').read !== 'visible' || view.fieldAccess(serverRow, 'Type').read !== 'visible') return undefined
+  const name = scalar(serverRow['ServerName'])
+  const type = scalar(serverRow['Type'])
+  return name && type ? {id, row: serverRow, name, type} : undefined
+}
+
 export function databaseCatalogDbCanCreate(dbView: DataView, serverView: DataView, edit: DatabaseCatalogDbEditState | undefined): boolean {
-  const serverId = databaseCatalogServerSelectedId(serverView)
-  const serverRow = serverId ? row(serverView, serverId) : undefined
-  return !!serverRow && idleDb(dbView, edit) && dbView.addActionState() === 'enabled'
+  return !!selectedServer(serverView) && idleDb(dbView, edit) && dbView.addActionState() === 'enabled'
 }
 
 export async function databaseCatalogDbBeginCreate(dbView: DataView, serverView: DataView): Promise<DatabaseCatalogDbEditState> {
-  if (!databaseCatalogDbCanCreate(dbView, serverView, undefined)) throw new Error('当前不能注册数据库')
-  const serverId = databaseCatalogServerSelectedId(serverView)
-  const serverRow = serverId ? row(serverView, serverId) : undefined
-  if (!serverRow) throw new Error('请先选择服务器')
-  const serverName = scalar(serverRow['ServerName'])
-  const serverType = scalar(serverRow['Type'])
+  if (!databaseCatalogDbCanCreate(dbView, serverView, undefined)) throw new Error('当前不能新增数据库')
+  const server = selectedServer(serverView)
+  if (!server) throw new Error('当前服务器查询结果或服务器字段权限不可用')
   const created = await dbView.addRow({
-    serverId,
+    serverId: server.id,
     Name: '',
-    Type: serverType || 'MYSQL',
-    ServerName: serverName,
+    Type: server.type,
+    ServerName: server.name,
     SchemaName: 'dbo',
     State: '1',
     Remark: '',
   })
-  if (!('rowid' in created) || typeof created['rowid'] !== 'string') throw new Error('新增数据库行的身份无效')
-  const id = created['rowid']
-  const current = row(dbView, id)
+  const primaryKey = dbView.getPkKey(created)
+  if (typeof primaryKey !== 'string' && typeof primaryKey !== 'number') throw new Error('新增数据库行的正式主键无效')
+  const id = primaryKey
+  const current = dbView.rows.find(item => dbView.getPkKey(item) === id)
   if (!current) throw new Error('新增数据库行未进入原视图')
+  const currentServer = selectedServer(serverView)
+  if (currentServer?.id !== server.id || currentServer.row !== server.row) {
+    dbView.discardPendingChanges([id])
+    throw new Error('服务器选择或查询结果已变化，已取消本次新增')
+  }
   dbView.setCurrentRowById(id)
   dbView.setSelectedRows([current])
   return {id, mode: 'add', row: current}
@@ -98,12 +105,12 @@ export function databaseCatalogDbCancelEdit(view: DataView, edit: DatabaseCatalo
   if (view.mutating) throw new Error('保存进行中，不能取消')
   const ui = databaseCatalogDbEditing(view, edit)
   if (ui?.readbackFailed) return undefined
-  if (view.currentRow !== edit.row || !view.rows.includes(edit.row)) throw new Error('数据库编辑目标或查询已变化')
+  if (!view.rows.includes(edit.row) || view.getPkKey(edit.row) !== edit.id) throw new Error('数据库编辑目标或查询已变化')
   view.discardPendingChanges([edit.id])
   return undefined
 }
 
-async function commit(dataSet: DataSet, view: DataView, id: string): Promise<void> {
+async function commit(dataSet: DataSet, view: DataView, id: string | number): Promise<void> {
   const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
   if (!result.success) throw new Error(result.message ?? '数据库保存失败')
   await view.refresh()
@@ -126,13 +133,14 @@ export async function databaseCatalogDbSaveEdit(
     if (view.loadingError) throw view.loadingError
     return undefined
   }
-  if (view.currentRow !== edit.row || !view.rows.includes(edit.row)) throw new Error('数据库编辑目标或查询已变化')
+  if (!view.rows.includes(edit.row) || view.getPkKey(edit.row) !== edit.id) throw new Error('数据库编辑目标或查询已变化')
   const patch = view.getEditingPatch(edit.id) ?? {}
   const value = view.getEditingRow(edit.id)
   if (!value) throw new Error('数据库编辑记录已失效')
   const allowedSet = new Set<string>(createFields)
   if (Object.keys(patch).some(field => !allowedSet.has(field))) throw new Error('数据库保存包含不允许修改的字段')
   if (view.addActionState() !== 'enabled') throw new Error('数据库保存权限已变化')
+  if (view.fieldAccess(edit.row, 'Name').write !== 'allowed') throw new Error('数据库名称字段当前不可写，不能新增')
   for (const field of createFields) {
     if (!Object.hasOwn(patch, field) && field !== 'Name') continue
     if (view.fieldAccess(edit.row, field).write !== 'allowed') continue
@@ -147,36 +155,32 @@ export async function databaseCatalogDbSaveEdit(
   return undefined
 }
 
-export async function databaseCatalogQueryUnregisteredDbNames(dataSet: DataSet, serverId: string): Promise<readonly string[]> {
-  const inputRow = dataSet.getTable(DATABASE_CATALOG_COMMAND_INPUT_TABLE)?.rows[0]
+export async function databaseCatalogQueryUnregisteredDbNames(
+  dataSet: DataSet,
+  serverId: string,
+  tables: Readonly<{commandInput: string; unregisteredDbNames: string}>,
+): Promise<readonly string[]> {
+  const inputRow = dataSet.getTable(tables.commandInput)?.rows[0]
   if (!inputRow) throw new Error('目录命令输入未就绪')
   inputRow['serverId'] = serverId.trim()
-  const view = dataSet.getView(DATABASE_UNREGISTERED_DB_NAMES_TABLE, 'default')
+  const view = dataSet.getView(tables.unregisteredDbNames, 'default')
   if (!view) throw new Error('未登记库查询视图缺失')
   await view.refresh()
   if (view.loadingError) throw view.loadingError
   return view.rows.map(item => scalar(item['name'])).filter(Boolean)
 }
 
-/** 表和视图 hub 不展示服务器列表；隐式绑定当前环境唯一（或首个）服务器。 */
-export function databaseCatalogEnsureImplicitServer(serverView: DataView): void {
-  if (serverView.rows.length === 0) {
-    throw new Error('未配置数据库服务器，请先在「服务器管理」登记连接')
-  }
-  if (serverView.getSelectedValues().length === 0) {
-    const first = serverView.rows[0]
-    if (!first) throw new Error('未配置数据库服务器，请先在「服务器管理」登记连接')
-    serverView.setSelectedRows([first])
-  }
-}
-
-/** 同步命令视图输入（未登记库/表/视图查询、同步元数据等）与当前服务器/库选择。 */
-export function databaseCatalogSyncCommandInput(dataSet: DataSet, serverView: DataView, dbView?: DataView): void {
+/** 同步命令视图输入与当前选中数据库；不隐式选择服务器或数据库。 */
+export function databaseCatalogSyncCommandInput(dataSet: DataSet, dbView?: DataView): void {
   const inputRow = dataSet.getTable(DATABASE_CATALOG_COMMAND_INPUT_TABLE)?.rows[0]
   if (!inputRow) return
-  const serverId = databaseCatalogServerSelectedId(serverView)
-  if (serverId) inputRow['serverId'] = serverId
   if (dbView) {
+    const selected = dbView.getSelectedValues()
+    const selectedRow = selected.length === 1
+      ? dbView.rows.find(item => dbView.getPkKey(item) === selected[0])
+      : undefined
+    const serverId = selectedRow?.['serverId']
+    if (typeof serverId === 'string' && serverId.trim()) inputRow['serverId'] = serverId.trim()
     const dbId = databaseCatalogDbSelectedId(dbView)
     if (dbId) inputRow['dbId'] = dbId
   }

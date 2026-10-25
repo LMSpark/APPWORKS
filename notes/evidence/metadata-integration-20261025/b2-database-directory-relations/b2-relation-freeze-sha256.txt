@@ -1,0 +1,6 @@
+5edc6d5e7f848e69b6d2015337c6248833d6cede64e996bddcefc9921007dddb  src/lowcode/resources/database/database-catalog-relation-form-ops.ts
+8e03951efb8351c5ae4294fa6e8346912b3014b2d993c607e5580d81a8cbd097  src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue
+37d644d99a714277c743b293b39957f28f046c5027cc020fb4c3887a161dfbd1  src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue
+7e81d45adb91b2d95762737ad6b9fba6767fddb631f95571b5555a7e475327f5  tests/runtime/page/database/database-catalog-relation-view-ops.test.ts
+d1727a451d15ab1c03e20fa74adc091177494577efb15f9bba0d2f08c9c793b2  tests/runtime/page/database/database-table-view.fixture.ts
+c3680ebf4d844950a9a6d792116c591ec013744ac61c8ddf83a93d0117cb7e80  tests/runtime/page/database/table-and-view-page.test.ts

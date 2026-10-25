@@ -939,7 +939,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-10-23T00:16:12.840Z"
+      "sourceModifiedAt": "2026-10-25T00:00:37.307Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -3866,11 +3866,6 @@
       "shardFile": "files/src/lowcode/resources/data-code/lowcode-data-code.ts.json",
       "sourceModifiedAt": "2026-10-23T06:52:17.170Z"
     },
-    "src/lowcode/resources/database/database-catalog-context.ts": {
-      "sourceFile": "src/lowcode/resources/database/database-catalog-context.ts",
-      "shardFile": "files/src/lowcode/resources/database/database-catalog-context.ts.json",
-      "sourceModifiedAt": "2026-10-21T02:41:49.167Z"
-    },
     "src/lowcode/resources/database/database-catalog-copy-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-copy-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-copy-view-ops.ts.json",
@@ -3879,7 +3874,7 @@
     "src/lowcode/resources/database/database-catalog-db-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json",
-      "sourceModifiedAt": "2026-10-23T00:16:12.858Z"
+      "sourceModifiedAt": "2026-10-24T23:13:09.810Z"
     },
     "src/lowcode/resources/database/database-catalog-field-metadata.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-field-metadata.ts",
@@ -3919,12 +3914,12 @@
     "src/lowcode/resources/database/database-catalog-relation-form-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-relation-form-ops.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:16.083Z"
+      "sourceModifiedAt": "2026-10-25T01:23:12.424Z"
     },
     "src/lowcode/resources/database/database-catalog-relation-metadata.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-relation-metadata.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-relation-metadata.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.941Z"
+      "sourceModifiedAt": "2026-10-25T01:41:45.533Z"
     },
     "src/lowcode/resources/database/database-catalog-relation-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-relation-view-ops.ts",
@@ -3934,7 +3929,7 @@
     "src/lowcode/resources/database/database-catalog-scenario.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-scenario.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:59:43.775Z"
+      "sourceModifiedAt": "2026-10-24T22:34:23.526Z"
     },
     "src/lowcode/resources/database/database-catalog-sync-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-sync-view-ops.ts",
@@ -3969,17 +3964,22 @@
     "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts": {
       "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
       "shardFile": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.192Z"
+      "sourceModifiedAt": "2026-10-24T22:46:13.710Z"
+    },
+    "src/lowcode/resources/database/lowcode-database-directory.ts": {
+      "sourceFile": "src/lowcode/resources/database/lowcode-database-directory.ts",
+      "shardFile": "files/src/lowcode/resources/database/lowcode-database-directory.ts.json",
+      "sourceModifiedAt": "2026-10-24T23:14:53.076Z"
     },
     "src/lowcode/resources/database/lowcode-database-server.ts": {
       "sourceFile": "src/lowcode/resources/database/lowcode-database-server.ts",
       "shardFile": "files/src/lowcode/resources/database/lowcode-database-server.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.244Z"
+      "sourceModifiedAt": "2026-10-24T22:30:34.946Z"
     },
     "src/lowcode/resources/database/lowcode-database-table-view.ts": {
       "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
       "shardFile": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.309Z"
+      "sourceModifiedAt": "2026-10-25T01:04:49.193Z"
     },
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
@@ -4366,6 +4366,11 @@
       "shardFile": "files/src/views/app/WorkflowDesigns.vue.json",
       "sourceModifiedAt": "2026-10-07T03:12:55.252Z"
     },
+    "src/views/DataBaseManage/DataBaseManage/index.vue": {
+      "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "shardFile": "files/src/views/DataBaseManage/DataBaseManage/index.vue.json",
+      "sourceModifiedAt": "2026-10-25T00:20:42.506Z"
+    },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts.json",
@@ -4589,7 +4594,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.466Z"
+      "sourceModifiedAt": "2026-10-24T22:37:21.478Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
@@ -4599,7 +4604,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:55:09.770Z"
+      "sourceModifiedAt": "2026-10-25T01:29:26.803Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
@@ -4609,22 +4614,17 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:52:16.117Z"
+      "sourceModifiedAt": "2026-10-25T01:28:42.313Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue.json",
       "sourceModifiedAt": "2026-10-23T06:52:15.804Z"
     },
-    "src/views/features/data-platform/database-management/ui/database-management-hub.vue": {
-      "sourceFile": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
-      "shardFile": "files/src/views/features/data-platform/database-management/ui/database-management-hub.vue.json",
-      "sourceModifiedAt": "2026-10-23T00:16:12.870Z"
-    },
     "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:52:14.993Z"
+      "sourceModifiedAt": "2026-10-24T22:40:06.769Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue",

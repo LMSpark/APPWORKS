@@ -1,0 +1,2388 @@
+{
+  "start": 164759,
+  "end": 165199,
+  "truncated": false,
+  "requests": [
+    {
+      "id": "2180.31092",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue"
+    },
+    {
+      "id": "2180.31093",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-relation-metadata.ts"
+    },
+    {
+      "id": "2180.31094",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-relation-view-ops.ts"
+    },
+    {
+      "id": "2180.31095",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-relation-form-ops.ts"
+    },
+    {
+      "id": "2180.31096",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
+    },
+    {
+      "id": "2180.31097",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue"
+    },
+    {
+      "id": "2180.31098",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue"
+    },
+    {
+      "id": "2180.31099",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue"
+    },
+    {
+      "id": "2180.31100",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue"
+    },
+    {
+      "id": "2180.31101",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue"
+    },
+    {
+      "id": "2180.31102",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue"
+    },
+    {
+      "id": "2180.31103",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-field-view-ops.ts"
+    },
+    {
+      "id": "2180.31104",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-sync-view-ops.ts"
+    },
+    {
+      "id": "2180.31105",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-register-view-ops.ts"
+    },
+    {
+      "id": "2180.31106",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-list-metadata.ts"
+    },
+    {
+      "id": "2180.31107",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-object-view-ops.ts"
+    },
+    {
+      "id": "2180.31108",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-copy-view-ops.ts"
+    },
+    {
+      "id": "2180.31109",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-workflow-metadata.ts"
+    },
+    {
+      "id": "2180.31110",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/lowcode/resources/database/database-catalog-workflow-view-ops.ts"
+    },
+    {
+      "id": "2180.31111",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue"
+    },
+    {
+      "id": "2180.31112",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
+    },
+    {
+      "id": "2180.31113",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue"
+    },
+    {
+      "id": "2180.31114",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue"
+    },
+    {
+      "id": "2180.31115",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue"
+    },
+    {
+      "id": "2180.31116",
+      "type": "Script",
+      "method": "GET",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue"
+    },
+    {
+      "id": "2180.31117",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "Base_TblField",
+                      "_Base_TblList",
+                      "_Base_ViewList",
+                      "_base_dbInfo"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31118",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "A8FB2B2B161125A16FD15ED9581CD15Bp000",
+                      "A8FB2B2B161125A16FD15ED9581CD15Bp001",
+                      "A8FB2B2B161125A16FD15ED9581CD15Bp002",
+                      "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                    ]
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31119",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "or",
+              "Filters": [
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "Base_TblField"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_TblList"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_Base_ViewList"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "tblname",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "_base_dbInfo"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "dbid",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31120",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "2A5E6137D93F45B3AD4E5664604A07AA",
+                  "8EB57351E4484D089629CD53147B8D7F",
+                  "9180F0943E1446308229DC745994F19C",
+                  "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31121",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31122",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_base_dbInfo"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31123",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_TblList"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31124",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_ViewList"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31125",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_TblField"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31126",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp002"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31127",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_ViewList"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31128",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp000"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31129",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_base_dbInfo"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31130",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp001"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31131",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_TblList"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31132",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31133",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_TblField"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31134",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "9180F0943E1446308229DC745994F19C"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31135",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "2A5E6137D93F45B3AD4E5664604A07AA"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31136",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8EB57351E4484D089629CD53147B8D7F"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31137",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "id": "2180.31138",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_Desensitization_Rule"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31139",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Dict_encryption_rule"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31140",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "TblField_type"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31141",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_TblRln"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31142",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_WorkflowDefinition"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31143",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "workflowStatus"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31144",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_AppSystemList"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "id": "2180.31145",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "_base_dbInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "Id",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "4F69FFD7A0B94BD6928A139B1B4358C6"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "Id",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "ServerName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Remark",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      }
+    },
+    {
+      "id": "2180.31146",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "_Base_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dbid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "4F69FFD7A0B94BD6928A139B1B4358C6"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "tblname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "SchemaName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "IsReferenceSelf",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "hasDefaultFields",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReferenceKey",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "dbid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "multiTenancy",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_ent",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "tbldesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReferenceParentKey",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      }
+    },
+    {
+      "id": "2180.31147",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "_Base_ViewList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dbid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "4F69FFD7A0B94BD6928A139B1B4358C6"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "dbid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "SchemaName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "vewdesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "vewname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "sql",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      }
+    },
+    {
+      "id": "2180.31148",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "_Base_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dbid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "4F69FFD7A0B94BD6928A139B1B4358C6"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "tblname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "SchemaName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "IsReferenceSelf",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "hasDefaultFields",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReferenceKey",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "dbid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "multiTenancy",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_ent",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "tbldesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReferenceParentKey",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      }
+    },
+    {
+      "id": "2180.31149",
+      "type": "XHR",
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "query": {
+        "Table": [
+          {
+            "Name": "_Base_ViewList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dbid",
+              "Operator": "in",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": [
+                  "4F69FFD7A0B94BD6928A139B1B4358C6"
+                ]
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "dbid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "SchemaName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "vewdesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "modname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "vewname",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "sql",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "id": "2180.31117",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 4
+    },
+    {
+      "id": "2180.31118",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 154
+    },
+    {
+      "id": "2180.31119",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 4
+    },
+    {
+      "id": "2180.31120",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 161
+    },
+    {
+      "id": "2180.31121",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31122",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31123",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31124",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31125",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31126",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 26
+    },
+    {
+      "id": "2180.31127",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31128",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 30
+    },
+    {
+      "id": "2180.31129",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31130",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 49
+    },
+    {
+      "id": "2180.31131",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31132",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 49
+    },
+    {
+      "id": "2180.31133",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31134",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 26
+    },
+    {
+      "id": "2180.31135",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 34
+    },
+    {
+      "id": "2180.31136",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 49
+    },
+    {
+      "id": "2180.31137",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 52
+    },
+    {
+      "id": "2180.31138",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31139",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31140",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31141",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31142",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31143",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31144",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31145",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 1
+    },
+    {
+      "id": "2180.31146",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 2
+    },
+    {
+      "id": "2180.31147",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    },
+    {
+      "id": "2180.31148",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 2
+    },
+    {
+      "id": "2180.31149",
+      "httpStatus": 200,
+      "code": 200,
+      "count": 0
+    }
+  ],
+  "failures": [],
+  "observations": [
+    "After signature-only changes, used existing SPA directory selection and Manage; formal owner A8 and sync_test databaseId retained.",
+    "Initial child query displayed test_user and testTB1. Clicked selected sync_test row through the typed onRowClick callback; child views cleared and reloaded two tables, no runtime field query.",
+    "Closed scoped workspace normally and returned to database directory without page reload."
+  ],
+  "productHashes": {
+    "directoryPage": "47A456D7FDFE8802D96D6D4C7E86FD23FAEF703CAD07F244CB3D19E3045814C1",
+    "tablePage": "87E7A87E5F16447E1F3D14BBFE6F140F13263EA377EEDA0696DF556CC6B8510C"
+  }
+}

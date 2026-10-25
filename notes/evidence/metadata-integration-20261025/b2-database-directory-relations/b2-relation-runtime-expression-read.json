@@ -1,0 +1,1379 @@
+{
+  "status": "confirmed",
+  "targetSpaceId": "A8FB2B2B161125A16FD15ED9581CD15B",
+  "spaceDefinition": null,
+  "models": null,
+  "formalModel": {
+    "status": "confirmed",
+    "id": "D2B9B94A1641BB87E6D3D9251A14D70D",
+    "primaryKey": "rowid",
+    "outputCount": 13,
+    "outputFields": [
+      "IsCascadeDeletion",
+      "RelshipExp",
+      "createtime",
+      "createuser",
+      "fkdbid",
+      "fktable",
+      "fktbid",
+      "lingma_sys_ent",
+      "pkdbid",
+      "pktable",
+      "pktbid",
+      "rlname",
+      "rowid"
+    ]
+  },
+  "relationRows": {
+    "status": "confirmed",
+    "count": 49,
+    "returned": 20,
+    "rows": [
+      {
+        "rowidMasked": "084…D4",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "0DC…80",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "114…91",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "115…C8",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "13B…38",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "1CF…D3",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "1E4…DA",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "31A…4C",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "322…B0",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "350…52",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "391…8A",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "3A2…66",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "418…37",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "42F…8A",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "45C…DE",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "460…A2",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "498…7C",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "4EC…A1",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "4FE…82",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "1",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "rowidMasked": "500…6D",
+        "relationNamePresent": true,
+        "parentTablePresent": true,
+        "childTablePresent": true,
+        "parentTableIdPresent": true,
+        "childTableIdPresent": true,
+        "cascadeValue": "0",
+        "expression": {
+          "valueType": "string",
+          "parsed": true,
+          "rootKeys": [
+            "Filters",
+            "Type"
+          ],
+          "nodes": [
+            {
+              "path": "$",
+              "type": "object",
+              "keys": [
+                "Filters",
+                "Type"
+              ]
+            },
+            {
+              "path": "$.Filters",
+              "type": "array",
+              "length": 1
+            },
+            {
+              "path": "$.Filters[0]",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Operator",
+                "Type",
+                "Value",
+                "ValueFun"
+              ]
+            },
+            {
+              "path": "$.Filters[0].ValueFun",
+              "type": "object",
+              "keys": [
+                "Field",
+                "Type"
+              ]
+            }
+          ],
+          "fieldReferenceTypes": [
+            {
+              "path": "$.Filters[0].Field",
+              "type": "string"
+            },
+            {
+              "path": "$.Filters[0].ValueFun.Field",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "sourceCandidates": null,
+  "physicalFields": null,
+  "requiredRelationOutputFields": [
+    "rowid",
+    "rlname",
+    "RelshipExp",
+    "pktbid",
+    "fktbid",
+    "pktable",
+    "fktable",
+    "IsCascadeDeletion"
+  ],
+  "requestTrace": [
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "method": "POST",
+      "stage": "login"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "application-selection",
+      "bootstrapQuery": "application-catalog"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "application-selection",
+      "bootstrapQuery": "navigation-root"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "formal-model-readback",
+      "formalModel": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "formal-model-readback",
+      "formalModel": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "formal-model-readback",
+      "formalModel": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "formal-model-readback",
+      "formalModel": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "stage": "runtime-relations-with-expression",
+      "formalModel": "Base_TblRln",
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "allPages": false
+    }
+  ],
+  "responseTrace": [
+    {
+      "stage": "login",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": null,
+      "itemCount": null
+    },
+    {
+      "stage": "application-selection",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 82,
+      "itemCount": 82
+    },
+    {
+      "stage": "application-selection",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 1,
+      "itemCount": 1
+    },
+    {
+      "stage": "formal-model-readback",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 1,
+      "itemCount": 1
+    },
+    {
+      "stage": "formal-model-readback",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 25,
+      "itemCount": 25
+    },
+    {
+      "stage": "formal-model-readback",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 1,
+      "itemCount": 1
+    },
+    {
+      "stage": "formal-model-readback",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 25,
+      "itemCount": 25
+    },
+    {
+      "stage": "runtime-relations-with-expression",
+      "httpStatus": 200,
+      "businessCode": 200,
+      "count": 49,
+      "itemCount": 20
+    }
+  ],
+  "blockedMutations": 0
+}

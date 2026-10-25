@@ -1,6 +1,6 @@
 import type {Mock} from 'vitest'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {DataViewFilterCodec} from '@spark-appworks/spark-data'
+import {DataViewFilter, DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {attachDesignReadModelBatch} from './database-server.fixture'
@@ -28,7 +28,8 @@ export type DatabaseTableViewDesignMocks = {
   readRequestScope: Mock
 }
 
-function model(metaName: string, fields: readonly string[], primaryKey = 'rowid'): Awaited<ReturnType<DataSpaceDesignApi['readModel']>> {
+function model(metaName: string, fields: readonly string[], primaryKey = 'rowid',
+  fieldTypes: Readonly<Record<string, string>> = {}): Awaited<ReturnType<DataSpaceDesignApi['readModel']>> {
   return {
     id: `${metaName}-model`,
     name: metaName,
@@ -46,7 +47,7 @@ function model(metaName: string, fields: readonly string[], primaryKey = 'rowid'
       canonicalName: field,
       primaryKey: field === primaryKey,
       description: field,
-      type: 'string',
+      type: fieldTypes[field] ?? 'string',
       output: true,
       computed: false,
       order,
@@ -74,8 +75,8 @@ export const databaseTableViewModels = {
   [DATABASE_CATALOG_ENCRYPTION_DICT_MODEL]: model(DATABASE_CATALOG_ENCRYPTION_DICT_MODEL, ['rowid', 'txt', 'val', 'ordIdx']),
   [DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL]: model(DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL, ['rowid', 'txt', 'val', 'ordIdx']),
   [DATABASE_CATALOG_RELATION_MODEL]: model(DATABASE_CATALOG_RELATION_MODEL, [
-    'rowid', 'pkdbid', 'pktbid', 'pktable', 'fkdbid', 'fktbid', 'fktable', 'rlname', 'IsCascadeDeletion', 'createuser', 'createtime',
-  ]),
+    'rowid', 'pkdbid', 'pktbid', 'pktable', 'fkdbid', 'fktbid', 'fktable', 'rlname', 'RelshipExp', 'IsCascadeDeletion', 'createuser', 'createtime',
+  ], 'rowid', {IsCascadeDeletion: 'int', RelshipExp: 'json'}),
   [DATABASE_CATALOG_WORKFLOW_MODEL]: model(DATABASE_CATALOG_WORKFLOW_MODEL, [
     'rowid', 'tblid', 'name', 'workflow_key', 'description', 'status', 'version',
   ]),
@@ -84,6 +85,10 @@ export const databaseTableViewModels = {
 
 export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
+  deniedFieldsByModel: Record<string, readonly string[]> = {}
+  hiddenFieldsByModel: Record<string, readonly string[]> = {}
+  rejectNextRelationSave = false
+  databasePrimaryKey = 'rowid'
   unregisteredByServer: Record<string, string[]> = {}
   unregisteredByDb: Record<string, string[]> = {}
   unregisteredViewsByDb: Record<string, string[]> = {}
@@ -101,9 +106,13 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }],
     [DATABASE_CATALOG_APP_SYSTEM_MODEL]: [{rowid: 'APP1', AppDesc: '主应用', AppName: 'MainApp'}],
     [DATABASE_CATALOG_FIELD_MODEL]: [
-      {rowid: 'F1', tblid: 'T1', enname: 'Id', cnname: '编号', DataTypeName: 'int', DataLen: '4', IsPKey: 1, ordIdx: 1},
-      {rowid: 'F2', tblid: 'T1', enname: 'Name', cnname: '名称', DataTypeName: 'string', DataLen: '50', IsPKey: 0, ordIdx: 2},
-      {rowid: 'F3', tblid: 'V1', enname: 'Total', cnname: '合计', DataTypeName: 'decimal', DataLen: '18', IsPKey: 0, ordIdx: 1},
+      {rowid: 'F1', tblid: 'T1', enname: 'Id', cnname: '编号', DataType: 'INT', DataTypeName: '整数型', DataLen: '4', IsPKey: 1, ordIdx: 1},
+      {rowid: 'F2', tblid: 'T1', enname: 'Name', cnname: '名称', DataType: 'NVARCHAR', DataTypeName: '字符串型', DataLen: '50', IsPKey: 0, ordIdx: 2},
+      {rowid: 'F-T2', tblid: 'T2', enname: 'Id', cnname: '编号', DataType: 'INT', DataTypeName: '整数型', DataLen: '4', IsPKey: 1, ordIdx: 1},
+      {rowid: 'F-T3-ID', tblid: 'T3', enname: 'Id', cnname: '编号', DataType: 'INT', DataTypeName: '整数型', DataLen: '4', IsPKey: 1, ordIdx: 1},
+      {rowid: 'F-T3-ORDER', tblid: 'T3', enname: 'OrderId', cnname: '订单编号', DataType: 'INT', DataTypeName: '整数型', DataLen: '4', IsPKey: 0, ordIdx: 2},
+      {rowid: 'F-T3-NAME', tblid: 'T3', enname: 'Name', cnname: '名称', DataType: 'NVARCHAR', DataTypeName: '字符串型', DataLen: '50', IsPKey: 0, ordIdx: 3},
+      {rowid: 'F3', tblid: 'V1', enname: 'Total', cnname: '合计', DataType: 'DECIMAL', DataTypeName: '数字型', DataLen: '18', IsPKey: 0, ordIdx: 1},
     ],
     [DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL]: [
       {rowid: 'R1', name: '手机号脱敏'},
@@ -117,8 +126,10 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       {rowid: 'FT2', txt: '整型', val: 'int', ordIdx: 2},
     ],
     [DATABASE_CATALOG_RELATION_MODEL]: [
-      {rowid: 'RL1', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders', fkdbid: 'DB1', fktbid: 'T2', fktable: 'Other', rlname: 'Orders.Id=Other.OrderId', IsCascadeDeletion: 0, createuser: 'admin', createtime: '2026-01-01'},
-      {rowid: 'RL2', pkdbid: 'DB1', pktbid: 'T2', pktable: 'Other', fkdbid: 'DB1', fktbid: 'T9', fktable: 'Remote', rlname: 'Other.Id=Remote.Ref', IsCascadeDeletion: 0, createuser: 'admin', createtime: '2026-01-02'},
+      {rowid: 'RL1', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders', fkdbid: 'DB1', fktbid: 'T2', fktable: 'Other', rlname: 'Orders to Other', RelshipExp: DataViewFilterCodec.serializeStored(
+        DataViewFilter.condition({field: 'Other.Id', operator: 'eq', value: {Type: 'GetTableField', Field: 'Orders.Id'}}),
+      ), IsCascadeDeletion: 0, createuser: 'admin', createtime: '2026-01-01'},
+      {rowid: 'RL2', pkdbid: 'DB1', pktbid: 'T2', pktable: 'Other', fkdbid: 'DB1', fktbid: 'T9', fktable: 'Remote', rlname: 'Other to Remote', RelshipExp: '', IsCascadeDeletion: 0, createuser: 'admin', createtime: '2026-01-02'},
     ],
     [DATABASE_CATALOG_WORKFLOW_MODEL]: [
       {rowid: 'W1', tblid: 'T1', name: '订单流', workflow_key: 'order_flow', description: '表 T1 绑定流', status: '1', version: '1.0'},
@@ -179,6 +190,10 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
       const payload = config.data as Array<{TableName?: string; CrudModel?: {Added?: Record<string, unknown>[]; Changed?: Record<string, unknown>[]; Deleted?: Record<string, unknown>[]}}>
+      if (this.rejectNextRelationSave && payload.some(item => item.TableName === DATABASE_CATALOG_RELATION_MODEL)) {
+        this.rejectNextRelationSave = false
+        return {data: {Code: 200, Result: {success: false, message: '服务器拒绝关系保存'}}, status: 200, statusText: 'OK', headers: {}}
+      }
       const addedBuckets: Array<Record<string, Record<string, unknown>[]>> = []
       const changedBuckets: Array<Record<string, Record<string, unknown>[]>> = []
       const deletedBuckets: Array<Record<string, Record<string, unknown>[]>> = []
@@ -268,11 +283,18 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     const model = databaseTableViewModels[tableName as keyof typeof databaseTableViewModels]
     const fieldNames = model?.fields.map(field => field.name) ?? []
     const allowAdd = tableName === DATABASE_CATALOG_DB_MODEL || tableName === DATABASE_CATALOG_TABLE_MODEL
-    return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd, lingma_sys_key: 'table-key',
-      data: {Items: rows.map(row => ({
+      || tableName === DATABASE_CATALOG_RELATION_MODEL
+    const page = body.PageParam ?? {index: 1, size: 20}
+    const pageIndex = Math.max(1, Number(page.index) || 1)
+    const pageSize = Math.max(1, Number(page.size) || 20)
+    const pageRows = rows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
+    const deniedFields = new Set(this.deniedFieldsByModel[tableName] ?? [])
+    const hiddenFields = new Set(this.hiddenFieldsByModel[tableName] ?? [])
+    return {data: {Code: 200, Result: {primaryKeyField: tableName === DATABASE_CATALOG_DB_MODEL ? this.databasePrimaryKey : model?.primaryKey ?? 'rowid', allowAdd, lingma_sys_key: 'table-key',
+      data: {Items: pageRows.map(row => ({
         ...row,
         lingma_sys_key: 'row-key',
-        lingma_sys_params: {r: fieldNames, e: fieldNames, h: [], m: [], d: tableName === DATABASE_CATALOG_TABLE_MODEL
+        lingma_sys_params: {r: fieldNames.filter(field => !hiddenFields.has(field)), e: fieldNames.filter(field => !deniedFields.has(field) && !hiddenFields.has(field)), h: [...hiddenFields], m: [], d: tableName === DATABASE_CATALOG_TABLE_MODEL
           || tableName === DATABASE_CATALOG_VIEW_MODEL
           || tableName === DATABASE_CATALOG_RELATION_MODEL},
       })), Count: rows.length}}},

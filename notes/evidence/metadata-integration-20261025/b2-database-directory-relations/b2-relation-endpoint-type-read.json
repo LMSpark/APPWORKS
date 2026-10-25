@@ -1,0 +1,147 @@
+{
+  "recordedAt": "2026-10-25T01:00:33.127Z",
+  "scope": "read-only preparation via existing SPA table selection, not final product acceptance",
+  "start": 222573,
+  "end": 222589,
+  "truncated": false,
+  "request": {
+    "id": "2180.40418",
+    "path": "/api/DataOperation/GetData",
+    "method": "POST",
+    "query": [
+      {
+        "name": "Base_TblField",
+        "filter": {
+          "Type": "cond",
+          "Field": "tblid",
+          "Operator": "in",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetConstValue",
+            "Value": [
+              "A4AAF1C36F3B4B8B8ED12B25A126C668"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "response": {
+    "http": 200,
+    "code": 200,
+    "count": 12,
+    "fields": [
+      {
+        "rowid": "13DE8D182B0A486C81DBCF5BD75B1A03",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "lingma_sys_ent",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "IsPKey": 1,
+        "IsNill": 0
+      },
+      {
+        "rowid": "183DA7EF3D1548B9A0A09AF62BD7210A",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "Name",
+        "DataType": "VARCHAR",
+        "DataTypeName": "字符串型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "314A0D88F9AF42F0893FAEDAA97B5ECE",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "id",
+        "DataType": "INT",
+        "DataTypeName": "整数型",
+        "IsPKey": 1,
+        "IsNill": 0
+      },
+      {
+        "rowid": "3439F5F7FDAF4D14A7242689B1C3E366",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "ReportID",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "3D749193735346E7BF4BDD8582596E87",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "updatetime",
+        "DataType": "datetime",
+        "DataTypeName": "日期型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "62CA1148FDAF4B2EA9D9169B7DEE1479",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "createuser",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "6976CFC2779F46368CCF3B5208D23E25",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "createtime",
+        "DataType": "datetime",
+        "DataTypeName": "日期型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "83CD8BD9DBE149ED9A815E756896F8CB",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "description",
+        "DataType": "text",
+        "DataTypeName": "文本",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "8B52687EB99A43298BE7C4136650C9D2",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "lingma_sys_is_delete",
+        "DataType": "int",
+        "DataTypeName": "整数型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "DE87EE9E9028435DA2CE9EBCF600FFE3",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "flowstate",
+        "DataType": "int",
+        "DataTypeName": "整数型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "E64BAA9C865A487D9AE5DA473C6CA26A",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "wfid",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "IsPKey": 0,
+        "IsNill": 1
+      },
+      {
+        "rowid": "FC9AEF007AC7400B900BEAAA9E55F9A9",
+        "tblid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "enname": "updateuser",
+        "DataType": "varchar",
+        "DataTypeName": "字符串型",
+        "IsPKey": 0,
+        "IsNill": 1
+      }
+    ]
+  },
+  "documentRequests": 0,
+  "otherRequests": [],
+  "failures": []
+}

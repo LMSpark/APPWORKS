@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
-    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page\n职责：库/表/视图/字段目录；登记与字段维护经 DataSet.saveChanges；列元信息只在各模型 DataTable.columns，autoColumns 消费列链，不手写字段 children。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page\n职责：库/表/视图/字段目录；登记与字段维护经 DataSet.saveChanges；标准字段子组件消费正式列元数据并绑定所属 DataView。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-23T06:55:09.770Z",
+  "generatedAt": "2026-10-25T01:29:26.803Z",
   "models": {}
 }

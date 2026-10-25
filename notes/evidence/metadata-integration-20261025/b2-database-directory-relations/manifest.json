@@ -1,0 +1,656 @@
+{
+  "parentCommit": "6c013a7fc58749bee3d9cc8b1716746a1b1f1896",
+  "createdAt": "2026-10-25T01:47:12.651Z",
+  "scope": "B2 directory plus relationship batch; complete integration remains active in the unique ledger",
+  "sourceSnapshot": [
+    {
+      "name": "config/navigation/vue-pages.json",
+      "sha256": "c6ee279b1996100bf6d54e32ce65b39bbd492a6edd11b8f030c13dbb2d4ed7b9"
+    },
+    {
+      "name": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
+      "sha256": "ead3079150fed0a7437d2ab3de5478ff2e8ab3da7b310b747cc7da96d1b34b3c"
+    },
+    {
+      "name": "src/lowcode/resources/database/database-catalog-context.ts",
+      "deleted": true
+    },
+    {
+      "name": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+      "sha256": "3ef70638a4347c7b8effa671acc43fa6dee4b04adf68eef18a494b80a86dc952"
+    },
+    {
+      "name": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
+      "sha256": "5edc6d5e7f848e69b6d2015337c6248833d6cede64e996bddcefc9921007dddb"
+    },
+    {
+      "name": "src/lowcode/resources/database/database-catalog-relation-metadata.ts",
+      "sha256": "884ef80618c0377cc9e7891eb77fc2288c67fd34b13a4a07c0b27e2d99f2405f"
+    },
+    {
+      "name": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "sha256": "4f10b6c76607b9d36b6c78ab3d747615266938ff0ab3e54931c7317100ac51e8"
+    },
+    {
+      "name": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "sha256": "7242dc05fb6950f6596185a78a2f5820aab5750a5d9144cd49e3a3f7c0ca0eb0"
+    },
+    {
+      "name": "src/lowcode/resources/database/lowcode-database-directory.ts",
+      "sha256": "c9589c1fc9e41f45661734a192a9607d68c2c225a8570a8564eac9d20e33a3c2"
+    },
+    {
+      "name": "src/lowcode/resources/database/lowcode-database-server.ts",
+      "sha256": "a2af6b173bbd3eeab8b58de490d44f0399948d423cff1f7ef9fd4c9aa0b5cb97"
+    },
+    {
+      "name": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+      "sha256": "14cba48716497d04a134301e29c13d74c72107ead88bcc5b927b403f0d9e6d9b"
+    },
+    {
+      "name": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "sha256": "47a456d7fdfe8802d96d6d4c7e86fd23faef703cad07f244cb3d19e3045814c1"
+    },
+    {
+      "name": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+      "sha256": "9d9d808fdf542f842d42f425227752fa630d1e501b1914772aba01ef71ab397e"
+    },
+    {
+      "name": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "sha256": "8e03951efb8351c5ae4294fa6e8346912b3014b2d993c607e5580d81a8cbd097"
+    },
+    {
+      "name": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+      "sha256": "37d644d99a714277c743b293b39957f28f046c5027cc020fb4c3887a161dfbd1"
+    },
+    {
+      "name": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+      "deleted": true
+    },
+    {
+      "name": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "sha256": "1d0c113bfd1291f49e3808a063513a7688d338d5ab4b50ef9544becfc65bba6b"
+    },
+    {
+      "name": "tests/app/config/vue-page-registry.test.ts",
+      "sha256": "5fffa5b79168e1e7ac64ba4d581083772e2aaf3edb8bbb4e074e0ef3d7870dea"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-context.test.ts",
+      "deleted": true
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-db-view-ops.test.ts",
+      "sha256": "3b3e66a677e91523b2a89b1a15c304ed76e215a025c35df3cf5d453f7d1daa94"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-field-view-ops.test.ts",
+      "sha256": "ec13f513d79f9e1922ea8fe369f4ff583327eea325b2d68c09b29f91ab792eb3"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-load-options.test.ts",
+      "sha256": "7fae396f60061c66f1681e327e6532ce878156c1e6e7b176cfaefab07c21fa2e"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-relation-view-ops.test.ts",
+      "sha256": "7e81d45adb91b2d95762737ad6b9fba6767fddb631f95571b5555a7e475327f5"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-resolve-cache.test.ts",
+      "deleted": true
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-scenario.test.ts",
+      "sha256": "29b3cbf175424ede1097f89c2e17d3259a0c03dc82388b3792951982a9f7b58c"
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-tiered-resolve.test.ts",
+      "deleted": true
+    },
+    {
+      "name": "tests/runtime/page/database/database-catalog-unregistered-db.test.ts",
+      "deleted": true
+    },
+    {
+      "name": "tests/runtime/page/database/database-directory-page.test.ts",
+      "sha256": "34bde21a648e4403d8304749a953966693d812a6385f3190e052e68c476c888e"
+    },
+    {
+      "name": "tests/runtime/page/database/database-management-hub.test.ts",
+      "deleted": true
+    },
+    {
+      "name": "tests/runtime/page/database/database-table-view-catalog.test.ts",
+      "sha256": "3d160bac5da5307eb8ff17663e406da6bb14c20bd0b97914d45a9e1a5022c732"
+    },
+    {
+      "name": "tests/runtime/page/database/database-table-view.fixture.ts",
+      "sha256": "d1727a451d15ab1c03e20fa74adc091177494577efb15f9bba0d2f08c9c793b2"
+    },
+    {
+      "name": "tests/runtime/page/database/table-and-view-page.test.ts",
+      "sha256": "c3680ebf4d844950a9a6d792116c591ec013744ac61c8ddf83a93d0117cb7e80"
+    },
+    {
+      "name": "tests/scripts/verify-architecture-feature-import-paths.test.ts",
+      "sha256": "3488ca251589bc327bc3409b73333ea38ae1e0196127c31c00288ba1af1dfce3"
+    },
+    {
+      "name": "tests/ui/renderer/data-table/renderer-table-auto-columns.test.ts",
+      "sha256": "f63cba83a5c0fc6c74db57d6d66387383dd711d032d09825fb58c3a0b4098482"
+    },
+    {
+      "name": "tools/directory-limits-baseline.json",
+      "sha256": "3b17644042d1c6a45b1310fe58fb469d0d81686cf2dc5f1ba4c264a0b6b71d45"
+    },
+    {
+      "name": "tools/verify-architecture.mjs",
+      "sha256": "faf7adf017141c09fe44c931393a0759d8df2935954dde84672587bc7145cc70"
+    }
+  ],
+  "files": [
+    {
+      "name": "b2-root-delivery-review.md",
+      "bytes": 5322,
+      "sha256": "091eb76e21d816d016008c20da2c6fbde51b126a85d9c8e3e7160852a8080e1d"
+    },
+    {
+      "name": "b2-entry-ui-completion-report.md",
+      "bytes": 6757,
+      "sha256": "e739a8d636a46a7c806a8bc92456f41db4aa260dd0ffbecd2ffba0a57994d94e"
+    },
+    {
+      "name": "b2-entry-followup-report.md",
+      "bytes": 7131,
+      "sha256": "989f4299d40bb81050743743e0babafa12aaf74501ea2730a8bf9efee9cfef48"
+    },
+    {
+      "name": "b2-entry-followup-review.md",
+      "bytes": 4398,
+      "sha256": "2a993307170f04ee32877c539577e2aa8a1dd34319407e3bd800dfb41e371dc1"
+    },
+    {
+      "name": "b2-entry-current-row-followup-report.md",
+      "bytes": 10750,
+      "sha256": "176f440d7926eedb12ee8d0cc1c0987dfb1ed4a70aed1e59ee5dba6ebb3faabf"
+    },
+    {
+      "name": "b2-entry-current-row-independent-review.md",
+      "bytes": 3721,
+      "sha256": "285d08d0c173d25dd4a4d462164b3b582fec6c454547e308b8890c550abcb59c"
+    },
+    {
+      "name": "b2-entry-signature-followup-report.md",
+      "bytes": 2367,
+      "sha256": "33390802dfd6f14e69be464511eb4515baa483dabcad0a0f8c55a6e114dcaffb"
+    },
+    {
+      "name": "b2-entry-signature-followup-freeze-sha256.txt",
+      "bytes": 278,
+      "sha256": "b4fa29b6fe4c6556008197c7e47bdd74abb71137484bdb1b915356122baadacf"
+    },
+    {
+      "name": "b2-empty-parent-contract-review.md",
+      "bytes": 8526,
+      "sha256": "f1b24e07a7d4dbdf38afc26238f067c560e9f47af837970812fd457d9610a5aa"
+    },
+    {
+      "name": "b2-db-management-navigation-contract.md",
+      "bytes": 11530,
+      "sha256": "bb56db9bf5bf06b0caf5cbbcbc5b5d6f6efa282bef69af4e93c75f9b50e1cac6"
+    },
+    {
+      "name": "b2-entry-scoped-navigation-contract.md",
+      "bytes": 5711,
+      "sha256": "e717bcffd4b8ce96242f4eb8abd8cd4dea8dec2949f34b040abeffe2b5b73612",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "948001bb39a9dc2574ff6ae3adeb8a7cf5de5ba060bb17e4f20f26063ab9cc1d"
+    },
+    {
+      "name": "b2-renderer-current-change-review.md",
+      "bytes": 3223,
+      "sha256": "5726ba44f7e45e3786a8f6dd8b77d1ceb656f42de7190805257362c0e281184f",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "fa44f7349c18dbe11aadd9712ae244d75bd830f8512d2e8f279e16a4bcd24d65"
+    },
+    {
+      "name": "b2-architecture-preserved-path-review.md",
+      "bytes": 4208,
+      "sha256": "69610fb5be9f2d04dd14ee9d6728481b98599844b8dbb2f810dddbfd180ec77b",
+      "sourceName": "b2-verify-architecture-features-path-final-report.md"
+    },
+    {
+      "name": "b2-entry-spa-round3.json",
+      "bytes": 588017,
+      "sha256": "a64da67e44f0b027a99368491dcd1d7a853ac8984946e5b4fb5783b2143b7b1f"
+    },
+    {
+      "name": "b2-entry-spa-round3-audit.mjs",
+      "bytes": 2357,
+      "sha256": "45e55f2bf7419d26d0bf359ef4ba61d033a2b48fe66be23cdeb75ff1129be9d0"
+    },
+    {
+      "name": "b2-entry-spa-round3-auto-children.png",
+      "bytes": 64702,
+      "sha256": "3e513faae06ab38fea34c999dd53e184d1568270b15273cc9edadbc752aaee82"
+    },
+    {
+      "name": "b2-entry-spa-round3-local-draft.png",
+      "bytes": 51902,
+      "sha256": "5d79359bbbb0e31d476d84809d23d00134cd11fa4a7024c23ab03530c568f991"
+    },
+    {
+      "name": "b2-entry-spa-round3-switch-px.png",
+      "bytes": 63679,
+      "sha256": "7df73991d8cff69a74ae4a5180dfaf023f17013494e9a2721b3d45ff0e3c12d9"
+    },
+    {
+      "name": "b2-entry-signature-spa.json",
+      "bytes": 63521,
+      "sha256": "a3f435eb3675293414eecdc0f68106af2b707ea2275afc959d5c64fc009225c3"
+    },
+    {
+      "name": "b2-entry-signature-spa.png",
+      "bytes": 62540,
+      "sha256": "2f0bfb4981b9b6250ee0769e73d8399b76ae126d39ac272cbfec6b467710e956"
+    },
+    {
+      "name": "b2-relation-implementation-contract.md",
+      "bytes": 12946,
+      "sha256": "ab6ea931ecef46c79697cca449910da135458bf2b1bccb52616e4d18c90970a0"
+    },
+    {
+      "name": "b2-relation-binding-write-contract.md",
+      "bytes": 15503,
+      "sha256": "61f3f7d3ceca30a1102e282b0e7184af7e11bbe00f09428f533616fd37cdd552",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "d873999c54dac8784c6955f56e6c50fb499de6dda038be75dc9df35eab64386c"
+    },
+    {
+      "name": "b2-relation-formal-binding-contract.md",
+      "bytes": 8260,
+      "sha256": "11958475c28b15f974c83c632201530892870dc0d873a132a96ba59fa932ca30"
+    },
+    {
+      "name": "b2-relation-completion-report.md",
+      "bytes": 4080,
+      "sha256": "8af9e732abe5b550e8174cf5c3d0596fd1965fd735819903d7abf4b666a71775"
+    },
+    {
+      "name": "b2-relation-frozen-review1.md",
+      "bytes": 7411,
+      "sha256": "b1c1c846130f2a3965f6ab2d9958753acecd18fdf96425f0bc859a6992ed9fec"
+    },
+    {
+      "name": "b2-relation-freeze-sha256.txt",
+      "bytes": 849,
+      "sha256": "c982e48e27efe2b3b4150d45c3fada531cb75efa5b40aab028dc3f43e510bfeb"
+    },
+    {
+      "name": "b2-relation-label-freeze-sha256.txt",
+      "bytes": 136,
+      "sha256": "4b20ec21e6a8e939478c4fbbbac421745de99025051806ac0937cad13bdcb53a"
+    },
+    {
+      "name": "b2-relation-model-created.json",
+      "bytes": 61975,
+      "sha256": "d5b22b91e0bd7fed55c9c9a0bf1bcbdf33c6d7064b77384929eb1da579c67b32"
+    },
+    {
+      "name": "b2-relation-output-saved.json",
+      "bytes": 27298,
+      "sha256": "7b722a0d066c75152a3d5062337a3b9d9a677146dd98f9a9b0f7b7384a6f7b40"
+    },
+    {
+      "name": "b2-relation-binding-root-audit.mjs",
+      "bytes": 4935,
+      "sha256": "cd1eda88f0509a8d93dc8839b91264403fc477d894cd734327a1224f730f1215"
+    },
+    {
+      "name": "b2-relation-binding-root-audit.json",
+      "bytes": 986,
+      "sha256": "65c443fa5b61bc0554ea281d5753008a2b233ea4ac007b47a2ed6f37bad19b0a"
+    },
+    {
+      "name": "b2-relation-runtime-expression-probe.mjs",
+      "bytes": 20033,
+      "sha256": "3323b473a050a12f490881953fbea38466f24694d09a07f4a8e81d0c9ada8600",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "f1dea7d22404cae79f25ffba42d44218efba903bc74a2cab28e904e7ac680734"
+    },
+    {
+      "name": "b2-relation-runtime-expression-read.json",
+      "bytes": 33346,
+      "sha256": "e8e791f2d16f09442b1553fbc50e736ecc7def12d6006c3c283dfe5f0199272f"
+    },
+    {
+      "name": "b2-relation-runtime-expression-read.md",
+      "bytes": 1349,
+      "sha256": "4b759257ac220b8780286972899bb1c91b8d499a41f34a282f9a987eb12f8cd8"
+    },
+    {
+      "name": "b2-relation-endpoint-type-read.json",
+      "bytes": 3998,
+      "sha256": "ea171fe55f769d5ca729f7df9307a7b811097b3f93ba7855f48c88125bd29d62"
+    },
+    {
+      "name": "b2-relation-test-user-type-read.json",
+      "bytes": 3664,
+      "sha256": "9efe256f77cc3b2fc70a393b27e7eb4612b7bf9b7569e50b47f36c1024792291"
+    },
+    {
+      "name": "b2-relation-created-readback.json",
+      "bytes": 1620,
+      "sha256": "799cb1d5fc1428173247a849c12408577830de9cfc152ad991af2296c576f057"
+    },
+    {
+      "name": "b2-relation-name-only-readback.json",
+      "bytes": 1002,
+      "sha256": "7cd1acaf8d8bd2a897442f57f4bc87db0110e6c62e571299297a75c749547aef"
+    },
+    {
+      "name": "b2-relation-spa-main.json",
+      "bytes": 144620,
+      "sha256": "e3dd65cb9022397bb6e16683d7649bc292d5edcc99992db9020130a4dee80f2e"
+    },
+    {
+      "name": "b2-relation-label-spa.json",
+      "bytes": 39630,
+      "sha256": "d57e82b23b75531616d8145b264ebe69a5b98a6b03572102cc5911f73f2e2f34"
+    },
+    {
+      "name": "b2-relation-spa-root-audit.mjs",
+      "bytes": 3240,
+      "sha256": "6369311931c7739ce3ce7d003a53f04ad3bb3e242788025545d5c94c39bef3b1"
+    },
+    {
+      "name": "b2-relation-spa-root-audit.json",
+      "bytes": 1023,
+      "sha256": "175ae2f3793e48a4cafa9cf120f7caf390e6742c4ebc2de6fd25c7b1c4519b8c"
+    },
+    {
+      "name": "b2-relation-draft-cancel.png",
+      "bytes": 53031,
+      "sha256": "388ae4bafa63e3f5f4c37f1dc42838b0487323a88dfc0a8109f60107ac4354f0"
+    },
+    {
+      "name": "b2-relation-new-cancelled.png",
+      "bytes": 50909,
+      "sha256": "aa593e359526fb03b3e803d4e94d34b1267043acb81e86fc8b441e0f66fbdf5e"
+    },
+    {
+      "name": "b2-relation-before-save.png",
+      "bytes": 52657,
+      "sha256": "5403a76de55dd85bec3b4c60c8a3e4af203d121cd1ac42e356b47d2f9d3c9e09"
+    },
+    {
+      "name": "b2-relation-saved.png",
+      "bytes": 54875,
+      "sha256": "cc9a4a01db7cc07c5659e064a6ff7c6da839163b650d42fdde310cb1271fada8"
+    },
+    {
+      "name": "b2-relation-other-database.png",
+      "bytes": 63212,
+      "sha256": "6d4c238a022f0526ca07847d7170fd4d3ba69e15b0f227af0c1292b2b2be95e9"
+    },
+    {
+      "name": "b2-relation-reopened.png",
+      "bytes": 53637,
+      "sha256": "d7c4bf6bbf399b8e0497def6c99b433a36c1cc7238e3bd16f07f59bbd891b38b"
+    },
+    {
+      "name": "b2-relation-final-list.png",
+      "bytes": 55616,
+      "sha256": "2293021af8a9f6a4aeaafa329c440d9ffeb2660113ce09a4bc1ce0c0a4d0b7b9"
+    },
+    {
+      "name": "b2-relation-contract-query-postgen.mjs",
+      "bytes": 2503,
+      "sha256": "f85f6b9455a828562bbbe5a2d772ebb8e7bcd29e5564fcbf0d673641a4880029",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "aca934de92bcb677f8e7d69591ae48b39179cdc492338f588666e54b07abb036"
+    },
+    {
+      "name": "b2-relation-contract-query-postgen.json",
+      "bytes": 303293,
+      "sha256": "7bdecd11f94dec754f3dac3f108d6dbc3a709b2e659dbbb19bfe0032d6587c5a"
+    },
+    {
+      "name": "b2-remaining-usecase-review.md",
+      "bytes": 23981,
+      "sha256": "36384a68788eb742638f296a4f3742f532d6be5d0231e0293cbc4cca9d461ec7",
+      "normalizedDocumentEof": true,
+      "sourceSha256": "108ad74e7689af817007ecf356ff130fc2d591f38dcf50f97e6f5298794a052c"
+    },
+    {
+      "name": "b2-db-operations-contract.md",
+      "bytes": 9925,
+      "sha256": "a45f7432cb42e650c91423e7db0a7eebe86dda51759f72785e312091a936f606"
+    },
+    {
+      "name": "b2-delivery-archive.mjs",
+      "bytes": 5888,
+      "sha256": "42eb4c89c546b7e67b7b92c9252d1b8e3ddcf61076d8704e1487a0016651888d"
+    },
+    {
+      "name": "b2-entry-spa-round3-audit.log",
+      "bytes": 175,
+      "sha256": "043af5444969bcff046fd81522b7bb9850e69bc1a5a60aadaa7f8c69f71dea67"
+    },
+    {
+      "name": "b2-entry-spa-round3-audit.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-entry-root-affected-suite2.log",
+      "bytes": 30733,
+      "sha256": "4a91d52d5c445386acb778b4afd814d0b0035c4d13107ff8b226c9dbc2a59ecc"
+    },
+    {
+      "name": "b2-entry-root-affected-suite2.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-red11-integration.log",
+      "bytes": 107829,
+      "sha256": "28554f56817eb1b6e695339f480c2625fb3c848d2637be77a08450d3cfffa793"
+    },
+    {
+      "name": "b2-relation-red11-integration.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-late-structure-red3.log",
+      "bytes": 4086,
+      "sha256": "458985691067a1785cfeb396d2770b95e0e306585a2fd1234e2a80b7fecaeee9"
+    },
+    {
+      "name": "b2-relation-late-structure-red3.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-name-race-red1.log",
+      "bytes": 4067,
+      "sha256": "724bd82bda44e619e96b1d40418e65186bbceb5c91cca2d22aa8bd7d88daa6e1"
+    },
+    {
+      "name": "b2-relation-name-race-red1.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-mixed-data-type-red1.log",
+      "bytes": 4162,
+      "sha256": "798311a016e3c46060972092cb95526e9eab82110ae0a8837328b63bdc41595f"
+    },
+    {
+      "name": "b2-relation-mixed-data-type-red1.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-unmapped-expression-red1.log",
+      "bytes": 4357,
+      "sha256": "301fa2c854770b9cba6c6ebb83f3d6e47f1b0cacaa891302e529649fb412221c"
+    },
+    {
+      "name": "b2-relation-unmapped-expression-red1.exit",
+      "bytes": 3,
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04"
+    },
+    {
+      "name": "b2-relation-mixed-data-type-targeted1.log",
+      "bytes": 438,
+      "sha256": "cc9701c2db04c051536d8f6dcf0b33ae65c5ed8980ca6aa324b0fa13f4af8a6c"
+    },
+    {
+      "name": "b2-relation-mixed-data-type-targeted1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-database-suite-final4.log",
+      "bytes": 434,
+      "sha256": "0f0644618db38e08424522f338f473a5d00355226d25754d50b60e910b8f6ec0"
+    },
+    {
+      "name": "b2-relation-database-suite-final4.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-typecheck-final5.log",
+      "bytes": 937,
+      "sha256": "dd8701510909a9b91e9b8a2b893faff100680dd23c73bd94c7e63070d2e388ff"
+    },
+    {
+      "name": "b2-relation-typecheck-final5.exit",
+      "bytes": 3,
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b"
+    },
+    {
+      "name": "b2-relation-typecheck-final6.log",
+      "bytes": 62,
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "name": "b2-relation-typecheck-final6.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-eslint-final5.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "b2-relation-eslint-final5.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-ai-codegen-final4.log",
+      "bytes": 94,
+      "sha256": "b6265fe481d997001a6e602692ff763be82e5e122e188033e948987138ae2f8d"
+    },
+    {
+      "name": "b2-relation-ai-codegen-final4.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-root-host-suite1.log",
+      "bytes": 428,
+      "sha256": "795fd849bc57d261960d299a7fb7a2a6d77593d2add77271033940ea404b1974"
+    },
+    {
+      "name": "b2-relation-root-host-suite1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-full-lint1.log",
+      "bytes": 20,
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "name": "b2-relation-full-lint1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-class-model-generate1.log",
+      "bytes": 5886,
+      "sha256": "cbbd1c23e8430a3945fb63e60b1cfd9dc5770695fe10119f263d04ddd79fe93c"
+    },
+    {
+      "name": "b2-relation-class-model-generate1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-class-model-generate2.log",
+      "bytes": 5883,
+      "sha256": "9ea413fc8ff7c177faed8f720cea88d67bec929eca04297dac3733b517c74501"
+    },
+    {
+      "name": "b2-relation-class-model-generate2.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-contract-query-postgen.log",
+      "bytes": 557,
+      "sha256": "c652f197c5cdfbc4ff3c8327ea897c25dcb64240437c13013fdf11f7212bd4e3"
+    },
+    {
+      "name": "b2-relation-contract-query-postgen.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-full-rules1.log",
+      "bytes": 3418,
+      "sha256": "a426676ca1e22367249f2d34160a9c778c7a30bacdd16e58c135956cbe0bbebb"
+    },
+    {
+      "name": "b2-relation-full-rules1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-full-build1.log",
+      "bytes": 27352,
+      "sha256": "1c172a54870daa85c9ae966d3ce177c18a9515818db0fe08578fb05b64616d98"
+    },
+    {
+      "name": "b2-relation-full-build1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-label-eslint-final1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "b2-relation-label-eslint-final1.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    {
+      "name": "b2-relation-spa-root-audit.log",
+      "bytes": 861,
+      "sha256": "87231647474c9602d115279e1425e918a581c3e08ea56f3e62173daf1bbe0f48"
+    },
+    {
+      "name": "b2-relation-spa-root-audit.exit",
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    }
+  ]
+}

@@ -2,8 +2,8 @@
  * @module app:lowcode/resources/database/lowcode-database-table-view
  * 职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。
  */
-import {RequestState, type DataSet} from '@spark-appworks/spark-data'
-import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {DataViewFilter, RequestState, type DataSet} from '@spark-appworks/spark-data'
+import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
@@ -24,6 +24,9 @@ export const DATABASE_CATALOG_ENCRYPTION_DICT_MODEL = 'Dict_encryption_rule'
 export const DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL = 'TblField_type'
 export const DATABASE_CATALOG_RELATION_MODEL = 'Base_TblRln'
 export const DATABASE_CATALOG_RELATION_TABLE_VIEW = 'forTable'
+export const DATABASE_CATALOG_RELATION_PEER_VIEW = 'relationPeers'
+export const DATABASE_CATALOG_RELATION_ENDPOINT_VIEW = 'relationEndpoints'
+export const DATABASE_CATALOG_RELATION_FIELD_VIEW = 'relationEndpointFields'
 export const DATABASE_CATALOG_WORKFLOW_MODEL = 'Base_WorkflowDefinition'
 export const DATABASE_CATALOG_WORKFLOW_TABLE_VIEW = 'forTable'
 export const DATABASE_CATALOG_WORKFLOW_STATUS_DICT_MODEL = 'workflowStatus'
@@ -35,7 +38,7 @@ const CATALOG_TEXT_VALUE_DICT_MODELS = new Set<string>([
   DATABASE_CATALOG_WORKFLOW_STATUS_DICT_MODEL,
 ])
 
-/** 与五表目录同 FormKey 装配、但不参与 hub「full 档」判定的选项/扩展模型。 */
+/** 表和视图目录的可选功能扩展模型；单独读取，不参与四个核心模型的身份核验。 */
 export const DATABASE_CATALOG_OPTION_META_NAMES = [
   DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL,
   DATABASE_CATALOG_ENCRYPTION_DICT_MODEL,
@@ -47,7 +50,6 @@ export const DATABASE_CATALOG_OPTION_META_NAMES = [
 ] as const
 
 export const DATABASE_CATALOG_COMMAND_INPUT_TABLE = 'DatabaseCatalogCommandInput'
-export const DATABASE_UNREGISTERED_DB_NAMES_TABLE = 'DatabaseUnregisteredNames'
 export const DATABASE_UNREGISTERED_TABLE_NAMES_TABLE = 'DatabaseUnregisteredTables'
 export const DATABASE_UNREGISTERED_VIEW_NAMES_TABLE = 'DatabaseUnregisteredViews'
 export const DATABASE_TABLE_SYNC_META_TABLE = 'DatabaseTableSyncMetaData'
@@ -63,7 +65,6 @@ export const DATABASE_CATALOG_FIELD_TABLE_VIEW = 'tableFields'
 export const DATABASE_CATALOG_FIELD_VIEW_VIEW = 'viewFields'
 
 export const DATABASE_CATALOG_SCENARIO_META_NAMES = [
-  DATABASE_SERVER_MODEL,
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
@@ -77,8 +78,10 @@ function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.desig
     autoLoad: false,
     autoCurrentFirst: false,
     autoSelectFirst: false,
+    ...(model.metaName === DATABASE_CATALOG_DB_MODEL ? {selectionDelimiter: ''} : {}),
     commitMode: 'staged',
-    queryConfig: {allPages: true},
+    pageSize: 20,
+    queryConfig: {allPages: false, ...(model.metaName === DATABASE_CATALOG_DB_MODEL ? {autoQuery: true} : {})},
     sortExpression: [{field: model.primaryKey, direction: 'asc'}],
   }
 }
@@ -89,7 +92,10 @@ export class LowcodeDatabaseTableView {
     if (!scenarioId.trim()) throw new Error('表和视图管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
     const scope = lowcodeApi.readRequestScope()
     const assertCurrent = (): void => {
-      if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('表和视图目录请求所属应用或登录身份已变化')
+      const current = lowcodeApi.readRequestScope()
+      if (current.token !== scope.token || current.headers['X-AppId'] !== scope.headers['X-AppId']) {
+        throw new Error('表和视图目录请求所属应用或登录身份已变化')
+      }
     }
     const dataSpaceId = await resolveDatabaseCatalogDataSpaceId({preferredScenarioId: scenarioId, metaNames: catalogModels, options, assertCurrent})
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}
@@ -107,7 +113,7 @@ export class LowcodeDatabaseTableView {
       try {
         optionModels.push(await lowcodeApi.dataSpace.design.readModel({...input, metaName}))
       } catch {
-        // 未登记脱敏规则模型时仍装配目录五表；字段网格降级为只读 DesenID 列。
+        // 未登记脱敏规则模型时仍装配核心目录模型；字段网格降级为只读 DesenID 列。
       }
     }
     assertCurrent()
@@ -116,16 +122,6 @@ export class LowcodeDatabaseTableView {
     const fieldModel = byName.get(DATABASE_CATALOG_FIELD_MODEL)
     if (!fieldModel) throw new Error('目录字段模型未装配')
     const viewCascades = [
-      {
-        kind: 'query',
-        cascadeId: 'server-databases',
-        parentTable: DATABASE_SERVER_MODEL,
-        parentViewId: 'default',
-        childTable: DATABASE_CATALOG_DB_MODEL,
-        childViewId: 'default',
-        autoLoad: false,
-        filterBindings: [{targetField: 'serverId'}],
-      },
       {
         kind: 'query',
         cascadeId: 'db-tables',
@@ -167,7 +163,13 @@ export class LowcodeDatabaseTableView {
         filterBindings: [{targetField: 'tblid'}],
       },
     ]
-    const fieldSort = [{field: 'ordIdx', direction: 'asc'}, {field: fieldModel.primaryKey, direction: 'asc'}]
+    const outputFields = DataSpaceDesignApi.resolveOutputFields(fieldModel)
+    const outputFieldNames = new Set(outputFields.map(field => field.canonicalName))
+    const ordinalSortField = outputFields.find(field => field.name === 'ordIdx')?.canonicalName
+    const fieldSort = [
+      ...(ordinalSortField ? [{field: ordinalSortField, direction: 'asc'}] : []),
+      ...(outputFieldNames.has(fieldModel.primaryKey) ? [{field: fieldModel.primaryKey, direction: 'asc'}] : []),
+    ]
     const config = new ScenarioViewConfig(dataSpaceId, JSON.stringify({
       scenarioId: dataSpaceId,
       tables: Object.fromEntries(assemblyModelNames.map(name => {
@@ -176,10 +178,27 @@ export class LowcodeDatabaseTableView {
         if (name === DATABASE_CATALOG_FIELD_MODEL) {
           const fieldView = defaultView(model)
           fieldView['sortExpression'] = fieldSort
+          const relationFieldsView = defaultView(model)
+          relationFieldsView['pageSize'] = 100
+          relationFieldsView['queryConfig'] = {allPages: true}
+          relationFieldsView['sortExpression'] = fieldSort
           return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
             default: {...fieldView},
             [DATABASE_CATALOG_FIELD_TABLE_VIEW]: {...fieldView},
             [DATABASE_CATALOG_FIELD_VIEW_VIEW]: {...fieldView},
+            [DATABASE_CATALOG_RELATION_FIELD_VIEW]: {...relationFieldsView},
+          }}]
+        }
+        if (name === DATABASE_CATALOG_TABLE_MODEL) {
+          const tableView = defaultView(model)
+          const relationPeersView = defaultView(model)
+          const relationEndpointsView = defaultView(model)
+          relationPeersView['valueField'] = 'rowid'
+          relationPeersView['labelField'] = 'tblname'
+          return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
+            default: {...tableView},
+            [DATABASE_CATALOG_RELATION_PEER_VIEW]: {...relationPeersView},
+            [DATABASE_CATALOG_RELATION_ENDPOINT_VIEW]: {...relationEndpointsView},
           }}]
         }
         if (name === DATABASE_CATALOG_RELATION_MODEL) {
@@ -229,7 +248,6 @@ export class LowcodeDatabaseTableView {
         assertScope: assertCurrent,
         tables: {
           commandInput: DATABASE_CATALOG_COMMAND_INPUT_TABLE,
-          unregisteredDbNames: DATABASE_UNREGISTERED_DB_NAMES_TABLE,
           unregisteredTableNames: DATABASE_UNREGISTERED_TABLE_NAMES_TABLE,
           unregisteredViewNames: DATABASE_UNREGISTERED_VIEW_NAMES_TABLE,
         },
@@ -262,6 +280,7 @@ export class LowcodeDatabaseTableView {
       applyDatabaseCatalogFieldMetadata(dataSet)
       applyDatabaseCatalogObjectDesignMetadata(dataSet)
       for (const metaName of DATABASE_CATALOG_OPTION_META_NAMES) {
+        if (metaName === DATABASE_CATALOG_RELATION_MODEL) continue
         const optionView = dataSet.getView(metaName, 'default')
         if (optionView?.rows.length === 0 && optionView.requestState !== RequestState.Loaded) {
           await optionView.refresh()
@@ -269,18 +288,18 @@ export class LowcodeDatabaseTableView {
           if (optionView.loadingError) throw optionView.loadingError
         }
       }
-      const serverView = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       const dbView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
-      if (!serverView || !dbView) throw new Error('表和视图目录缺少服务器或数据库视图')
-      await serverView.refresh()
-      assertCurrent()
-      if (serverView.loadingError) throw serverView.loadingError
-      if (serverView.rows.length > 0) {
-        const firstServer = serverView.rows[0]
-        if (firstServer) serverView.setSelectedRows([firstServer])
-        await dbView.refresh()
-        assertCurrent()
+      if (!dbView) throw new Error('表和视图目录缺少数据库视图')
+      const databaseId = options.databaseId?.trim()
+      if (databaseId) {
+        dbView.configure({filterExpression: DataViewFilter.condition({
+          field: dbView.primaryKey,
+          operator: 'eq',
+          value: databaseId,
+        }).toJSON()})
       }
+      await dbView.refresh()
+      assertCurrent()
       if (dbView.loadingError) throw dbView.loadingError
       return dataSet
     } catch (error) {

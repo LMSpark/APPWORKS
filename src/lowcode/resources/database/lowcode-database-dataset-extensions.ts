@@ -100,14 +100,14 @@ function attachUnregisteredViewNamesView(
 }
 
 export type AttachCatalogCommandViewsInput = DatabaseCommandAttachInput & Readonly<{
-  tables: Readonly<{commandInput: string; unregisteredDbNames: string; unregisteredTableNames?: string; unregisteredViewNames?: string}>
+  tables: Readonly<{commandInput: string; unregisteredDbNames?: string; unregisteredTableNames?: string; unregisteredViewNames?: string}>
 }>
 
 export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput): void {
   const {dataSet, tables} = input
   const ctx: DatabaseCommandAttachInput = input
   ensureCatalogCommandInputTable(dataSet, tables.commandInput)
-  attachUnregisteredDbNamesView(ctx, tables)
+  if (tables.unregisteredDbNames) attachUnregisteredDbNamesView(ctx, {commandInput: tables.commandInput, unregisteredDbNames: tables.unregisteredDbNames})
   if (tables.unregisteredTableNames) {
     attachUnregisteredTableNamesView(ctx, {commandInput: tables.commandInput, unregisteredTableNames: tables.unregisteredTableNames})
   }

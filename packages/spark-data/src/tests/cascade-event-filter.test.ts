@@ -82,7 +82,7 @@ describe('query cascade native values', () => {
     } finally { list.mockRestore(); ds.destroy() }
   })
 
-  it('queries array values and empty arrays without reacting to unrelated pointer changes', async () => {
+  it('queries array values, resolves an empty array to no rows without a request, and ignores unrelated pointer changes', async () => {
     const ds = await values()
     const child = ds.getView('Child', 'default')!
     const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
@@ -96,8 +96,9 @@ describe('query cascade native values', () => {
       await Promise.resolve()
       expect(list).toHaveBeenCalledOnce()
       source.setSelectedRows([])
-      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
-      expect(list.mock.calls[1]?.[0]?.filter).toEqual({field: 'id', operator: 'in', value: []})
+      await vi.waitFor(() => expect(child.requestState).toBe(RequestState.Loaded))
+      expect(list).toHaveBeenCalledOnce()
+      expect(child.rows).toEqual([])
     } finally { list.mockRestore(); ds.destroy() }
   })
 

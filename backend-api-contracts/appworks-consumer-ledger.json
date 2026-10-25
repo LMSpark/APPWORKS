@@ -409,7 +409,7 @@
     {
       "expression": "/api/users/{id}",
       "sourceFile": "packages/spark-data/src/tests/data-view/data-view-events.test.ts",
-      "sourceLine": 341,
+      "sourceLine": 343,
       "scope": "tooling"
     },
     {
@@ -649,19 +649,19 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
-      "sourceLine": 302,
+      "sourceLine": 322,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 326,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
-      "sourceLine": 407,
+      "sourceLine": 427,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -931,7 +931,7 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 605,
+      "sourceLine": 596,
       "scope": "publishable-lowcode-api"
     },
     {

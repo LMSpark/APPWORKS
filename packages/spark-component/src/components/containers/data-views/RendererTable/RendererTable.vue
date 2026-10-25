@@ -438,6 +438,9 @@ function tableRowClassName(context: TableRowClassContext) {
 
 /** 当前行变化事件桥接。 */
 async function handleCurrentChange(currentRow: DataRow | null, oldCurrentRow?: DataRow | null) {
+  // el-table 在 :data 替换行对象后以 null 报告失去旧引用；DataView 仍持有有效指针时由 currentRow watch 反写，不清空 DataView。
+  const view = dataState.resolvedView.value, held = view?.currentRow
+  if (!currentRow && held && view.rows.includes(held)) return
   await dispatch('current-change', currentRow ?? null, oldCurrentRow)
 }
 

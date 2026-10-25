@@ -1789,6 +1789,17 @@ protected logger = Logger('DataView')
         return
       }
 
+      // 父视图未选中任何行时级联得到 in []：结果必为空，不发请求，也不沿用旧查询的新增许可。
+      if (DataView.hasEmptyInClause(mergedFilter)) {
+        this.loadingError = null
+        this.#queryResult = undefined
+        this.updateFromServer([])
+        this.selectionDelegate.applyAutoFirst()
+        this.setRequestState(RequestState.Loaded)
+        this.emitRequestCompleted()
+        return
+      }
+
       try {
         const result = await this.loadFromServer(this.withViewQueryDefaults(params))
         if (!result.success) return
@@ -1810,6 +1821,12 @@ protected logger = Logger('DataView')
     } finally {
       if (this._pendingRequestData === pending) this._pendingRequestData = null
     }
+  }
+
+  private static hasEmptyInClause(node: DataViewFilterTree | undefined): boolean {
+    if (node === undefined) return false
+    if ('logic' in node) return node.logic === 'and' && node.filters.some(child => DataView.hasEmptyInClause(child))
+    return node.operator === 'in' && Array.isArray(node.value) && node.value.length === 0
   }
 
   private async requestCascadeSource(rel: DataViewQueryCascade): Promise<void> {

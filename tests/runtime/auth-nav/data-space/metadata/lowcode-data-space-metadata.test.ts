@@ -1133,6 +1133,7 @@ describe('data-space metadata DataSet', () => {
         await vi.waitFor(() => {
           expect(fields.requestState).toBe(RequestState.Loaded)
           expect(fields.rows.map(row => row['rowid'])).toEqual(allFields.filter(row => ids.some(id => id === row['dataModelId'])).map(row => row['rowid']))
+          if (!ids.length) return
           const last = mocks.request.mock.calls.at(-1)?.[0]
           const entries = record(record(last)['data'])['Table']
           if (!Array.isArray(entries)) throw new Error('Missing child wire request')

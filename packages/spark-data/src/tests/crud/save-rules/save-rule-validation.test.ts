@@ -244,6 +244,23 @@ describe('declared view operations', () => {
     } finally { dataSet.destroy() }
   })
 
+  it('loads no child rows and grants no add permission while the parent has no selection', async () => {
+    const reads = vi.fn(() => true)
+    const { dataSet } = await open(tables, { ...sources, Params: { rows: sources['Params']!.rows, filter: reads } }, { viewCascades: cascades })
+    try {
+      const apis = dataSet.getView('Apis')!, params = dataSet.getView('Params')!
+      await apis.loadFromServer()
+      apis.setSelectedRows([])
+      await params.refresh()
+      expect(reads).not.toHaveBeenCalled()
+      expect(params.rows).toEqual([])
+      expect(params.addActionState()).toBe('hidden')
+      apis.setSelectedRows([apis.getRowById('A1')!])
+      await params.refresh()
+      expect(params.rows.map(row => row['id'])).toEqual(['X'])
+    } finally { dataSet.destroy() }
+  })
+
   it('locks the current row while the view or its query children are pending and reloads after discarding', async () => {
     const { dataSet } = await open(tables, sources, { viewCascades: cascades })
     try {

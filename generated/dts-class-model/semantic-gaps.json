@@ -6632,7 +6632,7 @@
       "chainBreak": "DataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 842,
+      "declarationLine": 843,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "class"
     },

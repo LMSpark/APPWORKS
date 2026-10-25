@@ -32,6 +32,12 @@ C 删除：逐行范围断言、校验期草稿指纹、保存前重复fieldAcce
 - vitest：spark-data新增单测、tests/runtime/page/api-provider、tests/runtime/page、全量回归
 - 在线：三页各一次新增/修改/保存并重开
 
+## 实施记录（2026-10-25）
+- 已完成：B1-B11；字典来源主键放宽（仅拒绝回执报告不同主键）；AND可达空in直接空结果；B8排除主键；三页改标准入口；删除4 owner/导出/LowcodeApiProvider/四份本地pagedata；新页面级测试13项（场景9+挂载4）。
+- 偏离原计划：表头类型用446B字典模型而非_Base_DictData+filterLookups；fill在列optionsView.fill；接口页只用EC84（账号模型在EC84）；新建服务商用导航场景create视图（rowid eq ''）。
+- 验证：typecheck、lint、verify通过（目录基线按工具收紧）；全量vitest 18失败中2项为空in旧合同测试已改，其余在干净HEAD同样失败或为负载抖动（单跑通过）。
+- 线上：E62ResourceProbe已先被移除；三份场景文件经设计器写入并回读一致；三页在线修改/保存/重开通过并恢复原值（新增服务商路径仅本地测试覆盖，未在线新建以免留下数据）。在线修复目录刷新时机与RendererTable当前行回写，详见台账。
+
 ## 风险项
 - 线上场景文件缺失为最高风险。
 - 不commit、不push。

@@ -20,6 +20,26 @@ function fixture(formalModel: FormalModel = model) {
   context.bindFormalModel(formalModel)
   return context
 }
+describe('formal model key when the response omits it', () => {
+  const dictionary: FormalModel = {...model, sourceType: '字典', primaryKey: 'rowid', fields: [
+    {...model.fields[0]!, name: 'rowid', canonicalName: 'rowid'}, {...model.fields[1]!, name: 'val', canonicalName: 'val'}]}
+  const context = (primaryKeyField?: string) => {
+    const identity = {scenarioId: 'SCENE', metaName: 'Orders'}
+    return new DataSpaceQueryContext({identity, scope: 'scope', readScope: () => 'scope', snapshot: new DataSpaceQueryTable(identity).applyResult({Result: {
+      ...(primaryKeyField === undefined ? {} : {primaryKeyField}), allowAdd: false, data: [{rowid: 'R1', val: 'json'}]}})})
+  }
+  it('adopts the formal key when the response reports none and stays read-only', () => {
+    const query = context()
+    query.bindFormalModel(dictionary)
+    expect(query.resultPrimaryKey).toBe('rowid')
+    expect(query.rowKey(query.rows[0]!)).toBe('R1')
+    expect(query.addActionState()).not.toBe('enabled')
+  })
+  it('still rejects a response that reports a different key', () => {
+    expect(() => context('val').bindFormalModel(dictionary)).toThrow('SPARK_MODEL_PRIMARY_KEY')
+  })
+})
+
 describe('formal model alias query ownership', () => {
   it.each(['table', '数组'].flatMap(sourceType => ['scope', 'destroy'].map(change => ({sourceType, change}))))(
     'offers only the bound formal query columns for $sourceType and rejects $change changes', ({sourceType, change}) => {

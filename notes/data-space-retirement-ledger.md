@@ -705,6 +705,13 @@
 
 - 待删除的旁路入口登记：外部API四个owner（ApiProviderDesign/ApiRequestHeaderDesign/ApiPublicParameterDesign/ApiInterfaceDesign）在DataView之外另持草稿状态与校验；LowcodeApiProvider用四份本地pagedata手工注入modelBinding并另行装配，loadHeaderTypes自行查询与断言，构成标准场景入口loadLowcodeRuntimeScenario之外的第二套装配。四项api-provider失败（DATA_VIEW_UNCONFIRMED_SAVE）即owner显式重读未放弃未确认提交所致。
 - 方案：notes/plan-external-api-owner-removal.md。规则按A现有配置/B补spark-data通用能力/C删除重复守卫处理；页面只经标准入口装配、绑定DataView、事件只调DataView/DataSet API。typecheck基线通过。
+- 2026-10-25 删除：4个owner及导出、`lowcode-api-provider.ts`（含loadHeaderTypes）、`config/pages/integration/*`四份本地pagedata已删除；三页改为`loadLowcodeRuntimeScenario`+`scenarioInputs.providerId`。规则改由spark-data列/视图声明承接（B1-B11）。
+- 线上只读核定：导航8CBB62EB…、446B…、EC84…三份SysForm pagedata均不存在；待写正式内容见`evidence/external-api-owner-removal/`。446B已有字典模型“接口公共头部信息使用类型”，不用`_Base_DictData`+filterLookups；EC84含账号模型（ProviderID非输出字段，仅作过滤），接口页只用EC84一个场景。
+- 线上发现并修复的数据层缺口：①字典来源查询回执不报主键，`bindFormalModel`原一律拒绝（旧页同样加载失败），改为仅拒绝回执报告了不同主键；②查询级联父未选中得到`in []`，线上服务忽略空in返回全部行，改为DataView请求链AND可达空in直接得空结果且不授予新增许可。另B8归属默认值排除主键字段。新建服务商用导航场景`create`视图（rowid eq ''空结果取新增许可）。
+- 线上设计器自身pagedata 8D1AB14D…含绑定已不存在模型“Base_DataSet（1）”的`E62ResourceProbe`，任何空间都打不开设计会话；用户授权仅删除该绑定后再经设计器标准保存写三份场景文件。
+- 2026-10-25 线上结果：重新登录后读取设计器pagedata，E62ResourceProbe已不在（非本轮删除），设计会话可打开。三份场景文件经设计会话DataViewDefinition→DataTableBindingDefinition(columns)→DataViewCascadeDefinition分步保存；EC84列保存回执报“lowcode 响应不是 AjaxResult 对象”，精确回读确认已落库后未重放，刷新页面清除文件owner内存待核状态再写级联。三份回读与`evidence/external-api-owner-removal/`载荷逐表逐视图一致。
+- 在线验收（均已恢复原值）：目录→AGENT_E2E_PROVIDER改BaseURL（首尾空白被normalize）保存、重开可见、改回；火山请求方案公共参数按provider过滤、使用范围字典标签显示、TokenPrefix保存“Bearer ”含尾空格后改回空；火山接口方案未选中时无子定义，选中“接入点”后输入定义按接口过滤，修改接口说明通过全部列规则保存后改回。
+- 在线发现并修复：①目录保存后requestRefresh清空选中致definition级联为空，改为对话框关闭后刷新；②RendererTable在行对象替换后由el-table回报current-change(null)清空DataView当前行（旧页keepPointer即为此），改为DataView仍持有当前行时不回写null，与已有selection同步守卫一致。
 
 ## 2026-10-24 现有修改收敛提交与元数据平台完整整合分析
 

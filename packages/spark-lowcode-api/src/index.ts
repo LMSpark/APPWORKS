@@ -118,10 +118,6 @@ export type { LogicViewDesignPayload } from './platform/resources/logic-view/log
 export type { WorkflowDefinitionDesignPayload } from './platform/resources/workflow-definition/workflow-design-client.js'
 export type { ExcelImportDesignDocument } from './platform/resources/excel-import/excel-import-design-client.js'
 export type { PdfInspectRuleDocument } from './platform/resources/pdf-inspect/pdf-inspect-design-client.js'
-export { ApiProviderDesign } from './platform/resources/external-api/api-provider-design.js'
-export { ApiPublicParameterDesign } from './platform/resources/external-api/api-public-parameter-design.js'
-export { ApiRequestHeaderDesign } from './platform/resources/external-api/api-request-header-design.js'
-export { ApiInterfaceDesign } from './platform/resources/external-api/api-interface-design.js'
 export type { OrderType, WireFilterOperator, GroupFunType } from './contracts/lowcode-wire-query.js'
 export type { LowcodeApplication } from './platform/lowcode-application.js'
 export type {

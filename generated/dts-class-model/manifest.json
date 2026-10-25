@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 965,
+  "scannedFileCount": 960,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10985,66 +10985,6 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-interface-design",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/external-api/api-interface-design",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-interface-design\n职责：接口方案及输入、头部定义的身份、独立保存和引用校验。\n边界：复用DataView草稿/权限和DataSet提交，不发起外部调用。\nAI用途：原接口设计页绑定这些视图；testvalue在独立数据维护页处理。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ApiInterfaceDesign"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-provider-design",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/external-api/api-provider-design",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-provider-design\n职责：外部服务商基础定义的业务校验与维护流程。\n边界：消费正式DataView的编辑和权限，通过DataSet保存；不发HTTP、不持有行副本、不执行外部接口。\nAI用途：标准表单绑定definition，目录和接口调用不参与基础定义提交。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ApiProviderDesign"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-public-parameter-design",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/external-api/api-public-parameter-design",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-public-parameter-design\n职责：外部接口公共参数定义的身份、引用和保存范围校验。\n边界：标准组件直接编辑DataView，查询/级联/权限/提交复用spark-data；不调用外部接口。\nAI用途：方案配置保存interfaceId和输出字段名，账号数据不参与本次提交。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ApiPublicParameterDesign"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-request-header-design",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/external-api/api-request-header-design",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-request-header-design\n职责：维护服务商公共头部与令牌前缀方案的独立提交边界。\n边界：草稿、权限、查询、删除和批量保存均由DataView/DataSet承接，不执行外部调用。\nAI用途：配置页绑定headers/provider，值函数候选绑定已保存references。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ApiRequestHeaderDesign"
-        ]
-      }
-    },
     "packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts.json",
       "module": {
@@ -13431,21 +13371,6 @@
         ]
       }
     },
-    "src/lowcode/resources/external-api/lowcode-api-provider.ts": {
-      "file": "files/src/lowcode/resources/external-api/lowcode-api-provider.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/external-api/lowcode-api-provider",
-        "sourcePath": "src/lowcode/resources/external-api/lowcode-api-provider.ts",
-        "sourceFile": "src/lowcode/resources/external-api/lowcode-api-provider.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/external-api/lowcode-api-provider",
-        "jsdoc": "@module app:lowcode/resources/external-api/lowcode-api-provider\n职责：按原导航场景装配服务商专题的正式DataSet。\n边界：正式模型从元数据空间读取，pagedata只声明视图；页面不接触HTTP或权限凭据。\nAI用途：目录与基础定义视图共用模型，查询/保存仍由spark-data及正式runtime执行。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeApiProvider"
-        ]
-      }
-    },
     "src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts": {
       "file": "files/src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts.json",
       "module": {
@@ -15698,7 +15623,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-config-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：列表/表单直接绑定同一DataView，选项由值级联提供，不含账号值或接口调用。\nAI用途：独立方案保存与取消，完整键定位正式配置空间。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；规则、归属默认值、删除许可和保存均由SPARK data承接，页面只转发事件。\nAI用途：三个独立提交域分别保存与取消，完整键定位正式配置空间。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -15726,7 +15651,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-interface-list-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page\n职责：按原接口目录/定义工作区恢复方案设计。\n边界：标准组件直接绑定正式DataView；不查询凭据、不维护调用数据、不发送HTTP。\nAI用途：原页面结构与输入语义保留，数据约束交由ApiInterfaceDesign。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page\n职责：按原接口目录/定义工作区恢复方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；子定义由查询级联限定，规则、当前行锁定与保存均由SPARK data承接，页面只转发事件。\nAI用途：原页面结构与输入语义保留，不查询凭据、不维护调用数据、不发送HTTP。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -15739,7 +15664,7 @@
         "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-management-page",
-        "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务商目录与基础定义维护，保留原导航和业务路径。\n边界：标准组件直接绑定DataView；不混入接口运行数据，不复制行或权限，不发送HTTP。\nAI用途：专题目录使用正式导航场景，选中主键作为独立定义视图输入。",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务商目录与基础定义维护，保留原导航和业务路径。\n边界：经标准场景入口装配；标准组件绑定DataView，校验、权限、保存及重读均由SPARK data承接，页面只转发事件。\nAI用途：目录选择经查询级联驱动definition视图，新建使用空结果的create视图。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16796,10 +16721,6 @@
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
     },
-    "ApiInterfaceDesign": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts.json"
-    },
     "ApiInterfaceListPageProps": {
       "sourcePath": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
       "file": "files/src/views/features/integration/api-management/ui/api-interface-list-page.props.ts.json"
@@ -16807,18 +16728,6 @@
     "ApiObjectValidationFinding": {
       "sourcePath": "packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts",
       "file": "files/packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts.json"
-    },
-    "ApiProviderDesign": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts.json"
-    },
-    "ApiPublicParameterDesign": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-public-parameter-design.ts.json"
-    },
-    "ApiRequestHeaderDesign": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts.json"
     },
     "AppConfig": {
       "sourcePath": "packages/spark-app/src/types.ts",
@@ -19163,10 +19072,6 @@
     "LowcodeApiOptions": {
       "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
       "file": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json"
-    },
-    "LowcodeApiProvider": {
-      "sourcePath": "src/lowcode/resources/external-api/lowcode-api-provider.ts",
-      "file": "files/src/lowcode/resources/external-api/lowcode-api-provider.ts.json"
     },
     "LowcodeApplication": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",

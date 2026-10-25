@@ -1031,7 +1031,7 @@ JSON来源且未配置显式queryConfig.tree时，预览不显示或绑定数据
 | 层次 | 本专题合同与当前边界 |
 | --- | --- |
 | 原理 | 服务商`Base_InterfaceProvider`以rowid定位，Name/BaseURL为基础配置；updateuser引用`Base_UserInfo.ROWID`，用户模型主键仍为ID。正式模型字段保留，目录查询仅投影显示字段，不读取凭据。参考后续配置涉及提供商头部、公共参数、账号、接口定义、输入参数和输出字段，不能把API响应直接当作可写表 |
-| 方案设计 | 原导航场景 → 正式元模型 → LowcodeApiProvider装配DataSet。应用内pagedata提供命名视图配置，场景和modelBinding从本次正式身份装配。default用于目录，definition按providerId精确查询。基础信息由ApiProviderDesign限定保存范围；公共参数方案使用正式配置场景446B5D94A71587E9BD4D325A4DF5F6F8，ApiPublicParameterDesign只提交Base_Interface_PublicParam所属视图。两者均通过DataSet.saveChanges保存，取消丢本地草稿，未知回执先显式重读 |
+| 方案设计 | 三页均经标准入口`loadLowcodeRuntimeScenario`读取各场景唯一的SysForm pagedata装配，不再有专题装配器或业务owner。导航场景：default为目录，definition经查询级联取目录选中行，create以空结果取得新增许可。配置场景446B5D94A71587E9BD4D325A4DF5F6F8与接口场景EC84BD89BDBDF46B1FE5132DD53836E5以`scenarioInputs.providerId`限定范围。必填、首尾空白、唯一、创建后不可改、候选引用、值函数、删除许可、归属默认值、当前行锁定均声明在pagedata列/视图上，由spark-data保存链执行；页面只调用addRow/removeRow/saveChanges({views})/discardAndReload |
 | 数据维护 | 将以已保存接口方案身份及本次调用参数为输入，结果供模型/页面消费；当前未提供接口调用页。Java的GetApiData按模型查询，与callApi/Body、FormData等注册接口调用分别核定，不能混用。Base_InterfaceProvider_Account保存账号值，接口的AccountName是所用账号引用；账号值须独立维护，不与公共参数方案同屏或同次保存。配置页不读取账号记录、不发起接口调用 |
 
 公共参数方案的原理以Java `DataInterfaceServiceImpl.getProviderData/GetApiPublicParamData/constructHeaders`及参考接口页的公共参数指定操作为据：公共头部值函数按paramName引用参数，参数以interfaceId定位服务商下的接口，执行后从结果对象按outputfield取值。`access_token`与`access_token_expire`参与令牌/过期处理，TokenPrefix影响令牌前缀。参考JWT表单将loginApiName、TokenField等保存为记录ID，但本次查到的运行链并不据此取值；这些旧记录保留，不能用其表单保存证明鉴权已生效，也不自动转换成公共参数。
@@ -1045,11 +1045,11 @@ JSON来源且未配置显式queryConfig.tree时，预览不显示或绑定数据
 | outputfield | 输出字段 | interfaceId值 → 字段选项DataView，值为Base_TblField.enname；不保存字段记录rowid |
 | interfaceName、accessPath | 接口名称、访问地址 | 保留既有显示字段；新增或切换接口时，按当前权限从正式接口同步Name/LinkUrl，身份真源仍是interfaceId |
 
-字段名称、类型及标题来自配置场景的正式模型；视图与显式值级联位于`config/pages/integration/api-config/pagedata.json`。两条级联均retain：上游改变后旧值保留并提示；绑定修改必须通过对应候选校验。页面没有选项数组或watch查询。异步校验期间草稿变化时拒绝本次提交，保留新编辑供重新校验。配置不保存账号、实际响应或新增权限模型；当前HTTP边界保存/新实例回读证据不替代线上持久化及下游真实调用验收。
+字段名称、类型及标题来自配置场景的正式模型；视图、列规则与显式值级联位于配置场景的正式SysForm pagedata（经数据空间设计器保存）；interfaceId列以`optionsView.fill`同步interfaceName/accessPath。两条级联均retain：上游改变后旧值保留并提示；绑定修改必须通过对应候选校验。页面没有选项数组或watch查询。异步校验期间草稿变化时拒绝本次提交，保留新编辑供重新校验。配置不保存账号、实际响应或新增权限模型；当前HTTP边界保存/新实例回读证据不替代线上持久化及下游真实调用验收。
 
-公共头部方案由[ApiRequestHeaderDesign](../../packages/spark-lowcode-api/src/platform/resources/external-api/api-request-header-design.ts)组织领域约束。`Base_InterfaceProvider_Headers`的rowid为记录身份，proId固定归属，paramName为头部名称，paramValue保存取值规则文本，type为使用范围。标准组件直接绑定头部default视图；`Base_InterfaceProvider@authentication`单独编辑TokenPrefix，`Base_Interface_PublicParam@references`只查询已保存参数作为引用候选。头部、前缀与公共参数分别调用DataSet.saveChanges指定视图，不夹带另一视图草稿；头部删除消费当次删除权限，保存前仍可取消。未知回执须显式重读，不自动重放。
+公共头部方案的约束声明在配置场景pagedata的列规则上（proId不可改、paramName必填、type须匹配使用范围字典模型、paramValue按值函数校验）。`Base_InterfaceProvider_Headers`的rowid为记录身份，proId固定归属，paramName为头部名称，paramValue保存取值规则文本，type为使用范围。标准组件直接绑定头部default视图；`Base_InterfaceProvider@authentication`单独编辑TokenPrefix，`Base_Interface_PublicParam@references`只查询已保存参数作为引用候选。头部、前缀与公共参数分别调用DataSet.saveChanges指定视图，不夹带另一视图草稿；头部删除消费当次删除权限，保存前仍可取消。未知回执须显式重读，不自动重放。
 
-使用范围来自原“接口公共头部信息使用类型”字典，经独立字典DataSet和完整视图键消费，不在页面固定枚举。当前Java源码中all作用于全部接口，auth作用于需要认证的非取令牌接口，其余值作用于非取令牌接口；这属于后端执行语义，前端只维护定义。值函数输出Map时可展开为多个头部，单值按paramName写入；普通文本由后端原样处理。修改后的函数按spark-data合同及当前可读参数候选校验，未知旧函数、旧类型及文本在未修改时保留。TokenPrefix直接拼接，首尾空白具有语义，不做trim。配置保存不证明真实鉴权或外部调用成功。
+使用范围来自配置场景内的“接口公共头部信息使用类型”字典模型（val/txt），以完整视图键消费，不在页面固定枚举；字典来源查询回执不报告主键时，以正式模型主键为准。当前Java源码中all作用于全部接口，auth作用于需要认证的非取令牌接口，其余值作用于非取令牌接口；这属于后端执行语义，前端只维护定义。值函数输出Map时可展开为多个头部，单值按paramName写入；普通文本由后端原样处理。修改后的函数按spark-data合同及当前可读参数候选校验，未知旧函数、旧类型及文本在未修改时保留。TokenPrefix直接拼接，首尾空白具有语义，不做trim。配置保存不证明真实鉴权或外部调用成功。
 
 标准字段`r-value-function`通过`RValueFunctionProps`声明JSON字符串值、函数上下文及公共参数候选的完整视图键；复用原FilterValueFunctionDialog和统一字段读写/权限/事件链，确认才写回原DataView编辑域，取消、绑定切换、失权与失效确认不得写回，不执行函数。表格和详情使用同一字段呈现，业务页不维护第二份函数草稿或提交器。公开声明经正式ClassModel生成器编译，目录、概要、指南可查询；当前行为和浏览器证据见历史验收证据目录。
 

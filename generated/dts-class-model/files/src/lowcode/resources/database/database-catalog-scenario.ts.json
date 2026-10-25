@@ -166,7 +166,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:59:43.775Z",
+  "generatedAt": "2026-10-25T07:25:48.265Z",
   "models": {
     "DatabaseCatalogLoadOptions": {
       "name": "DatabaseCatalogLoadOptions",

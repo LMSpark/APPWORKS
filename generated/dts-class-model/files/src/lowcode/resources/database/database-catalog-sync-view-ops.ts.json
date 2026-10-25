@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T06:52:15.276Z",
+  "generatedAt": "2026-10-25T07:25:48.409Z",
   "models": {
     "DatabaseCatalogSyncTableMetadataInput": {
       "name": "DatabaseCatalogSyncTableMetadataInput",

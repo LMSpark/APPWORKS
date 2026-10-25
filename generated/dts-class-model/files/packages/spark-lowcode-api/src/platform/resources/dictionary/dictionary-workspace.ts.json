@@ -221,7 +221,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T15:59:15.743Z",
+  "generatedAt": "2026-10-25T06:57:48.594Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",
@@ -319,7 +319,7 @@
             },
             {
               "name": "canRemoveDefinition",
-              "jsdoc": "完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。",
+              "jsdoc": "删除前必须证明数据库、配置与代码消费者均已完成引用核验；当前无此全局合同。",
               "readable": true,
               "writable": false
             }
@@ -552,7 +552,7 @@
             },
             {
               "name": "removeDefinition",
-              "jsdoc": "显式暂存定义及全部条目删除，逐条核当次权限，批量提交顺序先条目后定义。",
+              "jsdoc": "全局引用覆盖尚不可证明时，拒绝删除而不暂存任何DataView变更。",
               "parameters": [],
               "type": {
                 "type": "reference",

@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
     "packageName": "app",
     "modulePath": "views/features/integration/api-management/ui/api-config-page",
-    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：列表/表单直接绑定同一DataView，选项由值级联提供，不含账号值或接口调用。\nAI用途：独立方案保存与取消，完整键定位正式配置空间。",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page\n职责：恢复原基础配置入口下的公共参数、公共头部与令牌前缀方案设计。\n边界：经标准场景入口装配，providerId作为场景输入；规则、归属默认值、删除许可和保存均由SPARK data承接，页面只转发事件。\nAI用途：三个独立提交域分别保存与取消，完整键定位正式配置空间。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-23T06:54:53.397Z",
+  "generatedAt": "2026-10-25T07:33:45.597Z",
   "models": {}
 }

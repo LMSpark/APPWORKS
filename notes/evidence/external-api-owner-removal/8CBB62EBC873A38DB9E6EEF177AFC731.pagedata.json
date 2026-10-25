@@ -47,6 +47,31 @@
             ],
             "allPages": true
           }
+        },
+        "create": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "allowDelete": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "BaseURL"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "rowid",
+                "operator": "eq",
+                "value": ""
+              }
+            ]
+          }
         }
       }
     },

@@ -3,11 +3,11 @@ import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/te
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
-import {FieldSelect, RendererFilterExpression, RendererForm, registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
+import {FieldCheckbox, FieldSelect, RendererFilterExpression, RendererForm, registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataView, DataViewFilter, DataViewFilterCodec, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import TableAndViewPage from '@/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue'
 import TableRelationDialog from '@/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue'
-import {DATABASE_CATALOG_FIELD_MODEL} from '@/lowcode/resources/database/lowcode-database-table-view'
+import {DATABASE_CATALOG_COMMAND_INPUT_TABLE, DATABASE_CATALOG_FIELD_MODEL} from '@/lowcode/resources/database/lowcode-database-table-view'
 import {DATABASE_CATALOG_DB_MODEL} from '@/lowcode/resources/database/lowcode-database-table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
@@ -811,7 +811,225 @@ describe('table-and-view-page', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('表已注册')
     expect(http.requests.some(request => request.url === '/api/Table/registerTable/DB1')).toBe(true)
+    expect(((http.requests.find(request => request.url === '/api/Table/registerTable/DB1')?.data as Array<{hasDefaultFields: number}>)[0]?.hasDefaultFields)).toBe(1)
     expect(wrapper.text()).toContain('StagingOrders')
+  })
+
+  it('keeps an unknown batch open and exposes explicit verification without allowing close or replay', async () => {
+    http.unregisteredByDb = {DB1: ['UnknownAfterSubmit']}
+    http.applyThenFailRegisterTableNames.add('UnknownAfterSubmit')
+    http.failCatalogReadAfterRegisterNames.add('UnknownAfterSubmit')
+    const load = vi.spyOn(LowcodeDatabaseTableView, 'loadCatalog')
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(wrapper)
+    await pageButton(wrapper, '注册').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    let dialog = body.findAll('.el-dialog').at(-1)!
+    const defaultFieldsField = dialog.findComponent(FieldCheckbox)
+    expect(defaultFieldsField.exists()).toBe(true)
+    expect(defaultFieldsField.find('.el-checkbox').classes()).toContain('is-checked')
+    expect(defaultFieldsField.find('.el-checkbox').classes()).not.toContain('is-disabled')
+    await defaultFieldsField.find('.el-checkbox').trigger('click')
+    await flushPromises()
+    expect(defaultFieldsField.find('.el-checkbox').classes()).not.toContain('is-checked')
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    dialog = body.findAll('.el-dialog').at(-1)!
+
+    expect(dialog.exists()).toBe(true)
+    expect.soft(dialog.findAll('button').find(button => button.text() === '核验保存结果'), 'unknown batch must expose explicit recovery').toBeTruthy()
+    expect.soft(dialog.findAll('button').find(button => button.text() === '取消'), 'unknown batch must not expose a close action').toBeUndefined()
+    expect.soft(dialog.findAll('button').find(button => button.text() === '刷新列表')?.element.hasAttribute('disabled'), 'unknown batch must not replace the selected list').toBe(true)
+    expect.soft(dialog.findComponent(FieldCheckbox).find('.el-checkbox').classes(), 'unknown batch must freeze its captured option').toContain('is-disabled')
+    expect.soft(http.requests.filter(request => request.url === '/api/Table/registerTable/DB1'), 'verification must not replay the POST').toHaveLength(1)
+
+    await dialog.findAll('button').find(button => button.text() === '核验保存结果')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '核验保存结果')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).toContain('已核验当前注册结果')
+    expect(http.requests.filter(request => request.url === '/api/Table/registerTable/DB1')).toHaveLength(1)
+    expect((http.requests.find(request => request.url === '/api/Table/registerTable/DB1')?.data as Array<{hasDefaultFields: number}>)[0]?.hasDefaultFields).toBe(0)
+    const dataSet = await load.mock.results[0]?.value
+    const commandInput = dataSet?.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, 'default')
+    expect(commandInput?.hasEditingChanges()).toBe(true)
+    await dialog.findAll('button').find(button => button.text() === '取消')!.trigger('click')
+    await flushPromises()
+    expect(commandInput?.rows[0]?.['addDefaultFields']).toBe('0')
+    expect(commandInput?.hasEditingChanges()).toBe(false)
+    expect(commandInput?.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('freezes the captured option while a known-failed batch awaits retry or cancel', async () => {
+    http.unregisteredByDb = {DB1: ['RejectedRegistration']}
+    http.registerTableResult = {RejectedRegistration: '表不存在'}
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(wrapper)
+    await pageButton(wrapper, '注册').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    let dialog = body.findAll('.el-dialog').at(-1)!
+    const option = dialog.findComponent(FieldCheckbox)
+    await option.find('.el-checkbox').trigger('click')
+    await flushPromises()
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    dialog = body.findAll('.el-dialog').at(-1)!
+
+    expect(wrapper.text()).toContain('明确失败，可重试')
+    expect(dialog.findComponent(FieldCheckbox).find('.el-checkbox').classes()).not.toContain('is-checked')
+    expect(dialog.findComponent(FieldCheckbox).find('.el-checkbox').classes()).toContain('is-disabled')
+    expect(dialog.findAll('button').find(button => button.text() === '继续未完成项')).toBeTruthy()
+    expect(dialog.findAll('button').find(button => button.text() === '取消未完成项')).toBeTruthy()
+  })
+
+  it('requires cancellation instead of reposting an already-registered true command, then allows a fresh false batch', async () => {
+    http.unregisteredByDb = {DB1: ['AlreadyRegisteredWithDefaults']}
+    http.rows[DATABASE_CATALOG_TABLE_MODEL]!.push({
+      rowid: 'T-ALREADY-DEFAULT-UI', dbid: 'DB1', tblname: 'AlreadyRegisteredWithDefaults', schemaName: 'dbo',
+    })
+    http.registerTableResult = {AlreadyRegisteredWithDefaults: '表已注册'}
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(wrapper)
+    await pageButton(wrapper, '注册').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    let dialog = body.findAll('.el-dialog').at(-1)!
+    expect(dialog.text()).toContain('默认字段')
+    expect(dialog.text()).not.toContain('addDefaultFields')
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    dialog = body.findAll('.el-dialog').at(-1)!
+
+    const requests = () => http.requests.filter(request => request.url === '/api/Table/registerTable/DB1')
+    expect(requests()).toHaveLength(1)
+    expect((requests()[0]?.data as Array<{hasDefaultFields: number}>)[0]?.hasDefaultFields).toBe(1)
+    expect(wrapper.text()).toContain('默认字段补齐未执行')
+    expect(dialog.findAll('button').find(button => button.text() === '继续未完成项')).toBeUndefined()
+    expect(dialog.findAll('button').find(button => button.text() === '取消此项并结束批次')).toBeTruthy()
+
+    await dialog.findAll('button').find(button => button.text() === '取消此项并结束批次')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(body.findAll('.el-dialog')).toHaveLength(0)
+    expect(requests()).toHaveLength(1)
+
+    await pageButton(wrapper, '注册').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    dialog = body.findAll('.el-dialog').at(-1)!
+    await dialog.findComponent(FieldCheckbox).find('.el-checkbox').trigger('click')
+    await flushPromises()
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+
+    expect(requests()).toHaveLength(2)
+    expect((requests()[1]?.data as Array<{hasDefaultFields: number}>)[0]?.hasDefaultFields).toBe(0)
+  })
+
+  it('starts a fresh batch after close and reopen when the same unregistered name reappears', async () => {
+    http.unregisteredByDb = {DB1: ['RepeatAcrossBatches']}
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(wrapper)
+    const register = async () => {
+      await pageButton(wrapper, '注册').trigger('click')
+      await flushPromises()
+      await flushPromises()
+      const dialog = new DOMWrapper(document.body).findAll('.el-dialog').at(-1)!
+      return dialog
+    }
+    let dialog = await register()
+    await dialog.findComponent(FieldCheckbox).find('.el-checkbox').trigger('click')
+    await flushPromises()
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    expect(http.requests.filter(request => request.url === '/api/Table/registerTable/DB1')).toHaveLength(1)
+
+    http.registerTableResult = {RepeatAcrossBatches: '表已注册'}
+    dialog = await register()
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await dialog.findAll('button').find(button => button.text() === '确认')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+
+    expect(http.requests.filter(request => request.url === '/api/Table/registerTable/DB1')).toHaveLength(2)
+    expect(wrapper.text()).not.toContain('batchId')
+    expect(wrapper.text()).not.toContain('batchKey')
+  })
+
+  it('does not refresh or close a replacement page when a registration response resolves after release', async () => {
+    http.unregisteredByDb = {DB1: ['DelayedRegistration']}
+    const load = vi.spyOn(LowcodeDatabaseTableView, 'loadCatalog')
+    const oldWrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(oldWrapper)
+    await pageButton(oldWrapper, '注册').trigger('click')
+    await flushPromises()
+    const dialog = new DOMWrapper(document.body).findAll('.el-dialog').at(-1)!
+    await dialog.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+
+    let release!: () => void, markStarted!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const started = new Promise<void>(resolve => {markStarted = resolve})
+    const owner = http as unknown as {executeRequest: (config: RequestConfig) => Promise<HttpResponse<unknown>>}
+    const originalExecute = owner.executeRequest.bind(http)
+    owner.executeRequest = async config => {
+      const response = await originalExecute(config)
+      if (config.url === '/api/Table/registerTable/DB1') {
+        markStarted()
+        await gate
+      }
+      return response
+    }
+    try {
+      const confirm = dialog.findAll('button').find(button => button.text() === '确认')!
+      const pending = confirm.trigger('click')
+      await started
+      oldWrapper.unmount()
+      const newWrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+      const oldSet = await load.mock.results[0]?.value
+      const newSet = await load.mock.results[1]?.value
+      expect(oldSet).toBeTruthy()
+      expect(newSet).toBeTruthy()
+      release()
+      await pending
+      await flushPromises()
+      await flushPromises()
+
+      expect(newWrapper.text()).not.toContain('表已注册')
+      expect(newWrapper.text()).not.toContain('DelayedRegistration')
+      expect(http.requests.filter(request => request.url === '/api/Table/registerTable/DB1')).toHaveLength(1)
+    } finally {
+      release()
+      owner.executeRequest = originalExecute
+    }
   })
 
   it('opens view design dialog with design output and data tabs', async () => {

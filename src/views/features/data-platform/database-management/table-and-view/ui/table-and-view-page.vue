@@ -43,9 +43,14 @@
       </div>
       <RegisterDialog v-if="objectRegisterOpen"
         :database-label="selectedDatabaseLabel" :object-type="objectRegisterType"
-        :list-key="objectRegisterListKey" :busy="busy" :load-list="loadObjectRegisterList"
+        :list-key="objectRegisterListKey" :progress-key="objectRegisterProgressKey"
+        :command-input-key="commandInputKey" :busy="busy"
+        :has-unconfirmed="objectRegisterHasUnconfirmed" :has-pending="objectRegisterHasPending"
+        :requires-cancel="objectRegisterRequiresCancel"
+        :load-list="loadObjectRegisterList"
         @update:object-type="value => objectRegisterType = value"
-        @cancel="closeObjectRegister" @confirm="confirmObjectRegister" />
+        @cancel="closeObjectRegister" @confirm="confirmObjectRegister" @verify="verifyObjectRegister"
+        @discard-pending="discardPendingObjectRegister" />
       <AddTableDialog v-if="tableEditing"
         :table-key="tableKey" :database-label="selectedDatabaseLabel" :editing="tableEditing"
         :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredTableHint"
@@ -137,6 +142,9 @@ import {
   DATABASE_CATALOG_WORKFLOW_MODEL,
   DATABASE_CATALOG_WORKFLOW_TABLE_VIEW,
   DATABASE_CATALOG_APP_SYSTEM_MODEL,
+  DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_TABLE_REGISTER_TABLE,
+  DATABASE_VIEW_REGISTER_TABLE,
   LowcodeDatabaseTableView,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
 import {DATABASE_CATALOG_RELATION_LIST_FIELDS} from '@/lowcode/resources/database/database-catalog-relation-metadata'
@@ -185,6 +193,11 @@ import {
 } from '@/lowcode/resources/database/database-catalog-field-view-ops'
 import {databaseCatalogQueryUnregisteredViewNames, databaseCatalogSyncTableMetadata} from '@/lowcode/resources/database/database-catalog-sync-view-ops'
 import {
+  databaseCatalogVerifyTableRegistration,
+  databaseCatalogVerifyViewRegistration,
+  databaseCatalogBeginRegistrationBatch,
+  databaseCatalogDiscardPendingRegistration,
+  databaseCatalogSettleCommandInput,
   databaseCatalogRegisterTables,
   databaseCatalogRegisterViews,
 } from '@/lowcode/resources/database/database-catalog-register-view-ops'
@@ -444,6 +457,35 @@ const workflowListFields = computed(() => {
 const workflowListError = computed(() => {revision.value; return workflowView.value?.loadingError?.message ?? ''})
 const unregisteredTableNamesKey = computed(() => SparkData.buildDataViewKey(DATABASE_UNREGISTERED_TABLE_NAMES_TABLE, 'default', catalogScenarioId.value))
 const unregisteredViewNamesKey = computed(() => SparkData.buildDataViewKey(DATABASE_UNREGISTERED_VIEW_NAMES_TABLE, 'default', catalogScenarioId.value))
+const commandInputKey = computed(() => SparkData.buildDataViewKey(DATABASE_CATALOG_COMMAND_INPUT_TABLE, 'default', catalogScenarioId.value))
+const objectRegisterProgressKey = computed(() => SparkData.buildDataViewKey(
+  objectRegisterType.value === 'table' ? DATABASE_TABLE_REGISTER_TABLE : DATABASE_VIEW_REGISTER_TABLE,
+  'default', catalogScenarioId.value,
+))
+const objectRegisterHasUnconfirmed = computed(() => {
+  revision.value
+  const ds = dataSet.value
+  const model = objectRegisterType.value === 'table' ? DATABASE_TABLE_REGISTER_TABLE : DATABASE_VIEW_REGISTER_TABLE
+  return ds?.getView(model, 'default')?.hasUnconfirmedSave === true
+})
+const objectRegisterHasPending = computed(() => {
+  revision.value
+  const ds = dataSet.value
+  const model = objectRegisterType.value === 'table' ? DATABASE_TABLE_REGISTER_TABLE : DATABASE_VIEW_REGISTER_TABLE
+  const view = ds?.getView(model, 'default')
+  return view?.hasUnconfirmedSave === true || view?.dirtyTracking.hasPendingChanges() === true
+})
+const objectRegisterRequiresCancel = computed(() => {
+  revision.value
+  if (objectRegisterType.value !== 'table') return false
+  const view = dataSet.value?.getView(DATABASE_TABLE_REGISTER_TABLE, 'default')
+  if (!view) return false
+  return view.rows.some(row => {
+    const id = view.getPkKey(row)
+    if (typeof id !== 'string' && typeof id !== 'number') return false
+    return (view.getEditingRow(id) ?? row)['registrationDisposition'] === 'cancel-required'
+  })
+})
 const objectRegisterListKey = computed(() => objectRegisterType.value === 'table' ? unregisteredTableNamesKey.value : unregisteredViewNamesKey.value)
 const activeFieldView = computed(() => objectTab.value === 'views' ? fieldViewView.value : fieldTableView.value)
 const activeFieldParentSelected = computed(() => {
@@ -615,18 +657,30 @@ async function act(operation: () => void | Promise<void>, success = ''): Promise
   finally {if (current()) {busy.value = false; revision.value++}}
 }
 
-function openObjectRegister(type: RegisterObjectType): void {
-  objectRegisterType.value = type
-  objectRegisterOpen.value = true
-  tableDesignOpen.value = false
-  viewDesignOpen.value = false
+async function openObjectRegister(type: RegisterObjectType): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    if (!ds) throw new Error('目录未就绪')
+    const action = actionGeneration
+    await databaseCatalogBeginRegistrationBatch(ds)
+    if (!active || dataSet.value !== ds || actionGeneration !== action) return
+    objectRegisterType.value = type
+    objectRegisterOpen.value = true
+    tableDesignOpen.value = false
+    viewDesignOpen.value = false
+  })
 }
 
-function closeObjectRegister(): void {
-  objectRegisterOpen.value = false
+async function closeObjectRegister(): Promise<void> {
+  if (objectRegisterHasPending.value || busy.value) return
+  const ds = dataSet.value
+  const action = actionGeneration
+  if (ds) await databaseCatalogSettleCommandInput(ds)
+  if (active && dataSet.value === ds && actionGeneration === action && !objectRegisterHasPending.value) objectRegisterOpen.value = false
 }
 
 async function loadObjectRegisterList(type: RegisterObjectType): Promise<void> {
+  if (objectRegisterHasPending.value) throw new Error('本批命令尚未完成，不能刷新或替换列表')
   const ds = dataSet.value
   const db = dbView.value
   if (!ds || !db) throw new Error('目录未就绪')
@@ -667,16 +721,17 @@ async function confirmObjectDelete(): Promise<void> {
   }, '已删除')
 }
 
-async function confirmObjectRegister(payload: Readonly<{addDefaultFields: boolean}>): Promise<void> {
+async function confirmObjectRegister(): Promise<void> {
   await act(async () => {
     const ds = dataSet.value
     const db = dbView.value
     if (!ds || !db) return
+    const type = objectRegisterType.value
     const dbId = databaseCatalogDbSelectedId(db)
     if (!dbId) throw new Error('请先选择数据库')
     const tableKey = DATABASE_UNREGISTERED_TABLE_NAMES_TABLE
     const viewKey = DATABASE_UNREGISTERED_VIEW_NAMES_TABLE
-    const listView = ds.getView(objectRegisterType.value === 'table' ? tableKey : viewKey, 'default')
+    const listView = ds.getView(type === 'table' ? tableKey : viewKey, 'default')
     if (!listView) throw new Error('未注册列表视图缺失')
     const selected = listView.selectedRows
     const names = selected.map(row => {
@@ -684,20 +739,60 @@ async function confirmObjectRegister(payload: Readonly<{addDefaultFields: boolea
       if (typeof name !== 'string' || !name.trim()) throw new Error('未注册项名称无效')
       return name.trim()
     })
-    if (names.length === 0) throw new Error(`请至少选择一个${objectRegisterType.value === 'table' ? '表' : '视图'}`)
-    if (objectRegisterType.value === 'table') {
+    if (names.length === 0) throw new Error(`请至少选择一个${type === 'table' ? '表' : '视图'}`)
+    const inputView = ds.getView(DATABASE_CATALOG_COMMAND_INPUT_TABLE, 'default')
+    const inputRow = inputView?.rows[0]
+    if (!inputView || !inputRow) throw new Error('注册命令缺少默认字段选项视图')
+    const inputId = inputView.getPkKey(inputRow)
+    if (typeof inputId !== 'string' || !inputId) throw new Error('默认字段选项行身份无效')
+    const optionRow = inputView.getEditingRow(inputId) ?? inputRow
+    const addDefaultFields = optionRow['addDefaultFields'] === '1'
+    const action = actionGeneration
+    const operationIsCurrent = (): boolean => active && dataSet.value === ds && dbView.value === db
+      && objectRegisterType.value === type && actionGeneration === action
+    if (type === 'table') {
       await databaseCatalogRegisterTables(ds, dbId, names.map(tableName => ({
         tableName,
         tableComment: '',
-        addDefaultFields: payload.addDefaultFields,
+        addDefaultFields,
       })))
     } else {
       await databaseCatalogRegisterViews(ds, dbId, names.map(viewName => ({viewName, viewComment: ''})))
     }
+    if (!operationIsCurrent()) return
     listView.clearSelectedRows()
-    await refreshChildren()
+    const tables = tableView.value, views = viewView.value
+    if (tables && views) {
+      await Promise.all([tables.refresh(), views.refresh()])
+      if (!operationIsCurrent()) return
+      if (tables.loadingError) throw tables.loadingError
+      if (views.loadingError) throw views.loadingError
+    }
+    if (!operationIsCurrent()) return
     objectRegisterOpen.value = false
   }, objectRegisterType.value === 'table' ? '表已注册' : '视图已注册')
+}
+
+async function verifyObjectRegister(): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    if (!ds) throw new Error('目录未就绪')
+    if (objectRegisterType.value === 'table') await databaseCatalogVerifyTableRegistration(ds)
+    else await databaseCatalogVerifyViewRegistration(ds)
+  }, '已核验当前注册结果；可继续提交本批剩余项')
+}
+
+async function discardPendingObjectRegister(): Promise<void> {
+  await act(async () => {
+    const ds = dataSet.value
+    if (!ds) throw new Error('目录未就绪')
+    const kind = objectRegisterType.value
+    const action = actionGeneration
+    await databaseCatalogDiscardPendingRegistration(ds, kind)
+    if (!active || dataSet.value !== ds || actionGeneration !== action) return
+    revision.value++
+    objectRegisterOpen.value = false
+  }, '已取消未提交注册项')
 }
 
 async function saveCopyTable(payload: Readonly<{tblname: string; tbldesc: string}>): Promise<void> {

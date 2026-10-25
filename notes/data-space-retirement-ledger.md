@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前推进阶段B的B2目录与关系编辑；阶段A整页对照、跨实例未知恢复及B1剩余闭环继续开放，C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`和`1f8885312`已提交字典正式消费/命名视图读回与标准下拉消费证据，全局删除引用完整性仍开放。顶栏裁切及14入口可达已提交`6c013a7fc`，目标页面注册/模型缺口另记。本批B2目录原路径、精确导航/DataSet身份、按需子查询、dirty/unknown切换与标准表格取消高亮已收敛；关系编辑已删除旧SaveDraft，标准组件直接绑定原DataView，补正式表达式、精确单行保存、异步结构预检、unknown核验与取消恢复。数据库套件147/147、宿主等53/53，typecheck/lint/正式生成/完整rules/build均通过。真实SPA两窗口证明新增、取消、正式保存、切换PX及关闭重开、仅名称精确提交；保留测试关系`34A3F87EA002AF6EB93B3E5C0A173EEA`，不删除。详细证据及本地提交范围见文末。完整B2的已有数据库登记、批量注册回执/unknown/部分成功、其他CRUD、连接测试、旧TableAndView别名及整页对照仍开放；字段和建库操作可能触发DDL，本批未执行。旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active。
+**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`和`1f8885312`已提交字典正式消费/命名视图读回与标准下拉消费证据，全局删除引用完整性仍开放。顶栏裁切及14入口可达已提交`6c013a7fc`，目标页面注册/模型缺口另记。本批B2目录原路径、精确导航/DataSet身份、按需子查询、dirty/unknown切换与标准表格取消高亮已收敛；关系编辑已删除旧SaveDraft，标准组件直接绑定原DataView，补正式表达式、精确单行保存、异步结构预检、unknown核验与取消恢复。数据库套件147/147、宿主等53/53，typecheck/lint/正式生成/完整rules/build均通过。真实SPA两窗口证明新增、取消、正式保存、切换PX及关闭重开、仅名称精确提交；保留测试关系`34A3F87EA002AF6EB93B3E5C0A173EEA`，不删除。目录与关系组已本地提交60792d74c，未推送。当前进入B2批量注册可靠性组：主控已核有效RED，gpt-6-luna正在实施命令DataView逐项状态、精确核验与SPA恢复入口；两个旧测试库实服返回Unknown database，真实登记成功验收待可用目标。详细进展见文末。完整B2的已有数据库登记、批量注册回执/unknown/部分成功、其他CRUD、连接测试、旧TableAndView别名及整页对照仍开放；字段和建库操作可能触发DDL，本批未执行。旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active。
 
 ### 1. 目标、边界与完成口径
 
@@ -1528,3 +1528,31 @@ flowchart TD
 - **真实验收限制**：未向服务注入unknown或强制teardown；这些路径与权限反例由同一正式DataView夹具链验证。一处短locator等待先超时、随后正式列表出现；一次值函数保存后立即应用表达式仍保留候选，待稳定后显式再次应用成功；均如实保留，未用整页刷新完成流程。新候选只含已映射DataType，同库peer选项仍限当前已加载分页，不承诺全目录搜索。主窗口截图对应标签修正前快照，最终标签窗口另存，不混为同一快照。
 - **归档与暂存范围**：证据在[`evidence/metadata-integration-20261025/b2-database-directory-relations`](evidence/metadata-integration-20261025/b2-database-directory-relations/b2-root-delivery-review.md)，98项原始/摘要文件及manifest（含36项产品/测试/工具快照），约2.3MB；保留有效RED和最终GREEN，未把夹具错误算产品反例。仅暂存本批数据库目录/关系源码、标准RendererTable修复、对应测试、导航及路径规则、正式ClassModel产物、7份旧记录superseded标记、唯一台账与该证据目录。提交由本记录所在Git提交追溯，本批不推送。
 - **下一断点**：按已归档`b2-remaining-usecase-review.md`先核已有数据库登记与普通新增的业务差别、真实部署注册回执、分页未命中不能推断NOT_APPLIED及批量部分成功重试，再交同一低价写者补有效反例。复制/删除/字段设计的物理DDL与级联、目录CRUD/连接测试、旧TableAndView导航身份及完整整页对照仍开放；未向这些范围扩写服务。本批未修改/运行/编译/部署Java，未执行物理DDL或资源删除。旧未知页保留，进程31708本次核验仍存活；B1删除完整性、A整页与跨实例unknown等原缺口不因本组通过而核销。
+
+## 2026-10-25 B2 批量注册可靠性实施组
+
+- 前一目标回合分类：只核对已知 DataColumn 归属并回复纠偏，未改变权威状态，按 no progress 计；本轮复查干净工作树、HEAD=`60792d74cd61e1d5211311bb2c597b3db04d47c5`，继续已登记的B2下一断点。完整目标保持active。
+- 本组目标：表/视图注册逐项结果、部分成功后的安全重试、精确正式读回、unknown恢复入口和SPA关闭/切换保护。先由gpt-6-luna单写者补有效RED，主控核原始输出后开放产品；主控负责独立复核、工程门禁、真实SPA与同台账。派工摘录在cache/b2-register-reliability-brief.md，不另立总计划。
+- 预检裁决表：
+
+| 相交项 | 产出/消费与冲突核查 | 裁决 |
+| --- | --- | --- |
+| 精确核验 ↔ 批次重试 | 都消费命令capture与正式目录结果；默认分页未命中不能证明未执行 | 使用独立正式命名DataView按捕获身份查；空/不完整读回保留unknown，禁止重发 |
+| 批次状态 ↔ SPA页面 | 页面需呈现逐项进度，不能复制保存/草稿 | 状态归原命令DataView或正式结果派生；页面只触发标准命令 |
+| Code200 ↔ 每项完成 | 原adapter忽略Result，本地Java提示逐项错误；部署合同尚未证明 | 不猜新协议，以精确正式读回确认，保留失败/未知；主控继续核部署证据 |
+| 本组整体 | 测试与实现均需SPARK data唯一链、实例隔离与部分成功；不包含物理创建删除 | 现用户持续授权覆盖本组；不新增权限专题，不改Java，不执行DDL/资源删除 |
+
+- 本组仍是完整B2的实施阶段之一，不核销已有库登记、目录CRUD/连接测试、物理同步/删除完整性、旧URL与整页差距。正式系统字段allowAIAdd继续归DataTable列，本组不改AI合同。
+- 基线typecheck退出0（cache/b2-register-baseline-typecheck1.log/.exit）。主控开始真实SPA准备，未提交任何登记或DDL：sync_test（4F69FFD7A0B94BD6928A139B1B4358C6）及PX（09C58DF7D2AF4E6FB565AB82AB2ABEB3）的未登记表读取均HTTP200/Code500，服务明确Unknown database；前端只报“列表响应格式无效”，该错误遮蔽已纳入本组反例。sync_test早期观察窗口存在截断，单个正式response可核；PX独立窗口2事件无截断。白名单响应与截图在cache/b2-register-sync-test-live-failure、b2-register-px-live-read，不含鉴权或连接凭据；0写入。两处目录元数据存在不证明物理库可连；上一关系组元数据持久验证不被夸大成物理DDL验证。已异步询问可用烟测库，实施与自动化继续。
+- 主控已核RED4的已成功前项重复POST、尾部刷新失败重发、默认字段unknown误核销、Code200不透明Result无正式记录却报完成、真实Code500诊断被遮蔽均为有效产品反例。第21项及A→B用例正在补直接核验路径，避免只测前置guard。产品尚未开放。当前不透明Result夹具不是部署端正式协议；不能据此发明success字段解析合同。
+- 主控已阅读首阶段报告与RED6/RED7原始输出：8个命令测试失败、1个页面测试含2条失败断言，非10个测试；底层capture重复核验不重POST绿项保留。现在开放同一gpt-6-luna写者的本组产品，范围为注册adapter、ops、命名视图装配、原页面/dialog及测试；不自行扩公共command核心，确有阻断先举反例。默认字段true涉及物理字段完成证明，实际回执未核，不能把true永久pending当本组完整交付。后续补视图对称、精确查询权限/完整性、选择变化、显式核验及SPA释放隔离；产品阶段完成后由主控冻结复核/统一门禁，不自动提交或推送。
+- 写者产品阶段开工复核：现有bindDataSetCommandSubmit按原change.context保留unknown，DataSet.saveChanges可以对单行capture显式verify；尚无需扩spark-data核心的反例。本组先删除批次中途command refresh造成的完成状态丢失，使用原命令DataView多行逐项提交。若实测发现capture互相覆盖，先补最小反例再裁定核心修正。根线程本轮未改产品；本组产品、复审、完整工程门禁和真实登记成功验收均未宣称完成。写者/root/b2_register_reliability本轮工具核验仍running；当前不暂存/提交/推送。
+- 本轮进展分类：上一回合为progress（有效RED、真实服务失败证据、派工开放及状态归档），当前写者工具核验running，不重启。主控继续读实际service与参考前端，新增裁决摘录cache/b2-register-receipt-source-ruling.md：既有注册service逐项map以精确名称key和“注册成功”为完成回执，Controller示例和参考前端success解析均与执行代码不一致。允许严格消费该已定位现有返回合同并精确正式读回，禁止宽松猜协议；部署成功shape仍待实测。普通true如有精确完成回执不应无条件永久unknown；缺回执的unknown true仅目录存在不足核销。窄回执事实可由原适配器按原capture保存，不能复制业务草稿或另建保存器。Code500写回执的部分提交风险与只读错误呈现分开验证。
+- 主控独立离线原生SPARK data探针`b2-register-core-capture-probe2`退出0，服务请求0：同一命令DataView先暂存A/B/C，按ID接纳A后B/C仍pending；B提交后保留窄ack并模拟unknown，两次verify仍取得同一submitted对象的回执，未重发；随后C完成，三个目标均保留，submit各一次。证明原core已能支持逐项批次及同capture适配器窄回执，当前无需新增保存器/扩core。probe1因错误假定接纳前后显示顺序不变而失败，仅为探针假设修正，不算产品反例；probe2改按记录完整及不重放核对。Vite只读SSR探针有既有24678端口占用提示，最终退出0，server已关闭。
+- 主控复核中的在途修正已交回同写者：当前批次必须复用原pending行，不能重试时addRow留下旧失败草稿；目标/选项完整签名不一致不得夹入旧批次；页面act的最终消息guard不能替代operation内部每个await后的实例校验。核验view须确认本次validator执行、Loaded/过滤身份和原validator，不得借旧rows长度接受旧结果。Code500和不透明回执保留unknown，已定位的写入前明确不存在/已注册结果须区别处理。默认字段UI测试曾错选列表首个checkbox，要求改为真实FieldCheckbox定位，不能据测试定位错误改产品；批次表不能向用户暴露rowid/batch JSON等内部信息。
+- 本轮额外只读库发现暂未执行：开发修改/热更新期间5274页面AX为空，console无error，监听进程16896仍在；未手工刷新或重启。网络诊断窗口有截断，不能据该窗口宣称无Document或给出最终SPA结论。等待源码冻结后重新从应用内入口做验证；原5273未知现场与5274均markHandoff保留。
+- 用户列归属纠偏按当前源码及原生集成测试再次核准：`DataColumn.allowAIAdd`定义于`DataTable.columns`，正式字段装配后由`DataView.columns`投影，未增加DataView配置。主控`column-ownership-root-confirm1`退出0（1通过、47未选），覆盖正式列真源、本地覆盖拒绝、视图继承及业务行不混入配置；G1—G4不重复改造。
+- 注册写者已定位重复UI失败根因：命令参数静态视图原为immediate，字段不可编辑；设置staged并选定currentRow后，green14定向unknown测试通过，green15两文件96/96。主控已核原始输出，尚未冻结，已交回检查staged参数在取消/成功后的编辑覆盖释放、失败保持原选项、pending时冻结选项，以及“表已注册”明确拒绝不能因后续读回失败误入永久unknown。本组完整门禁与真实注册成功验收仍开放。5274当前已恢复完整页面，可在同SPA进入数据库目录；未手工刷新/重启，未提交注册/DDL。
+- 冻结1源集`f4257fc89c82593dc8607a906a14798d5f9f421f7696f1ca6a8d04e75c6c2c9c`，主控8/8文件哈希核对一致；写者green21为101/101、green24为7项通过，scoped lint/codegen8/typecheck8均0。主控独立完整数据库与宿主回归`b2-register-root-affected1`为15文件183/183、全lint1与正式ClassModel生成1均0。green16失败经定位是把明确拒绝夹具写成Code500，产品阻止重试符合合同；改为精确“表不存在”后验证原pending行重试成功、成功前缀不重发及pending清零。批次ID归原命令输入DataView，关闭重开同名同选项不再命中旧完成行，选项本地应用后清理dirty而保留0。
+- 冻结1真实只读SPA：数据库目录选择PX→管理→注册→服务HTTP200/Code500原样显示Unknown database；标准选项1→0后取消、关闭工作区回目录，无dirty阻断。干净窗口75请求/75响应、0Document、0业务写入，含1次自动LoginAuthority/refresh；未手动刷新/重启。证据`cache/b2-register-frozen-spa-error1.json/png`只保存白名单，不含鉴权。这里只证明诊断与本地取消/关闭，不能核销真实登记成功、unknown写回恢复或部署成功map。可用测试库问题仍待用户回复，未创建/删除/补字段。
+- 独立只读复审1已核冻结哈希，未发现Critical，给出I1已注册且true时仍允许重复相同POST、M1默认字段表单外露addDefaultFields。主控核源码和实际截图后开放同写者窄修：保持明确失败可取消、阻止原已拒绝选项无效重发、补中文label；不得改成成功/unknown或扩DDL。修复后重冻结复审及受影响验证，当前不提交/推送。完整rules1通过前序门禁后在`appworks-consumer-ledger.json`过期处退出1，待最终源码由正式`generate:lowcode-contracts`刷新，禁止手改；build尚未执行，不能宣称全门禁完成。

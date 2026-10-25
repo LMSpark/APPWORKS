@@ -88,9 +88,24 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   deniedFieldsByModel: Record<string, readonly string[]> = {}
   hiddenFieldsByModel: Record<string, readonly string[]> = {}
   rejectNextRelationSave = false
+  /** Registration response overrides model per-item AjaxResult shapes. */
+  registerTableResult: unknown = undefined
+  registerViewResult: unknown = undefined
+  failRegisterTableNames = new Set<string>()
+  definitelyRejectRegisterTableNames = new Set<string>()
+  failRegisterViewNames = new Set<string>()
+  applyThenFailRegisterViewNames = new Set<string>()
+  applyThenFailRegisterTableNames = new Set<string>()
+  failCatalogReadAfterRegisterNames = new Set<string>()
+  failNextCatalogRead = false
+  failNextDirectoryRead = false
+  directoryReadSkipped = false
+  failNextVerifyRead = false
+  omitCountByModel = new Set<string>()
   databasePrimaryKey = 'rowid'
   unregisteredByServer: Record<string, string[]> = {}
   unregisteredByDb: Record<string, string[]> = {}
+  unregisteredTableBody: unknown = undefined
   unregisteredViewsByDb: Record<string, string[]> = {}
   rows: Record<string, Array<Record<string, unknown>>> = {
     [DATABASE_SERVER_MODEL]: [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}],
@@ -149,7 +164,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     if (config.url?.startsWith('/api/Db/getUnregisteredTable/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredTable/'.length))
-      return {data: this.unregisteredByDb[dbId] ?? [], status: 200, statusText: 'OK', headers: {}}
+      return {data: this.unregisteredTableBody ?? this.unregisteredByDb[dbId] ?? [], status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/View/getUnregisteredView/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/View/getUnregisteredView/'.length))
@@ -158,26 +173,52 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     if (config.url?.startsWith('/api/Table/registerTable/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/Table/registerTable/'.length))
       const payload = config.data as Array<{table_name?: string; table_comment?: string; hasDefaultFields?: number}>
+      const names = payload.map(item => String(item.table_name ?? '').trim())
+      if (names.some(name => this.failRegisterTableNames.has(name))) {
+        return {data: {Code: 500, Result: {success: false, message: '注册项被拒绝'}, Message: '注册项被拒绝'}, status: 200, statusText: 'OK', headers: {}}
+      }
+      const result = this.registerTableResult ?? Object.fromEntries(names.map(name => [name,
+        this.definitelyRejectRegisterTableNames.has(name) ? '表不存在' : '注册成功']))
+      const receipt = result as Record<string, unknown>
       for (const item of payload) {
         const tblname = String(item.table_name ?? '').trim()
-        if (!tblname) continue
+        if (!tblname || receipt[tblname] !== '注册成功') continue
         this.rows[DATABASE_CATALOG_TABLE_MODEL]!.push({
           rowid: `T-REG-${tblname}`, dbid: dbId, tblname, tbldesc: String(item.table_comment ?? ''), schemaName: 'dbo', status: 1,
         })
       }
-      return {data: {Code: 200, Result: {success: true, message: 'ok'}, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
+      if (names.some(name => this.applyThenFailRegisterTableNames.has(name))) {
+        if (names.some(name => this.failCatalogReadAfterRegisterNames.has(name))) this.failNextCatalogRead = true
+        const error = new Error('注册请求连接中断')
+        error.name = 'RequestError'
+        Object.assign(error, {status: 503})
+        throw error
+      }
+      return {data: {Code: 200, Result: result, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/View/registerView/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/View/registerView/'.length))
       const payload = config.data as Array<{table_name?: string}>
+      const names = payload.map(item => String(item.table_name ?? '').trim())
+      if (names.some(name => this.failRegisterViewNames.has(name))) {
+        return {data: {Code: 500, Result: {success: false, message: '注册视图项被拒绝'}, Message: '注册视图项被拒绝'}, status: 200, statusText: 'OK', headers: {}}
+      }
+      const result = this.registerViewResult ?? Object.fromEntries(names.map(name => [name, '注册成功']))
+      const receipt = result as Record<string, unknown>
       for (const item of payload) {
         const vewname = String(item.table_name ?? '').trim()
-        if (!vewname) continue
+        if (!vewname || receipt[vewname] !== '注册成功') continue
         this.rows[DATABASE_CATALOG_VIEW_MODEL]!.push({
           rowid: `V-REG-${vewname}`, dbid: dbId, vewname, vewdesc: '', SchemaName: 'dbo', status: 1,
         })
       }
-      return {data: {Code: 200, Result: {success: true, message: 'ok'}, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
+      if (names.some(name => this.applyThenFailRegisterViewNames.has(name))) {
+        const error = new Error('视图注册请求连接中断')
+        error.name = 'RequestError'
+        Object.assign(error, {status: 503})
+        throw error
+      }
+      return {data: {Code: 200, Result: result, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Table/SyncMetaData/')) {
       const parts = config.url.slice('/api/Table/SyncMetaData/'.length).split('/')
@@ -257,6 +298,13 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       }}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url !== '/api/DataOperation/GetData') throw new Error(`unexpected request ${config.url ?? ''}`)
+    if (this.failNextCatalogRead && config.url === '/api/DataOperation/GetData') {
+      this.failNextCatalogRead = false
+      const error = new Error('目录查询连接中断')
+      error.name = 'RequestError'
+      Object.assign(error, {status: 503})
+      throw error
+    }
     const body = config.data as {Table: Array<Record<string, unknown>>; PageParam?: {index?: number; size?: number}}
     const table = body.Table[0]!
     const tableType = String(table['Type'] ?? '')
@@ -275,6 +323,25 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       return {data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: slice, Count: previewRows.length}}}, status: 200, statusText: 'OK', headers: {}}
     }
     const tableName = String(table['Name'] ?? '')
+    if (this.failNextVerifyRead && tableName === DATABASE_CATALOG_TABLE_MODEL) {
+      this.failNextVerifyRead = false
+      const error = new Error('精确登记核验连接中断')
+      error.name = 'RequestError'
+      Object.assign(error, {status: 503})
+      throw error
+    }
+    const page = body.PageParam ?? {index: 1, size: 20}
+    if (this.failNextDirectoryRead && tableName === DATABASE_CATALOG_TABLE_MODEL) {
+      if (!this.directoryReadSkipped) this.directoryReadSkipped = true
+      else {
+        this.failNextDirectoryRead = false
+        this.directoryReadSkipped = false
+        const error = new Error('目录刷新连接中断')
+        error.name = 'RequestError'
+        Object.assign(error, {status: 503})
+        throw error
+      }
+    }
     let rows = [...(this.rows[tableName] ?? [])]
     if (table['Filter']) {
       const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(table['Filter']))
@@ -284,7 +351,6 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     const fieldNames = model?.fields.map(field => field.name) ?? []
     const allowAdd = tableName === DATABASE_CATALOG_DB_MODEL || tableName === DATABASE_CATALOG_TABLE_MODEL
       || tableName === DATABASE_CATALOG_RELATION_MODEL
-    const page = body.PageParam ?? {index: 1, size: 20}
     const pageIndex = Math.max(1, Number(page.index) || 1)
     const pageSize = Math.max(1, Number(page.size) || 20)
     const pageRows = rows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
@@ -297,7 +363,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
         lingma_sys_params: {r: fieldNames.filter(field => !hiddenFields.has(field)), e: fieldNames.filter(field => !deniedFields.has(field) && !hiddenFields.has(field)), h: [...hiddenFields], m: [], d: tableName === DATABASE_CATALOG_TABLE_MODEL
           || tableName === DATABASE_CATALOG_VIEW_MODEL
           || tableName === DATABASE_CATALOG_RELATION_MODEL},
-      })), Count: rows.length}}},
+      })), ...(this.omitCountByModel.has(tableName) ? {} : {Count: rows.length})}}},
       status: 200, statusText: 'OK', headers: {}}
   }
 }

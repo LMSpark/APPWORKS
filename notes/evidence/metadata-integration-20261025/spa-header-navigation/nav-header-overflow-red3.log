@@ -1,0 +1,117 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (4 tests | 3 failed) 810ms
+     × keeps top-level selection, parent-title navigation, and child selection as one navigateTo each 417ms
+     × does not navigate disabled items and omits hidden or disabled submenu children 371ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps top-level selection, parent-title navigation, and child selection as one navigateTo each
+AssertionError: expected last "vi.fn()" call to have been called with [ { id: 'child', title: '子入口', …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
++     "childPlacement": "parent",
++     "children": [
++       {
+          "id": "child",
+          "itemKind": "system-page",
+          "path": "/child",
+          "title": "子入口",
++       },
++     ],
++     "id": "parent",
++     "itemKind": "module",
++     "title": "父入口",
+    },
+  ]
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:86:24
+     84|     await flushPromises()
+     85|     expect(navigateTo).toHaveBeenCalledTimes(3)
+     86|     expect(navigateTo).toHaveBeenLastCalledWith(child)
+       |                        ^
+     87|   })
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > does not navigate disabled items and omits hidden or disabled submenu children
+AssertionError: expected "vi.fn()" to be called with arguments: [ { id: 'visible-child', …(2) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {
++     "childPlacement": "parent",
++     "children": [
++       {
+          "id": "visible-child",
+          "path": "/visible",
+          "title": "可见子项",
++       },
++       {
++         "hidden": true,
++         "id": "hidden-child",
++         "path": "/hidden",
++         "title": "隐藏子项",
++       },
++       {
++         "disabled": true,
++         "id": "disabled-child",
++         "path": "/disabled-child",
++         "title": "禁用子项",
++       },
++     ],
++     "id": "parent",
++     "itemKind": "module",
++     "title": "父入口",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:109:24
+    107|     await flushPromises()
+    108|     expect(navigateTo).toHaveBeenCalledTimes(1)
+    109|     expect(navigateTo).toHaveBeenCalledWith(visibleChild)
+       |                        ^
+    110|   })
+    111|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:150:27
+    148|
+    149|     const menu = wrapper.findComponent(ElMenu)
+    150|     expect(menu.exists()).toBe(true)
+       |                           ^
+    151|     const moreTitle = wrapper.find('.el-sub-menu--hide-arrow .el-sub-m…
+    152|     expect(moreTitle.exists()).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  05:38:15
+   Duration  13.14s (transform 7.71s, setup 165ms, import 10.61s, tests 810ms, environment 1.20s)
+

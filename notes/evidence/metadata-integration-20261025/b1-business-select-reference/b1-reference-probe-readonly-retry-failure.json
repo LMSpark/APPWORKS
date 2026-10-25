@@ -1,0 +1,14 @@
+{
+  "status": "blocked",
+  "stage": "login",
+  "errorType": "RequestError",
+  "safeCode": "TENANT_SCOPE_MISMATCH",
+  "blockedMutations": 0,
+  "requestTrace": [
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "method": "POST",
+      "loginTenant": "NewApp"
+    }
+  ]
+}

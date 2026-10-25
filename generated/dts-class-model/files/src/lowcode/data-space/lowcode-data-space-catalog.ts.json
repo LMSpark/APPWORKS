@@ -20,7 +20,8 @@
       "title": "LowcodeDataSpaceCatalog",
       "properties": {
         "dataSet": {
-          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "view": {
           "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"

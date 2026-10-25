@@ -1,0 +1,373 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts (14 tests | 1 failed | 13 skipped) 308ms
+     × switches a mounted key and ignores a delayed result from the previous target 306ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+AssertionError: expected "vi.fn()" to be called 2 times, but got 1 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:385:35
+    383|     key.value = 'AI-ENTRY-SPACE@Items@alternate'
+    384|     await flushPromises()
+    385|     expect.soft(host.openSession).toHaveBeenCalledTimes(2)
+       |                                   ^
+    386|     expect.soft(host.openSession).toHaveBeenLastCalledWith(alternate)
+    387|     expect.soft(detachOld).toHaveBeenCalledOnce()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+AssertionError: expected last "vi.fn()" call to have been called with [ DataView{ …(52) } ]
+
+- Expected
++ Received
+
+@@ -60,15 +60,20 @@
+        },
+        "_unsubscribeRelations": undefined,
+        "host": [Circular],
+      },
+      "_crCache": {
+-       "id": null,
+-       "row": null,
+-       "ver": -1,
++       "id": "EXISTING",
++       "row": {
++         "_pk": "EXISTING",
++         "name": "已有",
++         "ordIdx": 0,
++         "rowid": "EXISTING",
+        },
+-     "_currentRowId": null,
++       "ver": 1,
++     },
++     "_currentRowId": "EXISTING",
+      "_dataTable": DataTable {
+        "_modelBinding": {
+          "modelId": "MODEL-ROWS",
+          "modelName": "Items",
+        },
+@@ -5623,12 +5628,11 @@
+              },
+            ],
+          },
+        },
+        "views": {
+-         "alternate": [Circular],
+-         "default": DataView {
++         "alternate": DataView {
+            "_aggregateDelegate": AggregateDelegate {
+              "_selectionSummaryRow": {},
+              "_summaryRow": {},
+              "emitSelectionSummaryChanged": [Function emitSelectionSummaryChanged],
+              "emitSummaryChanged": [Function emitSummaryChanged],
+@@ -5687,42 +5691,21 @@
+              },
+              "_unsubscribeRelations": undefined,
+              "host": [Circular],
+            },
+            "_crCache": {
+-             "id": "EXISTING",
+-             "row": {
+-               "_pk": "EXISTING",
+-               "name": "已有",
+-               "ordIdx": 0,
+-               "rowid": "EXISTING",
++             "id": null,
++             "row": null,
++             "ver": -1,
+            },
+-             "ver": 1,
+-           },
+-           "_currentRowId": "EXISTING",
++           "_currentRowId": null,
+            "_dataTable": [Circular],
+-           "_dirtyTrackingDelegate": DirtyTrackingDelegate {
+-             "_createIds": Set {},
+-             "_createRows": Map {},
+-             "_deleteIds": Set {},
+-             "_deleteSnapshots": Map {},
+-             "_dirtyIds": Set {},
+-             "_dirtySnapshots": Map {},
+-             "getColumns": [Function anonymous],
+-             "getComputedColumnNames": [Function anonymous],
+-             "getPrimaryKeyFields": [Function anonymous],
+-           },
+            "_editingOriginalRows": Map {},
+            "_editingPatches": Map {},
+            "_isDestroyed": false,
+            "_keylessCurrentRow": null,
+            "_keylessSelectedRows": [],
+-           "_localMutationDelegate": LocalMutationDelegate {
+-             "emitRowsChanged": [Function anonymous],
+-             "host": [Circular],
+-             "postMutation": [Function anonymous],
+-           },
+            "_mutatingCount": 0,
+            "_onRequestComplete": "",
+            "_pendingRequestData": null,
+            "_primaryKeyDelegate": PrimaryKeyDelegate {
+              "_getColumnMap": [Function getColumnMap],
+@@ -5736,52 +5719,30 @@
+            },
+            "_queryConfig": {},
+            "_refreshScheduled": false,
+            "_resultStale": false,
+            "_rowByIdCache": {
+-             "rows": Map {
+-               "EXISTING" => {
+-                 "_pk": "EXISTING",
+-                 "name": "已有",
+-                 "ordIdx": 0,
+-                 "rowid": "EXISTING",
+-               },
+-             },
+-             "ver": 1,
++             "rows": Map {},
++             "ver": -1,
+            },
+-           "_rowsVersion": 1,
+-           "_selectedRowIds": [
+-             "EXISTING",
+-           ],
+-           "_selectionDelegate": SelectionDelegate {
+-             "_suppressSelectionSync": false,
+-             "emitCurrentRowChanged": [Function anonymous],
+-             "emitSelectedRowsChanged": [Function anonymous],
+-             "host": [Circular],
+-           },
+-           "_selectionIdsVersion": 1,
++           "_rowsVersion": 0,
++           "_selectedRowIds": [],
++           "_selectionIdsVersion": 0,
+            "_srCache": {
+-             "rows": [
+-               {
+-                 "_pk": "EXISTING",
+-                 "name": "已有",
+-                 "ordIdx": 0,
+-                 "rowid": "EXISTING",
+-               },
+-             ],
+-             "rowsVer": 1,
+-             "selVer": 1,
++             "rows": [],
++             "rowsVer": -1,
++             "selVer": -1,
+            },
+            "aggregates": {},
+            "allowDelete": true,
+            "autoCurrentFirst": true,
+            "autoLoad": false,
+            "autoLoadConfigured": false,
+            "autoSelectFirst": true,
+            "clearRefreshRequest": [Function anonymous],
+            "commitMode": "staged",
+-           "currentLoadRequestId": 2,
++           "currentLoadRequestId": 0,
+            "events": {
+              "emit": [Function emit],
+              "listenerCount": [Function listenerCount],
+              "off": [Function off],
+              "on": [Function on],
+@@ -5800,34 +5761,43 @@
+            "mutatingError": null,
+            "page": 1,
+            "pageSize": 20,
+            "pendingRowsSelectionChanged": false,
+            "queryContext": {},
+-           "requestState": 3,
+-           "rowIndexMap": undefined,
+-           "rows": [
+-             {
+-               "_pk": "EXISTING",
+-               "name": "已有",
+-               "ordIdx": 0,
+-               "rowid": "EXISTING",
+-             },
+-           ],
++           "requestState": 0,
++           "rows": [],
+            "rowsChangedDebouncer": false,
+            "scheduleRefresh": [Function anonymous],
+            "selectionDelimiter": ",",
+            "tableName": "Rows",
+-           "total": 1,
+-           "viewId": "default",
++           "total": 0,
++           "viewId": "alternate",
+          },
++         "default": [Circular],
+        },
+      },
++     "_dirtyTrackingDelegate": DirtyTrackingDelegate {
++       "_createIds": Set {},
++       "_createRows": Map {},
++       "_deleteIds": Set {},
++       "_deleteSnapshots": Map {},
++       "_dirtyIds": Set {},
++       "_dirtySnapshots": Map {},
++       "getColumns": [Function anonymous],
++       "getComputedColumnNames": [Function anonymous],
++       "getPrimaryKeyFields": [Function anonymous],
++     },
+      "_editingOriginalRows": Map {},
+      "_editingPatches": Map {},
+      "_isDestroyed": false,
+      "_keylessCurrentRow": null,
+      "_keylessSelectedRows": [],
++     "_localMutationDelegate": LocalMutationDelegate {
++       "emitRowsChanged": [Function anonymous],
++       "host": [Circular],
++       "postMutation": [Function anonymous],
++     },
+      "_mutatingCount": 0,
+      "_onRequestComplete": "",
+      "_pendingRequestData": null,
+      "_primaryKeyDelegate": PrimaryKeyDelegate {
+        "_getColumnMap": [Function getColumnMap],
+@@ -5841,30 +5811,52 @@
+      },
+      "_queryConfig": {},
+      "_refreshScheduled": false,
+      "_resultStale": false,
+      "_rowByIdCache": {
+-       "rows": Map {},
+-       "ver": -1,
++       "rows": Map {
++         "EXISTING" => {
++           "_pk": "EXISTING",
++           "name": "已有",
++           "ordIdx": 0,
++           "rowid": "EXISTING",
++         },
+        },
+-     "_rowsVersion": 0,
+-     "_selectedRowIds": [],
+-     "_selectionIdsVersion": 0,
++       "ver": 1,
++     },
++     "_rowsVersion": 1,
++     "_selectedRowIds": [
++       "EXISTING",
++     ],
++     "_selectionDelegate": SelectionDelegate {
++       "_suppressSelectionSync": false,
++       "emitCurrentRowChanged": [Function anonymous],
++       "emitSelectedRowsChanged": [Function anonymous],
++       "host": [Circular],
++     },
++     "_selectionIdsVersion": 1,
+      "_srCache": {
+-       "rows": [],
+-       "rowsVer": -1,
+-       "selVer": -1,
++       "rows": [
++         {
++           "_pk": "EXISTING",
++           "name": "已有",
++           "ordIdx": 0,
++           "rowid": "EXISTING",
++         },
++       ],
++       "rowsVer": 1,
++       "selVer": 1,
+      },
+      "aggregates": {},
+      "allowDelete": true,
+      "autoCurrentFirst": true,
+      "autoLoad": false,
+      "autoLoadConfigured": false,
+      "autoSelectFirst": true,
+      "clearRefreshRequest": [Function anonymous],
+      "commitMode": "staged",
+-     "currentLoadRequestId": 0,
++     "currentLoadRequestId": 2,
+      "events": {
+        "emit": [Function emit],
+        "listenerCount": [Function listenerCount],
+        "off": [Function off],
+        "on": [Function on],
+@@ -5883,15 +5875,23 @@
+      "mutatingError": null,
+      "page": 1,
+      "pageSize": 20,
+      "pendingRowsSelectionChanged": false,
+      "queryContext": {},
+-     "requestState": 0,
+-     "rows": [],
++     "requestState": 3,
++     "rowIndexMap": undefined,
++     "rows": [
++       {
++         "_pk": "EXISTING",
++         "name": "已有",
++         "ordIdx": 0,
++         "rowid": "EXISTING",
++       },
++     ],
+      "rowsChangedDebouncer": false,
+      "scheduleRefresh": [Function anonymous],
+      "selectionDelimiter": ",",
+      "tableName": "Rows",
+-     "total": 0,
+-     "viewId": "alternate",
++     "total": 1,
++     "viewId": "default",
+    },
+  ]
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:386:35
+    384|     await flushPromises()
+
+    385|     expect.soft(host.openSession).toHaveBeenCalledTimes(2)
+    386|     expect.soft(host.openSession).toHaveBeenLastCalledWith(alternate)
+       |                                   ^
+    387|     expect.soft(detachOld).toHaveBeenCalledOnce()
+    388|     expect.soft(wrapper.findComponent(RendererTable).props('dataViewKe…
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  03:11:34
+   Duration  10.38s (transform 6.26s, setup 138ms, import 8.62s, tests 308ms, environment 989ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:387:28
+    385|     expect.soft(host.openSession).toHaveBeenCalledTimes(2)
+    386|     expect.soft(host.openSession).toHaveBeenLastCalledWith(alternate)
+    387|     expect.soft(detachOld).toHaveBeenCalledOnce()
+       |                            ^
+    388|     expect.soft(wrapper.findComponent(RendererTable).props('dataViewKe…
+    389|     releaseQuery?.()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+AssertionError: expected '切换目标stale old target result业务提示开始生成 刷…' not to contain 'stale old target result'
+
+Expected: "stale old target result"
+Received: "切换目标stale old target result业务提示开始生成 刷新查询 停止生成 确认新增 清除候选"
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:391:32
+    389|     releaseQuery?.()
+    390|     await flushPromises()
+    391|     expect(wrapper.text()).not.toContain('stale old target result')
+       |                                ^
+    392|     expect(wrapper.text()).not.toContain('AI录入目标DataView不属于当前宿主DataSet…
+    393|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+

@@ -1,0 +1,127 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > loads and saves the scene file with the selected appId through the existing request layer
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles one column from equivalent repeated formal output records
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > sends explicit view cascade constraints through the sole API wire codec
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > does not query a parent or add a filter when the scenario has no view cascade
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > applies an explicit named-view query filter without touching sibling views
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:detail
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:summary
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:detail
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:summary
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps an explicit view cascade when no model relationship exists
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles model-bound views with original private permissions and no CRUD query transforms
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles two independent read-only views for one keyless formal model
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reports only an actual backend 404 as a missing shared scene file 5ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid scene paths "" before transport 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid scene paths "." before transport 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid scene paths ".." before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid scene paths "parent/scene" before transport 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid scene paths "parent\\scene" before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > requires an explicitly selected application before reading scene files 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects scene reads and writes from a workspace belonging to another application 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > loads the same scenario from separate application folders 5ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects a late scene response 200 after switching applications 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects a late scene response 404 after switching applications 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > loads and saves the scene file with the selected appId through the existing request layer 8ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > saves tool working files and restores filename snapshots without changing the snapshot 3ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reads the exact tool file through the production gateway: 'rule.json' 3ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reads the exact tool file through the production gateway: '2__rule.json' 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reads the exact tool file through the production gateway: '2__rule.json' 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reads the exact tool file through the production gateway: '1__script.js' 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > reads the exact tool file through the production gateway: '3__style.css' 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: "" 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: " " 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: "style=3" 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: "rule=1;rule=2" 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: "rule=-1" 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects an invalid or incomplete published tool pointer before transport: "v1" 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > does not fall back to the working tool file when a published snapshot is missing 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > refuses restoration over an unsaved tool file before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects tool writes and restoration from another application before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > retains local edits made during restore at /api/File/UploadFile 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > retains local edits made during restore at /api/File/content/text 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > keeps a failed tool working-file readback dirty 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects a snapshot from a retired application before uploading the working file 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > snapshots and previews shared scene files with a fresh definition guard before upload 2ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects unsafe scene versions and foreign application history before transport 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects conflicting scene working content before snapshot upload 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > uses actual filename history for creation and confirms snapshot deletion without publishing 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid tool paths ".." before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid tool paths "../orders" before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects invalid tool paths "parent\\orders" before transport 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > refuses the retired page-local pagedata write and restore paths 0ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles one column from equivalent repeated formal output records 6ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > sends explicit view cascade constraints through the sole API wire codec 9ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > does not query a parent or add a filter when the scenario has no view cascade 2ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > applies an explicit named-view query filter without touching sibling views 6ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps an explicit view cascade when no model relationship exists 1ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles model-bound views with original private permissions and no CRUD query transforms 3ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles two independent read-only views for one keyless formal model 2ms
+ ✓ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > builds independent tables for two models over the same resource 1ms
+ × tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps allowAIAdd on formal DataTable columns while every native DataView inherits its output columns 10ms
+   → expected { name: 'titleAlias', …(3) } to match object { allowAIAdd: true }
+(4 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps allowAIAdd on formal DataTable columns while every native DataView inherits its output columns
+AssertionError: expected { name: 'titleAlias', …(3) } to match object { allowAIAdd: true }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "allowAIAdd": true,
++   "isPrimaryKey": false,
++   "label": "titleAlias",
++   "name": "titleAlias",
++   "type": "字符串",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts:796:72
+    794|     if (!table || !defaultView || !selectionView) throw new Error('Mis…
+
+    795|
+    796|     expect(table.columns.find(column => column.name === 'titleAlias'))…
+       |                                                                        ^
+    797|     expect(table.columns.find(column => column.name === 'noteAlias')).…
+    798|     expect(table.columns.find(column => column.name === 'internalAlias…
+ Test Files  1 failed (1)
+      Tests  1 failed | 47 passed (48)
+   Start at  01:04:26
+   Duration  9.85s (transform 6.28s, setup 128ms, import 2.16s, tests 6.26s, environment 1.01s)
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

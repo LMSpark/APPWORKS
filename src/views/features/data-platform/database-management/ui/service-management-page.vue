@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
-import {useDatabaseCatalogRouteScenario} from '@/lowcode/resources/database/database-catalog-context'
+import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
@@ -71,7 +71,8 @@ import {
   type DatabaseServerEditState,
 } from '@/lowcode/resources/database/database-server-view-ops'
 
-const {scenarioId, catalogLoadOptions, catalogAwaitingHubResolve, catalogHubResolveFailed} = useDatabaseCatalogRouteScenario()
+const route = useRoute()
+const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'service-management-page'})
 const dataSet = shallowRef<DataSet>()
 const view = shallowRef<DataView>()
@@ -187,12 +188,8 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''; release()
   try {
-    if (!id) {
-      if (catalogAwaitingHubResolve.value) return
-      if (catalogHubResolveFailed.value) return
-      throw new Error('服务器管理入口缺少导航绑定的数据空间ID')
-    }
-    const ds = await LowcodeDatabaseServer.loadCatalog(id, catalogLoadOptions.value)
+    if (!id) throw new Error('服务器管理入口缺少导航绑定的数据空间ID')
+    const ds = await LowcodeDatabaseServer.loadCatalog(id)
     if (!active || own !== generation) {ds.destroy(); return}
     const v = requireDatabaseServerView(ds)
     dataSet.value = ds; view.value = v
@@ -204,7 +201,7 @@ watch(scenarioId, async id => {
       requestStateChanged: () => revision.value++, editingChanged: () => revision.value++})
     sparkProvide(PAGE_RUNTIME, current); ready.value = true
   } catch (cause) {if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}}
-  finally {if (active && own === generation) loading.value = catalogAwaitingHubResolve.value && !id ? true : false}
+  finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; release()})
 </script>

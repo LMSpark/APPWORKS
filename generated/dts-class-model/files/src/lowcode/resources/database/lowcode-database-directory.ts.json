@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/lowcode-database-directory",
+    "sourcePath": "src/lowcode/resources/database/lowcode-database-directory.ts",
+    "sourceFile": "src/lowcode/resources/database/lowcode-database-directory.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/lowcode-database-directory",
+    "jsdoc": "@module app:lowcode/resources/database/lowcode-database-directory\n职责：按数据库维护页面的正式 DataSet 身份装配服务器与数据库目录 DataView。\nAI用途：为数据库目录列表提供真实主键、权限、分页、查询与暂存保存链。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDatabaseDirectory"
+    ]
+  },
+  "$defs": {
+    "LowcodeDatabaseDirectory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDatabaseDirectory",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadCatalog.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceIdInput": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadCatalog.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.requireViews.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requireViews.return": {
+          "type": "object",
+          "properties": {
+            "servers": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "databases": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "required": [
+            "servers",
+            "databases"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-25T08:42:55.815Z",
+  "models": {
+    "LowcodeDatabaseDirectory": {
+      "name": "LowcodeDatabaseDirectory",
+      "jsdoc": "数据库主列表仅装配本页正式服务器/数据库模型；不扫描其他空间或默认选择服务器。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "数据库主列表仅装配本页正式服务器/数据库模型；不扫描其他空间或默认选择服务器。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "loadCatalog",
+              "parameters": [
+                {
+                  "name": "dataSpaceIdInput",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "requireViews",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        servers: DataView;\n        databases: DataView;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

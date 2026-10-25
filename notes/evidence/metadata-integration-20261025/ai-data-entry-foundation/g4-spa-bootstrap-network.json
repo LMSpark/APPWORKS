@@ -1,0 +1,1784 @@
+{
+  "kind": "same-SPA-observed-requests",
+  "dictionaryId": "327D74EC0ABC4196AA75C56D944B8201",
+  "documentLoads": [],
+  "errors": [
+    {
+      "step": "formal-catalog-bootstrap",
+      "error": "network-event-buffer-truncated"
+    }
+  ],
+  "steps": [
+    {
+      "step": "capture-start",
+      "time": "2026-10-24T20:05:47.673Z",
+      "requests": 0
+    },
+    {
+      "step": "login-complete",
+      "time": "2026-10-24T20:06:55.594Z",
+      "requests": 1
+    },
+    {
+      "step": "application-open",
+      "time": "2026-10-24T20:07:21.421Z",
+      "requests": 6
+    },
+    {
+      "step": "formal-catalog-bootstrap",
+      "time": "2026-10-24T20:08:09.348Z",
+      "requests": 32
+    }
+  ],
+  "requests": [
+    {
+      "id": "2180.711",
+      "step": "login-complete",
+      "sequence": 151,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_AppSystemList",
+            "PrimaryKeyFields": "rowid",
+            "OutputType": "Table",
+            "Type": "数据库表",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": true,
+            "IsBusinessMain": 1,
+            "RelationFilterType": "and"
+          }
+        ]
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "f9b0902049d838ff29a737711347b00b215b8f948721408ce2eced9476ec41a6",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 82
+      }
+    },
+    {
+      "id": "2180.712",
+      "step": "application-open",
+      "sequence": 170,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_AppSystemList",
+            "PrimaryKeyFields": "rowid",
+            "OutputType": "Table",
+            "Type": "数据库表",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": true,
+            "IsBusinessMain": 1,
+            "RelationFilterType": "and"
+          }
+        ]
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "984835b5f0302a1f5aa7330425db3072117856a1aad91a14457bb6c40a5b9c68",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 82
+      }
+    },
+    {
+      "id": "2180.713",
+      "step": "application-open",
+      "sequence": 175,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "PrimaryKeyFields": "rowid",
+            "OutputType": "Table",
+            "Type": "数据库表",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "SysId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "00BE6ED455CD4BD7B785C61A12A1E67D"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "prowId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "000000"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": true,
+            "IsBusinessMain": 1,
+            "RelationFilterType": "and"
+          }
+        ]
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "29835ad77c3bb802930f308e1fea775fc5436e4d23eb7b56d11a4044309f12dc",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.714",
+      "step": "application-open",
+      "sequence": 183,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "sysid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "00BE6ED455CD4BD7B785C61A12A1E67D"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 50
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "ae046970ca51be9be8e237ffa45277f5c390b292289ec47d9bb5628fdb53e00a",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 145
+      }
+    },
+    {
+      "id": "2180.716",
+      "step": "application-open",
+      "sequence": 193,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "sysid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "00BE6ED455CD4BD7B785C61A12A1E67D"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 2,
+          "size": 50
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "1382b8dc614a61df2cc64fb3b3945e0204770a12d3c92a45b8233b3c048e287a",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 145
+      }
+    },
+    {
+      "id": "2180.717",
+      "step": "application-open",
+      "sequence": 205,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "sysid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "00BE6ED455CD4BD7B785C61A12A1E67D"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 3,
+          "size": 50
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "3833d12af7ad7f9d30e3c5ce8e1f3560d6d30323af7000861e703931d68489eb",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 145
+      }
+    },
+    {
+      "id": "2180.1407",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4392,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_AppSystemList",
+            "PrimaryKeyFields": "rowid",
+            "OutputType": "Table",
+            "Type": "数据库表",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": true,
+            "IsBusinessMain": 1,
+            "RelationFilterType": "and"
+          }
+        ]
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseReadError": "Error: Request content was evicted from inspector cache"
+    },
+    {
+      "id": "2180.1411",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4398,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "PrimaryKeyFields": "rowid",
+            "OutputType": "Table",
+            "Type": "数据库表",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "SysId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "D99A1DCE9894698799101EFD70F8FC76"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "prowId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "000000"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": true,
+            "IsBusinessMain": 1,
+            "RelationFilterType": "and"
+          }
+        ]
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseReadError": "Error: Request content was evicted from inspector cache"
+    },
+    {
+      "id": "2180.1417",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4447,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "sysid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 50
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseReadError": "Error: Request content was evicted from inspector cache"
+    },
+    {
+      "id": "2180.1419",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4454,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_NavigationInfo",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "sysid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 2,
+          "size": 50
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseReadError": "Error: Request content was evicted from inspector cache"
+    },
+    {
+      "id": "2180.1431",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4611,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "EDB0E34486FFB903E896E5C281230961"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "53e5b49e907b717ea64094a2fbdcc2811cebe133109aad2181299bbd4394e996",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1432",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4612,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "c20561cbead3810c686e16752a7fcb6f283a7f470c096a6e0e3a4897ae57ee32",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1433",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4613,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_StructureType"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "4cbda78491d6cc93471f5e6d377474a011740756f87960f8bd1c4616a1949a2e",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1434",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4614,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_UserInfo"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "25bceb9d50570f06260232331b16fe95ae410a8bacad38b085ca23a7675d27ff",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1435",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4615,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_AppSystemList"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "d7c6f18b73feb2cfe640cfa8b0208727d972347b0105f05fdeab3ed94ee1db2e",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1436",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4623,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961p001"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "8233e4a32f0f4ab86d039ef1419bd99589a0bf4199ddab81678741f2974a0dcf",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 14
+      }
+    },
+    {
+      "id": "2180.1437",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4624,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_StructureType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "9412aa55524b0bd30defad22fb72163f35dc0a7954d687c74d9223f4bc44221d",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1438",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4632,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961p002"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "cc404c0e01c013e2f03ce0f6c151767c45c41647774d9a83c56eebc2a77a42c0",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 23
+      }
+    },
+    {
+      "id": "2180.1439",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4633,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_AppSystemList"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "39246c9ff28314ae0ed59272911e84027d712bbbf59bc6b563eb4cdc15c14fe2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1440",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4646,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961p003"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "6c8b77950c1bfa4f33e1935c4c8b239ffbd08a4b1345f0ffead714aed7631e8e",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 26
+      }
+    },
+    {
+      "id": "2180.1441",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4647,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "Base_UserInfo"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "d2e51e476ebdb465ee31f97231ffd85e9282f009c1f4f0ed3695b4b5be5a8bed",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1442",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4654,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dataModelId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EDB0E34486FFB903E896E5C281230961p000"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "type",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "dataModel"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "7f965ce82934f7eb522eab34b2354a28a7196f1f2bae2a7812f958688b396a94",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 26
+      }
+    },
+    {
+      "id": "2180.1443",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4655,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "View_TblList",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "tblname",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "_Base_DictType"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "dbid",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "2ba3395e25d8d93d10152122c71c31d08dec0c8c908120c84d3d8270b9e990e2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1444",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4675,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "E589ED7495964E7A83760E2BF1773E22"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "2c887479e1fc59f04a84322c8a5c76ab011285da1fcbc33b3e76af0e3d9aca4e",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 15
+      }
+    },
+    {
+      "id": "2180.1445",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4680,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "1FD4DFAF725F4F759A45700BC6838F3C"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "a55ac9c72d2a39f32c703471076a3b8f95fbc6c01f0b9d2503314d7deb6832d9",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 34
+      }
+    },
+    {
+      "id": "2180.1446",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4694,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "C50CD4A8899A4415A2F4B687E234FC9D"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "30d582d9c1161c9bc48bd108b9a10db00ea8f76d4be60770693b00e58b921388",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 43
+      }
+    },
+    {
+      "id": "2180.1447",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4706,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_TblField",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "tblid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "A0E03EE0DB6B4A8D8657F9F2D61966FD"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "a80964836a9aa98b17d59647b136a23dfde7827d5992effc827e1394f58cac3f",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 27
+      }
+    },
+    {
+      "id": "2180.1448",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4728,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_StructureType",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Mrowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "value",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "9d73050c4f42e34671f10943caa6d643706b8b6e6326927568339af70e4619ff",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 8
+      }
+    },
+    {
+      "id": "2180.1449",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4729,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_UserInfo",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "ROWID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "UserName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "fe97993fe3c8e38d682a23a2dc3de8da5eb74992d134da879bbcbf5f0c8c78bc",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 32
+      }
+    },
+    {
+      "id": "2180.1450",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4730,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_AppSystemList",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "AppDesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 2,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "AppName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "569a2fa72c77a15eabd3b72d849b0e645c90eb561d03f0c08b69fa9efc8cf9e2",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 1
+      }
+    },
+    {
+      "id": "2180.1451",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4731,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "_Base_DictType",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "createtime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "createuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "description",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "AppId",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updatetime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "crttime",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 2,
+                "OrderType": "descending"
+              },
+              {
+                "Name": "ModName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ReportID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "wfid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "author",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "flowstate",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "functiondesc",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "StructureTypeID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "updateuser",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "TypeName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "lingma_sys_is_delete",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 20
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "70ae9e37c47890ae89f4aabc3cb0084e3f9df561f70b324d4968cac5cc5b4b8d",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 353
+      }
+    },
+    {
+      "id": "2180.1452",
+      "step": "formal-catalog-bootstrap",
+      "sequence": 4751,
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "request": {
+        "Table": [
+          {
+            "Name": "Base_UserInfo",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "ROWID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              },
+              {
+                "Name": "ID",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 1,
+                "OrderType": "ascending"
+              },
+              {
+                "Name": "UserName",
+                "IsOutput": true,
+                "Group": 0,
+                "Order": 0,
+                "OrderType": null
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 2,
+          "size": 20
+        }
+      },
+      "entryQuery": false,
+      "httpStatus": 200,
+      "mimeType": "application/json",
+      "responseSha256": "79b86fa9e3e3d8f7eff00b2a93a373c8017ed19b9cca790aa3afa3de605b8867",
+      "response": {
+        "Code": 200,
+        "Message": "操作成功",
+        "Count": 32
+      }
+    }
+  ]
+}

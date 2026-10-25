@@ -5,10 +5,12 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter, RendererDialog, SparkAiDataEntry,
+  type AiDataEntryAttachment} from '@spark-appworks/spark-component'
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
 import DictionarySetting from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
@@ -40,6 +42,8 @@ const models = Object.entries({
 
 class CatalogHttp extends HttpClientBase {
   requests: RequestConfig[] = []
+  aiRequests: RequestConfig[] = []
+  failAiCreate = false
   allowAdd = true
   failUsers = false
   hideUserName = false
@@ -55,6 +59,18 @@ class CatalogHttp extends HttpClientBase {
   pauseNextUsers?: () => Promise<void>
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
+    if (config.url?.startsWith('/api/ai/v1/')) {
+      this.aiRequests.push(config)
+      if (config.method === 'POST' && config.url === '/api/ai/v1/turns' && this.failAiCreate) {
+        throw new Error('AI创建请求断开，回执未知')
+      }
+      const result = config.url === '/api/ai/v1/agents'
+        ? [{id: 'AGENT-DICTIONARY', agentName: '字典录入', description: null}]
+        : config.url.endsWith('/turns')
+          ? {conversationId: 'CONVERSATION-D1', turnId: 'TURN-D1', status: 'QUEUED', acceptedAt: null}
+          : true
+      return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
+    }
     const body = config.data as {Table: Array<{Name: string; Filter?: unknown}>}
     const name = body.Table[0]!.Name
     if (name === 'Base_UserInfo' && this.pauseNextUsers) {
@@ -138,7 +154,22 @@ async function openCatalog(routePath = '/catalog') {
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await flushPromises()
-  return {wrapper, router}
+  return {wrapper, router, dynamic}
+}
+
+function captureDictionaryAiOwner(hosts: AiDataEntryHost[], attachments: AiDataEntryAttachment[]): void {
+  const create = LowcodeDictionary.createAiDataEntryHost.bind(LowcodeDictionary)
+  vi.spyOn(LowcodeDictionary, 'createAiDataEntryHost').mockImplementation((dataSet, workspace) => {
+    const host = create(dataSet, workspace)
+    hosts.push(host)
+    const openSession = host.openSession.bind(host)
+    vi.spyOn(host, 'openSession').mockImplementation(target => {
+      const attachment = openSession(target)
+      attachments.push(attachment)
+      return attachment
+    })
+    return host
+  })
 }
 
 describe('dictionary catalog formal view assembly', () => {
@@ -473,7 +504,27 @@ describe('dictionary catalog formal view assembly', () => {
     }
     await dataPage.findAll('button').find(button => button.text() === 'AI 候选')!.trigger('click')
     await flushPromises()
-    expect(dataPage.find('[aria-label="AI候选"]').text()).toContain('总数 0')
+    expect(dataPage.findComponent(SparkAiDataEntry).exists()).toBe(true)
+  })
+
+  it('keeps the dictionary data owner mounted outside the dialog after a clean close', async () => {
+    const {wrapper} = await openCatalog()
+    const table = wrapper.findComponent(RendererTable)
+    await table.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(true)
+    const editingDataSet = sets.at(-1)
+    if (editingDataSet === undefined) throw new Error('字典编辑DataSet没有由目录宿主创建')
+
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click')
+    await flushPromises()
+
+    expect.soft(wrapper.findComponent(DictionaryData).exists()).toBe(true)
+    expect.soft(wrapper.find('.dictionary-data-page').exists()).toBe(false)
+    expect.soft(editingDataSet.destroyed).toBe(true)
+    expect(dictionaryHttp.saves).toHaveLength(0)
   })
 
   it('keeps the data workspace open while dirty, then closes after ordinary cancel rereads', async () => {
@@ -489,16 +540,171 @@ describe('dictionary catalog formal view assembly', () => {
     await flushPromises()
     await dataPage.findComponent(RendererForm).find('input').setValue('未提交草稿')
     await flushPromises()
-    const close = () => wrapper.findAll('button').find(button => button.text() === '关闭')!
-    expect(close().attributes('disabled')).toBeDefined()
+    const footerClose = () => dataPage.findAll('button').find(button => button.text() === '关闭')!
+    expect(dataPage.vm.isDirty).toBe(true)
+    expect(dataPage.findComponent(RendererDialog).props('closeDisabled')).toBe(true)
+    expect(footerClose().attributes('disabled')).toBeDefined()
     expect(dataPage.findAll('button').some(button => button.text() === '保存数据')).toBe(true)
+    const dataDialog = wrapper.findAllComponents(RendererDialog).find(dialog => dialog.props('modelValue') === true)
+    if (!dataDialog) throw new Error('数据工作区标准Dialog未打开')
+    dataDialog.vm.$emit('update:modelValue', false)
+    await flushPromises()
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(true)
+    expect(dataPage.findComponent(RendererDialog).props('modelValue')).toBe(true)
     await dataPage.findAll('button').find(button => button.text() === '取消数据修改并重读')!.trigger('click')
     await flushPromises()
-    expect(close().attributes('disabled')).toBeUndefined()
-    await close().trigger('click')
+    expect(dataPage.findComponent(RendererDialog).props('closeDisabled')).toBe(false)
+    expect(footerClose().attributes('disabled')).toBeUndefined()
+    dataPage.findComponent(RendererDialog).vm.$emit('update:modelValue', false)
     await flushPromises()
-    expect(wrapper.findComponent(DictionaryData).exists()).toBe(false)
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(true)
+    expect(wrapper.find('.dictionary-data-page').exists()).toBe(false)
     expect(dictionaryHttp.saves).toHaveLength(0)
+  })
+
+  it('releases the current data owner before switching to design, another dictionary, or create mode', async () => {
+    http.dictionaryRows.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '第二字典', createuser: 'U-ROW', StructureTypeID: 'S1'})
+    dictionaryHttp.records['_Base_DictType']!.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '第二字典', dictionaryType: '0',
+      val: '编码', txt: '名称', secondValue: '', thirdValue: '', fourthvalue: '', fiveValue: '', functiondesc: ''})
+    const {wrapper} = await openCatalog()
+    const catalogTable = wrapper.findComponent(RendererTable)
+    const catalogRows = catalogTable.findAll('.el-table__body .el-table__row')
+    expect(catalogRows).toHaveLength(2)
+    await catalogRows[0]!.trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    const exposed = dataPage.vm.$.exposed
+    if (exposed === null || typeof exposed['releaseClean'] !== 'function') throw new Error('数据页未暴露clean release')
+    const release = vi.spyOn(exposed, 'releaseClean').mockImplementation(() => {throw new Error('AI临时视图仍有关系引用')})
+    const originalDataSet = sets.at(-1)
+    if (originalDataSet === undefined) throw new Error('字典编辑DataSet没有由目录宿主创建')
+
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await wrapper.findAll('button').find(button => button.text() === '方案设计')!.trigger('click')
+    await wrapper.findAll('button').find(button => button.text() === '新增字典')!.trigger('click')
+    await flushPromises()
+
+    expect(release).toHaveBeenCalledTimes(3)
+    expect(wrapper.findComponent(DictionaryData).text()).toContain('当前方案：配色（D1）')
+    expect(wrapper.findComponent(DictionaryData).props('open')).toBe(true)
+    expect(originalDataSet.destroyed).toBe(false)
+    expect(sets).toHaveLength(1)
+    expect(wrapper.text()).not.toContain('保存设计')
+  })
+
+  it('keeps an unsubmitted AI business prompt dirty in the real directory owner and blocks close and switching', async () => {
+    service.readRequestScope.mockReturnValue({token: 'scope', headers: {'tenant-id': 'ENT', 'X-AppId': 'APP'}})
+    vi.stubEnv('VITE_AI_DATA_ENTRY_AGENTS', JSON.stringify({ENT: 'AGENT-DICTIONARY'}))
+    http.dictionaryRows.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '第二字典', createuser: 'U-ROW', StructureTypeID: 'S1'})
+    const hosts: AiDataEntryHost[] = [], attachments: AiDataEntryAttachment[] = []
+    captureDictionaryAiOwner(hosts, attachments)
+    const {wrapper, router, dynamic} = await openCatalog('/t/ENT/PROJ/catalog')
+    const catalogTable = wrapper.findComponent(RendererTable)
+    await catalogTable.findAll('.el-table__body .el-table__row')[0]!.trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    await dataPage.findAll('button').find(button => button.text() === 'AI 候选')!.trigger('click')
+    await flushPromises()
+    const ai = dataPage.findComponent(SparkAiDataEntry)
+    await ai.get('textarea').setValue('保留在目录owner中的业务提示')
+    await flushPromises()
+
+    const instance = dynamic.getSystemPageInstance(router.currentRoute.value)
+    const dataSet = sets.at(-1)
+    if (instance === undefined || dataSet === undefined || hosts.length !== 1 || attachments.length !== 1) {
+      throw new Error('真实目录未建立系统页实例、字典DataSet或AI host attachment')
+    }
+    const input = dataSet.getView('AiDataEntryInput', 'default')
+    const inputRow = input?.currentRow
+    if (input === undefined || inputRow === null || inputRow === undefined) throw new Error('AI输入视图没有当前提示行')
+
+    expect(input.hasEditingChanges()).toBe(true)
+    expect(input.getEditingRow(input.getPkKey(inputRow)!)?.['businessPrompt']).toBe('保留在目录owner中的业务提示')
+    expect(hosts[0]!.isDirty).toBe(true)
+    expect(dataPage.vm.isDirty).toBe(true)
+    expect(instance.isDirty).toBe(true)
+    expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
+    expect(() => dynamic.closeSystemPageInstance(instance.instanceId)).toThrow('未保存')
+    expect(dataPage.findAll('button').find(button => button.text() === '关闭')!.attributes('disabled')).toBeDefined()
+
+    const dataDialog = dataPage.findComponent(RendererDialog)
+    dataDialog.vm.$emit('update:modelValue', false)
+    await flushPromises()
+    expect(dataDialog.props('modelValue')).toBe(true)
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.attributes('disabled')).toBeDefined()
+    expect(dataPage.text()).toContain('当前方案：配色（D1）')
+    expect(attachments[0]!.signal.aborted).toBe(false)
+  })
+
+  it('retains a lost AI create capture across candidate unmount and reattachment without reposting', async () => {
+    service.readRequestScope.mockReturnValue({token: 'scope', headers: {'tenant-id': 'ENT', 'X-AppId': 'APP'}})
+    vi.stubEnv('VITE_AI_DATA_ENTRY_AGENTS', JSON.stringify({ENT: 'AGENT-DICTIONARY'}))
+    http.failAiCreate = true
+    const hosts: AiDataEntryHost[] = [], attachments: AiDataEntryAttachment[] = []
+    captureDictionaryAiOwner(hosts, attachments)
+    const {wrapper, router, dynamic} = await openCatalog('/t/ENT/PROJ/catalog')
+    const catalogTable = wrapper.findComponent(RendererTable)
+    await catalogTable.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    await dataPage.findAll('button').find(button => button.text() === 'AI 候选')!.trigger('click')
+    await flushPromises()
+    const ai = dataPage.findComponent(SparkAiDataEntry)
+    await ai.get('textarea').setValue('创建回执未知的提示')
+    await dataPage.findAll('button').find(button => button.text() === '开始生成')!.trigger('click')
+    await flushPromises()
+
+    const instance = dynamic.getSystemPageInstance(router.currentRoute.value)
+    const dataSet = sets.at(-1)
+    if (instance === undefined || dataSet === undefined || hosts.length !== 1 || attachments.length !== 1) {
+      throw new Error('真实目录未建立系统页实例、字典DataSet或AI host attachment')
+    }
+    const requestView = dataSet.getView('AiTurnRequest', 'default')
+    const requestRow = requestView?.rows[0]
+    const idempotencyKey = requestRow?.['idempotencyKey']
+    if (requestView === undefined || requestRow === undefined || typeof idempotencyKey !== 'string') {
+      throw new Error('未知AI创建未保留正式AiTurnRequest捕获')
+    }
+    const postCount = http.aiRequests.filter(request => request.method === 'POST' && request.url === '/api/ai/v1/turns').length
+    expect(postCount).toBe(1)
+    expect(requestView.hasUnconfirmedSave).toBe(true)
+    expect(hosts[0]!.isDirty).toBe(true)
+    expect(dataPage.vm.isDirty).toBe(true)
+    expect(instance.isDirty).toBe(true)
+    expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
+    expect(() => dynamic.closeSystemPageInstance(instance.instanceId)).toThrow('未保存')
+
+    const setupState: unknown = Reflect.get(dataPage.vm.$, 'setupState')
+    if (typeof setupState !== 'object' || setupState === null || !Reflect.set(setupState, 'aiVisible', false)) {
+      throw new Error('无法在测试中卸载AI面板组件')
+    }
+    await flushPromises()
+    expect(dataPage.findComponent(SparkAiDataEntry).exists()).toBe(false)
+    expect(attachments[0]!.signal.aborted).toBe(true)
+    expect(hosts[0]!.isDirty).toBe(true)
+    expect(dataPage.vm.isDirty).toBe(true)
+
+    if (!Reflect.set(setupState, 'aiVisible', true)) throw new Error('无法在测试中重挂AI面板组件')
+    await flushPromises()
+    expect(dataPage.findComponent(SparkAiDataEntry).exists()).toBe(true)
+    expect(attachments).toHaveLength(2)
+    expect(attachments[1]!.session).toBe(attachments[0]!.session)
+    expect(attachments[1]!.session.hasUnconfirmedSave).toBe(true)
+    expect(attachments[1]!.session.input.hasEditingChanges()).toBe(true)
+    expect(dataSet.getView('AiTurnRequest', 'default')?.rows[0]?.['idempotencyKey']).toBe(idempotencyKey)
+    expect(http.aiRequests.filter(request => request.method === 'POST' && request.url === '/api/ai/v1/turns')).toHaveLength(postCount)
+    expect(hosts[0]!.isDirty).toBe(true)
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.isDirty).toBe(true)
   })
 
   it('keeps the data workspace open when a save receipt is unknown', async () => {
@@ -560,7 +766,8 @@ describe('dictionary catalog formal view assembly', () => {
     const d1RuntimeDataSet = sets.at(-1)!
     await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click')
     await flushPromises()
-    expect(wrapper.findComponent(DictionaryData).exists()).toBe(false)
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(true)
+    expect(wrapper.find('.dictionary-data-page').exists()).toBe(false)
     expect(d1RuntimeDataSet.destroyed).toBe(true)
 
     await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click')

@@ -22,7 +22,10 @@ export class LowcodeDatabaseServer {
     if (!scenarioId.trim()) throw new Error('服务器管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
     const scope = lowcodeApi.readRequestScope()
     const assertCurrent = (): void => {
-      if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('服务器目录请求所属应用或登录身份已变化')
+      const current = lowcodeApi.readRequestScope()
+      if (current.token !== scope.token || current.headers['X-AppId'] !== scope.headers['X-AppId']) {
+        throw new Error('服务器目录请求所属应用或登录身份已变化')
+      }
     }
     const dataSpaceId = await resolveDatabaseCatalogDataSpaceId({preferredScenarioId: scenarioId, metaNames: [DATABASE_SERVER_MODEL], options, assertCurrent})
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}

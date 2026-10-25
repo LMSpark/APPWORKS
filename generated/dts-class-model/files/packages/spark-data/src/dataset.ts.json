@@ -486,6 +486,16 @@
         "method.addTable.return": {
           "$ref": "data-table.ts.json#/$defs/DataTable"
         },
+        "method.assertCanRemoveTable.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanRemoveTable.return": true,
         "method.removeTable.params": {
           "type": "object",
           "properties": {
@@ -789,7 +799,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T18:00:49.355Z",
+  "generatedAt": "2026-10-25T08:42:55.763Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -1531,6 +1541,23 @@
                 "type": "reference",
                 "name": "DataTable",
                 "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "assertCanRemoveTable",
+              "jsdoc": "检查指定表能否删除，不改变 DataSet。\n与 removeTable 共用完整 resourceRelations（含 filterExpression）及 viewCascades 引用校验。\n@throws 表不存在或仍被关系/级联引用时抛 Error。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

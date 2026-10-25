@@ -113,6 +113,7 @@ export function runArchitectureCli(argv = process.argv.slice(2)) {
 }
 
 function checkSrcImplementationRules(root, exclude, violations) {
+  const legacyFeaturesRoot = path.resolve(root, 'src/features')
   const files = collectSourceFiles({
     root,
     includeRoots: ['src'],
@@ -128,10 +129,11 @@ function checkSrcImplementationRules(root, exclude, violations) {
     checkPattern(content, rel, /function\s+compileTemplate/u, 'src/ must not implement template compilation', violations)
     checkPattern(content, rel, /function\s+createSandbox/u, 'src/ must not implement sandbox creation', violations)
 
-    if (rel.includes('/features/')) continue
+    if (isPathWithin(legacyFeaturesRoot, filePath)) continue
     forEachParsedSource(filePath, root, ({ file, sourceFile, lineOffset }) => {
       for (const ref of collectModuleReferences(sourceFile)) {
-        if (ref.specifier === '@/features' || ref.specifier.startsWith('@/features/') || ref.specifier.includes('/features/')) {
+        const targetPath = resolveSrcModuleTarget(root, filePath, ref.specifier)
+        if (targetPath && isPathWithin(legacyFeaturesRoot, targetPath)) {
           violations.push({
             file,
             line: lineFor(sourceFile, ref.node, lineOffset),
@@ -141,6 +143,25 @@ function checkSrcImplementationRules(root, exclude, violations) {
       }
     })
   }
+}
+
+function resolveSrcModuleTarget(root, importerPath, specifier) {
+  if (specifier.startsWith('@/')) {
+    return path.resolve(root, 'src', specifier.slice(2))
+  }
+  if (specifier.startsWith('/src/')) {
+    return path.resolve(root, specifier.slice(1))
+  }
+  if (specifier.startsWith('.')) {
+    return path.resolve(path.dirname(importerPath), specifier)
+  }
+  return undefined
+}
+
+function isPathWithin(directory, targetPath) {
+  const relative = path.relative(directory, targetPath)
+  return relative === ''
+    || (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
 }
 
 function checkWorkspacePackageImports(root, exclude, violations) {

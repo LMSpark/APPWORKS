@@ -1,0 +1,2 @@
+$ node tools/verify-docs.mjs
+Doc governance verification passed: 451 file(s) checked.

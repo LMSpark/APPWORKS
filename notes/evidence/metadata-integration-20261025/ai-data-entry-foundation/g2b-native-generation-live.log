@@ -1,0 +1,12 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+WebSocket server error: Port 24678 is already in use
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+{"state":"passed","turnId":"2114063013848944640","candidateCount":2,"businessWrites":0}
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default

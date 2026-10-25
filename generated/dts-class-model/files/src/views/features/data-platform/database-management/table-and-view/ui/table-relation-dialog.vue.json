@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog",
-    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog\n职责：表关系新增/编辑；提交草稿由页面写入 Base_TblRln staged 并 saveChanges。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog\n职责：表关系窄编辑工作区；所有字段均绑定原 Base_TblRln DataView。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-25T07:25:48.378Z",
+  "generatedAt": "2026-10-25T08:42:55.833Z",
   "models": {}
 }

@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "modelId": "D2B9B94A1641BB87E6D3D9251A14D70D",
+  "modelAdded": 1,
+  "fieldsAdded": 25,
+  "outputFieldsChanged": 11,
+  "formalOutputs": [
+    "IsCascadeDeletion",
+    "RelshipExp",
+    "createtime",
+    "createuser",
+    "fkdbid",
+    "fktable",
+    "fktbid",
+    "lingma_sys_ent",
+    "pkdbid",
+    "pktable",
+    "pktbid",
+    "rlname",
+    "rowid"
+  ],
+  "unchangedPriorModels": 6,
+  "layoutNodes": 7,
+  "documentRequests": 0,
+  "limits": [
+    "No relation business row was saved",
+    "Runtime formal primary key and RelshipExp value representation require separate verification",
+    "Layout and database persistence are separate operations"
+  ],
+  "evidence": [
+    {
+      "name": "b2-relation-model-created.json",
+      "sha256": "d5b22b91e0bd7fed55c9c9a0bf1bcbdf33c6d7064b77384929eb1da579c67b32"
+    },
+    {
+      "name": "b2-relation-output-saved.json",
+      "sha256": "7b722a0d066c75152a3d5062337a3b9d9a677146dd98f9a9b0f7b7384a6f7b40"
+    }
+  ]
+}

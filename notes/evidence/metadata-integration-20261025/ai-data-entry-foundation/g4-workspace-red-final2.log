@@ -1,0 +1,376 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > stages formally enabled ordIdx and createuser values while using the domain order default only when absent
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > stages absent non-AI val and txt for manual completion and keeps full save validation
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > fails closed when a supplied code cannot be read
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > allows a batch without val when val and other omitted fields are unreadable or not writable
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not write omitted extension values as null
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts (94 tests | 7 failed) 304ms
+     × stages formally enabled ordIdx and createuser values while using the domain order default only when absent 6ms
+     × stages absent non-AI val and txt for manual completion and keeps full save validation 6ms
+     × rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts 3ms
+     × rejects duplicates across the full batch and against an earlier staged new row 9ms
+     × fails closed when a supplied code cannot be read 2ms
+     × allows a batch without val when val and other omitted fields are unreadable or not writable 2ms
+     × does not write omitted extension values as null 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > stages formally enabled ordIdx and createuser values while using the domain order default only when absent
+AssertionError: promise rejected "Error: 候选条目包含非业务字段或身份字段" instead of resolving
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:921:114
+    919|       expect(workspace.entries.columns.find(column => column.name === …
+    920|       expect(workspace.entries.columns.find(column => column.name === …
+    921|       await expect(workspace.appendEntries([{val: 'AI-ORDERED', txt: '…
+       |                                                                                                                  ^
+    922|         .resolves.toBeUndefined()
+    923|       const firstId = [...workspace.entries.dirtyTracking.pendingCreat…
+
+Caused by: Error: 候选条目包含非业务字段或身份字段
+ ❯ DictionaryWorkspace.prepareEntryAppend src/platform/resources/dictionary/dictionary-workspace.ts:388:96
+ ❯ DictionaryWorkspace.appendEntries src/platform/resources/dictionary/dictionary-workspace.ts:153:27
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:921:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > stages absent non-AI val and txt for manual completion and keeps full save validation
+AssertionError: expected Error: 字典条目编码必须是文本或数值 to be undefined
+
+- Expected:
+undefined
+
++ Received:
+Error {
+  "message": "字典条目编码必须是文本或数值",
+}
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:942:32
+    940|       let appendError: unknown
+    941|       try {await workspace.appendEntries([{exVal_4: '扩展先录'}])} catch (…
+    942|       expect.soft(appendError).toBeUndefined()
+       |                                ^
+    943|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    944|       const id = [...workspace.entries.dirtyTracking.pendingCreateIds]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > stages absent non-AI val and txt for manual completion and keeps full save validation
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:943:74
+    941|       try {await workspace.appendEntries([{exVal_4: '扩展先录'}])} catch (…
+    942|       expect.soft(appendError).toBeUndefined()
+    943|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+       |                                                                          ^
+    944|       const id = [...workspace.entries.dirtyTracking.pendingCreateIds]…
+    945|       if (id !== undefined) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:967:58
+    965|       workspace.entries.updateEditingValue('E1', 'val', ' Blue ')
+    966|       const duplicate = [{val: 'blue', txt: '重复编码'}]
+    967|       expect.soft(workspace.entryAppendError(duplicate)).toMatch(/重复/)
+       |                                                          ^
+    968|       let appendError: unknown
+    969|       try {await workspace.appendEntries(duplicate)} catch (error) {ap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts
+AssertionError: expected undefined to be an instance of Error
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:970:32
+    968|       let appendError: unknown
+    969|       try {await workspace.appendEntries(duplicate)} catch (error) {ap…
+    970|       expect.soft(appendError).toBeInstanceOf(Error)
+       |                                ^
+    971|       expect.soft(appendError instanceof Error ? appendError.message :…
+    972|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts
+AssertionError: expected '' to match /重复/
+
+- Expected:
+/重复/
+
++ Received:
+""
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:971:76
+    969|       try {await workspace.appendEntries(duplicate)} catch (error) {ap…
+    970|       expect.soft(appendError).toBeInstanceOf(Error)
+    971|       expect.soft(appendError instanceof Error ? appendError.message :…
+       |                                                                            ^
+    972|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    973|       expect.soft(workspace.entries.getEditingRow('E1')?.['val']).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects loaded-code duplicates after applying an existing entry editing overlay without touching drafts
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:972:74
+    970|       expect.soft(appendError).toBeInstanceOf(Error)
+    971|       expect.soft(appendError instanceof Error ? appendError.message :…
+    972|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+       |                                                                          ^
+    973|       expect.soft(workspace.entries.getEditingRow('E1')?.['val']).toBe…
+    974|       expect.soft(http.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:982:63
+    980|       await workspace.load()
+    981|       const duplicateBatch = [{val: 'Batch-Code', txt: '首项'}, {val: ' …
+    982|       expect.soft(workspace.entryAppendError(duplicateBatch)).toMatch(…
+       |                                                               ^
+    983|       let appendError: unknown
+    984|       try {await workspace.appendEntries(duplicateBatch)} catch (error…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected '' to match /重复/
+
+- Expected:
+/重复/
+
++ Received:
+""
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:985:76
+    983|       let appendError: unknown
+    984|       try {await workspace.appendEntries(duplicateBatch)} catch (error…
+    985|       expect.soft(appendError instanceof Error ? appendError.message :…
+       |                                                                            ^
+    986|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    987|       expect.soft(workspace.entries.rows.filter(row => row['val'] === …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected 2 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:986:74
+    984|       try {await workspace.appendEntries(duplicateBatch)} catch (error…
+    985|       expect.soft(appendError instanceof Error ? appendError.message :…
+    986|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+       |                                                                          ^
+    987|       expect.soft(workspace.entries.rows.filter(row => row['val'] === …
+    988|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected [ { typeid: 'D1', …(10) }, …(1) ] to have a length of +0 but got 2
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:987:119
+    985|       expect.soft(appendError instanceof Error ? appendError.message :…
+    986|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    987|       expect.soft(workspace.entries.rows.filter(row => row['val'] === …
+       |                                                                                                                       ^
+    988|
+    989|       await workspace.appendEntries([{val: 'Earlier-Draft', txt: '已暂存'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected '' to match /重复/
+
+- Expected:
+/重复/
+
++ Received:
+""
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:992:76
+    990|       let secondError: unknown
+    991|       try {await workspace.appendEntries([{val: ' earlier-draft ', txt…
+    992|       expect.soft(secondError instanceof Error ? secondError.message :…
+       |                                                                            ^
+    993|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    994|       expect.soft(workspace.entries.rows.filter(row => String(row['val…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected 4 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 4
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:993:74
+    991|       try {await workspace.appendEntries([{val: ' earlier-draft ', txt…
+    992|       expect.soft(secondError instanceof Error ? secondError.message :…
+    993|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+       |                                                                          ^
+    994|       expect.soft(workspace.entries.rows.filter(row => String(row['val…
+    995|       expect.soft(http.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > rejects duplicates across the full batch and against an earlier staged new row
+AssertionError: expected [ { typeid: 'D1', …(10) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:994:118
+    992|       expect.soft(secondError instanceof Error ? secondError.message :…
+    993|       expect.soft(workspace.entries.dirtyTracking.pendingCreateIds.siz…
+    994|       expect.soft(workspace.entries.rows.filter(row => String(row['val…
+       |                                                                                                                      ^
+    995|       expect.soft(http.saves).toHaveLength(0)
+    996|     } finally {dataSet.destroy()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > fails closed when a supplied code cannot be read
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:1003:86
+    1001|     try {
+    1002|       await unreadable.workspace.load()
+    1003|       await expect(unreadable.workspace.appendEntries([{val: 'new-code…
+       |                                                                                      ^
+    1004|       expect(unreadable.workspace.entries.dirtyTracking.pendingCreateI…
+    1005|     } finally {unreadable.dataSet.destroy()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > allows a batch without val when val and other omitted fields are unreadable or not writable
+AssertionError: expected Error: 字典条目编码必须是文本或数值 to be undefined
+
+- Expected:
+undefined
+
++ Received:
+Error {
+  "message": "字典条目编码必须是文本或数值",
+}
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:1018:32
+    1016|       let appendError: unknown
+    1017|       try {await partial.workspace.appendEntries([{exVal_4: '唯一提供的扩展'}…
+    1018|       expect.soft(appendError).toBeUndefined()
+       |                                ^
+    1019|       expect.soft(partial.workspace.entries.dirtyTracking.pendingCreat…
+    1020|       expect.soft(partial.http.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > allows a batch without val when val and other omitted fields are unreadable or not writable
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:1019:82
+    1017|       try {await partial.workspace.appendEntries([{exVal_4: '唯一提供的扩展'}…
+    1018|       expect.soft(appendError).toBeUndefined()
+    1019|       expect.soft(partial.workspace.entries.dirtyTracking.pendingCreat…
+       |                                                                                  ^
+    1020|       expect.soft(partial.http.saves).toHaveLength(0)
+    1021|     } finally {partial.dataSet.destroy()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > does not write omitted extension values as null
+AssertionError: expected { typeid: 'D1', …(10) } to not have property "exVal_1"
+
+- Expected:
+undefined
+
++ Received:
+null
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:1042:29
+    1040|       const candidate = workspace.entries.getEditingRow(id!)
+    1041|       expect(candidate).toMatchObject({val: 'ONLY-SUPPLIED', txt: '仅提供…
+    1042|       expect(candidate).not.toHaveProperty('exVal_1')
+       |                             ^
+    1043|       expect(candidate).not.toHaveProperty('exVal_2')
+    1044|       expect(candidate).not.toHaveProperty('exVal_3')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 87 passed (94)
+   Start at  03:38:04
+   Duration  1.86s (transform 965ms, setup 0ms, import 1.27s, tests 304ms, environment 0ms)
+
+undefined
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-lowcode-api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts

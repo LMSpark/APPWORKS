@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/database/database-catalog-db-view-ops",
-    "jsdoc": "@module app:lowcode/resources/database/database-catalog-db-view-ops\n职责：_base_dbInfo 注册/编辑编排（非 query/save owner）。",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-db-view-ops\n职责：_base_dbInfo 单行新增编排（非 query/save owner）。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DatabaseCatalogDbEditState",
@@ -21,7 +21,14 @@
       "title": "DatabaseCatalogDbEditState",
       "properties": {
         "id": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "mode": {
           "const": "add"
@@ -43,7 +50,14 @@
       "title": "DatabaseCatalogDbEditingUi",
       "properties": {
         "id": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "mode": {
           "const": "add"
@@ -70,18 +84,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T00:16:12.858Z",
+  "generatedAt": "2026-10-25T08:42:55.803Z",
   "models": {
     "DatabaseCatalogDbEditState": {
       "name": "DatabaseCatalogDbEditState",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    mode: 'add';\n    row: DataRow;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    row: DataRow;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    mode: 'add';\n    row: DataRow;\n}>",
+            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    row: DataRow;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -111,11 +125,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],

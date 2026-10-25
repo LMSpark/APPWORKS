@@ -10,6 +10,7 @@ import {
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
   LowcodeDatabaseTableView,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
+import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
 import {
   databaseCatalogHasDesensitizationRules,
   databaseCatalogHasEncryptionDictionary,
@@ -22,6 +23,7 @@ import {
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
+  databaseTableViewModels,
   bootstrapDatabaseTableViewRuntime,
 } from './database-table-view.fixture'
 
@@ -42,6 +44,80 @@ beforeEach(() => {
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
 describe('LowcodeDatabaseTableView', () => {
+  it('assembles and loads the four catalog models when the target has no server directory', async () => {
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
+      if (metaName === DATABASE_SERVER_MODEL) throw new Error('当前目录空间没有 Base_serverInfo')
+      const model = Object.entries(databaseTableViewModels).find(([name]) => name === metaName)?.[1]
+      if (!model) throw new Error(`unexpected model ${metaName}`)
+      return Promise.resolve(model)
+    })
+
+    let dataSet: DataSet | undefined
+    let loadError: unknown
+    try {
+      dataSet = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID, {
+        resolvedDataSpaceId: DATABASE_TABLE_VIEW_SCENARIO_ID,
+      })
+    } catch (error) {
+      loadError = error
+    }
+    expect(loadError).toBeUndefined()
+    if (!dataSet) return
+    sets.push(dataSet)
+    const dbView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
+    expect(dbView?.rows.map(row => row['rowid'])).toEqual(['DB1'])
+    expect(dataSet.getView(DATABASE_SERVER_MODEL, 'default')).toBeUndefined()
+  })
+
+  it('does not narrow the catalog to the first server when databases belong to different servers', async () => {
+    http.rows[DATABASE_CATALOG_DB_MODEL]!.push({
+      rowid: 'DB2', serverId: 'S2', Name: '分析库', ServerName: '分析服务器', SchemaName: 'dbo', Remark: '',
+    })
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    expect(dbView.rows.map(row => row['rowid']).sort()).toEqual(['DB1', 'DB2'])
+  })
+
+  it('uses a formal primary-key filter for a requested database instead of scanning the first page', async () => {
+    http.rows[DATABASE_CATALOG_DB_MODEL]!.push({
+      rowid: 'DB2', serverId: 'S2', Name: '分析库', ServerName: '分析服务器', SchemaName: 'dbo', Remark: '',
+    })
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID, {databaseId: 'DB2'})
+    sets.push(ds)
+    const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    expect(dbView.rows.map(row => dbView.getPkKey(row))).toEqual(['DB2'])
+    expect(dbView.queryConfig.allPages).toBe(false)
+    const request = http.requests.find(item => item.url === '/api/DataOperation/GetData'
+      && JSON.stringify(item.data).includes(DATABASE_CATALOG_DB_MODEL))
+    expect(request?.data).toMatchObject({PageParam: {index: 1, size: 20}})
+    const wire = JSON.stringify(request?.data)
+    expect(wire).toContain('DB2')
+  })
+
+  it('rejects a same-token application change before accepting an old catalog result', async () => {
+    service.readModel.mockImplementation(async ({metaName}: {metaName: string}) => {
+      service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'OTHER-APP'}})
+      const model = Object.entries(databaseTableViewModels).find(([name]) => name === metaName)?.[1]
+      if (!model) throw new Error(`unexpected model ${metaName}`)
+      return model
+    })
+    await expect(LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID))
+      .rejects.toThrow('所属应用或登录身份已变化')
+    expect(http.requests.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(0)
+  })
+
+  it('does not query tables, views, or fields until their parent is selected', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const queriedNames = http.requests
+      .filter(request => request.url === '/api/DataOperation/GetData')
+      .map(request => JSON.stringify(request.data))
+    expect(queriedNames.some(body => body.includes(`\"Name\":\"${DATABASE_CATALOG_TABLE_MODEL}\"`))).toBe(false)
+    expect(queriedNames.some(body => body.includes(`\"Name\":\"${DATABASE_CATALOG_VIEW_MODEL}\"`))).toBe(false)
+    expect(queriedNames.some(body => body.includes(`\"Name\":\"${DATABASE_CATALOG_FIELD_MODEL}\"`))).toBe(false)
+  })
+
   it('loads databases and scopes tables by selected database through query cascade', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

@@ -1,0 +1,31 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+WebSocket server error: Port 24678 is already in use
+{
+  "status": "read-complete",
+  "candidates": [
+    {
+      "id": "2114051153246425088",
+      "agentName": "SPARK通用AI批量录入",
+      "aiModelId": "model-001",
+      "enabled": 1,
+      "callModelName": "deepseek-chat",
+      "functionIds": "",
+      "maxToolRounds": 1,
+      "enableSubtask": 0,
+      "requireApproval": 0,
+      "_pk": "2114051153246425088",
+      "systemPromptSha256": "ecc85af5171a4300a9d2e037f582407cb67a018876ced98dfff68e5c8d7f5a09",
+      "matchesExpectedPrompt": true
+    }
+  ],
+  "creationOutcomeResolved": false
+}
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: AiAgentConfigCreate:default
+🐛 [DataView] 销毁 DataView: AiAgentConfig:default

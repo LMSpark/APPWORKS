@@ -1,9 +1,8 @@
 /**
  * @module app:lowcode/resources/database/database-catalog-relation-form-ops
- * 职责：Base_TblRln 新增/编辑草稿（模型 save，非写命令）。
+ * 职责：Base_TblRln 单行编辑会话及多字段关系端点操作；字段值始终由原 DataView 持有。
  */
-import type {CrudResult, DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
-import {databaseCatalogRelationRefreshForTable} from './database-catalog-relation-view-ops'
+import {RequestState, type CrudResult, type DataRow, type DataView} from '@spark-appworks/spark-data'
 
 export type DatabaseCatalogTableContext = Readonly<{
   tableId: string
@@ -11,168 +10,209 @@ export type DatabaseCatalogTableContext = Readonly<{
   dbId: string
 }>
 
-export type DatabaseCatalogRelationFormDraft = Readonly<{
+export const DATABASE_CATALOG_RELATION_EDIT_FIELDS = [
+  'pkdbid', 'pktbid', 'pktable', 'fkdbid', 'fktbid', 'fktable', 'rlname', 'RelshipExp', 'IsCascadeDeletion',
+] as const
+
+export type DatabaseCatalogRelationSession = Readonly<{
   rowid: string
   mode: 'add' | 'edit'
   currentRole: 'master' | 'child'
-  pkdbid: string
-  pktbid: string
-  pktable: string
-  fkdbid: string
-  fktbid: string
-  fktable: string
-  rlname: string
-  IsCascadeDeletion: string
+  context: DatabaseCatalogTableContext
+  queryIdentity: string
+  checkpoint?: {restore(): void; release(): void}
 }>
 
 function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : value === null || value === undefined ? '' : String(value).trim()
 }
 
-function rowidFromAddRow(created: DataRow | CrudResult<DataRow>): string {
-  if ('rowid' in created && typeof created['rowid'] === 'string') return created['rowid']
-  const data = 'data' in created ? created.data : undefined
-  if (data !== undefined && data !== null && typeof data === 'object' && 'rowid' in data && typeof data['rowid'] === 'string') return data['rowid']
-  return ''
+function queryIdentity(view: DataView): string {
+  return JSON.stringify({queryContext: view.queryContext, filterExpression: view.filterExpression,
+    page: view.page, sortExpression: view.sortExpression})
 }
 
-function cascadeFlag(value: unknown): string {
-  if (value === true || value === 1 || value === '1') return '1'
-  return '0'
+function requireLoaded(view: DataView): void {
+  if (view.requestState !== RequestState.Loaded) throw new Error('关系目录查询未完成，不能编辑')
+  if (view.loadingError) throw view.loadingError
+  if (view.mutating || view.hasUnconfirmedSave) throw new Error('关系目录正在保存或结果未确认')
 }
 
-function row(view: DataView, id: string): DataRow | undefined {
-  return view.rows.find(item => view.getPkKey(item) === id)
+function sourceRow(view: DataView, id: string): DataRow {
+  const found = view.rows.find(item => view.getPkKey(item) === id)
+  if (!found) throw new Error('所选关系已不在当前列表')
+  return found
+}
+
+function editingRow(view: DataView, id: string): DataRow {
+  const row = view.getEditingRow(id)
+  if (!row) throw new Error('关系编辑目标已变化')
+  return row
+}
+
+function createdRowId(result: DataRow | CrudResult<DataRow>): string {
+  if ('rowid' in result && typeof result['rowid'] === 'string') return result['rowid']
+  const data = 'data' in result ? result.data : undefined
+  return data !== undefined && data !== null && typeof data === 'object'
+    && 'rowid' in data && typeof data['rowid'] === 'string' ? data['rowid'] : ''
+}
+
+export function databaseCatalogRelationAssertSession(
+  view: DataView,
+  session: DatabaseCatalogRelationSession,
+  context: DatabaseCatalogTableContext,
+): DataRow {
+  requireLoaded(view)
+  return databaseCatalogRelationAssertIdentity(view, session, context)
+}
+
+/** Unknown-write recovery may bypass ordinary query/loading guards, but must retain the original target identity. */
+export function databaseCatalogRelationAssertIdentity(
+  view: DataView,
+  session: DatabaseCatalogRelationSession,
+  context: DatabaseCatalogTableContext,
+): DataRow {
+  if (queryIdentity(view) !== session.queryIdentity
+    || context.tableId !== session.context.tableId
+    || context.dbId !== session.context.dbId
+    || context.tableName !== session.context.tableName) {
+    throw new Error('表关系编辑目标或查询身份已变化，请重新打开')
+  }
+  return editingRow(view, session.rowid)
 }
 
 export function databaseCatalogRelationInferRole(ctx: DatabaseCatalogTableContext, relationRow: DataRow): 'master' | 'child' {
-  const tableId = ctx.tableId
-  const pktbid = text(relationRow['pktbid'])
-  const fktbid = text(relationRow['fktbid'])
-  if (pktbid === tableId) return 'master'
-  if (fktbid === tableId) return 'child'
-  return 'child'
-}
-
-export function databaseCatalogRelationDraftFromRow(
-  relationRow: DataRow,
-  mode: 'add' | 'edit',
-  currentRole: 'master' | 'child',
-): DatabaseCatalogRelationFormDraft {
-  const rowid = text(relationRow['rowid'])
-  if (!rowid) throw new Error('关系行缺少主键')
-  return {
-    rowid,
-    mode,
-    currentRole,
-    pkdbid: text(relationRow['pkdbid']),
-    pktbid: text(relationRow['pktbid']),
-    pktable: text(relationRow['pktable']),
-    fkdbid: text(relationRow['fkdbid']),
-    fktbid: text(relationRow['fktbid']),
-    fktable: text(relationRow['fktable']),
-    rlname: text(relationRow['rlname']),
-    IsCascadeDeletion: cascadeFlag(relationRow['IsCascadeDeletion']),
-  }
-}
-
-export function databaseCatalogRelationValidateDraft(draft: DatabaseCatalogRelationFormDraft): void {
-  if (!text(draft.pktbid)) throw new Error('请选择主表')
-  if (!text(draft.fktbid)) throw new Error('请选择从表')
-  if (draft.pktbid === draft.fktbid) throw new Error('主表与从表不能相同')
-  if (!text(draft.rlname)) throw new Error('请填写关系表达式')
+  const isMaster = text(relationRow['pktbid']) === ctx.tableId
+  const isChild = text(relationRow['fktbid']) === ctx.tableId
+  if (isMaster === isChild) throw new Error('当前表不唯一匹配此关系端点，不能编辑')
+  return isMaster ? 'master' : 'child'
 }
 
 export async function databaseCatalogRelationPrepareCreate(
   view: DataView,
   ctx: DatabaseCatalogTableContext,
   currentRole: 'master' | 'child',
-): Promise<DatabaseCatalogRelationFormDraft> {
-  if (view.mutating || view.hasUnconfirmedSave) throw new Error('关系目录正在保存或结果未确认')
-  const created = await view.addRow({
+): Promise<DatabaseCatalogRelationSession> {
+  requireLoaded(view)
+  if (view.commitMode !== 'staged') throw new Error('关系视图必须使用暂存提交')
+  const result = await view.addRow({
     pkdbid: ctx.dbId,
+    pktbid: currentRole === 'master' ? ctx.tableId : '',
+    pktable: currentRole === 'master' ? ctx.tableName : '',
     fkdbid: ctx.dbId,
+    fktbid: currentRole === 'child' ? ctx.tableId : '',
+    fktable: currentRole === 'child' ? ctx.tableName : '',
     rlname: '',
-    IsCascadeDeletion: '0',
-    ...(currentRole === 'master'
-      ? {pktbid: ctx.tableId, pktable: ctx.tableName, fktbid: '', fktable: ''}
-      : {fktbid: ctx.tableId, fktable: ctx.tableName, pktbid: '', pktable: ''}),
+    RelshipExp: '',
+    IsCascadeDeletion: 0,
   })
-  const rowid = rowidFromAddRow(created)
-  if (!rowid) throw new Error('新增关系行的身份无效')
-  const current = row(view, rowid)
-  if (!current) throw new Error('新增关系行未进入视图')
-  view.setCurrentRowById(rowid)
-  view.setSelectedRows([current])
-  return databaseCatalogRelationDraftFromRow(current, 'add', currentRole)
+  const createdId = text(createdRowId(result))
+  if (!createdId || !view.dirtyTracking.isPendingCreate(createdId)) throw new Error('新增关系行身份无效')
+  const created = sourceRow(view, createdId)
+  view.setCurrentRowById(createdId)
+  view.setSelectedRows([created])
+  return {rowid: createdId, mode: 'add', currentRole, context: {...ctx}, queryIdentity: queryIdentity(view)}
 }
 
 export function databaseCatalogRelationPrepareEdit(
   view: DataView,
   ctx: DatabaseCatalogTableContext,
   relationId: string,
-): DatabaseCatalogRelationFormDraft {
-  const target = row(view, relationId)
-  if (!target) throw new Error('所选关系已不在当前列表')
-  view.setCurrentRowById(relationId)
-  view.setSelectedRows([target])
+): DatabaseCatalogRelationSession {
+  requireLoaded(view)
+  const target = editingRow(view, relationId)
   const currentRole = databaseCatalogRelationInferRole(ctx, target)
-  return databaseCatalogRelationDraftFromRow(target, 'edit', currentRole)
+  const checkpoint = view.createEditingCheckpoint(relationId, DATABASE_CATALOG_RELATION_EDIT_FIELDS)
+  view.setCurrentRowById(relationId)
+  view.setSelectedRows([sourceRow(view, relationId)])
+  return {rowid: relationId, mode: 'edit', currentRole, context: {...ctx}, queryIdentity: queryIdentity(view), checkpoint}
 }
 
-export function databaseCatalogRelationPeerTableId(draft: DatabaseCatalogRelationFormDraft): string {
-  return draft.currentRole === 'master' ? draft.fktbid : draft.pktbid
-}
-
-export function databaseCatalogRelationWithPeerTable(
-  draft: DatabaseCatalogRelationFormDraft,
-  peer: Readonly<{rowid: string; tblname: string; dbid: string}>,
-): DatabaseCatalogRelationFormDraft {
-  const peerId = text(peer.rowid)
-  const peerName = text(peer.tblname)
-  const peerDb = text(peer.dbid)
-  if (draft.currentRole === 'master') {
-    return {...draft, fkdbid: peerDb, fktbid: peerId, fktable: peerName}
+function assertWritable(view: DataView, session: DatabaseCatalogRelationSession, fields: readonly string[]): DataRow {
+  const row = editingRow(view, session.rowid)
+  for (const field of fields) {
+    const access = session.mode === 'add' ? view.newRowFieldAccess(field) : view.fieldAccess(row, field)
+    if (access.read !== 'visible' || access.write !== 'allowed') throw new Error(`关系字段 ${field} 当前不可写，未修改任何端点`)
   }
-  return {...draft, pkdbid: peerDb, pktbid: peerId, pktable: peerName}
+  return row
 }
 
-export async function databaseCatalogRelationApplyDraft(view: DataView, draft: DatabaseCatalogRelationFormDraft): Promise<void> {
-  databaseCatalogRelationValidateDraft(draft)
-  const target = row(view, draft.rowid)
-  if (!target) throw new Error('关系编辑目标已变化')
-  await view.editRowById(draft.rowid, {
-    pkdbid: draft.pkdbid,
-    pktbid: draft.pktbid,
-    pktable: draft.pktable,
-    fkdbid: draft.fkdbid,
-    fktbid: draft.fktbid,
-    fktable: draft.fktable,
-    rlname: draft.rlname,
-    IsCascadeDeletion: draft.IsCascadeDeletion,
+function writeFields(view: DataView, id: string, patch: Readonly<Record<string, unknown>>): void {
+  for (const [field, value] of Object.entries(patch)) view.updateEditingValue(id, field, value)
+}
+
+export function databaseCatalogRelationSwitchRole(options: Readonly<{
+  view: DataView
+  session: DatabaseCatalogRelationSession
+  context: DatabaseCatalogTableContext
+  nextRole: 'master' | 'child'
+}>): DatabaseCatalogRelationSession {
+  const {view, session, context, nextRole} = options
+  const current = databaseCatalogRelationAssertSession(view, session, context)
+  if (nextRole === session.currentRole) return session
+  const otherPrefix = session.currentRole === 'master' ? 'fk' : 'pk'
+  const fields = ['pkdbid', 'pktbid', 'pktable', 'fkdbid', 'fktbid', 'fktable', 'RelshipExp']
+  assertWritable(view, session, fields)
+  const peerId = text(current[`${otherPrefix}tbid`])
+  const keepPeer = peerId.length > 0 && peerId !== context.tableId
+  const patch: Record<string, unknown> = nextRole === 'master'
+    ? {pkdbid: context.dbId, pktbid: context.tableId, pktable: context.tableName,
+      fkdbid: keepPeer ? current[`${otherPrefix}dbid`] : '', fktbid: keepPeer ? peerId : '', fktable: keepPeer ? current[`${otherPrefix}table`] : '',
+      RelshipExp: ''}
+    : {fkdbid: context.dbId, fktbid: context.tableId, fktable: context.tableName,
+      pkdbid: keepPeer ? current[`${otherPrefix}dbid`] : '', pktbid: keepPeer ? peerId : '', pktable: keepPeer ? current[`${otherPrefix}table`] : '',
+      RelshipExp: ''}
+  writeFields(view, session.rowid, patch)
+  return {...session, currentRole: nextRole}
+}
+
+export function databaseCatalogRelationChoosePeer(options: Readonly<{
+  view: DataView
+  session: DatabaseCatalogRelationSession
+  context: DatabaseCatalogTableContext
+  peerRow: DataRow
+}>): void {
+  const {view, session, context, peerRow} = options
+  databaseCatalogRelationAssertSession(view, session, context)
+  const peerId = text(view.getPkKey(peerRow))
+  const peerDb = text(peerRow['dbid'])
+  const peerName = text(peerRow['tblname'])
+  if (peerId.length === 0 || peerId === context.tableId || peerDb !== context.dbId || peerName.length === 0) throw new Error('关系对端必须是当前数据库中另一张已加载物理表')
+  const prefix = session.currentRole === 'master' ? 'fk' : 'pk'
+  const fields = [`${prefix}dbid`, `${prefix}tbid`, `${prefix}table`, 'RelshipExp']
+  assertWritable(view, session, fields)
+  writeFields(view, session.rowid, {
+    [`${prefix}dbid`]: peerDb,
+    [`${prefix}tbid`]: peerId,
+    [`${prefix}table`]: peerName,
+    RelshipExp: '',
   })
 }
 
-export function databaseCatalogRelationCancelDraft(view: DataView, draft: DatabaseCatalogRelationFormDraft): void {
-  if (view.mutating) throw new Error('保存进行中，不能取消')
-  if (draft.mode === 'add') {
-    view.discardPendingChanges([draft.rowid])
+export function databaseCatalogRelationCanChangePeer(
+  view: DataView | undefined,
+  session: DatabaseCatalogRelationSession | undefined,
+  context: DatabaseCatalogTableContext | undefined,
+): boolean {
+  if (!view || !session || !context || view.requestState !== RequestState.Loaded || view.mutating || view.hasUnconfirmedSave) return false
+  try {
+    const row = databaseCatalogRelationAssertSession(view, session, context)
+    const prefix = session.currentRole === 'master' ? 'fk' : 'pk'
+    return [`${prefix}dbid`, `${prefix}tbid`, `${prefix}table`, 'RelshipExp']
+      .every(field => view.fieldAccess(row, field).read === 'visible' && view.fieldAccess(row, field).write === 'allowed')
+  } catch { return false }
+}
+
+export function databaseCatalogRelationCancel(view: DataView, session: DatabaseCatalogRelationSession): void {
+  if (view.mutating || view.hasUnconfirmedSave) throw new Error('关系保存结果待确认，不能取消编辑')
+  if (session.mode === 'add') {
+    view.discardPendingChanges([session.rowid])
     view.clearSelectedRows()
+  } else {
+    session.checkpoint?.restore()
   }
 }
 
-export type DatabaseCatalogRelationSaveDraftInput = Readonly<{
-  dataSet: DataSet
-  view: DataView
-  draft: DatabaseCatalogRelationFormDraft
-  refreshTableId: string
-}>
-
-export async function databaseCatalogRelationSaveDraft(input: DatabaseCatalogRelationSaveDraftInput): Promise<void> {
-  const {dataSet, view, draft, refreshTableId} = input
-  if (view.mutating) throw new Error('关系保存进行中')
-  await databaseCatalogRelationApplyDraft(view, draft)
-  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [draft.rowid]}]})
-  if (!result.success) throw new Error(result.message ?? '保存表关系失败')
-  await databaseCatalogRelationRefreshForTable(view, refreshTableId)
+export function databaseCatalogRelationRelease(session: DatabaseCatalogRelationSession): void {
+  session.checkpoint?.release()
 }

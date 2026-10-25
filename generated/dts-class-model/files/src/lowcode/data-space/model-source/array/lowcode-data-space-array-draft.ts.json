@@ -95,7 +95,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             "initial": {
               "$ref": "#/$defs/ArrayDefinition"

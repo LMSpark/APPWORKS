@@ -1,0 +1,71 @@
+{
+  "kind": "existing-formal-configuration-readonly",
+  "createdAt": "2026-10-24T17:57:14.803Z",
+  "tenant": "NewApp",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/UserLoginByEnt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/agents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai-agent/get"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "2114051153246425088",
+      "agentName": "SPARK通用AI批量录入",
+      "aiModelId": "model-001",
+      "enabled": 1,
+      "callModelName": "deepseek-chat",
+      "functionIds": "",
+      "maxToolRounds": 1,
+      "enableSubtask": 0,
+      "requireApproval": 0,
+      "_pk": "2114051153246425088",
+      "systemPromptSha256": "ecc85af5171a4300a9d2e037f582407cb67a018876ced98dfff68e5c8d7f5a09",
+      "matchesExpectedPrompt": true
+    }
+  ],
+  "creationOutcomeResolved": false,
+  "configurationAdopted": false,
+  "explanation": "Directory and exact ID GET prove current records only; not evidence of the earlier create command result."
+}

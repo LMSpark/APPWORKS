@@ -1,0 +1,42 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data
+
+stdout | src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > assertCanRemoveTable should run the full removal preflight without mutating the DataSet
+🐛 [DataView] 销毁 DataView: Orders:default
+🐛 [DataView] 销毁 DataView: Items:default
+🐛 [DataView] 销毁 DataView: Drafts:default
+
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > does not create a cascade collection when a missing identity cannot be updated or deleted
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > keeps an absent resourceRelations collection absent when relation mutations fail
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > addTable should attach default view to existing onAnyViewChange subscriptions
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > removeTable should fail-fast when table is still referenced by a resource relation or DataView cascade
+ × src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > assertCanRemoveTable should run the full removal preflight without mutating the DataSet 13ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > removeTable should delete unreferenced table
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > updateResourceRelation should replace the canonical filter without rewriting DataView cascade
+ ↓ src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > updateCascade should rebuild DataView cascade metadata
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/dataset/dataset-structure-crud.test.ts > DataSet structure CRUD > assertCanRemoveTable should run the full removal preflight without mutating the DataSet
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ src/tests/dataset/dataset-structure-crud.test.ts:116:32
+    114|     try {
+    115|       const preflight = Reflect.get(ds, 'assertCanRemoveTable')
+    116|       expect(typeof preflight).toBe('function')
+       |                                ^
+    117|       if (typeof preflight !== 'function') return
+    118|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  02:23:02
+   Duration  1.95s (transform 605ms, setup 0ms, import 852ms, tests 14ms, environment 839ms)
+

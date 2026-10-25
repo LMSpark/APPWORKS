@@ -14,22 +14,22 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
       <p v-if="hasUnresolvedCreator" role="status">部分创建人在当前可读用户目录中未解析，保留原始标识。</p>
-      <div :inert="editorPending">
+      <div :inert="workspaceDirty">
         <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
           :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       </div>
     </template>
-    <RendererDialog :model-value="!!editingId" :title="workspaceKind === 'design' ? '字典方案设计' : '字典数据维护'" width="min(1100px, 94vw)"
-      :close-disabled="editorPending" @update:model-value="close">
+    <RendererDialog :model-value="!!editingId && workspaceKind === 'design'" title="字典方案设计" width="min(1100px, 94vw)"
+      :close-disabled="workspaceDirty" @update:model-value="close">
       <DictionarySetting v-if="editingId && workspaceKind === 'design'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
         :application-scenario-id="scenarioId" :create="creating"
         @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
-      <DictionaryData v-else-if="editingId && workspaceKind === 'data'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
-        @pending="editorPending = $event" />
       <template #footer>
-        <RendererButton label="关闭" :disabled="editorPending" @click="close" />
+        <RendererButton label="关闭" :disabled="workspaceDirty" @click="close" />
       </template>
     </RendererDialog>
+    <DictionaryData ref="dataWorkspace" v-bind="workspaceKind === 'data' ? {dictionaryId: editingId} : {}"
+      :open="!!editingId && workspaceKind === 'data'" @pending="editorPending = $event" @close="close" />
   </section>
 </template>
 
@@ -48,6 +48,8 @@ const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-dictionary-list-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId = ref(''), creating = ref(false), editorPending = ref(false)
+const dataWorkspace = ref<{releaseClean(): void; readonly isDirty: boolean}>()
+const workspaceDirty = computed(() => editorPending.value || dataWorkspace.value?.isDirty === true)
 const workspaceKind = ref<'design' | 'data'>('design')
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
@@ -59,9 +61,9 @@ const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === '
 const catalogKey = computed(() => buildDataViewKey('_Base_DictType', 'default', scenarioId.value))
 const applicationsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增字典', permAction: 'create', disabled: loading.value || editorPending.value, onClick: createDictionary}},
-  {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value || editorPending.value, onClick: openSelected}},
-  {type: 'r-button', props: {label: '打开数据维护', disabled: !selected.value || loading.value || editorPending.value, onClick: openData}},
+  {type: 'r-button', props: {label: '新增字典', permAction: 'create', disabled: loading.value || workspaceDirty.value, onClick: createDictionary}},
+  {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value || workspaceDirty.value, onClick: openSelected}},
+  {type: 'r-button', props: {label: '打开数据维护', disabled: !selected.value || loading.value || workspaceDirty.value, onClick: openData}},
   {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
 ]}))
 const hasUnresolvedCreator = computed(() => {
@@ -95,19 +97,34 @@ const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children
   {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', placeholder: '按功能描述筛选'}},
   {type: 'r-text', props: {field: 'createuser', label: '创建人', placeholder: '按姓名片段筛选'}},
 ]}))
-useSystemPageDirtySource({get isDirty() {return editorPending.value}})
+function hasWorkspaceDirty(): boolean {return editorPending.value || dataWorkspace.value?.isDirty === true}
+useSystemPageDirtySource({get isDirty() {return hasWorkspaceDirty()}})
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
+function prepareDataWorkspaceSwitch(): boolean {
+  if (hasWorkspaceDirty()) return false
+  if (workspaceKind.value !== 'data') return true
+  try {dataWorkspace.value?.releaseClean(); return true}
+  catch {return false}
+}
 function openSelected(): void {
-  if (selected.value && !editorPending.value) {workspaceKind.value = 'design'; creating.value = false; editingId.value = selected.value}
+  if (selected.value && prepareDataWorkspaceSwitch()) {workspaceKind.value = 'design'; creating.value = false; editingId.value = selected.value}
 }
 function openData(): void {
-  if (selected.value && !editorPending.value) {workspaceKind.value = 'data'; creating.value = false; editingId.value = selected.value}
+  if (workspaceKind.value === 'data' && editingId.value === selected.value) return
+  if (selected.value && prepareDataWorkspaceSwitch()) {workspaceKind.value = 'data'; creating.value = false; editingId.value = selected.value}
 }
 function createDictionary(): void {
-  if (editorPending.value) return
+  if (!prepareDataWorkspaceSwitch()) return
   workspaceKind.value = 'design'; creating.value = true; editingId.value = crypto.randomUUID().replaceAll('-', '').toUpperCase()
 }
-function close(): void {if (!editorPending.value) {editingId.value = ''; creating.value = false}}
+function close(): void {
+  if (hasWorkspaceDirty()) return
+  if (workspaceKind.value === 'data') {
+    try {dataWorkspace.value?.releaseClean()}
+    catch {return}
+  }
+  editingId.value = ''; creating.value = false
+}
 function cancelled(): void {editorPending.value = false; close()}
 async function refresh(): Promise<void> {
   view.value?.setSelectedRows([])

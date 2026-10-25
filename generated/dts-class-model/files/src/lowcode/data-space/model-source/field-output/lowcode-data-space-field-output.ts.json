@@ -141,7 +141,8 @@
           "title": "ScenarioViewConfig"
         },
         "metadata": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -187,7 +188,8 @@
           "title": "ScenarioViewConfig"
         },
         "metadata": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -268,7 +270,8 @@
                   ]
                 },
                 "metadata": {
-                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                  "type": "object",
+                  "title": "DataSet"
                 },
                 "targetId": {
                   "type": "string"

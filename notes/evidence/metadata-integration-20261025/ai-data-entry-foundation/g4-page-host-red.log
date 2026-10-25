@@ -1,0 +1,105 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/page/dictionary/dictionary-workflow.test.ts > Dictionary independent design and data pages > opens the standard AI entry component from the real DictionaryData entry point with only business prompt input
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/page/dictionary/dictionary-workflow.test.ts > Dictionary independent design and data pages > opens the standard AI entry component from the real DictionaryData entry point with only business prompt input
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/page/dictionary/dictionary-workflow.test.ts > Dictionary independent design and data pages > opens the standard AI entry component from the real DictionaryData entry point with only business prompt input
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: DictionaryAiInput:default
+🐛 [DataView] 销毁 DataView: DictionaryAiCandidates:default
+
+ ❯ tests/runtime/page/dictionary/dictionary-workflow.test.ts (46 tests | 1 failed | 45 skipped) 414ms
+     × opens the standard AI entry component from the real DictionaryData entry point with only business prompt input 412ms
+stdout | tests/runtime/page/dictionary/dictionary-catalog.test.ts > dictionary catalog formal view assembly > keeps the dictionary data owner mounted outside the dialog after a clean close
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/page/dictionary/dictionary-catalog.test.ts > dictionary catalog formal view assembly > keeps the dictionary data owner mounted outside the dialog after a clean close
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/page/dictionary/dictionary-catalog.test.ts > dictionary catalog formal view assembly > keeps the dictionary data owner mounted outside the dialog after a clean close
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+stdout | tests/runtime/page/dictionary/dictionary-catalog.test.ts > dictionary catalog formal view assembly > keeps the dictionary data owner mounted outside the dialog after a clean close
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: Base_StructureType:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+
+ ❯ tests/runtime/page/dictionary/dictionary-catalog.test.ts (40 tests | 1 failed | 39 skipped) 616ms
+     × keeps the dictionary data owner mounted outside the dialog after a clean close 614ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/dictionary/dictionary-catalog.test.ts > dictionary catalog formal view assembly > keeps the dictionary data owner mounted outside the dialog after a clean close
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/runtime/page/dictionary/dictionary-catalog.test.ts:490:65
+    488|     await flushPromises()
+    489|
+    490|     expect.soft(wrapper.findComponent(DictionaryData).exists()).toBe(t…
+       |                                                                 ^
+    491|     expect.soft(editingDataSet.destroyed).toBe(true)
+    492|     expect(dictionaryHttp.saves).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/runtime/page/dictionary/dictionary-workflow.test.ts > Dictionary independent design and data pages > opens the standard AI entry component from the real DictionaryData entry point with only business prompt input
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/runtime/page/dictionary/dictionary-workflow.test.ts:140:64
+    138|     await flushPromises()
+    139|
+    140|     expect.soft(data.findComponent(SparkAiDataEntry).exists()).toBe(tr…
+       |                                                                ^
+    141|     expect.soft(data.text()).toContain('业务提示')
+    142|     expect(data.text()).not.toContain('系统提示词')
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/runtime/page/dictionary/dictionary-workflow.test.ts > Dictionary independent design and data pages > opens the standard AI entry component from the real DictionaryData entry point with only business prompt input
+AssertionError: expected '字典数据维护当前方案：配色（D1）AI 候选 新增条目 删除当前条目 设置…' to contain '业务提示'
+
+Expected: "业务提示"
+Received: "字典数据维护当前方案：配色（D1）AI 候选 新增条目 删除当前条目 设置排序 保存数据 取消数据修改并重读 代码名称色号类别用途说明排序00白#fff基础1AI 候选确认仅加入条目草稿，仍需保存数据；AI结果不会直接保存业务条目。请先查询到已完成的AI轮次生成需求生成候选 查询结果 停止生成 确认加入草稿 放弃候选 代码名称色号类别用途说明No Data"
+
+ ❯ tests/runtime/page/dictionary/dictionary-workflow.test.ts:141:30
+    139|
+    140|     expect.soft(data.findComponent(SparkAiDataEntry).exists()).toBe(tr…
+    141|     expect.soft(data.text()).toContain('业务提示')
+       |                              ^
+    142|     expect(data.text()).not.toContain('系统提示词')
+    143|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 84 skipped (86)
+   Start at  03:37:24
+   Duration  9.58s (transform 9.77s, setup 253ms, import 15.07s, tests 1.03s, environment 1.97s)
+

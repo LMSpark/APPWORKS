@@ -6,7 +6,8 @@ import {DictionarySchema} from '../dictionary-schema'
 import {DictionaryWorkspace} from '../dictionary-workspace'
 
 const definitionFields = ['rowid', 'AppId', 'TypeName', 'dictionaryType', 'functiondesc', 'crttime', ...DictionarySchema.fields.map(field => field.titleField)]
-const entryFields = ['rowid', 'typeid', 'ordIdx', 'crttime', ...DictionarySchema.fields.map(field => field.name)]
+const entryFields = ['rowid', 'typeid', 'ordIdx', 'crttime', 'createuser', ...DictionarySchema.fields.map(field => field.name)]
+const aiEntryFields = new Set(['ordIdx', 'createuser', 'exVal_4', 'val', 'txt'])
 export const initialDefinition = {rowid: 'D1', AppId: 'APP', TypeName: '配色', dictionaryType: '0', val: '代码', txt: '名称',
   secondValue: '色号', thirdValue: '类别', fourthvalue: '用途', fiveValue: '说明', functiondesc: ''}
 export const initialEntry = {rowid: 'E1', typeid: 'D1', ordIdx: 1, val: '00', txt: '白', exVal_1: '#fff', exVal_2: '基础', exVal_3: '', exVal_4: null}
@@ -92,16 +93,18 @@ export function fixture(http = new DictionaryHttp(), create = false, scenarioId 
   ordIdxBounds: Readonly<{min?: number; max?: number}> = {},
   columnOverrides: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {}) {
   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: http.scopeToken, headers: {'X-AppId': 'APP'}})})
-  const models = Object.entries({_Base_DictType: definitionFields, _Base_DictData: entryFields}).map(([name, fields]) => ({
-    id: `${name}-id`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
-    primaryKey: 'rowid', businessMain: false, raw: {}, fields: fields.map((name, order) => ({id: name,
-      modelId: `${name}-id`, name, canonicalName: name, primaryKey: name === 'rowid', description: name,
-      type: columnOverrides[name]?.['type'] === 'number' ? 'number' : columnOverrides[name]?.['type'] === 'string' ? 'string'
-        : name === 'ordIdx' ? 'tinyint' : 'string', output: true, computed: false, order, orderType: '', raw: {}})),
+  const models = Object.entries({_Base_DictType: definitionFields, _Base_DictData: entryFields}).map(([modelName, fields]) => ({
+    id: `${modelName}-id`, name: modelName, metaName: modelName, sourceType: 'table', sourceId: 'DB', sourceName: modelName,
+    primaryKey: 'rowid', businessMain: false, raw: {}, fields: fields.map((fieldName, order) => ({id: fieldName,
+      modelId: `${modelName}-id`, name: fieldName, canonicalName: fieldName, primaryKey: fieldName === 'rowid', description: fieldName,
+      type: columnOverrides[fieldName]?.['type'] === 'number' ? 'number' : columnOverrides[fieldName]?.['type'] === 'string' ? 'string'
+        : fieldName === 'ordIdx' ? 'tinyint' : 'string', output: true, computed: false, order, orderType: '',
+      allowAIAdd: columnOverrides[fieldName]?.['allowAIAdd'] === false ? false : modelName === '_Base_DictData' && aiEntryFields.has(fieldName), raw: {}})),
   })) satisfies Array<Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>
   const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(model => [model.metaName, {
     modelBinding: {modelId: model.id, modelName: model.metaName},
     columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey,
+      allowAIAdd: field.allowAIAdd === true,
       ...(field.name === 'ordIdx' ? ordIdxBounds : {}),
       ...(columnOverrides[field.name] ?? {}),
       ...(requiredFields.includes(`${model.metaName}.${field.name}`) ? {required: true} : {})})),

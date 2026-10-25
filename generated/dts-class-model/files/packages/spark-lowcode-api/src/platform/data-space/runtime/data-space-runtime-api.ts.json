@@ -296,7 +296,8 @@
         "method.queryColumns.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "SparkData.DataColumn"
           }
         },
         "method.executeQuery.params": {

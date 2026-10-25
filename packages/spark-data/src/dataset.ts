@@ -1033,10 +1033,29 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   }
 
   /**
+   * 检查指定表能否删除，不改变 DataSet。
+   * 与 removeTable 共用完整 resourceRelations（含 filterExpression）及 viewCascades 引用校验。
+   * @throws 表不存在或仍被关系/级联引用时抛 Error。
+   */
+  assertCanRemoveTable(tableName: string): void {
+    this.assertRemovableTable(tableName)
+  }
+
+  /**
    * 删除未被数据资源关系或 DataView 输入级联引用的数据表。
    * fail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。
    */
   removeTable(tableName: string): void {
+    const table = this.assertRemovableTable(tableName)
+
+    table.destroy()
+    table.dataSet = undefined
+    const { [tableName]: _removed, ...rest } = this.tables
+    this.tables = rest
+  }
+
+  /** 执行表删除的完整无副作用预检并返回通过校验的表实例。 */
+  private assertRemovableTable(tableName: string): DataTable {
     const table = this.tables[tableName]
     if (!table) throw new Error(`Table "${tableName}" not found in DataSet "${this.dataSetName}"`)
 
@@ -1056,11 +1075,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     if (relatedCascade) {
       throw new Error(`Table "${tableName}" is referenced by viewCascades, remove cascade first`)
     }
-
-    table.destroy()
-    table.dataSet = undefined
-    const { [tableName]: _removed, ...rest } = this.tables
-    this.tables = rest
+    return table
   }
 
   private _relationReferencesTable(relation: DataResourceRelation, tableName: string): boolean {

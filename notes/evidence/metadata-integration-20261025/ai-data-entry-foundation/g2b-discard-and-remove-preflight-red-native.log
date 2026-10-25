@@ -1,0 +1,116 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > allows explicit discard after a definite create refusal and permits a fresh start without replaying the rejected POST
+🐛 [DataView] 销毁 DataView: Items:default
+🐛 [DataView] 销毁 DataView: Items:alternate
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+
+stdout | src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > keeps status reads and permits an explicit retry of the same cancel command after definite refusal
+🐛 [DataView] 销毁 DataView: Items:default
+🐛 [DataView] 销毁 DataView: Items:alternate
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+
+stdout | src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > preflights nested relation references before removing either session table
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: Items:default
+🐛 [DataView] 销毁 DataView: Items:alternate
+🐛 [DataView] 销毁 DataView: AiTurnAgents:default
+🐛 [DataView] 销毁 DataView: AiTurnRequest:default
+🐛 [DataView] 销毁 DataView: AiTurnStatus:default
+🐛 [DataView] 销毁 DataView: AiTurnCancel:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: RelatedItems:default
+
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > requires staged target mode and does not rewrite an immediate target configuration
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > uses the current input DataView prompt and refreshes the exact configured Agent before creating a turn
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > notifies subscribed hosts from native DataView and session state changes until unsubscribed
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > refuses to create a turn when exact Agent catalog readback is missing the configured ID
+ × src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > allows explicit discard after a definite create refusal and permits a fresh start without replaying the rejected POST 79ms
+   → AI轮次命令仍有本地变更，请先显式放弃或处理
+ × src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > keeps status reads and permits an explicit retry of the same cancel command after definite refusal 10ms
+   → expected false to be true // Object.is equality
+ × src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > preflights nested relation references before removing either session table 5ms
+   → expected undefined to be defined
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for array envelope during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for extra key during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for non-finite number during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for fractional integer during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for missing AI-required field during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for empty envelope during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for more than 200 rows during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rejects or withholds candidates for over 200 KB during refresh, before confirm
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > preflights every entry before the first target add when a later entry has an extra field
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > reuses the same field/session contract for unrelated model Items
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > reuses the same field/session contract for unrelated model Vendors
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > rechecks schema flags, field write permission and query identity before confirmation
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > continues formal status reads after target schema changes but withholds stale candidates
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > does not fingerprint unrelated local rows as schema and does not reuse a temporary primary-key name
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > marks a batch consumed before append and never re-adds partial drafts after append failure
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > reopens safely on a second target while preserving the same four turn views and removing only session tables
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > retains turn owner and unknown capture when an in-flight start loses scope
+ ↓ src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > keeps a cancellation unknown busy and does not POST it again during retry or disposal
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > allows explicit discard after a definite create refusal and permits a fresh start without replaying the rejected POST
+Error: AI轮次命令仍有本地变更，请先显式放弃或处理
+ ❯ AiDataEntrySession.assertNoUnknownCommand src/realtime/data-entry/ai-data-entry-session.ts:624:49
+    622|   private assertNoUnknownCommand(): void {
+    623|     if (this.hasUnconfirmedSave) throw new Error('AI轮次命令结果待核验，保留原DataV…
+    624|     if (this.#hasPendingCommandChanges()) throw new Error('AI轮次命令仍有本地变…
+       |                                                 ^
+    625|   }
+    626|
+ ❯ AiDataEntrySession.discard src/realtime/data-entry/ai-data-entry-session.ts:465:10
+ ❯ src/realtime/data-entry/ai-data-entry-session.test.ts:277:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > keeps status reads and permits an explicit retry of the same cancel command after definite refusal
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/realtime/data-entry/ai-data-entry-session.test.ts:309:35
+    307|       expect(f.turnResource.cancellations.dirtyTracking.hasPendingChan…
+    308|       expect(f.http.requests.filter(request => String(request.url).end…
+    309|       expect(f.session.canCancel).toBe(true)
+       |                                   ^
+    310|
+    311|       f.http.respond({id: 'TURN-CANCEL-REFUSED', conversationId: 'CONV…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/realtime/data-entry/ai-data-entry-session.test.ts > AiDataEntrySession native DataSet contract > preflights nested relation references before removing either session table
+AssertionError: expected undefined to be defined
+ ❯ src/realtime/data-entry/ai-data-entry-session.test.ts:349:54
+    347|
+    348|       expect(() => f.session.dispose()).toThrow(/resourceRelations/)
+    349|       expect(f.dataSet.getTable('AiDataEntryInput')).toBeDefined()
+       |                                                      ^
+    350|       expect(f.dataSet.getTable('AiDataEntryCandidates')).toBeDefined()
+    351|       expect(f.dataSet.getView('AiDataEntryInput')).toBe(f.session.inp…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 22 skipped (25)
+   Start at  02:21:53
+   Duration  1.26s (transform 723ms, setup 0ms, import 927ms, tests 94ms, environment 0ms)
+

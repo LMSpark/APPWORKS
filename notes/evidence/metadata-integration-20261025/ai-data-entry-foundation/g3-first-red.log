@@ -1,0 +1,56 @@
+COMMAND: pnpm exec vitest run packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts (0 test)
+ ❯ tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts [ tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts ]
+Error: Failed to resolve import "@/lowcode/resources/ai-data-entry/ai-data-entry-host" from "tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/ai-data-entry/ai-data-entry-host.test.ts:3:0
+  40 |  }));
+  41 |  const __vi_import_0__ = await import("@spark-appworks/spark-data");
+  42 |  const __vi_import_1__ = await import("@/lowcode/resources/ai-data-entry/ai-data-entry-host");
+     |                                       ^
+  43 |  import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+  44 |  
+ ❯ TransformPluginContext._formatLog node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30602:39
+ ❯ TransformPluginContext.error node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30599:14
+ ❯ normalizeUrl node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27842:18
+ ❯ node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27905:30
+ ❯ TransformPluginContext.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27873:4
+ ❯ EnvironmentPluginContainer.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30387:14
+ ❯ loadAndTransform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:24646:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts [ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts ]
+Error: Failed to resolve import "../../ai/components/SparkAiDataEntry/SparkAiDataEntry.vue" from "packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:8:29
+  5  |  import { PageRuntime, PageTool } from "@spark-appworks/spark-project-model";
+  6  |  import { PAGE_RUNTIME, RendererForm, RendererTable, Spark, registerAllRenderers, useSparkComponent, AI_DATA_ENTRY_HOS...
+  7  |  import SparkAiDataEntry from "../../ai/components/SparkAiDataEntry/SparkAiDataEntry.vue";
+     |                                ^
+  8  |  const runtimes = [];
+  9  |  const dataSets = [];
+ ❯ TransformPluginContext._formatLog node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30602:39
+ ❯ TransformPluginContext.error node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30599:14
+ ❯ normalizeUrl node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27842:18
+ ❯ node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27905:30
+ ❯ TransformPluginContext.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27873:4
+ ❯ EnvironmentPluginContainer.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30387:14
+ ❯ loadAndTransform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:24646:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  02:47:27
+   Duration  2.36s (transform 47ms, setup 432ms, import 0ms, tests 0ms, environment 2.82s)
+

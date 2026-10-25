@@ -1,0 +1,10 @@
+file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.cache/metadata-integration-20261024/b1-consumer-evidence-check.mjs:59
+const formalModels = runtime.requests.flatMap(r => r.response.Items ?? []).filter(r => r.rowid === modelId)
+                                                              ^
+
+TypeError: Cannot read properties of undefined (reading 'Items')
+    at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.cache/metadata-integration-20261024/b1-consumer-evidence-check.mjs:59:63
+    at Array.flatMap (<anonymous>)
+    at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.cache/metadata-integration-20261024/b1-consumer-evidence-check.mjs:59:39
+
+Node.js v24.18.0

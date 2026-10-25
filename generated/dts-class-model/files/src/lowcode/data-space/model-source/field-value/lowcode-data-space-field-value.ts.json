@@ -21,7 +21,8 @@
       "title": "FieldValueScope",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -69,7 +70,8 @@
             "definition": {
               "anyOf": [
                 {
-                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                  "type": "object",
+                  "title": "DataSet"
                 },
                 {
                   "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"

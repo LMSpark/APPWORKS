@@ -1,0 +1,61 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+WebSocket server error: Port 24678 is already in use
+上午5:17:57 [vite] (client) [optimizer] scanning dependencies...
+上午5:18:05 [vite] (client) [optimizer] bundling dependencies...
+🐛 [DataView] 销毁 DataView: Base_DataModel:b1_reference_probe_1792876705456_f6cd738c2c4458
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:apiInfoModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:designModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:modelOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:apiInfoFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:designFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFieldOptions
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:designParameters
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:designRelations
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_ParamList:default
+🐛 [DataView] 销毁 DataView: _Base_ParamList:sourceDetails
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+{
+  "status": "blocked",
+  "stage": "temporary-view-query",
+  "errorType": "Error",
+  "safeCode": "RUNTIME_CONSUMPTION_FAILED",
+  "blockedMutations": 0
+}

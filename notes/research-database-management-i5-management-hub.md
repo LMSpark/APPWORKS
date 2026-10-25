@@ -1,5 +1,7 @@
 # 数据库管理组合入口（database-management-hub）— v3 语义卡
 
+> **历史错误方案，已删除**：本文描述的数据库管理 Hub、tiered resolve、full/serverOnly 档位和子页 context 已被当前 B2 合同否定并从产品移除。以下正文只作历史记录，不按其继续实施；当前入口与范围只读 `notes/data-space-retirement-ledger.md` 的“2026-10-25 B2 数据库目录依赖与关系编辑续核”及其后续更新。
+
 > 路径：`database-management/ui/database-management-hub.vue`；子页 `service-management-page` + `table-and-view-page`。
 
 ## 1. 语义卡

@@ -7,12 +7,11 @@
     "sourceFile": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/database/database-catalog-relation-form-ops",
-    "jsdoc": "@module app:lowcode/resources/database/database-catalog-relation-form-ops\n职责：Base_TblRln 新增/编辑草稿（模型 save，非写命令）。",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-relation-form-ops\n职责：Base_TblRln 单行编辑会话及多字段关系端点操作；字段值始终由原 DataView 持有。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DatabaseCatalogTableContext",
-      "DatabaseCatalogRelationFormDraft",
-      "DatabaseCatalogRelationSaveDraftInput"
+      "DatabaseCatalogRelationSession"
     ]
   },
   "$defs": {
@@ -38,10 +37,10 @@
       ],
       "additionalProperties": false
     },
-    "DatabaseCatalogRelationFormDraft": {
+    "DatabaseCatalogRelationSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DatabaseCatalogRelationFormDraft",
+      "title": "DatabaseCatalogRelationSession",
       "properties": {
         "rowid": {
           "type": "string"
@@ -58,74 +57,42 @@
             "child"
           ]
         },
-        "pkdbid": {
+        "context": {
+          "$ref": "#/$defs/DatabaseCatalogTableContext"
+        },
+        "queryIdentity": {
           "type": "string"
         },
-        "pktbid": {
-          "type": "string"
-        },
-        "pktable": {
-          "type": "string"
-        },
-        "fkdbid": {
-          "type": "string"
-        },
-        "fktbid": {
-          "type": "string"
-        },
-        "fktable": {
-          "type": "string"
-        },
-        "rlname": {
-          "type": "string"
-        },
-        "IsCascadeDeletion": {
-          "type": "string"
+        "checkpoint": {
+          "type": "object",
+          "properties": {
+            "restore": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "release": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "restore",
+            "release"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "rowid",
         "mode",
         "currentRole",
-        "pkdbid",
-        "pktbid",
-        "pktable",
-        "fkdbid",
-        "fktbid",
-        "fktable",
-        "rlname",
-        "IsCascadeDeletion"
-      ],
-      "additionalProperties": false
-    },
-    "DatabaseCatalogRelationSaveDraftInput": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DatabaseCatalogRelationSaveDraftInput",
-      "properties": {
-        "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-        },
-        "view": {
-          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "draft": {
-          "$ref": "#/$defs/DatabaseCatalogRelationFormDraft"
-        },
-        "refreshTableId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "dataSet",
-        "view",
-        "draft",
-        "refreshTableId"
+        "context",
+        "queryIdentity"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.220Z",
+  "generatedAt": "2026-10-25T08:42:55.808Z",
   "models": {
     "DatabaseCatalogTableContext": {
       "name": "DatabaseCatalogTableContext",
@@ -161,16 +128,16 @@
         }
       }
     },
-    "DatabaseCatalogRelationFormDraft": {
-      "name": "DatabaseCatalogRelationFormDraft",
+    "DatabaseCatalogRelationSession": {
+      "name": "DatabaseCatalogRelationSession",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    pkdbid: string;\n    pktbid: string;\n    pktable: string;\n    fkdbid: string;\n    fktbid: string;\n    fktable: string;\n    rlname: string;\n    IsCascadeDeletion: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    context: DatabaseCatalogTableContext;\n    queryIdentity: string;\n    checkpoint?: {\n        restore(): void;\n        release(): void;\n    };\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    pkdbid: string;\n    pktbid: string;\n    pktable: string;\n    fkdbid: string;\n    fktbid: string;\n    fktable: string;\n    rlname: string;\n    IsCascadeDeletion: string;\n}>",
+            "typeText": "Readonly<{\n    rowid: string;\n    mode: 'add' | 'edit';\n    currentRole: 'master' | 'child';\n    context: DatabaseCatalogTableContext;\n    queryIdentity: string;\n    checkpoint?: {\n        restore(): void;\n        release(): void;\n    };\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -192,81 +159,17 @@
               "writable": false
             },
             {
-              "name": "pkdbid",
+              "name": "context",
               "readable": true,
               "writable": false
             },
             {
-              "name": "pktbid",
+              "name": "queryIdentity",
               "readable": true,
               "writable": false
             },
             {
-              "name": "pktable",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fkdbid",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fktbid",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fktable",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "rlname",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "IsCascadeDeletion",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "DatabaseCatalogRelationSaveDraftInput": {
-      "name": "DatabaseCatalogRelationSaveDraftInput",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    view: DataView;\n    draft: DatabaseCatalogRelationFormDraft;\n    refreshTableId: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    view: DataView;\n    draft: DatabaseCatalogRelationFormDraft;\n    refreshTableId: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "dataSet",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "view",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "draft",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "refreshTableId",
+              "name": "checkpoint",
               "readable": true,
               "writable": false
             }

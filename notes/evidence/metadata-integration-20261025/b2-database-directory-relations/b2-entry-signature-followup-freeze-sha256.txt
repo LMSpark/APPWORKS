@@ -1,0 +1,2 @@
+47A456D7FDFE8802D96D6D4C7E86FD23FAEF703CAD07F244CB3D19E3045814C1  src/views/DataBaseManage/DataBaseManage/index.vue
+87E7A87E5F16447E1F3D14BBFE6F140F13263EA377EEDA0696DF556CC6B8510C  src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue

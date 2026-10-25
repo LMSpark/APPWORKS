@@ -1,0 +1,34 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (4 tests | 1 failed) 187ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 36ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:124:27
+    122|
+    123|     const menu = wrapper.findComponent(ElMenu)
+    124|     expect(menu.exists()).toBe(true)
+       |                           ^
+    125|     menu.vm.open('sub-menu-more')
+    126|     await flushPromises()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:37:10
+   Duration  14.45s (transform 9.06s, setup 158ms, import 12.21s, tests 187ms, environment 1.39s)
+

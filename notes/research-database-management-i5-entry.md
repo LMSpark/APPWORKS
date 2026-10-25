@@ -1,5 +1,7 @@
 # I5 database-management 入口（2026-10-22 收束）
 
+> **历史错误方案，已 superseded**：本文记录的六页 Hub 入口、子页身份注入与旧数据库 URL 判断不再是当前合同；正文保留作历史，不按其继续实施。当前入口与范围只读 `notes/data-space-retirement-ledger.md` 的“2026-10-25 B2 数据库目录依赖与关系编辑续核”及其后续更新。
+
 > 整合计划 **I5**；v3 七步流与矩阵见 [`plan-appworks-integration.md`](plan-appworks-integration.md)。载体汇总 [`research-database-management-i5-hub.md`](research-database-management-i5-hub.md)。
 
 ## 六页落点（已对齐 `src/views/features/data-platform/database-management/**`）

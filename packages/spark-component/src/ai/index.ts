@@ -9,6 +9,8 @@ export { default as AiSessionTracePanel } from './components/diagnostics/AiSessi
 export { default as AiToolApprovalCard } from './components/approval/AiToolApprovalCard/AiToolApprovalCard.vue'
 export { default as AiToolApprovalPanel } from './components/approval/AiToolApprovalPanel/AiToolApprovalPanel.vue'
 export { default as SparkAgentPanel } from './components/SparkAgentPanel/SparkAgentPanel.vue'
+export { default as SparkAiDataEntry } from './components/SparkAiDataEntry/SparkAiDataEntry.vue'
+export { AI_DATA_ENTRY_HOST } from './data-entry-host-capability'
 
 // ── composables ──
 
@@ -22,6 +24,12 @@ export type { SessionDiagnosticsPanelProps } from './components/diagnostics/Sess
 export type { AiToolApprovalCardProps, AiToolApprovalCardEmits } from './components/approval/AiToolApprovalCard/AiToolApprovalCard.props'
 export type { AiToolApprovalPanelProps } from './components/approval/AiToolApprovalPanel/AiToolApprovalPanel.props'
 export type { SparkAgentPanelProps } from './components/SparkAgentPanel/SparkAgentPanel.props'
+export type { SparkAiDataEntryProps } from './components/SparkAiDataEntry/SparkAiDataEntry.props'
+export type {
+  AiDataEntryAttachment,
+  AiDataEntryHostCapability,
+  AiDataEntrySessionSurface,
+} from './data-entry-host-capability'
 
 // ── composable 类型 ──
 

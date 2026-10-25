@@ -1,0 +1,3 @@
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+{"status":"passed","roots":["AiAgentConfigResource","DataColumn","DataView","DataSet","AiTurnResource"],"queriesPerRoot":["catalog","members","guide"]}

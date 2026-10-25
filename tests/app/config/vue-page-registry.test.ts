@@ -68,9 +68,9 @@ describe('Vue page registry', () => {
     expect(getVuePageEntry('/features/data-platform/database-management/table-and-view/ui/table-and-view-page')?.source)
       .toBe('src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue')
     expect(getVuePageEntry('/DataBaseManage/DataBaseManage/index')?.source)
-      .toBe('src/views/features/data-platform/database-management/ui/database-management-hub.vue')
+      .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
     expect(getVuePageEntry('/dbms')?.source)
-      .toBe('src/views/features/data-platform/database-management/ui/database-management-hub.vue')
+      .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
       .toBe('src/views/tenant/AppList.vue')
   })
@@ -98,9 +98,9 @@ describe('Vue page registry', () => {
         default: defineComponent({ render: () => h('span', 'about loaded') }),
       })
     })
-    const hubSource = 'src/views/features/data-platform/database-management/ui/database-management-hub.vue'
-    const aliases = getVuePageOptions().filter(option => option.source === hubSource)
-    if (aliases.length < 2) throw new Error('Expected multiple database-management hub source aliases')
+    const directorySource = 'src/views/DataBaseManage/DataBaseManage/index.vue'
+    const aliases = getVuePageOptions().filter(option => option.source === directorySource)
+    if (aliases.length < 2) throw new Error('Expected both database directory navigation entries to share the native page')
     let aliasLoads = 0
     for (const alias of aliases) {
       const aliasEntry = getVuePageEntry(alias.path)

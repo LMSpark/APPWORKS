@@ -86,7 +86,8 @@
         },
         "baseline": true,
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -137,7 +138,8 @@
       "title": "SourceInputHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -169,7 +171,8 @@
       "title": "SourceInputValidateValueInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"

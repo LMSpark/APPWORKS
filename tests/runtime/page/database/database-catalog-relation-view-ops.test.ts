@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSet} from '@spark-appworks/spark-data'
+import {DataSet, DataViewFilter, DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {
   DATABASE_CATALOG_RELATION_MODEL,
@@ -13,10 +13,6 @@ import {
   databaseCatalogRelationRefreshForTable,
   requireDatabaseCatalogRelationView,
 } from '@/lowcode/resources/database/database-catalog-relation-view-ops'
-import {
-  databaseCatalogRelationPrepareCreate,
-  databaseCatalogRelationSaveDraft,
-} from '@/lowcode/resources/database/database-catalog-relation-form-ops'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -56,11 +52,20 @@ describe('database-catalog-relation-view-ops', () => {
     sets.push(ds)
     const relationView = requireDatabaseCatalogRelationView(ds)
     await databaseCatalogRelationRefreshForTable(relationView, 'T1')
-    const draft = await databaseCatalogRelationPrepareCreate(relationView, {tableId: 'T1', tableName: 'Orders', dbId: 'DB1'}, 'master')
-    const withPeer = {...draft, fktbid: 'T2', fktable: 'Other', fkdbid: 'DB1', rlname: 'Orders.Id=Other.OrderId'}
-    await databaseCatalogRelationSaveDraft({dataSet: ds, view: relationView, draft: withPeer, refreshTableId: 'T1'})
-    expect(http.rows[DATABASE_CATALOG_RELATION_MODEL]!.some(row => row['rlname'] === 'Orders.Id=Other.OrderId')).toBe(true)
-    expect(relationView.rows.some(row => row['rlname'] === 'Orders.Id=Other.OrderId')).toBe(true)
+    const rowId = 'REL-CREATE'
+    const expression = DataViewFilterCodec.serializeStored(DataViewFilter.condition({
+      field: 'LineItems.Id', operator: 'eq', value: {Type: 'GetTableField', Field: 'Orders.Id'},
+    }))
+    await relationView.addRow({rowid: rowId, pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+      fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'Orders to LineItems', RelshipExp: expression, IsCascadeDeletion: 0})
+    await ds.saveChanges({views: [{tableName: DATABASE_CATALOG_RELATION_MODEL, viewId: DATABASE_CATALOG_RELATION_TABLE_VIEW, ids: [rowId]}]})
+    expect(http.rows[DATABASE_CATALOG_RELATION_MODEL]!.some(row => row['rowid'] === rowId && row['RelshipExp'] === expression)).toBe(true)
+    expect(relationView.rows.some(row => row['rowid'] === rowId && row['RelshipExp'] === expression)).toBe(true)
+    const write = http.requests.find(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = write?.data as Array<{TableName?: string; CrudModel?: {Added?: Array<Record<string, unknown>>}}>
+    const added = payload.find(item => item.TableName === DATABASE_CATALOG_RELATION_MODEL)?.CrudModel?.Added
+    expect(added?.map(row => row['rowid'])).toEqual([rowId])
+    expect(added?.[0]?.['RelshipExp']).toBe(expression)
   })
 
   it('deletes a relation row through saveChanges on Base_TblRln', async () => {

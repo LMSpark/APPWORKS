@@ -48,8 +48,8 @@ afterEach(() => {
 })
 
 describe('DatabaseCatalogLoadOptions.resolvedDataSpaceId', () => {
-  it('skips readModelBatch when hub already resolved FormKey', async () => {
-    const resolved = 'RESOLVED-ROWID'
+  it('rechecks the exact host-bound FormKey even when the same resolved id is supplied', async () => {
+    const resolved = DATABASE_SERVER_SCENARIO_ID
     service.readSpaceDefinition.mockImplementation(async (input: {dataSpaceId: string}) =>
       ({dataSpaceId: input.dataSpaceId, name: '数据库', raw: {}}))
     service.readRequestScope.mockReturnValue({
@@ -59,7 +59,7 @@ describe('DatabaseCatalogLoadOptions.resolvedDataSpaceId', () => {
     const ds = await LowcodeDatabaseServer.loadCatalog(DATABASE_SERVER_SCENARIO_ID, {resolvedDataSpaceId: resolved})
     sets.push(ds)
     expect(ds.scenarioId).toBe(resolved)
-    expect(service.readModelBatch).not.toHaveBeenCalled()
+    expect(service.readModelBatch).toHaveBeenCalledTimes(1)
     expect(service.readSpaceDefinition).toHaveBeenCalledWith(expect.objectContaining({dataSpaceId: resolved}))
   })
 

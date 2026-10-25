@@ -29,7 +29,8 @@
       "title": "DatabaseCatalogDesignSavePendingInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "fieldView": {
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"

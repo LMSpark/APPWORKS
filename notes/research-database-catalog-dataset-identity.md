@@ -1,5 +1,7 @@
 # 数据库目录与 DataSet 身份（2026-10-21）
 
+> **历史错误研读，已被当前合同替代**：以下关于 `blueprintScenarioId === nodeId` 即误绑/降权、候选空间探测、Hub tiered resolve 与五表档位的判断已证伪，不得作为当前产品事实或实施依据。历史正文与原证据保留；当前唯一依据为 `notes/data-space-retirement-ledger.md` 的“2026-10-25 B2 数据库目录依赖与关系编辑续核”及其后续更新。
+
 ## 语义合同
 
 `dataSpaceId` = 正式 **Base_DataSet.rowid** = 运行 **DataSet.scenarioId** = HTTP **x-FormKey**。不是导航 `nodeId`，不是 `__sparkNavigationId`。

@@ -1,0 +1,126 @@
+{
+  "kind": "G1-column-metadata-root-verification",
+  "base": "6cab104cea31d226688b4f7866297e9572ab40ec",
+  "files": [
+    {
+      "path": "packages/spark-data/src/types.ts",
+      "sha256": "1bd8457d010170a4714b127cbdd2b765e1d129d92b4b933bcb3be9aad5808467"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+      "sha256": "6bc9ceb05c914aed97f91ccd5752a2f55453c4f9b5bfbf544a6b358af0c163b7"
+    },
+    {
+      "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
+      "sha256": "24b17a233f851cdcf961e1826110c94f3a0f7e955a407d56da77bbf3c05d7243"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
+      "sha256": "c2c8f41e2e406116916731f7cc8d7acffc35b8ad0049012217c59ae8c8ac0c42"
+    },
+    {
+      "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+      "sha256": "25c060cd4de92d250956340c42411a5d33694a9a23926d42d236db517b6d21ba"
+    }
+  ],
+  "generated": [
+    {
+      "path": "generated/dts-class-model/.dts-manifest.json",
+      "classification": "contract-or-manifest",
+      "sha256": "fb392f74b89ee4e16a3a34248fdba6650ea2f4bf4441188911edac649ccfb43f"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "2c93f4c38fbb9634a605ee90532335250a2db4bf906cb8b264fb424672535594"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "d61d29040e6ae1f6ea101853682cd1a801fda659c32a63a3fac5f7aa57f61ccb"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "cc45a556d6393947784e1e8363c45662c75757e5e3471aa76ace9a77db619917"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "8994fab65c96a6c11ef53770c2c9b6435c0d69eeb14666f54049222939f0cc04"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "bd53a487edf265b98628fa6f22dd5e594321cc11e4d5b9edd14bd4939b3a5c36"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "a88a0dc6690324d75576eeb19a69eaad2976b013f9eb4b6413d01c5f3d489f6b"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "ab333cc1508a2961fd9586b59b9701c406352beab559420bdbc70a916b5c7368"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "83a1db7de971a927c219d4e9afeba8ed68263b07c200c86d482d982df82ccb67"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+      "classification": "contract-or-manifest",
+      "sha256": "d06cece6c6f66560eeaae0c8f70a113bf00a8583a2d17df9d8a67ded9243f4cf"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "ff18381758242ca281563bc62e8daaec9721c8c80457b604545f49fb8f1811fd"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+      "classification": "contract-or-manifest",
+      "sha256": "41a043718194167fdd3f7fd0b7fc115f36f5a939cc1356b2e73980cee623fc9a"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "d7d21b102436a32e2fa2f7df796ff80fdb0326dcd66a5dc25a985bed66794efd"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
+      "classification": "contract-or-manifest",
+      "sha256": "b4fae25459437d079b804ff113f2d38386a43288414d8fc867b3247dc4d40c2c"
+    },
+    {
+      "path": "generated/dts-class-model/files/src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts.json",
+      "classification": "timestamp-or-compiler-symbol-only",
+      "sha256": "7fd20ef171c991f6c193f9163243a60444aec5c2a89a56ad98ac343b7e64529c"
+    },
+    {
+      "path": "generated/dts-class-model/semantic-gaps.json",
+      "classification": "contract-or-manifest",
+      "sha256": "40939035a75e34f5fd38e33b1e5b10024997ec47f55f214c2b92040efed2c74a"
+    }
+  ],
+  "tests": {
+    "root": 56,
+    "api": 168
+  },
+  "live": {
+    "readRequests": 16,
+    "writes": 0,
+    "mode": "native-DataView-readonly",
+    "proof": "g1-formal-runtime-live-read.json"
+  },
+  "remaining": [
+    "G2a configuration resource",
+    "G2b generic session",
+    "G3 standard component",
+    "G4 dictionary replacement",
+    "new SPA acceptance",
+    "old CANCELLING terminal"
+  ]
+}

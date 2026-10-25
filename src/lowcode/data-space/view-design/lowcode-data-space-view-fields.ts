@@ -50,7 +50,7 @@ export class LowcodeDataSpaceViewFields {
       if (Object.hasOwn(rule, 'computeExpression')) {
        if (names.has(fieldName)) throw new Error(`${tableName}.columns 本地计算列与正式字段重名: ${fieldName}`)
        local.push({name: fieldName, type: String(rule['type']),
-        ...Object.fromEntries(Object.entries(rule).filter(([key]) => key !== 'name' && key !== 'type'))})
+        ...Object.fromEntries(Object.entries(rule).filter(([key]) => key !== 'name' && key !== 'type' && key !== 'allowAIAdd'))})
        continue
       }
       if (!outputs.has(fieldName)) {
@@ -63,7 +63,7 @@ export class LowcodeDataSpaceViewFields {
      const rule = rules.get(field.canonicalName)
      const validation = rule ? Object.fromEntries(Object.entries(rule).filter(([key]) => key !== 'name')) : {}
      return { name: field.canonicalName, type: field.type || 'string', label: field.description || field.canonicalName,
-      isPrimaryKey: field.canonicalName === model.primaryKey, ...validation }
+      isPrimaryKey: field.canonicalName === model.primaryKey, ...validation, allowAIAdd: field.allowAIAdd === true }
     }), ...local]
   }
 

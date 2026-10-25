@@ -379,6 +379,7 @@ function isSelectedRow(row: DataRow): boolean {
 
 // ── 零代码 API 桥接：filter API 已下放给 r-filter，这里仅保留 view.refresh()/选择态等 ───────────
 const nativeTableRef = ref<NativeTableLike | null>(null)
+let _isRestoringCurrentRow = false
 
 const {
   dispatch,
@@ -438,10 +439,24 @@ function tableRowClassName(context: TableRowClassContext) {
 
 /** 当前行变化事件桥接。 */
 async function handleCurrentChange(currentRow: DataRow | null, oldCurrentRow?: DataRow | null) {
+  if (_isRestoringCurrentRow) return
   // el-table 在 :data 替换行对象后以 null 报告失去旧引用；DataView 仍持有有效指针时由 currentRow watch 反写，不清空 DataView。
   const view = dataState.resolvedView.value, held = view?.currentRow
   if (!currentRow && held && view.rows.includes(held)) return
-  await dispatch('current-change', currentRow ?? null, oldCurrentRow)
+  const control = await dispatch('current-change', currentRow ?? null, oldCurrentRow)
+  if (!control.cancel) return
+
+  // Element Plus commits its native highlight before emitting current-change.
+  // On cancellation, restore from the DataView that is bound after the async
+  // business handler completes; a binding switch must not restore an old view.
+  await nextTick()
+  if (!dataState.resolvedView.value) return
+  _isRestoringCurrentRow = true
+  try {
+    nativeTableRef.value?.setCurrentRow?.(dataState.resolvedView.value.currentRow ?? null)
+  } finally {
+    _isRestoringCurrentRow = false
+  }
 }
 
 /** 行点击事件桥接。 */

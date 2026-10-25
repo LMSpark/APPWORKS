@@ -235,7 +235,8 @@
       "title": "ModelRenameHost",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -284,7 +285,8 @@
       "title": "ModelRenameHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"

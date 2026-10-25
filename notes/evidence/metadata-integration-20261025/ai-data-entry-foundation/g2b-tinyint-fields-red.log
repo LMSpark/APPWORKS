@@ -1,0 +1,63 @@
+COMMAND: pnpm exec vitest run src/realtime/data-entry/ai-data-entry-fields.test.ts
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/realtime/data-entry/ai-data-entry-fields.test.ts > AI data-entry field derivation from a real DataView > includes an enabled tinyint output column and preserves its formal type and bounds
+🐛 [DataView] 销毁 DataView: Items:default
+
+ ❯ src/realtime/data-entry/ai-data-entry-fields.test.ts (6 tests | 2 failed) 27ms
+     × includes an enabled tinyint output column and preserves its formal type and bounds 5ms
+     × accepts tinyint safe integers and rejects fractional or string values 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/realtime/data-entry/ai-data-entry-fields.test.ts > AI data-entry field derivation from a real DataView > includes an enabled tinyint output column and preserves its formal type and bounds
+AssertionError: expected undefined to match object { name: 'ordIdx', …(4) }
+
+- Expected:
+{
+  "label": "排序",
+  "max": 10,
+  "min": 0,
+  "name": "ordIdx",
+  "type": "tinyint",
+}
+
++ Received:
+undefined
+
+ ❯ src/realtime/data-entry/ai-data-entry-fields.test.ts:99:19
+     97|
+     98|     const field = deriveAiDataEntryFields(view).find(candidate => cand…
+     99|     expect(field).toMatchObject({name: 'ordIdx', type: 'tinyint', labe…
+       |                   ^
+    100|   })
+    101|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/realtime/data-entry/ai-data-entry-fields.test.ts > AI data-entry field derivation from a real DataView > accepts tinyint safe integers and rejects fractional or string values
+AssertionError: expected [Function] to not throw an error but 'Error: AI候选字段 ordIdx 的值不符合正式类型 tinyint' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: AI候选字段 ordIdx 的值不符合正式类型 tinyint"
+
+ ❯ src/realtime/data-entry/ai-data-entry-fields.test.ts:106:58
+    104|     const field: AiDataEntryField = {name: 'ordIdx', type: 'tinyint', …
+    105|
+    106|     expect(() => validateAiDataEntryValue(field, 4)).not.toThrow()
+       |                                                          ^
+    107|     expect(() => validateAiDataEntryValue(field, 1.5)).toThrow()
+    108|     expect(() => validateAiDataEntryValue(field, '4')).toThrow()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  02:38:36
+   Duration  1.36s (transform 761ms, setup 0ms, import 1.01s, tests 27ms, environment 0ms)
+

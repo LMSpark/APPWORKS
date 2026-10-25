@@ -1,0 +1,5734 @@
+{
+  "start": {
+    "cursor": 350826,
+    "time": "2026-10-25T01:33:41.603Z"
+  },
+  "end": {
+    "cursor": 352039,
+    "time": "2026-10-25T01:41:19.764Z"
+  },
+  "truncated": false,
+  "counts": {
+    "requests": 138,
+    "document": 0,
+    "failures": 0,
+    "reads": 131,
+    "writes": 2
+  },
+  "requests": [
+    {
+      "requestId": "2180.60989",
+      "path": "/src/views/DataBaseManage/DataBaseManage/index.vue",
+      "method": "GET",
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "requestId": "2180.60990",
+      "path": "/src/lowcode/resources/database/lowcode-database-directory.ts",
+      "method": "GET",
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "requestId": "2180.60991",
+      "path": "/src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+      "method": "GET",
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "requestId": "2180.60992",
+      "path": "/src/views/DataBaseManage/DataBaseManage/index.vue",
+      "method": "GET",
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "requestId": "2180.60993",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "Base_serverInfo",
+                    "_base_dbInfo"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 2
+    },
+    {
+      "requestId": "2180.60994",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "62DB03B06A489600FFF86F3640D5C0E7p000",
+                    "62DB03B06A489600FFF86F3640D5C0E7p002"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 47
+    },
+    {
+      "requestId": "2180.60995",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "Base_serverInfo"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_base_dbInfo"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 2
+    },
+    {
+      "requestId": "2180.60996",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "2A5E6137D93F45B3AD4E5664604A07AA",
+                "B3FA362E2757454F95D9393ABB8D04F9"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 54
+    },
+    {
+      "requestId": "2180.60997",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.60998",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_serverInfo"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.60999",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61000",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7p002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 17
+    },
+    {
+      "requestId": "2180.61001",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_serverInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61002",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "62DB03B06A489600FFF86F3640D5C0E7p000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 30
+    },
+    {
+      "requestId": "2180.61003",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61004",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "B3FA362E2757454F95D9393ABB8D04F9"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 20
+    },
+    {
+      "requestId": "2180.61005",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "2A5E6137D93F45B3AD4E5664604A07AA"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 34
+    },
+    {
+      "requestId": "2180.61006",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_serverInfo",
+          "filter": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 5
+    },
+    {
+      "requestId": "2180.61007",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_base_dbInfo",
+          "filter": null
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 31
+    },
+    {
+      "requestId": "2180.61008",
+      "path": "/api/LoginAuthority/refresh",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200
+    },
+    {
+      "requestId": "2180.61009",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "Base_TblField",
+                    "_Base_TblList",
+                    "_Base_ViewList",
+                    "_base_dbInfo"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61010",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp000",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp001",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp002",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 154
+    },
+    {
+      "requestId": "2180.61011",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "Base_TblField"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_TblList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_ViewList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_base_dbInfo"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61012",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "2A5E6137D93F45B3AD4E5664604A07AA",
+                "8EB57351E4484D089629CD53147B8D7F",
+                "9180F0943E1446308229DC745994F19C",
+                "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 161
+    },
+    {
+      "requestId": "2180.61013",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61014",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61015",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61016",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61017",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61018",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61019",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61020",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 30
+    },
+    {
+      "requestId": "2180.61021",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61022",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp001"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61023",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61024",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61025",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61026",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "9180F0943E1446308229DC745994F19C"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61027",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "2A5E6137D93F45B3AD4E5664604A07AA"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 34
+    },
+    {
+      "requestId": "2180.61028",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 52
+    },
+    {
+      "requestId": "2180.61029",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8EB57351E4484D089629CD53147B8D7F"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61030",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_Desensitization_Rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61031",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Dict_encryption_rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61032",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "TblField_type"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61033",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61034",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D2B9B94A1641BB87E6D3D9251A14D70D"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61035",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61036",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61037",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_WorkflowDefinition"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61038",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "workflowStatus"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61039",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61040",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_base_dbInfo",
+          "filter": {
+            "Type": "cond",
+            "Field": "Id",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "4F69FFD7A0B94BD6928A139B1B4358C6"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61041",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "4F69FFD7A0B94BD6928A139B1B4358C6"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 2
+    },
+    {
+      "requestId": "2180.61042",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_ViewList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "4F69FFD7A0B94BD6928A139B1B4358C6"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61043",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "313440ED9A37613ED0F729340652D7E7"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 12
+    },
+    {
+      "requestId": "2180.61044",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61045",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61046",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "4F69FFD7A0B94BD6928A139B1B4358C6"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "rowid",
+                "Operator": "notequal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61047",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "A4AAF1C36F3B4B8B8ED12B25A126C668",
+                "313440ED9A37613ED0F729340652D7E7"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 100
+      },
+      "code": 200,
+      "count": 24
+    },
+    {
+      "requestId": "2180.61048",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "A4AAF1C36F3B4B8B8ED12B25A126C668",
+                "313440ED9A37613ED0F729340652D7E7"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 2
+    },
+    {
+      "requestId": "2180.61049",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200
+    },
+    {
+      "requestId": "2180.61050",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61051",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "Base_TblField",
+                    "_Base_TblList",
+                    "_Base_ViewList",
+                    "_base_dbInfo"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61052",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp000",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp001",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp002",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 154
+    },
+    {
+      "requestId": "2180.61053",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "Base_TblField"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_TblList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_ViewList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_base_dbInfo"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61054",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "2A5E6137D93F45B3AD4E5664604A07AA",
+                "8EB57351E4484D089629CD53147B8D7F",
+                "9180F0943E1446308229DC745994F19C",
+                "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 161
+    },
+    {
+      "requestId": "2180.61055",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61056",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61057",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61058",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61059",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61060",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61061",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61062",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61063",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61064",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp001"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61065",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61066",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 30
+    },
+    {
+      "requestId": "2180.61067",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61068",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 52
+    },
+    {
+      "requestId": "2180.61069",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "9180F0943E1446308229DC745994F19C"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61070",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8EB57351E4484D089629CD53147B8D7F"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61071",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "2A5E6137D93F45B3AD4E5664604A07AA"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 34
+    },
+    {
+      "requestId": "2180.61072",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_Desensitization_Rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61073",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Dict_encryption_rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61074",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "TblField_type"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61075",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61076",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D2B9B94A1641BB87E6D3D9251A14D70D"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61077",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61078",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61079",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_WorkflowDefinition"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61080",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "workflowStatus"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61081",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61082",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_base_dbInfo",
+          "filter": {
+            "Type": "cond",
+            "Field": "Id",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "09C58DF7D2AF4E6FB565AB82AB2ABEB3"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61083",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "09C58DF7D2AF4E6FB565AB82AB2ABEB3"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 11
+    },
+    {
+      "requestId": "2180.61084",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_ViewList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "09C58DF7D2AF4E6FB565AB82AB2ABEB3"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61085",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "Base_TblField",
+                    "_Base_TblList",
+                    "_Base_ViewList",
+                    "_base_dbInfo"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61086",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "in",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": [
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp000",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp001",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp002",
+                    "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                  ]
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 154
+    },
+    {
+      "requestId": "2180.61087",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "Base_TblField"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_TblList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_Base_ViewList"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "and",
+                "Filters": [
+                  {
+                    "Type": "cond",
+                    "Field": "tblname",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "_base_dbInfo"
+                    }
+                  },
+                  {
+                    "Type": "cond",
+                    "Field": "dbid",
+                    "Operator": "equal",
+                    "Value": null,
+                    "ValueFun": {
+                      "Type": "GetConstValue",
+                      "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 4
+    },
+    {
+      "requestId": "2180.61088",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "2A5E6137D93F45B3AD4E5664604A07AA",
+                "8EB57351E4484D089629CD53147B8D7F",
+                "9180F0943E1446308229DC745994F19C",
+                "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 161
+    },
+    {
+      "requestId": "2180.61089",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61090",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61091",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61092",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61093",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61094",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61095",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_ViewList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61096",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 30
+    },
+    {
+      "requestId": "2180.61097",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_base_dbInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61098",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp001"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61099",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "_Base_TblList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61100",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15Bp003"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61101",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblField"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61102",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "9180F0943E1446308229DC745994F19C"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 26
+    },
+    {
+      "requestId": "2180.61103",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "2A5E6137D93F45B3AD4E5664604A07AA"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 34
+    },
+    {
+      "requestId": "2180.61104",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8EB57351E4484D089629CD53147B8D7F"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 49
+    },
+    {
+      "requestId": "2180.61105",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "AFEFC2A869FD46AD84E65C58C5CB3EF1"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 52
+    },
+    {
+      "requestId": "2180.61106",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_Desensitization_Rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61107",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Dict_encryption_rule"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61108",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "TblField_type"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61109",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61110",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "D2B9B94A1641BB87E6D3D9251A14D70D"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61111",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_TblRln"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61112",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "563DD472B3C74CAC82AA78EE79B38E08"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 500
+      },
+      "code": 200,
+      "count": 25
+    },
+    {
+      "requestId": "2180.61113",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_WorkflowDefinition"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61114",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "workflowStatus"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61115",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "A8FB2B2B161125A16FD15ED9581CD15B"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 2
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61116",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_base_dbInfo",
+          "filter": {
+            "Type": "cond",
+            "Field": "Id",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "4F69FFD7A0B94BD6928A139B1B4358C6"
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61117",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "4F69FFD7A0B94BD6928A139B1B4358C6"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 2
+    },
+    {
+      "requestId": "2180.61118",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_ViewList",
+          "filter": {
+            "Type": "cond",
+            "Field": "dbid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "4F69FFD7A0B94BD6928A139B1B4358C6"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 0
+    },
+    {
+      "requestId": "2180.61119",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "313440ED9A37613ED0F729340652D7E7"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 12
+    },
+    {
+      "requestId": "2180.61120",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61121",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61122",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61123",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "_Base_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "4F69FFD7A0B94BD6928A139B1B4358C6"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "rowid",
+                "Operator": "notequal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    },
+    {
+      "requestId": "2180.61124",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "in",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": [
+                "A4AAF1C36F3B4B8B8ED12B25A126C668",
+                "313440ED9A37613ED0F729340652D7E7"
+              ]
+            }
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 100
+      },
+      "code": 200,
+      "count": 24
+    },
+    {
+      "requestId": "2180.61125",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200
+    },
+    {
+      "requestId": "2180.61126",
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "type": "XHR",
+      "status": 200,
+      "tables": [
+        {
+          "name": "Base_TblRln",
+          "filter": {
+            "Type": "or",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "pktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "fktbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "313440ED9A37613ED0F729340652D7E7"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "code": 200,
+      "count": 1
+    }
+  ],
+  "created": {
+    "requestId": "2180.61049",
+    "table": "Base_TblRln",
+    "counts": {
+      "added": 1,
+      "changed": 0,
+      "deleted": 0
+    },
+    "addedFieldNames": [
+      "pkdbid",
+      "pktbid",
+      "pktable",
+      "fkdbid",
+      "fktbid",
+      "fktable",
+      "rlname",
+      "RelshipExp",
+      "IsCascadeDeletion",
+      "rowid",
+      "lingma_sys_key"
+    ],
+    "added": [
+      {
+        "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+        "pkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+        "pktbid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+        "pktable": "testTB1",
+        "fkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+        "fktbid": "313440ED9A37613ED0F729340652D7E7",
+        "fktable": "test_user",
+        "rlname": "B2Relation_20261025_mvn5o60s",
+        "RelshipExp": "{\"Type\":\"cond\",\"Field\":\"test_user.age\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"testTB1.id\"}}",
+        "IsCascadeDeletion": 0
+      }
+    ],
+    "httpStatus": 200,
+    "code": 200,
+    "readRequestId": "2180.61050",
+    "readCode": 200,
+    "readCount": 1,
+    "readRow": {
+      "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+      "pkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+      "pktbid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+      "pktable": "testTB1",
+      "fkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+      "fktbid": "313440ED9A37613ED0F729340652D7E7",
+      "fktable": "test_user",
+      "rlname": "B2Relation_20261025_mvn5o60s",
+      "RelshipExp": "{\"Type\": \"cond\", \"Field\": \"test_user.age\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"testTB1.id\"}}",
+      "IsCascadeDeletion": 0
+    }
+  },
+  "renamed": {
+    "requestId": "2180.61125",
+    "table": "Base_TblRln",
+    "counts": {
+      "added": 0,
+      "changed": 1,
+      "deleted": 0
+    },
+    "changedFieldNames": [
+      "rowid",
+      "rlname",
+      "lingma_sys_key"
+    ],
+    "changed": [
+      {
+        "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+        "rlname": "B2Relation_20261025_mvn5o60s_verified"
+      }
+    ],
+    "code": 200,
+    "readCode": 200,
+    "readRequestId": "2180.61126",
+    "readRow": {
+      "rowid": "34A3F87EA002AF6EB93B3E5C0A173EEA",
+      "pkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+      "pktbid": "A4AAF1C36F3B4B8B8ED12B25A126C668",
+      "pktable": "testTB1",
+      "fkdbid": "4F69FFD7A0B94BD6928A139B1B4358C6",
+      "fktbid": "313440ED9A37613ED0F729340652D7E7",
+      "fktable": "test_user",
+      "rlname": "B2Relation_20261025_mvn5o60s_verified",
+      "RelshipExp": "{\"Type\": \"cond\", \"Field\": \"test_user.age\", \"Value\": null, \"Operator\": \"equal\", \"ValueFun\": {\"Type\": \"GetTableField\", \"Field\": \"testTB1.id\"}}",
+      "IsCascadeDeletion": 0
+    }
+  },
+  "retainedTest": {
+    "name": "B2Relation_20261025_mvn5o60s_verified",
+    "id": "34A3F87EA002AF6EB93B3E5C0A173EEA"
+  },
+  "actions": [
+    "formal directory opened; old workspace closed",
+    "sync_test selected; new pending relation configured with standard fields and GetTableField, then cancelled; no write",
+    "recreated and explicitly saved one relation",
+    "workspace closed; PX opened with 11 tables; PX closed",
+    "sync_test reopened; saved relation and expression restored",
+    "existing name edited and cancelled",
+    "name-only edit explicitly saved; Changed only rowid,rlname and platform key"
+  ],
+  "limits": [
+    "live smoke did not induce an unknown receipt or force teardown; automated tests cover those cases",
+    "a short locator wait expired before the reloaded list appeared; subsequent formal state was correct",
+    "one immediate expression apply after function-dialog save kept the candidate open; stable candidate applied on explicit second click"
+  ]
+}

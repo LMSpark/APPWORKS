@@ -288,7 +288,8 @@
       "title": "ModelRemoveHost",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -329,7 +330,8 @@
       "title": "ModelRemoveHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"

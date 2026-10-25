@@ -1,0 +1,215 @@
+{
+  "kind": "native-SPARK-data-generation-no-business-write",
+  "tenant": "NewApp",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "dictionaryId": "327D74EC0ABC4196AA75C56D944B8201",
+  "agentId": "2114051153246425088",
+  "createdAt": "2026-10-24T18:34:10.440Z",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/UserLoginByEnt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/agents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/v1/turns",
+      "data": {
+        "agentId": "2114051153246425088",
+        "message": "{\"businessPrompt\":\"生成两条仅供预览的样例：编码 G2B_20261025_X 和 G2B_20261025_Y，显示文本分别为通用录入预览X、通用录入预览Y；排序分别为101、102。其它可选字段不填写。\",\"allowedFields\":[{\"name\":\"createuser\",\"type\":\"varchar\",\"label\":\"创建人\",\"required\":false,\"nullable\":true},{\"name\":\"exVal_4\",\"type\":\"varchar\",\"label\":\"exVal_4\",\"required\":false,\"nullable\":true},{\"name\":\"val\",\"type\":\"varchar\",\"label\":\"键\",\"required\":false,\"nullable\":true},{\"name\":\"txt\",\"type\":\"varchar\",\"label\":\"值\",\"required\":false,\"nullable\":true}],\"maxEntries\":200}",
+        "idempotencyKey": "239b398e-a550-403c-ad3c-a0f748960415"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/turns/2114063013848944640"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/v1/turns/2114063013848944640"
+    }
+  ],
+  "observations": [
+    {
+      "at": "2026-10-24T18:34:34.955Z",
+      "status": "RUNNING",
+      "pending": true,
+      "blocksWorkspace": true,
+      "candidateCount": 0,
+      "canConfirm": false
+    },
+    {
+      "at": "2026-10-24T18:34:38.086Z",
+      "status": "COMPLETED",
+      "pending": true,
+      "blocksWorkspace": false,
+      "candidateCount": 2,
+      "canConfirm": true
+    }
+  ],
+  "businessWrites": 0,
+  "candidateConfirmed": false,
+  "state": "passed",
+  "initialRowIds": [
+    "24FAF299D9A22190189C8FE975A2441B",
+    "41BC0C6F2D2DC6327B1F7CED01404E56",
+    "34E15E3BC4E87AF9CB885BD58696EA80",
+    "E2FF72AC90D0BE968E613A3F545CA2F8",
+    "5A11E56C5FC8DD593828899C11828DF0"
+  ],
+  "columns": [
+    {
+      "name": "author",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "rowid",
+      "type": "varchar",
+      "allowAIAdd": true,
+      "isPrimaryKey": true
+    },
+    {
+      "name": "functiondesc",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "crttime",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "exVal_1",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "typeid",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "exVal_3",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "ordIdx",
+      "type": "tinyint",
+      "allowAIAdd": true,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "createuser",
+      "type": "varchar",
+      "allowAIAdd": true,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "exVal_2",
+      "type": "varchar",
+      "allowAIAdd": false,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "exVal_4",
+      "type": "varchar",
+      "allowAIAdd": true,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "val",
+      "type": "varchar",
+      "allowAIAdd": true,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "txt",
+      "type": "varchar",
+      "allowAIAdd": true,
+      "isPrimaryKey": false
+    },
+    {
+      "name": "_pk",
+      "type": "varchar"
+    }
+  ],
+  "turnId": "2114063013848944640",
+  "candidates": [
+    {
+      "__aiEntryCandidateKey": "candidate-1",
+      "val": "G2B_20261025_X",
+      "txt": "通用录入预览X"
+    },
+    {
+      "__aiEntryCandidateKey": "candidate-2",
+      "val": "G2B_20261025_Y",
+      "txt": "通用录入预览Y"
+    }
+  ],
+  "canConfirm": true,
+  "confirmationError": "",
+  "afterDiscard": {
+    "pending": false,
+    "count": 0,
+    "total": 0,
+    "businessPending": false,
+    "rowIds": [
+      "24FAF299D9A22190189C8FE975A2441B",
+      "41BC0C6F2D2DC6327B1F7CED01404E56",
+      "34E15E3BC4E87AF9CB885BD58696EA80",
+      "E2FF72AC90D0BE968E613A3F545CA2F8",
+      "5A11E56C5FC8DD593828899C11828DF0"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/realtime/agent-config/ai-agent-config-resource.test.ts > AiAgentConfigResource native DataSet contract > does not accept or emit rows from an Agent GET that becomes stale while requestRefresh is deferred
+🐛 [DataView] 销毁 DataView: AiAgentConfigCreate:default
+🐛 [DataView] 销毁 DataView: AiAgentConfig:default
+
+ ❯ src/realtime/agent-config/ai-agent-config-resource.test.ts (27 tests | 1 failed) 260ms
+     × does not accept or emit rows from an Agent GET that becomes stale while requestRefresh is deferred 129ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/realtime/agent-config/ai-agent-config-resource.test.ts > AiAgentConfigResource native DataSet contract > does not accept or emit rows from an Agent GET that becomes stale while requestRefresh is deferred
+AssertionError: expected [ [ 'AGENT-1' ], [ 'AGENT-2' ] ] to not deep equally contain [ 'AGENT-1' ]
+
+- Expected
++ Received
+
+  [
++   [
+      "AGENT-1",
++   ],
++   [
++     "AGENT-2",
++   ],
+  ]
+
+ ❯ src/realtime/agent-config/ai-agent-config-resource.test.ts:185:30
+    183|       await vi.waitFor(() => expect(f.resource.configuration.rows).toE…
+    184|       expect(f.http.requests.map(request => request.params)).toEqual([…
+    185|       expect(rowChanges).not.toContainEqual(['AGENT-1'])
+       |                              ^
+    186|       expect(rowChanges.at(-1)).toEqual(['AGENT-2'])
+    187|     } finally { f.dataSet.destroy() }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 passed (27)
+   Start at  01:38:39
+   Duration  1.51s (transform 769ms, setup 0ms, import 999ms, tests 260ms, environment 0ms)
+
+undefined
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-lowcode-api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/realtime/agent-config/ai-agent-config-resource.test.ts

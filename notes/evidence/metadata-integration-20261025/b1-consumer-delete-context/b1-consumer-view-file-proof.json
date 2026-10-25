@@ -1,0 +1,114 @@
+{
+  "truncated": false,
+  "records": [
+    {
+      "id": "2180.5375",
+      "path": "/api/File/content/text",
+      "http": 200,
+      "request": {
+        "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/944DEE5A0E5170F903E0E008172C4CD2",
+        "fileName": "pagedata.json",
+        "appType": "designfile",
+        "isCrossEnt": false,
+        "isReplace": true,
+        "content": null,
+        "convertType": 0
+      },
+      "responseSha256": "086864f3e52f90451aafd4ee49c54a08d76b183179fd0cd4faedbb1caf3d47e8",
+      "code": 200,
+      "message": "成功",
+      "scenarioId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "tableKeys": [
+        "SourceScope_20261018",
+        "SourceInputScope_20261018"
+      ],
+      "otherTablesSha256": "09d458ec067ea2fdd3bcdf80c7c3d24a7cce66c58224f998ab07cf2a0e792e91",
+      "layoutSha256": "211d42e3daa7a96134a1f205afede53d5422c43db28175ab18f9f7e7b4f469e3"
+    },
+    {
+      "id": "2180.5376",
+      "path": "/api/File/UploadFile",
+      "http": 200,
+      "request": {
+        "multipartBodyUnavailable": true
+      },
+      "responseSha256": "3fac80745824c618fcb1fd982133e92959ea8af76424eb98b12073df45de3ac6",
+      "code": 200,
+      "message": "操作成功"
+    },
+    {
+      "id": "2180.5378",
+      "path": "/api/File/DownFile",
+      "http": 200,
+      "request": {
+        "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/944DEE5A0E5170F903E0E008172C4CD2",
+        "fileName": "pagedata.json",
+        "appType": "designfile",
+        "isCrossEnt": false,
+        "isReplace": true,
+        "content": null,
+        "convertType": 0
+      },
+      "responseSha256": "3e082596ab21b441328321ffa2d663b4b7d9a913fae7ad23491e3b98fc0aba87",
+      "scenarioId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "tableKeys": [
+        "SourceScope_20261018",
+        "SourceInputScope_20261018",
+        "B1Sort_20261024_1925F4C2"
+      ],
+      "b1Table": {
+        "modelBinding": {
+          "modelId": "F9F01665D4A98E1FF996CD8A48D3C373",
+          "modelName": "B1Sort_20261024_1925F4C2"
+        },
+        "views": {
+          "b1Consumer": {
+            "valueField": "val",
+            "labelField": "txt"
+          },
+          "default": {}
+        }
+      },
+      "otherTablesSha256": "09d458ec067ea2fdd3bcdf80c7c3d24a7cce66c58224f998ab07cf2a0e792e91",
+      "layoutSha256": "211d42e3daa7a96134a1f205afede53d5422c43db28175ab18f9f7e7b4f469e3"
+    },
+    {
+      "id": "2180.5379",
+      "path": "/api/File/content/text",
+      "http": 200,
+      "request": {
+        "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/944DEE5A0E5170F903E0E008172C4CD2",
+        "fileName": "pagedata.json",
+        "appType": "designfile",
+        "isCrossEnt": false,
+        "isReplace": true,
+        "content": null,
+        "convertType": 0
+      },
+      "responseSha256": "3331de3fd1815278b3e59eb058567c385822010d877c966e135e02a19c8e7640",
+      "code": 200,
+      "message": "成功",
+      "scenarioId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "tableKeys": [
+        "SourceScope_20261018",
+        "SourceInputScope_20261018",
+        "B1Sort_20261024_1925F4C2"
+      ],
+      "b1Table": {
+        "modelBinding": {
+          "modelId": "F9F01665D4A98E1FF996CD8A48D3C373",
+          "modelName": "B1Sort_20261024_1925F4C2"
+        },
+        "views": {
+          "b1Consumer": {
+            "valueField": "val",
+            "labelField": "txt"
+          },
+          "default": {}
+        }
+      },
+      "otherTablesSha256": "09d458ec067ea2fdd3bcdf80c7c3d24a7cce66c58224f998ab07cf2a0e792e91",
+      "layoutSha256": "211d42e3daa7a96134a1f205afede53d5422c43db28175ab18f9f7e7b4f469e3"
+    }
+  ]
+}

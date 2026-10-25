@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
-    "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page\n职责：按已保存的字典设计维护六字段业务数据。\n边界：宿主通过唯一dictionaryId prop提供目标；标准组件绑定正式条目DataView，不编辑或保存设计配置。\nAI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖、权限和独立保存范围。",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page\n职责：按已保存的字典设计维护正式条目，并在需要时挂载通用AI批量录入组件。\n边界：目录宿主持有本页owner且置于Dialog槽外；clean close先显式释放AI会话和PageRuntime。\nAI用途：组件根据DataTable.columns中DataColumn.allowAIAdd及原DataView权限生成候选，确认仍暂存到原条目视图。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-25T06:54:15.518Z",
+  "generatedAt": "2026-10-25T08:43:55.513Z",
   "models": {}
 }

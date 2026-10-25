@@ -1,71 +1,47 @@
-import {getNavTree} from '@spark-appworks/spark-app'
 import {describe, expect, it, vi} from 'vitest'
-import {
-  collectBlueprintDatabaseCatalogScenarioIds,
-  collectDatabaseCatalogScenarioCandidates,
-} from '@/lowcode/resources/database/database-catalog-scenario'
+import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {resolveDatabaseCatalogScenarioId} from '@/lowcode/resources/database/database-catalog-scenario'
 
-vi.mock('@spark-appworks/spark-app', () => ({
-  getNavTree: vi.fn(() => ({
-    items: [
-      {
-        id: 'table-nav',
-        title: '表和视图',
-        path: '/features/data-platform/database-management/table-and-view/ui/table-and-view-page',
-        itemKind: 'system-page',
-        blueprintScenarioId: 'NAV-TABLE',
-      },
-      {
-        id: 'server-nav',
-        title: '服务器',
-        path: '/features/data-platform/database-management/ui/service-management-page',
-        itemKind: 'system-page',
-        blueprintScenarioId: 'FORM-DBMS',
-      },
-    ],
-  })),
+const readModelBatch = vi.hoisted(() => vi.fn())
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  lowcodeApi: {dataSpace: {design: {readModelBatch}}},
 }))
 
-describe('database-catalog-scenario', () => {
-  it('prefers route FormKey then merges database-management nav scenario ids', () => {
-    expect(collectDatabaseCatalogScenarioCandidates('NAV-TABLE')).toEqual(['NAV-TABLE', 'FORM-DBMS'])
+describe('database-catalog-scenario exact identity', () => {
+  it('checks the exact host-bound data-space id and required models once', async () => {
+    readModelBatch.mockReset().mockResolvedValue(undefined)
+    const result = await resolveDatabaseCatalogScenarioId({
+      preferredScenarioId: 'FORM-ROWID',
+      metaNames: ['_base_dbInfo', '_Base_TblList', '_Base_ViewList', 'Base_TblField'],
+      assertCurrent: () => {},
+    })
+    expect(result).toBe('FORM-ROWID')
+    expect(readModelBatch).toHaveBeenCalledTimes(1)
+    expect(readModelBatch).toHaveBeenCalledWith(expect.objectContaining({
+      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
+      dataSpaceId: 'FORM-ROWID',
+      metaNames: ['_base_dbInfo', '_Base_TblList', '_Base_ViewList', 'Base_TblField'],
+    }))
   })
 
-  it('ignores nav blueprintScenarioId when it equals navigation nodeId', () => {
-    vi.mocked(getNavTree).mockReturnValueOnce({
-      items: [{
-        id: 'NAV-TABLE',
-        title: '表和视图',
-        path: '/features/data-platform/database-management/table-and-view/ui/table-and-view-page',
-        itemKind: 'system-page',
-        blueprintScenarioId: 'NAV-TABLE',
-      }],
-    } as never)
-    expect(collectDatabaseCatalogScenarioCandidates('NAV-TABLE')).toEqual(['NAV-TABLE'])
+  it('fails the exact target when required models are missing without trying candidates', async () => {
+    readModelBatch.mockReset().mockRejectedValue(new Error('target models missing'))
+    await expect(resolveDatabaseCatalogScenarioId({
+      preferredScenarioId: 'FORM-ROWID',
+      metaNames: ['_base_dbInfo', '_Base_TblList'],
+      assertCurrent: () => {},
+    })).rejects.toThrow('target models missing')
+    expect(readModelBatch).toHaveBeenCalledTimes(1)
+    expect(readModelBatch.mock.calls[0]?.[0]).toMatchObject({dataSpaceId: 'FORM-ROWID'})
   })
 
-  it('collects blueprint scenario ids for catalog navigation titles', () => {
-    const ids = collectBlueprintDatabaseCatalogScenarioIds([
-      {
-        nodeId: 'n1',
-        parentNodeId: '',
-        projectId: 'P1',
-        kind: 'page',
-        capability: {name: '结构化配置'},
-        source: {},
-        dataSpace: {scenarioId: 'FORM-CATALOG'},
-      },
-      {
-        nodeId: 'n2',
-        parentNodeId: '',
-        projectId: 'P1',
-        kind: 'page',
-        capability: {name: '无关'},
-        navigation: {title: '仪表盘', target: '/dash'},
-        source: {},
-        dataSpace: {scenarioId: 'OTHER'},
-      },
-    ] as never)
-    expect(ids).toEqual(['FORM-CATALOG'])
+  it('rejects a missing host target without querying another data space', async () => {
+    readModelBatch.mockReset()
+    await expect(resolveDatabaseCatalogScenarioId({
+      preferredScenarioId: '  ',
+      metaNames: ['Base_serverInfo'],
+      assertCurrent: () => {},
+    })).rejects.toThrow('页面缺少正式 dataSpaceId')
+    expect(readModelBatch).not.toHaveBeenCalled()
   })
 })

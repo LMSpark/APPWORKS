@@ -11,6 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AttachCatalogCommandViewsInput",
+      "RegistrationDefaultFieldsNotAppliedError",
       "AttachServerRegisterViewInput",
       "AttachTableRegisterCommandViewInput",
       "AttachViewRegisterCommandViewInput",
@@ -19,13 +20,531 @@
     ]
   },
   "$defs": {
+    "DataColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataColumn",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/ColumnType"
+        },
+        "label": {
+          "type": "string"
+        },
+        "allowDBNull": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "defaultValue": true,
+        "isPrimaryKey": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "autoIncrement": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "allowAIAdd": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "isComputed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "patternMessage": {
+          "type": "string"
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
+        },
+        "unique": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "immutable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "optionsView": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumnOptionsView"
+        },
+        "valueFunction": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumnValueFunction"
+        },
+        "computeExpression": {
+          "type": "string"
+        },
+        "enumOptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "DataSet": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSet",
+      "properties": {
+        "dataSetName": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "$ref": "../../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTable"
+          }
+        },
+        "resourceRelations": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "viewCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewCascade"
+          }
+        },
+        "schemaVersion": {
+          "type": "number"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "saveChangesConfig": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveChangesConfig"
+        },
+        "layout": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetLayoutMetadata"
+        },
+        "_sharedHttpClient": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "_appServices": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetAppServices"
+        },
+        "_pageRoute": true,
+        "_childCascadeIdx": true,
+        "_parentCascadeIdx": true,
+        "_fieldCascadeRuntime": true,
+        "_fieldCascadeListeners": true,
+        "_resourceChildRelationIdx": true,
+        "_resourceParentRelationIdx": true,
+        "_activeViewSubs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "handlers": {
+                "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/ViewChangeHandlers"
+              },
+              "unsubs": {
+                "type": "object",
+                "title": "Map<SparkData.DataView, (() => void)[]>"
+              }
+            },
+            "required": [
+              "handlers",
+              "unsubs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "_activeOnSubs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {
+                "enum": [
+                  "loadSuccess",
+                  "loadError"
+                ]
+              },
+              "handler": {
+                "type": "object",
+                "title": "(payload: { tableName: string; viewId: string; error?: Error; }) => void"
+              },
+              "unsubs": {
+                "type": "object",
+                "title": "Map<SparkData.DataView, (() => void)[]>"
+              }
+            },
+            "required": [
+              "event",
+              "handler",
+              "unsubs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "initAutoSelection": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "setSharedHttpClient": {
+          "type": "object",
+          "title": "(client: HttpClientBase) => void"
+        },
+        "setAppServices": {
+          "type": "object",
+          "title": "(appServices: DataSetAppServices) => void"
+        },
+        "setPageRoute": {
+          "type": "object",
+          "title": "(route: unknown) => void"
+        },
+        "getRequestTemplateParams": {
+          "type": "object",
+          "title": "() => Record<string, unknown>"
+        },
+        "on": {
+          "type": "object",
+          "title": "(event: \"loadSuccess\" | \"loadError\", handler: (payload: { tableName: string; viewId: string; error?: Error; }) => void) => () => void"
+        },
+        "onAnyViewChange": {
+          "type": "object",
+          "title": "(handlers: SparkData.ViewChangeHandlers) => () => void"
+        },
+        "_subscribeViewChange": true,
+        "_subscribeOnView": true,
+        "_subscribeNewView": {
+          "type": "object",
+          "title": "(view: SparkData.DataView) => void"
+        },
+        "_unsubscribeView": {
+          "type": "object",
+          "title": "(view: SparkData.DataView) => void"
+        },
+        "_rebindActiveSubscriptions": true,
+        "triggerAutoLoad": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "getChildCascades": {
+          "type": "object",
+          "title": "(parentTable: string, parentViewId: string) => SparkData.DataViewQueryCascade[]"
+        },
+        "getParentCascades": {
+          "type": "object",
+          "title": "(childTable: string, childViewId: string) => SparkData.DataViewQueryCascade[]"
+        },
+        "resolveCascadeFilter": {
+          "type": "object",
+          "title": "(rel: SparkData.DataViewQueryCascade) => SparkData.DataViewFilterTree | undefined | null"
+        },
+        "getResourceChildRelations": {
+          "type": "object",
+          "title": "(parentTable: string) => SparkData.DataResourceRelation[]"
+        },
+        "getResourceParentRelations": {
+          "type": "object",
+          "title": "(childTable: string) => SparkData.DataResourceRelation[]"
+        },
+        "_buildViewCascadeIndex": true,
+        "_buildResourceRelationIndex": true,
+        "_rebuildDataLinks": true,
+        "_createTablesFromMetadata": true,
+        "_applyNormalizedMetadata": true,
+        "replaceFromJson": {
+          "type": "object",
+          "title": "(json: SparkData.DataSetMetadata | Record<string, unknown> | string) => void"
+        },
+        "listSnapshots": {
+          "type": "object",
+          "title": "(options?: SparkData.DataSetHistoryListOptions) => SparkData.DataSetHistorySnapshot[]"
+        },
+        "getSnapshot": {
+          "type": "object",
+          "title": "(selector: SparkData.DataSetSnapshotSelector, options?: SparkData.DataSetHistoryListOptions) => SparkData.DataSetHistorySnapshot | null"
+        },
+        "commitSnapshot": {
+          "type": "object",
+          "title": "(options?: SparkData.DataSetCommitSnapshotOptions) => SparkData.DataSetHistorySnapshot"
+        },
+        "restoreSnapshot": {
+          "type": "object",
+          "title": "(selector: SparkData.DataSetSnapshotSelector, options?: SparkData.DataSetHistoryListOptions) => SparkData.DataSetHistorySnapshot | null"
+        },
+        "addTable": {
+          "type": "object",
+          "title": "(tableName: string, columns: SparkData.DataColumn[]) => SparkData.DataTable"
+        },
+        "assertCanRemoveTable": {
+          "type": "object",
+          "title": "(tableName: string) => void"
+        },
+        "removeTable": {
+          "type": "object",
+          "title": "(tableName: string) => void"
+        },
+        "assertRemovableTable": true,
+        "_relationReferencesTable": true,
+        "_resolveResourceRelationIndex": true,
+        "_relationHasField": true,
+        "_resolveCascadeIndex": true,
+        "getCascade": {
+          "type": "object",
+          "title": "(selector: SparkData.DataViewCascadeSelector) => SparkData.DataViewCascade | undefined"
+        },
+        "addResourceRelation": {
+          "type": "object",
+          "title": "(params: SparkData.DataResourceRelationInput) => SparkData.DataResourceRelation"
+        },
+        "updateResourceRelation": {
+          "type": "object",
+          "title": "(selector: { parentTable: string; childTable: string; relationId?: string; parentField?: string; childField?: string; }, updates: Partial<SparkData.DataResourceRelation>) => SparkData.DataResourceRelation"
+        },
+        "removeResourceRelation": {
+          "type": "object",
+          "title": "(selector: { parentTable: string; childTable: string; relationId?: string; parentField?: string; childField?: string; }) => void"
+        },
+        "_assertCascadeShape": true,
+        "addCascade": {
+          "type": "object",
+          "title": "(cascade: SparkData.DataViewCascade) => SparkData.DataViewCascade"
+        },
+        "updateCascade": {
+          "type": "object",
+          "title": "(selector: SparkData.DataViewCascadeSelector, updates: Partial<SparkData.DataViewCascade>) => SparkData.DataViewCascade"
+        },
+        "removeCascade": {
+          "type": "object",
+          "title": "(selector: SparkData.DataViewCascadeSelector) => void"
+        },
+        "getFieldCascadeState": {
+          "type": "object",
+          "title": "(address: SparkData.DataViewFieldCascadeAddress) => SparkData.DataViewFieldCascadeState"
+        },
+        "refreshFieldCascade": {
+          "type": "object",
+          "title": "(address: SparkData.DataViewFieldCascadeAddress) => Promise<SparkData.DataViewFieldCascadeState>"
+        },
+        "onFieldCascadeChange": {
+          "type": "object",
+          "title": "(listener: (address: SparkData.DataViewFieldCascadeAddress, state: SparkData.DataViewFieldCascadeState) => void) => () => void"
+        },
+        "destroy": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "_destroyed": true,
+        "destroyed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "getTable": {
+          "type": "object",
+          "title": "(name: string) => SparkData.DataTable | undefined"
+        },
+        "getView": {
+          "type": "object",
+          "title": "(tableName: string, viewId?: string) => SparkData.DataView | undefined"
+        },
+        "saveChanges": {
+          "type": "object",
+          "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
+        },
+        "saveChangesInPhases": {
+          "type": "object",
+          "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => Promise<SparkData.DataSetPhasedSaveResult>"
+        },
+        "resolveUnconfirmedSaves": {
+          "type": "object",
+          "title": "() => Promise<\"none\" | \"confirmed\" | \"not-applied\">"
+        },
+        "abandonUnconfirmedSaves": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "discardAndReload": {
+          "type": "object",
+          "title": "(options: DataSetDiscardAndReloadOptions) => Promise<void>"
+        },
+        "assertScenarioSaveTargets": true,
+        "withCascadeSuspended": true,
+        "saveChangesInTransaction": true,
+        "resolveSaveChangesTransaction": true,
+        "collectTransactionOperations": true,
+        "buildTransactionOperationId": true,
+        "applySuccessfulTransactionOperations": true,
+        "syncTransactionCreatedRow": true,
+        "resolveSaveChangesTargets": true,
+        "getSaveChangesTableOrder": true,
+        "toJson": {
+          "type": "object",
+          "title": "() => SparkData.DataSetMetadata"
+        }
+      },
+      "required": [
+        "dataSetName",
+        "tables",
+        "resourceRelations",
+        "viewCascades",
+        "schemaVersion",
+        "scenarioId",
+        "version",
+        "pageId",
+        "saveChangesConfig",
+        "layout",
+        "_childCascadeIdx",
+        "_parentCascadeIdx",
+        "_fieldCascadeRuntime",
+        "_fieldCascadeListeners",
+        "_resourceChildRelationIdx",
+        "_resourceParentRelationIdx",
+        "_activeViewSubs",
+        "_activeOnSubs",
+        "initAutoSelection",
+        "setSharedHttpClient",
+        "setAppServices",
+        "setPageRoute",
+        "getRequestTemplateParams",
+        "on",
+        "onAnyViewChange",
+        "_subscribeViewChange",
+        "_subscribeOnView",
+        "_subscribeNewView",
+        "_unsubscribeView",
+        "_rebindActiveSubscriptions",
+        "triggerAutoLoad",
+        "getChildCascades",
+        "getParentCascades",
+        "resolveCascadeFilter",
+        "getResourceChildRelations",
+        "getResourceParentRelations",
+        "_buildViewCascadeIndex",
+        "_buildResourceRelationIndex",
+        "_rebuildDataLinks",
+        "_createTablesFromMetadata",
+        "_applyNormalizedMetadata",
+        "replaceFromJson",
+        "listSnapshots",
+        "getSnapshot",
+        "commitSnapshot",
+        "restoreSnapshot",
+        "addTable",
+        "assertCanRemoveTable",
+        "removeTable",
+        "assertRemovableTable",
+        "_relationReferencesTable",
+        "_resolveResourceRelationIndex",
+        "_relationHasField",
+        "_resolveCascadeIndex",
+        "getCascade",
+        "addResourceRelation",
+        "updateResourceRelation",
+        "removeResourceRelation",
+        "_assertCascadeShape",
+        "addCascade",
+        "updateCascade",
+        "removeCascade",
+        "getFieldCascadeState",
+        "refreshFieldCascade",
+        "onFieldCascadeChange",
+        "destroy",
+        "_destroyed",
+        "destroyed",
+        "getTable",
+        "getView",
+        "saveChanges",
+        "saveChangesInPhases",
+        "resolveUnconfirmedSaves",
+        "abandonUnconfirmedSaves",
+        "discardAndReload",
+        "assertScenarioSaveTargets",
+        "withCascadeSuspended",
+        "saveChangesInTransaction",
+        "resolveSaveChangesTransaction",
+        "collectTransactionOperations",
+        "buildTransactionOperationId",
+        "applySuccessfulTransactionOperations",
+        "syncTransactionCreatedRow",
+        "resolveSaveChangesTargets",
+        "getSaveChangesTableOrder",
+        "toJson"
+      ],
+      "additionalProperties": false
+    },
     "DatabaseCommandAttachInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DatabaseCommandAttachInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -48,7 +567,7 @@
       "title": "AttachCatalogCommandViewsInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -74,8 +593,7 @@
             }
           },
           "required": [
-            "commandInput",
-            "unregisteredDbNames"
+            "commandInput"
           ],
           "additionalProperties": false
         }
@@ -88,13 +606,29 @@
       ],
       "additionalProperties": false
     },
+    "RegistrationDefaultFieldsNotAppliedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RegistrationDefaultFieldsNotAppliedError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
     "AttachServerRegisterViewInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "AttachServerRegisterViewInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -112,7 +646,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+            "$ref": "#/$defs/DataColumn"
           }
         }
       },
@@ -132,7 +666,7 @@
       "title": "AttachTableRegisterCommandViewInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -163,7 +697,7 @@
       "title": "AttachViewRegisterCommandViewInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -194,7 +728,7 @@
       "title": "AttachTableSyncMetaDataViewInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -233,7 +767,7 @@
       "title": "AttachServerConnectionTestViewsInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "$ref": "#/$defs/DataSet"
         },
         "http": {
           "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
@@ -268,8 +802,56 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.220Z",
+  "generatedAt": "2026-10-25T08:42:55.814Z",
   "models": {
+    "DataColumn": {
+      "name": "DataColumn",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkData.DataColumn",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "SparkData.DataColumn",
+            "targetName": "SparkData.DataColumn"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSetCommandScopeGuard": {
+      "name": "DataSetCommandScopeGuard",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkData.DataSetCommandScopeGuard",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "SparkData.DataSetCommandScopeGuard",
+            "targetName": "SparkData.DataSetCommandScopeGuard"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSet": {
+      "name": "DataSet",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkData.DataSet",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "SparkData.DataSet",
+            "targetName": "SparkData.DataSet"
+          }
+        ],
+        "members": {}
+      }
+    },
     "DatabaseCommandAttachInput": {
       "name": "DatabaseCommandAttachInput",
       "jsdoc": "",
@@ -309,7 +891,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames?: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -318,7 +900,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames?: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -331,6 +913,33 @@
             }
           ]
         }
+      }
+    },
+    "RegistrationDefaultFieldsNotAppliedError": {
+      "name": "RegistrationDefaultFieldsNotAppliedError",
+      "jsdoc": "A precise already-registered receipt proves this true option was refused before field completion.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(message: string)",
+          "parameters": [
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
       }
     },
     "AttachServerRegisterViewInput": {

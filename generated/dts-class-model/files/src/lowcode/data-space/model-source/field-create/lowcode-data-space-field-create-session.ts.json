@@ -109,7 +109,8 @@
         "method.readDefinition.return": {
           "anyOf": [
             {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             {
               "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
@@ -155,7 +156,8 @@
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"
@@ -199,7 +201,8 @@
       "title": "FieldCreateHostInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "targetId": {
           "type": "string"

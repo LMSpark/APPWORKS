@@ -1,5 +1,7 @@
 # I5 database-management 研读（2026-10-20）
 
+> **历史错误方案，已 superseded**：本文中的 Hub 组合入口、候选身份恢复、服务器前置与五模型档位判断已被当前 B2 核验替代。正文和历史证据保留，但不得作为当前实施依据；当前入口、合同、断点与后续范围只读 `notes/data-space-retirement-ledger.md` 的“2026-10-25 B2 数据库目录依赖与关系编辑续核”及其后续更新。
+
 ## 任务来源
 
 `notes/plan-appworks-integration.md` I5：阶段 2 矩阵 6 行通过；删除 `src/views/app/DBMS.vue` 包装，页面落点 `src/views/features/data-platform/database-management/**`。

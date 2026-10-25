@@ -1,0 +1,48 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (6 tests | 2 failed) 1838ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 414ms
+     × keeps an active parent submenu title aligned with the useNav active path 35ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected 'auto' to be '1px' // Object.is equality
+
+Expected: "1px"
+Received: "auto"
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:175:63
+    173|     expect(overflowedItem?.classList.contains('nav-header-bar__item--d…
+    174|     if (!(overflowedItem instanceof HTMLElement)) throw new Error('溢出项…
+    175|     expect(getComputedStyle(overflowedItem, '::after').width).toBe('1p…
+       |                                                               ^
+    176|     overflowedItem?.dispatchEvent(new MouseEvent('click', {bubbles: tr…
+    177|     await flushPromises()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps an active parent submenu title aligned with the useNav active path
+AssertionError: expected '400' to be '600' // Object.is equality
+
+Expected: "600"
+Received: "400"
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:197:62
+    195|     expect(parentMenuItem.exists()).toBe(true)
+    196|     expect(parentTitle.exists()).toBe(true)
+    197|     expect(getComputedStyle(parentTitle.element).fontWeight).toBe('600…
+       |                                                              ^
+    198|     expect(parentTitle.attributes('aria-current')).toBeUndefined()
+    199|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  05:50:45
+   Duration  13.92s (transform 7.68s, setup 155ms, import 10.43s, tests 1.84s, environment 1.16s)
+

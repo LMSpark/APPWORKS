@@ -27,7 +27,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             "resource": {
               "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"

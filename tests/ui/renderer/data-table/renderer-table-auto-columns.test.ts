@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount} from '@vue/test-utils'
-import {defineComponent, effectScope, h, onBeforeUnmount, shallowRef} from 'vue'
+import {defineComponent, effectScope, h, onBeforeUnmount, shallowRef, type Ref} from 'vue'
 import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
 import {FieldText, RendererTable, Spark, PAGE_RUNTIME, useSparkComponent, type RTableProps} from '@spark-appworks/spark-component'
 import {DataSet, resolveDataViewMember, type SparkNode} from '@spark-appworks/spark-data'
@@ -14,7 +14,15 @@ import {useDataViewState} from '../../../../packages/spark-component/src/compone
 const originalStubs = config.global.stubs
 afterEach(() => {config.global.stubs = originalStubs; vi.unstubAllGlobals()})
 
-async function tableFixture(children?: SparkNode[], keyless = false, editable = false) {
+async function tableFixture(children?: SparkNode[], keyless = false, editable = false, options: {
+  rows?: readonly {id: string; name: string}[]
+  otherRows?: readonly {id: string; name: string}[]
+  initialCurrentRowId?: string | null
+  otherCurrentRowId?: string | null
+  onCurrentChange?: RTableProps['onCurrentChange']
+  onRowClick?: RTableProps['onRowClick']
+  binding?: Ref<string>
+} = {}) {
   const stubs = {...config.global.stubs}
   delete stubs['el-table']; delete stubs['el-table-column']
   delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
@@ -24,7 +32,7 @@ async function tableFixture(children?: SparkNode[], keyless = false, editable = 
     tableName: 'Orders', modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, columns: [
       {name: 'id', type: 'string', isPrimaryKey: true, label: '编号'}, {name: 'name', type: 'string', label: '名称'},
       {name: 'secret', type: 'string', label: '隐藏内容'}, {name: 'masked', type: 'string', label: '脱敏内容'},
-    ], views: {default: {}},
+    ], views: {default: {}, other: {}},
   }}})
   const view = dataSet.getView('Orders', 'default')!
   if (keyless) {
@@ -32,11 +40,29 @@ async function tableFixture(children?: SparkNode[], keyless = false, editable = 
     view.configure({autoCurrentFirst: false, autoSelectFirst: false, selectionDelimiter: '', valueField: 'id', labelField: 'name'})
   }
   const source = new DataSpaceQueryTable({scenarioId: 'SPACE', metaName: 'Orders'})
-  view.bindQueryExecutor({executeQuery: async () => new DataSpaceQueryContext({identity: source.identity,
-    scope: 'query', readScope: () => 'query', snapshot: source.applyResult({Result: {primaryKeyField: keyless ? null : 'id', data: {Items: [
-      {id: 'O1', name: '可读结果', secret: '不可泄漏隐藏值', masked: '不可泄漏脱敏值', lingma_sys_params: {r: [], e: editable ? ['name', 'secret', 'masked'] : [], h: ['secret'], m: ['masked'], d: false}},
-    ], Count: 1}}})})})
+  const otherSource = new DataSpaceQueryTable({scenarioId: 'SPACE', metaName: 'Orders'})
+  const otherView = dataSet.getView('Orders', 'other')!
+  const queryRows = options.rows ?? [{id: 'O1', name: '可读结果'}]
+  const otherQueryRows = options.otherRows ?? queryRows
+  const queryExecutor = (querySource: DataSpaceQueryTable, rows: readonly {id: string; name: string}[]) => ({
+    executeQuery: async () => {
+      const result = querySource.applyResult({Result: {
+        primaryKeyField: keyless ? null : 'id',
+        data: {Items: rows.map(row => ({...row, secret: '不可泄漏隐藏值', masked: '不可泄漏脱敏值',
+          lingma_sys_params: {r: [], e: editable ? ['name', 'secret', 'masked'] : [], h: ['secret'], m: ['masked'], d: false}})), Count: rows.length},
+      }})
+      return new DataSpaceQueryContext({identity: querySource.identity, scope: 'query', readScope: () => 'query', snapshot: result})
+    },
+  })
+  view.bindQueryExecutor(queryExecutor(source, queryRows))
+  otherView.bindQueryExecutor(queryExecutor(otherSource, otherQueryRows))
   await view.refresh()
+  await otherView.refresh()
+  if (options.initialCurrentRowId !== undefined) {
+    if (options.initialCurrentRowId === null) view.setCurrentRow(null)
+    else view.setCurrentRowById(options.initialCurrentRowId)
+    if (!keyless) otherView.setCurrentRowById(options.otherCurrentRowId ?? options.initialCurrentRowId ?? null)
+  }
   const registry = Spark.createRegistry()
   registry.register({type: 'r-text', component: FieldText})
   const runtime = new PageRuntime({pageId: 'table-test', scenarioIds: ['SPACE'], loadScenario: async () => dataSet})
@@ -45,8 +71,10 @@ async function tableFixture(children?: SparkNode[], keyless = false, editable = 
   const Host = defineComponent({setup() {
     useSparkComponent({type: 'table-test'}).sparkProvide(PAGE_RUNTIME, runtime)
     onBeforeUnmount(() => runtime.dispose())
-    return () => h(RendererTable, {dataViewKey: 'SPACE@Orders@default', autoColumns: true, showPagination: false,
-      showDataViewMeta: false, ...(rowClassName.value ? {rowClassName: rowClassName.value} : {}), ...(children ? {children} : {})})
+    return () => h(RendererTable, {dataViewKey: options.binding?.value ?? 'SPACE@Orders@default', autoColumns: true, highlightCurrentRow: true, showPagination: false,
+      showDataViewMeta: false, ...(options.onCurrentChange ? {onCurrentChange: options.onCurrentChange} : {}),
+      ...(options.onRowClick ? {onRowClick: options.onRowClick} : {}),
+      ...(rowClassName.value ? {rowClassName: rowClassName.value} : {}), ...(children ? {children} : {})})
   }})
   const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin({registry})],
     components: {'el-table': ElTable, 'el-table-column': ElTableColumn},
@@ -238,6 +266,96 @@ describe('RendererTable automatic columns', () => {
       view.clearAll()
       expect(view.currentRow).toBeNull()
       expect(tableApi.getValue()).toEqual([])
+    } finally {wrapper.unmount(); dataSet.destroy()}
+  })
+
+  it.each([
+    ['existing row', 'O1'],
+    ['null current row', null],
+  ] as const)('restores the rendered current row after a cancelled current-change from %s', async (_label, initialCurrentRowId) => {
+    const onCurrentChange: NonNullable<RTableProps['onCurrentChange']> = (_row, _previous, control) => {control.cancel = true}
+    const onRowClick: NonNullable<RTableProps['onRowClick']> = (_row, _column, _event, control) => {control.cancel = true}
+    const callback = vi.fn(onCurrentChange)
+    const {wrapper, dataSet} = await tableFixture(undefined, false, false, {
+      rows: [{id: 'O1', name: '原当前行'}, {id: 'O2', name: '点击目标'}],
+      initialCurrentRowId,
+      onCurrentChange: callback,
+      onRowClick,
+    })
+    const view = dataSet.getView('Orders')!
+    try {
+      if (initialCurrentRowId !== null) {
+        view.setCurrentRow(null)
+        await flushPromises()
+        view.setCurrentRowById(initialCurrentRowId)
+        await flushPromises()
+        expect(view.currentRow?.['id']).toBe(initialCurrentRowId)
+        expect(wrapper.findAll('tbody tr')[0]!.classes()).toContain('current-row')
+      }
+      const rows = wrapper.findAll('tbody tr')
+      expect(rows).toHaveLength(2)
+      await rows[1]!.trigger('click')
+      await flushPromises()
+      await flushPromises()
+
+      expect(view.currentRow?.['id'] ?? null).toBe(initialCurrentRowId)
+      if (initialCurrentRowId === null) {
+        expect(wrapper.findAll('tbody tr').every(row => !row.classes().includes('current-row'))).toBe(true)
+      } else {
+        expect(wrapper.findAll('tbody tr')[0]!.classes()).toContain('current-row')
+        expect(wrapper.findAll('tbody tr')[1]!.classes()).not.toContain('current-row')
+      }
+      expect(callback.mock.calls.filter(call => call[0]?.['id'] === 'O2')).toHaveLength(1)
+    } finally {wrapper.unmount(); dataSet.destroy()}
+  })
+
+  it('keeps the default current-row selection when current-change is not cancelled', async () => {
+    const onCurrentChange = vi.fn<NonNullable<RTableProps['onCurrentChange']>>()
+    const {wrapper, dataSet} = await tableFixture(undefined, false, false, {
+      rows: [{id: 'O1', name: '原当前行'}, {id: 'O2', name: '点击目标'}],
+      initialCurrentRowId: 'O1',
+      onCurrentChange,
+    })
+    const view = dataSet.getView('Orders')!
+    try {
+      await wrapper.findAll('tbody tr')[1]!.trigger('click')
+      await flushPromises()
+      expect(view.currentRow?.['id']).toBe('O2')
+      expect(wrapper.findAll('tbody tr')[1]!.classes()).toContain('current-row')
+    } finally {wrapper.unmount(); dataSet.destroy()}
+  })
+
+  it('syncs a cancelled asynchronous current-change to the newly bound DataView', async () => {
+    const binding = shallowRef('SPACE@Orders@default')
+    const onCurrentChange = vi.fn<NonNullable<RTableProps['onCurrentChange']>>(async (row, _previous, control) => {
+      if (row?.['id'] === 'O2') {
+        control.cancel = true
+        binding.value = 'SPACE@Orders@other'
+        await Promise.resolve()
+      }
+    })
+    const onRowClick: NonNullable<RTableProps['onRowClick']> = (_row, _column, _event, control) => {control.cancel = true}
+    const {wrapper, dataSet} = await tableFixture(undefined, false, false, {
+      rows: [{id: 'O1', name: '原当前行'}, {id: 'O2', name: '点击目标'}],
+      otherRows: [{id: 'X1', name: '新绑定已有当前行'}],
+      initialCurrentRowId: 'O1',
+      otherCurrentRowId: 'X1',
+      onCurrentChange,
+      onRowClick,
+      binding,
+    })
+    const view = dataSet.getView('Orders')!, other = dataSet.getView('Orders', 'other')!
+    try {
+      await wrapper.findAll('tbody tr')[1]!.trigger('click')
+      await flushPromises()
+      await flushPromises()
+      await flushPromises()
+
+      expect(view.currentRow?.['id']).toBe('O1')
+      expect(other.currentRow?.['id']).toBe('X1')
+      expect(wrapper.findAll('tbody tr')).toHaveLength(1)
+      expect(wrapper.findAll('tbody tr')[0]!.classes()).toContain('current-row')
+      expect(onCurrentChange.mock.calls.filter(call => call[0]?.['id'] === 'O2')).toHaveLength(1)
     } finally {wrapper.unmount(); dataSet.destroy()}
   })
 

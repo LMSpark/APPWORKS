@@ -1,0 +1,368 @@
+$ pnpm run build:packages && pnpm run build:fe
+$ node scripts/build-packages.mjs
+📦 Package build order: spark-utils → spark-json-document → spark-ai → spark-data → spark-project-model → spark-component → spark-app → spark-lowcode-api
+ℹ️  Skipping source-only packages (no build script): vite-plugin-spark-catalog
+
+⏭️  Skipping spark-utils (unchanged)
+
+⏭️  Skipping spark-json-document (unchanged)
+
+⏭️  Skipping spark-ai (unchanged)
+
+⏭️  Skipping spark-data (unchanged)
+
+⏭️  Skipping spark-project-model (unchanged)
+
+⏭️  Skipping spark-component (unchanged)
+
+⏭️  Skipping spark-app (unchanged)
+
+🔧 Building spark-lowcode-api ...
+
+> pnpm run build
+
+$ pnpm run clean && vite build && tsc -p tsconfig.build.json
+$ rimraf dist
+vite v8.0.16 building client environment for production...
+[2K
+transforming...✓ 63 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/contracts/index.js                                                  0.00 kB │ gzip: 0.02 kB
+dist/core/lowcode-api-error.js                                           0.20 kB │ gzip: 0.16 kB
+dist/platform/permission/permission-api.js                               0.34 kB │ gzip: 0.20 kB
+dist/platform/data-space/data-space-api.js                               0.38 kB │ gzip: 0.22 kB
+dist/platform/data-space/runtime/save/data-space-save-guard.js           0.46 kB │ gzip: 0.35 kB
+dist/platform/resources/json-data/json-data-content-client.js            0.50 kB │ gzip: 0.30 kB
+dist/platform/resources/pdf-inspect/pdf-inspect-design-client.js         0.52 kB │ gzip: 0.36 kB
+dist/platform/resources/data-code/data-code-design-client.js             0.54 kB │ gzip: 0.36 kB
+dist/platform/data-space/runtime/query/data-space-query-tree.js          0.60 kB │ gzip: 0.34 kB
+dist/platform/resources/shared/http-record-guards.js                     0.60 kB │ gzip: 0.41 kB
+dist/platform/resources/workflow-definition/workflow-design-client.js    0.60 kB │ gzip: 0.40 kB
+dist/platform/resources/excel-import/excel-import-design-client.js       0.60 kB │ gzip: 0.39 kB
+dist/platform/resources/logic-view/logic-view-design-client.js           0.61 kB │ gzip: 0.42 kB
+dist/platform/data-space/runtime/save/data-space-save-order.js           0.63 kB │ gzip: 0.39 kB
+dist/platform/data-space/runtime/protocol/data-space-value-function.js   0.76 kB │ gzip: 0.50 kB
+dist/platform/data-space/data-space-resource-type-wire.js                0.93 kB │ gzip: 0.53 kB
+dist/platform/permission/runtime/permission-runtime-api.js               1.08 kB │ gzip: 0.62 kB
+dist/core/lowcode-client.js                                              1.28 kB │ gzip: 0.68 kB
+dist/platform/data-space/runtime/query/data-space-source-input.js        1.43 kB │ gzip: 0.88 kB
+dist/platform/data-space/runtime/protocol/data-space-permission.js       1.44 kB │ gzip: 0.66 kB
+dist/platform/data-space/runtime/protocol/data-space-request-config.js   1.48 kB │ gzip: 0.86 kB
+dist/platform/permission/design/permission-design-mutation.js            1.67 kB │ gzip: 0.77 kB
+dist/platform/project-blueprint/project-blueprint-file-version.js        1.71 kB │ gzip: 0.87 kB
+dist/platform/data-space/runtime/query/data-space-query-aggregation.js   1.73 kB │ gzip: 0.98 kB
+dist/platform/project-blueprint/project-blueprint.js                     1.74 kB │ gzip: 0.75 kB
+dist/platform/data-space/runtime/protocol/data-space-pagination.js       1.89 kB │ gzip: 1.02 kB
+dist/platform/permission/permission-wire.js                              1.96 kB │ gzip: 1.06 kB
+dist/platform/lowcode-application-store.js                               2.01 kB │ gzip: 0.84 kB
+dist/platform/resources/dictionary/dictionary-schema.js                  2.12 kB │ gzip: 0.90 kB
+dist/design/lowcode-design-file-upload.js                                2.53 kB │ gzip: 1.29 kB
+dist/platform/lowcode-application.js                                     2.54 kB │ gzip: 1.16 kB
+dist/platform/permission/design/permission-design-api.js                 2.61 kB │ gzip: 1.15 kB
+dist/platform/data-space/runtime/query/data-space-query-resource.js      2.73 kB │ gzip: 1.32 kB
+dist/platform/lowcode-navigation.js                                      2.73 kB │ gzip: 1.25 kB
+dist/realtime/data-entry/ai-data-entry-fields.js                         2.82 kB │ gzip: 1.18 kB
+dist/platform/lowcode-session-store.js                                   3.14 kB │ gzip: 1.07 kB
+dist/lowcode-api.js                                                      3.20 kB │ gzip: 1.18 kB
+dist/platform/lowcode-enterprise.js                                      3.45 kB │ gzip: 1.38 kB
+dist/platform/data-space/runtime/query/data-space-query-cache.js         3.66 kB │ gzip: 1.57 kB
+dist/platform/resources/external-api/api-provider-design.js              3.78 kB │ gzip: 1.70 kB
+dist/design/lowcode-design-api.js                                        3.90 kB │ gzip: 1.61 kB
+dist/platform/data-space/runtime/save/data-space-save-result.js          4.74 kB │ gzip: 1.93 kB
+dist/platform/project-blueprint/project-blueprint-wire.js                4.83 kB │ gzip: 1.92 kB
+dist/index.js                                                            4.98 kB │ gzip: 1.23 kB
+dist/platform/data-space/runtime/protocol/data-space-query-table.js      5.03 kB │ gzip: 2.07 kB
+dist/platform/data-space/runtime/query/data-space-query-options.js       5.05 kB │ gzip: 2.00 kB
+dist/platform/data-space/design/data-space-input-parameters.js           5.21 kB │ gzip: 1.96 kB
+dist/platform/data-space/runtime/protocol/data-space-request.js          5.72 kB │ gzip: 2.31 kB
+dist/platform/project-blueprint/project-blueprint-api.js                 6.15 kB │ gzip: 2.47 kB
+dist/realtime/agent-config/ai-agent-config-resource.js                   6.46 kB │ gzip: 2.39 kB
+dist/catalog/lowcode-catalog-api.js                                      6.59 kB │ gzip: 2.31 kB
+dist/platform/resources/external-api/api-public-parameter-design.js      6.92 kB │ gzip: 2.51 kB
+dist/platform/resources/external-api/api-request-header-design.js        7.29 kB │ gzip: 2.62 kB
+dist/realtime/lowcode-realtime-api.js                                    7.80 kB │ gzip: 2.91 kB
+dist/realtime/ai-turn-resource.js                                        8.66 kB │ gzip: 2.89 kB
+dist/platform/lowcode-platform-api.js                                   11.46 kB │ gzip: 3.31 kB
+dist/platform/resources/external-api/api-interface-design.js            11.96 kB │ gzip: 3.86 kB
+dist/platform/data-space/runtime/query/data-space-query-context.js      13.21 kB │ gzip: 4.35 kB
+dist/platform/data-space/runtime/data-space-runtime-api.js              16.09 kB │ gzip: 5.64 kB
+dist/platform/resources/dictionary/dictionary-workspace.js              18.26 kB │ gzip: 5.31 kB
+dist/realtime/data-entry/ai-data-entry-session.js                       22.76 kB │ gzip: 6.65 kB
+dist/platform/data-space/design/data-space-design-api.js                26.08 kB │ gzip: 7.47 kB
+
+✓ built in 157ms
+✅ Package build complete (1 built, 7 skipped).
+$ node scripts/build-frontend.mjs
+
+🧩 组件注册模式: 编译时注册（packages 走 Vite alias → src）
+
+> pnpm exec vite build
+
+[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+vite v8.0.16 building client environment for production...
+[2K
+transforming...[SparkComponentsPlugin] 🔍 开始扫描组件...
+[SparkComponentsPlugin] ✅ 扫描完成: 196 个组件 (同步: 115, 异步: 81)
+✓ 3264 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                  1.58 kB │ gzip:   0.60 kB
+dist/fonts/iconfont.1781876895482-D9epzWxu.woff                  4.85 kB
+dist/fonts/iconfont.1781876895482-BllfKX1O.ttf                   8.63 kB
+dist/css/excel-import-sheet-layout-pane-DDg_aQ3i.css             0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-rule-form-DNBELRW1.css                      0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-edge-panel-CHYZi6MM.css                 0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-node-panel-CjkjB5h2.css                 0.07 kB │ gzip:   0.09 kB
+dist/css/excel-import-editor-page-zfAz4KXh.css                   0.07 kB │ gzip:   0.09 kB
+dist/css/logic-view-design-page-BsEeMAjj.css                     0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-editor-page-CymuvPYR.css                    0.07 kB │ gzip:   0.09 kB
+dist/css/workflow-design-page-CyPjFsLw.css                       0.07 kB │ gzip:   0.09 kB
+dist/css/pdf-inspect-list-page-CgXBnxwj.css                      0.07 kB │ gzip:   0.09 kB
+dist/css/ModuleContextBadge-BALn3kfJ.css                         0.07 kB │ gzip:   0.09 kB
+dist/css/DataSpaceParametersEditor-CRgZvd7b.css                  0.09 kB │ gzip:   0.10 kB
+dist/css/AppProjectSettingsDialog-Cz8yeJ27.css                   0.11 kB │ gzip:   0.12 kB
+dist/css/DataSpaceTableConfiguration-ec69cVvs.css                0.14 kB │ gzip:   0.13 kB
+dist/css/logic-view-list-page-CZp_8k_c.css                       0.15 kB │ gzip:   0.12 kB
+dist/css/workflow-definition-page-BpMnODo-.css                   0.15 kB │ gzip:   0.12 kB
+dist/css/DataSpaceBindingEditor-DWQTO_Ir.css                     0.15 kB │ gzip:   0.13 kB
+dist/css/register-dialog-BPxy4I53.css                            0.15 kB │ gzip:   0.13 kB
+dist/css/excel-import-list-page-hMbVQbe2.css                     0.15 kB │ gzip:   0.13 kB
+dist/css/json-data-page-BTGAlaSS.css                             0.16 kB │ gzip:   0.12 kB
+dist/css/DataSpaceFieldCreate-BEW7aQrI.css                       0.20 kB │ gzip:   0.14 kB
+dist/css/copy-table-dialog-CxK35DZZ.css                          0.21 kB │ gzip:   0.15 kB
+dist/css/CacheManager-CVLjEgq-.css                               0.22 kB │ gzip:   0.17 kB
+dist/css/data-code-editor-page-Bt1k_X4G.css                      0.23 kB │ gzip:   0.14 kB
+dist/css/api-interface-list-page-BqTZ7pVn.css                    0.23 kB │ gzip:   0.16 kB
+dist/css/DataSpaceModelRemoval-CulC_Ko2.css                      0.24 kB │ gzip:   0.16 kB
+dist/css/DataSpaceSourceInputEditor-Cufizg6s.css                 0.26 kB │ gzip:   0.17 kB
+dist/css/DeliveryPane-DcUBXreB.css                               0.27 kB │ gzip:   0.19 kB
+dist/css/service-management-page-DTFG4lsJ.css                    0.27 kB │ gzip:   0.17 kB
+dist/css/table-relation-dialog-Bmgm28Ig.css                      0.27 kB │ gzip:   0.17 kB
+dist/css/DevDataSetDesigner-BYyiv8nf.css                         0.31 kB │ gzip:   0.21 kB
+dist/css/data-set-list-page-CxCTI1P2.css                         0.32 kB │ gzip:   0.20 kB
+dist/css/data-code-list-page-B6-w4G3L.css                        0.36 kB │ gzip:   0.18 kB
+dist/css/TemplateDslDemo-DF-ONf0K.css                            0.37 kB │ gzip:   0.20 kB
+dist/css/view-design-dialog-BjDM7vMa.css                         0.39 kB │ gzip:   0.25 kB
+dist/css/PageLoadError-BKvLIrGf.css                              0.43 kB │ gzip:   0.24 kB
+dist/css/PlatformApps-D4pNWGfT.css                               0.45 kB │ gzip:   0.25 kB
+dist/css/dictionary-data-page-BaGkffWT.css                       0.45 kB │ gzip:   0.22 kB
+dist/css/PlatformTenantManagement-C9avPJmZ.css                   0.46 kB │ gzip:   0.26 kB
+dist/css/DataSpaceModelRename-BDO58GD9.css                       0.47 kB │ gzip:   0.25 kB
+dist/css/data-dictionary-list-page-CEJ-CHAs.css                  0.47 kB │ gzip:   0.23 kB
+dist/css/DataSpaceCascadeEditor-CQEy01OL.css                     0.47 kB │ gzip:   0.25 kB
+dist/css/table-design-dialog-NtVPHkGz.css                        0.48 kB │ gzip:   0.26 kB
+dist/css/data-set-design-edge-panel-BOT30_q3.css                 0.51 kB │ gzip:   0.25 kB
+dist/css/DataSpaceModelRequest-DBE7aEnv.css                      0.54 kB │ gzip:   0.29 kB
+dist/css/Settings-CGZVLugt.css                                   0.63 kB │ gzip:   0.28 kB
+dist/css/AppList-DL1g0Kub.css                                    0.65 kB │ gzip:   0.30 kB
+dist/css/vendor-WsftzwoE.css                                     0.71 kB │ gzip:   0.33 kB
+dist/css/BlueprintWorkspace-5Bxr5cMd.css                         0.74 kB │ gzip:   0.31 kB
+dist/css/DevPreviewTab-z_i1LOmC.css                              0.75 kB │ gzip:   0.33 kB
+dist/css/DataSpaceQueryPreview-BuZ3Q6EX.css                      0.79 kB │ gzip:   0.35 kB
+dist/css/table-and-view-page-BWkVhYly.css                        0.85 kB │ gzip:   0.33 kB
+dist/css/Dashboard-tbYkMEl4.css                                  0.89 kB │ gzip:   0.37 kB
+dist/css/DataSpaceModelSource-CFOoXGOT.css                       0.89 kB │ gzip:   0.39 kB
+dist/css/DataSpaceViewEditor-4NsgMFmZ.css                        1.03 kB │ gzip:   0.43 kB
+dist/css/IconPicker-D2TS0StY.css                                 1.14 kB │ gzip:   0.46 kB
+dist/css/ProjectBlueprintTree-CnqIXuBl.css                       1.22 kB │ gzip:   0.47 kB
+dist/css/LoginView-Ddd7sHrD.css                                  1.26 kB │ gzip:   0.51 kB
+dist/css/database-management-hub-BH8At8qK.css                    1.33 kB │ gzip:   0.44 kB
+dist/css/TenantConfigPanel-DbOlUhvj.css                          1.53 kB │ gzip:   0.58 kB
+dist/css/data-set-design-node-panel-DSyHdaZe.css                 1.68 kB │ gzip:   0.59 kB
+dist/css/DataSpaceFieldEditor-DmdYRcG_.css                       1.71 kB │ gzip:   0.58 kB
+dist/css/CustomRTableDemo-BtPxIlkp.css                           2.00 kB │ gzip:   0.66 kB
+dist/css/ProjectPlanningDocumentImportDialog-o4mIOg_n.css        2.05 kB │ gzip:   0.55 kB
+dist/css/About-JWZsPNWd.css                                      2.08 kB │ gzip:   0.69 kB
+dist/css/DevNodeProps-CqENCQf8.css                               2.87 kB │ gzip:   0.85 kB
+dist/css/DevFileEditor-BwJkYHv0.css                              3.37 kB │ gzip:   0.91 kB
+dist/css/RFormCompareDemo-Bs-i-Sll.css                           3.52 kB │ gzip:   0.95 kB
+dist/css/CapabilityDemo-DQ3kdSVe.css                             3.60 kB │ gzip:   1.08 kB
+dist/css/DevSystem-q1VQA7EF.css                                  4.06 kB │ gzip:   0.94 kB
+dist/css/HomePage-DiSowdZh.css                                  10.71 kB │ gzip:   2.56 kB
+dist/css/data-set-design-page-CavrxY33.css                      14.12 kB │ gzip:   2.40 kB
+dist/css/WorkflowDesigns-73rFtNxv.css                           17.83 kB │ gzip:   3.65 kB
+dist/css/index-DO_Esluw.css                                     34.76 kB │ gzip:   6.59 kB
+dist/css/spark-app-BNTqloWf.css                                 60.14 kB │ gzip:  10.29 kB
+dist/css/vendor-forms-Cs1c_RRX.css                             136.04 kB │ gzip:  20.25 kB
+dist/css/element-plus-BDTeg99L.css                             359.37 kB │ gzip:  48.46 kB
+dist/js/spark-json-document-CblRcrt9.js                          0.06 kB │ gzip:   0.08 kB
+dist/js/element-plus-CPEpUTE4.js                                 0.09 kB │ gzip:   0.10 kB
+dist/js/design-json-ui-DJFbR8xG.js                               0.09 kB │ gzip:   0.10 kB
+dist/js/childPlacementLabels-BjQRHeTI.js                         0.20 kB │ gzip:   0.21 kB
+dist/js/useNodeKindFlags-D95iDYBl.js                             0.34 kB │ gzip:   0.19 kB
+dist/js/PageLoadError-Dgf4V_ul.js                                0.51 kB │ gzip:   0.41 kB
+dist/js/sequence-selector-dialog-0otJSghk.js                     0.59 kB │ gzip:   0.45 kB
+dist/js/parent-code-dialog-B1vXplfR.js                           0.60 kB │ gzip:   0.45 kB
+dist/js/code-class-edit-dialog-BUoE6lKr.js                       0.60 kB │ gzip:   0.44 kB
+dist/js/time-string-dialog-be28pETo.js                           0.60 kB │ gzip:   0.45 kB
+dist/js/code-init-dialog-DIzRKIML.js                             0.61 kB │ gzip:   0.47 kB
+dist/js/excel-import-transform-rule-dialog-CfsU0dKa.js           0.62 kB │ gzip:   0.46 kB
+dist/js/code-class-selector-dialog-xPIltF9g.js                   0.64 kB │ gzip:   0.50 kB
+dist/js/excel-import-sheet-layout-lookup-dialog-IkpJiYJg.js      0.67 kB │ gzip:   0.50 kB
+dist/js/workflow-trigger-table-dialog-DkqRFfOM.js                0.69 kB │ gzip:   0.52 kB
+dist/js/pdf-inspect-rule-form-C4N7zMvf.js                        0.79 kB │ gzip:   0.53 kB
+dist/js/excel-import-sheet-layout-pane-7G7_jrjj.js               0.80 kB │ gzip:   0.53 kB
+dist/js/workflow-design-edge-panel-0pgV7r7q.js                   0.81 kB │ gzip:   0.54 kB
+dist/js/workflow-design-node-panel-BvF5L7jM.js                   0.81 kB │ gzip:   0.54 kB
+dist/js/rolldown-runtime-Cyuzqnbw.js                             0.82 kB │ gzip:   0.47 kB
+dist/js/PrototypePane-B15XuSP4.js                                0.86 kB │ gzip:   0.56 kB
+dist/js/PlanningPane-3A3sHUIw.js                                 0.86 kB │ gzip:   0.56 kB
+dist/js/TemplateDslDemo-CVk5lKIM.js                              0.89 kB │ gzip:   0.59 kB
+dist/js/ModuleContextBadge-4ywedx7i.js                           0.93 kB │ gzip:   0.61 kB
+dist/js/excel-import-transform-rules-pane-P6t-ht1f.js            0.94 kB │ gzip:   0.61 kB
+dist/js/ScenarioDefinitionTextEditor-Xa4u9cKo.js                 1.04 kB │ gzip:   0.59 kB
+dist/js/application-option-dialog-CqkyoxmV.js                    1.09 kB │ gzip:   0.65 kB
+dist/js/NodeLayoutConfig-CuZloIWe.js                             1.17 kB │ gzip:   0.70 kB
+dist/js/ReleasePane-BtAxwKJn.js                                  1.20 kB │ gzip:   0.68 kB
+dist/js/DataPlanningPane-Dxkew8OI.js                             1.31 kB │ gzip:   0.82 kB
+dist/js/lowcode-logic-view-BW9MKcfI.js                           1.36 kB │ gzip:   0.75 kB
+dist/js/lowcode-pdf-inspect-CYZk49W9.js                          1.37 kB │ gzip:   0.74 kB
+dist/js/lowcode-data-code-BQtIgDmi.js                            1.41 kB │ gzip:   0.73 kB
+dist/js/lowcode-excel-import-0oP3s1aT.js                         1.47 kB │ gzip:   0.76 kB
+dist/js/lowcode-workflow-definition-CLq_agKD.js                  1.51 kB │ gzip:   0.80 kB
+dist/js/DeliveryPane-1O0YAZlK.js                                 1.52 kB │ gzip:   0.91 kB
+dist/js/NodeStateConfig-BD70BDN3.js                              1.59 kB │ gzip:   0.63 kB
+dist/js/DataSpaceParametersEditor-CJiJzR8f.js                    1.59 kB │ gzip:   0.97 kB
+dist/js/copy-table-dialog-CkBe3jGS.js                            1.65 kB │ gzip:   0.90 kB
+dist/js/logic-view-design-page-LIfCKk8z.js                       1.69 kB │ gzip:   1.00 kB
+dist/js/pdf-inspect-editor-page-CTaltE5F.js                      1.70 kB │ gzip:   1.00 kB
+dist/js/DevNodeProps-B2G_26nJ.js                                 1.85 kB │ gzip:   0.82 kB
+dist/js/EstimatePane-DXOnGQpd.js                                 1.95 kB │ gzip:   0.86 kB
+dist/js/use-staged-design-page-DCl1c4Xb.js                       2.10 kB │ gzip:   1.06 kB
+dist/js/workflow-design-page-CIVtDSXW.js                         2.16 kB │ gzip:   1.13 kB
+dist/js/lowcode-data-space-source-catalog-RK5CSPHo.js            2.20 kB │ gzip:   1.08 kB
+dist/js/DataSpaceArrayHeaders-D1m9YoAx.js                        2.25 kB │ gzip:   1.17 kB
+dist/js/IconPicker-ht7iR85N.js                                   2.26 kB │ gzip:   1.21 kB
+dist/js/add-table-dialog-Dcvr6teN.js                             2.29 kB │ gzip:   1.07 kB
+dist/js/register-database-dialog-BaEJ_hGo.js                     2.30 kB │ gzip:   1.07 kB
+dist/js/register-dialog-BTYmeTEY.js                              2.35 kB │ gzip:   1.21 kB
+dist/js/DataSpaceFieldRemoval-MS9iluYZ.js                        2.47 kB │ gzip:   1.26 kB
+dist/js/excel-import-editor-page-B8fKX9_a.js                     2.53 kB │ gzip:   1.28 kB
+dist/js/structured-config-catalog-65uEWjSE.js                    2.69 kB │ gzip:   1.35 kB
+dist/js/pdf-inspect-list-page-D0JQS2Li.js                        2.70 kB │ gzip:   1.56 kB
+dist/js/view-design-dialog-Bj6NTAV4.js                           2.75 kB │ gzip:   1.25 kB
+dist/js/excel-import-list-page-E5k4IUIf.js                       2.81 kB │ gzip:   1.61 kB
+dist/js/table-relation-dialog-GKVks2yk.js                        2.86 kB │ gzip:   1.32 kB
+dist/js/staged-design-file-view-D01luO-l.js                      3.03 kB │ gzip:   1.56 kB
+dist/js/database-management-hub-K1RTlECR.js                      3.03 kB │ gzip:   1.50 kB
+dist/js/logic-view-list-page-DoMXVgdg.js                         3.11 kB │ gzip:   1.73 kB
+dist/js/workflow-definition-page-CW_uKm9_.js                     3.15 kB │ gzip:   1.71 kB
+dist/js/data-code-editor-page-D0C-mwma.js                        3.19 kB │ gzip:   1.39 kB
+dist/js/data-code-list-page-C8bm5MHB.js                          3.36 kB │ gzip:   1.82 kB
+dist/js/NodeTargetConfig-3SDGK4ey.js                             3.38 kB │ gzip:   1.54 kB
+dist/js/DataSpaceModelFields-CQhPU9Uz.js                         3.50 kB │ gzip:   1.66 kB
+dist/js/Dashboard-Dz3TJDck.js                                    3.52 kB │ gzip:   1.37 kB
+dist/js/AppProjectSettingsDialog-Yjh5IyA2.js                     3.53 kB │ gzip:   1.76 kB
+dist/js/dictionary-setting-CU9PyEtC.js                           3.68 kB │ gzip:   1.75 kB
+dist/js/lowcode-data-space-array-draft-DgojegIg.js               3.90 kB │ gzip:   1.93 kB
+dist/js/use-dictionary-workspace-D9L62ZKF.js                     3.98 kB │ gzip:   1.85 kB
+dist/js/ProjectPlanningDocumentImportDialog-PU2NGwmY.js          4.11 kB │ gzip:   1.71 kB
+dist/js/About-DU6HAjCB.js                                        4.14 kB │ gzip:   1.89 kB
+dist/js/dictionary-data-page-DW2sStHj.js                         4.14 kB │ gzip:   1.95 kB
+dist/js/ProjectBlueprintTree-Bth3z_dl.js                         4.24 kB │ gzip:   2.04 kB
+dist/js/DataSpaceModelRemoval-BP1Kj2Ak.js                        4.32 kB │ gzip:   2.10 kB
+dist/js/DataSpaceSourceInputEditor-CbQWC9-2.js                   4.57 kB │ gzip:   2.18 kB
+dist/js/CustomRTableDemo-Cgeggvl5.js                             4.58 kB │ gzip:   1.89 kB
+dist/js/DevPreviewTab-B4hU15O9.js                                4.60 kB │ gzip:   2.32 kB
+dist/js/NodeBasicInfo-NjvOX9ht.js                                4.84 kB │ gzip:   1.48 kB
+dist/js/json-data-page-ni-RPqXW.js                               5.09 kB │ gzip:   2.43 kB
+dist/js/PlatformApps-DFDCH1zu.js                                 5.24 kB │ gzip:   2.30 kB
+dist/js/table-design-dialog-XVoqAUVS.js                          5.61 kB │ gzip:   1.83 kB
+dist/js/AppList-CLENAYqe.js                                      5.70 kB │ gzip:   2.50 kB
+dist/js/DataSpaceArrayCreate-BlvN5tEf.js                         5.71 kB │ gzip:   2.39 kB
+dist/js/lowcode-model-relation-adapter-sUhe6SzP.js               6.27 kB │ gzip:   2.38 kB
+dist/js/RFormCompareDemo-D69TS2Zl.js                             6.32 kB │ gzip:   2.55 kB
+dist/js/data-dictionary-list-page-C0gbzYpk.js                    6.35 kB │ gzip:   2.74 kB
+dist/js/api-management-page-B2TVeG93.js                          6.38 kB │ gzip:   2.64 kB
+dist/js/CapabilityDemo-CNvy04HL.js                               6.46 kB │ gzip:   2.63 kB
+dist/js/DataSpaceArrayEditor-C8QR0eyX.js                         6.52 kB │ gzip:   2.72 kB
+dist/js/DataSpaceFieldCreate-u9XSC6ro.js                         6.68 kB │ gzip:   2.56 kB
+dist/js/CacheManager-GSkhF2an.js                                 6.86 kB │ gzip:   2.84 kB
+dist/js/DataSpaceModelRename-DQweil0v.js                         6.92 kB │ gzip:   2.93 kB
+dist/js/DevDataSetDesigner-XcUOlmCA.js                           7.34 kB │ gzip:   2.57 kB
+dist/js/DataSpaceModelRequest-BzVYIR3G.js                        7.51 kB │ gzip:   3.30 kB
+dist/js/BlueprintWorkspace-iE-v1l4d.js                           7.73 kB │ gzip:   3.30 kB
+dist/js/PlatformTenantManagement-DowS3ovz.js                     7.88 kB │ gzip:   3.14 kB
+dist/js/TenantConfigPanel-BqCSKC8g.js                            8.40 kB │ gzip:   3.38 kB
+dist/js/lowcode-api-provider-CVEkY3Do.js                         9.09 kB │ gzip:   2.39 kB
+dist/js/HomePage-BTnppBQp.js                                     9.28 kB │ gzip:   3.94 kB
+dist/js/api-config-page-CDFuBbDF.js                              9.29 kB │ gzip:   3.41 kB
+dist/js/lowcode-data-space-assembler-Bf8KZ4a2.js                 9.40 kB │ gzip:   3.63 kB
+dist/js/lowcode-dictionary-CA4F1ydH.js                           9.41 kB │ gzip:   3.72 kB
+dist/js/api-interface-list-page-BhKyqzkN.js                     10.60 kB │ gzip:   3.80 kB
+dist/js/DataSpaceBindingEditor-3SQP-TLJ.js                      12.20 kB │ gzip:   4.57 kB
+dist/js/LoginView-CV_2tXtt.js                                   12.53 kB │ gzip:   3.15 kB
+dist/js/DataSpaceQueryPreview-B2VX4SJR.js                       12.71 kB │ gzip:   4.79 kB
+dist/js/lowcode-data-space-field-value-DJgbOrpu.js              12.98 kB │ gzip:   4.29 kB
+dist/js/service-management-page-D1V4ZsVu.js                     13.10 kB │ gzip:   4.85 kB
+dist/js/lowcode-runtime-CSdc6djQ.js                             13.41 kB │ gzip:   4.81 kB
+dist/js/DataSpaceTableConfiguration-BT6iHDop.js                 13.43 kB │ gzip:   5.35 kB
+dist/js/DevFileEditor-01bMuFJt.js                               14.04 kB │ gzip:   5.72 kB
+dist/js/Settings-BKmFG6FH.js                                    14.20 kB │ gzip:   4.51 kB
+dist/js/data-set-design-node-panel-Dh1t3d59.js                  14.81 kB │ gzip:   5.47 kB
+dist/js/data-set-design-edge-panel-CQUU_bqC.js                  15.56 kB │ gzip:   5.46 kB
+dist/js/lowcode-data-space-source-input-session-CM-dUz1x.js     17.68 kB │ gzip:   5.88 kB
+dist/js/DataSpaceCascadeEditor-Ddy48Hxw.js                      17.84 kB │ gzip:   5.54 kB
+dist/js/lowcode-database-server-VoOkAKlB.js                     19.17 kB │ gzip:   5.86 kB
+dist/js/element-plus-core-BNIuNOQ2.js                           19.67 kB │ gzip:   7.74 kB
+dist/js/DataSpaceFieldEditor-FkI0b3tk.js                        22.84 kB │ gzip:   7.54 kB
+dist/js/artifact-urls-CmY-nMnK.js                               24.77 kB │ gzip:   8.06 kB
+dist/js/data-set-list-page-CieXHgRM.js                          26.37 kB │ gzip:   9.08 kB
+dist/js/DataSpaceModelSource-Ch9BpJ0D.js                        30.77 kB │ gzip:   9.43 kB
+dist/js/lowcode-data-space-field-edit-session-yhxExKEO.js       30.99 kB │ gzip:   9.39 kB
+dist/js/_virtual_spark-components-DqncfvFg.js                   31.07 kB │ gzip:   7.12 kB
+dist/js/vue-page-registry-Cn1mEnhJ.js                           40.24 kB │ gzip:   8.89 kB
+dist/js/DataSpaceViewEditor-UbmnyAee.js                         40.94 kB │ gzip:  12.64 kB
+dist/js/table-and-view-page-BBT67DMk.js                         60.40 kB │ gzip:  15.96 kB
+dist/js/index-CuzlRWgZ.js                                       67.93 kB │ gzip:  23.30 kB
+dist/js/DevSystem-CArxoJNs.js                                   69.12 kB │ gzip:  23.64 kB
+dist/js/element-plus-components-j-r-ClIKZw09.js                 80.16 kB │ gzip:  26.01 kB
+dist/js/vendor-editor-BVxvrrVi.js                               91.91 kB │ gzip:  34.75 kB
+dist/js/data-set-design-page-ZL4LnJYa.js                        93.38 kB │ gzip:  26.31 kB
+dist/js/WorkflowDesigns-CIzkVBIc.js                            116.22 kB │ gzip:  27.78 kB
+dist/js/spark-lowcode-api-XzKkUBjw.js                          200.37 kB │ gzip:  56.41 kB
+dist/js/vendor-CG9nNk9L.js                                     258.24 kB │ gzip:  91.23 kB
+dist/js/element-plus-components-s-z-B7z8jdVW.js                302.53 kB │ gzip:  98.69 kB
+dist/js/lowcode-data-space-design-C_IZHg5H.js                  329.32 kB │ gzip:  84.08 kB
+dist/js/vendor-forms-B6TG83vJ.js                               453.26 kB │ gzip: 135.53 kB
+dist/js/spark-ai-w5kcnLir.js                                   480.02 kB │ gzip: 133.85 kB
+dist/js/vendor-jsoneditor-BG6dc_2a.js                          501.71 kB │ gzip: 131.76 kB
+dist/js/element-plus-components-a-i-g7o7MEQp.js                747.88 kB │ gzip: 235.13 kB
+dist/js/spark-app-xR9Vw7rw.js                                1,630.52 kB │ gzip: 485.49 kB
+
+[INVALID_ANNOTATION] A comment "/* #__PURE__ */" in "node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js" contains an annotation that Rolldown cannot interpret due to the position of the comment.
+      ╭─[ node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js:3362:1 ]
+      │
+ 3362 │ /* #__PURE__ */
+      │ ───────┬───────  
+      │        ╰───────── comment ignored due to position
+      │ 
+      │ Help: For more information on how to use pure annotations correctly, check the documentation: https://rolldown.rs/in-depth/dead-code-elimination#pure
+──────╯
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 1000 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[INVALID_ANNOTATION] A comment "/* #__PURE__ */" in "node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js" contains an annotation that Rolldown cannot interpret due to the position of the comment.
+      ╭─[ node_modules/.pnpm/@vueuse+core@14.3.0_vue@3.5.38_typescript@6.0.3_/node_modules/@vueuse/core/dist/index.js:5780:23 ]
+      │
+ 5780 │ const defaultState = (/* #__PURE__ */ {
+      │                       ───────┬───────  
+      │                              ╰───────── comment ignored due to position
+      │ 
+      │ Help: For more information on how to use pure annotations correctly, check the documentation: https://rolldown.rs/in-depth/dead-code-elimination#pure
+──────╯
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+state@6.6.0/node_modules/@codemirror/state/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js, node_modules/.pnpm/@codemirror+lint@6.9.7/node_modules/@codemirror/lint/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+view@6.43.1/node_modules/@codemirror/view/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js, node_modules/.pnpm/@codemirror+lint@6.9.7/node_modules/@codemirror/lint/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+language@6.12.3/node_modules/@codemirror/language/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by node_modules/.pnpm/@codemirror+autocomplete@6.20.3/node_modules/@codemirror/autocomplete/dist/index.js, node_modules/.pnpm/@codemirror+commands@6.10.3/node_modules/@codemirror/commands/dist/index.js, node_modules/.pnpm/@codemirror+lang-css@6.3.1/node_modules/@codemirror/lang-css/dist/index.js, node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js, node_modules/.pnpm/@codemirror+lang-json@6.0.2/node_modules/@codemirror/lang-json/dist/index.js, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/.pnpm/@codemirror+lang-javascript@6.2.5/node_modules/@codemirror/lang-javascript/dist/index.js is dynamically imported by packages/spark-component/src/components/editors/SparkCodeEditor.vue?vue&type=script&setup=true&lang.ts but also statically imported by packages/spark-component/src/page/createSandbox.ts, dynamic import will not move module into another chunk.
+
+✓ built in 5.12s

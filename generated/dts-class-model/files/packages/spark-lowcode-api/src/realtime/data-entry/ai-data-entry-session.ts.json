@@ -1,0 +1,629 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-session",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/data-entry/ai-data-entry-session",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-session\n职责：持有单个真实目标 DataView 的暂存式 AI 批量录入会话，协调输入、正式 Agent 轮次、候选查询、确认与安全释放。\n边界：轮次命令沿同 DataSet 的 AiTurnResource/DataView 提交；确认只向原目标 DataView 暂存新增行，不保存业务数据，也不自建权限或字段真源。\nAI用途：页面或标准组件需要创建、查询、停止并确认一批 AI 候选时，使用本会话公共合同；组件卸载只应 detach 订阅，不得销毁仍有待核验状态的 owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiDataEntryAdapter",
+      "AiDataEntrySessionInput",
+      "AiDataEntrySession"
+    ]
+  },
+  "$defs": {
+    "AiDataEntryAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryAdapter",
+      "$defs": {
+        "method.readContext.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readContext.return": true,
+        "method.validateBatch.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateBatch.return": true,
+        "method.appendBatch.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendBatch.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "AiDataEntrySessionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntrySessionInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetView": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turnResource": {
+          "$ref": "../ai-turn-resource.ts.json#/$defs/AiTurnResource"
+        },
+        "agentId": {
+          "type": "string"
+        },
+        "adapter": {
+          "$ref": "#/$defs/AiDataEntryAdapter"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetView",
+        "turnResource",
+        "agentId"
+      ],
+      "additionalProperties": false
+    },
+    "AiDataEntrySession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntrySession",
+      "properties": {
+        "targetView": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "input": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "candidates": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turn": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "busy": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "blocksWorkspace": {
+          "type": "boolean"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        },
+        "canStart": {
+          "type": "boolean"
+        },
+        "canRefresh": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        },
+        "canConfirm": {
+          "type": "boolean"
+        },
+        "confirmationError": {
+          "type": "string"
+        },
+        "shouldAutoRefresh": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiDataEntrySessionInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.start.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.start.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.confirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-25T08:42:55.793Z",
+  "models": {
+    "AiDataEntryAdapter": {
+      "name": "AiDataEntryAdapter",
+      "jsdoc": "Synchronous domain preflight and optional asynchronous append hooks bound to the exact target view.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "readContext",
+              "jsdoc": "Return only business context needed by this batch; this callback must not perform I/O or return hidden data.",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "validateBatch",
+              "jsdoc": "Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free.",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataRow[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendBatch",
+              "jsdoc": "Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft.",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataRow[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiDataEntrySessionInput": {
+      "name": "AiDataEntrySessionInput",
+      "jsdoc": "Dependencies for one session; the caller supplies the existing AiTurnResource for this same DataSet.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** The current runtime DataSet that owns the target and shared AI turn views. */\n    dataSet: DataSet;\n    /** The staged business DataView that will receive confirmed rows. */\n    targetView: DataView;\n    /** The already-created turn owner whose four views must belong to dataSet. */\n    turnResource: AiTurnResource;\n    /** The configured formal Agent ID, validated against the existing Agent catalog before each create. */\n    agentId: string;\n    /** Optional narrow synchronous domain context/preflight and asynchronous append adapter bound to targetView. */\n    adapter?: AiDataEntryAdapter;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** The current runtime DataSet that owns the target and shared AI turn views. */\n    dataSet: DataSet;\n    /** The staged business DataView that will receive confirmed rows. */\n    targetView: DataView;\n    /** The already-created turn owner whose four views must belong to dataSet. */\n    turnResource: AiTurnResource;\n    /** The configured formal Agent ID, validated against the existing Agent catalog before each create. */\n    agentId: string;\n    /** Optional narrow synchronous domain context/preflight and asynchronous append adapter bound to targetView. */\n    adapter?: AiDataEntryAdapter;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "The current runtime DataSet that owns the target and shared AI turn views.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetView",
+              "jsdoc": "The staged business DataView that will receive confirmed rows.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnResource",
+              "jsdoc": "The already-created turn owner whose four views must belong to dataSet.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "agentId",
+              "jsdoc": "The configured formal Agent ID, validated against the existing Agent catalog before each create.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "adapter",
+              "jsdoc": "Optional narrow synchronous domain context/preflight and asynchronous append adapter bound to targetView.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiDataEntrySession": {
+      "name": "AiDataEntrySession",
+      "jsdoc": "A single active staged batch-entry conversation; its target DataView never changes after construction.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "Binds one session to an existing DataSet, target view and shared turn owner.\nIt rejects immediate targets and resource collisions before creating either temporary table.",
+          "signatureText": "constructor(input: AiDataEntrySessionInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "AiDataEntrySessionInput",
+                "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "targetView",
+              "jsdoc": "Immutable business target; all confirmed rows are staged through this exact DataView.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "One-row static-data input view; users edit the businessPrompt field through the standard DataView editor.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidates",
+              "jsdoc": "Read-only query view derived from the currently verified formal turn and the current target schema.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "Shared formal turn DataView used for status, completion and cancellation readback.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "The turn id acknowledged by the current batch, when available.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "Status read only from the current, valid formal turns DataView row.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busy",
+              "jsdoc": "Current async command/query activity.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "Whether unresolved command captures must keep the original turn owner alive.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blocksWorkspace",
+              "jsdoc": "Whether the original host should retain this session because an intent or result is unresolved.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "Any input, candidate, command or error that the host must retain for user resolution.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "Last local error, if a completion could not be parsed or validated.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canStart",
+              "jsdoc": "Whether a new request can be started from the current input and formal target snapshot.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRefresh",
+              "jsdoc": "Whether a known turn or unresolved original command can be queried without resubmitting it.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "jsdoc": "Whether the formal turn is known and nonterminal, with no cancellation command already outstanding.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canConfirm",
+              "jsdoc": "Whether the current read-only candidate batch passes the same preflight used by confirm.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmationError",
+              "jsdoc": "User-facing reason matching canConfirm's fail-closed checks.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shouldAutoRefresh",
+              "jsdoc": "Host polling hint based only on formal turn readback or an unresolved original command.",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "subscribe",
+              "jsdoc": "Listens to input, candidate, target and shared turn DataView state changes; returns an unsubscribe function.",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "start",
+              "jsdoc": "Starts one independent turn from the current businessPrompt editing overlay in the Input DataView.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "Reads the current turn through AiTurnResource and installs a validated completion in the Candidates DataView.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "Confirms the current batch after a fresh all-row preflight; never saves the target DataView.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "Sends the existing cancellation command; acknowledgement never implies a terminal remote status.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "Explicitly abandons the local prompt/candidates once no command or remote turn is active.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "Releases only the session-owned temporary tables after all local and remote intents are resolved.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

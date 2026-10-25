@@ -1,5 +1,7 @@
 # 表和视图 hub（table-and-view-page）— v3 语义卡（载体页）
 
+> **历史错误研读，已 superseded**：本文关于单 FormKey Hub、隐式服务器依赖与五表装配的描述不构成当前产品事实或实施依据。原正文及证据保留；当前页面合同与断点只读 `notes/data-space-retirement-ledger.md` 的“2026-10-25 B2 数据库目录依赖与关系编辑续核”及其后续更新。
+
 > 矩阵行：`table-and-view-page.vue`；子对话框各有独立 research（`research-database-management-i5-*.md`）。
 > 参考：`table-and-view-page.vue` + `use-table-and-view-page.ts`（sparkproject）。
 

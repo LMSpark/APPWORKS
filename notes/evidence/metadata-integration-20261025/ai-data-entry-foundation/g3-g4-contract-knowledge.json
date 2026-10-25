@@ -1,0 +1,1094 @@
+{
+  "SparkAiDataEntryProps": {
+    "catalog": {
+      "rootKind": "SparkAiDataEntryProps",
+      "models": [
+        {
+          "kind": "SparkAiDataEntryProps",
+          "name": "SparkAiDataEntryProps",
+          "jsdoc": "通用AI批量新增renderer的页面属性。",
+          "summary": "通用AI批量新增renderer的页面属性。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "component": {
+            "name": "SparkAiDataEntry"
+          }
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "SparkAiDataEntryProps",
+      "models": [
+        {
+          "kind": "SparkAiDataEntryProps",
+          "name": "SparkAiDataEntryProps",
+          "jsdoc": "通用AI批量新增renderer的页面属性。",
+          "summary": "通用AI批量新增renderer的页面属性。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "component": {
+            "name": "SparkAiDataEntry"
+          },
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。",
+              "summary": "必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。",
+              "typeText": "string"
+            },
+            {
+              "name": "title",
+              "jsdoc": "录入区域标题；不包含Agent配置或系统提示词。",
+              "summary": "录入区域标题；不包含Agent配置或系统提示词。",
+              "typeText": "string"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "暂时禁用本组件交互，不改变DataView数据权限。",
+              "summary": "暂时禁用本组件交互，不改变DataView数据权限。",
+              "typeText": "false | true"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component name=SparkAiDataEntry */\n/**\n * DTS declaration: SparkAiDataEntryProps = SparkNodeProps & Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection Readonly<{\n    /** 必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。 */\n    dataViewKey: string;\n    /** 录入区域标题；不包含Agent配置或系统提示词。 */\n    title?: string;\n    /** 暂时禁用本组件交互，不改变DataView数据权限。 */\n    disabled?: boolean;\n}>\n */\n通用AI批量新增renderer的页面属性。\ntype SparkAiDataEntryProps {\n  必须是当前PageRuntime可解析的完整数据空间ID@模型名称@视图名称绑定。\n  readonly dataViewKey: string\n  录入区域标题；不包含Agent配置或系统提示词。\n  readonly title: string\n  暂时禁用本组件交互，不改变DataView数据权限。\n  readonly disabled: false | true\n}"
+  },
+  "AiDataEntryHostCapability": {
+    "catalog": {
+      "rootKind": "AiDataEntryHostCapability",
+      "models": [
+        {
+          "kind": "AiDataEntryHostCapability",
+          "name": "AiDataEntryHostCapability",
+          "jsdoc": "在应用运行实例中打开一个与精确业务DataView绑定的录入会话。",
+          "summary": "在应用运行实例中打开一个与精确业务DataView绑定的录入会话。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "AiDataEntryHostCapability",
+      "models": [
+        {
+          "kind": "AiDataEntryHostCapability",
+          "name": "AiDataEntryHostCapability",
+          "jsdoc": "在应用运行实例中打开一个与精确业务DataView绑定的录入会话。",
+          "summary": "在应用运行实例中打开一个与精确业务DataView绑定的录入会话。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [],
+          "methods": [
+            {
+              "name": "openSession",
+              "jsdoc": "返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。",
+              "summary": "返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。",
+              "signature": "openSession(targetView: DataView): AiDataEntryAttachment"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: AiDataEntryHostCapability = Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>\n * DTS relation: alias Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>\n */\n在应用运行实例中打开一个与精确业务DataView绑定的录入会话。\ntype AiDataEntryHostCapability {\n  返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。\n  openSession(targetView: DataView): AiDataEntryAttachment\n}"
+  },
+  "AiDataEntrySessionSurface": {
+    "catalog": {
+      "rootKind": "AiDataEntrySessionSurface",
+      "models": [
+        {
+          "kind": "AiDataEntrySessionSurface",
+          "name": "AiDataEntrySessionSurface",
+          "jsdoc": "标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。",
+          "summary": "标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "AiDataEntrySessionSurface",
+      "models": [
+        {
+          "kind": "AiDataEntrySessionSurface",
+          "name": "AiDataEntrySessionSurface",
+          "jsdoc": "标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。",
+          "summary": "标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "targetView",
+              "jsdoc": "不可变业务目标，确认结果只暂存到此DataView。",
+              "summary": "不可变业务目标，确认结果只暂存到此DataView。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "input",
+              "jsdoc": "由标准表单编辑businessPrompt的单行输入DataView。",
+              "summary": "由标准表单编辑businessPrompt的单行输入DataView。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "candidates",
+              "jsdoc": "由正式轮次读回填充的只读候选DataView。",
+              "summary": "由正式轮次读回填充的只读候选DataView。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "turn",
+              "jsdoc": "同一DataSet中由AiTurnResource持有的正式轮次状态DataView。",
+              "summary": "同一DataSet中由AiTurnResource持有的正式轮次状态DataView。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "已受理的正式轮次标识；未收到可信回执时为空。",
+              "summary": "已受理的正式轮次标识；未收到可信回执时为空。",
+              "typeText": "string"
+            },
+            {
+              "name": "status",
+              "jsdoc": "由正式轮次状态视图推导的状态。",
+              "summary": "由正式轮次状态视图推导的状态。",
+              "typeText": "string"
+            },
+            {
+              "name": "busy",
+              "jsdoc": "当前命令或异步读取是否正在执行。",
+              "summary": "当前命令或异步读取是否正在执行。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "是否存在必须由原轮次owner核验的未知保存结果。",
+              "summary": "是否存在必须由原轮次owner核验的未知保存结果。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "blocksWorkspace",
+              "jsdoc": "是否需要阻止工作区关闭或切换目标。",
+              "summary": "是否需要阻止工作区关闭或切换目标。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "pending",
+              "jsdoc": "是否有输入、候选、命令或错误需要保留。",
+              "summary": "是否有输入、候选、命令或错误需要保留。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "error",
+              "jsdoc": "最近的本地验证或轮次错误。",
+              "summary": "最近的本地验证或轮次错误。",
+              "typeText": "string"
+            },
+            {
+              "name": "canStart",
+              "jsdoc": "当前输入可否发起一个新轮次。",
+              "summary": "当前输入可否发起一个新轮次。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "canRefresh",
+              "jsdoc": "当前轮次或原始未知命令可否安全查询。",
+              "summary": "当前轮次或原始未知命令可否安全查询。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "canCancel",
+              "jsdoc": "当前已知非终态轮次可否停止。",
+              "summary": "当前已知非终态轮次可否停止。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "canConfirm",
+              "jsdoc": "当前候选批次可否通过统一预检并暂存。",
+              "summary": "当前候选批次可否通过统一预检并暂存。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "confirmationError",
+              "jsdoc": "与确认资格对应的用户可读原因。",
+              "summary": "与确认资格对应的用户可读原因。",
+              "typeText": "string"
+            },
+            {
+              "name": "shouldAutoRefresh",
+              "jsdoc": "宿主可否继续自动查询正式轮次状态。",
+              "summary": "宿主可否继续自动查询正式轮次状态。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "subscribe",
+              "jsdoc": "订阅DataView/会话状态变更并返回取消订阅函数。",
+              "summary": "订阅DataView/会话状态变更并返回取消订阅函数。",
+              "signature": "subscribe(listener: () => void): () => void"
+            },
+            {
+              "name": "start",
+              "jsdoc": "从当前businessPrompt草稿创建一次正式轮次。",
+              "summary": "从当前businessPrompt草稿创建一次正式轮次。",
+              "signature": "start(): Promise<void>"
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "沿原正式轮次资源查询状态并解析候选。",
+              "summary": "沿原正式轮次资源查询状态并解析候选。",
+              "signature": "refresh(): Promise<void>"
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "把通过预检的整批候选暂存到原业务DataView。",
+              "summary": "把通过预检的整批候选暂存到原业务DataView。",
+              "signature": "confirm(): Promise<void>"
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "对已知非终态轮次发起停止并沿正式资源核验。",
+              "summary": "对已知非终态轮次发起停止并沿正式资源核验。",
+              "signature": "cancel(): Promise<void>"
+            },
+            {
+              "name": "discard",
+              "jsdoc": "放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。",
+              "summary": "放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。",
+              "signature": "discard(): Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: AiDataEntrySessionSurface = Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>\n * DTS relation: alias Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>\n */\n标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。\ntype AiDataEntrySessionSurface {\n  不可变业务目标，确认结果只暂存到此DataView。\n  readonly targetView: DataView\n  由标准表单编辑businessPrompt的单行输入DataView。\n  readonly input: DataView\n  由正式轮次读回填充的只读候选DataView。\n  readonly candidates: DataView\n  同一DataSet中由AiTurnResource持有的正式轮次状态DataView。\n  readonly turn: DataView\n  已受理的正式轮次标识；未收到可信回执时为空。\n  readonly turnId: string\n  由正式轮次状态视图推导的状态。\n  readonly status: string\n  当前命令或异步读取是否正在执行。\n  readonly busy: boolean\n  是否存在必须由原轮次owner核验的未知保存结果。\n  readonly hasUnconfirmedSave: boolean\n  是否需要阻止工作区关闭或切换目标。\n  readonly blocksWorkspace: boolean\n  是否有输入、候选、命令或错误需要保留。\n  readonly pending: boolean\n  最近的本地验证或轮次错误。\n  readonly error: string\n  当前输入可否发起一个新轮次。\n  readonly canStart: boolean\n  当前轮次或原始未知命令可否安全查询。\n  readonly canRefresh: boolean\n  当前已知非终态轮次可否停止。\n  readonly canCancel: boolean\n  当前候选批次可否通过统一预检并暂存。\n  readonly canConfirm: boolean\n  与确认资格对应的用户可读原因。\n  readonly confirmationError: string\n  宿主可否继续自动查询正式轮次状态。\n  readonly shouldAutoRefresh: boolean\n  订阅DataView/会话状态变更并返回取消订阅函数。\n  subscribe(listener: () => void): () => void\n  从当前businessPrompt草稿创建一次正式轮次。\n  start(): Promise<void>\n  沿原正式轮次资源查询状态并解析候选。\n  refresh(): Promise<void>\n  把通过预检的整批候选暂存到原业务DataView。\n  confirm(): Promise<void>\n  对已知非终态轮次发起停止并沿正式资源核验。\n  cancel(): Promise<void>\n  放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。\n  discard(): Promise<void>\n}"
+  },
+  "AiDataEntryHost": {
+    "catalog": {
+      "rootKind": "AiDataEntryHost",
+      "models": [
+        {
+          "kind": "AiDataEntryHost",
+          "name": "AiDataEntryHost",
+          "jsdoc": "一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。",
+          "summary": "一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。",
+          "declarationRelations": [
+            {
+              "kind": "implements",
+              "typeText": "AiDataEntryHostCapability",
+              "targetName": "AiDataEntryHostCapability"
+            }
+          ]
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "AiDataEntryHost",
+      "models": [
+        {
+          "kind": "AiDataEntryHost",
+          "name": "AiDataEntryHost",
+          "jsdoc": "一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。",
+          "summary": "一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。",
+          "declarationRelations": [
+            {
+              "kind": "implements",
+              "typeText": "AiDataEntryHostCapability",
+              "targetName": "AiDataEntryHostCapability"
+            }
+          ],
+          "constructorSignature": {
+            "summary": "绑定一个PageRuntime DataSet、同实例正式AiTurnResource和可选领域回调。",
+            "jsdoc": "绑定一个PageRuntime DataSet、同实例正式AiTurnResource和可选领域回调。\n@param input.dataSet 本次应用运行实例的原生DataSet，不能用业务行副本替代。\n@param input.adapterForView 仅为精确目标提供领域语义；其输入仍是同一个正式DataView。",
+            "signature": "constructor(input: AiDataEntryHostInput)"
+          },
+          "attributes": [
+            {
+              "name": "isDirty",
+              "jsdoc": "是否存在需用户保留或处理的AI会话状态。",
+              "summary": "是否存在需用户保留或处理的AI会话状态。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "openSession",
+              "jsdoc": "为目标DataView附着会话；同目标重挂复用原session，不同目标先安全释放旧临时表。\n@param targetView 必须是本owner DataSet中身份相同的正式DataView对象。",
+              "summary": "为目标DataView附着会话；同目标重挂复用原session，不同目标先安全释放旧临时表。",
+              "signature": "openSession(targetView: DataView): AiDataEntryAttachment"
+            },
+            {
+              "name": "releaseClean",
+              "jsdoc": "同步撤销活动附件，再安全释放仅两张会话临时表；共享轮次视图归DataSet继续持有。",
+              "summary": "同步撤销活动附件，再安全释放仅两张会话临时表；共享轮次视图归DataSet继续持有。",
+              "signature": "releaseClean(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS relation: implements AiDataEntryHostCapability\n */\n一个运行DataSet中的AI批量新增owner；组件卸载只撤销附件，安全释放由宿主明确调用。\nclass AiDataEntryHost {\n  绑定一个PageRuntime DataSet、同实例正式AiTurnResource和可选领域回调。\n  @param input.dataSet 本次应用运行实例的原生DataSet，不能用业务行副本替代。\n  @param input.adapterForView 仅为精确目标提供领域语义；其输入仍是同一个正式DataView。\n  constructor(input: AiDataEntryHostInput)\n  是否存在需用户保留或处理的AI会话状态。\n  readonly isDirty: boolean\n  为目标DataView附着会话；同目标重挂复用原session，不同目标先安全释放旧临时表。\n  @param targetView 必须是本owner DataSet中身份相同的正式DataView对象。\n  openSession(targetView: DataView): AiDataEntryAttachment\n  同步撤销活动附件，再安全释放仅两张会话临时表；共享轮次视图归DataSet继续持有。\n  releaseClean(): void\n}"
+  },
+  "AiDataEntryAdapter": {
+    "catalog": {
+      "rootKind": "AiDataEntryAdapter",
+      "models": [
+        {
+          "kind": "AiDataEntryAdapter",
+          "name": "AiDataEntryAdapter",
+          "jsdoc": "Synchronous domain preflight and optional asynchronous append hooks bound to the exact target view.",
+          "summary": "Synchronous domain preflight and optional asynchronous append hooks bound to the exact target view.",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "AiDataEntryAdapter",
+      "models": [
+        {
+          "kind": "AiDataEntryAdapter",
+          "name": "AiDataEntryAdapter",
+          "jsdoc": "Synchronous domain preflight and optional asynchronous append hooks bound to the exact target view.",
+          "summary": "Synchronous domain preflight and optional asynchronous append hooks bound to the exact target view.",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [],
+          "methods": [
+            {
+              "name": "readContext",
+              "jsdoc": "Return only business context needed by this batch; this callback must not perform I/O or return hidden data.",
+              "summary": "Return only business context needed by this batch; this callback must not perform I/O or return hidden data.",
+              "signature": "readContext(targetView: DataView): unknown"
+            },
+            {
+              "name": "validateBatch",
+              "jsdoc": "Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free.",
+              "summary": "Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free.",
+              "signature": "validateBatch(targetView: DataView, rows: readonly DataRow[]): void"
+            },
+            {
+              "name": "appendBatch",
+              "jsdoc": "Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft.",
+              "summary": "Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft.",
+              "signature": "appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: AiDataEntryAdapter = Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>\n * DTS relation: alias Readonly<{\n    /** Return only business context needed by this batch; this callback must not perform I/O or return hidden data. */\n    readContext(targetView: DataView): unknown;\n    /** Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free. */\n    validateBatch(targetView: DataView, rows: readonly DataRow[]): void;\n    /** Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft. */\n    appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>;\n}>\n */\nSynchronous domain preflight and optional asynchronous append hooks bound to the exact target view.\ntype AiDataEntryAdapter {\n  Return only business context needed by this batch; this callback must not perform I/O or return hidden data.\n  readContext(targetView: DataView): unknown\n  Validate domain rules for the whole batch before any target row is added. Must be synchronous and side-effect free.\n  validateBatch(targetView: DataView, rows: readonly DataRow[]): void\n  Append the prevalidated batch to the same target DataView. Partial additions remain in its original draft.\n  appendBatch(targetView: DataView, rows: readonly DataRow[]): Promise<void>\n}"
+  },
+  "DictionaryWorkspace": {
+    "catalog": {
+      "rootKind": "DictionaryWorkspace",
+      "models": [
+        {
+          "kind": "DictionaryWorkspace",
+          "name": "DictionaryWorkspace",
+          "jsdoc": "定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。",
+          "summary": "定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。"
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "DictionaryWorkspace",
+      "models": [
+        {
+          "kind": "DictionaryWorkspace",
+          "name": "DictionaryWorkspace",
+          "jsdoc": "定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。",
+          "summary": "定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。",
+          "constructorSignature": {
+            "summary": "接受正式模型装配的DataSet；业务过滤进入视图配置，分页重查也保留同一范围。",
+            "jsdoc": "接受正式模型装配的DataSet；业务过滤进入视图配置，分页重查也保留同一范围。",
+            "signature": "constructor(input: DictionaryWorkspaceInput)"
+          },
+          "attributes": [
+            {
+              "name": "definition",
+              "jsdoc": "方案设计定义视图；数据页只消费其已保存配置。",
+              "summary": "方案设计定义视图；数据页只消费其已保存配置。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "entries",
+              "jsdoc": "业务条目视图；普通提交与设计定义隔离。",
+              "summary": "业务条目视图；普通提交与设计定义隔离。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "pending",
+              "jsdoc": "是否有本地编辑或结果待核验；宿主以此阻止误关和目标切换。",
+              "summary": "是否有本地编辑或结果待核验；宿主以此阻止误关和目标切换。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "requiresVerification",
+              "jsdoc": "提交回执不确定时，禁用再次保存并提供显式重读入口。",
+              "summary": "提交回执不确定时，禁用再次保存并提供显式重读入口。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "removed",
+              "jsdoc": "删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。",
+              "summary": "删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "canApplyDisplayedOrder",
+              "jsdoc": "本次已加载条目的显示顺序是否可通过原条目视图暂存。",
+              "summary": "本次已加载条目的显示顺序是否可通过原条目视图暂存。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "canRemoveDefinition",
+              "jsdoc": "完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。",
+              "summary": "完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。",
+              "summary": "首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。",
+              "signature": "load(discard?: boolean): Promise<void>"
+            },
+            {
+              "name": "addEntry",
+              "jsdoc": "原查询权限控制新增；类型归属固定为本次字典，不由页面传入。",
+              "summary": "原查询权限控制新增；类型归属固定为本次字典，不由页面传入。",
+              "signature": "addEntry(): Promise<void>"
+            },
+            {
+              "name": "entryAppendError",
+              "jsdoc": "只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。\n@param values 只包含字典六个业务字段的候选条目。\n@returns 当前批次可写时为undefined；否则为拒绝原因。",
+              "summary": "只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。",
+              "signature": "entryAppendError(values: Readonly<Record<string, unknown>>[]): string | undefined"
+            },
+            {
+              "name": "appendEntries",
+              "jsdoc": "全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。\n@param values 只包含 val、txt、exVal_1 至 exVal_4 的候选条目，不接受身份、排序或其它字段。\n@throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。",
+              "summary": "全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。",
+              "signature": "appendEntries(values: Readonly<Record<string, unknown>>[]): Promise<void>"
+            },
+            {
+              "name": "removeEntry",
+              "jsdoc": "删除先进入DataView暂存态；正式提交仍由统一批量保存校验每条权限。",
+              "summary": "删除先进入DataView暂存态；正式提交仍由统一批量保存校验每条权限。",
+              "signature": "removeEntry(id: string | number): Promise<void>"
+            },
+            {
+              "name": "canRemoveEntry",
+              "jsdoc": "条目移除的呈现及执行共用判断；取消本实例新增草稿不借用服务端删除权限。\n@param id 本次条目视图中的主键。\n@returns 当前可移除该条目或取消其新增草稿时为true。",
+              "summary": "条目移除的呈现及执行共用判断；取消本实例新增草稿不借用服务端删除权限。",
+              "signature": "canRemoveEntry(id: string | number): boolean"
+            },
+            {
+              "name": "saveDesign",
+              "jsdoc": "仅提交设计定义；数据更改不能混入设计保存。删除资源另按完整性规则提交。",
+              "summary": "仅提交设计定义；数据更改不能混入设计保存。删除资源另按完整性规则提交。",
+              "signature": "saveDesign(): Promise<void>"
+            },
+            {
+              "name": "saveData",
+              "jsdoc": "仅提交业务条目，消费已保存的设计；不能顺带保存标题或新建设计。",
+              "summary": "仅提交业务条目，消费已保存的设计；不能顺带保存标题或新建设计。",
+              "signature": "saveData(): Promise<void>"
+            },
+            {
+              "name": "applyDisplayedOrder",
+              "jsdoc": "按调用时已显示的条目顺序更新 ordIdx 编辑覆盖；普通保存仍由 DataSet/DataView 提交。",
+              "summary": "按调用时已显示的条目顺序更新 ordIdx 编辑覆盖；普通保存仍由 DataSet/DataView 提交。",
+              "signature": "applyDisplayedOrder(): Promise<void>"
+            },
+            {
+              "name": "removeDefinition",
+              "jsdoc": "显式暂存定义及全部条目删除，逐条核当次权限，批量提交顺序先条目后定义。",
+              "summary": "显式暂存定义及全部条目删除，逐条核当次权限，批量提交顺序先条目后定义。",
+              "signature": "removeDefinition(): Promise<void>"
+            },
+            {
+              "name": "fieldLabel",
+              "jsdoc": "按当次字段权限取标题；没有标题时保留字段，禁止据此裁剪扩展数据。",
+              "summary": "按当次字段权限取标题；没有标题时保留字段，禁止据此裁剪扩展数据。",
+              "signature": "fieldLabel(name: string): string"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "定义与条目共用原DataSet保存owner；失败后只能先重读核验，不自动重放。\nclass DictionaryWorkspace {\n  接受正式模型装配的DataSet；业务过滤进入视图配置，分页重查也保留同一范围。\n  constructor(input: DictionaryWorkspaceInput)\n  方案设计定义视图；数据页只消费其已保存配置。\n  readonly definition: DataView\n  业务条目视图；普通提交与设计定义隔离。\n  readonly entries: DataView\n  是否有本地编辑或结果待核验；宿主以此阻止误关和目标切换。\n  readonly pending: boolean\n  提交回执不确定时，禁用再次保存并提供显式重读入口。\n  readonly requiresVerification: boolean\n  删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。\n  readonly removed: boolean\n  本次已加载条目的显示顺序是否可通过原条目视图暂存。\n  readonly canApplyDisplayedOrder: boolean\n  完整读取且没有草稿时，按当次查询核定义及每条条目的删除许可；供呈现和执行共用。\n  readonly canRemoveDefinition: boolean\n  首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。\n  load(discard?: boolean): Promise<void>\n  原查询权限控制新增；类型归属固定为本次字典，不由页面传入。\n  addEntry(): Promise<void>\n  只读核候选批次能否沿当前查询和字典定义写入原条目DataView，不查询或修改任何状态。\n  @param values 只包含字典六个业务字段的候选条目。\n  @returns 当前批次可写时为undefined；否则为拒绝原因。\n  entryAppendError(values: Readonly<Record<string, unknown>>[]): string | undefined\n  全批预检后将候选暂存到原 entries DataView；持久化仍由 saveData/原取消处理。\n  @param values 只包含 val、txt、exVal_1 至 exVal_4 的候选条目，不接受身份、排序或其它字段。\n  @throws 任一候选、当前查询、字段权限或正式列规则不合格时，拒绝整批且不新增行。\n  appendEntries(values: Readonly<Record<string, unknown>>[]): Promise<void>\n  删除先进入DataView暂存态；正式提交仍由统一批量保存校验每条权限。\n  removeEntry(id: string | number): Promise<void>\n  条目移除的呈现及执行共用判断；取消本实例新增草稿不借用服务端删除权限。\n  @param id 本次条目视图中的主键。\n  @returns 当前可移除该条目或取消其新增草稿时为true。\n  canRemoveEntry(id: string | number): boolean\n  仅提交设计定义；数据更改不能混入设计保存。删除资源另按完整性规则提交。\n  saveDesign(): Promise<void>\n  仅提交业务条目，消费已保存的设计；不能顺带保存标题或新建设计。\n  saveData(): Promise<void>\n  按调用时已显示的条目顺序更新 ordIdx 编辑覆盖；普通保存仍由 DataSet/DataView 提交。\n  applyDisplayedOrder(): Promise<void>\n  显式暂存定义及全部条目删除，逐条核当次权限，批量提交顺序先条目后定义。\n  removeDefinition(): Promise<void>\n  按当次字段权限取标题；没有标题时保留字段，禁止据此裁剪扩展数据。\n  fieldLabel(name: string): string\n}"
+  },
+  "DictionarySchema": {
+    "catalog": {
+      "rootKind": "DictionarySchema",
+      "models": [
+        {
+          "kind": "DictionarySchema",
+          "name": "DictionarySchema",
+          "jsdoc": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+          "summary": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。"
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "DictionarySchema",
+      "models": [
+        {
+          "kind": "DictionarySchema",
+          "name": "DictionarySchema",
+          "jsdoc": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+          "summary": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+          "constructorSignature": {
+            "summary": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+            "jsdoc": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+            "signature": "constructor()"
+          },
+          "attributes": [
+            {
+              "name": "fields",
+              "jsdoc": "两个基础输出和四个扩展输出；未设置标题仍保留扩展字段及其数据。",
+              "summary": "两个基础输出和四个扩展输出；未设置标题仍保留扩展字段及其数据。",
+              "typeText": "DictionaryField[]"
+            }
+          ],
+          "methods": [
+            {
+              "name": "validateDefinition",
+              "jsdoc": "校验名称、字段标题、功能描述及编码类型；changedFields省略时校验新记录，指定时只校验变更，保留未修改的历史空值。",
+              "summary": "校验名称、字段标题、功能描述及编码类型；changedFields省略时校验新记录，指定时只校验变更，保留未修改的历史空值。",
+              "signature": "validateDefinition(row: Readonly<Record<string, unknown>>, changedFields?: readonly string[]): void"
+            },
+            {
+              "name": "validateEntry",
+              "jsdoc": "校验拟提交字段；省略changedFields校验完整新条目，编码类型变更须将val加入所有存量条目的校验。",
+              "summary": "校验拟提交字段；省略changedFields校验完整新条目，编码类型变更须将val加入所有存量条目的校验。",
+              "signature": "validateEntry(row: Readonly<Record<string, unknown>>, definition: Readonly<Record<string, unknown>>, changedFields?: readonly string[]): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。\nclass DictionarySchema {\n  字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。\n  constructor()\n  两个基础输出和四个扩展输出；未设置标题仍保留扩展字段及其数据。\n  readonly fields: DictionaryField[]\n  校验名称、字段标题、功能描述及编码类型；changedFields省略时校验新记录，指定时只校验变更，保留未修改的历史空值。\n  validateDefinition(row: Readonly<Record<string, unknown>>, changedFields?: readonly string[]): void\n  校验拟提交字段；省略changedFields校验完整新条目，编码类型变更须将val加入所有存量条目的校验。\n  validateEntry(row: Readonly<Record<string, unknown>>, definition: Readonly<Record<string, unknown>>, changedFields?: readonly string[]): void\n}"
+  },
+  "PageRuntime": {
+    "catalog": {
+      "rootKind": "PageRuntime",
+      "models": [
+        {
+          "kind": "PageRuntime",
+          "name": "PageRuntime",
+          "jsdoc": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。",
+          "summary": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。"
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "PageRuntime",
+      "models": [
+        {
+          "kind": "PageRuntime",
+          "name": "PageRuntime",
+          "jsdoc": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。",
+          "summary": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。",
+          "constructorSignature": {
+            "summary": "创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。",
+            "jsdoc": "创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。",
+            "signature": "constructor(options: PageRuntimeOptions)"
+          },
+          "attributes": [
+            {
+              "name": "tool",
+              "jsdoc": "三文件工具定义；原生系统页不伪造工具，读取时明确拒绝。",
+              "summary": "三文件工具定义；原生系统页不伪造工具，读取时明确拒绝。",
+              "typeText": "PageTool"
+            },
+            {
+              "name": "call",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "PageRuntimeCall"
+            },
+            {
+              "name": "instanceId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "generation",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "number"
+            },
+            {
+              "name": "configPending",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "destroyed",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "isLoaded",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "parseScenarioInputs",
+              "jsdoc": "解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。",
+              "summary": "解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。",
+              "signature": "parseScenarioInputs(text: string): PageScenarioInputs"
+            },
+            {
+              "name": "markConfigPending",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "markConfigPending(): void"
+            },
+            {
+              "name": "reload",
+              "jsdoc": "三文件工具的干净实例允许刷新；系统页由宿主重开完整会话，不能仅重建数据集。",
+              "summary": "三文件工具的干净实例允许刷新；系统页由宿主重开完整会话，不能仅重建数据集。",
+              "signature": "reload(): Promise<void>"
+            },
+            {
+              "name": "setExternalDirtySource",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "setExternalDirtySource(key: string, source: ExternalDirtySource | null): void"
+            },
+            {
+              "name": "getContent",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getContent(key: string): PageContentRuntime"
+            },
+            {
+              "name": "onContentChange",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "onContentChange(listener: () => void): () => void"
+            },
+            {
+              "name": "load",
+              "jsdoc": "装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。",
+              "summary": "装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。",
+              "signature": "load(): Promise<void>"
+            },
+            {
+              "name": "getDataSet",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getDataSet(scenarioId: string): DataSet | undefined"
+            },
+            {
+              "name": "resolveView",
+              "jsdoc": "按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。",
+              "summary": "按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。",
+              "signature": "resolveView(binding: string): DataView | undefined"
+            },
+            {
+              "name": "materialize",
+              "jsdoc": "复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。",
+              "summary": "复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。",
+              "signature": "materialize(): PageToolDefinition"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。",
+              "summary": "销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。\nclass PageRuntime {\n  创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。\n  constructor(options: PageRuntimeOptions)\n  三文件工具定义；原生系统页不伪造工具，读取时明确拒绝。\n  readonly tool: PageTool\n  readonly call: PageRuntimeCall\n  readonly instanceId: string\n  readonly pageId: string\n  readonly generation: number\n  readonly configPending: boolean\n  readonly destroyed: boolean\n  readonly isLoaded: boolean\n  readonly isDirty: boolean\n  解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。\n  parseScenarioInputs(text: string): PageScenarioInputs\n  markConfigPending(): void\n  三文件工具的干净实例允许刷新；系统页由宿主重开完整会话，不能仅重建数据集。\n  reload(): Promise<void>\n  setExternalDirtySource(key: string, source: ExternalDirtySource | null): void\n  getContent(key: string): PageContentRuntime\n  onContentChange(listener: () => void): () => void\n  装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。\n  load(): Promise<void>\n  getDataSet(scenarioId: string): DataSet | undefined\n  按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。\n  resolveView(binding: string): DataView | undefined\n  复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。\n  materialize(): PageToolDefinition\n  销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。\n  dispose(): void\n}"
+  },
+  "RDialogProps": {
+    "catalog": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "summary": "结构化头部",
+              "typeText": "RHeaderProps"
+            },
+            {
+              "name": "footer",
+              "jsdoc": "结构化底部",
+              "summary": "结构化底部",
+              "typeText": "RFooterProps"
+            },
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "summary": "对话框标题",
+              "typeText": "string"
+            },
+            {
+              "name": "width",
+              "jsdoc": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "summary": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "typeText": "string | number"
+            },
+            {
+              "name": "top",
+              "jsdoc": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "summary": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendToBody",
+              "jsdoc": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "summary": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "destroyOnClose",
+              "jsdoc": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "summary": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "控制显隐",
+              "summary": "控制显隐",
+              "typeText": "false | true"
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "summary": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "summary": "内容区 CSS 类名",
+              "typeText": "string"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-dialog; name=RendererDialog; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RDialogProps = LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & DialogFullscreenOptions & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection SparkVisibilityContainerProps\n * DTS relation: intersection SparkGridLayoutProps\n * DTS relation: intersection DialogFullscreenOptions\n * DTS relation: intersection {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n */\nRDialog Props 的属性契约。\ntype RDialogProps {\n  结构化头部\n  readonly header: RHeaderProps\n  结构化底部\n  readonly footer: RFooterProps\n  对话框标题\n  readonly title: string\n  弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。\n  readonly width: string | number\n  距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。\n  readonly top: string\n  挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。\n  readonly appendToBody: false | true\n  关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。\n  readonly destroyOnClose: false | true\n  控制显隐\n  readonly modelValue: false | true\n  禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。\n  readonly closeDisabled: false | true\n  内容区 CSS 类名\n  readonly bodyClass: string\n}"
+  },
+  "RTableProps": {
+    "catalog": {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RTableProps",
+          "name": "RTableProps",
+          "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+          "summary": "r-table 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkInteractiveDataContainerProps",
+              "targetName": "SparkInteractiveDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererTable",
+            "type": "r-table",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          }
+        }
+      ]
+    },
+    "members": {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RTableProps",
+          "name": "RTableProps",
+          "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+          "summary": "r-table 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkInteractiveDataContainerProps",
+              "targetName": "SparkInteractiveDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererTable",
+            "type": "r-table",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表格容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表格容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "border",
+              "jsdoc": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "summary": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "stripe",
+              "jsdoc": "是否开启斑马纹。",
+              "summary": "是否开启斑马纹。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "highlightCurrentRow",
+              "jsdoc": "是否高亮当前行。",
+              "summary": "是否高亮当前行。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "行数据的 Key，用于树形表格。",
+              "summary": "行数据的 Key，用于树形表格。",
+              "typeText": "string"
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "是否允许拖动列宽，默认 true。",
+              "summary": "是否允许拖动列宽，默认 true。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "summary": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "showPagination",
+              "jsdoc": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。",
+              "summary": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "summary": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "pagination",
+              "jsdoc": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "summary": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "typeText": "{ pageSizes?: number[]; showJumper?: boolean }"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏\n提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "filter",
+              "jsdoc": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\nchildren 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。",
+              "summary": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。",
+              "typeText": "RFilterProps"
+            },
+            {
+              "name": "actions",
+              "jsdoc": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n提示词模板：默认动作 message-row / delete-row。",
+              "summary": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。",
+              "typeText": "RToolbarProps"
+            }
+          ],
+          "methods": [
+            {
+              "name": "rowClassName",
+              "jsdoc": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。",
+              "summary": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。",
+              "signature": "rowClassName(context: TableRowClassContext): string"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-table; name=RendererTable; level=table-level; layer=data-view-container; directory=containers/data-views */\n/**\n * DTS declaration: RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkInteractiveDataContainerProps\n * DTS relation: intersection {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}\n */\nr-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。\ntype RTableProps {\n  显式收窄为表格容器使用的 DataView 数据线。\n  readonly dataSource: DataView\n  是否显示纵向边框。默认 true（resizable 启用时强制开启）。\n  readonly border: boolean\n  是否开启斑马纹。\n  readonly stripe: boolean\n  是否高亮当前行。\n  readonly highlightCurrentRow: boolean\n  行数据的 Key，用于树形表格。\n  readonly rowKey: string\n  是否允许拖动列宽，默认 true。\n  readonly resizable: boolean\n  设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。\n  readonly autoColumns: boolean\n  是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。\n  readonly showPagination: boolean\n  表格主体最大高度；数值为像素，不包含工具栏和分页器。\n  readonly maxHeight: number | string\n  分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。\n  readonly pagination: { pageSizes?: number[]; showJumper?: boolean }\n  结构化工具栏\n  提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n  readonly toolbar: RToolbarProps\n  统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n  未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n  children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n  readonly filter: RFilterProps\n  行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n  提示词模板：默认动作 message-row / delete-row。\n  readonly actions: RToolbarProps\n  返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n  只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n  函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n  rowClassName(context: TableRowClassContext): string\n}"
+  }
+}

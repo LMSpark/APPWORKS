@@ -238,7 +238,8 @@
               "$ref": "#/$defs/PageDataSpaceViewModelInput"
             },
             "metadata": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "SparkData.DataSet"
             }
           },
           "additionalProperties": false
@@ -466,7 +467,8 @@
           "type": "string"
         },
         "metadataDataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "design": {
           "$ref": "#/$defs/LowcodeDataSpaceViewDesign"
@@ -496,7 +498,8 @@
           "type": "string"
         },
         "metadataDataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "SparkData.DataSet"
         },
         "viewState": {
           "anyOf": [
@@ -521,14 +524,11 @@
           ]
         },
         "definitionDataSet": {
-          "anyOf": [
-            {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "SparkData.DataSet"
         },
         "definitionError": {
           "type": [
@@ -587,7 +587,8 @@
         "method.getViewFields.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+            "type": "object",
+            "title": "SparkData.DataColumn"
           }
         },
         "method.getViewOutputProjection.params": {

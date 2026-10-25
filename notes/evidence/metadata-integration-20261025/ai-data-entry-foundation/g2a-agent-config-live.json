@@ -1,0 +1,71 @@
+{
+  "kind": "native-SPARK-data-agent-configuration",
+  "status": "blocked",
+  "tenant": "NewApp",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/UserLoginByEnt"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai-agent/get",
+      "agentId": "agent-metadata-admin"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai-agent/create"
+    }
+  ],
+  "createCount": 1,
+  "businessWriteCount": 0,
+  "aiInvocationCount": 0,
+  "systemPrompt": {
+    "length": 266,
+    "sha256": "ecc85af5171a4300a9d2e037f582407cb67a018876ced98dfff68e5c8d7f5a09"
+  },
+  "sharedAgentChanged": false,
+  "sharedReference": {
+    "id": "agent-metadata-admin",
+    "aiModelId": "model-001",
+    "callModelName": "deepseek-chat",
+    "systemPromptSha256": "f052f5537c17bbf21e07f02eaf0e4e6c179e5f913780518ad4bada1bf1ba79a0"
+  },
+  "stage": "selected-view-create",
+  "unknownCreate": true,
+  "safeCode": "CONFIGURATION_VERIFICATION_FAILED",
+  "errorType": "AiAgentConfigResultUnknownError"
+}

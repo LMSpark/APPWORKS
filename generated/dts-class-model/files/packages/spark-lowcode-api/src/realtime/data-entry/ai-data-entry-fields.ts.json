@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-fields",
+    "sourcePath": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "realtime/data-entry/ai-data-entry-fields",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/data-entry/ai-data-entry-fields\n职责：从当前正式 DataView 的输出列及新增字段权限，派生本轮 AI 批量录入使用的最小字段约束，并校验候选值的基本类型。\n边界：只投影列定义和已有权限，不保存第二份字段配置、不扩大写权限；最终领域校验与新增仍交回原 DataView。\nAI用途：构造本轮请求的字段 schema 与确认前基础校验时，从这里取得正式字段白名单，不能依据业务行或页面配置自行补列。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiDataEntryField"
+    ]
+  },
+  "$defs": {
+    "AiDataEntryField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "nullable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
+        },
+        "enumOptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "label",
+        "required",
+        "nullable"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-25T08:42:55.787Z",
+  "models": {
+    "AiDataEntryField": {
+      "name": "AiDataEntryField",
+      "jsdoc": "当前正式 DataView 允许 AI 生成并供 readback 校验的最小字段元数据；此类型不授予写权限。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式 DataColumn 的规范名称，也是候选对象使用的字段键。 */\n    name: string;\n    /** 正式 DataColumn 类型；未知或不支持类型不会进入本字段白名单。 */\n    type: string;\n    /** 字段展示标签；缺少正式标签时由列名回退。 */\n    label: string;\n    /** 当前新增字段权限判定为必填时为 true，确认前须按此检查。 */\n    required: boolean;\n    /** 当前新增规则允许空值时为 true；它不替代 DataView 的正式校验。 */\n    nullable: boolean;\n    /** 正式字段允许的最小字符串长度；未配置时省略。 */\n    minLength?: number;\n    /** 正式字段允许的最大字符串长度；未配置时省略。 */\n    maxLength?: number;\n    /** 正式字段配置的数值下界；未配置时省略。 */\n    min?: number;\n    /** 正式字段配置的数值上界；未配置时省略。 */\n    max?: number;\n    /** 正式字段配置的字符串模式约束；未配置时省略。 */\n    pattern?: string;\n    /** 正式输入的空白处理模式；reject 在保存时拒绝首尾空白，normalize 在保存前移除。 */\n    trim?: 'reject' | 'normalize';\n    /** 正式字段的枚举值与标签；候选值必须匹配其中一个 value。 */\n    enumOptions?: ReadonlyArray<Readonly<{\n        value: string;\n        label: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式 DataColumn 的规范名称，也是候选对象使用的字段键。 */\n    name: string;\n    /** 正式 DataColumn 类型；未知或不支持类型不会进入本字段白名单。 */\n    type: string;\n    /** 字段展示标签；缺少正式标签时由列名回退。 */\n    label: string;\n    /** 当前新增字段权限判定为必填时为 true，确认前须按此检查。 */\n    required: boolean;\n    /** 当前新增规则允许空值时为 true；它不替代 DataView 的正式校验。 */\n    nullable: boolean;\n    /** 正式字段允许的最小字符串长度；未配置时省略。 */\n    minLength?: number;\n    /** 正式字段允许的最大字符串长度；未配置时省略。 */\n    maxLength?: number;\n    /** 正式字段配置的数值下界；未配置时省略。 */\n    min?: number;\n    /** 正式字段配置的数值上界；未配置时省略。 */\n    max?: number;\n    /** 正式字段配置的字符串模式约束；未配置时省略。 */\n    pattern?: string;\n    /** 正式输入的空白处理模式；reject 在保存时拒绝首尾空白，normalize 在保存前移除。 */\n    trim?: 'reject' | 'normalize';\n    /** 正式字段的枚举值与标签；候选值必须匹配其中一个 value。 */\n    enumOptions?: ReadonlyArray<Readonly<{\n        value: string;\n        label: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "正式 DataColumn 的规范名称，也是候选对象使用的字段键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "正式 DataColumn 类型；未知或不支持类型不会进入本字段白名单。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "字段展示标签；缺少正式标签时由列名回退。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "jsdoc": "当前新增字段权限判定为必填时为 true，确认前须按此检查。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nullable",
+              "jsdoc": "当前新增规则允许空值时为 true；它不替代 DataView 的正式校验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minLength",
+              "jsdoc": "正式字段允许的最小字符串长度；未配置时省略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxLength",
+              "jsdoc": "正式字段允许的最大字符串长度；未配置时省略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "min",
+              "jsdoc": "正式字段配置的数值下界；未配置时省略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "jsdoc": "正式字段配置的数值上界；未配置时省略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pattern",
+              "jsdoc": "正式字段配置的字符串模式约束；未配置时省略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trim",
+              "jsdoc": "正式输入的空白处理模式；reject 在保存时拒绝首尾空白，normalize 在保存前移除。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enumOptions",
+              "jsdoc": "正式字段的枚举值与标签；候选值必须匹配其中一个 value。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

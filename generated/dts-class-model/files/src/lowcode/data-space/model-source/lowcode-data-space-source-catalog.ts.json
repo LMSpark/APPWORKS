@@ -242,7 +242,8 @@
               "$ref": "#/$defs/PageDataSpaceModelSourceQuery"
             },
             "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -258,7 +259,8 @@
               "$ref": "#/$defs/PageDataSpaceModelSource"
             },
             "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false

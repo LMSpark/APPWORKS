@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/DataBaseManage/DataBaseManage/index",
+    "sourcePath": "src/views/DataBaseManage/DataBaseManage/index.vue",
+    "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
+    "packageName": "app",
+    "modulePath": "views/DataBaseManage/DataBaseManage/index",
+    "jsdoc": "@module app:views/DataBaseManage/DataBaseManage/index\n职责：数据库目录主列表；服务器与数据库均绑定本页正式 DataView，数据库单行新增通过原 DataSet 保存。\nAI用途：数据库列表筛选、分页、明确服务器选择及跳转到正式表视图页面。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-25T08:42:55.825Z",
+  "models": {}
+}

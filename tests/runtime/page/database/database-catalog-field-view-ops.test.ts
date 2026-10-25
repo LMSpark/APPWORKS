@@ -40,10 +40,8 @@ describe('database-catalog-field-view-ops', () => {
   it('commits staged field edits through saveChanges on Base_TblField', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
-    const serverView = ds.getView('Base_serverInfo', 'default')!
     const dbView = ds.getView('_base_dbInfo', 'default')!
     const tableView = ds.getView('_Base_TblList', 'default')!
-    serverView.setSelectedRows([serverView.rows[0]!])
     await dbView.refresh()
     dbView.setSelectedRows([dbView.rows[0]!])
     await tableView.refresh()

@@ -67,7 +67,8 @@
           "type": "string"
         },
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "flow": {
           "$ref": "#/$defs/InputParameterEditFlow"

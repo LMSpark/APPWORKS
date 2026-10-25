@@ -102,7 +102,8 @@
       "title": "SetDesignScopeValueInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "tableName": {
           "type": "string"
@@ -123,7 +124,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.275Z",
+  "generatedAt": "2026-10-25T07:53:43.551Z",
   "models": {
     "StagedDesignColumn": {
       "name": "StagedDesignColumn",

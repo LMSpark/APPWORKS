@@ -1,0 +1,144 @@
+{
+  "scope": "read-only pre-freeze metadata, not final SPA acceptance",
+  "requestId": "2180.56423",
+  "httpStatus": 200,
+  "code": 200,
+  "table": "Base_TblField",
+  "filter": {
+    "Type": "cond",
+    "Field": "tblid",
+    "Operator": "in",
+    "Value": null,
+    "ValueFun": {
+      "Type": "GetConstValue",
+      "Value": [
+        "313440ED9A37613ED0F729340652D7E7"
+      ]
+    }
+  },
+  "count": 12,
+  "fields": [
+    {
+      "rowid": "200756DF94E04E53874904B0725A0280",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "updateuser",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": "100"
+    },
+    {
+      "rowid": "378CB376B51E40D0840575401A8C6838",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "ReportID",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": "32"
+    },
+    {
+      "rowid": "3C65DC211F1A43D988C5EB383EB76C9C",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "updatetime",
+      "DataType": "datetime",
+      "DataTypeName": "日期型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": ""
+    },
+    {
+      "rowid": "4E3F1573CBAE4FC98A5D7B1EC0D4FFD4",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "description",
+      "DataType": "text",
+      "DataTypeName": "文本",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": ""
+    },
+    {
+      "rowid": "8FB23E58041951CA3AC33F5BFA5EAF77",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "age",
+      "DataType": "int",
+      "DataTypeName": "整数型",
+      "IsPKey": 0,
+      "IsNill": 0,
+      "DataLen": ""
+    },
+    {
+      "rowid": "98E70C02A1CC42E1B11854A665C0E0F7",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "wfid",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": "32"
+    },
+    {
+      "rowid": "9EBEB121497E46A89273EDE7860028CF",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "rowid",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 1,
+      "IsNill": 0,
+      "DataLen": "32"
+    },
+    {
+      "rowid": "AFFA863E5D1440E98B7FC1BEEB8EE370",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "createtime",
+      "DataType": "datetime",
+      "DataTypeName": "日期型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": ""
+    },
+    {
+      "rowid": "C513F2FEFA76E398EDFD214326D7A980",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "name",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 0,
+      "IsNill": 0,
+      "DataLen": "20"
+    },
+    {
+      "rowid": "C5318E5206104927B4509F6DB827E805",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "flowstate",
+      "DataType": "int",
+      "DataTypeName": "整数型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": ""
+    },
+    {
+      "rowid": "DEA1BEBED504409D869ADAFB02F00A33",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "lingma_sys_is_delete",
+      "DataType": "int",
+      "DataTypeName": "整数型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": ""
+    },
+    {
+      "rowid": "FB16F431FB1B46E6BADBC29830AD7E01",
+      "tblid": "313440ED9A37613ED0F729340652D7E7",
+      "enname": "createuser",
+      "DataType": "varchar",
+      "DataTypeName": "字符串型",
+      "IsPKey": 0,
+      "IsNill": 1,
+      "DataLen": "100"
+    }
+  ],
+  "events": 2,
+  "truncated": false
+}

@@ -1,0 +1,62 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (4 tests | 3 failed) 75ms
+     × keeps top-level selection, parent-title navigation, and child selection as one navigateTo each 44ms
+     × does not navigate disabled items and omits hidden or disabled submenu children 9ms
+     × keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps top-level selection, parent-title navigation, and child selection as one navigateTo each
+Error: 导航标题未渲染: 子入口
+ ❯ title tests/ui/component/nav-header-bar.test.ts:48:21
+     46| function title(wrapper: VueWrapper, text: string) {
+     47|   const found = wrapper.findAll('.nav-header-bar__title').find(node =>…
+     48|   if (!found) throw new Error(`导航标题未渲染: ${text}`)
+       |                     ^
+     49|   return found
+     50| }
+ ❯ tests/ui/component/nav-header-bar.test.ts:68:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > does not navigate disabled items and omits hidden or disabled submenu children
+Error: 导航标题未渲染: 可见子项
+ ❯ title tests/ui/component/nav-header-bar.test.ts:48:21
+     46| function title(wrapper: VueWrapper, text: string) {
+     47|   const found = wrapper.findAll('.nav-header-bar__title').find(node =>…
+     48|   if (!found) throw new Error(`导航标题未渲染: ${text}`)
+       |                     ^
+     49|   return found
+     50| }
+ ❯ tests/ui/component/nav-header-bar.test.ts:89:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps overflowed entries reachable in Element Plus ellipsis popper and navigates the selected item once
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:124:27
+    122|
+    123|     const menu = wrapper.findComponent(ElMenu)
+    124|     expect(menu.exists()).toBe(true)
+       |                           ^
+    125|     menu.vm.open('sub-menu-more')
+    126|     await flushPromises()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  05:36:47
+   Duration  13.07s (transform 8.25s, setup 163ms, import 11.18s, tests 75ms, environment 1.27s)
+

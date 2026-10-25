@@ -1,0 +1,35 @@
+warning: in the working copy of 'backend-api-contracts/appworks-consumer-ledger.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend-api-contracts/lowcode-endpoint-ledger.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/.dts-manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-data/src/types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'notes/data-space-retirement-ledger.md', LF will be replaced by CRLF the next time Git touches it
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(changed.every(p => p in expected || p.startsWith('generated/dts-class-model/') || p === 'notes/data-space-retirement-ledger.md'))
+
+    at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.cache/metadata-integration-20261024/b1-delivery-audit.mjs:16:8 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.18.0

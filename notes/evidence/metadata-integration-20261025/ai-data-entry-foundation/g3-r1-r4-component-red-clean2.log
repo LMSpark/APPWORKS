@@ -1,0 +1,1239 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > shows a real session error after automatic refresh fails
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > shows a real session error after automatic refresh fails
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > requires a complete scoped key even when PAGE_RUNTIME has a main scenario
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > requires a complete scoped key even when PAGE_RUNTIME has a main scenario
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+
+stderr | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > detaches an accepted lease when its derived session-view binding fails and can retry cleanly
+⚠️ [Spark:Registry] Overwriting component: r-table
+⚠️ [Spark:Registry] Overwriting component: r-form
+⚠️ [Spark:Registry] Overwriting component: r-detail
+⚠️ [Spark:Registry] Overwriting component: r-tree
+⚠️ [Spark:Registry] Overwriting component: r-graph
+⚠️ [Spark:Registry] Overwriting component: r-list
+⚠️ [Spark:Registry] Overwriting component: r-virtual-card
+⚠️ [Spark:Registry] Overwriting component: r-field-scope
+⚠️ [Spark:Registry] Overwriting component: r-filter
+⚠️ [Spark:Registry] Overwriting component: r-filter-expression
+⚠️ [Spark:Registry] Overwriting component: r-editor
+⚠️ [Spark:Registry] Overwriting component: r-header
+⚠️ [Spark:Registry] Overwriting component: r-footer
+⚠️ [Spark:Registry] Overwriting component: r-tail
+⚠️ [Spark:Registry] Overwriting component: r-section
+⚠️ [Spark:Registry] Overwriting component: r-toolbar
+⚠️ [Spark:Registry] Overwriting component: r-tabs
+⚠️ [Spark:Registry] Overwriting component: r-tab-pane
+⚠️ [Spark:Registry] Overwriting component: r-collapse
+⚠️ [Spark:Registry] Overwriting component: r-collapse-item
+⚠️ [Spark:Registry] Overwriting component: r-dialog
+⚠️ [Spark:Registry] Overwriting component: r-drawer
+⚠️ [Spark:Registry] Overwriting component: r-steps
+⚠️ [Spark:Registry] Overwriting component: r-step
+⚠️ [Spark:Registry] Overwriting component: r-button
+⚠️ [Spark:Registry] Overwriting component: r-link
+⚠️ [Spark:Registry] Overwriting component: r-card
+⚠️ [Spark:Registry] Overwriting component: r-space
+⚠️ [Spark:Registry] Overwriting component: r-divider
+⚠️ [Spark:Registry] Overwriting component: r-dropdown
+⚠️ [Spark:Registry] Overwriting component: r-tooltip
+⚠️ [Spark:Registry] Overwriting component: r-popover
+⚠️ [Spark:Registry] Overwriting component: r-text
+⚠️ [Spark:Registry] Overwriting component: r-textarea
+⚠️ [Spark:Registry] Overwriting component: r-number
+⚠️ [Spark:Registry] Overwriting component: r-date
+⚠️ [Spark:Registry] Overwriting component: r-select
+⚠️ [Spark:Registry] Overwriting component: r-value-function
+⚠️ [Spark:Registry] Overwriting component: r-json
+⚠️ [Spark:Registry] Overwriting component: r-multi-select
+⚠️ [Spark:Registry] Overwriting component: r-radio
+⚠️ [Spark:Registry] Overwriting component: r-checkbox
+⚠️ [Spark:Registry] Overwriting component: r-checkbox-group
+⚠️ [Spark:Registry] Overwriting component: r-switch
+⚠️ [Spark:Registry] Overwriting component: r-text-display
+⚠️ [Spark:Registry] Overwriting component: r-tag
+⚠️ [Spark:Registry] Overwriting component: r-pagination
+⚠️ [Spark:Registry] Overwriting component: r-statistic
+⚠️ [Spark:Registry] Overwriting component: r-alert
+⚠️ [Spark:Registry] Overwriting component: display-image
+⚠️ [Spark:Registry] Overwriting component: display-calendar
+⚠️ [Spark:Registry] Overwriting component: display-countdown
+⚠️ [Spark:Registry] Overwriting component: display-icon
+⚠️ [Spark:Registry] Overwriting component: r-column-group
+⚠️ [Spark:Registry] Overwriting component: r-tree-node-summary
+⚠️ [Spark:Registry] Overwriting component: code-editor
+⚠️ [Spark:Registry] Overwriting component: json-editor
+⚠️ [Spark:Registry] Overwriting component: r-button-group
+⚠️ [Spark:Registry] Overwriting component: r-container
+⚠️ [Spark:Registry] Overwriting component: r-main
+⚠️ [Spark:Registry] Overwriting component: r-aside
+⚠️ [Spark:Registry] Overwriting component: r-layout-header
+⚠️ [Spark:Registry] Overwriting component: r-layout-footer
+⚠️ [Spark:Registry] Overwriting component: r-row
+⚠️ [Spark:Registry] Overwriting component: r-col
+⚠️ [Spark:Registry] Overwriting component: r-affix
+⚠️ [Spark:Registry] Overwriting component: r-backtop
+⚠️ [Spark:Registry] Overwriting component: r-scrollbar
+⚠️ [Spark:Registry] Overwriting component: r-carousel
+⚠️ [Spark:Registry] Overwriting component: r-carousel-item
+⚠️ [Spark:Registry] Overwriting component: r-watermark
+⚠️ [Spark:Registry] Overwriting component: ai-data-entry
+⚠️ [Spark:Registry] Overwriting component: r-popconfirm
+⚠️ [Spark:Registry] Overwriting component: r-page-header
+⚠️ [Spark:Registry] Overwriting component: r-tour
+stdout | packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > detaches an accepted lease when its derived session-view binding fails and can retry cleanly
+⚠️ [Spark:Registry] Overwriting component: r-anchor
+🐛 [DataView] 销毁 DataView: Rows:default
+🐛 [DataView] 销毁 DataView: Rows:alternate
+🐛 [DataView] 销毁 DataView: AiDataEntryInput:default
+🐛 [DataView] 销毁 DataView: AiDataEntryCandidates:default
+🐛 [DataView] 销毁 DataView: AiEntryTurnFixture:default
+🐛 [DataView] 销毁 DataView: Prompt:default
+⚠️ [Spark:Registry] Overwriting component: r-anchor-link
+⚠️ [Spark:Registry] Overwriting component: r-html-editor
+⚠️ [Spark:Registry] Overwriting component: r-slider
+⚠️ [Spark:Registry] Overwriting component: r-rate
+⚠️ [Spark:Registry] Overwriting component: r-color
+⚠️ [Spark:Registry] Overwriting component: r-icon
+⚠️ [Spark:Registry] Overwriting component: r-image
+⚠️ [Spark:Registry] Overwriting component: r-file-path
+⚠️ [Spark:Registry] Overwriting component: r-file-browser
+
+⚠️ [Spark:Registry] Overwriting component: r-upload
+⚠️ [Spark:Registry] Overwriting component: r-entity-picker
+⚠️ [Spark:Registry] Overwriting component: r-user-picker
+⚠️ [Spark:Registry] Overwriting component: r-dept-picker
+⚠️ [Spark:Registry] Overwriting component: r-product-picker
+⚠️ [Spark:Registry] Overwriting component: r-cascader
+⚠️ [Spark:Registry] Overwriting component: r-tree-select
+⚠️ [Spark:Registry] Overwriting component: r-transfer
+⚠️ [Spark:Registry] Overwriting component: r-segmented
+⚠️ [Spark:Registry] Overwriting component: r-check-tag
+⚠️ [Spark:Registry] Overwriting component: r-mention
+⚠️ [Spark:Registry] Overwriting component: r-time-picker
+⚠️ [Spark:Registry] Overwriting component: r-time-select
+⚠️ [Spark:Registry] Overwriting component: r-autocomplete
+⚠️ [Spark:Registry] Overwriting component: r-progress
+⚠️ [Spark:Registry] Overwriting component: r-badge
+⚠️ [Spark:Registry] Overwriting component: r-avatar
+⚠️ [Spark:Registry] Overwriting component: r-descriptions
+⚠️ [Spark:Registry] Overwriting component: r-descriptions-item
+⚠️ [Spark:Registry] Overwriting component: r-timeline
+⚠️ [Spark:Registry] Overwriting component: r-timeline-item
+⚠️ [Spark:Registry] Overwriting component: r-empty
+⚠️ [Spark:Registry] Overwriting component: r-result
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb
+⚠️ [Spark:Registry] Overwriting component: r-breadcrumb-item
+⚠️ [Spark:Registry] Overwriting component: r-skeleton
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts (14 tests | 6 failed) 806ms
+     × pauses real owner refresh hints after query error across detach and reattach until an explicit query 84ms
+     × shows a real session error after automatic refresh fails 28ms
+     × requires a complete scoped key even when PAGE_RUNTIME has a main scenario 39ms
+     × switches a mounted key and ignores a delayed result from the previous target 39ms
+     × uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked 63ms
+     × detaches an accepted lease when its derived session-view binding fails and can retry cleanly 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+AssertionError: expected "vi.fn()" to be called 1 times, but got 2 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:291:38
+    289|       expect(f.session.shouldAutoRefresh).toBe(true)
+    290|       await vi.advanceTimersByTimeAsync(10_000)
+    291|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(1)
+       |                                      ^
+    292|
+    293|       wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+AssertionError: expected "vi.fn()" to be called 1 times, but got 4 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:302:38
+    300|       await flushPromises()
+    301|       await vi.advanceTimersByTimeAsync(20_000)
+    302|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(1)
+       |                                      ^
+    303|       expect.soft(remounted.text()).toContain('status query failed')
+    304|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+AssertionError: expected 'AI批量新增没有候选业务提示开始生成 刷新查询 停止生成 确认新增 清除候选' to contain 'status query failed'
+
+Expected: "status query failed"
+Received: "AI批量新增没有候选业务提示开始生成 刷新查询 停止生成 确认新增 清除候选"
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:303:37
+    301|       await vi.advanceTimersByTimeAsync(20_000)
+    302|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(1)
+    303|       expect.soft(remounted.text()).toContain('status query failed')
+       |                                     ^
+    304|
+    305|       const queryButton = remounted.findAll('button').find(button => /…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+AssertionError: expected "vi.fn()" to be called 2 times, but got 5 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:309:38
+    307|       await queryButton.trigger('click')
+    308|       await flushPromises()
+    309|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(2)
+       |                                      ^
+    310|       await vi.advanceTimersByTimeAsync(10_000)
+    311|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(3)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > pauses real owner refresh hints after query error across detach and reattach until an explicit query
+AssertionError: expected "vi.fn()" to be called 3 times, but got 6 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:311:38
+    309|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(2)
+    310|       await vi.advanceTimersByTimeAsync(10_000)
+    311|       expect.soft(f.session.refresh).toHaveBeenCalledTimes(3)
+       |                                      ^
+    312|     } finally {vi.useRealTimers()}
+    313|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > shows a real session error after automatic refresh fails
+AssertionError: expected 'AI批量新增没有候选业务提示开始生成 刷新查询 停止生成 确认新增 清除候选' to contain 'status query failed'
+
+Expected: "status query failed"
+Received: "AI批量新增没有候选业务提示开始生成 刷新查询 停止生成 确认新增 清除候选"
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:330:30
+    328|
+    329|       expect(f.session.error).toBe('status query failed')
+    330|       expect(wrapper.text()).toContain('status query failed')
+       |                              ^
+    331|     } finally {vi.useRealTimers()}
+    332|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > requires a complete scoped key even when PAGE_RUNTIME has a main scenario
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      DataView {
+        "_aggregateDelegate": AggregateDelegate {
+          "_selectionSummaryRow": Object {},
+          "_summaryRow": Object {},
+          "emitSelectionSummaryChanged": [Function emitSelectionSummaryChanged],
+          "emitSummaryChanged": [Function emitSummaryChanged],
+          "getAggregates": [Function getAggregates],
+        },
+        "_cascadeDelegate": CascadeDelegate {
+          "cascadeUnsubscribers": Array [],
+          "generation": 2,
+          "host": [Circular],
+        },
+        "_columnMap": Map {
+          "rowid" => Object {
+            "isPrimaryKey": true,
+            "name": "rowid",
+            "type": "string",
+          },
+          "ordIdx" => Object {
+            "allowAIAdd": true,
+            "label": "排序",
+            "max": 10,
+            "min": 0,
+            "name": "ordIdx",
+            "type": "tinyint",
+          },
+          "name" => Object {
+            "allowAIAdd": true,
+            "label": "名称",
+            "name": "name",
+            "type": "varchar",
+          },
+          "privateNote" => Object {
+            "allowAIAdd": false,
+            "label": "内部备注",
+            "name": "privateNote",
+            "type": "string",
+          },
+          "_pk" => Object {
+            "isComputed": true,
+            "name": "_pk",
+            "type": "string",
+          },
+        },
+        "_computedDelegate": ComputedColumnDelegate {
+          "_aggregateErrors": Map {},
+          "_compiledCtxRef": Object {},
+          "_compiledExprKey": "",
+          "_configuredColumns": Map {},
+          "_ctx": Object {},
+          "_namesCache": Set {
+            "_pk",
+          },
+          "_readable": WeakMap {},
+          "_recomputingRelations": false,
+          "_registeredColumns": Map {
+            "_pk" => [Function anonymous],
+          },
+          "_unsubscribeRelations": undefined,
+          "host": [Circular],
+        },
+        "_crCache": Object {
+          "id": "EXISTING",
+          "row": Object {
+            "_pk": "EXISTING",
+            "name": "已有",
+            "ordIdx": 0,
+            "rowid": "EXISTING",
+          },
+          "ver": 1,
+        },
+        "_currentRowId": "EXISTING",
+        "_dataTable": DataTable {
+          "_modelBinding": Object {
+            "modelId": "MODEL-ROWS",
+            "modelName": "Items",
+          },
+          "columns": Array [
+            Object {
+              "isPrimaryKey": true,
+              "name": "rowid",
+              "type": "string",
+            },
+            Object {
+              "allowAIAdd": true,
+              "label": "排序",
+              "max": 10,
+              "min": 0,
+              "name": "ordIdx",
+              "type": "tinyint",
+            },
+            Object {
+              "allowAIAdd": true,
+              "label": "名称",
+              "name": "name",
+              "type": "varchar",
+            },
+            Object {
+              "allowAIAdd": false,
+              "label": "内部备注",
+              "name": "privateNote",
+              "type": "string",
+            },
+            Object {
+              "isComputed": true,
+              "name": "_pk",
+              "type": "string",
+            },
+          ],
+          "dataSet": DataSet {
+            "_activeOnSubs": Array [],
+            "_activeViewSubs": Array [
+              [Object],
+            ],
+            "_childCascadeIdx": Map {},
+            "_destroyed": false,
+            "_fieldCascadeListeners": Map {},
+            "_fieldCascadeRuntime": DataViewFieldCascadeRuntime {
+              "dataSet": [Circular],
+            },
+            "_parentCascadeIdx": Map {},
+            "_resourceChildRelationIdx": Map {},
+            "_resourceParentRelationIdx": Map {},
+            "dataSetName": "PageDataSet",
+            "layout": undefined,
+            "pageId": undefined,
+            "resourceRelations": undefined,
+            "saveChangesConfig": undefined,
+            "scenarioId": "AI-ENTRY-SPACE",
+            "schemaVersion": 2,
+            "tables": Object {
+              "AiDataEntryCandidates": [DataTable],
+              "AiDataEntryInput": [DataTable],
+              "AiEntryTurnFixture": [DataTable],
+              "Rows": [Circular],
+            },
+            "version": undefined,
+            "viewCascades": undefined,
+          },
+          "modelBinding": Object {
+            "modelId": "MODEL-ROWS",
+            "modelName": "Items",
+          },
+          "rows": Array [],
+          "tableName": "Rows",
+          "validator": DataValidator {
+            "schema": Object {
+              "columns": [Array],
+            },
+          },
+          "views": Object {
+            "alternate": DataView {
+              "_aggregateDelegate": [AggregateDelegate],
+              "_cascadeDelegate": [CascadeDelegate],
+              "_columnMap": [Map],
+              "_computedDelegate": [ComputedColumnDelegate],
+              "_crCache": [Object],
+              "_currentRowId": null,
+              "_dataTable": [Circular],
+              "_editingOriginalRows": [Map],
+              "_editingPatches": [Map],
+              "_isDestroyed": false,
+              "_keylessCurrentRow": null,
+              "_keylessSelectedRows": [Array],
+              "_mutatingCount": 0,
+              "_onRequestComplete": "",
+              "_pendingRequestData": null,
+              "_primaryKeyDelegate": [PrimaryKeyDelegate],
+              "_queryConfig": [Object],
+              "_refreshScheduled": false,
+              "_resultStale": false,
+              "_rowByIdCache": [Object],
+              "_rowsVersion": 0,
+              "_selectedRowIds": [Array],
+              "_selectionIdsVersion": 0,
+              "_srCache": [Object],
+              "aggregates": [Object],
+              "allowDelete": true,
+              "autoCurrentFirst": true,
+              "autoLoad": false,
+              "autoLoadConfigured": false,
+              "autoSelectFirst": true,
+              "clearRefreshRequest": [Function anonymous],
+              "commitMode": "staged",
+              "currentLoadRequestId": 0,
+              "events": [Object],
+              "fieldProjection": [Array],
+              "loadingError": null,
+              "lockCurrentWhilePending": false,
+              "logger": [Object],
+              "mutating": false,
+              "mutatingError": null,
+              "page": 1,
+              "pageSize": 20,
+              "pendingRowsSelectionChanged": false,
+              "queryContext": [Object],
+              "requestState": 0,
+              "rows": [Array],
+              "rowsChangedDebouncer": false,
+              "scheduleRefresh": [Function anonymous],
+              "selectionDelimiter": ",",
+              "tableName": "Rows",
+              "total": 0,
+              "viewId": "alternate",
+            },
+            "default": [Circular],
+          },
+        },
+        "_dirtyTrackingDelegate": DirtyTrackingDelegate {
+          "_createIds": Set {},
+          "_createRows": Map {},
+          "_deleteIds": Set {},
+          "_deleteSnapshots": Map {},
+          "_dirtyIds": Set {},
+          "_dirtySnapshots": Map {},
+          "getColumns": [Function anonymous],
+          "getComputedColumnNames": [Function anonymous],
+          "getPrimaryKeyFields": [Function anonymous],
+        },
+        "_editingOriginalRows": Map {},
+        "_editingPatches": Map {},
+        "_isDestroyed": false,
+        "_keylessCurrentRow": null,
+        "_keylessSelectedRows": Array [],
+        "_localMutationDelegate": LocalMutationDelegate {
+          "emitRowsChanged": [Function anonymous],
+          "host": [Circular],
+          "postMutation": [Function anonymous],
+        },
+        "_mutatingCount": 0,
+        "_onRequestComplete": "",
+        "_pendingRequestData": null,
+        "_primaryKeyDelegate": PrimaryKeyDelegate {
+          "_getColumnMap": [Function getColumnMap],
+          "_getColumns": [Function getColumns],
+          "_getResultPrimaryKey": [Function getResultPrimaryKey],
+          "_getRows": [Function getRows],
+          "_pkColumnRegistered": true,
+          "_registerComputed": [Function registerComputed],
+          "_singlePkField": "rowid",
+          "_syntheticPkFields": undefined,
+        },
+        "_queryConfig": Object {},
+        "_refreshScheduled": false,
+        "_resultStale": false,
+        "_rowByIdCache": Object {
+          "rows": Map {
+            "EXISTING" => Object {
+              "_pk": "EXISTING",
+              "name": "已有",
+              "ordIdx": 0,
+              "rowid": "EXISTING",
+            },
+          },
+          "ver": 1,
+        },
+        "_rowsVersion": 1,
+        "_selectedRowIds": Array [
+          "EXISTING",
+        ],
+        "_selectionDelegate": SelectionDelegate {
+          "_suppressSelectionSync": false,
+          "emitCurrentRowChanged": [Function anonymous],
+          "emitSelectedRowsChanged": [Function anonymous],
+          "host": [Circular],
+        },
+        "_selectionIdsVersion": 1,
+        "_srCache": Object {
+          "rows": Array [
+            Object {
+              "_pk": "EXISTING",
+              "name": "已有",
+              "ordIdx": 0,
+              "rowid": "EXISTING",
+            },
+          ],
+          "rowsVer": 1,
+          "selVer": 1,
+        },
+        "aggregates": Object {},
+        "allowDelete": true,
+        "autoCurrentFirst": true,
+        "autoLoad": false,
+        "autoLoadConfigured": false,
+        "autoSelectFirst": true,
+        "clearRefreshRequest": [Function anonymous],
+        "commitMode": "staged",
+        "currentLoadRequestId": 2,
+        "events": Object {
+          "emit": [Function emit],
+          "listenerCount": [Function listenerCount],
+          "off": [Function off],
+          "on": [Function on],
+          "removeAllListeners": [Function removeAllListeners],
+        },
+        "fieldProjection": Array [],
+        "loadingError": null,
+        "lockCurrentWhilePending": false,
+        "logger": Object {
+          "debug": [Function debug],
+          "error": [Function error],
+          "info": [Function info],
+          "warn": [Function warn],
+        },
+        "mutating": false,
+        "mutatingError": null,
+        "page": 1,
+        "pageSize": 20,
+        "pendingRowsSelectionChanged": false,
+        "queryContext": Object {},
+        "requestState": 3,
+        "rowIndexMap": undefined,
+        "rows": Array [
+          Object {
+            "_pk": "EXISTING",
+            "name": "已有",
+            "ordIdx": 0,
+            "rowid": "EXISTING",
+          },
+        ],
+        "rowsChangedDebouncer": false,
+        "scheduleRefresh": [Function anonymous],
+        "selectionDelimiter": ",",
+        "tableName": "Rows",
+        "total": 1,
+        "viewId": "default",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:348:34
+    346|     await flushPromises()
+    347|
+    348|     expect(host.openSession).not.toHaveBeenCalled()
+       |                                  ^
+    349|     expect(wrapper.text()).toMatch(/完整|数据空间|绑定/i)
+    350|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > switches a mounted key and ignores a delayed result from the previous target
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:384:22
+    382|     await startButton.trigger('click')
+    383|     await flushPromises()
+    384|     expect(oldStart).toHaveBeenCalledOnce()
+       |                      ^
+    385|
+    386|     key.value = 'AI-ENTRY-SPACE@Items@alternate'
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked
+AssertionError: expected undefined to be defined
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:408:41
+    406|
+    407|     const table = wrapper.findComponent(RendererTable)
+    408|     expect.soft(table.props('toolbar')).toBeDefined()
+       |                                         ^
+    409|     expect.soft(wrapper.findAllComponents(RendererForm).some(form => S…
+    410|     expect.soft(wrapper.find('textarea').attributes()).toHaveProperty(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:409:139
+    407|     const table = wrapper.findComponent(RendererTable)
+    408|     expect.soft(table.props('toolbar')).toBeDefined()
+    409|     expect.soft(wrapper.findAllComponents(RendererForm).some(form => S…
+       |                                                                                                                                           ^
+    410|     expect.soft(wrapper.find('textarea').attributes()).toHaveProperty(…
+    411|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > uses standard turn/table toolbar bindings and locks business prompt when workspace is blocked
+AssertionError: expected { class: 'el-textarea__inner', …(7) } to have property "readonly"
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:410:56
+    408|     expect.soft(table.props('toolbar')).toBeDefined()
+    409|     expect.soft(wrapper.findAllComponents(RendererForm).some(form => S…
+    410|     expect.soft(wrapper.find('textarea').attributes()).toHaveProperty(…
+       |                                                        ^
+    411|   })
+    412|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts > SparkAiDataEntry renderer > detaches an accepted lease when its derived session-view binding fails and can retry cleanly
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ packages/spark-component/src/tests/ai/spark-ai-data-entry.test.ts:432:30
+    430|     await flushPromises()
+    431|
+    432|     expect.soft(firstDetach).toHaveBeenCalledOnce()
+       |                              ^
+    433|     expect.soft(first.findComponent(RendererForm).exists()).toBe(false)
+    434|     first.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 8 passed (14)
+   Start at  03:09:26
+   Duration  9.57s (transform 5.26s, setup 129ms, import 7.32s, tests 806ms, environment 982ms)
+

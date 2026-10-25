@@ -1,0 +1,36 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/component/nav-header-bar.test.ts (6 tests | 1 failed) 2063ms
+     × keeps parent active identity on the useNav-owned submenu item without marking it as a page 86ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/component/nav-header-bar.test.ts > NavHeaderBar Element Plus responsive menu behavior > keeps parent active identity on the useNav-owned submenu item without marking it as a page
+AssertionError: expected [] to deeply equal [ 'page' ]
+
+- Expected
++ Received
+
+- [
+-   "page",
+- ]
++ []
+
+ ❯ tests/ui/component/nav-header-bar.test.ts:199:112
+    197|     expect(parentTitle.classes()).not.toContain('nav-header-bar__item-…
+    198|     expect(parentTitle.attributes('aria-current')).toBeUndefined()
+    199|     expect(wrapper.findAll('.el-menu-item[aria-current="page"]').map(i…
+       |                                                                                                                ^
+    200|   })
+    201|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  05:52:18
+   Duration  22.48s (transform 12.07s, setup 244ms, import 17.32s, tests 2.06s, environment 2.08s)
+

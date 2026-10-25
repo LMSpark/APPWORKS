@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/data-entry-host-capability",
+    "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+    "sourceFile": "packages/spark-component/src/ai/data-entry-host-capability.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/data-entry-host-capability",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/data-entry-host-capability\n职责：定义通用AI批量新增组件与应用级会话owner之间的窄能力合同。\n边界：只暴露当前目标DataView、标准录入/候选/轮次视图和正式会话动作；不依赖spark-lowcode-api，也不承载Agent配置或系统提示词。\nAI用途：应用宿主通过此能力把已配置的AI录入会话附着到标准组件，临时卸载时只撤销附件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "AiDataEntrySessionSurface",
+      "AiDataEntryAttachment",
+      "AiDataEntryHostCapability"
+    ]
+  },
+  "$defs": {
+    "AiDataEntrySessionSurface": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntrySessionSurface",
+      "properties": {
+        "targetView": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "input": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "candidates": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turn": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "busy": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "blocksWorkspace": {
+          "type": "boolean"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        },
+        "canStart": {
+          "type": "boolean"
+        },
+        "canRefresh": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        },
+        "canConfirm": {
+          "type": "boolean"
+        },
+        "confirmationError": {
+          "type": "string"
+        },
+        "shouldAutoRefresh": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.start.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.start.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.confirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "AiDataEntryAttachment": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryAttachment",
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/AiDataEntrySessionSurface"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.detach.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.detach.return": true
+      }
+    },
+    "AiDataEntryHostCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDataEntryHostCapability",
+      "$defs": {
+        "method.openSession.params": {
+          "type": "object",
+          "properties": {
+            "targetView": {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openSession.return": {
+          "$ref": "#/$defs/AiDataEntryAttachment"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-25T08:42:55.741Z",
+  "models": {
+    "AiDataEntrySessionSurface": {
+      "name": "AiDataEntrySessionSurface",
+      "jsdoc": "标准组件消费的单次批量录入会话表面；实际状态由正式DataView和会话owner提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 不可变业务目标，确认结果只暂存到此DataView。 */\n    targetView: DataView;\n    /** 由标准表单编辑businessPrompt的单行输入DataView。 */\n    input: DataView;\n    /** 由正式轮次读回填充的只读候选DataView。 */\n    candidates: DataView;\n    /** 同一DataSet中由AiTurnResource持有的正式轮次状态DataView。 */\n    turn: DataView;\n    /** 已受理的正式轮次标识；未收到可信回执时为空。 */\n    turnId: string | undefined;\n    /** 由正式轮次状态视图推导的状态。 */\n    status: string | undefined;\n    /** 当前命令或异步读取是否正在执行。 */\n    busy: boolean;\n    /** 是否存在必须由原轮次owner核验的未知保存结果。 */\n    hasUnconfirmedSave: boolean;\n    /** 是否需要阻止工作区关闭或切换目标。 */\n    blocksWorkspace: boolean;\n    /** 是否有输入、候选、命令或错误需要保留。 */\n    pending: boolean;\n    /** 最近的本地验证或轮次错误。 */\n    error: string;\n    /** 当前输入可否发起一个新轮次。 */\n    canStart: boolean;\n    /** 当前轮次或原始未知命令可否安全查询。 */\n    canRefresh: boolean;\n    /** 当前已知非终态轮次可否停止。 */\n    canCancel: boolean;\n    /** 当前候选批次可否通过统一预检并暂存。 */\n    canConfirm: boolean;\n    /** 与确认资格对应的用户可读原因。 */\n    confirmationError: string;\n    /** 宿主可否继续自动查询正式轮次状态。 */\n    shouldAutoRefresh: boolean;\n    /** 订阅DataView/会话状态变更并返回取消订阅函数。 */\n    subscribe(listener: () => void): () => void;\n    /** 从当前businessPrompt草稿创建一次正式轮次。 */\n    start(): Promise<void>;\n    /** 沿原正式轮次资源查询状态并解析候选。 */\n    refresh(): Promise<void>;\n    /** 把通过预检的整批候选暂存到原业务DataView。 */\n    confirm(): Promise<void>;\n    /** 对已知非终态轮次发起停止并沿正式资源核验。 */\n    cancel(): Promise<void>;\n    /** 放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。 */\n    discard(): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targetView",
+              "jsdoc": "不可变业务目标，确认结果只暂存到此DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "由标准表单编辑businessPrompt的单行输入DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidates",
+              "jsdoc": "由正式轮次读回填充的只读候选DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "同一DataSet中由AiTurnResource持有的正式轮次状态DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "已受理的正式轮次标识；未收到可信回执时为空。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "由正式轮次状态视图推导的状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busy",
+              "jsdoc": "当前命令或异步读取是否正在执行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "是否存在必须由原轮次owner核验的未知保存结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blocksWorkspace",
+              "jsdoc": "是否需要阻止工作区关闭或切换目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "是否有输入、候选、命令或错误需要保留。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "最近的本地验证或轮次错误。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canStart",
+              "jsdoc": "当前输入可否发起一个新轮次。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRefresh",
+              "jsdoc": "当前轮次或原始未知命令可否安全查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "jsdoc": "当前已知非终态轮次可否停止。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canConfirm",
+              "jsdoc": "当前候选批次可否通过统一预检并暂存。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmationError",
+              "jsdoc": "与确认资格对应的用户可读原因。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shouldAutoRefresh",
+              "jsdoc": "宿主可否继续自动查询正式轮次状态。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "subscribe",
+              "jsdoc": "订阅DataView/会话状态变更并返回取消订阅函数。",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "start",
+              "jsdoc": "从当前businessPrompt草稿创建一次正式轮次。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "沿原正式轮次资源查询状态并解析候选。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "把通过预检的整批候选暂存到原业务DataView。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "对已知非终态轮次发起停止并沿正式资源核验。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "放弃可安全丢弃的本地输入/候选；未知命令仍被拒绝。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiDataEntryAttachment": {
+      "name": "AiDataEntryAttachment",
+      "jsdoc": "当前renderer与应用host之间的一次附件；host可通过signal同步撤销局部订阅和timer。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前应用owner持有的正式会话。 */\n    session: AiDataEntrySessionSurface;\n    /** host释放或撤销附件时触发。 */\n    signal: AbortSignal;\n    /** 幂等撤销本组件附件，不销毁仍待核验的会话。 */\n    detach(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前应用owner持有的正式会话。 */\n    session: AiDataEntrySessionSurface;\n    /** host释放或撤销附件时触发。 */\n    signal: AbortSignal;\n    /** 幂等撤销本组件附件，不销毁仍待核验的会话。 */\n    detach(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "当前应用owner持有的正式会话。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "jsdoc": "host释放或撤销附件时触发。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "detach",
+              "jsdoc": "幂等撤销本组件附件，不销毁仍待核验的会话。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiDataEntryHostCapability": {
+      "name": "AiDataEntryHostCapability",
+      "jsdoc": "在应用运行实例中打开一个与精确业务DataView绑定的录入会话。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。 */\n    openSession(targetView: DataView): AiDataEntryAttachment;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "openSession",
+              "jsdoc": "返回目标完全一致的活动附件；目标不匹配时调用方不得误拆其他owner。",
+              "parameters": [
+                {
+                  "name": "targetView",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "AiDataEntryAttachment",
+                "sourcePath": "packages/spark-component/src/ai/data-entry-host-capability.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

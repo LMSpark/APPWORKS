@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "counts": {
+    "requests": 138,
+    "document": 0,
+    "failures": 0,
+    "reads": 131,
+    "writes": 2
+  },
+  "retainedTest": {
+    "name": "B2Relation_20261025_mvn5o60s_verified",
+    "id": "34A3F87EA002AF6EB93B3E5C0A173EEA"
+  },
+  "finalLabelWindow": {
+    "reads": 38,
+    "exactRelationReadbacks": 3,
+    "document": 0,
+    "writes": 0,
+    "failures": 0,
+    "truncated": false
+  },
+  "claims": [
+    "no Document navigation",
+    "all formal query responses accepted",
+    "one exact relationship create",
+    "name-only exact change",
+    "formal endpoint/expression roundtrip",
+    "no deletion or DDL request"
+  ],
+  "limits": [
+    "live smoke did not induce an unknown receipt or force teardown; automated tests cover those cases",
+    "a short locator wait expired before the reloaded list appeared; subsequent formal state was correct",
+    "one immediate expression apply after function-dialog save kept the candidate open; stable candidate applied on explicit second click"
+  ]
+}

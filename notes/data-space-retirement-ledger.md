@@ -1639,3 +1639,12 @@ flowchart TD
 - 主控独立最终复跑 alias、数据库目录、system-page identity tabs/dirty 4文件49/49；`pnpm run typecheck`、8个目标文件 ESLint（`--max-warnings=0`）、`pnpm run verify:rules` 与 `pnpm run build` 均退出0，`git diff --check` 退出0。完整rules中的 ClassModel、lowcode contract 611/210、AI codegen 等均通过；保留仓内 AI model spec 2 warning/1 info。公开 `DynamicRouterOptions`/启动页节点合同变化后已运行 `pnpm run generate:class-model-surface`，ClassModel verify通过；正式生成输出有166个文件变化（542 insertions/406 deletions），主控抽查显示既有 TypeScript 内部 symbol 编号漂移与本次新增字段，保留未手改的完整正式生成结果。
 - 只读复核“登记已有数据库”仍不能开放实现：普通新增 `_base_dbInfo` DataView 保存与物理已存在数据库登记是不同命令；当前 endpoint index 仅描述 `/api/Db/registerDB/{serverId}`、`string[]` body 和 `AjaxResult`，且标记为源码特征，不证明部署端映射/逐项回执。SPARK data 的 `bindDataSetCommandSubmit` 可承载命令，但实际部署请求和回执需在已授权 SPA 中只读捕获或取得正式部署合同。此审计没有发服务请求、登记或 DDL。
 - **状态：旧路径 alias、主列表入口及自动化/工程门禁已完成，待台账提交；没有有效登录 SPA 标签，故未做线上旧路径验证。本批未修改/启动/部署 Java，未发服务请求或写业务数据。B2仍开放已有数据库登记及其真实回执、数据库删除引用完整性、连接测试线上合同/连通性、旧整页行为对照；总体数据空间整合继续 implementing。下一步优先取得已授权 SPA 会话做只读部署命令合同诊断；会话不可用时继续实施无需服务写入的剩余前端闭环。**
+
+## 2026-10-26 最新远程整合、通用 AI 复核与 SPA 烟测状态
+
+- 执行 `git fetch --all --prune`。当前 `HEAD=03a35bb22`，`origin/10-17=11ed2e806` 是当前 HEAD 的祖先，当前分支领先18、落后0；该远程无新提交需要合并。`github/10-17=7e288e7db` 亦是祖先；没有把与当前工作历史无关的 `origin/main` 合并进来。工作树产品文件干净；不重置、不推送。
+- 对最新整合后的通用 AI 批量录入做低价模型只读复核：标准组件使用完整 `dataSpaceId@modelName@viewId` 解析当前 PageRuntime DataView，表单/候选表均由标准字段子组件绑定 DataView；`allowAIAdd`、输出列、类型和字段写权限一起构成候选白名单；用户只编辑 input DataView 的 `businessPrompt`，运行时核验 Agent 并将业务提示与获准字段 schema 作为 user message；确认候选写入目标 DataView/字典原 entries 草稿，最终仍由既有 DataSet 保存。系统提示词不是组件输入或用户消息字段；实际 Agent 配置是否固定仍取决于服务端合同，前端不能证明服务端管理行为。已有测试覆盖 message 字段与 `systemPrompt` 不被传递，未重复新增测试。
+- 复跑结果：`tests/runtime/page/database` 13文件/188项通过；字典工作流和 AI host 2文件/51项通过；`spark-lowcode-api` AI data-entry 2文件/32项通过；`spark-component` AI 组件1文件/15项通过；`pnpm run typecheck` 退出0。一次不限 worker 的组合测试启动后无日志进展，已停止；改为 `--pool=threads --maxWorkers=2` 的分组命令后得到上述通过结果。日志保存在忽略目录 `ignored/cache/*20261026.log`。
+- 真实 SPA 状态：原 IAB 标签不存在。启动本地 Vite 前端后，带租户的直接深链路由未在该本地项目导航注册，Vue Router 回退到项目首页；自动化树没有可操作业务控件，也没有可复用登录态。因此未完成已部署服务登录/读回/命令回执烟测；没有执行登记、删除、排序或 AI 写操作。Vite 已停止。自动化测试不冒充服务烟测。
+- **Ruling：不因已知 endpoint index 或参考 Java 源码开放“登记已有数据库”实现。当前 SPA 不可用于只读捕获部署命令/回执，写入协议及逐项结果仍未确证；若猜 `/api/Db/registerDB/{serverId}` 或直接复用普通目录行保存，可能造成服务端误操作并绕过旧命令语义。待正式部署合同或已授权 SPA 只读证据，再按 DataSet/DataView 命令链实施；本轮无 Java 修改。**
+- **状态：远程整合核对完成；通用 AI 和 B2 数据库相关自动化复核通过；真实 SPA/服务端 smoke 仍未完成。B2 已有库登记合同、数据库删除引用完整性、连接测试部署端点/连通性与整页对照继续开放；B1 AI 下游唯一性范围仍需确认正式约束来源。总体数据空间整合继续 implementing。下一步先恢复可用的已授权 SPA 会话做只读正式合同诊断，或按唯一台账剩余不依赖服务写入的前端闭环继续。**

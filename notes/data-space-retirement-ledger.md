@@ -1978,3 +1978,9 @@ flowchart TD
 - 本地修复查询投影解析顺序：仅解析本次请求选中的输出字段 `ValueFun`；未知/重复/非法请求字段仍失败，未指定 `fields` 时仍严格校验全部输出字段。回归用例覆盖未选中的异常 ValueFun 不阻断 `salary` 投影、显式选中异常字段拒绝，以及字段列表缺省时拒绝。`pnpm --dir packages/spark-lowcode-api exec vitest run --config vitest.config.ts src/platform/data-space/runtime/data-space-runtime-api.test.ts`：1 个测试文件、123/123 通过；权限 parity 测试 54/54 通过；针对两处改动文件 ESLint 通过；`git diff --check` 通过。包级 `typecheck` 仍因 `dictionary-workspace.test.ts` 的 5 条已有无关错误失败，未触碰该测试文件。
 - 服务端子行权限结论仍未实证：仓内正式消费合同为自引用行读取 `lingma_sys_params.c`，且只有明确 `c === true` 才允许；执行入口是 `DataView.createChildActionState(rowKey)`，原始权限参数不会直接暴露给行消费者。本次 SPA 正式查询虽成功，但完整结果预览没有呈现 `c`、`lingma_sys_params` 或公开父行新增 action state；因此不能据此声称当前部署服务返回了 `c`，也未新增/保存子节点。真实子行权限与保存回读烟测仍待有公开 DataView action-state 验收入口/既有有效自引用视图后完成。
 - 本节实现改动仅涉及 SPARK data 查询投影解析及其回归测试；真实 SPA 元数据修复亦通过设计器的 SPARK data/DataView 链完成。没有修改 Java 或写入业务行；真实 `c` 权限仍未验证，统一 SPARK data 目标及物理目录/workflow 文件旁路继续在唯一计划中跟踪。
+
+### 2026-10-27 `c` 烟测候选数据空间复查
+
+- 在保持登录的 NewApp/D99A SPA 中通过正式“数据空间管理”目录清除旧筛选并只读查询“组织”候选。`组织机构管理`设计器读回 0 个模型；`组织架构`读回主业务模型 `Base_DepartInfo`，但页面标注模型目录尚未完整确认、尚无视图配置，目录含 4 张数据库表、1 个视图和 1 个字典。它们均没有可确认的现存自引用 DataView / 行 action-state 消费入口，不能据此观察部署端 `c`。
+- 查询、目录筛选及设计器读取全部通过 SPA 正式页面；没有调用直连接口、DevTools 或 Java，也未改配置、创建视图、增加/修改/删除业务行。没有读取或回显认证口令。
+- **状态：**上节 MobileUrl 修复后 `Base_NavigationInfo` DataView 正式查询已恢复，但数据预览不暴露 `c` 或 `DataView.createChildActionState(rowKey)`。目前新增候选也无可用的既有绑定视图。客户端 `c` 守卫与参考服务源码均有证据，当前部署 `c` 实际返回及子节点保存回读仍未验证；不把缺少可公开验收入口伪报成拒绝或授权结果。总体目标继续 active。

@@ -105,7 +105,7 @@
               "type": "string"
             },
             "name": {
-              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -335,6 +335,12 @@
         },
         "hasUnconfirmedSave": {
           "type": "boolean"
+        },
+        "hasPendingPageDelete": {
+          "type": "boolean"
+        },
+        "hasPendingNonDeleteCommand": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -388,6 +394,38 @@
           "additionalProperties": false
         },
         "method.compensateCreate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.preflightDeletePageFiles.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "customPath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightDeletePageFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.deletePageFiles.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "customPath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deletePageFiles.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -456,7 +494,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T18:37:35.921Z",
+  "generatedAt": "2026-10-26T21:54:27.043Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -502,11 +540,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: PageToolFileName) => Promise<void>;\n}> & Partial<SnapshotFileIo>",
+        "declarationTypeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}> & Partial<SnapshotFileIo>",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: PageToolFileName) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}>",
             "targetName": "Readonly"
           },
           {
@@ -634,8 +672,8 @@
                 {
                   "name": "name",
                   "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName"
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 }
               ],
@@ -1055,6 +1093,16 @@
               "name": "hasUnconfirmedSave",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "hasPendingPageDelete",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingNonDeleteCommand",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -1102,6 +1150,66 @@
                 },
                 {
                   "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preflightDeletePageFiles",
+              "jsdoc": "Read and validate the whole page directory before another resource is mutated.",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "customPath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deletePageFiles",
+              "jsdoc": "Delete a complete mounted page directory through the shared file command DataView.",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "customPath",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"

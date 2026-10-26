@@ -602,7 +602,15 @@ export class BlueprintWorkspaceDataView {
     this.view.setCurrentRow(this.#row??null)
   }
 
-  public async save(): Promise<void> {await this.saveIds()}
+  public async save(): Promise<void> {
+    if(this.#unconfirmedDeleteId!==undefined){
+      const id=String(this.#unconfirmedDeleteId),parentId=this.#unconfirmedDeleteParentId
+      if(!parentId)throw new Error('蓝图 DataView 删除待核验缺少原父节点身份')
+      await this.removeLeafNode(id,this.#projectId,parentId)
+      return
+    }
+    await this.saveIds()
+  }
 
   /** Save only the selected node; any staged changes on other rows remain untouched. */
   public async saveSelectedNode():Promise<void>{

@@ -718,13 +718,14 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true)
-      const refreshed=await owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+      await owner.save()
       expect(fixture.save).toHaveBeenCalledTimes(2)
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added).toEqual([])
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.changed).toEqual([])
       expect(deleteNode).not.toHaveBeenCalled()
       expect(owner.hasUnconfirmedSave).toBe(false)
+      const refreshed=await owner.loadProjectTree()
       expect(refreshed.children?.some(item=>item.nodeId==='LEAF-A')).toBe(false)
     } finally {ownerScope.stop()}
   })
@@ -754,7 +755,7 @@ describe('DevState 页面文件闭环', () => {
     } finally {ownerScope.stop()}
   })
 
-  it('挂载页面删除仍保留文件与蓝图组合删除链', async () => {
+  it('挂载页面删除经蓝图与文件 DataView 保存，不调用旧组合删除 gateway', async () => {
     const mounted=node('MOUNTED-A','挂载页面','cfg:mounted-page','APP-A')
     const root=blueprintRoot([mounted],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
@@ -764,13 +765,103 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       await state.loadBlueprint()
       pageFiles.files.set('mounted-page/rule.json','[]')
-      const removeMountedPage=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'removeMountedPage')
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       state.removeNodeFromTree({parent:{data:root}},{...mounted})
-      await vi.waitFor(()=>expect(removeMountedPage).toHaveBeenCalledWith({pageId:'mounted-page',nodeId:'MOUNTED-A'}))
-      await vi.waitFor(()=>expect(httpFns.blueprintDeleteNode).toHaveBeenCalledWith('MOUNTED-A'))
-      await vi.waitFor(()=>expect(httpFns.delete).toHaveBeenCalledWith('designfile:APP-A/mounted-page'))
-      expect(fixture.save).not.toHaveBeenCalled()
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true))
+      expect(httpFns.blueprintDeleteNode).not.toHaveBeenCalled()
+      expect(httpFns.delete).not.toHaveBeenCalled()
+      expect(fixture.save).toHaveBeenCalled()
     } finally {ownerScope.stop()}
+  })
+
+  it.each([
+    ['权限不足',false,false,'APP-A'],
+    ['目标有子节点',true,true,'APP-A'],
+    ['项目身份错配',true,false,'OTHER-PROJECT'],
+  ])('挂载页面删除在%s时拒绝且不删除文件',async(_label,deleteAllowed,hasChild,targetProject)=>{
+    const child={...node('MOUNTED-CHILD','子页面','','APP-A'),kind:'module' as const}
+    const mounted={...node('MOUNTED-GUARD','挂载页面','cfg:guard-page','APP-A'),kind:'module' as const,...(hasChild?{children:[child]}:{})}
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('guard-page/rule.json','{}')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      state.removeNodeFromTree({parent:{data:root}},{...mounted,projectId:targetProject})
+      await nextTick()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect([...pageFiles.files.keys()]).toContain('guard-page/rule.json')
+    }finally{ownerScope.stop()}
+  })
+
+  it('挂载页面蓝图行保存失败时不启动文件删除命令',async()=>{
+    const mounted=node('MOUNTED-FAIL','挂载页面','cfg:fail-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},false,true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('fail-page/rule.json','{}')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect([...pageFiles.files.keys()]).toContain('fail-page/rule.json')
+    }finally{ownerScope.stop()}
+  })
+
+  it('挂载蓝图删除成功但文件删除失败时报告部分成功，工作台 Save 沿原文件命令恢复',async()=>{
+    const mounted=node('MOUNTED-PARTIAL','挂载页面','cfg:partial-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('partial-page/rule.json','{}')
+    pageFiles.remove.mockRejectedValueOnce(Error('explicit file delete rejection'))
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/部分成功|蓝图.*已删除.*文件/.test(item.text))).toBe(true))
+      const fileView=fixture.dataSet.getView('PageToolFilesCommand')
+      const commandId=fileView?.rows.find(row=>row['action']==='delete')?.['commandId']
+      expect(typeof commandId).toBe('string')
+      expect(fixture.save).toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true)
+      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await state.saveAll()
+      expect(fileView?.rows.find(row=>row['action']==='delete')?.['commandId']).toBe(commandId)
+      expect(pageFiles.remove).toHaveBeenCalledTimes(2)
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('partial-page/'))).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('挂载蓝图删除回执未知后 Save All 核验原节点并接续目录文件删除',async()=>{
+    const mounted=node('MOUNTED-UNKNOWN','未知回执挂载页','cfg:unknown-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('unknown-page/rule.json','{}')
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
+      expect([...pageFiles.files.keys()]).toContain('unknown-page/rule.json')
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['MOUNTED-UNKNOWN'])
+      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['MOUNTED-UNKNOWN'])
+      expect(pageFiles.remove).toHaveBeenCalledTimes(1)
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('unknown-page/'))).toBe(false)
+    }finally{ownerScope.stop()}
   })
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {

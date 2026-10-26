@@ -160,6 +160,25 @@
           "type": "object",
           "title": "Promise<ProjectBlueprintTreeData>"
         },
+        "method.removeLeafNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "expectedProjectId": {
+              "type": "string"
+            },
+            "expectedParentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeLeafNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
         "method.moveNode.params": {
           "type": "object",
           "properties": {
@@ -396,7 +415,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T19:16:06.741Z",
+  "generatedAt": "2026-10-26T21:41:25.274Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -576,6 +595,43 @@
               "name": "loadProjectTree",
               "jsdoc": "Load the displayed tree through the same bound DataView owner used by edits.",
               "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeLeafNode",
+              "jsdoc": "Delete one ordinary leaf through the current project tree DataView and confirm it by readback.",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedProjectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedParentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

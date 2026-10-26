@@ -421,6 +421,14 @@
               "type": "object",
               "title": "(section: string) => boolean"
             },
+            "persistedDataSpaceId": {
+              "type": "object",
+              "title": "UseDateFormatReturn"
+            },
+            "sceneBindingPending": {
+              "type": "object",
+              "title": "import(\"vue\").ComputedRef<boolean>"
+            },
             "blueprintEmpty": {
               "type": "object",
               "title": "import(\"vue\").ComputedRef<boolean>"
@@ -753,6 +761,8 @@
             "blueprintNodeFieldAccess",
             "blueprintNodeFieldsWritable",
             "blueprintNodeSectionWritable",
+            "persistedDataSpaceId",
+            "sceneBindingPending",
             "blueprintEmpty",
             "pageFileNames",
             "activePageId",

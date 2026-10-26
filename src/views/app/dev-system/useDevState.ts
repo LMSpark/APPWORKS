@@ -156,6 +156,7 @@ export function useDevState() {
   const blueprintWorkspaceDataView = shallowRef<BlueprintWorkspaceDataView>()
   const blueprintPageRuntime = shallowRef<PageRuntime>()
   let pageToolFilesDataView:PageToolFilesDataView|undefined
+  let pendingMountedPageDelete:{pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}|undefined
   let blueprintWorkspaceLoad: Promise<BlueprintWorkspaceDataView> | undefined
   let blueprintWorkspaceLoadRevision=0
   let unregisterBlueprintWorkspaceSession:(()=>void)|undefined
@@ -199,7 +200,11 @@ export function useDevState() {
       const fileOwner=pageToolFilesDataView
       blueprintPageRuntime.value=runtime;blueprintWorkspaceDataView.value=session
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
-        if(fileOwner.dirty||fileOwner.hasUnconfirmedSave)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
+        if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
+        if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){
+          if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
+          await fileOwner.save();refreshBlueprintTreeProjection();return
+        }
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
         moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
         childCreateActionState:id=>session.childCreateActionState(id)}
@@ -244,6 +249,35 @@ export function useDevState() {
     return () => {externalDataViewSessions.delete(session); externalDataViewRevision.value++}
   }
   function notifyExternalDataViewChanged(): void {externalDataViewRevision.value++}
+  async function completePendingMountedPageDelete():Promise<void>{
+    const pending=pendingMountedPageDelete
+    if(!pending)return
+    if(projectId.value!==pending.projectId)throw new Error('MOUNTED_PAGE_DELETE_SCOPE: 项目身份已切换')
+    let blueprintDeleted=pending.stage==='files'
+    try{
+      if(pending.stage==='blueprint'){
+        const owner=await loadBlueprintWorkspaceDataView()
+        const fileOwner=pageToolFilesDataView
+        if(!fileOwner)throw new Error('PAGE_TOOL_FILE_DELETE_OWNER: 文件命令 DataView 尚未装配')
+        await fileOwner.preflightDeletePageFiles(pending.pageId,pending.customPath)
+        await owner.removeLeafNode(pending.nodeId,pending.projectId,pending.parentNodeId)
+        pending.stage='files';blueprintDeleted=true
+        refreshBlueprintTreeProjection();externalDataViewRevision.value++
+      }
+      const fileOwner=pageToolFilesDataView
+      if(!fileOwner)throw new Error('PAGE_TOOL_FILE_DELETE_OWNER: 文件命令 DataView 尚未装配')
+      await fileOwner.deletePageFiles(pending.pageId,pending.customPath)
+      project.closePageDesign(pending.pageId);project.markPageLoadedChanged(pending.pageId,false)
+      if(selectedNode.value?.nodeId===pending.nodeId){project.selectNode(null);clearActivePageContext()}
+      bumpPageCache(pending.pageId,'__deleted')
+      pendingMountedPageDelete=undefined
+      void syncRuntimeNavigationIfDefaultProject()
+      addStatus(`已删除 ${pending.title}`,'info')
+    }catch(error){
+      if(blueprintDeleted)throw new Error(`MOUNTED_PAGE_FILE_DELETE_PARTIAL: 蓝图节点已删除，文件清理待确认：${String(error)}`)
+      throw error
+    }
+  }
   async function moveBlueprintNodeInDataView(nodeId: string, parentId: string | null, index: number): Promise<void> {
     if (blueprintDirty.value) throw new Error('节点基本信息有未保存草稿，请先保存或取消后再移动树节点')
     const owners = [...externalDataViewSessions].filter(session => session.moveBlueprintNode)
@@ -416,6 +450,12 @@ export function useDevState() {
   ): Promise<boolean> {
     const nextScope = normalizeEditScope(scope)
     if (sameEditScope(nextScope)) return true
+
+    if(pendingMountedPageDelete){
+      addStatus('挂载页面删除流程尚未完成，请在原项目中保存并核验后再切换','warning')
+      projectPicker.tenantId=tenantId.value;projectPicker.projectId=projectId.value
+      return false
+    }
 
     if([...externalDataViewSessions].some(session=>session.hasUnconfirmedSave?.())){
       addStatus('DataView 保存回执仍未确认，先核验原目标后才能切换项目', 'warning')
@@ -1423,32 +1463,39 @@ export function useDevState() {
 
     const pageId = resolvePageNodePageId(data)
     const shouldRemoveMountedPage = pageId.length > 0 && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(data))
-    if(!shouldRemoveMountedPage&&blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return}
-    if(!shouldRemoveMountedPage)blueprintSaving.value=true
-    const deletePromise = shouldRemoveMountedPage
-      ? editor.removeMountedPage({ pageId, nodeId: data.nodeId })
-      : (async()=>{
+    if(blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return}
+    blueprintSaving.value=true
+    const deletePromise = (async()=>{
+      try{
+        if(shouldRemoveMountedPage){
+          const page=project.findPageTool(pageId)
+          if(page?.isDirty())throw new Error('挂载页面存在未保存文件修改，请先保存或取消后再删除')
+          if(data.projectId!==projectId.value)throw new Error('蓝图 DataView 删除目标项目身份不匹配')
+          pendingMountedPageDelete={pageId,customPath:`${projectId.value}/${pageId}`,nodeId:data.nodeId,projectId:data.projectId,
+            parentNodeId:data.parentNodeId,title:data.navigation?.title??data.capability.name,stage:'blueprint'}
+          await completePendingMountedPageDelete()
+          return
+        }
         try{
           const owner=await loadBlueprintWorkspaceDataView()
           await owner.removeLeafNode(data.nodeId,data.projectId,data.parentNodeId)
           refreshBlueprintTreeProjection()
           externalDataViewRevision.value++
         }finally{blueprintSaving.value=false}
-      })()
+      }finally{blueprintSaving.value=false}
+    })()
     void deletePromise.then(
       () => {
-        if (selectedNode.value?.nodeId === data.nodeId) {
-          project.selectNode(null)
-          clearActivePageContext()
+        if (!shouldRemoveMountedPage && selectedNode.value?.nodeId === data.nodeId) {
+          project.selectNode(null);clearActivePageContext()
         }
-      if (shouldRemoveMountedPage) {
-          bumpPageCache(pageId, '__deleted')
-        }
-        void syncRuntimeNavigationIfDefaultProject()
-        addStatus(`已删除 ${data.navigation?.title ?? data.capability.name}`, 'info')
+        if(!shouldRemoveMountedPage){void syncRuntimeNavigationIfDefaultProject();addStatus(`已删除 ${data.navigation?.title ?? data.capability.name}`,'info')}
       },
       (e: unknown) => {
-        addStatus(`删除节点失败: ${String(e)}`, 'error')
+        const message=String(e)
+        addStatus(message.includes('MOUNTED_PAGE_FILE_DELETE_PARTIAL')
+          ? `挂载页面删除部分成功：${message.replace('MOUNTED_PAGE_FILE_DELETE_PARTIAL: ','')}`
+          : `删除节点失败: ${message}`, 'error')
       },
     )
   }

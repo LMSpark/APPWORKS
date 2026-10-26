@@ -36,7 +36,6 @@ import {
   type ProjectSummary,
 } from '../io/project-reference-client'
 import {
-  findConfigNodeByPageId,
   normalizeProjectBlueprintTreeNodeData,
   normalizeBlueprintTree,
   resolvePageNodePageId,
@@ -93,24 +92,6 @@ export type PageNodeCreateMountedResult = {
 page: Record<string, unknown>
     /** node 字段。 */
 node: ProjectBlueprintTreeNodeData
-}
-
-/** Page Node Remove Mounted Result 的返回结果。 */
-export type PageNodeRemoveMountedResult = {
-    /** deleted Node 字段。 */
-deletedNode: ProjectBlueprintTreeNodeData | null
-    /** deleted Files 字段。 */
-deletedFiles: boolean
-}
-
-/** 节点解绑及是否删除工具文件的明确命令。 */
-type RemoveMountedPageParams = {
-    /** page Id 标识。 */
-pageId: string
-    /** node Id 标识。 */
-nodeId?: string
-    /** delete Files 字段。 */
-deleteFiles?: boolean
 }
 
 /** 按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。 */
@@ -777,21 +758,6 @@ async deletePageFiles(pageId: string): Promise<void> {
     this.project.markPageLoadedChanged(normalized, false)
   }
 
-    /** 删除 Mounted Page。 */
-async removeMountedPage(params: RemoveMountedPageParams): Promise<PageNodeRemoveMountedResult> {
-    const deletedNode = await this.unmountPageBlueprintNode(params.pageId, params.nodeId)
-    const shouldDeleteFiles = params.deleteFiles !== false
-    if (shouldDeleteFiles) {
-      const pageNode = this.project.openPageDesign(params.pageId)
-      await this.deletePageFilesForModel(pageNode)
-    }
-    if (this.project.getActivePage()?.pageId === params.pageId) {
-      this.project.clearActivePage()
-    }
-    await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
-    return { deletedNode, deletedFiles: shouldDeleteFiles }
-  }
-
 async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectBlueprintTreeNodeData> {
     if (nodeId.trim().length === 0) {
       throw new Error('nodeId must be a non-empty string')
@@ -881,12 +847,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     })
   }
 
-  private async unmountPageBlueprintNode(pageId: string, nodeId?: string): Promise<ProjectBlueprintTreeNodeData | null> {
-    const normalizedPageId = assertNonEmptyPageId(pageId)
-    const resolvedNodeId = await this.resolveBlueprintNodeId(normalizedPageId, nodeId)
-    return this.requireBlueprintOperation('deleteNode')(resolvedNodeId)
-  }
-
   private defaultMountedPageBlueprintNode(params: CreateMountedPageParams): ProjectBlueprintTreeNodeData {
     const pageId = assertNonEmptyPageId(params.pageId)
     const title = params.title?.trim()
@@ -896,18 +856,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
       kind: 'page' as const, capability: { name: title !== undefined && title.length > 0 ? title : pageId }, navigation: { title: title !== undefined && title.length > 0 ? title : pageId, icon: icon !== undefined && icon.length > 0 ? icon : 'Document', target: `cfg:${pageId}`, order: params.index ?? 0, publishInMenu: true, showChildren: true, beginGroup: false }, source: {},
     }
     return normalizeProjectBlueprintTreeNodeData(node)
-  }
-
-  private async resolveBlueprintNodeId(pageId: string, nodeId?: string): Promise<string> {
-    const explicitNodeId = nodeId?.trim()
-    if (explicitNodeId) return explicitNodeId
-
-    const root = await this.loadBlueprintRoot()
-    const found = findConfigNodeByPageId(root.children, assertNonEmptyPageId(pageId))
-    if (found === null) {
-      throw new Error(`project blueprint node not found for pageId: ${pageId}`)
-    }
-    return found.nodeId
   }
 
   private resolveSelectedPageId(): string {

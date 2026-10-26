@@ -151,4 +151,81 @@ describe('PageToolFilesDataView',()=>{
     expect([...files.entries()]).toEqual([['script.js','edited-script']])
     expect(remove).toHaveBeenCalledTimes(1)
   })
+
+  it('deletes every page file and version entry through one DataView command, then confirms an empty directory',async()=>{
+    const files=new Map([['rule.json','{}'],['script.js','x'],['2__rule.json','snapshot'],['3__style.css','snapshot-style']])
+    const remove=vi.fn(async(_app:string,_page:string,name:string)=>{files.delete(name)})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const save=vi.spyOn(dataSet,'saveChanges')
+    const resource=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,
+      upload:async()=>{},remove},()=>{})
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
+    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
+    expect(remove).toHaveBeenCalledTimes(4)
+    expect([...files.keys()]).toEqual([])
+  })
+
+  it('retains a known failed delete command and retries the same commandId',async()=>{
+    const files=new Map([['rule.json','{}'],['script.js','x']]),remove=vi.fn(async(_a:string,_p:string,n:string)=>{files.delete(n)})
+    remove.mockImplementationOnce(async(_a,_p,n)=>{files.delete(n);throw Error('explicit file delete rejection')})
+    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload:async()=>{},remove,
+    },()=>{})
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).rejects.toThrow('explicit file delete rejection')
+    const commandId=resource.view.rows[0]?.['commandId']
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
+    expect(resource.view.rows[0]?.['commandId']).toBe(commandId)
+    expect(remove).toHaveBeenCalledTimes(2)
+    expect([...files.keys()]).toEqual([])
+  })
+
+  it('verifies a partial unknown deletion then continues remaining files with the same commandId',async()=>{
+    const files=new Map([['rule.json','{}'],['script.js','x']]),remove=vi.fn(async(_a:string,_p:string,n:string)=>{files.delete(n)})
+    remove.mockImplementationOnce(async(_a,_p,n)=>{files.delete(n);throw timeoutAfterAccept()})
+    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload:async()=>{},remove,
+    },()=>{})
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).rejects.toThrow('timeout after accept')
+    const commandId=resource.view.rows[0]?.['commandId']
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).rejects.toThrow('DATA_SET_COMMAND_NOT_APPLIED')
+    expect(remove).toHaveBeenCalledTimes(1)
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
+    expect(resource.view.rows[0]?.['commandId']).toBe(commandId)
+    expect(remove).toHaveBeenCalledTimes(2)
+    expect([...files.keys()]).toEqual([])
+  })
+
+  it('verifies an unknown delete receipt and retries the same commandId without blind replay',async()=>{
+    const files=new Map([['rule.json','{}']]),remove=vi.fn(async(_a:string,_p:string,n:string)=>{files.delete(n);throw timeoutAfterAccept()})
+    const list=vi.fn(async()=>[...files.keys()]),dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const resource=new PageToolFilesDataView(dataSet,'APP',{list,read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload:async()=>{},remove},()=>{})
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).rejects.toThrow('timeout after accept')
+    const commandId=resource.view.rows[0]?.['commandId']
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
+    expect(resource.view.rows[0]?.['commandId']).toBe(commandId)
+    expect(remove).toHaveBeenCalledTimes(1)
+    expect(list).toHaveBeenCalledTimes(4)
+    expect([...files.keys()]).toEqual([])
+  })
+
+  it('rejects a stale or cross-scope delete before touching the file directory',async()=>{
+    const remove=vi.fn(),assertCurrent=vi.fn(()=>{throw Error('scope stale')}),list=vi.fn(async()=>['rule.json'])
+    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list,read:async()=>null,upload:async()=>{},remove,
+    },assertCurrent)
+    await expect(resource.deletePageFiles('PAGE','OTHER/PAGE')).rejects.toThrow()
+    expect(list).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+  })
+
+  it('preflights the exact page directory and file names before the blueprint delete phase',async()=>{
+    const list=vi.fn(async()=>['rule.json','2__rule.json'])
+    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list,read:async()=>null,upload:async()=>{},remove:async()=>{},
+    },()=>{})
+    await expect(resource.preflightDeletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
+    expect(list).toHaveBeenCalledOnce()
+    await expect(resource.preflightDeletePageFiles('PAGE','APP/OTHER')).rejects.toThrow('PAGE_TOOL_FILE_DELETE_SCOPE')
+    expect(list).toHaveBeenCalledOnce()
+  })
 })

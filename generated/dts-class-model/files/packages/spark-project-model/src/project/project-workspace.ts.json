@@ -13,7 +13,6 @@
       "ProjectPageLoadOptions",
       "CreatePageForSelectedNodeParams",
       "PageNodeCreateMountedResult",
-      "PageNodeRemoveMountedResult",
       "ProjectWorkspaceOptions",
       "ProjectWorkspace"
     ]
@@ -128,54 +127,6 @@
       "required": [
         "page",
         "node"
-      ],
-      "additionalProperties": false
-    },
-    "PageNodeRemoveMountedResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageNodeRemoveMountedResult",
-      "properties": {
-        "deletedNode": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ProjectBlueprintTreeNodeData"
-        },
-        "deletedFiles": {
-          "enum": [
-            false,
-            true
-          ]
-        }
-      },
-      "required": [
-        "deletedNode",
-        "deletedFiles"
-      ],
-      "additionalProperties": false
-    },
-    "RemoveMountedPageParams": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "RemoveMountedPageParams",
-      "properties": {
-        "pageId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "deleteFiles": {
-          "enum": [
-            false,
-            true
-          ]
-        }
-      },
-      "required": [
-        "pageId"
       ],
       "additionalProperties": false
     },
@@ -1009,19 +960,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.removeMountedPage.params": {
-          "type": "object",
-          "properties": {
-            "params": {
-              "$ref": "#/$defs/RemoveMountedPageParams"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.removeMountedPage.return": {
-          "type": "object",
-          "title": "Promise<PageNodeRemoveMountedResult>"
-        },
         "method.moveMountedPage.params": {
           "type": "object",
           "properties": {
@@ -1166,7 +1104,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T09:06:55.776Z",
+  "generatedAt": "2026-10-26T21:57:57.847Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -1318,60 +1256,6 @@
               "jsdoc": "node 字段。",
               "readable": true,
               "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "PageNodeRemoveMountedResult": {
-      "name": "PageNodeRemoveMountedResult",
-      "jsdoc": "Page Node Remove Mounted Result 的返回结果。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** deleted Node 字段。 */\n    deletedNode: ProjectBlueprintTreeNodeData | null;\n    /** deleted Files 字段。 */\n    deletedFiles: boolean;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "deletedNode",
-              "jsdoc": "deleted Node 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "deletedFiles",
-              "jsdoc": "deleted Files 字段。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "RemoveMountedPageParams": {
-      "name": "RemoveMountedPageParams",
-      "jsdoc": "节点解绑及是否删除工具文件的明确命令。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** node Id 标识。 */\n    nodeId?: string;\n    /** delete Files 字段。 */\n    deleteFiles?: boolean;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "pageId",
-              "jsdoc": "page Id 标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "nodeId",
-              "jsdoc": "node Id 标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "deleteFiles",
-              "jsdoc": "delete Files 字段。",
-              "readable": true,
-              "writable": false
             }
           ]
         }
@@ -2837,31 +2721,6 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "removeMountedPage",
-              "jsdoc": "删除 Mounted Page。",
-              "parameters": [
-                {
-                  "name": "params",
-                  "type": {
-                    "type": "reference",
-                    "name": "RemoveMountedPageParams",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageNodeRemoveMountedResult",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
                   }
                 ]
               }

@@ -2103,3 +2103,13 @@ flowchart TD
 - **自动化门禁：**`tests/app/dev/dev-state-page-file-closed-loop.test.ts` 34 项通过；目标删除切片 7 项通过；目标文件 ESLint、全仓 `typecheck`、`verify:rules` 和 `build` 均通过，`git diff --check` 通过。`verify:rules` 报告既有 AI model spec 2 条 warning、1 条 info；build 有既有 Rolldown 注释、CodeMirror 动态导入和大 chunk 警告，均未阻断。
 - **真实 SPA 烟测：**NewApp/D99A 原登录标签仍在 `/dev` 工作台，应用内 SPA 路径有效，蓝图树显示 41 个页面，当前选中 `DataBaseManage`。热更新后只读查看工作台结构和节点表单，未点删除、未保存/修改正式蓝图；故此次验证 UI 宿主继续运行，不代表服务端真实删除权限或正式删除回执已在线验证。
 - **状态与后续：**普通叶子节点现在通过 SPARK data，工作台参考蓝图整合仍 active。非叶子节点删除、挂载页面的文件+蓝图复合删除、AI 策划触发 `ProjectWorkspace.saveAll()` 的蓝图 gateway、文件工作区的多写入口仍为差距；禁止据此宣称蓝图所有数据都已收敛到 DataView。下一批继续逐消费者处理唯一数据通道与参考功能完整性，所有在线写入仍须走已验证 DataView/命令 owner。
+
+### 2026-10-27 挂载页面删除切换到 DataView 命令链
+
+- **Ruling：**挂载页面删除保留“两项独立确认”的语义：先由当前 `Base_NavigationInfo` DataView 删除并读回叶子节点，再由 `PageToolFilesCommand` DataView 删除并读回页面目录为空；两类资源没有跨源事务，因此文件阶段失败必须显示部分完成并沿原命令恢复。代价是恢复过程中蓝图节点可能已删除而文件仍待清理，用户需留在原项目完成显式保存。
+- **节点 DataView：**普通叶子删除未知回执后，工作台 `save()` 现在以原行 ID、父节点和项目身份重试原 DataSet 命令，再读完整项目树确认不存在；不再要求用户重新触发删除，也不走 gateway fallback。
+- **文件命令：**`PageToolFilesDataView` 增加精确 `pageId/customPath` 预检，读目录并拒绝非法文件名；删除命令经 `DataSet.saveChanges` 提交，owner 逐个移除目录（含版本文件）并确认空目录。未知回执先按原命令 ID核验；部分删除但目录非空时不盲重放，下一次显式保存再以同一命令 ID处理剩余文件。外部适配仅在该文件资源 owner 内调用。
+- **工作台接线与旧入口清理：**挂载页删除通过同一 `BlueprintWorkspaceDataView` 与 `PageToolFilesDataView` 执行；删除前拒绝脏页面文件、身份错配、权限不足、非叶子、目录不可读或路径无效。蓝图已删而文件未清理时保留 saga 阶段，Save All 先恢复蓝图原命令或继续文件原命令；强制切换项目也被阻止。成功后才清理活动页面、已加载标记和缓存。移除了仓内无其他调用者的 `ProjectWorkspace.removeMountedPage` 组合写入口及其专用解析 helper；独立 `createPageFiles/deletePageFiles` 和策划 `saveAll()` 等其他文件/蓝图入口仍须按调用者继续审计，不能宣称工作台全域已经统一。
+- **TDD 与门禁：**先观察 `removeMountedPage` 存在导致唯一入口回归测试失败；移除后通过。覆盖权限/叶子/项目身份拒绝、目录预检、蓝图写失败不删文件、蓝图或文件未知回执恢复、部分文件删除后同命令续做、强制切换阻止。主控重跑 `page-tool-files-command` 与 `dev-state-page-file-closed-loop` 两文件 **58/58**；`pnpm typecheck`、目标 ESLint、正式 `generate:class-model-surface`、`pnpm run verify:rules` 和 `pnpm run build` 均通过。规则扫描保留既有 AI model spec 2 条 warning、1 条 info；build 有现存 Rolldown 注释、CodeMirror 动态导入和大 chunk 警告。一次 build 抓到删除旧入口后遗留的私有 `resolveBlueprintNodeId` 未使用，已移除后 build 再通过。`git diff --check` 通过。
+- **SPA 只读烟测：**登录的 NewApp/D99A 同一 SPA 标签仍在 `/dev` 开发工作台，蓝图树正常呈现 41 个页面，七个信息域可见，底部状态为蓝图已就绪。本轮未触发保存、删除或其他正式数据写入；真实服务端权限/回执及破坏性删除未在线执行，自动化夹具不能代替其证明。
+- **状态：**挂载页删除这条工作台路径已通过 DataView/命令 owner 接入，旧组合 gateway 已删除；唯一 SPARK data 目标仍 active。文件创建、单文件保存、AI 策划与 `ProjectWorkspace.saveAll()` 仍有独立消费者/旁路，需继续逐项审计整合；无 Java 改动。本批未推送前仍需核对最终提交与远端状态。

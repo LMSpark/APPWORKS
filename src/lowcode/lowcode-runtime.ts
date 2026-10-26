@@ -656,7 +656,7 @@ export function createPageToolFilesIo(projectId:string){
       try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:path,fileName:`${version}__${fileName}`})}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
-    remove:async(app:string,page:string,name:'rule.json'|'script.js'|'style.css')=>{
+    remove:async(app:string,page:string,name:string)=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await lowcodeApi.design.removeFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})
     },

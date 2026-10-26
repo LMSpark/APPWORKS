@@ -5,9 +5,9 @@ import {isRequestError} from '@spark-appworks/spark-utils'
 const TABLE='PageToolFilesCommand'
 const FILES=PAGE_TOOL_FILE_NAMES
 type PageToolFileUploadCommand=Readonly<{appId:string;pageId:string;fileName:PageToolFileName;text:string}>
-type FileIo=Readonly<{list:(appId:string,pageId:string)=>Promise<readonly string[]>;read:(appId:string,pageId:string,name:PageToolFileName)=>Promise<string|null>;upload:(command:PageToolFileUploadCommand)=>Promise<void>;remove:(appId:string,pageId:string,name:PageToolFileName)=>Promise<void>}>
+type FileIo=Readonly<{list:(appId:string,pageId:string)=>Promise<readonly string[]>;read:(appId:string,pageId:string,name:PageToolFileName)=>Promise<string|null>;upload:(command:PageToolFileUploadCommand)=>Promise<void>;remove:(appId:string,pageId:string,name:string)=>Promise<void>}>
   & Partial<SnapshotFileIo>
-type Action='create'|'compensate'|'snapshot'
+type Action='create'|'compensate'|'snapshot'|'delete'
 export type PageToolSnapshotInput=Readonly<{
   /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */
   pageId:string
@@ -39,7 +39,7 @@ type SnapshotFileIo=Readonly<{
 }>
 function isPageToolFileName(value:unknown):value is PageToolFileName{return FILES.some(name=>name===value)}
 function parseAction(value:unknown):Action{
-  if(value==='create'||value==='compensate'||value==='snapshot')return value
+  if(value==='create'||value==='compensate'||value==='snapshot'||value==='delete')return value
   throw new Error(`PAGE_TOOL_FILE_ACTION: 不支持的文件命令 ${String(value)}`)
 }
 export async function createChildPageWithFiles(input:Readonly<{parentId:string;assertParent:()=>void;createFiles:(parentId:string)=>Promise<string>;addNode:(pageId:string)=>Promise<void>;isNodeReceiptUnknown:()=>boolean;compensate:(pageId:string,parentId:string)=>Promise<void>}>):Promise<string>{
@@ -61,6 +61,7 @@ export class PageToolFilesDataView {
   readonly #snapshotGuards=new Map<string,()=>void>()
   readonly #snapshotAttemptCallbacks=new Map<string,(result:PageToolSnapshotResult)=>void>()
   readonly #snapshotReceiptsNeedingDelivery=new Set<string>()
+  readonly #pendingUnknownActions=new Map<string,Action>()
   constructor(private readonly dataSet:DataSet,private readonly appId:string,private readonly io:FileIo,private readonly assertCurrent:()=>void){
     if(!appId.trim())throw new Error('page-tool-files 缺少 appId')
     this.view=ensureDataSetFileCommandView({dataSet,tableName:TABLE,resourceId:`page-tool-files:${appId}`,columns:[{name:'commandId',primary:true},{name:'action'},{name:'pageId'},{name:'parentId'},
@@ -72,6 +73,43 @@ export class PageToolFilesDataView {
   }
   public async create(parentId:string,pageId?:string):Promise<string>{return this.run('create',pageId??'',parentId)}
   public async compensateCreate(pageId:string,parentId:string):Promise<void>{await this.run('compensate',pageId,parentId)}
+  /** Read and validate the whole page directory before another resource is mutated. */
+  public async preflightDeletePageFiles(pageId:string,customPath:string):Promise<void>{
+    this.assertCurrent()
+    if(!this.isValidDeleteTarget(pageId,customPath))throw new Error('PAGE_TOOL_FILE_DELETE_SCOPE: 页面目录身份无效')
+    const names=await this.io.list(this.appId,pageId)
+    this.assertCurrent()
+    for(const name of names){
+      if(typeof name!=='string'||!name||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('PAGE_TOOL_FILE_DELETE_SCOPE: 文件目录返回了非法名称')
+    }
+  }
+  /** Delete a complete mounted page directory through the shared file command DataView. */
+  public async deletePageFiles(pageId:string,customPath:string):Promise<void>{
+    await this.preflightDeletePageFiles(pageId,customPath)
+    const page=pageId.trim(),path=customPath.trim()
+    let row=this.view.rows.find(candidate=>candidate['action']==='delete'&&candidate['pageId']===page&&candidate['customPath']===path
+      &&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&this.view.dirtyTracking.hasPendingChanges(id)})())
+    if(!row){
+      const pending=this.view.rows.find(candidate=>candidate['action']==='delete'&&candidate['pageId']===page&&candidate['customPath']===path
+        &&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&this.view.hasUnconfirmedSave})())
+      if(pending)row=pending
+    }
+    if(!row){
+      await this.view.refresh();this.assertCurrent()
+      if(this.view.loadingError)throw this.view.loadingError
+      const added=await this.view.addRow({commandId:crypto.randomUUID(),action:'delete',pageId:page,parentId:'',customPath:path,fileName:'',text:'',snapshotVersion:'',versionedFileName:''})
+      if('success' in added)throw new Error('PAGE_TOOL_FILE_DELETE_COMMAND: 无法创建目录删除命令')
+      row=added
+    }
+    const commandId=String(row['commandId']??''),id=this.view.getPkKey(row)
+    if(!commandId||id!==commandId)throw new Error('PAGE_TOOL_FILE_DELETE_COMMAND: 缺少稳定命令身份')
+    try{
+      const saved=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
+      this.assertCurrent()
+      if(!saved.success)throw saved.error??new Error(saved.message??'页面文件目录删除未确认')
+      this.#pendingUnknownActions.delete(commandId)
+    }catch(error){if(this.view.hasUnconfirmedSave)this.#pendingUnknownActions.set(commandId,'delete');throw error}
+  }
   /**
    * 创建发布快照是一个 file DataView 命令。版本号在 owner 内由真实目录计算；上传后同时回读目录与原文，
    * 失败时保留 DataView 命令行及原版本号，后续保存只核验/接续这条命令。
@@ -113,20 +151,22 @@ export class PageToolFilesDataView {
     try{
       const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
       if(!result.success)throw result.error??new Error(result.message??'快照 DataView 命令失败')
-    }catch(error){throw error}
+    }catch(error){if(this.view.hasUnconfirmedSave)this.#pendingUnknownActions.set(commandId,'snapshot');throw error}
     try{this.assertCurrent();input.assertCurrent()}
     catch(error){this.#snapshotReceiptsNeedingDelivery.add(commandId);throw error}
     this.#snapshotReceiptsNeedingDelivery.add(commandId)
     const confirmed=this.view.rows.find(candidate=>candidate['commandId']===commandId)
     const version=Number(confirmed?.['snapshotVersion']),fileName=String(confirmed?.['versionedFileName']??'')
     if(!Number.isSafeInteger(version)||version<1||fileName!==`${version}__${input.fileName}`)throw new Error('PAGE_TOOL_SNAPSHOT_RECEIPT: DataView 未返回有效快照回执')
-    this.#snapshotReceiptsNeedingDelivery.delete(commandId);this.#snapshotGuards.delete(commandId);this.#snapshotVersions.delete(commandId)
+    this.#snapshotReceiptsNeedingDelivery.delete(commandId);this.#snapshotGuards.delete(commandId);this.#snapshotVersions.delete(commandId);this.#pendingUnknownActions.delete(commandId)
     this.#snapshotAttemptCallbacks.delete(commandId)
     return {version,fileName}
   }
   public hasPendingCommandForParent(parentId:string):boolean{return this.pendingCommandForParent(parentId)!==undefined}
   public get dirty():boolean{return this.view.rows.some(row=>{const id=this.view.getPkKey(row);return id!==undefined&&this.view.dirtyTracking.hasPendingChanges(id)})}
   public get hasUnconfirmedSave():boolean{return this.view.hasUnconfirmedSave}
+  public get hasPendingPageDelete():boolean{return this.view.rows.some(candidate=>candidate['action']==='delete'&&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&(this.view.dirtyTracking.hasPendingChanges(id)||this.#pendingUnknownActions.get(String(id))==='delete')})())}
+  public get hasPendingNonDeleteCommand():boolean{return this.view.rows.some(candidate=>candidate['action']!=='delete'&&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&(this.view.dirtyTracking.hasPendingChanges(id)||this.#pendingUnknownActions.has(String(id)))})())}
   public pendingCommandForParent(parentId:string):Readonly<{action:'create'|'compensate';pageId:string}>|undefined{
     const row=this.view.rows.find(candidate=>candidate['parentId']===parentId&&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&this.view.dirtyTracking.hasPendingChanges(id)})())
     if(!row||!(row['action']==='create'||row['action']==='compensate'))return undefined
@@ -137,8 +177,11 @@ export class PageToolFilesDataView {
     const ids=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       .filter(id=>this.view.dirtyTracking.hasPendingChanges(id))
     if(ids.length===0&&!this.hasUnconfirmedSave)return
-    const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,...(ids.length?{ids}:{})}]})
-    if(!result.success)throw result.error??new Error(result.message??'page-tool-files DataView 保存失败')
+    try{
+      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,...(ids.length?{ids}:{})}]})
+      if(!result.success)throw result.error??new Error(result.message??'page-tool-files DataView 保存失败')
+      for(const id of ids)this.#pendingUnknownActions.delete(String(id))
+    }catch(error){if(this.hasUnconfirmedSave)for(const id of ids){const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id);if(row)this.#pendingUnknownActions.set(String(id),parseAction(row['action']))}throw error}
   }
   private async run(action:Action,pageId:string,parentId:string):Promise<string>{
     this.assertCurrent();const parent=parentId.trim();if(!parent)throw new Error('FILE_SCOPE: parentId 不能为空')
@@ -152,12 +195,14 @@ export class PageToolFilesDataView {
     try{
       const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
       if(!result.success)throw result.error??new Error(result.message??'page-tool-files 命令失败')
-    }catch(error){if(error instanceof Error&&/^(FILE_EXISTS|FILE_SCOPE):/.test(error.message)&&this.view.dirtyTracking.hasPendingChanges(id))await this.view.removeRow(id);throw error}
+    }catch(error){if(this.view.hasUnconfirmedSave)this.#pendingUnknownActions.set(String(id),action);if(error instanceof Error&&/^(FILE_EXISTS|FILE_SCOPE):/.test(error.message)&&this.view.dirtyTracking.hasPendingChanges(id))await this.view.removeRow(id);throw error}
+    this.#pendingUnknownActions.delete(String(id))
     return normalized
   }
   private async submit(row:DataRow):Promise<DataRow>{
     this.assertCurrent();const pageId=String(row['pageId']??''),action=parseAction(row['action'])
     if(action==='snapshot')return this.submitSnapshot(row)
+    if(action==='delete')return this.submitPageDelete(row)
     const texts=defaults(pageId),existing=await this.io.list(this.appId,pageId)
     if(action==='create'){
       if(FILES.some(name=>existing.includes(name)))throw new Error('FILE_EXISTS: 目标目录已有工具文件')
@@ -172,6 +217,12 @@ export class PageToolFilesDataView {
   private async verify(row:DataRow):Promise<DataRow|undefined>{
     this.assertCurrent();const pageId=String(row['pageId']??''),action=parseAction(row['action']),texts=defaults(pageId)
     if(action==='snapshot')return this.verifySnapshot(row)
+    if(action==='delete'){
+      const customPath=String(row['customPath']??'')
+      if(!this.isValidDeleteTarget(pageId,customPath))return undefined
+      const remaining=await this.io.list(this.appId,pageId);this.assertCurrent()
+      return remaining.length===0?{...row,result:'deleted'}:undefined
+    }
     if(action==='compensate'){
       for(const name of FILES){const text=await this.io.read(this.appId,pageId,name);if(text===texts[name])await this.io.remove(this.appId,pageId,name)}
       const remaining=await Promise.all(FILES.map(name=>this.io.read(this.appId,pageId,name)))
@@ -181,6 +232,21 @@ export class PageToolFilesDataView {
     if(FILES.every((name,index)=>confirmedText(observed[index]??null,texts[name])))return {...row,result:'created'}
     for(let index=0;index<FILES.length;index++){const name=FILES[index];if(name!==undefined&&observed[index]===texts[name])await this.io.remove(this.appId,pageId,name)}
     return undefined
+  }
+  private isValidDeleteTarget(pageId:string,customPath:string):boolean{return Boolean(pageId)&&!/[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
+    &&pageId===pageId.trim()&&pageId!=='.'&&pageId!=='..'&&customPath===customPath.trim()&&customPath===`${this.appId}/${pageId}`
+    &&customPath.split('/').every(segment=>Boolean(segment)&&segment!=='.'&&segment!=='..'&&segment.trim()===segment)}
+  private async submitPageDelete(row:DataRow):Promise<DataRow>{
+    const pageId=String(row['pageId']??''),customPath=String(row['customPath']??'')
+    if(!this.isValidDeleteTarget(pageId,customPath))throw new Error('PAGE_TOOL_FILE_DELETE_SCOPE: 页面目录身份无效')
+    const names=await this.io.list(this.appId,pageId);this.assertCurrent()
+    for(const name of names){
+      if(typeof name!=='string'||!name||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('PAGE_TOOL_FILE_DELETE_SCOPE: 文件目录返回了非法名称')
+      this.assertCurrent();await this.io.remove(this.appId,pageId,name)
+    }
+    const remaining=await this.io.list(this.appId,pageId);this.assertCurrent()
+    if(remaining.length!==0)throw new Error('PAGE_TOOL_FILE_DELETE_UNCONFIRMED: 文件目录回读仍有残留')
+    return {...row,result:'deleted'}
   }
   private async submitSnapshot(row:DataRow):Promise<DataRow>{
     const io=this.io,commandId=String(row['commandId']??''),pageId=String(row['pageId']??''),

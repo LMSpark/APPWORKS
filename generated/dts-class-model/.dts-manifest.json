@@ -3369,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-26T09:06:55.776Z"
+      "sourceModifiedAt": "2026-10-26T21:57:57.847Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-26T18:35:04.029Z"
+      "sourceModifiedAt": "2026-10-26T21:41:20.043Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4014,7 +4014,7 @@
     "src/lowcode/resources/shared/page-tool-files-command.ts": {
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "shardFile": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
-      "sourceModifiedAt": "2026-10-26T18:37:35.921Z"
+      "sourceModifiedAt": "2026-10-26T21:54:27.043Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
@@ -4186,20 +4186,30 @@
       "shardFile": "files/src/views/app/Dashboard.vue.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.665Z"
     },
+    "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
+      "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
+      "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
+      "sourceModifiedAt": "2026-10-26T20:51:19.771Z"
+    },
     "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-26T19:16:06.741Z"
+      "sourceModifiedAt": "2026-10-26T21:41:25.274Z"
+    },
+    "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
+      "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+      "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue.json",
+      "sourceModifiedAt": "2026-10-26T20:51:19.772Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
-      "sourceModifiedAt": "2026-10-26T19:16:25.202Z"
+      "sourceModifiedAt": "2026-10-26T20:58:20.823Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue.json",
-      "sourceModifiedAt": "2026-10-26T08:14:16.291Z"
+      "sourceModifiedAt": "2026-10-26T20:59:47.197Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
@@ -4234,7 +4244,7 @@
     "src/views/app/dev-system/components/NodeBasicInfo.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeBasicInfo.vue.json",
-      "sourceModifiedAt": "2026-10-26T19:02:52.659Z"
+      "sourceModifiedAt": "2026-10-26T20:37:25.379Z"
     },
     "src/views/app/dev-system/components/NodeLayoutConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
@@ -4244,7 +4254,7 @@
     "src/views/app/dev-system/components/NodeStateConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeStateConfig.vue.json",
-      "sourceModifiedAt": "2026-10-26T19:17:50.873Z"
+      "sourceModifiedAt": "2026-10-26T19:25:45.367Z"
     },
     "src/views/app/dev-system/components/NodeTargetConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
@@ -4304,7 +4314,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-26T19:23:29.937Z"
+      "sourceModifiedAt": "2026-10-26T21:51:51.874Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",

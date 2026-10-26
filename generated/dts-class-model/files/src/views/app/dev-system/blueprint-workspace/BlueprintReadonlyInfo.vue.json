@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
+    "jsdoc": "app 的 views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-26T20:51:19.772Z",
+  "models": {}
+}

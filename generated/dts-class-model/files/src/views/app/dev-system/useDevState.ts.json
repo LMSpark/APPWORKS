@@ -600,6 +600,14 @@
           "type": "object",
           "title": "(section: string) => boolean"
         },
+        "persistedDataSpaceId": {
+          "type": "object",
+          "title": "UseDateFormatReturn"
+        },
+        "sceneBindingPending": {
+          "type": "object",
+          "title": "import(\"vue\").ComputedRef<boolean>"
+        },
         "blueprintEmpty": {
           "type": "object",
           "title": "import(\"vue\").ComputedRef<boolean>"
@@ -930,6 +938,8 @@
         "blueprintNodeFieldAccess",
         "blueprintNodeFieldsWritable",
         "blueprintNodeSectionWritable",
+        "persistedDataSpaceId",
+        "sceneBindingPending",
         "blueprintEmpty",
         "pageFileNames",
         "activePageId",
@@ -1010,7 +1020,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-26T19:23:29.937Z",
+  "generatedAt": "2026-10-26T21:51:51.874Z",
   "models": {
     "EditableProjectOption": {
       "name": "EditableProjectOption",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 968,
+  "scannedFileCount": 970,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11567,7 +11567,6 @@
           "ProjectPageLoadOptions",
           "CreatePageForSelectedNodeParams",
           "PageNodeCreateMountedResult",
-          "PageNodeRemoveMountedResult",
           "ProjectWorkspaceOptions",
           "ProjectWorkspace"
         ]
@@ -14129,6 +14128,19 @@
         "symbols": []
       }
     },
+    "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
+      "module": {
+        "name": "app:views/app/dev-system/blueprint-workspace/blueprint-readonly-info",
+        "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
+        "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
+        "packageName": "app",
+        "modulePath": "views/app/dev-system/blueprint-workspace/blueprint-readonly-info",
+        "jsdoc": "app 的 views/app/dev-system/blueprint-workspace/blueprint-readonly-info 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
     "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
       "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
       "module": {
@@ -14143,6 +14155,19 @@
           "BlueprintNodeFormData",
           "BlueprintWorkspaceDataView"
         ]
+      }
+    },
+    "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
+      "file": "files/src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue.json",
+      "module": {
+        "name": "app:views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
+        "sourcePath": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+        "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+        "packageName": "app",
+        "modulePath": "views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo",
+        "jsdoc": "app 的 views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
       }
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
@@ -20189,10 +20214,6 @@
     "PageNodeOptions": {
       "sourcePath": "packages/spark-app/src/app/start.ts",
       "file": "files/packages/spark-app/src/app/start.ts.json"
-    },
-    "PageNodeRemoveMountedResult": {
-      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
-      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "PageRoute": {
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",

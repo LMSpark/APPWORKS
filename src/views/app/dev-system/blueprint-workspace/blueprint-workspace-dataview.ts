@@ -46,6 +46,8 @@ export class BlueprintWorkspaceDataView {
   #unconfirmedIds: Array<string | number> = []
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
   #unconfirmedRootId: string | number | undefined
+  #unconfirmedChildId: string | number | undefined
+  #childReceiptState: 'pending'|'unknown'|'accepted'|undefined
   #queryOutputFields: ReadonlySet<string>
 
   public constructor(
@@ -78,6 +80,7 @@ export class BlueprintWorkspaceDataView {
   public get row(): DataRow | undefined {return this.#row}
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}
   public get dirty(): boolean {
+    if(this.#unconfirmedChildId!==undefined)return true
     if (this.hasUnconfirmedSave) return true
     return this.view.rows.some(row => {const id=this.view.getPkKey(row);return id!==undefined&&(this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))})
   }
@@ -270,6 +273,73 @@ export class BlueprintWorkspaceDataView {
   }
 
   public get hasPendingRootCreate(): boolean {return this.#unconfirmedRootId!==undefined}
+  public get hasPendingChildCreate():boolean{return this.#unconfirmedChildId!==undefined}
+
+  public assertCanAddChild(parentNodeId:string):void{
+    this.assertUsable()
+    if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 正在保存或回执待核验')
+    if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
+    if(!parent||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
+    if(this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许在所选父节点下新增子节点')
+  }
+
+  public preflightChildNode(parentNodeId:string,input:Record<string,unknown>):Record<string,unknown>{
+    this.assertCanAddChild(parentNodeId)
+    const expected={...input,SysId:this.#projectId,prowid:parentNodeId}
+    for(const field of Object.keys(expected)){
+      if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出子节点新增字段 ${field}`)
+      const access=this.view.newRowFieldAccess(field)
+      if(access.read!=='visible'||access.write!=='allowed')throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
+    }
+    const validation=this.view.validator?.validateColumns(expected,new Set(Object.keys(expected)))
+    if(validation&&!validation.valid)throw new Error(validation.errors[0]?.message??'蓝图子节点字段校验失败')
+    return expected
+  }
+
+  public async addChildNode(parentNodeId:string,input:Record<string,unknown>):Promise<string|number>{
+    if(this.hasPendingChildCreate){
+      const id=this.#unconfirmedChildId
+      if(id===undefined)throw new Error('蓝图子节点待核验身份缺失')
+      const patch=this.#unconfirmedPatches.get(id)??{}
+      if(this.#childReceiptState!=='accepted'){
+        try{
+          const recovered=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
+          if(!recovered.success)throw recovered.error??new Error(recovered.message??'蓝图子节点回执仍未确认')
+          this.#childReceiptState='accepted'
+        }catch(error){if(this.view.hasUnconfirmedSave)this.#childReceiptState='unknown';else if(this.#childReceiptState==='pending')await this.clearPendingChildCreate(id);throw error}
+      }
+      await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+      const row=this.view.rows.find(item=>this.view.getPkKey(item)===id&&item['SysId']===this.#projectId&&item['prowid']===parentNodeId)
+      if(!row||Object.entries(patch).some(([field,value])=>!sameWireValue(row[field],value)))throw new Error('蓝图子节点未知回执核验回读不一致')
+      this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined;return id
+    }
+    const expected=this.preflightChildNode(parentNodeId,input)
+    const created=await this.view.addRow(expected)
+    if('success' in created)throw new Error('蓝图 DataView 未准备出正式新增行')
+    const id=this.view.getPkKey(created)
+    if((typeof id!=='string'&&typeof id!=='number')||!String(id).trim()||created['rowid']!==id||created['SysId']!==this.#projectId||created['prowid']!==parentNodeId)throw new Error('蓝图 DataView owner 未准备有效子节点身份或父级绑定')
+    const validation=this.view.validator?.validateColumns(created,new Set(Object.keys(expected)))
+    if(validation&&!validation.valid){await this.view.removeRow(id);throw new Error(validation.errors[0]?.message??'蓝图子节点字段校验失败')}
+    this.#unconfirmedIds=[id];this.#unconfirmedPatches=new Map([[id,expected]]);this.#unconfirmedChildId=id;this.#childReceiptState='pending'
+    let saved
+    try{saved=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})}
+    catch(error){if(this.view.hasUnconfirmedSave)this.#childReceiptState='unknown';else await this.clearPendingChildCreate(id);throw error}
+    if(!saved.success){await this.clearPendingChildCreate(id);throw saved.error??new Error(saved.message??'蓝图子节点保存失败')}
+    this.#childReceiptState='accepted'
+    await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+    const confirmed=this.view.rows.find(row=>this.view.getPkKey(row)===id&&row['SysId']===this.#projectId&&row['prowid']===parentNodeId)
+    if(!confirmed||Object.entries(expected).some(([field,value])=>!sameWireValue(confirmed[field],value)))throw new Error('蓝图子节点保存后未通过 DataView 正式回读')
+    this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined
+    return id
+  }
+
+  private async clearPendingChildCreate(id:string|number):Promise<void>{
+    if(this.view.rows.some(row=>this.view.getPkKey(row)===id&&this.view.dirtyTracking.hasPendingChanges(id)))await this.view.removeRow(id)
+    this.#unconfirmedIds=this.#unconfirmedIds.filter(item=>item!==id)
+    this.#unconfirmedPatches.delete(id)
+    if(this.#unconfirmedChildId===id){this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined}
+  }
 
   /** Read the selected editable node as a permission-filtered compatibility projection. */
   public nodeData(): BlueprintNodeFormData {

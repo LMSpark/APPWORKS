@@ -620,6 +620,27 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
   }
 }
 
+/** Existing single-file API adapter for the spark-data page-tool-files command owner. */
+export function createPageToolFilesIo(projectId:string){
+  const appId=projectId.trim()
+  return {
+    list:async(app:string,page:string)=>{if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配');return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath:toolFilePath(appId,page)})).map(file=>file.name)},
+    read:async(app:string,page:string,name:'rule.json'|'script.js'|'style.css')=>{
+      if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})}
+      catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
+    },
+    upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
+      if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      await scenarioFileUpload.uploadTextVersion({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
+    },
+    remove:async(app:string,page:string,name:'rule.json'|'script.js'|'style.css')=>{
+      if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      await lowcodeApi.design.removeFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})
+    },
+  }
+}
+
 /** 选择低代码应用并返回平台当前性凭据；异步恢复后须先检查凭据再执行后续副作用。 */
 export async function activateLowcodeApplication(
   applicationId: string,

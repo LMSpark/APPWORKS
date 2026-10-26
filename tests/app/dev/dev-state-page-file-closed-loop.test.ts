@@ -28,6 +28,7 @@ const httpFns = vi.hoisted(() => ({
     response: { use: vi.fn() },
   },
 }))
+const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
 
 const navTreeState = vi.hoisted(() => ({
   tree: null as ProjectBlueprintTreeData | null,
@@ -114,6 +115,11 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       },
     }
   },
+  createPageToolFilesIo: (projectId:string) => ({
+    list:async(_app:string,page:string)=>[...pageFiles.files.keys()].filter(key=>key.startsWith(`${page}/`)).map(key=>key.slice(page.length+1)),
+    read:async(_app:string,page:string,name:string)=>pageFiles.files.get(`${page}/${name}`)??null,
+    upload:pageFiles.upload,remove:pageFiles.remove,
+  }),
 }))
 
 
@@ -136,7 +142,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];addAllowed?:boolean}={},unknownSave=false){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -155,7 +161,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   collect(root,'000000',0)
   const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{Base_NavigationInfo:{
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
-    columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}},
+    columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
   }}})
   let allPagesRequested=false
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
@@ -171,11 +177,13 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
       : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
     readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)&&!hiddenFields.has(field)?'visible' as const:'invisible' as const,
     addActionState:()=>(access.addAllowed?'enabled':'disabled') as 'enabled'|'disabled',editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
-    createChildActionState:()=>'disabled' as const,viewActionState:()=>'enabled' as const,
+    createChildActionState:()=>(access.childAllowed?'enabled':'disabled') as 'enabled'|'disabled',viewActionState:()=>'enabled' as const,
   })
   type SaveCommand=Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0]
   let unknownReceipt=false
+  let knownFailurePending=knownSaveFailure
   const save=vi.fn(async(command:SaveCommand)=>{
+    if(knownFailurePending){knownFailurePending=false;throw new Error('explicit save rejection')}
     const loseReceipt=unknownSave&&!unknownReceipt
     const receipts=command.changes.map(change=>{
     const added=[...(change.changes.added??[])]
@@ -246,6 +254,7 @@ describe('DevState 页面文件闭环', () => {
   beforeEach(() => {
     isolateAppProjectWorkspaceForTest()
     vi.clearAllMocks()
+    pageFiles.files.clear()
     httpFns.requestFull.mockImplementation(requestFullFromGet)
     httpFns.clearCache.mockImplementation(() => undefined)
     httpFns.interceptors.request.use.mockImplementation(() => () => undefined)
@@ -301,6 +310,131 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.save).not.toHaveBeenCalled()
       expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('不允许新增字段 name')
     } finally {ownerScope.stop()}
+  })
+
+  it('子节点父级 c 权限拒绝时在文件或蓝图写入前失败',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:false})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!
+      await state.addChildNode(parent)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(httpFns.post).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('不允许在所选父节点下新增'))).toBe(true)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子节点候选字段写权限拒绝时不创建页面文件或导航行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,readonlyFields:['name']})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.addChildNode(state.treeData.value[0]!)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('不允许新增字段 name'))).toBe(true)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子节点候选 DataTable validator 拒绝时不创建页面文件或导航行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,requiredFields:['funCode']})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.addChildNode(state.treeData.value[0]!)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('funCode'))).toBe(true)
+    }finally{ownerScope.stop()}
+  })
+
+  it('获准的子节点经同一文件命令 DataView 与导航 DataView 保存，不调用 mounted-page gateway',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!
+      await state.addChildNode(parent)
+      expect(state.statusMessages.value.map(item=>item.text).join('\n')).toContain('已在')
+      await vi.waitFor(()=>expect(fixture.save).toHaveBeenCalledTimes(1))
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect([...pageFiles.files.keys()]).toHaveLength(3)
+      const added=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added
+      expect(added).toHaveLength(1)
+      expect(added?.[0]).toMatchObject({SysId:'APP-A',prowid:parent.nodeId,NavigationUrl:expect.stringMatching(/^cfg:/)})
+      expect(httpFns.post).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('导航子行回执未知时只恢复专属 child ID，不重建文件或重复新增行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!
+      await state.addChildNode(parent)
+      expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(true)
+      const firstId=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(firstId).toBeTruthy()
+      await state.addChildNode(parent)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.[0]?.['rowid']).toBe(firstId)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']===parent.nodeId)).toHaveLength(1)
+      expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子行已确认保存但刷新回读失败后只刷新原ID，不再次保存',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      const refresh=owner.view.refresh.bind(owner.view)
+      vi.spyOn(owner.view,'refresh').mockRejectedValueOnce(Error('readback refresh failed')).mockImplementation(refresh)
+      await state.addChildNode(parent)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      const id=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(id).toBeTruthy()
+      await state.addChildNode(parent)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['rowid']===id)).toHaveLength(1)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect([...pageFiles.files.keys()]).toHaveLength(3)
+      expect(pageFiles.remove).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('导航写入明确拒绝后清理子行与文件，重试重新创建完整资源链',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},false,true)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!
+      await state.addChildNode(parent)
+      expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(false)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']===parent.nodeId)).toHaveLength(0)
+      expect([...pageFiles.files.keys()]).toHaveLength(0)
+      expect(pageFiles.remove).toHaveBeenCalledTimes(3)
+      await state.addChildNode(parent)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(6)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']===parent.nodeId)).toHaveLength(1)
+      expect(state.statusMessages.value.some(item=>item.text.includes('已在'))).toBe(true)
+    }finally{ownerScope.stop()}
   })
 
   it('根模块新增回执未知时沿原新增 ID 核验，不创建第二根行',async()=>{

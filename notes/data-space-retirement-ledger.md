@@ -1910,3 +1910,12 @@ flowchart TD
 - **Ruling：**撤下本轮未测的子节点半实现；不把旧 `createMountedPage` 当成可接受的第二写通道，也不单独落库导航行。待 SPARK data 正式承接页面文件资源身份、创建/删除、回执和补偿语义后，再在同一用户操作中由 DataView 提交导航行，并验证两项真实资源结果。父行 `c` 权限解析能力已存在，权限不足以弥补文件资源合同缺失。
 - 自动化验证未因这次只读合同复核重跑；无代码或正式模型/业务数据变化。当前 Windows 应用清单没有浏览器窗口，无法核验部署服务是否实际返回 `c`，也未执行写烟测。没有修改、启动或部署 Java。
 - **状态：**子节点新增仍开放，明确 blocker 是文件资源创建/删除的 SPARK data 资源合同；根级新增 DataView 改动已在前一提交。叶节点删除仍受查询行集合完整权限合同限制；物理目录预览及 workflow 文件目录/内容读取仍属已登记逃逸项；全仓数据链收敛目标继续 active。
+
+### 2026-10-27 蓝图子节点新增 DataView 闭环
+
+- 正式权限链核对：`DataPermissionSets.c` 是父行级子项新增许可；`data-space-permission.ts` 仅在服务端明确返回 `c: true` 时映射允许，`DataSpaceQueryContext.createChildActionState(rowKey)` 按本次查询的父行权限返回状态，`DataView.createChildActionState(parentRow)` 负责消费。缺少或非 true 均拒绝；它与根行 `allowAdd` 分离。未改后端 Java。
+- 将子节点新增改为同一运行 DataSet 内的两个资源 DataView：页面工具文件命令视图通过 `DataSet.saveChanges` 调用既有文件存储适配器，`Base_NavigationInfo` DataView 通过 `DataSet.saveChanges` 限定新增行。创建前先检查父行 `c`、全部导航字段输出/新行写权限及 DataTable validator；权限或校验拒绝时无文件和导航写入。数据库导航记录与三个页面配置文件是两个资源提交，不宣称跨资源事务。
+- 已知导航保存拒绝时清除本次未接纳的 DataView 新行并补偿仅匹配默认文本的文件；未知文件/导航回执保留原命令身份和页面/行 ID，后续沿原命令核验，不重放已接纳写入；若导航回执已接受但 refresh/readback 失败，恢复只读回原行，不再保存。重新打开/切换旧 owner 的生命周期保持在 DevState 内；保存 All 在命令回执待核验时失败关闭。
+- 自动化验收：`pnpm exec vitest run tests/app/dev/page-tool-files-command.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts` **2 files / 35 tests passed**，覆盖父行 `c` 拒绝、字段写权限拒绝、validator 拒绝、获准新增、文件命令未知回执、导航未知/已接受回执、明确失败补偿和重试。`pnpm run typecheck`、改动文件 ESLint、完整 `pnpm run verify:rules`、`pnpm run build`、`git diff --check` 均通过。AI model spec 扫描保留 2 条既有 warning；build 有第三方注解、动态导入及 chunk size warning，构建成功。
+- **真实 SPA 烟测未完成：**本轮打开的本地 IAB 标签被重定向到未登录的平台首页。computer-use 技能不允许自动填写认证表单；未能复用已认证会话，因此没有线上 `c` 查询响应、文件创建或导航保存回执证据，不以自动化夹具替代真实验收。未启动、修改或部署 Java，也未写线上数据。
+- **状态：**客户端子节点创建路径及自动化闭环完成，服务端实际是否在当前部署查询中返回每个父行的 `c`、以及真实 SPA 保存回读仍待认证会话烟测。本项提交后继续维护唯一台账；叶节点删除、树查询行集合权限完整性、物理表预览和 workflow 文件读链等既有开放项不变，整体统一数据架构目标继续 active。

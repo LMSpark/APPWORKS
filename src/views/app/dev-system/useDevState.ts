@@ -37,11 +37,12 @@ import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import type {DataView} from '@spark-appworks/spark-data'
 import type {DataSet} from '@spark-appworks/spark-data'
-import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi, readLowcodePrincipal, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
+import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 
 const {
   isConfigFilesPageSurface,
@@ -149,6 +150,7 @@ export function useDevState() {
   const externalDataViewSessions = new Set<ExternalDataViewSession>()
   const blueprintWorkspaceDataView = shallowRef<BlueprintWorkspaceDataView>()
   let blueprintWorkspaceDataSet: DataSet | undefined
+  let pageToolFilesDataView:PageToolFilesDataView|undefined
   let blueprintWorkspaceLoad: Promise<BlueprintWorkspaceDataView> | undefined
   let blueprintWorkspaceLoadRevision=0
   let unregisterBlueprintWorkspaceSession:(()=>void)|undefined
@@ -156,6 +158,7 @@ export function useDevState() {
     blueprintWorkspaceLoadRevision++
     unregisterBlueprintWorkspaceSession?.();unregisterBlueprintWorkspaceSession=undefined
     blueprintWorkspaceDataView.value?.dispose();blueprintWorkspaceDataView.value=undefined
+    pageToolFilesDataView=undefined
     blueprintWorkspaceDataSet?.destroy();blueprintWorkspaceDataSet=undefined
     blueprintWorkspaceLoad=undefined
     externalDataViewRevision.value++
@@ -171,8 +174,14 @@ export function useDevState() {
       const session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>{
         if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已失效')
       })
+      pageToolFilesDataView=new PageToolFilesDataView(dataSet,projectKey,createPageToolFilesIo(projectKey),()=>{
+        if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('page-tool-files scope 已失效')
+      })
+      const fileOwner=pageToolFilesDataView
       blueprintWorkspaceDataSet=dataSet;blueprintWorkspaceDataView.value=session
-      const external:ExternalDataViewSession={isDirty:()=>session.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave,save:async()=>{await session.save();refreshBlueprintTreeProjection()},
+      const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
+        if(fileOwner.dirty||fileOwner.hasUnconfirmedSave)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
+        await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
         moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection}
       unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
       return session
@@ -1290,14 +1299,35 @@ export function useDevState() {
   }
 
   async function addChildNode(parent: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
-    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点', 'warning'); return}
-    const pageId = normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
     try {
-      await editor.createMountedPage({
-        pageId,
-        parentId: parent.nodeId,
-        rollbackPageOnBlueprintFailure: true,
-      })
+      const session=await loadBlueprintWorkspaceDataView()
+      if(session.hasPendingChildCreate){await session.addChildNode(parent.nodeId,{});refreshBlueprintTreeProjection();externalDataViewRevision.value++;await syncRuntimeNavigationIfDefaultProject();addStatus('已核验子节点保存回执','success');return}
+      const fileOwner=pageToolFilesDataView
+      if(!fileOwner)throw new Error('page-tool-files DataView owner missing')
+      const pendingFileCommand=fileOwner.pendingCommandForParent(parent.nodeId)
+      const pendingOwnFileCommand=pendingFileCommand!==undefined
+      if(session.dirty||hasExternalDataViewChanges()&&!pendingOwnFileCommand){addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点','warning');return}
+      if(pendingFileCommand?.action==='compensate'){
+        await fileOwner.compensateCreate(pendingFileCommand.pageId,parent.nodeId)
+        addStatus('已核验并完成原页面文件补偿；可重新执行新增子节点','warning');return
+      }
+      const pageId=pendingFileCommand?.pageId??normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
+      const childInput={name:'新页面',funCode:'',FunName:'新页面',memo:'',htmlDesc:'',conType:'Navitem',conid:'',NavigationUrl:`cfg:${pageId}`,VersionId:'',
+        DifficultyFactor:'0',Manhour:'0',Number:'0',Sum:'0',Total:'0',personCharge:'',status:'',FunOrderValue:'0',NavigationImageWxz:'Document',MobileUrl:'',
+        IsShowAtNav:'1',NavigationType:'',IsShowChildItem:'1',BeginGroup:'0',NavigationShowType:'',ChildItemLocation:'Left',HorizontalAlignment:''}
+      let recoveredFilePageId=''
+      if(pendingOwnFileCommand&&fileOwner.hasUnconfirmedSave){
+        recoveredFilePageId=await fileOwner.create(parent.nodeId,pageId)
+        await assertRecoveredChildPermission({parentId:parent.nodeId,pageId:recoveredFilePageId,assertParent:()=>session.preflightChildNode(parent.nodeId,childInput),compensate:(targetPageId,parentId)=>fileOwner.compensateCreate(targetPageId,parentId)})
+      }else{
+        session.preflightChildNode(parent.nodeId,childInput)
+        if(pendingOwnFileCommand)recoveredFilePageId=await fileOwner.create(parent.nodeId,pageId)
+      }
+      await createChildPageWithFiles({parentId:parent.nodeId,assertParent:()=>session.preflightChildNode(parent.nodeId,childInput),
+        createFiles:async parentId=>recoveredFilePageId||await fileOwner.create(parentId,pageId),
+        addNode:async()=>{await session.addChildNode(parent.nodeId,childInput)},
+        isNodeReceiptUnknown:()=>session.hasPendingChildCreate,compensate:(childPageId,parentId)=>fileOwner.compensateCreate(childPageId,parentId)})
+      refreshBlueprintTreeProjection();externalDataViewRevision.value++
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`已在 ${parent.navigation?.title ?? parent.capability.name} 下添加子节点`, 'info')
     } catch (e) {

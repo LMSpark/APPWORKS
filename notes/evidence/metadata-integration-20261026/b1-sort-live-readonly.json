@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-26",
+  "scope": "read-only SPA query and sort smoke",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "page": "data-dictionary-list-page",
+  "dictionary": {
+    "name": "B1Sort_20261024_1925F4C2",
+    "id": "327D74EC0ABC4196AA75C56D944B8201"
+  },
+  "dataView": {
+    "key": "69B79AB779DF4C12A5595DACDF3283F1@_Base_DictData@default",
+    "dataSpaceId": "69B79AB779DF4C12A5595DACDF3283F1",
+    "modelName": "_Base_DictData",
+    "viewName": "default"
+  },
+  "initialQuery": {
+    "transportObserved": "POST /api/DataOperation/GetData through the bound SPARK data DataView",
+    "httpStatus": 200,
+    "envelopeCode": 200,
+    "count": 7,
+    "sort": [
+      { "field": "rowid", "direction": "ascending" },
+      { "field": "ordIdx", "direction": "ascending" }
+    ],
+    "items": [
+      { "val": "B1AI_0003_P", "ordIdx": 0 },
+      { "val": "B1AI_0003_Q", "ordIdx": 0 },
+      { "val": "A", "ordIdx": 1 },
+      { "val": "B", "ordIdx": 2 },
+      { "val": "C", "ordIdx": 3 },
+      { "val": "G4S_20261025_F721_A", "ordIdx": 4 },
+      { "val": "G4S_20261025_F721_B", "ordIdx": 5 }
+    ]
+  },
+  "headerSort": {
+    "observedDirections": ["descending", null, "descending", "ascending"],
+    "ascendingRequest": {
+      "httpStatus": 200,
+      "envelopeCode": 200,
+      "count": 7,
+      "sort": [{ "field": "val", "direction": "ascending" }],
+      "renderedValOrder": [
+        "A",
+        "B",
+        "B1AI_0003_P",
+        "B1AI_0003_Q",
+        "C",
+        "G4S_20261025_F721_A",
+        "G4S_20261025_F721_B"
+      ],
+      "responseMatchesRenderedOrder": true
+    }
+  },
+  "toolbar": {
+    "component": "RendererTable",
+    "actionsProvidedThrough": "toolbar.children",
+    "setDisplayedOrderButtonIsAStandardToolbarChild": true
+  },
+  "mutations": {
+    "selectionOnly": true,
+    "sortStateWasQueryOnly": true,
+    "setDisplayedOrderClicked": false,
+    "saveClicked": false,
+    "businessDataWritten": false,
+    "workspaceClosedCleanly": true
+  },
+  "limitations": [
+    "This verifies live read/sort query parameters and response/render order, not persisted displayed-order save/reopen."
+  ]
+}

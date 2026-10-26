@@ -1672,5 +1672,13 @@ flowchart TD
 - 已登录 SPA 真实只读 smoke：复用本地 `http://127.0.0.1:5273` 中 D99A 元数据应用，在修复后的热更新页面成功进入原“数据字典”正式路由；列表显示 `Total 350`，其中此前保留的 `B1Sort_20261024_1925F4C2` 专用字典可见。页面源码沿 `LowcodeDictionary.loadCatalog → PageRuntime → DataSet.getView('_Base_DictType','default')` 绑定正式 DataView；本次未保存、删除或改写任何业务/配置记录。该 smoke 证明目标应用启动及目录只读显示，不代替 TableAndView alias 实际点击、B1 排序关闭重开、其他数据库命令回执或跨页面写入验收。
 - 随后只读打开该 B1 字典的数据维护视图，正式 ID `327D74EC0ABC4196AA75C56D944B8201`，发现当前已有7条测试行：排序验收 A/B/C、AI 持久化 P/Q、通用录入保存 A/B。当前字典数据不是早期三条的隔离集合。表头按“编码”操作后，当前行序未形成明确可复核的编码升序；未触发“设置排序”或“保存数据”，关闭工作区且未改写任何条目。既有三行排序保存/关闭重开成功记录仍见本台账及 `notes/evidence/metadata-integration-20261024/b1-sort-live-acceptance.md`；本次混合七行观察不覆盖或冒充该历史验收，后续若需重测应另用专用隔离数据集，并先查清当前排序结果。
 - **Ruling：不在当前含7条不同 smoke 目的记录的字典上再次执行批量重排。** 这是已保留的共享测试资源，且当前表头读回未形成清楚可核的升序；写入可能重排此前 AI 验收数据，无法单独证明三条 B1 目标。代价是当前构建的完整排序持久化仍未通过一次干净的真实 SPA 重测，现有历史三行验收不能替代当前版本复验。
-- 本轮没有 Java 源码修改/启动/部署，没有直接拼 SPARK API 或绕过 SPARK data。`verify:rules` 的 AI model spec 扫描保留既有 2 warnings / 1 info；未扩大修复范围。正式生成器产生 18 个 ClassModel 文件的派生改动，包含新增导航节点参数以及工具链投影/时间戳变化，全部保留为生成结果待提交。
+- 本轮没有 Java 源码修改/启动/部署，没有直接拼 SPARK API 或绕过 SPARK data。`verify:rules` 的 AI model spec 扫描保留既有 2 warnings / 1 info；未扩大修复范围。正式生成器产生的 ClassModel 派生改动随当时实现提交；本条末尾的状态为准，不再将其记作待提交。
 - **状态：D99A 元数据应用启动阻塞已由代码、自动化与只读 SPA 确认修复；本批代码、正式 ClassModel 生成结果与本条台账已提交本地分支，未推送。真实数据库 alias UI 点击、混合七行字典的排序复测、数据库登记/删除/连接测试服务合同、AI 服务端 system prompt 消费及更广条目唯一性仍开放；总体整合继续 implementing。**
+
+## 2026-10-26 数据资产管理旧路径映射自诊断续记
+
+- 静态核对旧节点 `BD30E16E34BC2393D9C520C9DF0AE8AA`：仓内除本台账和历史烟测记录外，没有其蓝图/节点原始配置副本，也没有 `/DataCenter/ServerManagerment.html` 的正式页面绑定声明。`vue-pages.json` 有隐藏的 `service-management-page`，标题为“服务器管理”，描述为 Metadata 项目的 lowcode 数据库服务器管理入口；它是语义上唯一可疑候选，但没有证据证明它就是该外部应用节点的正式 target，因此不能据路径名称直接改绑。
+- 继续诊断后确认本地 SPA 登录态已经恢复。只读进入“数据资产管理”应用时，顶部显示 app `00BE6ED455CD4BD7B785C61A12A1E67D`，正文仍报“无法确定系统页面：原页面身份已失效，请从导航菜单重新选择”；其导航菜单未提供可选项。对该应用卡片只读打开“设置”入口返回提示“设置需要 lowcode 治理写入合同；当前只读接入不会调用旧 AppWorks 后端”，未打开/改动配置。因此 `/DataCenter/ServerManagerment.html` 仍不能与 `service-management-page` 绑定为同一正式身份；“服务器管理”仅为语义候选，不能凭路径猜测。
+- 同一授权 SPA 会话返回 D99A 正式“数据字典”目录，只读打开 `B1Sort_20261024_1925F4C2`（ID `327D74EC0ABC4196AA75C56D944B8201`）。DataView 初始查询经 `POST /api/DataOperation/GetData` 返回 HTTP/envelope 200、Count 7；请求明确含 `rowid ascending, ordIdx ascending`，正式回读 `ordIdx 0/0/1/2/3/4/5`。点击标准表头“编码”后，升序 DataView 请求 `val ascending`，响应值序与界面一致：A、B、B1AI_0003_P、B1AI_0003_Q、C、G4S…A、G4S…B。表头按钮中心实测首击为 descending，下一次清除排序；通过升序图标执行升序，区分了操作命中区域与排序实现。未点击“设置排序”或“保存数据”；只改临时查询排序状态，关闭工作区且未写入业务数据。证据见 `notes/evidence/metadata-integration-20261026/b1-sort-live-readonly.json`。
+- 组件合同复核：`RendererTable` 接受 `toolbar.children` 标准按钮配置；字典页把“AI候选/新增/删除/设置排序/保存/取消”作为该 toolbar 的 children，并不是额外自制第二套工具栏。真实读取/表头排序链没有发现客户端行重排旁路；排序参数由绑定 DataView 下发并与响应顺序一致。
+- **当前状态更正**：真实 SPA 表头排序查询与返回/渲染一致已验证；B1“暂存设置排序 → 显式保存 → 同一 SPA 关闭重开正式读回”当前版本仍未实测。本次混合七行共享 smoke 字典继续不做排序写入。旧应用旧 URL 的正式导航身份仍缺部署/原始节点配置证据；不改路由映射、不访问该应用低代码治理写入口。总体整合仍在实施中。

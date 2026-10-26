@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-26）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/复核/烟测/更新台账；总体仍为 implementing。本批起点 `3497eac4a`（`docs: record B1 SPA sort acceptance`）记录了 B1 隔离字典排序的真实 SPA 闭环验收，详细请求、回执、回读与边界见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。该验收覆盖暂存、取消、显式保存、跨字典隔离及同 SPA 关闭重开，不代表完整 B1：AI 候选生成、删除引用完整性及下游消费仍开放。本批补充删除守卫七种 DataView 状态的回归用例，独立复跑 97/97 通过，仍只证明失败关闭，不证明全局引用完整。B2 目录/关系实现及目录编辑、删除、连接测试和 TableAndView alias 的代码/自动化进展见文末；数据库登记、真实部署回执与连通性、删除引用/物理完整性以及旧路径实页验收仍未收口。`/DataCenter/ServerManagerment.html` 的正式目标身份尚未确认，不按 URL 猜测映射。阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。下一项工作按最近留存的整合/B1计划和已证实缺口选择，不宣称整体完成。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
+> **当前入口（2026-10-26）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/复核/烟测/更新台账；总体仍为 implementing。本批起点 `3497eac4a`（`docs: record B1 SPA sort acceptance`）记录了 B1 隔离字典排序的真实 SPA 闭环验收，详细请求、回执、回读与边界见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。该验收覆盖暂存、取消、显式保存、跨字典隔离及同 SPA 关闭重开，不代表完整 B1：AI 候选生成、删除引用完整性及下游消费仍开放。本批补充删除守卫七种 DataView 状态的回归用例，独立复跑 97/97 通过，仍只证明失败关闭，不证明全局引用完整。B2 目录/关系实现及目录编辑、删除、连接测试和 TableAndView alias 的代码/自动化进展见文末；数据库登记、真实部署回执与连通性、删除引用/物理完整性以及旧路径实页验收仍未收口。`/DataCenter/ServerManagerment.html` 的正式目标身份尚未确认；本轮从正式应用列表进入 00BE 复现系统页身份失效，现场见 `notes/evidence/metadata-integration-20261026/data-assets-app-home-target-error.png`，不按 URL 猜测映射。阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。下一项工作按最近留存的整合/B1计划和已证实缺口选择，不宣称整体完成。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 
@@ -1698,3 +1698,9 @@ flowchart TD
 - 低价模型实施 RED 时以临时旧逻辑替身模拟“两视图 Loaded 即允许删除”：最终用例 `both-views-loaded` 失败，1 failed / 96 passed；恢复生产逻辑后 GREEN 为 97/97。日志位于忽略目录 `node_modules/.cache/b1-delete-guard/{red,green}.{log,exit}`。生产源码未改，测试为唯一代码变更。
 - 主控独立运行 `pnpm --filter @spark-appworks/spark-lowcode-api exec vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts`，97/97通过；`pnpm exec eslint packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts --max-warnings=0` 与 `git diff --check` 通过。
 - **状态：字典删除拒绝在公开 DataView 状态转换下有回归覆盖；这只证明当前本地 fail-closed 防护不因视图状态打开，不证明全局引用完整性、服务端拒绝/级联或可以安全启用删除。引用完整性继续开放，未执行业务删除或线上写入。**
+
+## 2026-10-26 数据资产管理默认页身份在线复核
+
+- 从 D99A 的用户菜单进入“应用工场主页”，在“应用列表”点击正式“数据资产管理”应用卡片的“进入应用”。当前壳层显示应用身份 `00BE6ED455CD4BD7B785C61A12A1E67D`，但首页 URL 落在 `/t/NewApp/homepage/app-list` 并显示“无法确定系统页面，原页面身份已失效，请从导航菜单重新选择”；顶部错误提示关联节点 `BD30E16E34BC2393D9C520C9DF0AE8AA` 与旧路径 `/DataCenter/ServerManagerment.html`，目标身份无法从路径推断。截图 `notes/evidence/metadata-integration-20261026/data-assets-app-home-target-error.png` 保存该现场（SHA256 `88F7815CFFDFDA6BCE1C3F523CC99A2EAD8301596671F73EBE042FB459A29573`）。
+- 通过同一应用列表官方入口返回“元数据管理”应用后，确认 D99A 正式首页为 `/features/data-platform/database-management/ui/service-management-page`，页面标题“服务器管理”，DataView 目录成功显示当前服务记录。由此能确认同名语义候选页属于 D99A 的正式页面；不能据此证明它就是 00BE 节点的原始正式目标，也不能将两个应用的路由 owner 合并。没有打开低代码治理写入口、没有改导航配置、没有业务写入或删除。
+- **状态：线上复现确认 00BE 默认页身份/target 缺失，D99A `service-management-page` 仅为语义候选。正式映射仍待原始蓝图/导航绑定证据；保持不猜路径、不改后端/配置。**

@@ -59,10 +59,17 @@ function createDataSet(options: {target?: string; versionId?: string; deniedWrit
 }
 function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   const dataSet = createDataSet(options)
-  runtime.load.mockResolvedValue(dataSet)
+  let owner: BlueprintWorkspaceDataView | undefined
   const state = {
     selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref('tool-A'), projectId: 'APP-A', addStatus: vi.fn(),
     registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(),
+    loadBlueprintWorkspaceDataView: vi.fn(async () => {
+      const current=owner??new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
+      owner=current
+      if(state.registerExternalDataViewSession.mock.calls.length===0)state.registerExternalDataViewSession({isDirty:()=>current.dirty,save:()=>current.save()})
+      return current
+    }),
+    refreshBlueprintTreeProjection: vi.fn(),
     project: { readPageFileText: vi.fn((name: string) => name === 'script.js' ? '' : `text:${name}`) },
   }
   const wrapper = mount({ ...BlueprintWorkspace, props: ['state'] }, {
@@ -184,12 +191,14 @@ describe('BlueprintWorkspace file delivery', () => {
     wrapper.unmount()
   })
 
-  it('recreates a DataView session when the node selection is cleared and restored', async () => {
+  it('reuses the DevState-owned DataView when selection clears and is restored', async () => {
     const {wrapper, state} = setup(); await flushPromises()
     state.selectedNode.value = null
     await flushPromises()
     state.selectedNode.value = {nodeId: 'node-A'}
     await flushPromises()
+    expect(state.loadBlueprintWorkspaceDataView).toHaveBeenCalledTimes(2)
+    expect(state.registerExternalDataViewSession).toHaveBeenCalledTimes(1)
     expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('DataView 未初始化'), 'error')
     expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('DataView 加载失败'), 'error')
     wrapper.unmount()

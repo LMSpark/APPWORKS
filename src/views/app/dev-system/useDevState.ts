@@ -36,8 +36,12 @@ import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shel
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import type {DataView} from '@spark-appworks/spark-data'
+import type {DataSet} from '@spark-appworks/spark-data'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { BlueprintWorkspaceDataView } from './blueprint-workspace/blueprint-workspace-dataview'
 
 const {
   isConfigFilesPageSurface,
@@ -114,7 +118,11 @@ export type DevWorkspaceTab = 'props' | 'preview' | ProjectBlueprintDomain.PageT
 /** DataView-backed page areas register the same dirty/save owner with the DevSystem shell. */
 export type ExternalDataViewSession = Readonly<{
   isDirty: () => boolean
+  hasUnconfirmedSave?: () => boolean
   save: () => Promise<void>
+  moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>
+  treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData
+  hasTreeProjection?: () => boolean
 }>
 
 // ═══════════════════════════════════════════════════════════
@@ -139,15 +147,78 @@ export function useDevState() {
   })
   const externalDataViewRevision = ref(0)
   const externalDataViewSessions = new Set<ExternalDataViewSession>()
+  const blueprintWorkspaceDataView = shallowRef<BlueprintWorkspaceDataView>()
+  let blueprintWorkspaceDataSet: DataSet | undefined
+  let blueprintWorkspaceLoad: Promise<BlueprintWorkspaceDataView> | undefined
+  let blueprintWorkspaceLoadRevision=0
+  let unregisterBlueprintWorkspaceSession:(()=>void)|undefined
+  function releaseBlueprintWorkspaceDataView():void{
+    blueprintWorkspaceLoadRevision++
+    unregisterBlueprintWorkspaceSession?.();unregisterBlueprintWorkspaceSession=undefined
+    blueprintWorkspaceDataView.value?.dispose();blueprintWorkspaceDataView.value=undefined
+    blueprintWorkspaceDataSet?.destroy();blueprintWorkspaceDataSet=undefined
+    blueprintWorkspaceLoad=undefined
+    externalDataViewRevision.value++
+  }
+  async function loadBlueprintWorkspaceDataView():Promise<BlueprintWorkspaceDataView>{
+    const projectKey=projectId.value,workspace=currentEditor.value
+    if(blueprintWorkspaceDataView.value?.projectId===projectKey)return blueprintWorkspaceDataView.value
+    if(blueprintWorkspaceLoad)return blueprintWorkspaceLoad
+    const revision=++blueprintWorkspaceLoadRevision
+    const loading=(async()=>{
+      const dataSet=await loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace){dataSet.destroy();throw new Error('蓝图 DataView 项目作用域已切换')}
+      const session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>{
+        if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已失效')
+      })
+      blueprintWorkspaceDataSet=dataSet;blueprintWorkspaceDataView.value=session
+      const external:ExternalDataViewSession={isDirty:()=>session.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave,save:async()=>{await session.save();refreshBlueprintTreeProjection()},
+        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection}
+      unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
+      return session
+    })().finally(()=>{if(blueprintWorkspaceLoad===loading)blueprintWorkspaceLoad=undefined})
+    blueprintWorkspaceLoad=loading
+    return loading
+  }
   function registerExternalDataViewSession(session: ExternalDataViewSession): () => void {
     externalDataViewSessions.add(session)
     externalDataViewRevision.value++
     return () => {externalDataViewSessions.delete(session); externalDataViewRevision.value++}
   }
   function notifyExternalDataViewChanged(): void {externalDataViewRevision.value++}
+  async function moveBlueprintNodeInDataView(nodeId: string, parentId: string | null, index: number): Promise<void> {
+    if (blueprintDirty.value) throw new Error('节点基本信息有未保存草稿，请先保存或取消后再移动树节点')
+    const owners = [...externalDataViewSessions].filter(session => session.moveBlueprintNode)
+    const owner=owners[0]
+    if (owners.length !== 1 || !owner?.moveBlueprintNode) throw new Error('BLUEPRINT_TREE_DATAVIEW_REQUIRED: 当前项目必须恰有一个树行 DataView owner')
+    await owner.moveBlueprintNode(nodeId, parentId, index)
+    refreshBlueprintTreeProjection(owner)
+    notifyExternalDataViewChanged()
+  }
+  async function loadBlueprintTreeFromDataView():Promise<ProjectBlueprintDomain.ProjectBlueprintTreeData>{
+    const scope=currentScopeKey(),workspace=currentEditor.value
+    const owner=await loadBlueprintWorkspaceDataView()
+    const tree=await owner.loadProjectTree()
+    if(currentScopeKey()!==scope||currentEditor.value!==workspace)throw new Error('蓝图 DataView 树结果所属项目已切换')
+    if(blueprintDirty.value)throw new Error('节点基本信息有未保存草稿，不能用 DataView 首载覆盖')
+    workspace.ingestBlueprintTree(tree,{selectedNodeId:workspace.project.session.session.selectedNodeId})
+    projectRevision.value=workspace.project.revision
+    blueprintTreeUnavailableScope.value=''
+    return tree
+  }
+  function refreshBlueprintTreeProjection(session?: ExternalDataViewSession): void {
+    // ingestBlueprintTree marks the ProjectBlueprint draft clean. Never let a
+    // DataView projection erase the independent node-basic-info draft.
+    if (blueprintDirty.value) return
+    const owner=session??[...externalDataViewSessions].find(candidate=>candidate.treeProjection)
+    if(!owner)throw new Error('BLUEPRINT_TREE_DATAVIEW_REQUIRED: 没有可读取树投影的 DataView owner')
+    if(!owner.treeProjection||owner.hasTreeProjection?.()===false)return
+    currentEditor.value.ingestBlueprintTree(owner.treeProjection(),{selectedNodeId:project.session.session.selectedNodeId})
+    projectRevision.value=project.revision
+  }
   function hasExternalDataViewChanges(): boolean {
     void externalDataViewRevision.value
-    return [...externalDataViewSessions].some(session => session.isDirty())
+    return [...externalDataViewSessions].some(session => session.isDirty() || session.hasUnconfirmedSave?.() === true)
   }
   const editableProjects = ref<EditableProjectOption[]>([])
   const projectOptionsLoading = ref(false)
@@ -159,6 +230,9 @@ export function useDevState() {
   const blueprintDraftRevision = ref(0)
   const projectRevision = ref(project.revision)
   const loadedBlueprintScopeKeys = new Set<string>()
+  const blueprintTreeLoadFlights = new Map<string,Promise<void>>()
+  const blueprintTreeUnavailableScope = ref('')
+  let blueprintLoadRevision=0
 
   function currentScopeKey(): string {
     return `${activeEditScope.value.tenantId}:${activeEditScope.value.projectId}`
@@ -175,6 +249,8 @@ export function useDevState() {
 
   function readBlueprintProjection() {
     void projectRevision.value
+    void blueprintTreeUnavailableScope.value
+    if(blueprintTreeUnavailableScope.value===currentScopeKey())return { tree: [], selectedNode: null, selectedNodeId: null, blueprintLocation: null, blueprintDraft: null, pageDeliveries: [] }
     return project.hasLoadedBlueprint ? project.readBlueprintProjection() : { tree: [], selectedNode: null, selectedNodeId: null, blueprintLocation: null, blueprintDraft: null, pageDeliveries: [] }
   }
 
@@ -211,6 +287,7 @@ export function useDevState() {
     onScopeDispose(() => {
       unsubscribeProjectBlueprint()
       installScenarioDocument(null)
+      releaseBlueprintWorkspaceDataView()
       cancelAutoSave()
     })
   }
@@ -274,6 +351,12 @@ export function useDevState() {
     const nextScope = normalizeEditScope(scope)
     if (sameEditScope(nextScope)) return true
 
+    if([...externalDataViewSessions].some(session=>session.hasUnconfirmedSave?.())){
+      addStatus('DataView 保存回执仍未确认，先核验原目标后才能切换项目', 'warning')
+      projectPicker.tenantId=tenantId.value;projectPicker.projectId=projectId.value
+      return false
+    }
+
     if ((project.readDirtyProjection().hasAnyDirty || editor.dirtyScenarioIds.length > 0 || hasExternalDataViewChanges()) && options.force !== true) {
       addStatus('当前项目模型还有未保存改动，请先保存后再切换编辑项目', 'warning')
       projectPicker.tenantId = tenantId.value
@@ -282,6 +365,10 @@ export function useDevState() {
     }
 
     cancelAutoSave()
+    blueprintLoadRevision++
+    blueprintTreeLoadFlights.clear()
+    releaseBlueprintWorkspaceDataView()
+    loadedBlueprintScopeKeys.clear()
     activeEditScope.value = nextScope
     projectPicker.tenantId = nextScope.tenantId
     projectPicker.projectId = nextScope.projectId
@@ -805,27 +892,38 @@ export function useDevState() {
   async function ensureCurrentProjectBlueprintLoaded(): Promise<void> {
     const scopeKey = currentScopeKey()
     if (loadedBlueprintScopeKeys.has(scopeKey)) return
-    if (project.hasLoadedBlueprint) {
+    const current=blueprintTreeLoadFlights.get(scopeKey)
+    if(current){await current;return}
+    const loading=(async()=>{
+      await loadBlueprintTreeFromDataView()
+      if(currentScopeKey()!==scopeKey)throw new Error('蓝图 DataView 树首载项目作用域已切换')
       loadedBlueprintScopeKeys.add(scopeKey)
-      return
-    }
-
-    await editor.loadBlueprint()
-    loadedBlueprintScopeKeys.add(scopeKey)
+    })()
+    blueprintTreeLoadFlights.set(scopeKey,loading)
+    try{await loading}finally{if(blueprintTreeLoadFlights.get(scopeKey)===loading)blueprintTreeLoadFlights.delete(scopeKey)}
   }
 
   async function loadBlueprint(options?: { preserveSelectedNodeId?: string | null; preserveActivePageId?: string | null }): Promise<void> {
+    const loadingScope=currentScopeKey()
+    const revision=++blueprintLoadRevision
     const preservedSelectedNodeId = options?.preserveSelectedNodeId ?? selectedNode.value?.nodeId ?? null
     const preservedActivePageId = options?.preserveActivePageId?.trim() ?? ''
+    blueprintTreeUnavailableScope.value=loadingScope
     blueprintLoading.value = true
     try {
       await ensureCurrentProjectBlueprintLoaded()
+      if(revision!==blueprintLoadRevision||currentScopeKey()!==loadingScope)return
+      blueprintTreeUnavailableScope.value=''
       refreshBlueprintDraftBindings()
       addStatus(`项目 ${tenantId.value}/${projectId.value} 蓝图已就绪`, 'success')
     } catch (error) {
-      addStatus(`项目蓝图加载失败: ${String(error)}`, 'error')
+      if(revision===blueprintLoadRevision&&currentScopeKey()===loadingScope){
+        blueprintTreeUnavailableScope.value=loadingScope
+        addStatus(`项目蓝图加载失败: ${String(error)}`, 'error')
+      }
+      return
     } finally {
-      blueprintLoading.value = false
+      if(revision===blueprintLoadRevision)blueprintLoading.value = false
     }
 
     const snapTree = readBlueprintProjection().tree
@@ -921,11 +1019,13 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function saveNodeChanges(): Promise<boolean> {
+    if (hasExternalDataViewChanges()) {
+      addStatus('蓝图树 DataView 有未保存修改，请先保存或取消后再保存节点基本信息', 'warning')
+      return false
+    }
     applyNavChanges()
     if (!selectedNode.value) return false
     const node = selectedNode.value
-
-
     blueprintSaving.value = true
     try {
       project.selectNode(node.nodeId)
@@ -987,6 +1087,10 @@ export function useDevState() {
 
   async function saveAll(): Promise<void> {
     if (allSaving.value || pageIoBusy.value || blueprintSaving.value) return
+    if (blueprintDirty.value && hasExternalDataViewChanges()) {
+      addStatus('节点基本信息与树行 DataView 同时存在未保存修改；请分别保存或取消，避免交叉覆盖', 'warning')
+      return
+    }
     const workspace = currentEditor.value, scope = currentScopeKey()
     const assertCurrent = () => {if (currentEditor.value !== workspace || currentScopeKey() !== scope) throw new Error('保存期间工作区已切换')}
     let stage = '蓝图属性'
@@ -1090,6 +1194,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function addRootNode(): void {
+    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点', 'warning'); return}
     const node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData = { nodeId: crypto.randomUUID(), parentNodeId: project.rootNode?.id ?? '', projectId: projectId.value, kind: 'module', capability: {name: '新模块'}, navigation: {title:'新模块',icon:'FolderOpened',order:0,placement:'left',publishInMenu:true,showChildren:true,beginGroup:false},source:{},children:[] }
     void editor.addBlueprintNode({ node }).then(
       async () => {
@@ -1104,6 +1209,7 @@ export function useDevState() {
   }
 
   async function addChildNode(parent: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
+    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点', 'warning'); return}
     const pageId = normalizePageIdFromPath(`/child-${crypto.randomUUID().slice(0, 8)}`)
     try {
       await editor.createMountedPage({
@@ -1119,6 +1225,7 @@ export function useDevState() {
   }
 
   function removeNodeFromTree(_node: { parent: { data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): void {
+    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再删除节点', 'warning'); return}
 
     const pageId = resolvePageNodePageId(data)
     const shouldRemoveMountedPage = pageId.length > 0 && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(data))
@@ -1148,12 +1255,10 @@ export function useDevState() {
     if (!location) return
     blueprintSaving.value = true
     try {
-      await editor.moveMountedPage(data.nodeId, location.parentId, location.index)
-      await syncRuntimeNavigationIfDefaultProject()
-      addStatus(`节点 ${data.navigation?.title ?? data.capability.name} 已移动`, 'success')
+      await moveBlueprintNodeInDataView(data.nodeId, location.parentId, location.index)
+      addStatus(`节点 ${data.navigation?.title ?? data.capability.name} 已在 Base_NavigationInfo DataView 暂存；显式保存后生效`, 'info')
     } catch (e) {
       addStatus(`节点移动失败: ${String(e)}`, 'error')
-      await loadBlueprint({ preserveSelectedNodeId: data.nodeId, preserveActivePageId: activePageId.value })
     } finally {
       blueprintSaving.value = false
     }
@@ -1235,6 +1340,11 @@ export function useDevState() {
     hasAnyDirty,
     registerExternalDataViewSession,
     notifyExternalDataViewChanged,
+    moveBlueprintNodeInDataView,
+    loadBlueprintTreeFromDataView,
+    refreshBlueprintTreeProjection,
+    blueprintWorkspaceDataView,
+    loadBlueprintWorkspaceDataView,
 
     editor,
     project,

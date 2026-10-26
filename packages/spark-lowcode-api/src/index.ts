@@ -60,6 +60,7 @@ export { PermissionRuntimeApi } from './platform/permission/runtime/permission-r
 export type { PermissionRuntimeSnapshot } from './platform/permission/runtime/permission-runtime-api.js'
 export { PERMISSION_DESIGN_FORM_KEY } from './platform/permission/permission-wire.js'
 export { LowcodeProjectBlueprintApi } from './platform/project-blueprint/project-blueprint-api.js'
+export { normalizeLowcodeProjectBlueprintRecords, lowcodeProjectBlueprintFields } from './platform/project-blueprint/project-blueprint-wire.js'
 export {
   createLowcodeProjectBlueprintRecord,
   validateLowcodeProjectBlueprintRecords,

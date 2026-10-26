@@ -5,14 +5,16 @@ import { defineComponent, h, markRaw, ref } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it } from 'vitest'
 import { registerAllRenderers, Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
+import { RequestState } from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
-import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType } from '@spark-appworks/spark-project-model'
+import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType, type ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
 import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
 import { createPageComponentRegistry } from '../../../../packages/spark-component/src/page/context/page-component-registry'
 import { buildPageContext } from '../../../../packages/spark-component/src/page/context/buildPageContext'
 import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
 import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import { BlueprintWorkspaceDataView } from '../../../../src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 
 const pageId = 'data-space-catalog'
 const scenarioId = '90A82E287930A234FEC3E687C94A93EA'
@@ -79,7 +81,9 @@ function formalModels(): FormalModel[] {
       { id: 'nav-sysid', name: 'SysId', type: 'varchar', primaryKey: false },
       { id: 'nav-conid', name: 'conid', type: 'varchar', primaryKey: false },
       { id: 'nav-prowid', name: 'prowid', type: 'varchar', primaryKey: false },
+      { id: 'nav-order', name: 'FunOrderValue', type: 'number', primaryKey: false },
       { id: 'nav-funname', name: 'FunName', type: 'varchar', primaryKey: false },
+      { id: 'nav-funcode', name: 'funCode', type: 'varchar', primaryKey: false },
       { id: 'nav-name', name: 'name', type: 'varchar', primaryKey: false },
       { id: 'nav-url', name: 'NavigationUrl', type: 'varchar', primaryKey: false },
     ] }),
@@ -148,14 +152,17 @@ class CatalogFixtureHttpClient extends HttpClientBase {
   public applicationQueryStarted?: () => void
   public navigationHiddenFields: string[] = []
   public navigationMaskedFields: string[] = []
+  public navigationEditableFields: string[] = []
+  public navigationEditableFieldsByRow: Record<string, string[]> = {}
   public navigationRows: Record<string, unknown>[] = [
     { rowid: 'NAV-ROOT', SysId: 'APP-1', conid: null, prowid: '000000', FunName: '元数据管理', name: '', NavigationUrl: '' },
     { rowid: 'NAV-GROUP', SysId: 'APP-1', conid: null, prowid: 'NAV-ROOT', FunName: '', name: '目录配置', NavigationUrl: null },
-    { rowid: 'NAV-BOUND', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-GROUP', FunName: '数据空间管理', name: 'DataSetManage',
+    { rowid: 'NAV-BOUND', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-GROUP', FunName: '数据空间管理', funCode: 'DATA-SPACE-MANAGE', name: 'DataSetManage',
       NavigationUrl: 'vue:/features/data-platform/data-set-management/ui/data-set-list-page' },
     { rowid: 'NAV-BOUND-2', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-ROOT', FunName: '服务管理', name: '', NavigationUrl: null },
     { rowid: 'NAV-OTHER', SysId: 'APP-1', conid: 'DATASET-OTHER', prowid: 'NAV-ROOT', FunName: '其它功能', name: '', NavigationUrl: '' },
   ]
+  public projectNavigationOutputFields = false
   public navigationQueryGate?: Promise<void>
   public navigationQueryStarted?: () => void
   public omitNavigationSecondPage = false
@@ -176,6 +183,12 @@ class CatalogFixtureHttpClient extends HttpClientBase {
       this.savedRows.push(...added)
       this.changedRows.push(...changed)
       this.deletedRows.push(...deleted)
+      if (model['TableName'] === 'Base_NavigationInfo') {
+        for (const patch of changed) {
+          const target = this.navigationRows.find(row => String(row['rowid']) === String(patch['rowid']))
+          if (target) Object.assign(target, patch)
+        }
+      }
       if (this.failSave) throw new Error('fixture connection lost after save dispatch')
       return { data: { Code: 200, Result: {
         ...(added.length ? { maplistadd: [{ physical: added.map(row => ({ ...row })) }] } : {}),
@@ -199,17 +212,26 @@ class CatalogFixtureHttpClient extends HttpClientBase {
       await this.navigationQueryGate
       const filter = recordAt(first['Filter'], 'blueprint navigation filter')
       const filterValue = recordValue(recordValue(filter, 'ValueFun'), 'Value')
+      const filterField = String(filter['Field'] ?? '')
+      const filterOperator = String(filter['Operator'] ?? '')
       const filteredRows = this.navigationResponseRows
         ? [...this.navigationResponseRows]
-        : this.navigationRows.filter(row => String(row['SysId'] ?? '') === String(filterValue ?? ''))
+        : this.navigationRows.filter(row => filterField.toLowerCase() === 'rowid' && filterOperator.toLowerCase() === 'in'
+          ? Array.isArray(filterValue) && filterValue.map(String).includes(String(row['rowid']))
+          : String(row['SysId'] ?? '') === String(filterValue ?? ''))
       const page = recordValue(payload, 'PageParam')
       let rows = isRecord(page) && typeof page['index'] === 'number' && typeof page['size'] === 'number'
         ? filteredRows.slice((page['index'] - 1) * page['size'], page['index'] * page['size']) : [...filteredRows]
       if (this.omitNavigationSecondPage && isRecord(page) && page['index'] === 2) rows = []
+      if (this.projectNavigationOutputFields && Array.isArray(first['Fields'])) {
+        const fields=first['Fields'].filter(isRecord).filter(field=>field['IsOutput']!==false).map(field=>String(field['Name']??''))
+        rows=rows.map(row=>Object.fromEntries(Object.entries(row).filter(([name])=>fields.includes(name))))
+      }
       return { data: { Code: 200, Result: { primaryKeyField: this.navigationPrimaryKeyField, allowAdd: false,
         data: { Items: rows.map(row => ({ ...row, lingma_sys_key: row['rowid'] === 'NAV-BOUND'
           ? this.navigationKeyOverride ?? row['rowid'] : row['rowid'],
-          lingma_sys_params: { r: [], e: [], h: this.navigationHiddenFields, m: this.navigationMaskedFields, d: false } })),
+          lingma_sys_params: { r: [], e: this.navigationEditableFieldsByRow[String(row['rowid'])] ?? this.navigationEditableFields,
+            h: this.navigationHiddenFields, m: this.navigationMaskedFields, d: false } })),
           ...(this.omitNavigationTotal ? {} : { Count: filteredRows.length }) } } }, status: 200, statusText: 'OK', headers: {} }
     }
     if (modelName === 'Base_DataModel' || modelName === 'Base_DataModel_Field') {
@@ -490,6 +512,168 @@ const ElementDialogStub = defineComponent({
       } }, '关闭'),
     ]) : null
   },
+})
+
+describe('blueprint tree DataView move draft', () => {
+  it('preflights every affected row, rejects unauthorized siblings without partial edits, and detects descendant cycles', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {
+      http.navigationEditableFieldsByRow = {
+        'NAV-BOUND': ['prowid', 'FunOrderValue'],
+        'NAV-GROUP': ['FunOrderValue'],
+        'NAV-BOUND-2': [],
+        'NAV-OTHER': ['FunOrderValue'],
+      }
+    })
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await expect(session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)).rejects.toThrow('权限拒绝')
+    expect(session.dirty).toBe(false)
+    expect(fixture.http.saveRequests).toHaveLength(0)
+    await expect(session.moveNode('NAV-GROUP', 'NAV-BOUND', 0)).rejects.toThrow('自身后代')
+    expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('rejects a move when any returned tree row hides its parent or ordering field', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {
+      http.navigationEditableFields=['prowid','FunOrderValue'];http.navigationHiddenFields=['FunOrderValue']
+    })
+    const session=new BlueprintWorkspaceDataView(fixture.blueprintDataSet,'APP-1',()=>{})
+    await expect(session.moveNode('NAV-BOUND','NAV-ROOT',0)).rejects.toThrow('不可读取完整树结构')
+    expect(session.dirty).toBe(false);expect(fixture.http.saveRequests).toHaveLength(0)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('stages a permitted move in the DataView, supports cancel, and saves only affected ids with readback', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue']})
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)
+    expect(session.dirty).toBe(true)
+    expect(session.treeProjection().children[0]?.nodeId).toBe('NAV-BOUND')
+    expect(fixture.http.saveRequests).toHaveLength(0)
+    session.cancel()
+    expect(session.dirty).toBe(false)
+    expect(session.treeProjection().children.find(node=>node.nodeId==='NAV-GROUP')?.children?.[0]?.nodeId).toBe('NAV-BOUND')
+    await session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)
+    await session.save()
+    expect(fixture.http.saveRequests).toHaveLength(1)
+    expect(fixture.http.changedRows.map(row => row['rowid']).sort()).toEqual(['NAV-BOUND', 'NAV-BOUND-2', 'NAV-GROUP', 'NAV-OTHER'])
+    expect(fixture.http.changedRows.map(row => row['rowid'])).not.toContain('NAV-ROOT')
+    expect(fixture.http.navigationRows.find(row => row['rowid'] === 'NAV-BOUND')).toMatchObject({prowid: 'NAV-ROOT'})
+    expect(session.treeProjection().children.map(node=>node.nodeId)).toContain('NAV-BOUND')
+    expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('keeps the selected detail row when a different tree node is dragged', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue']})
+    fixture.http.navigationResponseRows = [fixture.http.navigationRows.find(row => row['rowid'] === 'NAV-BOUND')!]
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await session.load('NAV-BOUND')
+    delete fixture.http.navigationResponseRows
+    await session.moveNode('NAV-BOUND-2', 'NAV-ROOT', 0)
+    expect(session.nodeId).toBe('NAV-BOUND')
+    expect(session.row?.['rowid']).toBe('NAV-BOUND')
+    fixture.pageRuntime.dispose()
+  })
+
+  it('fences an in-flight old selection when a new selection arrives during a request', async () => {
+    const fixture = await createCatalogScriptFixture()
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    const view = session.view
+    const originalRefresh = view.refresh.bind(view)
+    let release!: () => void
+    const held = new Promise<void>(resolve => {release = resolve})
+    let signalStarted!: () => void
+    const started = new Promise<void>(resolve => {signalStarted = resolve})
+    let first = true
+    view.refresh = async () => {
+      const result = await originalRefresh()
+      if (first) {first = false; view.requestState = RequestState.Loading; signalStarted(); await held; view.requestState = RequestState.Idle}
+      return result
+    }
+    const oldLoad = session.load('NAV-BOUND')
+    await started
+    fixture.http.navigationResponseRows = [fixture.http.navigationRows.find(row => row['rowid'] === 'NAV-GROUP')!]
+    const newLoad = session.load('NAV-GROUP')
+    release()
+    await expect(oldLoad).rejects.toThrow('结果已过期')
+    await newLoad
+    expect(session.nodeId).toBe('NAV-GROUP')
+    expect(session.row?.['rowid']).toBe('NAV-GROUP')
+    fixture.pageRuntime.dispose()
+  })
+
+  it('fails closed when a returned row references a parent missing from the DataView projection', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {
+      http.navigationEditableFields = ['prowid', 'FunOrderValue']
+      http.navigationRows.push({rowid: 'NAV-ORPHAN', SysId: 'APP-1', prowid: 'NAV-MISSING', FunOrderValue: 9,
+        name: '孤儿', FunName: '孤儿', NavigationType: 1, IsShowAtNav: 1})
+    })
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await expect(session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)).rejects.toThrow('父节点闭包缺失')
+    expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('maps the synthetic tree root drop target to the formal root parent identity', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue']})
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await session.moveNode('NAV-BOUND', 'project-blueprint:APP-1', 0)
+    expect(session.view.getEditingRow('NAV-BOUND')?.['prowid']).toBe('000000')
+    expect(session.treeProjection().children.map(node => node.nodeId)).toContain('NAV-BOUND')
+    fixture.pageRuntime.dispose()
+  })
+
+  it('rejects project tree moves when the DataView total does not match the rows received', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue']})
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    const refresh = session.view.refresh.bind(session.view)
+    session.view.refresh = async () => {await refresh(); session.view.total++}
+    await expect(session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)).rejects.toThrow('总数与行数不一致')
+    expect(session.dirty).toBe(false)
+    expect(fixture.http.saveRequests).toHaveLength(0)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('relies on the formal all-pages owner to reject a missing backend total', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {
+      http.navigationEditableFields = ['prowid', 'FunOrderValue']
+      http.omitNavigationTotal = true
+    })
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await expect(session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)).rejects.toThrow('缺少后端总数')
+    expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('preserves capability code when the formal DataView exposes and authorizes funCode', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue'];http.projectNavigationOutputFields=true})
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {})
+    await session.moveNode('NAV-BOUND', 'NAV-GROUP', 0)
+    expect(session.hasOutput('funCode')).toBe(true)
+    const find=(node:ProjectBlueprintTreeNodeData):ProjectBlueprintTreeNodeData|undefined=>node.nodeId==='NAV-BOUND'?node:node.children?.map(find).find(Boolean)
+    expect(find(session.treeProjection())?.capability.code).toBe('DATA-SPACE-MANAGE')
+    fixture.pageRuntime.dispose()
+  })
+
+  it('keeps an unknown DataView receipt fenced until its original ids are read back and rejects stale project scope', async () => {
+    const fixture = await createCatalogScriptFixture({}, http => {http.navigationEditableFields = ['prowid', 'FunOrderValue']})
+    let current = true
+    const session = new BlueprintWorkspaceDataView(fixture.blueprintDataSet, 'APP-1', () => {if(!current)throw new Error('scope switched')})
+    await session.moveNode('NAV-BOUND', 'NAV-ROOT', 0)
+    fixture.http.failSave = true
+    await expect(session.save()).rejects.toThrow('connection lost')
+    expect(session.hasUnconfirmedSave).toBe(true)
+    expect(() => session.cancel()).toThrow('不能取消')
+    fixture.http.failSave = false
+    await session.save()
+    expect(session.hasUnconfirmedSave).toBe(false)
+    expect(fixture.http.saveRequests).toHaveLength(1)
+    current = false
+    await expect(session.moveNode('NAV-BOUND', 'NAV-ROOT', 1)).rejects.toThrow('scope switched')
+    expect(fixture.http.saveRequests).toHaveLength(1)
+    fixture.pageRuntime.dispose()
+  })
 })
 
 describe('data-space four-file page', () => {

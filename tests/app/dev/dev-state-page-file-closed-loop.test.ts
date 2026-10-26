@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, watchEffect } from 'vue'
+import { effectScope, nextTick, watchEffect } from 'vue'
+import { DataSet } from '@spark-appworks/spark-data'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
 import {
   createDevStateWithConfigPages,
@@ -12,6 +14,7 @@ import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@sp
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
 import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
+import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 
 const httpFns = vi.hoisted(() => ({
   get: vi.fn(),
@@ -28,6 +31,12 @@ const httpFns = vi.hoisted(() => ({
 
 const navTreeState = vi.hoisted(() => ({
   tree: null as ProjectBlueprintTreeData | null,
+}))
+const blueprintRuntime = vi.hoisted(() => ({load:vi.fn()}))
+const blueprintRuntimeTrees = new Map<string,ProjectBlueprintTreeData>()
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',async importOriginal=>({
+  ...await importOriginal<typeof import('@/lowcode/data-space/lowcode-data-space-runtime')>(),
+  loadLowcodeRuntimeScenario:blueprintRuntime.load,
 }))
 
 vi.mock('@spark-appworks/spark-app', () => ({
@@ -123,6 +132,52 @@ function pageFileResponse(url: string): Record<string, unknown> {
   return { content: '' }
 }
 
+function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
+  {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
+],projectId),nodeId:'ROOT-A'}){
+  const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
+    'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
+    'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
+  const rows:Array<Record<string,unknown>>=[]
+  const collect=(item:ProjectBlueprintTreeNodeData,parentId:string,order:number):void=>{
+    rows.push({rowid:item.nodeId,SysId:projectId,prowid:parentId,FunOrderValue:item.navigation?.order??order,
+      name:item.capability.name,FunName:item.navigation?.title??'',funCode:item.capability.code??'',conType:item.kind,
+      NavigationUrl:item.navigation?.target??'',NavigationImageWxz:item.navigation?.icon??'',MobileUrl:item.navigation?.mobileTarget??'',
+      NavigationType:item.navigation?.openMode??'',ChildItemLocation:item.navigation?.placement??'',NavigationShowType:item.navigation?.displayMode??'',
+      HorizontalAlignment:item.navigation?.horizontalAlignment??'',IsShowAtNav:item.navigation?.publishInMenu?1:0,
+      IsShowChildItem:item.navigation?.showChildren?1:0,BeginGroup:item.navigation?.beginGroup?1:0,
+      conid:item.dataSpace?.scenarioId??'',memo:item.capability.description??'',htmlDesc:item.prototype?.htmlDescription??'',VersionId:'',
+      DifficultyFactor:0,Manhour:0,Number:0,Sum:0,Total:0,personCharge:item.capability.ownerId??'',status:item.capability.deliveryStatus??''})
+    item.children?.forEach((child,index)=>collect(child,item.nodeId,index))
+  }
+  collect(root,'000000',0)
+  const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{Base_NavigationInfo:{
+    modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
+    columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}},
+  }}})
+  let allPagesRequested=false
+  const view=dataSet.getView('Base_NavigationInfo')!
+  view.bindQueryExecutor({
+    queryColumns:current=>current.columns,
+    executeQuery:async(current,params)=>{
+      allPagesRequested=params.allPages===true
+      const selected=rows.filter(row=>row['SysId']===projectId)
+      return {
+        rows:selected,total:selected.length,
+        assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
+        rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
+        fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))
+          ? {read:'visible' as const,write:'allowed' as const,component:'editable' as const,required:false,writeMode:'editable' as const}
+          : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
+        readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)?'visible' as const:'invisible' as const,
+        addActionState:()=>'disabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
+        createChildActionState:()=>'disabled' as const,viewActionState:()=>'enabled' as const,
+      }
+    },
+  })
+  return {dataSet,readAllPages:()=>allPagesRequested}
+}
+
 async function requestFullFromGet(config: { url: string }): Promise<Record<string, unknown>> {
   try {
     const data = await httpFns.get(config.url)
@@ -166,6 +221,68 @@ describe('DevState 页面文件闭环', () => {
     httpFns.clearCache.mockImplementation(() => undefined)
     httpFns.interceptors.request.use.mockImplementation(() => () => undefined)
     httpFns.interceptors.response.use.mockImplementation(() => () => undefined)
+    blueprintRuntime.load.mockReset()
+    blueprintRuntimeTrees.clear()
+    blueprintRuntime.load.mockImplementation(async ({projectId}:{projectId:string})=>createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
+  })
+
+  it('首载项目树由共享 Base_NavigationInfo DataView allPages 查询投影提供', async () => {
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope()
+    const state=ownerScope.run(()=>useDevState())!
+    try {
+      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      expect(blueprintRuntime.load).toHaveBeenCalledWith({projectId:'APP-A',scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+      expect(fixture.readAllPages()).toBe(true)
+      expect(state.blueprintWorkspaceDataView.value?.hasTreeProjection).toBe(true)
+      expect(state.project.rootNode?.id).toBe('ROOT-A')
+      expect(state.treeData.value[0]).toMatchObject({nodeId:'CHILD-A',capability:{code:'CHILD-CODE'}})
+      expect(httpFns.get).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
+  })
+
+  it('首载 DataView 失败时隐藏缓存树且不回退 ProjectWorkspace gateway', async () => {
+    const cached=getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})
+    cached.project.replaceBlueprintTree(blueprintRoot([node('STALE-NODE','缓存节点','cfg:stale','APP-A')],'APP-A'))
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    blueprintRuntime.load.mockRejectedValueOnce(new Error('fixture DataView unavailable')).mockResolvedValueOnce(fixture.dataSet)
+    const ownerScope=effectScope()
+    const state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      expect(state.treeData.value).toEqual([])
+      expect(httpFns.get).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('fixture DataView unavailable'))).toBe(true)
+      await state.loadBlueprint()
+      expect(state.treeData.value[0]).toMatchObject({nodeId:'CHILD-A',capability:{code:'CHILD-CODE'}})
+      expect(blueprintRuntime.load).toHaveBeenCalledTimes(2)
+      expect(httpFns.get).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
+  })
+
+  it('DataView dirty/unknown 回执阻断旧树写入口并保护 NodeBasicInfo 草稿', async () => {
+    vi.useFakeTimers()
+    const state = useDevState()
+    const root=blueprintRoot([node('node-a','原名称','cfg:page-a')])
+    state.project.replaceBlueprintTree(root)
+    state.loadNodeToForm(root.children![0]!)
+    state.blueprintDraft.navigation!.title='尚未保存的基本信息'
+    state.markBlueprintDirty()
+    const unregister=state.registerExternalDataViewSession({isDirty:()=>false,hasUnconfirmedSave:()=>true,save:vi.fn()})
+    try {
+      state.refreshBlueprintTreeProjection({isDirty:()=>true,hasUnconfirmedSave:()=>true,save:vi.fn(async()=>{}),
+        treeProjection:()=>blueprintRoot([node('node-a','DataView 名称','cfg:page-a')]),hasTreeProjection:()=>true})
+      expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
+      expect(await state.saveNodeChanges()).toBe(false)
+      state.addRootNode()
+      state.removeNodeFromTree({parent:{data:root}},{...root.children![0]!})
+      await state.addChildNode(root)
+      expect(httpFns.put).not.toHaveBeenCalled()
+      expect(httpFns.post).not.toHaveBeenCalled()
+      expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
+      expect(state.statusMessages.value.some(item=>item.text.includes('DataView'))).toBe(true)
+    } finally {unregister(); vi.useRealTimers()}
   })
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {
@@ -226,6 +343,8 @@ describe('DevState 页面文件闭环', () => {
 
   it('切换左侧节点时触发右侧 blueprintDraft 订阅刷新', async () => {
     const state = useDevState()
+    const root=blueprintRoot([node('alpha-node','Alpha','cfg:alpha'),node('beta-node','Beta','cfg:beta')])
+    blueprintRuntimeTrees.set('homepage',root)
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {
@@ -256,6 +375,9 @@ describe('DevState 页面文件闭环', () => {
 
   it('初始化页面列表从项目蓝图派生，不请求页面文件清单', async () => {
     const state = useDevState()
+    blueprintRuntimeTrees.set('homepage',blueprintRoot([
+      node('alpha-node','Alpha','cfg:alpha','homepage','Alpha 页面需求'),node('sys-node','System','/system'),
+    ]))
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') {
         return {
@@ -303,6 +425,7 @@ describe('DevState 页面文件闭环', () => {
       ],
     }
     navTreeState.tree = root
+    blueprintRuntimeTrees.set('homepage',root)
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'project-blueprint:homepage') return root
       return pageFileResponse(url)
@@ -353,6 +476,7 @@ describe('DevState 页面文件闭环', () => {
         node('delegated-node','Delegated','cfg:delegated-page','delegated-app'),
       ],
     }
+    blueprintRuntimeTrees.set('delegated-app',delegatedRoot)
     httpMock.get.mockImplementation(async (url: string) => {
       if (url === 'application-catalog:tenant-b') {
         return [

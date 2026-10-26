@@ -31,10 +31,7 @@ import {
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { lowcodeHttp } from '@/lowcode/lowcode-runtime'
-import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import type { DataSet } from '@spark-appworks/spark-data'
-import type { DevState, ExternalDataViewSession } from '../useDevState'
+import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
 import PlanningPane from './PlanningPane.vue'
 import PrototypePane from './PrototypePane.vue'
@@ -49,9 +46,6 @@ const loading = ref(false)
 const saving = ref(false)
 let loadRevision = 0
 let disposed = false
-let dataSet: DataSet | undefined
-let dataSetProjectId = ''
-let unregisterSession: (() => void) | undefined
 const session = shallowRef<BlueprintWorkspaceDataView>()
 const dataViewRevision = ref(0)
 const sessionDirty = computed(() => {void dataViewRevision.value; return session.value?.dirty ?? false})
@@ -98,40 +92,21 @@ const estimateAccess = computed(() => {void dataViewRevision.value; return ({
 })})
 const deliveryAccess = computed(() => {void dataViewRevision.value; return access('NavigationUrl').write && access('VersionId').read && access('VersionId').write})
 
-function releaseSession(destroyDataSet: boolean): void {
-  unregisterSession?.(); unregisterSession = undefined
-  session.value?.dispose(); session.value = undefined
-  if (destroyDataSet) {dataSet?.destroy(); dataSet = undefined; dataSetProjectId = ''}
-}
-
-onBeforeUnmount(() => { disposed = true; loadRevision++; releaseSession(true) })
+onBeforeUnmount(() => { disposed = true; loadRevision++ })
 
 async function load(): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
   const projectId = props.state.projectId
-  if (!nodeId) {releaseSession(false); return}
+  if (!nodeId) {session.value=undefined; return}
   const revision = ++loadRevision
+  session.value = undefined
   loading.value = true
   try {
-    if (!dataSet || dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || dataSetProjectId !== projectId) {
-      releaseSession(true)
-      const loaded = await loadLowcodeRuntimeScenario({projectId, scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
-      if (disposed || revision !== loadRevision || props.state.projectId !== projectId) {loaded.destroy(); return}
-      dataSet = loaded
-      dataSetProjectId = projectId
-    }
-    if (!session.value) {
-      const loaded = dataSet
-      if (!loaded) throw new Error('蓝图 DataSet 未初始化')
-      session.value = new BlueprintWorkspaceDataView(loaded, projectId, () => {
-        if (disposed || props.state.projectId !== projectId) throw new Error('蓝图 DataView 项目作用域已失效')
-      })
-      const registeredSession: ExternalDataViewSession = {isDirty: () => session.value?.dirty ?? false, save: () => session.value?.save() ?? Promise.resolve()}
-      unregisterSession = props.state.registerExternalDataViewSession(registeredSession)
-    }
-    const current = session.value
-    if (!current) throw new Error('蓝图 DataView 未初始化')
+    const current=await props.state.loadBlueprintWorkspaceDataView()
+    if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId)return
+    session.value=current
     await current.load(nodeId)
+    if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId){session.value=undefined;return}
     dataViewRevision.value++
     props.state.notifyExternalDataViewChanged()
   } catch (error) {
@@ -148,6 +123,7 @@ async function save(label: string): Promise<void> {
   try {
     await current.save()
     if (disposed || props.state.projectId !== projectId || props.state.selectedNode.value?.nodeId !== nodeId) throw new Error('保存已提交，但工作区目标随后发生变化')
+    props.state.refreshBlueprintTreeProjection()
     props.state.notifyExternalDataViewChanged()
     props.state.addStatus(`${label}已通过 Base_NavigationInfo DataView 保存并读回；保存范围为当前节点全部暂存字段`, 'success')
   } catch (error) {
@@ -156,7 +132,7 @@ async function save(label: string): Promise<void> {
 }
 
 function cancelEdits(): void {
-  try {session.value?.cancel(); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()}
+  try {session.value?.cancel(); props.state.refreshBlueprintTreeProjection(); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()}
   catch (error) {props.state.addStatus(`取消蓝图 DataView 修改失败: ${String(error)}`, 'error')}
 }
 

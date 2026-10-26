@@ -10,12 +10,13 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <el-button size="small" :disabled="!sessionDirty || saving || loading" @click="cancelEdits">取消节点修改</el-button>
       <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
     </template>
-    <el-tab-pane label="功能策划" name="planning"><PlanningPane v-model="draft.planningContent" :saving="saving" :field-access="access('memo')" @save="save('功能策划')" /></el-tab-pane>
-    <el-tab-pane label="原型设计" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型设计')" /></el-tab-pane>
-    <el-tab-pane label="数据规划" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据规划')" /></el-tab-pane>
-    <el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane>
-    <el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane>
-    <el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane>
+    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability']" /></el-tab-pane>
+    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><el-alert class="domain-note" type="info" :closable="false" title="原型历史资源未绑定，当前仅维护原型描述" /></el-tab-pane>
+    <el-tab-pane label="数据空间" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据空间')" /></el-tab-pane>
+    <el-tab-pane label="导航属性" name="navigation"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :state="state" /></el-tab-pane>
+    <el-tab-pane label="导航宿主" name="nav-host"><el-alert type="warning" :closable="false" title="正式模型绑定未就绪，暂不可编辑导航宿主" /></el-tab-pane>
+    <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
+    <el-tab-pane label="本仓扩展" name="extensions"><el-tabs v-model="activeExtension" class="extension-tabs"><el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane><el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane><el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane></el-tabs></el-tab-pane>
   </el-tabs>
   <el-empty v-else description="在左侧 WBS 中选择节点" />
 </template>
@@ -31,22 +32,26 @@ import {
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
-import PlanningPane from './PlanningPane.vue'
 import PrototypePane from './PrototypePane.vue'
 import DataPlanningPane from './DataPlanningPane.vue'
 import EstimatePane from './EstimatePane.vue'
 import DeliveryPane from './DeliveryPane.vue'
 import ReleasePane from './ReleasePane.vue'
+import NodeBasicInfo from '../components/NodeBasicInfo.vue'
+import NodeTargetConfig from '../components/NodeTargetConfig.vue'
+import NodeLayoutConfig from '../components/NodeLayoutConfig.vue'
+import NodeStateConfig from '../components/NodeStateConfig.vue'
 
 const props = defineProps<{ state: DevState }>()
-const activeStage = ref('planning')
+const activeStage = ref('basic')
+const activeExtension = ref('estimate')
 const loading = ref(false)
 const saving = ref(false)
 let loadRevision = 0
 let disposed = false
 const session = shallowRef<BlueprintWorkspaceDataView>()
 const dataViewRevision = ref(0)
-const sessionDirty = computed(() => {void dataViewRevision.value; return session.value?.dirty ?? false})
+const sessionDirty = computed(() => {void dataViewRevision.value; void props.state.hasAnyDirty.value; return session.value?.dirty ?? false})
 const fileVersions = computed(() => {void dataViewRevision.value; return String(session.value?.value('VersionId') ?? '').trim()})
 const runtimeSummary = computed(() => {
   void dataViewRevision.value
@@ -56,8 +61,6 @@ const runtimeSummary = computed(() => {
 const draft = {
   read(field: string) {void dataViewRevision.value; return session.value?.value(field)},
   write(field: string, value: unknown) {session.value?.update(field, value); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()},
-  get planningContent() {return String(this.read('memo') ?? '')},
-  set planningContent(value: string) {this.write('memo', value)},
   get prototypeHtml() {return String(this.read('htmlDesc') ?? '')},
   set prototypeHtml(value: string) {this.write('htmlDesc', value)},
   get formKey() {return String(this.read('conid') ?? '')},
@@ -200,6 +203,8 @@ watch([() => props.state.selectedNode.value?.nodeId ?? '', () => props.state.pro
 .blueprint-workspace :deep(.el-tab-pane) { height: 100%; }
 .blueprint-workspace :deep(.stage-pane) { max-width: 960px; padding: 20px; }
 .blueprint-workspace :deep(.stage-actions) { display: flex; justify-content: flex-end; margin-top: 18px; }
+.domain-note { margin-top: 16px; }
+.extension-tabs { height: 100%; }
 .blueprint-workspace :deep(.estimate-grid) { display: grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 0 24px; }
 .delivery-pane, .delivery-tabs { height: 100%; }
 .delivery-tabs :deep(.el-tabs__content), .delivery-tabs :deep(.el-tab-pane) { height: calc(100% - 28px); }

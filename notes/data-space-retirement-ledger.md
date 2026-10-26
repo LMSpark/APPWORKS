@@ -2021,3 +2021,13 @@ flowchart TD
 - 核对本仓 `config/pages/application/project-blueprint/pagedata.json` 的正式场景绑定，目前仅有 `Base_NavigationInfo`（`default` 与 `catalogBindings`）；`Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation` 均未绑定。`config/pages/data-platform/data-space-catalog/pagedata.json` 也未声明两模型；全仓源码/测试未发现这两模型的本仓业务 DataView owner。
 - **当前阻断与最小落地条件：**原型历史和导航宿主管理暂不能直接加业务界面/命令；须先用正式数据空间/元数据 DataView 读到两模型绑定 ID、字段定义和当前查询输出权限，再由当次 DataView 的行/字段权限判定读写；保持每条记录以父节点身份过滤、旧请求切换失效、文件/数据库等资源回执分开。不得从参考列名猜 `modelId`、字段类型、主键、required/output 或运行授权，也不得通过直连参考 API 实施。
 - **下一批顺序：**继续完成当前开发交付快照命令的 DataView 收敛；之后优先复核本仓已有 `Base_NavigationInfo` DataView 字段，补齐无需新增模型绑定的参考导航属性，并按参考六域重组工作区信息层级。原型版本和 NavHost 在正式绑定/授权证据取得前登记为待解锁；数据空间权限页面保持本仓 0.3 暂缓边界，任务信息维持真实缺口。
+
+### 2026-10-27 开发工作台接入参考仓项目蓝图六域
+
+- **实施：**将实际 SPA `BlueprintWorkspace` 编辑区域由本仓旧阶段标签重组为参考域：基本信息、原型描述、数据空间、导航属性、导航宿主、任务信息；节点估算、开发交付、发布运行完整保留在“本仓扩展”。这次改的是生产入口的工作区，不是旁置未引用面板。
+- 基本信息复用 `NodeBasicInfo` 的能力字段；导航属性复用其带 DataView 字段权限的菜单标题/图标，以及现有 Target/Layout/State 面板。为 `NodeBasicInfo` 增加可选 `sections` 筛选，省略时保留原完整行为。原型描述复用现有 `htmlDesc` DataView 编辑；数据空间复用原 `DataPlanningPane` 与共享设计器。所有变更仍进入当前 `Base_NavigationInfo` DataView 编辑覆盖、统一顶部保存/取消与关闭保护，没有第二份草稿或保存器。
+- 缺失功能如实展示：原型历史版本资源未绑定、NavHost 正式模型绑定未就绪、参考任务信息暂无资源。动态字典 `NavigationShowType_Content` 与 `Navigationposition` 仍无可消费的正式 DataView，相关显示方式/对齐暂为受字段权限约束的自由文本，不猜枚举。
+- **TDD：**实施者先用新域断言得到旧工作区标签不匹配的 RED，再完成结构与共享草稿测试；主控定向重跑 `tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts`，1 文件/30 项通过，覆盖六域结构、扩展保留、memo 字段 DataView patch/dirty/取消、拒绝写权限及 NodeBasicInfo 分域和默认兼容。
+- **正式生成与门禁：**运行 `pnpm run generate:class-model-surface`，968 个 DTS、1991 个符号、1599 个索引、3178 条语义缺口；`NodeBasicInfo.sections` 声明已进入生成物，Section 文档补齐后语义缺口回到原值。主控最终全仓 `typecheck`、三处改动源/测试 ESLint、`verify:rules`、`pnpm run build` 均通过。构建含既有 bundler 动态导入警告；AI model spec 有 2 项既有 warning 和 1 项 info。
+- **真实 SPA 只读烟测：**NewApp/D99A 已登录工作台热更新后显示七个主标签（六域加本仓扩展），仍显示 41 个页面。已查看基本信息、导航属性、导航宿主和任务信息；导航域真实呈现标题、图标、目标、移动端目标、打开方式、子项布局、菜单显示/排序字段；两个缺资源域显示登记提示。未写入、保存、上传或改变正式蓝图数据。
+- **边界与下一步：**本批只完成信息架构重组，不代表参考项目蓝图所有操作已恢复。后续仍需：为动态字典选项建立正式 DataView 绑定；获得 `Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation` 正式绑定与权限后再实现原型版本和 NavHost；继续核准数据空间改绑、AI新增和导出任务及共享消费者。保持 SPA 与 SPARK data 唯一数据通道；不改、不启动、不部署 Java。整体计划 active。

@@ -11,7 +11,51 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-10-26T14:17:36.298Z",
-  "models": {}
+  "$defs": {
+    "Section": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Section",
+      "enum": [
+        "capability",
+        "navigation",
+        "prototype",
+        "navigation-target",
+        "data-space"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-26T19:02:52.659Z",
+  "models": {
+    "Section": {
+      "name": "Section",
+      "jsdoc": "Selects blueprint domains for the shared DataView-backed editor; omitted means every section.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'capability'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'navigation'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'navigation-target'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'data-space'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'prototype'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

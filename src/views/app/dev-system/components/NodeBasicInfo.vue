@@ -6,26 +6,34 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
 -->
 <template>
   <div>
+    <template v-if="includes('capability')">
     <el-divider content-position="left">能力信息</el-divider>
     <el-form-item label="节点 ID"><el-input :model-value="state.blueprintDraft.nodeId" disabled /></el-form-item>
     <el-form-item v-if="access('name').read" label="能力名称"><el-input v-model="state.blueprintDraft.capability.name" :disabled="!access('name').write" @change="state.markBlueprintDirty" /></el-form-item>
     <el-form-item v-if="access('conType').read" label="业务种类"><el-select v-model="state.blueprintDraft.kind" :disabled="!access('conType').write" @change="state.markBlueprintDirty"><el-option v-for="option in kindOptions" :key="option.value" :label="option.label" :value="option.value" /></el-select></el-form-item>
     <el-form-item v-if="access('memo').read" label="功能描述"><el-input v-model="state.blueprintDraft.capability.description" :disabled="!access('memo').write" type="textarea" :autosize="{minRows:4,maxRows:12}" @change="state.markBlueprintDirty" /></el-form-item>
+    </template>
+    <template v-if="includes('navigation')">
     <el-form-item v-if="state.blueprintNodeFieldAccess('FunName').read" label="提供导航"><el-switch v-model="hasNavigation" :disabled="!state.blueprintNodeSectionWritable('navigation')" /></el-form-item>
     <template v-if="state.blueprintDraft.navigation">
       <el-divider content-position="left">导航信息</el-divider>
       <el-form-item v-if="access('FunName').read" label="菜单标题"><el-input v-model="state.blueprintDraft.navigation.title" :disabled="!access('FunName').write" @change="state.markBlueprintDirty" /></el-form-item>
       <el-form-item v-if="access('NavigationImageWxz').read" label="图标"><IconPicker v-if="access('NavigationImageWxz').write" :model-value="state.blueprintDraft.navigation.icon ?? ''" @update:model-value="state.blueprintDraft.navigation.icon = $event; state.markBlueprintDirty()" /><el-input v-else :model-value="state.blueprintDraft.navigation.icon ?? ''" disabled /></el-form-item>
-      <el-form-item v-if="access('NavigationUrl').read" label="工具或页面目标"><el-input v-model="state.blueprintDraft.navigation.target" :disabled="!access('NavigationUrl').write" @change="state.markBlueprintDirty" /></el-form-item>
+      <el-form-item v-if="includes('navigation-target') && access('NavigationUrl').read" label="工具或页面目标"><el-input v-model="state.blueprintDraft.navigation.target" :disabled="!access('NavigationUrl').write" @change="state.markBlueprintDirty" /></el-form-item>
     </template>
+    </template>
+    <template v-if="includes('data-space')">
     <el-form-item v-if="access('conid').read" label="绑定数据空间"><el-switch v-model="hasDataSpace" :disabled="!access('conid').write" /></el-form-item>
     <template v-if="state.blueprintDraft.dataSpace">
       <el-divider content-position="left">数据空间</el-divider>
       <el-form-item v-if="access('conid').read" label="场景 ID"><el-input v-model="state.blueprintDraft.dataSpace.scenarioId" :disabled="!access('conid').write" @change="state.markBlueprintDirty" /></el-form-item>
       <el-form-item label="模型名称"><el-input :model-value="modelNames" readonly placeholder="由正式场景模型定义提供" /></el-form-item>
     </template>
+    </template>
+    <template v-if="includes('prototype')">
     <el-form-item v-if="access('htmlDesc').read" label="提供原型"><el-switch v-model="hasPrototype" :disabled="!access('htmlDesc').write" /></el-form-item>
     <el-form-item v-if="state.blueprintDraft.prototype && access('htmlDesc').read" label="原型描述"><el-input v-model="state.blueprintDraft.prototype.htmlDescription" :disabled="!access('htmlDesc').write" type="textarea" :rows="6" @change="state.markBlueprintDirty" /></el-form-item>
+    </template>
   </div>
 </template>
 <script setup lang="ts">
@@ -34,7 +42,10 @@ import { PROJECT_BLUEPRINT_NODE_KINDS } from '@spark-appworks/spark-utils'
 import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
 import type { DevState } from '../useDevState'
 import IconPicker from '@/components/IconPicker.vue'
-const props = defineProps<{state:DevState}>()
+/** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */
+type Section = 'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'
+const props = defineProps<{state:DevState;sections?:readonly Section[]}>()
+const includes = (section: Section) => props.sections === undefined ? true : props.sections.includes(section)
 const labels:Record<ProjectBlueprintNodeKind,string>={module:'模块',page:'页面',embedded:'嵌入内容',service:'服务',content:'内容'}
 const kindOptions=PROJECT_BLUEPRINT_NODE_KINDS.map(value=>({value,label:labels[value]}))
 const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)

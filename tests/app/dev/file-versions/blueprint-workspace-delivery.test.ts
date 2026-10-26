@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
@@ -23,6 +23,11 @@ vi.doMock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcode
 const {default: BlueprintWorkspace} = await import('@/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue')
 
 const Slot = defineComponent({ template: '<div><slot name="extra" /><slot /></div>' })
+const TabPane = defineComponent({ props: ['label'], template: '<section class="tab-pane"><h3>{{ label }}</h3><slot /></section>' })
+const TestInput = defineComponent({props:{modelValue:null,disabled:Boolean,type:String},emits:['update:modelValue','change'],template:'<textarea :disabled="disabled" :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value);$emit(\'change\',$event.target.value)" />'})
+const TestFormItem = defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
+const TestAlert = defineComponent({props:{title:String},template:'<div>{{title}}</div>'})
+const TestEmpty = defineComponent({props:{description:String},template:'<div>{{description}}</div>'})
 const Delivery = defineComponent({ props: ['canPublish'], emits: ['save'], template: '<button @click="$emit(\'save\')">交付</button>' })
 const Planning = defineComponent({props:['modelValue','fieldAccess'],emits:['update:modelValue'],template:'<div v-if="fieldAccess.read"><input data-testid="planning" :disabled="!fieldAccess.write" :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value)"></div><span v-else>无读取权限</span>'})
 const scenarioId = '7AB874097A1E8711A42FD845939A6E05'
@@ -60,9 +65,11 @@ function createDataSet(options: {target?: string; versionId?: string; deniedWrit
 function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   const dataSet = createDataSet(options)
   let owner: BlueprintWorkspaceDataView | undefined
+  const accessRevision = ref(0)
+  const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
   const state = {
     selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref('tool-A'), projectId: 'APP-A', addStatus: vi.fn(),
-    registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(),
+    registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(() => {accessRevision.value++}),
     loadBlueprintWorkspaceDataView: vi.fn(async () => {
       const current=owner??new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
       owner=current
@@ -71,13 +78,20 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     }),
     createPageToolSnapshot: api.createSnapshot,
     refreshBlueprintTreeProjection: vi.fn(),
+    blueprintDraft: {nodeId:'node-A',kind:'page',capability,navigation:undefined,dataSpace:undefined,prototype:undefined},
+    hasAnyDirty: computed(() => {void accessRevision.value;return owner?.dirty ?? false}),
+    blueprintNodeFieldAccess: (field:string) => {void accessRevision.value;return {read:owner?.canRead(field)??false,write:owner?.canWrite(field)??false}},
+    blueprintNodeSectionWritable: () => false,
+    markBlueprintDirty: vi.fn(),
     project: { readPageFileText: vi.fn((name: string) => name === 'script.js' ? '' : `text:${name}`) },
   }
   const wrapper = mount({ ...BlueprintWorkspace, props: ['state'] }, {
     props: { state }, global: {
       directives: { loading: () => {} }, stubs: {
-        ElTabs: Slot, ElTabPane: Slot, ElEmpty: true, PlanningPane: Planning, PrototypePane: true,
+        ElTabs: Slot, ElTabPane: TabPane, ElEmpty: TestEmpty, ElAlert: TestAlert, PlanningPane: Planning, PrototypePane: true,
         DataPlanningPane: true, EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
+        NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: true,
+        ElDivider: true, ElFormItem: TestFormItem, ElInput: TestInput, ElSelect: true, ElSwitch: true, ElOption: true, IconPicker: true,
       },
     },
   })
@@ -91,6 +105,44 @@ describe('BlueprintWorkspace file delivery', () => {
     api.createSnapshot.mockReset().mockImplementation(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void})=>{
       const result={version:8,fileName:`8__${input.fileName}`};input.onAttempt?.(result);return result
     })
+  })
+
+  it('organizes the SPA work area by the reference six domains and preserves local extensions', async () => {
+    const { wrapper } = setup(); await flushPromises()
+    const names = wrapper.findAll('.tab-pane').map(node => node.attributes('name'))
+    expect(names).toEqual(['basic', 'prototype', 'data', 'navigation', 'nav-host', 'task-info', 'extensions', 'estimate', 'delivery', 'release'])
+    expect(wrapper.findAllComponents(NodeBasicInfo).map(component=>component.props('sections'))).toEqual([['capability'], ['navigation']])
+    expect(wrapper.text()).toContain('原型历史资源未绑定，当前仅维护原型描述')
+    expect(wrapper.text()).toContain('正式模型绑定未就绪，暂不可编辑导航宿主')
+    expect(wrapper.text()).toContain('参考实现暂无对应任务资源')
+    expect(wrapper.text()).toContain('节点估算')
+    expect(wrapper.text()).toContain('开发交付')
+    expect(wrapper.text()).toContain('发布运行')
+    wrapper.unmount()
+  })
+
+  it('edits memo from Basic Info through the shared Base_NavigationInfo DataView and global dirty state', async () => {
+    const {wrapper,state,dataSet}=setup(); await flushPromises()
+    expect(state.blueprintNodeFieldAccess('memo').read).toBe(true)
+    const description=wrapper.findAll('.form-item').find(item=>item.text().includes('功能描述'))
+    expect(description).toBeDefined()
+    await description!.find('textarea').setValue('changed through basic info')
+    expect(dataSet.getView('Base_NavigationInfo')?.getEditingPatch('node-A')).toMatchObject({memo:'changed through basic info'})
+    expect(wrapper.findAll('button').find(button=>button.text().includes('保存节点修改'))?.attributes('disabled')).toBeUndefined()
+    expect(state.registerExternalDataViewSession.mock.calls[0]?.[0].isDirty()).toBe(true)
+    await wrapper.findAll('button').find(button=>button.text().includes('取消节点修改'))!.trigger('click')
+    expect(dataSet.getView('Base_NavigationInfo')?.getEditingPatch('node-A')).toBeUndefined()
+    expect(state.registerExternalDataViewSession.mock.calls[0]?.[0].isDirty()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('prevents memo edits when the current Base_NavigationInfo DataView denies write access', async () => {
+    const {wrapper,dataSet}=setup({deniedWrite:'memo'}); await flushPromises()
+    const description=wrapper.findAll('.form-item').find(item=>item.text().includes('功能描述'))
+    expect(description?.find('textarea').attributes('disabled')).toBeDefined()
+    await description?.find('textarea').setValue('must not write')
+    expect(dataSet.getView('Base_NavigationInfo')!.hasEditingChanges()).toBe(false)
+    wrapper.unmount()
   })
 
   it('allocates from actual snapshots and confirms independent references, preserving empty text', async () => {
@@ -161,28 +213,6 @@ describe('BlueprintWorkspace file delivery', () => {
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     expect(api.createSnapshot).toHaveBeenCalledTimes(1)
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('字段 VersionId 保存后读回不一致'), 'error')
-    wrapper.unmount()
-  })
-
-  it('updates the DataView overlay immediately and reflects dirty state in Save All registration', async () => {
-    const {wrapper, state, dataSet} = setup(); await flushPromises()
-    const input = wrapper.get('[data-testid="planning"]')
-    await input.setValue('changed through input')
-    const view = dataSet.getView('Base_NavigationInfo')!
-    expect(view.getEditingPatch('node-A')).toMatchObject({memo: 'changed through input'})
-    const save = wrapper.findAll('button').find(button => button.text().includes('保存节点修改'))
-    expect(save?.attributes('disabled')).toBeUndefined()
-    const registered = state.registerExternalDataViewSession.mock.calls[0]?.[0]
-    expect(registered?.isDirty()).toBe(true)
-    wrapper.unmount()
-  })
-
-  it('gates a field with current DataView write permission and leaves its overlay untouched', async () => {
-    const {wrapper, dataSet} = setup({deniedWrite: 'memo'}); await flushPromises()
-    const input = wrapper.get('[data-testid="planning"]')
-    expect(input.attributes('disabled')).toBeDefined()
-    await input.setValue('must not write')
-    expect(dataSet.getView('Base_NavigationInfo')!.hasEditingChanges()).toBe(false)
     wrapper.unmount()
   })
 
@@ -539,5 +569,29 @@ describe('BlueprintWorkspace DataView ownership', () => {
     expect(access).toHaveBeenCalledWith('IsShowAtNav')
     expect(access).toHaveBeenCalledWith('ChildItemLocation')
     wrapper.unmount()
+  })
+
+  it('filters NodeBasicInfo to capability fields while retaining the default full view',()=>{
+    const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'memo'},navigation:{title:'Node',icon:'Document',target:'cfg:tool',order:1,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},
+      blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:false})),blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
+    const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
+    const Basic=defineComponent({components:{NodeBasicInfo},props:{state:Object,sections:Array},template:'<NodeBasicInfo :state="state" :sections="sections" />'})
+    const global={stubs:{ElDivider:true,ElFormItem:FormItem,ElInput:true,ElSelect:true,ElSwitch:true,ElOption:true,IconPicker:true}}
+    const filtered=mount(Basic,{props:{state,sections:['capability']},global})
+    expect(filtered.text()).toContain('能力名称')
+    expect(filtered.text()).not.toContain('提供导航')
+    expect(filtered.text()).not.toContain('绑定数据空间')
+    expect(filtered.text()).not.toContain('提供原型')
+    filtered.unmount()
+    const compatible=mount(Basic,{props:{state},global})
+    expect(compatible.text()).toContain('提供导航')
+    expect(compatible.text()).toContain('绑定数据空间')
+    expect(compatible.text()).toContain('提供原型')
+    compatible.unmount()
+    const navigation=mount(Basic,{props:{state,sections:['navigation']},global})
+    expect(navigation.text()).toContain('菜单标题')
+    expect(navigation.text()).toContain('图标')
+    expect(navigation.text()).not.toContain('工具或页面目标')
+    navigation.unmount()
   })
 })

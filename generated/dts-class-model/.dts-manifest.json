@@ -4194,7 +4194,7 @@
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
-      "sourceModifiedAt": "2026-10-26T18:18:59.724Z"
+      "sourceModifiedAt": "2026-10-26T18:55:10.034Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
@@ -4234,7 +4234,7 @@
     "src/views/app/dev-system/components/NodeBasicInfo.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeBasicInfo.vue.json",
-      "sourceModifiedAt": "2026-10-26T14:17:36.298Z"
+      "sourceModifiedAt": "2026-10-26T19:02:52.659Z"
     },
     "src/views/app/dev-system/components/NodeLayoutConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",

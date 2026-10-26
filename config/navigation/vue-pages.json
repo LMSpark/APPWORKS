@@ -169,6 +169,7 @@
     },
     {
       "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "aliases": ["/DataBaseManage/TableAndView"],
       "title": "表和视图管理",
       "icon": "Grid",
       "scope": "app",

@@ -31,7 +31,10 @@
           ]
         },
         "mode": {
-          "const": "add"
+          "enum": [
+            "add",
+            "edit"
+          ]
         },
         "row": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
@@ -60,7 +63,10 @@
           ]
         },
         "mode": {
-          "const": "add"
+          "enum": [
+            "add",
+            "edit"
+          ]
         },
         "unconfirmed": {
           "enum": [
@@ -84,18 +90,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T08:42:55.803Z",
+  "generatedAt": "2026-10-26T04:29:21.511Z",
   "models": {
     "DatabaseCatalogDbEditState": {
       "name": "DatabaseCatalogDbEditState",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    row: DataRow;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    row: DataRow;\n}>",
+            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -125,11 +131,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+            "typeText": "Readonly<{\n    id: string | number;\n    mode: 'add' | 'edit';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],

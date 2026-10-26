@@ -13353,7 +13353,8 @@
           "AttachTableRegisterCommandViewInput",
           "AttachViewRegisterCommandViewInput",
           "AttachTableSyncMetaDataViewInput",
-          "AttachServerConnectionTestViewsInput"
+          "AttachServerConnectionTestViewsInput",
+          "AttachDatabaseDirectoryConnectionTestViewsInput"
         ]
       }
     },
@@ -16932,6 +16933,10 @@
       "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
     },
     "AttachCatalogCommandViewsInput": {
+      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+    },
+    "AttachDatabaseDirectoryConnectionTestViewsInput": {
       "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
       "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
     },

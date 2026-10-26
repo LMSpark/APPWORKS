@@ -53,7 +53,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T08:42:55.728Z",
+  "generatedAt": "2026-10-24T18:53:10.871Z",
   "models": {
     "SparkAiDataEntryProps": {
       "name": "SparkAiDataEntryProps",

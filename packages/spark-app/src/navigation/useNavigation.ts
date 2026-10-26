@@ -527,6 +527,12 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     }
 
     const targetPath = addTenantPrefix(path)
+    const resolvedAlias = router.resolve(targetPath).matched.find(record => record.aliasOf !== undefined
+      && record.meta['systemPageIdentityHost'] === true)
+    if (resolvedAlias) {
+      void router.push(targetPath)
+      return
+    }
     if (identityNodeId !== undefined) {
       const resolvedTarget = router.resolve(targetPath)
       const selectedRoute = router.getRoutes().find(routeRecord => routeRecord.name === resolvedTarget.name)

@@ -25,6 +25,8 @@ export type PageScope = 'public' | 'tenant' | 'app'
 type VuePageConfigEntry = Readonly<{
   /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */
   path: string
+  /** 明确声明的同一 Vue Router route-record 兼容路径；不会创建第二个页面 owner。 */
+  aliases?: readonly string[]
   /** 页面标题；显示在导航树和浏览器标签页。 */
   title: string
   /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */
@@ -108,6 +110,12 @@ export function buildComponentMap(): Promise<Record<string, Component>> {
   })
 }
 
+/** DynamicRouter 使用的显式 path alias；身份仍由 canonical navigation node 提供。 */
+export function getVuePageRouteAliases(): Readonly<Record<string, readonly string[]>> {
+  return Object.fromEntries(Object.entries(VUE_PAGE_REGISTRY).flatMap(([path, entry]) =>
+    entry.aliases?.length ? [[path, [...entry.aliases]]] : []))
+}
+
 /**
  * 公共路径集合（用于路由守卫：未登录时只允许这些路径）。
  */
@@ -171,6 +179,7 @@ function createVuePageEntry(page: VuePageConfigEntry): VuePageEntry {
     scope: page.scope,
     source: page.source,
     load,
+    ...(page.aliases === undefined ? {} : { aliases: page.aliases }),
     ...(page.icon === undefined ? {} : { icon: page.icon }),
     ...(page.description === undefined ? {} : { description: page.description }),
     ...(page.hidden === undefined ? {} : { hidden: page.hidden }),
@@ -232,6 +241,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
     title: requiredString(page, 'title', path),
     scope: readPageScope(scope, path),
     source,
+    ...(page['aliases'] === undefined ? {} : {aliases: parseAliases(page['aliases'], path, routePath)}),
     ...(icon === undefined ? {} : { icon }),
     ...(description === undefined ? {} : { description }),
     ...(hidden === undefined ? {} : { hidden }),
@@ -247,6 +257,33 @@ function assertUniquePaths(pages: readonly VuePageConfigEntry[]): void {
     }
     seen.add(page.path)
   }
+  const aliases = new Set<string>()
+  for (const page of pages) {
+    for (const alias of page.aliases ?? []) {
+      if (seen.has(alias) || aliases.has(alias)) {
+        throw new Error(`config/navigation/vue-pages.json: alias path conflicts with another canonical or alias path "${alias}".`)
+      }
+      aliases.add(alias)
+    }
+  }
+}
+
+function parseAliases(value: unknown, sourcePath: string, canonicalPath: string): readonly string[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${sourcePath}.aliases must be an array of strings.`)
+  }
+  const aliases = value.map(alias => {
+    if (typeof alias !== 'string') throw new Error(`${sourcePath}.aliases must be an array of strings.`)
+    return alias.trim()
+  })
+  for (const alias of aliases) {
+    if (!alias.startsWith('/') || alias.includes('?') || alias.includes('#')) {
+      throw new Error(`${sourcePath}.aliases entries must be absolute paths without query or hash.`)
+    }
+    if (alias === canonicalPath) throw new Error(`${sourcePath}.aliases cannot repeat the canonical path.`)
+  }
+  if (new Set(aliases).size !== aliases.length) throw new Error(`${sourcePath}.aliases contains a duplicate path.`)
+  return aliases
 }
 
 function requireRecord(value: unknown, path: string): Readonly<Record<string, unknown>> {

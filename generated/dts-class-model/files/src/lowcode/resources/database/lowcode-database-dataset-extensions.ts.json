@@ -16,7 +16,8 @@
       "AttachTableRegisterCommandViewInput",
       "AttachViewRegisterCommandViewInput",
       "AttachTableSyncMetaDataViewInput",
-      "AttachServerConnectionTestViewsInput"
+      "AttachServerConnectionTestViewsInput",
+      "AttachDatabaseDirectoryConnectionTestViewsInput"
     ]
   },
   "$defs": {
@@ -800,9 +801,49 @@
         "tables"
       ],
       "additionalProperties": false
+    },
+    "AttachDatabaseDirectoryConnectionTestViewsInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachDatabaseDirectoryConnectionTestViewsInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "tables": {
+          "type": "object",
+          "properties": {
+            "commandInput": {
+              "type": "string"
+            },
+            "testResult": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "commandInput",
+            "testResult"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "tables"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T08:42:55.814Z",
+  "generatedAt": "2026-10-26T04:59:28.915Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",
@@ -1095,6 +1136,35 @@
     },
     "AttachServerConnectionTestViewsInput": {
       "name": "AttachServerConnectionTestViewsInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        testResult: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        testResult: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachDatabaseDirectoryConnectionTestViewsInput": {
+      "name": "AttachDatabaseDirectoryConnectionTestViewsInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {

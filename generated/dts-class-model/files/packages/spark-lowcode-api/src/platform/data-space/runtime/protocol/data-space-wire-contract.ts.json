@@ -346,7 +346,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.264Z",
+  "generatedAt": "2026-10-23T06:59:03.913Z",
   "models": {
     "DataSpaceValueFunction": {
       "name": "DataSpaceValueFunction",

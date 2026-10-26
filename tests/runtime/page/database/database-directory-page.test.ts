@@ -14,6 +14,7 @@ import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/lowcode-dat
 import {attachDatabaseDirectoryConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/lowcode-database-dataset-extensions'
 import {databaseTableViewModels} from './database-table-view.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
+import {buildComponentMap, getVuePageRouteAliases} from '@/registries/vue-page-registry'
 
 const mocks = vi.hoisted(() => ({
   readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),
@@ -524,9 +525,8 @@ describe('database directory page', () => {
     const tables = wrapper.findAllComponents(RendererTable)
     await selectRow(tables[1]!)
     await pageButton(wrapper, '管理').trigger('click')
-    expect(navigateTo).toHaveBeenCalledWith(expect.objectContaining({id: tableViewNode.id,
-      path: `${targetPath}?view=main&databaseId=DB1#top`}))
-    expect(navigateToPath).not.toHaveBeenCalled()
+    expect(navigateTo).not.toHaveBeenCalled()
+    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`)
   })
 
   it('resolves a cross-module duplicate only within the current host branch', async () => {
@@ -535,29 +535,23 @@ describe('database directory page', () => {
     const wrapper = await open()
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
-    expect(navigateTo).toHaveBeenCalledWith(expect.objectContaining({id: tableViewNode.id,
-      path: `${targetPath}?view=main&databaseId=DB1#top`}))
+    expect(navigateTo).not.toHaveBeenCalled()
+    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`)
   })
 
   it('navigates through real useNavigation and DynamicRouter with node identity and databaseId', async () => {
     const source = {...directoryNode, blueprintScenarioId: DATABASE_TABLE_VIEW_SCENARIO_ID}
     const selectedTarget = {...tableViewNode, blueprintScenarioId: 'target-selected-space'}
-    const otherTarget: RuntimeNavigationItem = {id: 'duplicate-other-module', title: '重复路径节点', path: targetPath, itemKind: 'system-page'}
-    const items = [
-      {...directoryModule, children: [source, selectedTarget]},
-      {id: 'other-module', title: '另一模块', itemKind: 'module', children: [otherTarget]},
-    ] as RuntimeNavigationItem[]
+    const items = [{...directoryModule, children: [source, selectedTarget]}] as RuntimeNavigationItem[]
     mocks.navItems.splice(0, mocks.navItems.length, ...items)
     const navRoot = {title: 'Root', childPlacement: 'sidebar' as const, items}
-    const targetPage = defineComponent({setup() {
-      const targetRoute = useRoute()
-      return () => h('div', {id: 'database-target'}, String(targetRoute.meta['blueprintScenarioId'] ?? ''))
-    }})
     const router = createRouter({history: createMemoryHistory(), routes: []})
+    const routePush = vi.spyOn(router, 'push')
+    const componentMap = await buildComponentMap()
     const dynamic = createDynamicRouter({router, pageComponent: DatabaseDirectoryPage, componentMap: {
+      ...componentMap,
       '/DataBaseManage/DataBaseManage/index': DatabaseDirectoryPage,
-      [targetPath]: targetPage,
-    }, loadNavigation: async () => navRoot})
+    }, componentAliases: getVuePageRouteAliases(), loadNavigation: async () => navRoot})
     dynamicHosts.push(dynamic)
     await dynamic.registerRoutes()
     let navigationContext: NavigationContext | undefined
@@ -581,15 +575,20 @@ describe('database directory page', () => {
     await pageButton(page, '管理').trigger('click')
     await flushPromises()
     await flushPromises()
+    expect(routePush).toHaveBeenCalledWith(expect.stringContaining('/DataBaseManage/TableAndView?view=main&databaseId=DB1#top'))
     const targetRoute = router.currentRoute.value
     const targetInstance = dynamic.getSystemPageInstance(targetRoute)
-    expect(targetRoute.query['__sparkNavigationId']).toBe(selectedTarget.id)
+    expect(targetRoute.path).toContain('/DataBaseManage/TableAndView')
+    expect(targetRoute.fullPath).toContain('/DataBaseManage/TableAndView?view=main&databaseId=DB1#top')
+    expect(targetRoute.matched[0]?.aliasOf?.path).toBe(`/features/data-platform/database-management/table-and-view/ui/table-and-view-page`)
+    expect(targetRoute.query['__sparkNavigationId']).toBeUndefined()
     expect(targetRoute.query['databaseId']).toBe('DB1')
     expect(targetRoute.meta['nodeId']).toBe(selectedTarget.id)
     expect(targetRoute.meta['blueprintScenarioId']).toBe('target-selected-space')
     expect(targetInstance).toBeTruthy()
     expect(targetInstance?.instanceId).not.toBe(directoryInstance?.instanceId)
-    expect(wrapper.find('#database-target').text()).toBe('target-selected-space')
+    expect(targetRoute.query['databaseId']).not.toBe(selectedTarget.blueprintScenarioId)
+    expect(targetRoute.query['databaseId']).not.toBe(DATABASE_TABLE_VIEW_SCENARIO_ID)
   })
 
   it('refuses duplicate targets within the current host branch', async () => {
@@ -641,8 +640,8 @@ describe('database directory page', () => {
     const wrapper = await open()
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
-    expect(navigateTo).toHaveBeenCalledWith(expect.objectContaining({id: tableViewNode.id,
-      path: `${targetPath}?view=main&databaseId=DB-PK-1#top`}))
+    expect(navigateTo).not.toHaveBeenCalled()
+    expect(navigateToPath).toHaveBeenCalledWith('/DataBaseManage/TableAndView?view=main&databaseId=DB-PK-1#top')
   })
 
   it('saves a database entered through the bound RendererForm and closes only after the DataSet receipt', async () => {

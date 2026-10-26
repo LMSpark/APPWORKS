@@ -161,7 +161,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:53:43.552Z",
+  "generatedAt": "2026-10-23T06:52:17.026Z",
   "models": {
     "StructuredCatalogModelOptions": {
       "name": "StructuredCatalogModelOptions",

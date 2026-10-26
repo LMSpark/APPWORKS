@@ -124,7 +124,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T07:53:43.551Z",
+  "generatedAt": "2026-10-23T18:00:24.261Z",
   "models": {
     "StagedDesignColumn": {
       "name": "StagedDesignColumn",

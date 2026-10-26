@@ -99,6 +99,7 @@ import {
 import RegisterDatabaseDialog from '@/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue'
 
 const TABLE_VIEW_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'
+const TABLE_VIEW_LEGACY_PATH = '/DataBaseManage/TableAndView'
 const route = useRoute()
 const nav = useNav()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
@@ -328,7 +329,13 @@ function openTableView(): void {
     }
     if (typeof target.item.path !== 'string') throw new Error('表和视图管理导航节点路径无效')
     actionError.value = ''
-    nav.navigateTo({...target.item, path: appendDatabaseId(target.item.path, String(databaseId))})
+    const targetUrl = new URL(target.item.path, window.location.origin)
+    const legacyUrl = new URL(TABLE_VIEW_LEGACY_PATH, window.location.origin)
+    legacyUrl.search = targetUrl.search
+    legacyUrl.hash = targetUrl.hash
+    const tenantPrefix = route.path.match(/^\/t\/[^/]+\/[^/]+/)?.[0] ?? ''
+    const destination = appendDatabaseId(`${tenantPrefix}${legacyUrl.pathname}${legacyUrl.search}${legacyUrl.hash}`, String(databaseId))
+    nav.navigateToPath(destination)
   } catch (cause) {
     actionError.value = cause instanceof Error ? cause.message : String(cause)
   }

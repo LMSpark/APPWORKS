@@ -3,6 +3,7 @@ import { effectScope, nextTick, watchEffect } from 'vue'
 import { DataSet } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
+import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {
   createDevStateWithConfigPages,
   DEMO_PAGE_FIXTURE,
@@ -35,6 +36,24 @@ const navTreeState = vi.hoisted(() => ({
 }))
 const blueprintRuntime = vi.hoisted(() => ({load:vi.fn()}))
 const blueprintRuntimeTrees = new Map<string,ProjectBlueprintTreeData>()
+const DATA_SPACE_CATALOG_SCENARIO_ID='90A82E287930A234FEC3E687C94A93EA'
+function createDataSpaceCatalogRuntimeDataSet(){
+  return DataSet.fromJson({scenarioId:DATA_SPACE_CATALOG_SCENARIO_ID,tables:{Base_DataSet:{
+    modelBinding:{modelId:`${DATA_SPACE_CATALOG_SCENARIO_ID}catalog`,modelName:'Base_DataSet'},
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],
+    views:{default:{},catalog:{autoLoad:false,page:1,pageSize:10}},
+  }}})
+}
+function createDictionaryRuntimeDataSet(){
+  return DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{
+    modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}},
+  }}})
+}
+function mockBlueprintScenarioFixture(dataSet:DataSet):void{
+  blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>
+    scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():dataSet)
+}
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',async importOriginal=>({
   ...await importOriginal<typeof import('@/lowcode/data-space/lowcode-data-space-runtime')>(),
   loadLowcodeRuntimeScenario:blueprintRuntime.load,
@@ -74,6 +93,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
   lowcodeApi: {
+    readRequestScope: () => ({token:'fixture-token',headers:{'X-AppId':'APP-A'}}),
     platform: {
       listApplications: async () => httpFns.get('application-catalog:tenant-b'),
     },
@@ -261,12 +281,14 @@ describe('DevState 页面文件闭环', () => {
     httpFns.interceptors.response.use.mockImplementation(() => () => undefined)
     blueprintRuntime.load.mockReset()
     blueprintRuntimeTrees.clear()
-    blueprintRuntime.load.mockImplementation(async ({projectId}:{projectId:string})=>createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
+    blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>
+      scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
+    vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
   })
 
   it('节点基本信息通过共享 Base_NavigationInfo DataView 保存而不调用 ProjectWorkspace gateway', async () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A')
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
@@ -283,9 +305,27 @@ describe('DevState 页面文件闭环', () => {
     } finally {ownerScope.stop()}
   })
 
+  it('设计器目标只来自正式读回 conid，待保存改绑时拒绝加载新目标',async()=>{
+    const root=blueprintRoot([{...node('SCENE-NODE','Scene node','cfg:scene','APP-A'),dataSpace:{scenarioId:'SCENE-SAVED',models:[]}}],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const selected=state.treeData.value[0]!
+      await state.selectNode(selected)
+      expect(state.persistedDataSpaceId.value).toBe('SCENE-SAVED')
+      expect(state.sceneBindingPending.value).toBe(false)
+      state.blueprintDraft.dataSpace={scenarioId:'SCENE-DRAFT',models:[]}
+      expect(state.persistedDataSpaceId.value).toBe('SCENE-SAVED')
+      expect(state.sceneBindingPending.value).toBe(true)
+      await expect(state.createSelectedScenarioViews()).rejects.toThrow(/尚未正式保存并回读/)
+    }finally{ownerScope.stop()}
+  })
+
   it('新增根模块通过共享 Base_NavigationInfo DataView 按正式创建权限保存', async () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -302,7 +342,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('新增根模块任一必需字段没有 DataView 新行写权限时不提交', async () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,readonlyFields:['name']})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -314,7 +354,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('子节点父级 c 权限拒绝时在文件或蓝图写入前失败',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:false})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -329,7 +369,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('子节点候选字段写权限拒绝时不创建页面文件或导航行',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,readonlyFields:['name']})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -342,7 +382,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('子节点候选 DataTable validator 拒绝时不创建页面文件或导航行',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true,requiredFields:['funCode']})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -355,7 +395,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('获准的子节点经同一文件命令 DataView 与导航 DataView 保存，不调用 mounted-page gateway',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -374,7 +414,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('导航子行回执未知时只恢复专属 child ID，不重建文件或重复新增行',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -394,7 +434,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('子行已确认保存但刷新回读失败后只刷新原ID，不再次保存',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -419,7 +459,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('导航写入明确拒绝后清理子行与文件，重试重新创建完整资源链',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},false,true)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -439,7 +479,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('根模块新增回执未知时沿原新增 ID 核验，不创建第二根行',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true},true)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -457,7 +497,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A')
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -475,7 +515,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('创建工具在 DataView 列权限预检失败时不创建任何页面文件',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{hiddenFields:['NavigationUrl']})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -490,7 +530,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('工具绑定保存回执未知时保留页面文件并等待原 DataView 核验',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},true)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -508,7 +548,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('节点字段代理不暴露无读取权限值，也拒绝只读字段setter',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{hiddenFields:['name'],readonlyFields:['memo']})
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
@@ -522,7 +562,7 @@ describe('DevState 页面文件闭环', () => {
 
   it('首载项目树由共享 Base_NavigationInfo DataView allPages 查询投影提供', async () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A')
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
@@ -540,7 +580,12 @@ describe('DevState 页面文件闭环', () => {
     const cached=getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})
     cached.project.replaceBlueprintTree(blueprintRoot([node('STALE-NODE','缓存节点','cfg:stale','APP-A')],'APP-A'))
     const fixture=createBlueprintRuntimeDataSet('APP-A')
-    blueprintRuntime.load.mockRejectedValueOnce(new Error('fixture DataView unavailable')).mockResolvedValueOnce(fixture.dataSet)
+    let failBlueprintLoad=true
+    blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>{
+      if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return createDataSpaceCatalogRuntimeDataSet()
+      if(failBlueprintLoad){failBlueprintLoad=false;throw new Error('fixture DataView unavailable')}
+      return fixture.dataSet
+    })
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
@@ -550,7 +595,8 @@ describe('DevState 页面文件闭环', () => {
       expect(state.statusMessages.value.some(item=>item.text.includes('fixture DataView unavailable'))).toBe(true)
       await state.loadBlueprint()
       expect(state.treeData.value[0]).toMatchObject({nodeId:'CHILD-A',capability:{code:'CHILD-CODE'}})
-      expect(blueprintRuntime.load).toHaveBeenCalledTimes(2)
+      expect(blueprintRuntime.load).toHaveBeenCalledTimes(4)
+      expect(blueprintRuntime.load.mock.calls.filter(([input])=>input.scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)).toHaveLength(2)
       expect(httpFns.get).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
   })
@@ -559,7 +605,7 @@ describe('DevState 页面文件闭环', () => {
     vi.useFakeTimers()
     const root=blueprintRoot([node('node-a','原名称','cfg:page-a')])
     const fixture=createBlueprintRuntimeDataSet('homepage',root)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     await state.openEditingProject({tenantId:'tenant-a',projectId:'homepage'},{force:true})
     await state.selectNode(state.selectedNode.value!)
@@ -720,7 +766,7 @@ describe('DevState 页面文件闭环', () => {
     navTreeState.tree = root
     blueprintRuntimeTrees.set('homepage',root)
     const fixture=createBlueprintRuntimeDataSet('homepage',root)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
 
     vi.mocked(refreshRoutes).mockImplementation(async (): Promise<RuntimeNavigation> => {
       const updated: ProjectBlueprintTreeData = {
@@ -765,7 +811,7 @@ describe('DevState 页面文件闭环', () => {
     }
     blueprintRuntimeTrees.set('delegated-app',delegatedRoot)
     const fixture=createBlueprintRuntimeDataSet('delegated-app',delegatedRoot)
-    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    mockBlueprintScenarioFixture(fixture.dataSet)
 
     await state.loadEditableProjects('tenant-b')
     state.projectPicker.tenantId = 'tenant-b'

@@ -2047,3 +2047,11 @@ flowchart TD
 - **自动化验证：**`tests/app/dev/blueprint-readonly-info.test.ts` 与 `tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` 合计 34 项通过；`pnpm run typecheck`、改动文件 ESLint、`pnpm run verify:pages-config`、`pnpm run build` 均退出 0。构建输出含已有 bundler ineffective dynamic import 警告；无 ClassModel 公共声明变化，无 Java 修改。
 - **真实 SPA 只读烟测：**从应用导航在原登录态内切换到开发工作台，未整页刷新。工作台解析两个新增视图并渲染正式字段；对 `DataBaseManage` 节点 `A0FA2BA0CF0C82B40DF6A319A3D5831D` 和 `ApplicationFunMan` 节点 `7AB874097A1E8711A42FD845939A6E05` 依次查看原型历史与导航宿主，均为 `No Data`，没有查询错误；因此证明视图键解析和空结果呈现，不证明服务端有记录、字段授权充分或写权限。全程没有新增、修改或删除任何业务行。
 - **当前状态：**只读运行绑定已完成，原型历史数据存在性、当次字段权限、正式主键及版本生命周期写回仍未验证；导航宿主的数据权限和引用完整性仍未验证。不得据此次空结果宣称完整蓝图功能已恢复。继续按单一台账推进其余域；SPARK data 为唯一数据通道、保持 SPA、不修改/启动/部署 Java。
+
+#### 项目蓝图数据空间目录选择与正式绑定门控（2026-10-27）
+
+- **实施：**删除基本信息中的手填场景 ID 与重复保存入口。标准 `FieldSelect` 绑定蓝图导航节点 DataView 的 `currentRow.conid`，候选选择器使用同一开发工作台 `PageRuntime` 中正式数据空间目录视图 `90A82E287930A234FEC3E687C94A93EA@Base_DataSet@catalog`，通过标准 `RendererDialog`、`RendererFilter`、`RendererTable` 查询、筛选、分页和选择；仅“确定”后修改原 DataView 的 `conid` 编辑覆盖。所有候选须具备当前目录行、可读 ID/名称及有效节点/项目/运行时身份。无清空/解绑操作。数据空间设计器只使用已正式保存并读回的 `conid`，待保存改绑时关闭设计器入口。
+- **主控复核：**确认候选表和筛选器直接使用正式目录 DataView，未增加页面数组、手工请求或第二提交通道；选择只经蓝图 DataView 原编辑覆盖，取消不写；项目、节点或运行时切换后丢弃未完成的旧请求。目录查询按打开弹窗时触发，未更改目录视图的自动查询定义。本批未实施默认空间创建、解绑及跨资源引用清理。
+- **自动化验证：**场景选择、DevState 宿主闭环和数据设计工作区历史测试 3 文件/54 项通过；目标源码与测试 ESLint、最终 `pnpm run typecheck`、`pnpm run verify:pages-config`、`pnpm run build` 通过。构建有既有打包器 ineffective dynamic import 警告。`pnpm run verify:rules` 失败，扫描器报告未由本批修改的 `blueprint-readonly-info.ts:5` 中 `queryBlueprintReadonlyView` 有 4 个位置参数（限值 3）；规则链在该项中断，后续子门禁未由此次命令执行。证据：`notes/evidence/blueprint-scene-picker-red.txt`（原始运行器输出压缩保存在同名 `.raw.zip`）、`blueprint-scene-picker-regression.txt`、`blueprint-scene-picker-typecheck.txt`、`blueprint-scene-picker-verify-rules.txt`。
+- **真实 SPA 烟测：**沿当前已登录 SPA 标签查看开发工作台，未整页刷新。页面显示“项目蓝图为空”及 `项目蓝图加载失败: RequestError: Request failed with status code 502`；因此没有可选择的正式节点/目录记录，无法完成目录弹窗、筛选、分页或保存后重开实测。没有改动或提交业务数据。此为当前线上验收阻断，不以夹具测试替代真实验收。
+- **状态与后续：**数据空间选择组件与正式绑定门控已实现并通过自动化验证；真实服务可用时须补 SPA 只读目录展示及节点切换隔离烟测。改绑保存回读、默认绑定/创建、解绑与完整引用检查仍未实施；本切片不代表项目蓝图六域整合完成。保持 SPA 和 SPARK data 唯一通道，不修改/启动/部署 Java；整体计划 active。

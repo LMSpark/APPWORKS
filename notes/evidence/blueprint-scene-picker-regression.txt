@@ -1,0 +1,6 @@
+Command: pnpm exec vitest run tests/app/dev/blueprint-scene-picker.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts tests/app/dev/use-dev-state-page-data-history.test.ts --reporter=dot
+Exit: 0
+ Test Files  3 passed (3)
+      Tests  54 passed (54)
+   Start at  04:29:53
+   Duration  21.80s (transform 29.62s, setup 761ms, import 42.53s, tests 2.01s, environment 6.17s)

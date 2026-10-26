@@ -1,0 +1,4 @@
+TDD RED evidence
+Command: pnpm exec vitest run tests/app/dev/blueprint-scene-picker.test.ts --reporter=dot
+Result before implementation: 1 test file failed; 9 tests failed, proving the picker contract was not implemented yet.
+Exact runner output retained in blueprint-scene-picker-red.raw.zip.

@@ -1,11 +1,12 @@
 import { shallowMount, mount, flushPromises } from '@vue/test-utils'
-import { defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 
@@ -26,19 +27,28 @@ const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterce
 // This consumer fixture supplies C; the metadata chain suite verifies the production loader against formal records.
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   loadScenarioDataSet: previewLoad,
-  loadLowcodeRuntimeScenario: async ({ projectId }: { projectId: string }) => {
+  loadLowcodeRuntimeScenario: async ({ projectId, scenarioId }: { projectId: string; scenarioId: string }) => {
+    if(scenarioId==='90A82E287930A234FEC3E687C94A93EA')return DataSet.fromJson({scenarioId,tables:{Base_DataSet:{
+      modelBinding:{modelId:`${scenarioId}catalog`,modelName:'Base_DataSet'},
+      columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],
+      views:{default:{},catalog:{autoLoad:false,page:1,pageSize:10}},
+    }}})
+    if(scenarioId===LowcodeDictionary.editorScenarioId)return DataSet.fromJson({scenarioId,tables:{_Base_DictType:{
+      modelBinding:{modelId:`${scenarioId}dictionary`,modelName:'_Base_DictType'},
+      columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}},
+    }}})
     const fields = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'funCode', 'NavigationUrl', 'NavigationImageWxz',
       'MobileUrl', 'NavigationType', 'ChildItemLocation', 'NavigationShowType', 'HorizontalAlignment', 'IsShowAtNav', 'IsShowChildItem',
       'BeginGroup', 'conid', 'conType', 'memo', 'htmlDesc', 'VersionId', 'DifficultyFactor', 'Manhour', 'Number', 'Sum', 'Total',
       'personCharge', 'status']
-    const dataSet = DataSet.fromJson({scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, tables: {Base_NavigationInfo: {
+    const dataSet = DataSet.fromJson({scenarioId, tables: {Base_NavigationInfo: {
       modelBinding: {modelId: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`, modelName: 'Base_NavigationInfo'},
       columns: fields.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
       views: {default: {autoLoad: false}},
     }}})
     const view = dataSet.getView('Base_NavigationInfo')!
     const rows = ['orders-page-node', 'orders-page-v2-node', 'demo-node'].map(rowid => ({rowid, SysId: projectId,
-      prowid: '000000', FunOrderValue: '0', name: rowid, FunName: rowid, conType: 'Model'}))
+      prowid: '000000', FunOrderValue: '0', name: rowid, FunName: rowid, conType: 'Model',conid:rowid==='orders-page-node'?'scene':''}))
     view.bindQueryExecutor({
       queryColumns: current => current.columns,
       executeQuery: async (_current, params) => {
@@ -120,6 +130,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       loadProjectBlueprint: async () => ({ title: 'Test Project', children: [] }),
     },
   }),
+  createPageToolFilesIo: () => ({list:async()=>[],read:async()=>null,upload:async()=>{},remove:async()=>{}}),
 }))
 
 import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
@@ -316,20 +327,20 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.scenarioDefinitionDocument.value?.isPersisted).toBe(false);expect(httpPut).not.toHaveBeenCalled()
  })
 
- it('mounts the shared scene designer in the data stage and locks rebinding for unsaved scenes',async()=>{
+ it('mounts the shared designer for the persisted scene and blocks it while conid is pending',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const Slot=defineComponent({template:'<div><slot /></div>'})
   const Button=defineComponent({props:['disabled'],template:'<button :disabled="disabled"><slot /></button>'})
   const Input=defineComponent({props:['disabled'],template:'<input :disabled="disabled" />'})
-  const wrapper=shallowMount(DataPlanningPane,{props:{form:{formKey:'scene'},state,saving:false,fieldAccess:{read:true,write:true}},global:{stubs:{ElForm:Slot,ElFormItem:Slot,ElButton:Button,ElInput:Input}}})
+  const pending=ref(false),persistedDataSpaceId=computed(()=>'scene'),sceneBindingPending=computed(()=>pending.value)
+  const paneState={...state,persistedDataSpaceId,sceneBindingPending}
+  const wrapper=shallowMount(DataPlanningPane,{props:{state:paneState,fieldAccess:{read:true,write:true}},global:{stubs:{ElForm:Slot,ElFormItem:Slot,ElButton:Button,ElInput:Input}}})
   expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(true)
-  expect(wrapper.findComponent(DevDataSetDesigner).props('state')).toBe(state)
-  await state.writeScenarioViewText(fixtureText(50));await wrapper.vm.$nextTick()
-  expect(wrapper.find('input').attributes()).toHaveProperty('disabled')
-  expect(wrapper.find('button').attributes()).toHaveProperty('disabled')
-  await wrapper.setProps({form:{formKey:'different'}})
+  expect(wrapper.findComponent(DevDataSetDesigner).props('state')).toBe(paneState)
+  pending.value=true
+  await wrapper.vm.$nextTick()
   expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(false)
   wrapper.unmount()
  })
@@ -388,7 +399,7 @@ describe('tool and shared scenario editing owners',()=>{
   expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene')
   expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(true)
  })
- beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset()})
+ beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
  afterEach(()=>{vi.useRealTimers()})
  it('loads exactly three tool files and retains clean undo baselines',async()=>{const state=createDevStateWithConfigPages();httpGet.mockImplementation(async()=>({content:''}));await ensureDevStateActivePageLoaded(state);await ensureDevStateActivePageLoaded(state);expect(httpGet.mock.calls).toHaveLength(3);expect(httpGet.mock.calls.map(call=>String(call[0]))).not.toContainEqual(expect.stringContaining('pagedata.json'));state.project.writePageFile({fileName:'script.js',text:'A'});expect(state.project.undoPageFile('script.js')).toBe(true);expect(state.project.readDirtyProjection().dirtyFiles.has('script.js')).toBe(false)})
  it('loads scene views through the scene gateway and undoes to a clean shared baseline',async()=>{let remote=fixtureText(20);httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}));httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content});const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene');await state.writeScenarioViewText(fixtureText(50));expect(state.pageDataDirty.value).toBe(true);expect(await state.scenarioDefinitionDocument.value?.undo()).toBe(true);state.scenarioDefinitionRevision.value++;expect(state.pageDataDirty.value).toBe(false);await state.writeScenarioViewText(fixtureText(70));await state.saveScenarioViewText();expect(JSON.parse(remote)).toEqual(JSON.parse(fixtureText(70)));expect(state.pageDataDirty.value).toBe(false);expect(state.project.readDirtyProjection().dirtyFiles).not.toContain('pagedata.json')})

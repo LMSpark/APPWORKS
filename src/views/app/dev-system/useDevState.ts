@@ -42,6 +42,7 @@ import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 import type {PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
@@ -56,6 +57,7 @@ const {
   normalizePageIdFromPath,
   PAGE_TOOL_FILE_NAMES,
 } = ProjectBlueprintDomain
+const DATA_SPACE_CATALOG_SCENARIO_ID = catalogPageData.scenarioId
 
 /** Editable Project Option 的语义模型。 */
 export type EditableProjectOption = ProjectBlueprintDomain.ProjectSummary & {
@@ -172,11 +174,12 @@ export function useDevState() {
     if(blueprintWorkspaceLoad)return blueprintWorkspaceLoad
     const revision=++blueprintWorkspaceLoadRevision
     const loading=(async()=>{
-      const runtime=new PageRuntime({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+      const runtime=new PageRuntime({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,
         loadScenario:async scenarioId=>{
           const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已切换')}
           assertCurrent()
           if(scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY)return loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId})
+          if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId})
           if(scenarioId===LowcodeDictionary.editorScenarioId)return (await LowcodeDictionary.loadEditor()).dataSet
           throw new Error(`蓝图运行时未声明场景 ${scenarioId}`)
         }})
@@ -515,6 +518,30 @@ export function useDevState() {
     if(session!==undefined&&session.nodeId===selectedNode.value?.nodeId)return {read:session.canRead(field),write:session.canWrite(field)}
     return {read:false,write:false}
   }
+  /** The designer target is the raw value returned by the formal DataView query. */
+  const persistedDataSpaceId = computed(() => {
+    void externalDataViewRevision.value
+    const session=blueprintWorkspaceDataView.value
+    const node=selectedNode.value
+    const row=session?.row
+    if(!node||!row||session.nodeId!==node.nodeId||session.projectId!==projectId.value
+      ||!session.canRead('conid'))return ''
+    const raw=row['conid']
+    return typeof raw==='string'?raw.trim():''
+  })
+  /** A staged conid edit fences every designer operation until top-level save/readback. */
+  const sceneBindingPending = computed(() => {
+    void externalDataViewRevision.value
+    const session=blueprintWorkspaceDataView.value
+    const node=selectedNode.value
+    const row=session?.row
+    if(!node||!row||session.nodeId!==node.nodeId||session.projectId!==projectId.value
+      ||!session.canRead('conid'))return false
+    const raw=row['conid']
+    const overlay=session.value('conid')
+    const current=overlay===undefined?raw:overlay
+    return String(current??'').trim()!==String(raw??'').trim()
+  })
   function blueprintNodeFieldsWritable(fields:readonly string[]):boolean{
     const session=blueprintWorkspaceDataView.value
     return session!==undefined&&session.nodeId===selectedNode.value?.nodeId?session.canWriteFields(fields):false
@@ -623,12 +650,12 @@ export function useDevState() {
     })
   }
   const pageDataError = ref<string | null>(null)
-  function selectedScenarioMatches(id: string): boolean { return selectedNode.value?.dataSpace?.scenarioId === id }
+  function selectedScenarioMatches(id: string): boolean { return persistedDataSpaceId.value === id && !sceneBindingPending.value }
   async function loadSelectedScenarioViews(forceReload = false): Promise<void> {
-    const scenarioId = selectedNode.value?.dataSpace?.scenarioId
+    const scenarioId = persistedDataSpaceId.value
     const generation = ++scenarioLoad
     pageDataError.value = null
-    if (!scenarioId) {installScenarioDocument(null); return}
+    if (!scenarioId || sceneBindingPending.value) {installScenarioDocument(null); return}
     const workspace = currentEditor.value
     const previous = scenarioDefinitionDocument.value
     if (!forceReload && previous?.scenarioId === scenarioId && workspace.getScenarioDefinitions(scenarioId) === previous.dataSet) return
@@ -657,8 +684,9 @@ export function useDevState() {
     }
   }
   async function createSelectedScenarioViews(): Promise<void> {
-    const scenarioId = selectedNode.value?.dataSpace?.scenarioId
+    const scenarioId = persistedDataSpaceId.value
     const nodeId = selectedNode.value?.nodeId
+    if(sceneBindingPending.value)throw new Error('场景绑定尚未正式保存并回读，不能创建场景视图')
     if (!scenarioId || !nodeId) throw new Error('请先绑定现有业务场景')
     const document = scenarioDefinitionDocument.value
     if (document?.scenarioId !== scenarioId || document.isPersisted || document.isDirty) throw new Error('请先加载尚无配置的正式场景')
@@ -698,6 +726,7 @@ export function useDevState() {
     const file = scenarioDefinitionDocument.value
     const nodeId = selectedNode.value?.nodeId
     const token = lowcodeApi.readRequestScope().token
+    if(sceneBindingPending.value)throw new Error('场景绑定尚未正式保存并回读，不能操作场景设计器')
     if (!file || !selectedScenarioMatches(file.scenarioId)) throw new Error('场景视图文件尚未加载或选择已切换')
     const assertCurrent = (): void => {
       if (currentEditor.value !== workspace || scenarioDefinitionDocument.value !== file || selectedNode.value?.nodeId !== nodeId
@@ -1462,6 +1491,8 @@ export function useDevState() {
     blueprintNodeFieldAccess,
     blueprintNodeFieldsWritable,
     blueprintNodeSectionWritable,
+    persistedDataSpaceId,
+    sceneBindingPending,
 
     // 空蓝图状态
     blueprintEmpty,

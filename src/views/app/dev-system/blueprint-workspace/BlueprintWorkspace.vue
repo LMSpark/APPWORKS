@@ -10,9 +10,9 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <el-button size="small" :disabled="!sessionDirty || saving || loading" @click="cancelEdits">取消节点修改</el-button>
       <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
     </template>
-    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability']" /></el-tab-pane>
+    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability', 'data-space']" /></el-tab-pane>
     <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-history-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
-    <el-tab-pane label="数据空间" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据空间')" /></el-tab-pane>
+    <el-tab-pane label="数据空间" name="data"><DataPlanningPane v-if="activeStage === 'data'" :state="state" :field-access="access('conid')" /></el-tab-pane>
     <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="activeStage==='navigation' && session && state.blueprintPageRuntime.value?.isLoaded"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="state.blueprintPageRuntime.value.instanceId" :state="state" /></template></el-tab-pane>
     <el-tab-pane label="导航宿主" name="nav-host"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-nav-host-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
     <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
@@ -73,8 +73,6 @@ const draft = {
   write(field: string, value: unknown) {session.value?.update(field, value); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()},
   get prototypeHtml() {return String(this.read('htmlDesc') ?? '')},
   set prototypeHtml(value: string) {this.write('htmlDesc', value)},
-  get formKey() {return String(this.read('conid') ?? '')},
-  set formKey(value: string) {this.write('conid', value)},
   get difficultyFactor() {return Number(this.read('DifficultyFactor') ?? 0)},
   set difficultyFactor(value: number) {this.write('DifficultyFactor', value)},
   get manhour() {return Number(this.read('Manhour') ?? 0)},

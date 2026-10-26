@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-26",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "loginUrl": "http://127.0.0.1:5273/login",
+  "tenantDisplayed": "领码科技",
+  "tenantWasSelectedFromVisibleOptions": true,
+  "attempts": 2,
+  "firstVisibleResult": "[1003] 企业信息不存在：领码科技",
+  "secondVisibleResult": "[1004] 用户名或密码有误",
+  "remainingAttemptsDisplayed": 4,
+  "passwordClearedAfterFailure": true,
+  "credentialsStored": false,
+  "switchedTenantOrGuessed": false,
+  "sessionEstablished": false,
+  "nextAction": "用户恢复本地部署认可的有效登录态后继续只读 TableAndView alias smoke"
+}

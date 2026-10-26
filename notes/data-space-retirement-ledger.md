@@ -1992,3 +1992,11 @@ flowchart TD
 - **TDD 与门禁：**新增未加载、缺行、hidden/disabled、enabled 显示并仍调用原新增命令、stale scope 用例；两次 RED 均按预期失败，再转 GREEN。主控重跑 `pnpm exec vitest run tests/app/dev/dev-site-tree-move.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts`（2 files / 28 tests passed）、`pnpm exec vitest run packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-permission-parity.test.ts`（54 passed）、5 个改动文件 ESLint、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 与 `git diff --check`，均退出码 0。`verify:rules` 中 AI model spec 扫描报告既有 2 条 warning、1 条 info，但门禁通过；构建输出若干 bundler annotation/dynamic-import warning，构建通过。
 - **真实 SPA 只读烟测：**从原生应用入口打开开发工作台；正式状态显示项目蓝图已就绪、41 页。经同一正式 DataView 展示 84 个树行；热更新后每行仅保留删除图标，84 行的新增子节点按钮均不再呈现；工具栏“新增模块”仍启用。未点击保存、未新增/删除业务节点或页面文件。该结果证明当前 DataView action state 对这些行没有 `enabled` 授权，不足以断言部署服务没有返回字面 `c`，后者仍受隐私化封装；未做子行保存回读。
 - **状态：**子行入口现按 DataView action state 控制；服务端 `c` 字段本身、任何父行获准情形及新增保存回读仍待正式运行证据。蓝图树删除和完整子树行集合权限另为开放缺口。整体统一 SPARK data 目标继续 active。
+
+### 2026-10-27 工作流文件读取 DataView 化合同复核
+
+- 低价模型只读复核 `workflow-designs.ts` 的目录、`design.json`、`definition.json` 读取及其全部消费者。`WorkflowDesigns.vue` 使用目录与两种文件；AI runtime `agent-workflow-bindings.ts` 也读取 `definition.json`，因此只迁移页面会留下数据旁路。
+- 当前 `ProjectToolResource` 的正式资源身份/owner 专属蓝图工具 `{pageId, rule.json|script.js|style.css, versionId}`，不能复用为工作流 `{applicationId, workflowId, design.json|definition.json}`。`attachStagedDesignView` 只负责一个 scope 下的单文件 staged 行，不提供目录枚举或真实文件权限证明；`attachWorkflowDesignEdit` 则是另一条 `/api/DataWorkFlowDesign/read/write` 结构化 `nodes/connectors` 合同，不等同于两份 JSON 文件。
+- 底层 `LowcodeDesignApi.listFiles` 只返回名称及更新时间，当前规范化条目不含文件/目录类型或递归语义；`readTextFile` 提供应用文件读取，但没有可由 DataView 消费的行/字段授权快照。故目前无法可靠从目录返回值判定 workflow folder，也不得为 DataView 合成服务端授权。活跃文件写入仍拒绝，保持不开放写入。
+- **解锁条件：**需要独立的正式工作流文件资源身份；目录清单必须由具备明确文件夹类型与身份的 owner 提供；固定应用身份、workflowId、文件名并隔离切换后的旧异步结果；页面与 AI runtime 共用同一资源 owner；只呈现有证据支持的读取权限。测试须覆盖跨应用/文件身份错配、文件名越界、切换失效、缺失与 HTTP 失败区分及两个消费者共用资源服务。
+- 本轮没有业务代码改动、Java 修改、SPARK 请求或文件/模型写入；未执行自动化测试或在线烟测。**状态：**工作流目录及文件读取仍为明确的数据层逃逸项，目前缺文件目录类型和授权消费合同，不能通过包装旧 API 声称收敛。整体统一 SPARK data 目标继续 active。

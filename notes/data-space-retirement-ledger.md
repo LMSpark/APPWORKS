@@ -1935,3 +1935,10 @@ flowchart TD
 - 低价只读盘点覆盖物理目录预览、workflow 文件、蓝图节点删除/资源及注册命令；主控另独立核对看似可迁移的 legacy layout 读取：它实际由正式 `DataSpaceReferenceLayoutResource` 作为 file DataView 查询，设计会话通过同一视图 `refresh()` 接纳，并校验 `DataSet`/resource identity；其底层 `LowcodeDesignApi` 只是数据资源 owner，不是页面第二查询链。`readRequestScope().token` 已包含所选 application id 与 application revision，已有异步应用切换测试验证旧结果失效，故不构成新缺口或安全迁移候选。
 - 当前没有可在“不改 Java、SPA、唯一 SPARK data API”合同下立即实施且能端到端验证的新增垂直切片。物理预览仍缺任意目录资源的正式模型身份、稳定主键、权限快照和完整分页证据；workflow 文件仍缺目录/文件 DataView 身份与权限/结果接纳合同；蓝图删除仍缺完整子树集合及挂载文件/引用完整性证明。未以 DataView 外壳包装原请求。
 - **状态：**本轮只读复核，无源码/模型/业务数据改动。树新增/编辑的客户端 DataView 实现保持已推送状态；部署端 `c` 实际返回、SPA 保存回读及其它已登记逃逸仍开放。整体数据统一目标继续 active，后续优先取得现有服务合同/已认证 SPA 证据后再开下一项实施。
+
+### 2026-10-27 子行权限服务端源码合同核验
+
+- 只读检查 `E:\lowcode-jdk17`（不编译、启动或修改）：`lowcode-anyline/.../RowPermissionHandler.java` 在默认编辑分支对自引用模型写出 `c = !b`（`b` 来自 `handleSysConfig`）；常规权限分支仅在 `cur.isSelfReference()` 时写出 `c`，其值要求 `!b`、模型 `isAllowAdd()` 且 `AllowAddChildFilter` 命中（或未配置过滤条件）。随后将该 map 放入行 `lingma_sys_params`。`lowcode-common-data/.../SysParams.java` 以 `@JsonProperty("c")` 声明 Boolean 序列化字段。源码合同表明无需新造字段协议，现有服务实现已有条件计算路径。
+- 查询切面将权限写回每行，GetData 结果包装器再把行集合放入 `Result.data`；因此源码链有把该位回传的既有路径。客户端回归 `pnpm exec vitest run packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-permission-parity.test.ts` **1 file / 54 tests passed**，覆盖仅 `c === true` 授权、缺省/错误类型拒绝、父行索引及失效上下文拒绝。该用例是客户端合同夹具，不是服务端或部署响应测试。
+- 与本仓 `DataPermissionSets.c?: boolean` 及只消费明确 `true` 的父行授权映射一致。这里仅证明本机参考 Java 源码存在实现；无法证明当前运行服务部署了该版本、目标模型被识别为自引用，或真实响应包含 `c`。
+- 本轮未更改 Java、未发服务请求、未写业务数据；SPA 标签当前不在登录态，线上权限回执仍需授权会话核验。服务端源码证据不得替代真实响应。

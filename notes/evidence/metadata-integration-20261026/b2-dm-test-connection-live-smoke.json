@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-26",
+  "app": "D99A1DCE9894698799101EFD70F8FC76",
+  "route": "/DataBaseManage/DataBaseManage/index",
+  "database": "dm_test",
+  "databaseType": "DM",
+  "schema": "PUBLIC",
+  "server": "达梦数据库服务器",
+  "host": "8.148.73.250",
+  "port": 5236,
+  "action": "页面标准测试数据库连接",
+  "attempts": 1,
+  "visibleResult": "[500] 数据库连接失败；根因：Invalid username or password",
+  "credentialFieldsClearedAfterResult": true,
+  "persistentDirectoryChanges": false,
+  "physicalConnectivityVerified": false,
+  "apiEnvelopeOrRequestIdCaptured": false,
+  "screenshot": "CUA 当前连接测试回执截图（界面可见错误与清空后的凭据输入）"
+}

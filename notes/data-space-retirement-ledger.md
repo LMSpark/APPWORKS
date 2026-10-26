@@ -1704,3 +1704,10 @@ flowchart TD
 - 从 D99A 的用户菜单进入“应用工场主页”，在“应用列表”点击正式“数据资产管理”应用卡片的“进入应用”。当前壳层显示应用身份 `00BE6ED455CD4BD7B785C61A12A1E67D`，但首页 URL 落在 `/t/NewApp/homepage/app-list` 并显示“无法确定系统页面，原页面身份已失效，请从导航菜单重新选择”；顶部错误提示关联节点 `BD30E16E34BC2393D9C520C9DF0AE8AA` 与旧路径 `/DataCenter/ServerManagerment.html`，目标身份无法从路径推断。截图 `notes/evidence/metadata-integration-20261026/data-assets-app-home-target-error.png` 保存该现场（SHA256 `88F7815CFFDFDA6BCE1C3F523CC99A2EAD8301596671F73EBE042FB459A29573`）。
 - 通过同一应用列表官方入口返回“元数据管理”应用后，确认 D99A 正式首页为 `/features/data-platform/database-management/ui/service-management-page`，页面标题“服务器管理”，DataView 目录成功显示当前服务记录。由此能确认同名语义候选页属于 D99A 的正式页面；不能据此证明它就是 00BE 节点的原始正式目标，也不能将两个应用的路由 owner 合并。没有打开低代码治理写入口、没有改导航配置、没有业务写入或删除。
 - **状态：线上复现确认 00BE 默认页身份/target 缺失，D99A `service-management-page` 仅为语义候选。正式映射仍待原始蓝图/导航绑定证据；保持不猜路径、不改后端/配置。**
+
+## 2026-10-26 B2 dm_test 数据库连接 SPA 烟测
+
+- 在已登录 D99A 数据库管理 SPA 中，从数据库列表明确选中 dm_test（数据库类型 DM，服务器“达梦数据库服务器”，主机 8.148.73.250，端口 5236，Schema PUBLIC，目录备注“达梦测试数据库”）。确认此前误选的 spark_payroll_newapp 已取消；未对其发起连接测试。
+- 通过页面标准“测试数据库连接”入口打开目标确认对话框。页面显示账号 wangtao；密码保持掩码。单次点击“测试连接”后，SPA 显示 “[500] 数据库连接失败；根因：Invalid username or password”。失败后账号和密码输入被清空。没有再次尝试或改用其他数据库/账号，没有更改数据库目录记录或物理数据库。
+- 本次仅证明当前部署 SPA 的连接测试入口返回该失败信息；没有证明 dm_test 物理连通、正式服务成功回执、数据库目录登记成功或 DataView API envelope 的完整网络细节。没有捕获请求 ID/网络回执，不据界面状态推断请求编号或后端服务实现。没有直接请求 API、Java 变更/启动/部署或业务数据写入。
+- **状态：dm_test 连接测试未通过，错误为数据库用户名或密码无效；B2 物理连接验收保持未通过。账号来源、目标数据库连接凭据配置须从有权配置方核实后再安排一次专用测试，不猜测或重用其他数据库凭据。**

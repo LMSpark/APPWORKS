@@ -11,10 +11,10 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
     </template>
     <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability']" /></el-tab-pane>
-    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><el-alert class="domain-note" type="info" :closable="false" title="原型历史资源未绑定，当前仅维护原型描述" /></el-tab-pane>
+    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-history-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
     <el-tab-pane label="数据空间" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据空间')" /></el-tab-pane>
-    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="session && state.blueprintPageRuntime.value?.isLoaded"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="state.blueprintPageRuntime.value.instanceId" :state="state" /></template></el-tab-pane>
-    <el-tab-pane label="导航宿主" name="nav-host"><el-alert type="warning" :closable="false" title="正式模型绑定未就绪，暂不可编辑导航宿主" /></el-tab-pane>
+    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="activeStage==='navigation' && session && state.blueprintPageRuntime.value?.isLoaded"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="state.blueprintPageRuntime.value.instanceId" :state="state" /></template></el-tab-pane>
+    <el-tab-pane label="导航宿主" name="nav-host"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-nav-host-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
     <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
     <el-tab-pane label="本仓扩展" name="extensions"><el-tabs v-model="activeExtension" class="extension-tabs"><el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane><el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane><el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane></el-tabs></el-tab-pane>
   </el-tabs>
@@ -31,9 +31,12 @@ import {
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
 import PrototypePane from './PrototypePane.vue'
+import BlueprintReadonlyInfo from './BlueprintReadonlyInfo.vue'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY as BLUEPRINT_SCENARIO_ID } from '@spark-appworks/spark-lowcode-api'
 import DataPlanningPane from './DataPlanningPane.vue'
 import EstimatePane from './EstimatePane.vue'
 import DeliveryPane from './DeliveryPane.vue'
@@ -44,6 +47,11 @@ import NodeLayoutConfig from '../components/NodeLayoutConfig.vue'
 import NodeStateConfig from '../components/NodeStateConfig.vue'
 
 const props = defineProps<{ state: DevState }>()
+const HISTORY_FIELDS=['prowid','rowid','desc','versionId','VersionName','version'] as const
+const NAV_HOST_FIELDS=['dataName','paramType','titleLocation','location','pName','prowid','ValParamName','childrowid','dbName','TextParamName','rowid','selectTextParam','selectPid','selectValParam','dataType','dataSetId','title'] as const
+function assertReadonlyTarget(nodeId:string,runtime:PageRuntime):void{
+  if(props.state.selectedNode.value?.nodeId!==nodeId||!runtime.isLoaded||props.state.blueprintPageRuntime.value!==runtime)throw new Error('蓝图只读视图的项目、节点或运行时上下文已失效')
+}
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'dev-system-blueprint-workspace'})
 const activeStage = ref('basic')
 const activeExtension = ref('estimate')

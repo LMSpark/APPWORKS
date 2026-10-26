@@ -2,6 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
+import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
@@ -64,11 +65,14 @@ function createDataSet(options: {target?: string; versionId?: string; deniedWrit
 }
 function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   const dataSet = createDataSet(options)
+  const pageRuntime={instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>dataSet,
+    resolveView:()=>dataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime
   let owner: BlueprintWorkspaceDataView | undefined
   const accessRevision = ref(0)
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
   const state = {
     selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref('tool-A'), projectId: 'APP-A', addStatus: vi.fn(),
+    blueprintPageRuntime: ref(pageRuntime),
     registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(() => {accessRevision.value++}),
     loadBlueprintWorkspaceDataView: vi.fn(async () => {
       const current=owner??new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
@@ -90,7 +94,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       directives: { loading: () => {} }, stubs: {
         ElTabs: Slot, ElTabPane: TabPane, ElEmpty: TestEmpty, ElAlert: TestAlert, PlanningPane: Planning, PrototypePane: true,
         DataPlanningPane: true, EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
-        NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: true,
+        NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: defineComponent({template:'<div data-test-node-state-stub />'}),
         ElDivider: true, ElFormItem: TestFormItem, ElInput: TestInput, ElSelect: true, ElSwitch: true, ElOption: true, IconPicker: true,
       },
     },
@@ -111,9 +115,9 @@ describe('BlueprintWorkspace file delivery', () => {
     const { wrapper } = setup(); await flushPromises()
     const names = wrapper.findAll('.tab-pane').map(node => node.attributes('name'))
     expect(names).toEqual(['basic', 'prototype', 'data', 'navigation', 'nav-host', 'task-info', 'extensions', 'estimate', 'delivery', 'release'])
-    expect(wrapper.findAllComponents(NodeBasicInfo).map(component=>component.props('sections'))).toEqual([['capability'], ['navigation']])
-    expect(wrapper.text()).toContain('原型历史资源未绑定，当前仅维护原型描述')
-    expect(wrapper.text()).toContain('正式模型绑定未就绪，暂不可编辑导航宿主')
+    expect(wrapper.findAllComponents(NodeBasicInfo).map(component=>component.props('sections'))).toEqual([['capability']])
+    expect(wrapper.text()).not.toContain('原型历史资源未绑定')
+    expect(wrapper.text()).not.toContain('正式模型绑定未就绪')
     expect(wrapper.text()).toContain('参考实现暂无对应任务资源')
     expect(wrapper.text()).toContain('节点估算')
     expect(wrapper.text()).toContain('开发交付')
@@ -558,7 +562,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
     const Panels=defineComponent({components:{NodeBasicInfo,NodeTargetConfig,NodeStateConfig,NodeLayoutConfig},props:{state:Object},
       template:'<div><NodeBasicInfo :state="state"/><NodeTargetConfig :state="state"/><NodeStateConfig :state="state"/><NodeLayoutConfig :state="state"/></div>'})
-    const wrapper=mount(Panels,{props:{state},global:{stubs:{ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
+    const wrapper=mount(Panels,{props:{state},global:{stubs:{FieldSelect:Control,ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
       ElInputNumber:Control,ElRadioGroup:Control,ElRadioButton:true,ElOption:true,IconPicker:true}}})
     expect(wrapper.text()).not.toContain('功能描述')
     expect(wrapper.findAllComponents(Control).length).toBeGreaterThan(0)

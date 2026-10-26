@@ -21,6 +21,28 @@
           ]
         }
       }
+    },
+    "Base_Navigation_Desc_Version": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p007",
+        "modelName": "Base_Navigation_Desc_Version"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        }
+      }
+    },
+    "Base_Navigation_DataRelation": {
+      "modelBinding": {
+        "modelId": "6ab982ff-afa3-4d06-99ef-1c500b7587c6",
+        "modelName": "Base_Navigation_DataRelation"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        }
+      }
     }
   },
   "viewCascades": []

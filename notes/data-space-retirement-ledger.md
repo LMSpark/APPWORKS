@@ -2039,3 +2039,11 @@ flowchart TD
 - **自动化验证：**目标领域/配置测试最终 81 项通过（含数据空间目录、动态字典视图配置、导航字段绑定与外部脏态通知）；受影响文件 ESLint、全仓 `typecheck`、`verify:pages-config`、`verify:rules`、`generate:class-model-surface` 和 `build` 通过。ClassModel 正式生成 968 个 DTS、1991 个符号、1599 个索引、3178 条语义缺口；规则扫描保留既有 2 条 AI model spec warning、1 条 info。构建保留既有 CodeMirror ineffective dynamic import warning。没有 Java 更改。
 - **真实 SPA 只读烟测：**在原已登录标签恢复开发工作台，正式蓝图回读 41 个页面。进入“导航属性”并切换至“数据空间设计”节点后，动态候选把 `0` 展示为“在模块子级中显示”、`Left` 展示为“居左”，证明正式字典 DataView 已被运行消费。仅切换节点与查看选项标签，未编辑、保存或上传；未验证具备字段写权限节点的下拉交互与保存读回。
 - **状态与后续：**动态字典消费这一项已完成代码闭环并通过只读 SPA 展示；开发工作台按参考项目蓝图的整体实施仍 active。下一步继续取得 `Base_Navigation_Desc_Version` 与 `Base_Navigation_DataRelation` 的正式身份、字段和当次权限证据，再实施原型历史及导航宿主管理；同时继续核准数据空间改绑、AI新增、功能预览/导出及共享消费者。六阶段/扩展的信息架构不等于全业务等价，不能据此宣称整合完成。持续遵守 SPA、唯一 SPARK data 数据通道及不改/不启动/不部署后端 Java。
+
+#### 原型历史与导航宿主只读 DataView 接线（2026-10-27）
+
+- **正式配置：**在活动蓝图场景 `7AB874097A1E8711A42FD845939A6E05` 通过数据空间设计器的“5 数据视图”编辑器，为 `Base_Navigation_Desc_Version`（模型 ID `7AB874097A1E8711A42FD845939A6E05p007`）和 `Base_Navigation_DataRelation`（模型 ID `6ab982ff-afa3-4d06-99ef-1c500b7587c6`）分别新增同名 `default` 视图；每项显示“视图配置已保存并回读确认”。只保存模型绑定和默认视图，不设自动查询、过滤、输出投影或级联，不改模型字段、数据库记录或蓝图业务记录。工作台 `PageRuntime` 运行装配使用的远端场景 pagedata 是正式运行输入；这次也把同一身份、`autoLoad:false` 写入仓内 `config/pages/application/project-blueprint/pagedata.json`，使源码配置一致。
+- **实施与数据边界：**原型历史和导航宿主现由标准 `RendererTable` / `FieldText` 按完整 `场景ID@模型名@default` 直接绑定只读 DataView；查询按当前 `prowid` 过滤，切节点/切运行时后重新解析并校验回包归属和可读性，失败清空原 DataView 状态。未创建页面行副本、保存入口或权限推断。正式模型的 CRUD 元数据仍未给出可确认的编辑/删除合同，本批只接只读消费；历史新增/应用/删除及 NavHost CRUD 不在本批开放。
+- **自动化验证：**`tests/app/dev/blueprint-readonly-info.test.ts` 与 `tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` 合计 34 项通过；`pnpm run typecheck`、改动文件 ESLint、`pnpm run verify:pages-config`、`pnpm run build` 均退出 0。构建输出含已有 bundler ineffective dynamic import 警告；无 ClassModel 公共声明变化，无 Java 修改。
+- **真实 SPA 只读烟测：**从应用导航在原登录态内切换到开发工作台，未整页刷新。工作台解析两个新增视图并渲染正式字段；对 `DataBaseManage` 节点 `A0FA2BA0CF0C82B40DF6A319A3D5831D` 和 `ApplicationFunMan` 节点 `7AB874097A1E8711A42FD845939A6E05` 依次查看原型历史与导航宿主，均为 `No Data`，没有查询错误；因此证明视图键解析和空结果呈现，不证明服务端有记录、字段授权充分或写权限。全程没有新增、修改或删除任何业务行。
+- **当前状态：**只读运行绑定已完成，原型历史数据存在性、当次字段权限、正式主键及版本生命周期写回仍未验证；导航宿主的数据权限和引用完整性仍未验证。不得据此次空结果宣称完整蓝图功能已恢复。继续按单一台账推进其余域；SPARK data 为唯一数据通道、保持 SPA、不修改/启动/部署 Java。

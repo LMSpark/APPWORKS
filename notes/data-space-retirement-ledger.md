@@ -1682,3 +1682,12 @@ flowchart TD
 - 同一授权 SPA 会话返回 D99A 正式“数据字典”目录，只读打开 `B1Sort_20261024_1925F4C2`（ID `327D74EC0ABC4196AA75C56D944B8201`）。DataView 初始查询经 `POST /api/DataOperation/GetData` 返回 HTTP/envelope 200、Count 7；请求明确含 `rowid ascending, ordIdx ascending`，正式回读 `ordIdx 0/0/1/2/3/4/5`。点击标准表头“编码”后，升序 DataView 请求 `val ascending`，响应值序与界面一致：A、B、B1AI_0003_P、B1AI_0003_Q、C、G4S…A、G4S…B。表头按钮中心实测首击为 descending，下一次清除排序；通过升序图标执行升序，区分了操作命中区域与排序实现。未点击“设置排序”或“保存数据”；只改临时查询排序状态，关闭工作区且未写入业务数据。证据见 `notes/evidence/metadata-integration-20261026/b1-sort-live-readonly.json`。
 - 组件合同复核：`RendererTable` 接受 `toolbar.children` 标准按钮配置；字典页把“AI候选/新增/删除/设置排序/保存/取消”作为该 toolbar 的 children，并不是额外自制第二套工具栏。真实读取/表头排序链没有发现客户端行重排旁路；排序参数由绑定 DataView 下发并与响应顺序一致。
 - **当前状态更正**：真实 SPA 表头排序查询与返回/渲染一致已验证；B1“暂存设置排序 → 显式保存 → 同一 SPA 关闭重开正式读回”当前版本仍未实测。本次混合七行共享 smoke 字典继续不做排序写入。旧应用旧 URL 的正式导航身份仍缺部署/原始节点配置证据；不改路由映射、不访问该应用低代码治理写入口。总体整合仍在实施中。
+
+## 2026-10-26 B1 隔离字典排序持久化真实 SPA 验收
+
+- 在 D99A 正式“数据字典”目录通过标准工作区创建并保留专用字典 `B1Sort_20261026_IUVDPL`，正式 ID `C3C8B844AB3D4D4FA782568EE94BB353`。设计写入 `26952.2906` HTTP/envelope 200；正式目录回读 `26952.2907` 命中一条，条目回读 `26952.2908` 为零条。全程由绑定 `_Base_DictType` / `_Base_DictData` 的 SPARK data DataView 发起，网络只读观察；未直接调用业务 API。
+- 经标准 DataView UI 新增 C/A/B 三行，初始 `ordIdx=1/2/3`；新增请求 `26952.2918` 只含三条 Added，正式默认回读 `26952.2920` 为 C/A/B。表头升序请求 `26952.2921` 返回并渲染 A/B/C；点击“设置排序”仅暂存本地编辑覆盖、零请求，草稿 `ordIdx=1/2/3`。取消后正式查询 `26952.2923` 回读原持久值 A=2、B=3、C=1，关闭保护恢复，证明取消丢弃排序草稿。
+- 再次暂存并显式保存：请求 `26952.2924` HTTP/envelope 200，唯一目标表 `_Base_DictData`；Added/Deleted 均为空，Changed 精确为三条目标 rowid 的 `ordIdx`，无其它业务字段及设计记录。正式回读 `26952.2926` Count 3，A/B/C 的 ordIdx 为 1/2/3。
+- 同 SPA 切换至 `px_lsq_status`（ID `D39BC0D2B65836CD7D80AC84C53C5B99`），请求 `26952.2934` Code 200、Count 7，无测试字典数据混入或写入。关闭后重开 B1 专用字典，默认请求 `26952.2942` 按 `rowid ascending, ordIdx ascending` 返回并渲染 A/B/C，ordIdx 1/2/3。整个重开窗口 8 个网络事件、0 个 Document 请求，URL 保持原正式 SPA 路由，未整页刷新；最终工作区干净关闭。保留测试字典和三条测试数据，不做删除。
+- 完整请求/回执、字段范围、回读和边界记录见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。本结果核销当前构建的**隔离 B1 排序暂存、取消、显式保存、同 SPA 跨字典隔离及关闭重开持久化**烟测缺口，替代前节“当前版本仍未实测”的状态；此前七行共享字典只读观察保持历史有效，但不再代表当前排序持久化状态。
+- **状态：B1排序闭环的真实 SPA 验收完成，测试字典按计划保留；未删除任何模型/数据。B1 AI 候选生成、删除引用完整性、下游消费仍开放，不能将完整 B1 或总体数据空间整合标为完成。旧应用旧 URL `/DataCenter/ServerManagerment.html` 的正式导航目标仍未确认。**

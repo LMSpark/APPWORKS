@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-26",
+  "scope": "B1 displayed-order save, cancel, cross-dictionary isolation, and same-SPA reopen acceptance",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "route": "features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+  "transport": "All reads and writes were initiated by the application through SPARK data DataSet/DataView. Network traffic was observed read-only; no API request was issued outside the UI.",
+  "dictionary": {
+    "name": "B1Sort_20261026_IUVDPL",
+    "id": "C3C8B844AB3D4D4FA782568EE94BB353",
+    "modelName": "_Base_DictData",
+    "typeid": "C3C8B844AB3D4D4FA782568EE94BB353",
+    "preservedForFollowup": true
+  },
+  "initialDesignSave": {
+    "requestId": "26952.2906",
+    "endpoint": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+    "httpStatus": 200,
+    "envelopeCode": 200,
+    "addedDefinitions": 1,
+    "changedDefinitions": 0,
+    "deletedDefinitions": 0,
+    "readbackRequestId": "26952.2907",
+    "readbackCount": 1,
+    "entryReadbackRequestId": "26952.2908",
+    "entryReadbackCount": 0
+  },
+  "initialRows": {
+    "saveRequestId": "26952.2918",
+    "httpStatus": 200,
+    "envelopeCode": 200,
+    "added": [
+      { "val": "C", "txt": "B1独立排序 C", "ordIdx": 1, "rowid": "1B0F1DBBEC3A16F562EC23447AEC5E5C" },
+      { "val": "A", "txt": "B1独立排序 A", "ordIdx": 2, "rowid": "8A9F5D5E60A2B28F40EAF09D0AC03400" },
+      { "val": "B", "txt": "B1独立排序 B", "ordIdx": 3, "rowid": "0F70C634561A964EA475AF56CE479DA4" }
+    ],
+    "changed": [],
+    "deleted": [],
+    "defaultReadbackRequestId": "26952.2920",
+    "defaultReadbackCode": 200,
+    "defaultReadbackOrder": ["C", "A", "B"]
+  },
+  "sortAndCancel": {
+    "headerSortRequestId": "26952.2921",
+    "headerSort": { "field": "val", "direction": "ascending" },
+    "headerSortHttpStatus": 200,
+    "headerSortEnvelopeCode": 200,
+    "headerSortResponseOrder": ["A", "B", "C"],
+    "setDisplayedOrderWasLocalOnly": true,
+    "stagedOrder": [
+      { "val": "A", "ordIdx": 1 },
+      { "val": "B", "ordIdx": 2 },
+      { "val": "C", "ordIdx": 3 }
+    ],
+    "cancel": {
+      "definitionReadRequestId": "26952.2922",
+      "entryReadRequestId": "26952.2923",
+      "entryReadHttpStatus": 200,
+      "entryReadEnvelopeCode": 200,
+      "entryReadCount": 3,
+      "persistedOrdIdxAfterCancel": { "A": 2, "B": 3, "C": 1 },
+      "closeProtectionRestored": true
+    }
+  },
+  "finalOrderSave": {
+    "setDisplayedOrderWasLocalOnly": true,
+    "explicitSaveRequestId": "26952.2924",
+    "endpoint": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+    "httpStatus": 200,
+    "envelopeCode": 200,
+    "message": "操作成功",
+    "tableName": "_Base_DictData",
+    "added": [],
+    "changed": [
+      { "rowid": "8A9F5D5E60A2B28F40EAF09D0AC03400", "fields": ["ordIdx"], "ordIdx": 1 },
+      { "rowid": "0F70C634561A964EA475AF56CE479DA4", "fields": ["ordIdx"], "ordIdx": 2 },
+      { "rowid": "1B0F1DBBEC3A16F562EC23447AEC5E5C", "fields": ["ordIdx"], "ordIdx": 3 }
+    ],
+    "deleted": [],
+    "formalReadbackRequestId": "26952.2926",
+    "formalReadbackHttpStatus": 200,
+    "formalReadbackEnvelopeCode": 200,
+    "formalReadbackCount": 3,
+    "formalReadbackOrder": [
+      { "val": "A", "ordIdx": 1, "rowid": "8A9F5D5E60A2B28F40EAF09D0AC03400" },
+      { "val": "B", "ordIdx": 2, "rowid": "0F70C634561A964EA475AF56CE479DA4" },
+      { "val": "C", "ordIdx": 3, "rowid": "1B0F1DBBEC3A16F562EC23447AEC5E5C" }
+    ]
+  },
+  "isolationAndReopen": {
+    "otherDictionary": {
+      "name": "px_lsq_status",
+      "id": "D39BC0D2B65836CD7D80AC84C53C5B99",
+      "requestId": "26952.2934",
+      "envelopeCode": 200,
+      "count": 7,
+      "testDictionaryRowsMixedIn": false,
+      "writes": 0
+    },
+    "reopen": {
+      "requestId": "26952.2942",
+      "defaultSort": [
+        { "field": "rowid", "direction": "ascending" },
+        { "field": "ordIdx", "direction": "ascending" }
+      ],
+      "httpStatus": 200,
+      "envelopeCode": 200,
+      "count": 3,
+      "responseOrder": [
+        { "val": "A", "ordIdx": 1 },
+        { "val": "B", "ordIdx": 2 },
+        { "val": "C", "ordIdx": 3 }
+      ],
+      "renderedOrderMatchesResponse": true
+    },
+    "sameSpaRouteRetained": true,
+    "documentRequestsDuringReopenWindow": 0,
+    "fullPageRefreshUsed": false,
+    "workspaceClosedCleanlyAtEnd": true
+  },
+  "deletions": 0,
+  "limitations": [
+    "This closes the isolated B1 displayed-order persistence scenario for the current build; it does not close AI candidate generation, deletion reference integrity, or downstream consumption in the broader plan.",
+    "This is a real SPA smoke against the current service and does not establish behavior for other deployments or untested permission profiles."
+  ]
+}

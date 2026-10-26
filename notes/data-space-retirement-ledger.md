@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-26）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/复核/烟测/更新台账；总体仍为 implementing。本批起点 `3497eac4a`（`docs: record B1 SPA sort acceptance`）记录了 B1 隔离字典排序的真实 SPA 闭环验收，详细请求、回执、回读与边界见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。该验收覆盖暂存、取消、显式保存、跨字典隔离及同 SPA 关闭重开，不代表完整 B1：AI 候选生成、删除引用完整性及下游消费仍开放。本批补充删除守卫七种 DataView 状态的回归用例，独立复跑 97/97 通过，仍只证明失败关闭，不证明全局引用完整。B2 目录/关系实现及目录编辑、删除、连接测试和 TableAndView alias 的代码/自动化进展见文末；数据库登记、真实部署回执与连通性、删除引用/物理完整性以及旧路径实页验收仍未收口。`/DataCenter/ServerManagerment.html` 的正式目标身份尚未确认；本轮从正式应用列表进入 00BE 复现系统页身份失效，现场见 `notes/evidence/metadata-integration-20261026/data-assets-app-home-target-error.png`，不按 URL 猜测映射。阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。下一项工作按最近留存的整合/B1计划和已证实缺口选择，不宣称整体完成。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
+> **当前入口（2026-10-26；HEAD `757703feb`）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/复核/烟测/更新台账；总体仍为 implementing。本地服务器目录已补标准名称/IP/类型筛选（提交 `470a7b125`），真实 D99A SPA 已验证名称/IP查询结果与重置恢复；类型下拉仍缺已存在的 DM、KINGBASE，正式选项来源待核。TableAndView 经 D99A 原生菜单进入同 SPA 正式路由，`dm_test → viewtesst → 14字段` 的只读可见链已验证；这不证明 00BE 旧节点 `/DataCenter/ServerManagerment.html` 的正式目标映射，该目标身份仍未确认。完整 B1 仍缺 AI 候选生成、删除引用完整性及下游消费；删除守卫七种 DataView 状态已有97/97回归，仅证明失败关闭，不证明全局引用完整。B2 数据库登记、部署连接测试/物理连通性、删除引用与物理完整性、命令回执及整页对照仍未收口；阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 

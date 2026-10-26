@@ -8,7 +8,7 @@ import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
-import {attachCatalogCommandViews} from './lowcode-database-dataset-extensions'
+import {attachCatalogCommandViews, attachDatabaseDirectoryConnectionTestViews} from './lowcode-database-dataset-extensions'
 import {DATABASE_SERVER_TYPE_OPTIONS} from './database-server-catalog-metadata'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
 import {DATABASE_CATALOG_DB_MODEL} from './lowcode-database-table-view'
@@ -16,6 +16,8 @@ import {resolveDatabaseCatalogScenarioId} from './database-catalog-scenario'
 
 export const DATABASE_DIRECTORY_COMMAND_INPUT_TABLE = 'DatabaseDirectoryCommandInput'
 export const DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE = 'DatabaseDirectoryUnregisteredDatabaseNames'
+export const DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE = 'DatabaseDirectoryConnectionTestInput'
+export const DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE = 'DatabaseDirectoryConnectionTestResult'
 
 const DATABASE_DIRECTORY_META_NAMES = [DATABASE_SERVER_MODEL, DATABASE_CATALOG_DB_MODEL] as const
 
@@ -111,6 +113,8 @@ export class LowcodeDatabaseDirectory {
           unregisteredDbNames: DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE,
         },
       })
+      attachDatabaseDirectoryConnectionTestViews({dataSet, http: lowcodeHttp, assertScope: assertCurrent,
+        tables: {commandInput: DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, testResult: DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE}})
       const serverView = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       const databaseView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
       if (!serverView || !databaseView) throw new Error('数据库目录缺少正式服务器或数据库视图')

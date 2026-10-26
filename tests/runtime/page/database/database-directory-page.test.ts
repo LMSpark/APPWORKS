@@ -11,6 +11,7 @@ import {DATABASE_TABLE_VIEW_SCENARIO_ID, DatabaseTableViewHttp, bootstrapDatabas
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {DATABASE_CATALOG_DB_MODEL} from '@/lowcode/resources/database/lowcode-database-table-view'
 import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/lowcode-database-directory'
+import {attachDatabaseDirectoryConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/lowcode-database-dataset-extensions'
 import {databaseTableViewModels} from './database-table-view.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 
@@ -90,6 +91,187 @@ async function selectRow(table: VueWrapper): Promise<void> {
 }
 
 describe('database directory page', () => {
+  it('attaches a database-level connection test owner to the directory DataSet', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    try {
+      attachDatabaseDirectoryConnectionTestViews({dataSet: ds, http, assertScope: () => {},
+        tables: {commandInput: 'DatabaseDirectoryConnectionTestInput', testResult: 'DatabaseDirectoryConnectionTestResult'}})
+      expect(ds.getView('DatabaseDirectoryConnectionTestInput', 'default')).toBeTruthy()
+      expect(ds.getView('DatabaseDirectoryConnectionTestResult', 'default')).toBeTruthy()
+      const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+      const dbRow = dbView.rows[0]!
+      dbView.setSelectedRows([dbRow])
+      expect(captureDatabaseDirectoryConnectionTestTarget(ds, dbView.getPkKey(dbRow)!)).toBe('业务库')
+      const commandView = ds.getView('DatabaseDirectoryConnectionTestInput', 'default')!
+      const input = commandView.rows[0]!, inputId = commandView.getPkKey(input)!
+      expect(input).toMatchObject({Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', dbName: '业务库', UserName: '', Password: ''})
+      commandView.updateEditingValue(inputId, 'UserName', 'temporary-user')
+      commandView.updateEditingValue(inputId, 'Password', 'temporary-secret')
+      const result = ds.getView('DatabaseDirectoryConnectionTestResult', 'default')!
+      await result.refresh()
+      expect(result.rows[0]?.['ok']).toBe('true')
+      const request = http.requests.find(item => item.url === '/api/Db/testConnection?db=%E4%B8%9A%E5%8A%A1%E5%BA%93')
+      expect(request?.data).toEqual({Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', UserName: 'temporary-user', Password: 'temporary-secret'})
+      expect(input['UserName']).toBe('')
+      expect(input['Password']).toBe('')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      expect(commandView.hasEditingChanges(inputId)).toBe(false)
+      commandView.updateEditingValue(inputId, 'UserName', 'temporary-user')
+      commandView.updateEditingValue(inputId, 'Password', 'temporary-secret')
+      http.connectionTestMode = 'false'
+      await result.refresh()
+      expect(result.rows[0]?.['ok']).toBe('false')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      commandView.updateEditingValue(inputId, 'UserName', 'temporary-user')
+      commandView.updateEditingValue(inputId, 'Password', 'temporary-secret')
+      http.connectionTestMode = 'rejected'
+      await result.refresh()
+      expect(result.loadingError?.message).toContain('数据库连接失败')
+      expect(commandView.rows[0]?.['Password']).toBe('')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      expect(commandView.hasEditingChanges(inputId)).toBe(false)
+    } finally {ds.destroy()}
+  })
+
+  it('rejects missing field read permission and clears secrets when the target identity changes', async () => {
+    http.hiddenFieldsByModel['Base_serverInfo'] = ['Port']
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    try {
+      const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+      const row = dbView.rows[0]!
+      dbView.setSelectedRows([row])
+      expect(() => captureDatabaseDirectoryConnectionTestTarget(ds, dbView.getPkKey(row)!)).toThrow('字段读取权限: Port')
+    } finally {ds.destroy()}
+
+    http.hiddenFieldsByModel = {}
+    const next = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    try {
+      attachDatabaseDirectoryConnectionTestViews({dataSet: next, http, assertScope: () => {},
+        tables: {commandInput: 'DatabaseDirectoryConnectionTestInput', testResult: 'DatabaseDirectoryConnectionTestResult'}})
+      const dbView = next.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+      const row = dbView.rows[0]!
+      dbView.setSelectedRows([row])
+      captureDatabaseDirectoryConnectionTestTarget(next, dbView.getPkKey(row)!)
+      const commandView = next.getView('DatabaseDirectoryConnectionTestInput', 'default')!
+      const input = commandView.rows[0]!, inputId = commandView.getPkKey(input)!
+      commandView.updateEditingValue(inputId, 'UserName', 'temp'); commandView.updateEditingValue(inputId, 'Password', 'secret')
+      row['Name'] = 'changed'
+      await next.getView('DatabaseDirectoryConnectionTestResult', 'default')!.refresh()
+      expect(input['UserName']).toBe('')
+      expect(input['Password']).toBe('')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      expect(commandView.hasEditingChanges(inputId)).toBe(false)
+      expect(http.requests.some(request => request.url?.startsWith('/api/Db/testConnection?db='))).toBe(false)
+    } finally {clearDatabaseDirectoryConnectionTest(next); next.destroy()}
+  })
+
+  it('shows a visible connection-test error when the selected server field is unreadable', async () => {
+    http.hiddenFieldsByModel['Base_serverInfo'] = ['Port']
+    const wrapper = await open()
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    await pageButton(wrapper, '测试数据库连接').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('字段读取权限: Port')
+    expect(wrapper.findAll('.el-dialog')).toHaveLength(0)
+  })
+
+  it('clears temporary credentials after a thrown transport error and on dialog cancellation', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    try {
+      attachDatabaseDirectoryConnectionTestViews({dataSet: ds, http, assertScope: () => {},
+        tables: {commandInput: 'DatabaseDirectoryConnectionTestInput', testResult: 'DatabaseDirectoryConnectionTestResult'}})
+      const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+      const dbRow = dbView.rows[0]!
+      dbView.setSelectedRows([dbRow])
+      captureDatabaseDirectoryConnectionTestTarget(ds, dbView.getPkKey(dbRow)!)
+      const commandView = ds.getView('DatabaseDirectoryConnectionTestInput', 'default')!
+      const input = commandView.rows[0]!, inputId = commandView.getPkKey(input)!
+      commandView.updateEditingValue(inputId, 'UserName', 'temp'); commandView.updateEditingValue(inputId, 'Password', 'secret')
+      http.connectionTestMode = 'throw'
+      const result = ds.getView('DatabaseDirectoryConnectionTestResult', 'default')!
+      await result.refresh()
+      expect(result.loadingError?.message).toContain('connection test transport failed')
+      expect(input['UserName']).toBe(''); expect(input['Password']).toBe('')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      expect(commandView.hasEditingChanges(inputId)).toBe(false)
+      commandView.updateEditingValue(inputId, 'UserName', 'cancelled-user'); commandView.updateEditingValue(inputId, 'Password', 'cancelled-secret')
+      clearDatabaseDirectoryConnectionTest(ds)
+      expect(input['UserName']).toBe(''); expect(input['Password']).toBe('')
+      expect(commandView.getEditingRow(inputId)?.['Password']).toBe('')
+      expect(commandView.hasEditingChanges(inputId)).toBe(false)
+    } finally {http.connectionTestMode = 'ok'; ds.destroy()}
+  })
+
+  it('binds temporary credentials through RendererForm and displays the result DataView', async () => {
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const ds = await load.mock.results[0]?.value
+    const dbView = ds!.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    const dbRow = dbView.rows[0]!
+    expect(wrapper.findAllComponents(RendererTable)[1]!.get('.renderer-toolbar').text()).toContain('测试数据库连接')
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    await pageButton(wrapper, '测试数据库连接').trigger('click')
+    await flushPromises()
+    const dialogs = wrapper.findAll('.el-dialog')
+    const dialog = dialogs.at(-1)!
+    const rendererDialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('modelValue') === true)
+    expect(rendererDialog?.props('dataViewKey')).toBe(`${ds!.scenarioId}@DatabaseDirectoryConnectionTestInput@default`)
+    expect(dialog.text()).toContain('当前目标数据库：业务库')
+    const inputForm = wrapper.findAllComponents(RendererForm).find(form => String(form.props('dataViewKey')).includes('DatabaseDirectoryConnectionTestInput'))
+    expect(inputForm).toBeTruthy()
+    const userItem = dialog.findAll('.el-form-item').find(item => item.find('label').text() === '账号')!
+    const passItem = dialog.findAll('.el-form-item').find(item => item.find('label').text() === '密码')!
+    await userItem.get('input').setValue('typed-user')
+    await passItem.get('input').setValue('typed-secret')
+    await flushPromises()
+    const dsCommand = ds!.getView('DatabaseDirectoryConnectionTestInput', 'default')!
+    const commandId = dsCommand.getPkKey(dsCommand.rows[0]!)!
+    expect(dsCommand.getEditingRow(commandId)?.['Password']).toBe('typed-secret')
+    expect(mocks.dirtySources.at(-1)?.isDirty).toBe(false)
+    await dialog.findAll('button').find(button => button.text() === '测试连接')!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const request = http.requests.find(item => item.url === '/api/Db/testConnection?db=%E4%B8%9A%E5%8A%A1%E5%BA%93')
+    expect(request?.data).toMatchObject({UserName: 'typed-user', Password: 'typed-secret'})
+    expect(dsCommand.rows[0]?.['Password']).toBe('')
+    expect(dsCommand.getEditingRow(commandId)?.['Password']).toBe('')
+    expect(dsCommand.hasEditingChanges(commandId)).toBe(false)
+    expect(ds!.getView('DatabaseDirectoryConnectionTestResult', 'default')?.rows[0]?.['ok']).toBe('true')
+    expect(dbView.getSelectedValues()).toEqual([dbView.getPkKey(dbRow)])
+  })
+
+  it('drops a late connection result after the selected database changes', async () => {
+    http.rows[DATABASE_CATALOG_DB_MODEL]!.push({rowid: 'DB2', serverId: 'S1', Name: '归档库', ServerName: '主库', Type: 'MYSQL', SchemaName: 'dbo', Remark: ''})
+    let release!: () => void
+    http.connectionTestGate = new Promise<void>(resolve => {release = resolve})
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const ds = await load.mock.results[0]?.value
+    const dbTable = wrapper.findAllComponents(RendererTable)[1]!
+    await dbTable.findAll('.el-table__body-wrapper tbody tr')[0]!.trigger('click')
+    await flushPromises()
+    await pageButton(wrapper, '测试数据库连接').trigger('click')
+    await flushPromises()
+    const dialog = wrapper.findAll('.el-dialog').at(-1)!
+    await dialog.findAll('.el-form-item').find(item => item.find('label').text() === '账号')!.get('input').setValue('late-user')
+    await dialog.findAll('.el-form-item').find(item => item.find('label').text() === '密码')!.get('input').setValue('late-secret')
+    await dialog.findAll('button').find(button => button.text() === '测试连接')!.trigger('click')
+    await Promise.resolve()
+    await dbTable.findAll('.el-table__body-wrapper tbody tr')[1]!.trigger('click')
+    await flushPromises()
+    release()
+    await flushPromises()
+    await flushPromises()
+    const result = ds!.getView('DatabaseDirectoryConnectionTestResult', 'default')!
+    expect(result.rows).toEqual([])
+    const input = ds!.getView('DatabaseDirectoryConnectionTestInput', 'default')!
+    const inputId = input.getPkKey(input.rows[0]!)!
+    expect(input.rows[0]?.['Password']).toBe('')
+    expect(input.getEditingRow(inputId)?.['Password']).toBe('')
+    expect(input.hasEditingChanges(inputId)).toBe(false)
+    delete http.connectionTestGate
+  })
+
   it('renders both formal DataViews without implicit server filtering and guards dirty DataView state', async () => {
     const wrapper = await open()
     expect(wrapper.findAllComponents(RendererTable)).toHaveLength(2)

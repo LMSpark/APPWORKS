@@ -85,6 +85,8 @@ export const databaseTableViewModels = {
 
 export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
+  connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
+  connectionTestGate?: Promise<void>
   deniedFieldsByModel: Record<string, readonly string[]> = {}
   hiddenFieldsByModel: Record<string, readonly string[]> = {}
   rejectNextRelationSave = false
@@ -160,6 +162,12 @@ export class DatabaseTableViewHttp extends HttpClientBase {
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
+    if (config.url?.startsWith('/api/Db/testConnection?db=')) {
+      await this.connectionTestGate
+      if (this.connectionTestMode === 'throw') throw new Error('connection test transport failed')
+      if (this.connectionTestMode === 'rejected') return {data: {Code: 500, Message: '数据库连接失败', Result: false}, status: 200, statusText: 'OK', headers: {}}
+      return {data: {Code: 200, Message: 'OK', Result: this.connectionTestMode === 'ok'}, status: 200, statusText: 'OK', headers: {}}
+    }
     if (config.url?.startsWith('/api/Db/getUnregisteredDb/')) {
       const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))
       return {data: this.unregisteredDbBody ?? this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}

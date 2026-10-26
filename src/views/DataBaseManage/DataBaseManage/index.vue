@@ -29,6 +29,19 @@ AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正
             :highlight-current-row="true" :show-pagination="true" :show-data-view-meta="false" />
         </section>
       </div>
+      <p v-if="connectionTestError && !connectionTestOpen" role="alert">{{ connectionTestError }}</p>
+      <RendererDialog :data-view-key="connectionTestInputKey" :model-value="connectionTestOpen" title="测试数据库连接" :width="560"
+        @update:model-value="closeConnectionTest">
+        <p>当前目标数据库：{{ selectedDatabase?.['Name'] ?? '' }}</p>
+        <p>数据库与服务器参数来自当前选中的目录记录。账号和密码仅用于本次测试。</p>
+        <RendererForm :data-view-key="connectionTestInputKey" :children="CONNECTION_TEST_FIELDS" />
+        <RendererForm :data-view-key="connectionTestResultKey" :children="CONNECTION_TEST_RESULT_FIELDS" :readonly="true" />
+        <p v-if="connectionTestError" role="alert">{{ connectionTestError }}</p>
+        <template #footer>
+          <RendererButton label="取消" @click="closeConnectionTest(false)" />
+          <RendererButton label="测试连接" :disabled="connectionTesting" @click="runConnectionTest" />
+        </template>
+      </RendererDialog>
       <RegisterDatabaseDialog v-if="editing" :catalog-key="databaseKey" :server-label="selectedServerLabel"
         :editing="editing" :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredHint"
         :can-load-unregistered="canLoadUnregistered" @cancel="cancelEdit" @save="saveEdit"
@@ -55,15 +68,17 @@ import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree,
   type RuntimeNavigationItem} from '@spark-appworks/spark-app'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, useSparkComponent,
+import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent,
   type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useRoute} from 'vue-router'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
   DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/lowcode-database-directory'
 import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
+import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/lowcode/resources/database/lowcode-database-directory'
+import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/lowcode-database-dataset-extensions'
 import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
 import {
   databaseCatalogDbBeginCreate,
@@ -99,6 +114,7 @@ const edit = shallowRef<DatabaseCatalogDbEditState>()
 const deleteConfirmation = shallowRef<{id: string | number; name: string}>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref('')
+const connectionTestOpen = ref(false), connectionTesting = ref(false), connectionTestError = ref('')
 let runtime: PageRuntime | undefined
 let unsubscribe: (() => void) | undefined
 let generation = 0
@@ -107,6 +123,17 @@ let active = true
 
 const databaseKey = computed(() => buildDataViewKey('_base_dbInfo', 'default', dataSet.value?.scenarioId ?? scenarioId.value))
 const serverKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const connectionTestInputKey = computed(() => buildDataViewKey(DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const connectionTestResultKey = computed(() => buildDataViewKey(DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE, 'default', dataSet.value?.scenarioId ?? scenarioId.value))
+const CONNECTION_TEST_FIELDS: SparkNode[] = [
+  {type: 'r-text', props: {field: 'Type', label: '数据库类型', readonly: true}},
+  {type: 'r-text', props: {field: 'ServerName', label: '服务器', readonly: true}},
+  {type: 'r-text', props: {field: 'ip_address', label: '主机地址', readonly: true}},
+  {type: 'r-text', props: {field: 'Port', label: '端口', readonly: true}},
+  {type: 'r-text', props: {field: 'UserName', label: '账号'}},
+  {type: 'r-text', props: {field: 'Password', label: '密码', showPassword: true}},
+]
+const CONNECTION_TEST_RESULT_FIELDS: SparkNode[] = [{type: 'r-text', props: {field: 'ok', label: '测试结果'}}]
 const listFilter = computed<RFilterProps>(() => ({autoQuery: true, collapsible: true, defaultCollapsed: true}))
 const databaseError = computed(() => {revision.value; return databaseView.value?.loadingError?.message ?? ''})
 const serverError = computed(() => {revision.value; return serverView.value?.loadingError?.message ?? ''})
@@ -132,6 +159,7 @@ const toolbar = computed<RToolbarProps>(() => {
       || !databaseCatalogDbCanEdit(databases, edit.value), onClick: beginEdit}},
     {type: 'r-button', props: {label: '删除', disabled: busy.value || !!edit.value || !databases
       || !databaseCatalogDbCanDelete(databases, selectedDatabase.value ? databases.getPkKey(selectedDatabase.value) : undefined), onClick: beginDelete}},
+    {type: 'r-button', props: {label: '测试数据库连接', disabled: busy.value || !!edit.value || connectionTesting.value || !selectedDatabase.value, onClick: beginConnectionTest}},
     {type: 'r-button', props: {label: '管理', disabled: busy.value || !selectedDatabase.value, onClick: openTableView}},
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
@@ -140,8 +168,9 @@ function hasPendingWork(): boolean {
   if (busy.value || loading.value) return true
   const ds = dataSet.value
   if (!ds) return false
-  return Object.values(ds.tables).some(table => Object.values(table.views).some(view =>
-    view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+  return Object.values(ds.tables).some(table => table.tableName !== DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE
+    && Object.values(table.views).some(view =>
+      view.mutating || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
 }
 useSystemPageDirtySource({get isDirty() {return hasPendingWork()}})
 const selectedDatabase = computed(() => {
@@ -165,7 +194,42 @@ function chooseDatabase(row: DataRow): void {
   const original = toRaw(row)
   if (busy.value || edit.value || !view?.rows.includes(original)) return
   view.setSelectedRows([original])
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  if (connectionTestOpen.value && dataSet.value) {
+    try {
+      const id = view.getPkKey(original)
+      if (typeof id !== 'string' && typeof id !== 'number') throw new Error('所选数据库缺少正式主键')
+      captureDatabaseDirectoryConnectionTestTarget(dataSet.value, id)
+      connectionTestError.value = ''
+    } catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+  }
   revision.value++
+}
+
+function beginConnectionTest(): void {
+  try {
+    const ds = dataSet.value, view = databaseView.value, row = selectedDatabase.value
+    if (!ds || !view || !row) throw new Error('请先明确选择数据库目录记录')
+    const id = view.getPkKey(row)
+    if (typeof id !== 'string' && typeof id !== 'number') throw new Error('所选数据库缺少正式主键')
+    captureDatabaseDirectoryConnectionTestTarget(ds, id)
+    connectionTestError.value = ''; connectionTestOpen.value = true
+  } catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+}
+
+async function runConnectionTest(): Promise<void> {
+  const ds = dataSet.value, result = ds?.getView(DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE, 'default')
+  if (!ds || !result || connectionTesting.value) return
+  connectionTesting.value = true; connectionTestError.value = ''
+  try {await result.refresh(); if (result.loadingError) throw result.loadingError}
+  catch (cause) {connectionTestError.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {connectionTesting.value = false; revision.value++}
+}
+
+function closeConnectionTest(open: boolean): void {
+  if (open) return
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  connectionTestOpen.value = false; connectionTestError.value = ''
 }
 
 type ScopedNavigationNode = Readonly<{item: RuntimeNavigationItem; ancestorUnavailable: boolean}>
@@ -388,6 +452,8 @@ function release(): void {
   actionGeneration++
   busy.value = false; actionError.value = ''; message.value = ''; unregisteredHint.value = ''
   unsubscribe?.(); unsubscribe = undefined
+  if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
+  connectionTestOpen.value = false; connectionTesting.value = false
   sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
   edit.value = undefined; serverView.value = undefined; databaseView.value = undefined
   deleteConfirmation.value = undefined

@@ -1621,3 +1621,12 @@ flowchart TD
 - 测试先行：新增提示断言在旧提示下 RED，改文案后 GREEN；主控独立运行 `pnpm exec vitest run tests/runtime/page/database/database-directory-page.test.ts`，1文件23/23通过。无 Java 改动、SPA 请求或业务写入。
 - 数据库级连接探测只读分析：参考原前端查询合同将 `dbName` 作为 SPARK data 查询条件；另一只读 Java 源码版本则用 `/api/Db/testConnection?db=<encoded>` 请求参数，两者合同形态并不一致。当前目录 DataView 不公开数据库/服务器密码凭据，服务器查询也明确不投影密码。探测若继续实施，须在同一数据库目录 DataSet 内以临时命令 DataView 承载用户显式提供的凭据和目标库，确保密码只在执行期内存并于 `finally` 清空，结果由只读结果 DataView 承载；不得从不可读字段偷取凭据、写入正式目录或日志，也不得假定当前服务端点按任一参考版本实现。实现前须以本仓现行运行/API合同厘清 `dbName` 的服务承接方式。
 - **状态：删除提示与台账已按参考源码边界纠偏，部署删除行为及关系完整性仍待已授权 SPA 证据。下一项数据库级探测仍处于合同分析，尚未实现；B2 与总体整合继续 implementing。本轮未推送。**
+
+## 2026-10-26 B2 数据库目录连接测试实施收口
+
+- 按“先整合最新远程提交，再分析，继续”执行 `git fetch --all --prune`。当前 `HEAD=f4e9d092a` 包含 `github/10-17=7e288e7db` 与 `origin/10-17=7e288e7db`，没有待合并远程提交；工作分支仍为 `codex/ai-data-entry`。此前本地删除合同提示修正 `f4e9d092a` 保留，本轮不重置或丢弃工作。
+- 数据库级连接测试实现为数据库目录 `DataSet` 内的临时命令输入 DataView 与只读结果 DataView。标准 `RendererTable` 工具栏触发；对话框及表单绑定完整 `scenarioId@模型@视图` 键。执行时按已选目录正式主键重新核数据库/服务器身份及字段读取权限，连接参数取自当前正式目录行，账号密码由用户临时输入；不读取或改写目录保存的密码。业务请求由结果 DataView 的刷新命令承接，`http.post` 仅位于该 DataView owner 的资源适配内，页面无直接 HTTP、第二提交器或业务草稿。临时密码在成功、拒绝、异常、取消、目标切换及实例释放时清空，延迟的旧目标结果丢弃；临时输入表不污染系统页未保存保护。
+- 本次端点与回执仍按本地参考源码的 `/api/Db/testConnection?db=<encoded>` 和 `{Code,Message,Result}` 契约实现，未以部署服务证据证明该合同。此前台账已经记录参考前端不同版本存在 `dbName` 查询过滤形态差异；本实现选择的是 Java 参考源码形态，但不修改、启动或部署 Java。真实部署服务端点、回执及物理连接成功仍待已授权 SPA 烟测验证。
+- 测试先行和复核：写者的 RED/GREEN 与主控增加的对话框 DataView 绑定、标准表格工具栏位置用例均已记录在实现任务过程；最终主控复跑 `pnpm exec vitest run tests/runtime/page/database/database-directory-page.test.ts` 为1文件29/29通过，`git diff --check`退出0。最终 `.at(0)`类型/lint修正后 `pnpm run typecheck` 与五个相关源/测试文件 scoped ESLint（`--max-warnings=0`）均退出0；完整数据库套件13文件188/188在该微小等价修正前通过。官方 `generate:lowcode-contracts`退出0（611 endpoints/210 consumers），只更新消费者台账源行；`verify:rules`与`build`在该微小修正前退出0，保留原有生成器/打包提示。无ClassModel公开合同变更；未手改生成物。
+- 最终复核范围确认没有 Java 文件变更、没有页面直接 HTTP、没有额外保存器；输入和结果均由当前 DataSet/DataView 管理。真实 SPA 烟测未执行：当前没有可复用的已授权 SPA 会话；本批没有调用服务、验证真实凭据、物理连接或产生业务写入，故自动化成功不能核销真实连接测试验收。
+- **状态：B2 数据库目录连接测试代码、自动化复核及本地工程门禁收口并提交本地分支，未推送。实现的部署 API/回执和真实数据库连通性仍未验收。B2仍开放已有数据库登记、删除与引用完整性、真实服务回执/未知结果和整页对照；总体数据空间整合继续 implementing。下一步须在已授权 SPA 会话恢复后，先只读诊断可安全复用且物理可连接的测试库，再执行专用测试，不得拿业务/备份库试写或试连。**

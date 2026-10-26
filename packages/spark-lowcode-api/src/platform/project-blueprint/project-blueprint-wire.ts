@@ -60,15 +60,19 @@ function placement(value: string): BlueprintNavigation['placement'] {
 }
 
 /** 正式分组写回已有导航字段；应用归属只用于设计记录，业务请求作用域仍由请求层注入。 */
-export function lowcodeProjectBlueprintFields(node: LowcodeProjectBlueprintRecord): Record<string, string | number> {
-  if (node.kind === 'unknown') throw new Error('未知蓝图 kind 不能保存')
+export function lowcodeProjectBlueprintFields(
+  node: LowcodeProjectBlueprintRecord,
+  selectedFields?: readonly string[],
+): Record<string, string | number> {
+  if (selectedFields === undefined && node.kind === 'unknown') throw new Error('未知蓝图 kind 不能保存')
+  if (selectedFields?.includes('conType') && node.kind === 'unknown') throw new Error('未知蓝图 kind 不能写入 conType')
   const navigation = node.navigation
   const openModes = { subsystem: '4', current: '3', 'new-window': '2', modal: '1', embedded: '0' }
   const placements = { top: 'Top', left: 'Left', right: 'Right', parent: 'Parent', tabs: 'Tabs', popup: 'Popup' }
-  return {
+  const fields: Record<string, string | number> = {
     name: node.capability.name, memo: node.capability.description ?? '', funCode: node.capability.code ?? '',
     personCharge: node.capability.ownerId ?? '', status: node.capability.deliveryStatus ?? '',
-    conType: node.kind === 'module' ? 'Model' : node.kind === 'page' ? 'Navitem' : node.kind,
+    conType: node.kind === 'unknown' ? '' : node.kind === 'module' ? 'Model' : node.kind === 'page' ? 'Navitem' : node.kind,
     FunName: navigation?.title ?? '', FunOrderValue: navigation?.order ?? 0,
     NavigationImageWxz: navigation?.icon ?? '', NavigationUrl: navigation?.target ?? '', MobileUrl: navigation?.mobileTarget ?? '',
     NavigationType: navigation?.openMode === undefined ? '' : openModes[navigation.openMode],
@@ -78,6 +82,7 @@ export function lowcodeProjectBlueprintFields(node: LowcodeProjectBlueprintRecor
     BeginGroup: navigation?.beginGroup ? 1 : 0, conid: node.dataSpace?.scenarioId ?? '',
     htmlDesc: node.prototype?.htmlDescription ?? '',
   }
+  return selectedFields === undefined ? fields : Object.fromEntries(selectedFields.map(field => [field, fields[field]]).filter((entry): entry is [string, string | number] => entry[1] !== undefined))
 }
 
 /** 将原 query context 的消费行归一化为蓝图记录，保留未知 kind 供领域层诊断。 */

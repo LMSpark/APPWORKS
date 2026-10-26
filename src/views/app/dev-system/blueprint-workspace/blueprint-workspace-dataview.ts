@@ -4,7 +4,7 @@
  * 边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。
  */
 import {DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords} from '@spark-appworks/spark-lowcode-api'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
@@ -17,6 +17,21 @@ export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
 const MODEL_NAME = 'Base_NavigationInfo'
 const VIEW_NAME = 'default'
 const MAX_BLUEPRINT_ROWS = 50_000
+
+/** Permission-filtered form projection; unreadable wire members are absent. */
+type OptionalFormFields<T>={ [Key in keyof T]?: T[Key]|undefined }
+export type BlueprintNodeFormData=Omit<ProjectBlueprintTreeNodeData,'capability'|'navigation'|'dataSpace'|'prototype'> & {
+  capability:OptionalFormFields<ProjectBlueprintTreeNodeData['capability']>
+  navigation?:OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['navigation']>>|undefined
+  dataSpace?:OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>>|undefined
+  prototype?:OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>>|undefined
+}
+
+function sameWireValue(left:unknown,right:unknown):boolean{
+  if(Object.is(left,right))return true
+  if(typeof left==='number'||typeof right==='number')return Number(left??0)===Number(right??0)
+  return String(left??'')===String(right??'')
+}
 
 /** 一个已查询目标的 DataView 编辑入口；正式元数据和查询权限均由原 DataSpace owner 提供。 */
 export class BlueprintWorkspaceDataView {
@@ -78,6 +93,13 @@ export class BlueprintWorkspaceDataView {
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     this.#nodeId = targetNodeId
     this.#row = undefined
+    if(this.#treeQueryLoaded){
+      const row=this.view.rows.find(candidate=>candidate['rowid']===targetNodeId&&candidate['SysId']===this.#projectId)
+      if(!row)throw new Error(`蓝图 DataView 项目树未返回目标行 ${targetNodeId}`)
+      if(this.view.fieldAccess(row,'rowid').read!=='visible'||this.view.fieldAccess(row,'SysId').read!=='visible')throw new Error('蓝图 DataView 当前行身份不可读')
+      this.#row=row
+      return
+    }
     if(this.view.mutating)throw new Error('蓝图 DataView 正在保存；旧目标结果已失效')
     if(this.isBusy){
       const pending=this.#loadInFlight
@@ -173,6 +195,96 @@ export class BlueprintWorkspaceDataView {
     return this.#queryOutputFields.has(field)
   }
 
+  /** Read the selected editable node as a permission-filtered compatibility projection. */
+  public nodeData(): BlueprintNodeFormData {
+    const row=this.currentRow(),key=this.requireRowKey(row),overlay=this.view.getEditingRow(key)??row
+    const visible:Record<string,unknown>={}
+    for(const field of BLUEPRINT_WORKSPACE_FIELD_NAMES)if(this.hasOutput(field)&&this.view.fieldAccess(row,field).read==='visible'&&Object.hasOwn(overlay,field))visible[field]=overlay[field]
+    const record=normalizeLowcodeProjectBlueprintRecords([visible])[0]
+    if(!record)throw new Error('蓝图 DataView 当前行无法映射正式节点')
+    const readable=(field:string):boolean=>Object.hasOwn(visible,field)
+    const text=(field:string):string|undefined=>readable(field)?String(visible[field]??''):undefined
+    const number=(field:string):number|undefined=>readable(field)?Number(visible[field]??0):undefined
+    const flag=(field:string):boolean|undefined=>readable(field)?Number(visible[field]??0)!==0:undefined
+    const navigationFields=['FunName','FunOrderValue','NavigationImageWxz','NavigationUrl','MobileUrl','NavigationType','ChildItemLocation',
+      'NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup']
+    const hasNavigation=navigationFields.some(field=>readable(field)&&String(visible[field]??'').trim()!=='')
+      ||(['IsShowAtNav','IsShowChildItem','BeginGroup'] as const).some(field=>readable(field)&&flag(field)===true)
+    const navigation=hasNavigation?{
+      ...(text('FunName')===undefined?{}:{title:text('FunName')}),
+      ...(number('FunOrderValue')===undefined?{}:{order:number('FunOrderValue')}),
+      ...(text('NavigationImageWxz')===undefined?{}:{icon:text('NavigationImageWxz')}),
+      ...(text('NavigationUrl')===undefined?{}:{target:text('NavigationUrl')}),
+      ...(text('MobileUrl')===undefined?{}:{mobileTarget:text('MobileUrl')}),
+      ...(text('NavigationType')===undefined?{}:{openMode:record.navigation?.openMode}),
+      ...(text('ChildItemLocation')===undefined?{}:{placement:record.navigation?.placement}),
+      ...(text('NavigationShowType')===undefined?{}:{displayMode:text('NavigationShowType')}),
+      ...(text('HorizontalAlignment')===undefined?{}:{horizontalAlignment:text('HorizontalAlignment')}),
+      ...(flag('IsShowAtNav')===undefined?{}:{publishInMenu:flag('IsShowAtNav')}),
+      ...(flag('IsShowChildItem')===undefined?{}:{showChildren:flag('IsShowChildItem')}),
+      ...(flag('BeginGroup')===undefined?{}:{beginGroup:flag('BeginGroup')}),
+    }:undefined
+    const capability={
+      ...(text('name')===undefined?{}:{name:text('name')}),
+      ...(text('memo')===undefined?{}:{description:text('memo')}),
+      ...(text('funCode')===undefined?{}:{code:text('funCode')}),
+      ...(text('personCharge')===undefined?{}:{ownerId:text('personCharge')}),
+      ...(text('status')===undefined?{}:{deliveryStatus:text('status')}),
+    }
+    return {
+      nodeId:record.nodeId,parentNodeId:readable('prowid')?record.parentNodeId:'',projectId:record.projectId,
+      kind:readable('conType')?record.kind:'unknown',
+      capability,
+      ...(navigation===undefined?{}:{navigation}),
+      ...(record.dataSpace===undefined?{}:{dataSpace:{...record.dataSpace,models:record.dataSpace.models.map(model=>({...model}))}}),
+      ...(record.prototype===undefined?{}:{prototype:{...record.prototype}}),source:{...record.source},
+    }
+  }
+
+  /** Validate a domain projection without writing, so multi-owner commands can preflight before creating files. */
+  public preflightNodeData(next:BlueprintNodeFormData):Record<string,unknown> {
+    if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 查询/保存期间或回执待核验时不能编辑')
+    const row=this.currentRow(),before=this.nodeData()
+    if(next.nodeId!==this.#nodeId||next.projectId!==this.#projectId||next.parentNodeId!==before.parentNodeId)throw new Error('蓝图节点编辑不得改变节点身份或父节点')
+    if(next.kind!==before.kind&&!this.canWrite('conType'))throw new Error('蓝图 DataView 不允许写入正式字段 conType')
+    const toRecord=(node:BlueprintNodeFormData):LowcodeProjectBlueprintRecord=>{
+      const base=normalizeLowcodeProjectBlueprintRecords([node.source])[0]
+      if(!base)throw new Error('蓝图 DataView 当前行缺少正式 wire 投影')
+      const capability={name:node.capability.name??base.capability.name,...(node.capability.description===undefined?{}:{description:node.capability.description}),
+        ...(node.capability.code===undefined?{}:{code:node.capability.code}),...(node.capability.ownerId===undefined?{}:{ownerId:node.capability.ownerId}),
+        ...(node.capability.deliveryStatus===undefined?{}:{deliveryStatus:node.capability.deliveryStatus})}
+      const navigation=node.navigation===undefined?undefined:{title:node.navigation.title??base.navigation?.title??'',order:node.navigation.order??base.navigation?.order??0,
+        ...(node.navigation.icon===undefined?{}:{icon:node.navigation.icon}),...(node.navigation.placement===undefined?{}:{placement:node.navigation.placement}),
+        ...(node.navigation.target===undefined?{}:{target:node.navigation.target}),...(node.navigation.mobileTarget===undefined?{}:{mobileTarget:node.navigation.mobileTarget}),
+        ...(node.navigation.openMode===undefined?{}:{openMode:node.navigation.openMode}),...(node.navigation.displayMode===undefined?{}:{displayMode:node.navigation.displayMode}),
+        ...(node.navigation.horizontalAlignment===undefined?{}:{horizontalAlignment:node.navigation.horizontalAlignment}),
+        publishInMenu:node.navigation.publishInMenu??base.navigation?.publishInMenu??false,
+        showChildren:node.navigation.showChildren??base.navigation?.showChildren??false,beginGroup:node.navigation.beginGroup??base.navigation?.beginGroup??false}
+      const dataSpace=node.dataSpace===undefined?undefined:{scenarioId:node.dataSpace.scenarioId??base.dataSpace?.scenarioId??'',
+        models:node.dataSpace.models??base.dataSpace?.models??[]}
+      const prototype=node.prototype===undefined?undefined:{...(node.prototype.htmlDescription===undefined?{}:{htmlDescription:node.prototype.htmlDescription})}
+      return {...base,kind:node.kind,capability,...(navigation===undefined?{}:{navigation}),...(dataSpace===undefined?{}:{dataSpace}),...(prototype===undefined?{}:{prototype})}
+    }
+    const beforeRecord=toRecord(before)
+    const nextRecord=toRecord(next)
+    const wireFields=BLUEPRINT_WORKSPACE_FIELD_NAMES.filter(field=>field!=='conType'||before.kind!=='unknown'||next.kind!=='unknown')
+    const currentWire=lowcodeProjectBlueprintFields(beforeRecord,wireFields),nextWire=lowcodeProjectBlueprintFields(nextRecord,wireFields)
+    const changed=Object.entries(nextWire).filter(([field,value])=>!sameWireValue(currentWire[field],value))
+    for(const [field] of changed){
+      if(!this.hasOutput(field)||!Object.hasOwn(row,field)||this.view.fieldAccess(row,field).read!=='visible'||!this.canWrite(field))throw new Error(`蓝图 DataView 不允许读写正式字段 ${field}`)
+    }
+    const patch=Object.fromEntries(changed)
+    const validation=this.view.validator?.validateColumns({...row,...patch},new Set(changed.map(([field])=>field)))
+    if(validation&&!validation.valid)throw new Error(validation.errors[0]?.message??'蓝图字段校验失败')
+    return patch
+  }
+
+  /** Apply a domain projection by diffing through the canonical wire mapper and preflighting every changed field. */
+  public updateNodeData(next:BlueprintNodeFormData):void {
+    const patch=this.preflightNodeData(next),row=this.currentRow(),key=this.requireRowKey(row)
+    for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(key,field,value)
+  }
+
   /** Build the display tree strictly from the current DataView rows and their edit overlays. */
   public treeProjection(): ProjectBlueprintTreeData {
     this.assertUsable()
@@ -232,6 +344,8 @@ export class BlueprintWorkspaceDataView {
       && this.view.editActionState(row) === 'enabled' && this.view.fieldAccess(row, field).write === 'allowed'
   }
 
+  public canWriteFields(fields:readonly string[]):boolean{return fields.length>0&&fields.every(field=>this.canWrite(field))}
+
   public value(field: string): unknown {
     const row = this.#row
     if (!row || !this.canRead(field)) return undefined
@@ -258,11 +372,28 @@ export class BlueprintWorkspaceDataView {
     this.#row=this.view.rows.find(candidate=>candidate['rowid']===this.#nodeId&&candidate['SysId']===this.#projectId)
   }
 
-  public async save(): Promise<void> {
+  public async save(): Promise<void> {await this.saveIds()}
+
+  /** Save only the selected node; any staged changes on other rows remain untouched. */
+  public async saveSelectedNode():Promise<void>{
+    if(this.hasUnconfirmedSave){
+      if(this.#unconfirmedIds.length!==1||this.#unconfirmedIds[0]!==this.#nodeId)throw new Error('蓝图 DataView 核验须包含原提交全部节点')
+      await this.saveIds([this.#nodeId])
+      return
+    }
+    const id=this.requireRowKey(this.currentRow())
+    const dirtyIds=this.view.rows.map(row=>this.view.getPkKey(row)).filter((key):key is string|number=>key!==undefined)
+      .filter(key=>this.view.hasEditingChanges(key)||this.view.dirtyTracking.hasPendingChanges(key))
+    if(dirtyIds.some(key=>key!==id))throw new Error('蓝图 DataView 存在其他节点的待保存修改，请先单独保存或取消')
+    await this.saveIds([id])
+  }
+
+  private async saveIds(targetIds?:Array<string|number>): Promise<void> {
     this.assertUsable()
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     const targetNodeId=this.#nodeId, revision=this.#revision
     if (this.hasUnconfirmedSave) {
+      if(targetIds&&this.#unconfirmedIds.some(id=>!targetIds.includes(id)))throw new Error('蓝图 DataView 核验须包含原提交全部节点')
       const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
       this.assertTarget(revision, targetNodeId)
       if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
@@ -278,7 +409,7 @@ export class BlueprintWorkspaceDataView {
       return
     }
     if(this.#nodeId)this.currentRow()
-    const ids=this.view.rows.map(candidate=>this.view.getPkKey(candidate)).filter((key):key is string|number=>key!==undefined)
+    const ids=targetIds??this.view.rows.map(candidate=>this.view.getPkKey(candidate)).filter((key):key is string|number=>key!==undefined)
     const patches=new Map(ids.map(key=>[key,this.view.getEditingPatch(key)]).filter((entry):entry is [string|number,Record<string,unknown>]=>entry[1]!==undefined))
     if ([...patches].some(([key,patch])=>{const target=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);return !target||this.view.editActionState(target)!=='enabled'||Object.keys(patch).some(field=>this.view.fieldAccess(target,field).write!=='allowed')})) throw new Error('蓝图编辑包含当前查询不允许写入的字段')
     if (patches.size > 0) {

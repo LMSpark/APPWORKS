@@ -7,13 +7,14 @@ AI用途：调整节点导航展示并经领域dirty与Workspace保存。
 <template>
   <div v-if="state.blueprintDraft.navigation">
     <el-divider content-position="left">导航显示</el-divider>
-    <el-form-item label="发布到菜单"><el-switch v-model="state.blueprintDraft.navigation.publishInMenu" @change="state.markBlueprintDirty" /></el-form-item>
-    <el-form-item label="显示子项"><el-switch v-model="state.blueprintDraft.navigation.showChildren" @change="state.markBlueprintDirty" /></el-form-item>
-    <el-form-item label="开始分组"><el-switch v-model="state.blueprintDraft.navigation.beginGroup" @change="state.markBlueprintDirty" /></el-form-item>
-    <el-form-item label="排序"><el-input-number v-model="state.blueprintDraft.navigation.order" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('IsShowAtNav').read" label="发布到菜单"><el-switch v-model="state.blueprintDraft.navigation.publishInMenu" :disabled="!access('IsShowAtNav').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('IsShowChildItem').read" label="显示子项"><el-switch v-model="state.blueprintDraft.navigation.showChildren" :disabled="!access('IsShowChildItem').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('BeginGroup').read" label="开始分组"><el-switch v-model="state.blueprintDraft.navigation.beginGroup" :disabled="!access('BeginGroup').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('FunOrderValue').read" label="排序"><el-input-number v-model="state.blueprintDraft.navigation.order" :disabled="!access('FunOrderValue').write" @change="state.markBlueprintDirty" /></el-form-item>
   </div>
 </template>
 <script setup lang="ts">
 import type { DevState } from '../useDevState'
-defineProps<{ state: DevState }>()
+const props=defineProps<{ state: DevState }>()
+const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
 </script>

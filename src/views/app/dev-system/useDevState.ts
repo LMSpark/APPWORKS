@@ -41,7 +41,7 @@ import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { BlueprintWorkspaceDataView } from './blueprint-workspace/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
 
 const {
   isConfigFilesPageSurface,
@@ -398,13 +398,65 @@ export function useDevState() {
     blueprintDraftRevision.value++
   }
 
-  function readBlueprintDraft(): ProjectBlueprintDomain.BlueprintNodeDraft | null {
-    void blueprintDraftRevision.value
-    return project.blueprintDraft
+  const emptyDraft: BlueprintNodeFormData = { nodeId: '', parentNodeId: '', projectId: projectId.value, kind: 'unknown', capability: {}, source: {} }
+  const nodeFormGroupFields:Record<string,readonly string[]>={
+    capability:['name','memo','funCode','personCharge','status'],kind:['conType'],
+    navigation:['FunName','FunOrderValue','NavigationImageWxz','NavigationUrl','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup'],
+    dataSpace:['conid'],prototype:['htmlDesc'],
   }
-
-  const emptyDraft: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData = { nodeId: '', parentNodeId: '', projectId: projectId.value, kind: 'unknown', capability: { name: '' }, source: {} }
-  const blueprintDraft = reactive(createLiveTargetProxy(() => readBlueprintDraft()?.node ?? emptyDraft))
+  function readNodeFormTarget():BlueprintNodeFormData{
+    void blueprintDraftRevision.value
+    const session=blueprintWorkspaceDataView.value
+    if(session?.nodeId&&session.nodeId===selectedNode.value?.nodeId){try{return session.nodeData()}catch{/* no node form values until the selected DataView row is valid */}}
+    return emptyDraft
+  }
+  function writeNodeFormSection(section:string,value:unknown):void{
+    const session=blueprintWorkspaceDataView.value,node=readNodeFormTarget()
+    if(!session?.nodeId||session.nodeId!==node.nodeId||session.projectId!==projectId.value)throw new Error('当前节点 DataView 尚未就绪，不能编辑蓝图字段')
+    const next={...node}
+    Object.defineProperty(next,section,{value,configurable:true,enumerable:true,writable:true})
+    session.updateNodeData(next)
+    blueprintDraftRevision.value++;externalDataViewRevision.value++
+    refreshBlueprintTreeProjection()
+  }
+  const nestedFormProxies=new Map<string,object>()
+  const nodeGroup=(node:BlueprintNodeFormData,section:string):object|undefined=>{
+    if(section==='capability')return node.capability
+    if(section==='navigation')return node.navigation
+    if(section==='dataSpace')return node.dataSpace
+    if(section==='prototype')return node.prototype
+    return undefined
+  }
+  function nodeFormSectionProxy(section:string):object{
+    const existing=nestedFormProxies.get(section);if(existing)return existing
+    const proxy=new Proxy({}, {
+      get(_target,property){const group=nodeGroup(readNodeFormTarget(),section);if(group===undefined)return undefined;const value:unknown=Object.getOwnPropertyDescriptor(group,property)?.value;return value},
+      set(_target:object,property:PropertyKey,value:unknown){const group=nodeGroup(readNodeFormTarget(),section);if(!group)throw new Error(`当前蓝图节点没有 ${section} 配置`);const next=Object.assign({},group,{[property]:value});writeNodeFormSection(section,next);return true},
+      deleteProperty(){throw new Error('蓝图节点字段不能直接删除')},
+      has(_target,property){const group=nodeGroup(readNodeFormTarget(),section);return group!==undefined&&Reflect.has(group,property)},
+      ownKeys(){const group=nodeGroup(readNodeFormTarget(),section);return group===undefined?[]:Reflect.ownKeys(group)},
+      getOwnPropertyDescriptor(_target,property){const group=nodeGroup(readNodeFormTarget(),section);const descriptor=group===undefined?undefined:Reflect.getOwnPropertyDescriptor(group,property);return descriptor?{...descriptor,configurable:true}:undefined},
+    })
+    nestedFormProxies.set(section,proxy);return proxy
+  }
+  const blueprintDraft=reactive(new Proxy(emptyDraft,{
+    get(_target,property){const node=readNodeFormTarget(),value:unknown=Reflect.get(node,property,node);return typeof property==='string'&&['capability','navigation','dataSpace','prototype'].includes(property)&&value!==undefined?nodeFormSectionProxy(property):value},
+    set(_target,property,value){if(typeof property!=='string'||!['kind','capability','navigation','dataSpace','prototype'].includes(property))throw new Error('蓝图节点身份字段只读');writeNodeFormSection(property,value);return true},
+    deleteProperty(_target,property){if(typeof property!=='string'||!['navigation','dataSpace','prototype'].includes(property))throw new Error('蓝图节点身份字段不能删除');writeNodeFormSection(property,undefined);return true},
+    has(_target,property){return property in readNodeFormTarget()},
+    ownKeys(){return Reflect.ownKeys(readNodeFormTarget())},
+    getOwnPropertyDescriptor(_target,property){const node=readNodeFormTarget();const descriptor=Reflect.getOwnPropertyDescriptor(node,property);return descriptor?{...descriptor,configurable:true}:undefined},
+  }))
+  function blueprintNodeFieldAccess(field:string):Readonly<{read:boolean;write:boolean}>{
+    const session=blueprintWorkspaceDataView.value
+    if(session!==undefined&&session.nodeId===selectedNode.value?.nodeId)return {read:session.canRead(field),write:session.canWrite(field)}
+    return {read:false,write:false}
+  }
+  function blueprintNodeFieldsWritable(fields:readonly string[]):boolean{
+    const session=blueprintWorkspaceDataView.value
+    return session!==undefined&&session.nodeId===selectedNode.value?.nodeId?session.canWriteFields(fields):false
+  }
+  function blueprintNodeSectionWritable(section:string):boolean{return blueprintNodeFieldsWritable(nodeFormGroupFields[section]??[])}
 
   // ── 页面文件状态（经 ProjectWorkspace 加载/保存）──
   const pageIoBusy = ref(false)
@@ -425,6 +477,7 @@ export function useDevState() {
   // ── 自动保存 ──
   const autoSaveStatus = ref<'idle' | 'pending' | 'saving' | 'saved' | 'error'>('idle')
   let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+  let nodeSelectionRevision=0
   const AUTO_SAVE_DELAY = 800
 
   // ── SPARK AI tool approval bridge + pageDesign entry ──
@@ -690,7 +743,7 @@ export function useDevState() {
 
   function syncActivePageContextByPath(path: string): void {
     const pageId = normalizePageIdFromPath(path)
-    if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(blueprintDraft))) {
+    if (pageId && selectedNode.value && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(selectedNode.value))) {
       setActivePageContext(pageId, activePageId.value !== pageId)
       return
     }
@@ -971,23 +1024,13 @@ export function useDevState() {
     if (pageId) project.setActivePage(pageId)
     else clearActivePageContext()
     project.selectNode(node.nodeId)
-    project.beginBlueprintDraft()
     linkProbeInfo.value = null
   }
 
-  function applyNavChanges(): void {
-    if (!selectedNode.value) return
-    const dto = project.blueprintDraft
-    if (dto) {
-      const result = project.applyBlueprintNodeEdit(dto)
-      for (const warning of result.warnings) {
-        addStatus(warning, 'warning')
-      }
-    }
-  }
-
   function markBlueprintDirty(): void {
-    applyNavChanges()
+    blueprintDraftRevision.value++
+    externalDataViewRevision.value++
+    refreshBlueprintTreeProjection()
     scheduleAutoSave()
   }
 
@@ -1004,7 +1047,7 @@ export function useDevState() {
 
   async function doAutoSave(): Promise<void> {
     autoSaveTimer = null
-    if (!project.readDirtyProjection().blueprintDirty) { autoSaveStatus.value = 'idle'; return }
+    if (!hasExternalDataViewChanges()) { autoSaveStatus.value = 'idle'; return }
     if (!selectedNode.value) { autoSaveStatus.value = 'idle'; return }
     autoSaveStatus.value = 'saving'
     try {
@@ -1019,17 +1062,18 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function saveNodeChanges(): Promise<boolean> {
-    if (hasExternalDataViewChanges()) {
-      addStatus('蓝图树 DataView 有未保存修改，请先保存或取消后再保存节点基本信息', 'warning')
-      return false
-    }
-    applyNavChanges()
     if (!selectedNode.value) return false
     const node = selectedNode.value
+    const scope=currentScopeKey(),workspace=currentEditor.value
     blueprintSaving.value = true
     try {
-      project.selectNode(node.nodeId)
-      await editor.saveSelectedBlueprintNode({ skipReload: true })
+      const owner=await loadBlueprintWorkspaceDataView()
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==node.nodeId)throw new Error('节点保存目标已切换')
+      if(owner.nodeId!==node.nodeId)await owner.load(node.nodeId)
+      await owner.saveSelectedNode()
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==node.nodeId)throw new Error('节点已保存，但工作区目标随后发生变化')
+      refreshBlueprintTreeProjection()
+      notifyExternalDataViewChanged()
       await syncRuntimeNavigationIfDefaultProject()
       addStatus(`节点 ${node.navigation?.title ?? node.capability.name} 已保存`, 'success')
       return true
@@ -1052,24 +1096,53 @@ export function useDevState() {
 
   async function createPageForSelectedNode(params: { pageId: string; title: string; icon: string }): Promise<boolean> {
     const pageId = params.pageId.trim()
-    if (!pageId || !selectedNode.value) return false
+    const selected=selectedNode.value
+    if (!pageId || !selected) return false
 
     pageIoBusy.value = true
+    let pageFilesCreated=false
+    let nodeBindingSaved=false
     try {
-      await editor.createPageForSelectedNode({
-        pageId,
-        title: params.title,
-        icon: params.icon,
-      })
-
-      if (blueprintDraft.navigation) { blueprintDraft.navigation.target = `cfg:${pageId}`; blueprintDraft.navigation.title = params.title; blueprintDraft.navigation.icon = params.icon }
+      const scope=currentScopeKey(),workspace=currentEditor.value
+      const owner=await loadBlueprintWorkspaceDataView()
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建目标已切换')
+      if(owner.nodeId!==selected.nodeId)await owner.load(selected.nodeId)
+      if(owner.dirty||owner.hasUnconfirmedSave)throw new Error('蓝图 DataView 有待保存或待核验修改，请先完成保存或取消')
+      const before=owner.nodeData()
+      const title=params.title.trim()?params.title.trim():before.capability.name??''
+      const navigation={...(before.navigation??{order:0}),title,target:`cfg:${pageId}`,icon:params.icon,
+        publishInMenu:true,showChildren:true,beginGroup:false}
+      const next:BlueprintNodeFormData={...before,kind:'page',navigation}
+      owner.preflightNodeData(next)
+      await editor.createPageFiles({pageId,title:params.title,icon:params.icon})
+      pageFilesCreated=true
+      owner.updateNodeData(next)
+      blueprintDraftRevision.value++;externalDataViewRevision.value++
+      await owner.saveSelectedNode()
+      nodeBindingSaved=true
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具绑定已保存，但工作区目标随后发生变化')
+      refreshBlueprintTreeProjection()
+      notifyExternalDataViewChanged()
+      if(isDefaultUserProjectScope())await reloadAndSyncNavigation()
       handlePathChange(`/${pageId}`)
-
       bumpPageCache(pageId, '__created')
       await editor.selectPage(pageId)
       persistActivePageId(pageId)
+      addStatus(`工具 ${pageId} 的导航绑定已通过 Base_NavigationInfo DataView 保存`, 'success')
       return true
     } catch (e) {
+      const owner=blueprintWorkspaceDataView.value
+      if(pageFilesCreated&&!nodeBindingSaved&&owner?.hasUnconfirmedSave!==true){
+        try{
+          if(owner?.dirty)owner.cancel()
+          await editor.deletePageFiles(pageId);pageFilesCreated=false
+        }
+        catch(cleanupError){addStatus(`工具绑定失败，页面文件补偿删除也失败；需人工核对 ${pageId}: ${String(cleanupError)}`,'error')}
+      }else if(pageFilesCreated&&owner?.hasUnconfirmedSave===true){
+        addStatus(`工具绑定回执未知，已保留页面文件 ${pageId}；请先核验 Base_NavigationInfo DataView 回执，不要重复创建`,'warning')
+      }else if(pageFilesCreated&&nodeBindingSaved){
+        addStatus(`导航绑定已保存；后续页面打开或导航刷新失败，保留页面文件 ${pageId} 以匹配正式记录`,'warning')
+      }
       addStatus(`创建页面失败: ${String(e)}`, 'error')
       return false
     } finally {
@@ -1120,6 +1193,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function selectNode(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
+    const selectionRevision=++nodeSelectionRevision,scope=currentScopeKey(),workspace=currentEditor.value
     cancelAutoSave()
     if (hasExternalDataViewChanges()) {
       addStatus('当前蓝图节点有 DataView 未保存修改，请先保存或取消后再切换节点', 'warning')
@@ -1129,6 +1203,10 @@ export function useDevState() {
     if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
       scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
     }
+    const owner=await loadBlueprintWorkspaceDataView()
+    await owner.load(node.nodeId)
+    if(selectionRevision!==nodeSelectionRevision||currentScopeKey()!==scope||currentEditor.value!==workspace
+      ||!findNodeById(readBlueprintProjection().tree,node.nodeId))throw new Error('节点选择期间当前项目树已变化')
     loadNodeToForm(node)
     const pageId = resolvePageNodePageId(node)
     if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
@@ -1291,8 +1369,11 @@ export function useDevState() {
     blueprintDirty,
     selectedNode,
 
-    // 编辑表单（blueprintDraft 代理到 project.blueprintDraft 工作副本）
+    // 编辑表单读取及字段覆盖都由正式 Base_NavigationInfo DataView 提供
     blueprintDraft,
+    blueprintNodeFieldAccess,
+    blueprintNodeFieldsWritable,
+    blueprintNodeSectionWritable,
 
     // 空蓝图状态
     blueprintEmpty,

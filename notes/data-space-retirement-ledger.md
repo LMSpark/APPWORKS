@@ -1884,3 +1884,12 @@ flowchart TD
 - 当前 `LowcodeDesignApi.listFiles/readTextFile` 仍为目录/文件 HTTP owner；目录结果没有明确文件/子目录类型及递归语义。`attachStagedDesignView` 只接入调用方提供的单文件 `loadRow/persistRow`，并本地合成只读行/字段权限；它不能证明目录查询身份、正式文件权限快照或 AI runtime 复用同一查询 owner。结构化工作流配置页 `/api/DataWorkFlowDesign/read` 与上述 JSON 文件也不是同种资源。
 - **裁定/最小合同：**在公共 SPARK data 文件资源层确定 app、目录、workflowId、文件名的稳定身份、目录枚举、正式权限、scope切换与迟到请求隔离；随后让 WorkflowDesigns 和 AI runtime 通过同一个 DataSet/DataView owner 获取目录及文件。当前合同不足，不包装原 HTTP、不改服务端、不宣称已统一。验收还需覆盖缺失/格式错误、权限缺失、应用切换以及两消费者读取同一 workflow 内容。
 - 本节只读审计；没有文件或业务数据写入。workflow 文件/目录链保持开放，整体 DataSet 收敛计划继续 active。
+
+## 2026-10-26 蓝图节点字段权限与 DataView 写入收敛
+
+- 根据用户批准，继续核验 `Base_NavigationInfo` 七个共享输出字段并实施节点编辑权限消费。此前台账记录的正式设计器读回仅证明 `DifficultyFactor/Manhour/Number/Sum/Total/personCharge/status` 已配置为输出列；本轮无活动浏览器窗口，未取得当前运行查询对节点行逐字段的真实权限回执，不把设计输出配置当成运行授权。
+- `BlueprintWorkspaceDataView.nodeData()` 现在按正式 DataView 输出列和当次 `fieldAccess.read` 形成节点表单投影；隐藏字段不再从 `FunName` 等别名补值。`preflightNodeData/updateNodeData` 通过正式 wire 映射计算本次真正变更字段，对每个变更列检查输出、可读、可写、行操作、计算列限制及 validator，再写入原 DataView 编辑覆盖；保存仅限定当前节点 ID，通过 `DataSet.saveChanges` 后刷新并验证回读。
+- `NodeBasicInfo/Target/State/Layout` 依字段权限隐藏不可读输入、禁用只读输入。创建并绑定工具的节点元数据写入改为 DataView；先检查字段权限，再调用独立页面文件 owner，随后只提交所选节点行。已知失败撤销本次 DataView 修改并补偿已创建文件；未知回执保留文件并等待原 DataView 核验。源码中的正式 `createLowcodeProjectGateways()` 当前没有注入 `pageFiles.createFiles/deleteFiles`，所以真实环境的创建文件操作仍失败关闭；测试夹具只验证 owner 能力存在时的编排，不声称线上工具创建已通过。
+- TDD/回归：针对字段映射、只读列、隐藏列、单行提交、取消、未知回执以及创建工具的权限预检/双 owner 处理补用例。`pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` **2 files / 39 tests passed**；changed-file ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均通过。规则扫描保留 2 条已有 AI model-spec warning，退出码 0；构建保留第三方 CodeMirror dynamic import 注解警告，成功。
+- **验证边界：**仅自动化 DataView 权限响应夹具通过；当前 Windows 浏览器清单没有浏览器窗口，未进行 SPA 在线节点字段读写/保存/关闭重开烟测，真实行字段权限仍待正式会话核验。未修改 Java、未直接请求业务写 API。新增/删除/挂载/解绑树行、全树行集合完整权限、物理预览 GetData 与 workflow 文件读取仍是已登记的 DataSet 外路径/合同缺口；整体收敛计划继续 active。
+- **交付：**源码、测试及本节台账已提交并推送到 `codex/ai-data-entry`；提交完成后通过 `git ls-remote` 核对远程分支与本地 HEAD 一致。

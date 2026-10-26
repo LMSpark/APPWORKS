@@ -86,6 +86,8 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
           const response = await httpFns.get(`${pageFileKey}/${command.pageId}/${command.fileName}`)
           return String(response?.content ?? '')
         },
+        createFiles: async (params: {pageId:string}) => {await httpFns.post(`${pageFileKey}/${params.pageId}/create`);return {pageId:params.pageId}},
+        deleteFiles: async (pageId:string) => {await httpFns.delete(`${pageFileKey}/${pageId}`)},
         saveFileContent: async (pageId: string, fileName: string, content: string) => {
           await httpFns.put(`${pageFileKey}/${pageId}/${fileName}`, { content })
         },
@@ -134,7 +136,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'}){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[]}={},unknownSave=false){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -156,26 +158,48 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}},
   }}})
   let allPagesRequested=false
+  const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
   const view=dataSet.getView('Base_NavigationInfo')!
+  const result=(selected:Record<string,unknown>[])=>({
+    rows:selected,total:selected.length,
+    assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
+    rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
+    fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))&&!hiddenFields.has(field)
+      ? {read:'visible' as const,write:readonlyFields.has(field)?'denied' as const:'allowed' as const,component:readonlyFields.has(field)?'readonly' as const:'editable' as const,required:false,writeMode:readonlyFields.has(field)?'readonly' as const:'editable' as const}
+      : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
+    readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)&&!hiddenFields.has(field)?'visible' as const:'invisible' as const,
+    addActionState:()=>'disabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
+    createChildActionState:()=>'disabled' as const,viewActionState:()=>'enabled' as const,
+  })
+  type SaveCommand=Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0]
+  let unknownReceipt=false
+  const save=vi.fn(async(command:SaveCommand)=>{
+    if(unknownSave&&!unknownReceipt){unknownReceipt=true;throw new Error('transport timeout')}
+    const receipts=command.changes.map(change=>{
+    const changed=[...(change.changes.changed??[])]
+    for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
+    return {metaName:change.identity.metaName,added:[],changed,deleted:[],changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
+    })
+    unknownReceipt=false
+    return receipts
+  })
   view.bindQueryExecutor({
     queryColumns:current=>current.columns,
     executeQuery:async(current,params)=>{
       allPagesRequested=params.allPages===true
-      const selected=rows.filter(row=>row['SysId']===projectId)
-      return {
-        rows:selected,total:selected.length,
-        assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
-        rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
-        fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))
-          ? {read:'visible' as const,write:'allowed' as const,component:'editable' as const,required:false,writeMode:'editable' as const}
-          : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
-        readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)?'visible' as const:'invisible' as const,
-        addActionState:()=>'disabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
-        createChildActionState:()=>'disabled' as const,viewActionState:()=>'enabled' as const,
+      const matches=(row:Record<string,unknown>,filter:unknown):boolean=>{
+        if(filter===null||typeof filter!=='object')return true
+        const condition=filter as Record<string,unknown>
+        if(Array.isArray(condition['filters']))return condition['filters'].every(item=>matches(row,item))
+        const field=condition['field'],value=condition['value']
+        return typeof field!=='string'||condition['operator']!=='eq'||String(row[field]??'')===String(value??'')
       }
+      const selected=rows.filter(row=>row['SysId']===projectId&&matches(row,params.filter))
+      return result(selected)
     },
+    save,hasUnconfirmedSave:()=>unknownReceipt,
   })
-  return {dataSet,readAllPages:()=>allPagesRequested}
+  return {dataSet,readAllPages:()=>allPagesRequested,save}
 }
 
 async function requestFullFromGet(config: { url: string }): Promise<Record<string, unknown>> {
@@ -226,6 +250,90 @@ describe('DevState 页面文件闭环', () => {
     blueprintRuntime.load.mockImplementation(async ({projectId}:{projectId:string})=>createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
   })
 
+  it('节点基本信息通过共享 Base_NavigationInfo DataView 保存而不调用 ProjectWorkspace gateway', async () => {
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope()
+    const state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const selected=state.selectedNode.value!
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await state.selectNode(selected)
+      state.blueprintDraft.capability.name='DataView 名称'
+      state.markBlueprintDirty()
+      expect(httpFns.put).not.toHaveBeenCalled()
+      await expect(state.saveNodeChanges()).resolves.toBe(true)
+      expect(owner.value('name')).toBe('DataView 名称')
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual([selected.nodeId])
+    } finally {ownerScope.stop()}
+  })
+
+  it('创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
+      await state.selectNode(node)
+      httpFns.put.mockClear()
+      const created=await state.createPageForSelectedNode({pageId:'new-tool',title:'New tool',icon:'Document'})
+      expect(created,state.statusMessages.value.map(message=>message.text).join('\n')).toBe(true)
+      const changed=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.find(row=>row['rowid']==='CHILD-A')
+      expect(changed).toMatchObject({conType:'page',NavigationUrl:'cfg:new-tool',FunName:'New tool',NavigationImageWxz:'Document'})
+      expect(httpFns.put.mock.calls.some(([url])=>String(url).startsWith('project-blueprint:'))).toBe(false)
+      expect(httpFns.post).toHaveBeenCalledWith('designfile:APP-A/new-tool/create')
+    }finally{ownerScope.stop()}
+  })
+
+  it('创建工具在 DataView 列权限预检失败时不创建任何页面文件',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{hiddenFields:['NavigationUrl']})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
+      await state.selectNode(node)
+      httpFns.put.mockClear()
+      await expect(state.createPageForSelectedNode({pageId:'denied-tool',title:'Denied tool',icon:'Document'})).resolves.toBe(false)
+      expect(httpFns.put).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('工具绑定保存回执未知时保留页面文件并等待原 DataView 核验',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},true)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
+      await state.selectNode(node)
+      httpFns.post.mockClear();httpFns.delete.mockClear()
+      await expect(state.createPageForSelectedNode({pageId:'uncertain-tool',title:'Uncertain tool',icon:'Document'})).resolves.toBe(false)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(httpFns.post).toHaveBeenCalledWith('designfile:APP-A/uncertain-tool/create')
+      expect(httpFns.delete).not.toHaveBeenCalled()
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.hasUnconfirmedSave).toBe(true)
+      expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('工具绑定回执未知，已保留页面文件')
+    }finally{ownerScope.stop()}
+  })
+
+  it('节点字段代理不暴露无读取权限值，也拒绝只读字段setter',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{hiddenFields:['name'],readonlyFields:['memo']})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.selectNode(state.selectedNode.value!)
+      expect(state.blueprintDraft.capability.name).toBeUndefined()
+      expect(()=>{state.blueprintDraft.capability.name='Should not write'}).toThrow(/权限|字段|不能编辑/)
+      expect(state.blueprintDraft.capability.description).toBe('')
+      expect(()=>{state.blueprintDraft.capability.description='readonly'}).toThrow(/权限|字段|不能编辑/)
+    }finally{ownerScope.stop()}
+  })
+
   it('首载项目树由共享 Base_NavigationInfo DataView allPages 查询投影提供', async () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A')
     blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
@@ -263,26 +371,25 @@ describe('DevState 页面文件闭环', () => {
 
   it('DataView dirty/unknown 回执阻断旧树写入口并保护 NodeBasicInfo 草稿', async () => {
     vi.useFakeTimers()
-    const state = useDevState()
     const root=blueprintRoot([node('node-a','原名称','cfg:page-a')])
-    state.project.replaceBlueprintTree(root)
-    state.loadNodeToForm(root.children![0]!)
+    const fixture=createBlueprintRuntimeDataSet('homepage',root)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    await state.openEditingProject({tenantId:'tenant-a',projectId:'homepage'},{force:true})
+    await state.selectNode(state.selectedNode.value!)
     state.blueprintDraft.navigation!.title='尚未保存的基本信息'
     state.markBlueprintDirty()
-    const unregister=state.registerExternalDataViewSession({isDirty:()=>false,hasUnconfirmedSave:()=>true,save:vi.fn()})
     try {
-      state.refreshBlueprintTreeProjection({isDirty:()=>true,hasUnconfirmedSave:()=>true,save:vi.fn(async()=>{}),
-        treeProjection:()=>blueprintRoot([node('node-a','DataView 名称','cfg:page-a')]),hasTreeProjection:()=>true})
       expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
-      expect(await state.saveNodeChanges()).toBe(false)
       state.addRootNode()
       state.removeNodeFromTree({parent:{data:root}},{...root.children![0]!})
       await state.addChildNode(root)
+      expect(fixture.save).not.toHaveBeenCalled()
       expect(httpFns.put).not.toHaveBeenCalled()
       expect(httpFns.post).not.toHaveBeenCalled()
       expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
       expect(state.statusMessages.value.some(item=>item.text.includes('DataView'))).toBe(true)
-    } finally {unregister(); vi.useRealTimers()}
+    } finally {ownerScope.stop(); vi.useRealTimers()}
   })
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {
@@ -426,13 +533,8 @@ describe('DevState 页面文件闭环', () => {
     }
     navTreeState.tree = root
     blueprintRuntimeTrees.set('homepage',root)
-    httpMock.get.mockImplementation(async (url: string) => {
-      if (url === 'project-blueprint:homepage') return root
-      return pageFileResponse(url)
-    })
-    httpMock.put.mockResolvedValueOnce({
-      node: {...node('alpha-node','Alpha updated','cfg:alpha'),capability:{name:'Alpha',description:''}},
-    })
+    const fixture=createBlueprintRuntimeDataSet('homepage',root)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
 
     vi.mocked(refreshRoutes).mockImplementation(async (): Promise<RuntimeNavigation> => {
       const updated: ProjectBlueprintTreeData = {
@@ -450,6 +552,7 @@ describe('DevState 页面文件闭环', () => {
     })
 
     await state.loadBlueprint()
+    await state.selectNode(state.selectedNode.value!)
     state.blueprintDraft.navigation!.title = 'Alpha updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
 
@@ -459,10 +562,8 @@ describe('DevState 页面文件闭环', () => {
     expect(navTreeState.tree?.children?.[0]?.navigation?.title).toBe('Alpha updated')
     expect(state.project.readBlueprintProjection().tree[0]?.navigation?.title).toBe('Alpha updated')
 
-    expect(httpMock.put).toHaveBeenCalledWith(
-      'project-blueprint:homepage:nodes:alpha-node',
-      expect.objectContaining({navigation:expect.objectContaining({title:'Alpha updated',order:0})}),
-    )
+    expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual(['alpha-node'])
+    expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.[0]).toMatchObject({FunName:'Alpha updated'})
     expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage:nodes:alpha-node:move', expect.anything())
     expect(httpMock.put).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
     expect(httpMock.post).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
@@ -477,20 +578,8 @@ describe('DevState 页面文件闭环', () => {
       ],
     }
     blueprintRuntimeTrees.set('delegated-app',delegatedRoot)
-    httpMock.get.mockImplementation(async (url: string) => {
-      if (url === 'application-catalog:tenant-b') {
-        return [
-          { projectId: 'delegated-app', name: 'Delegated App', icon: 'Box', description: '' },
-        ]
-      }
-      if (url === 'project-blueprint:delegated-app') {
-        return delegatedRoot
-      }
-      return pageFileResponse(url)
-    })
-    httpMock.put.mockResolvedValueOnce({
-      node: {...node('delegated-node','Delegated updated','cfg:delegated-page','delegated-app'),capability:{name:'Delegated',description:''}},
-    })
+    const fixture=createBlueprintRuntimeDataSet('delegated-app',delegatedRoot)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
 
     await state.loadEditableProjects('tenant-b')
     state.projectPicker.tenantId = 'tenant-b'
@@ -503,14 +592,13 @@ describe('DevState 页面文件闭环', () => {
     expect(state.treeData.value[0]?.nodeId).toBe('delegated-node')
     expect(state.activePageId.value).toBe('delegated-page')
 
+    await state.selectNode(state.selectedNode.value!)
     state.blueprintDraft.navigation!.title = 'Delegated updated'
     const refreshCallsBeforeSave = vi.mocked(refreshRoutes).mock.calls.length
     await state.saveAll()
 
-    expect(httpMock.put).toHaveBeenCalledWith(
-      'project-blueprint:delegated-app:nodes:delegated-node',
-      expect.objectContaining({navigation:expect.objectContaining({title:'Delegated updated'})}),
-    )
+    expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual(['delegated-node'])
+    expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.[0]).toMatchObject({FunName:'Delegated updated'})
     expect(vi.mocked(refreshRoutes).mock.calls.length).toBe(refreshCallsBeforeSave)
   })
 })

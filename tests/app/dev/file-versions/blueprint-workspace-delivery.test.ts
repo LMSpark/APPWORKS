@@ -3,6 +3,10 @@ import { defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
+import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
+import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.vue'
+import NodeLayoutConfig from '@/views/app/dev-system/components/NodeLayoutConfig.vue'
 
 const api = vi.hoisted(() => ({
   listFileVersions: vi.fn(), upload: vi.fn(),
@@ -205,18 +209,20 @@ describe('BlueprintWorkspace file delivery', () => {
   })
 })
 
-const blueprintFields = ['rowid', 'SysId', 'name', 'memo', 'htmlDesc', 'conid', 'NavigationUrl', 'VersionId', 'DifficultyFactor', 'Manhour',
-  'Number', 'Sum', 'Total', 'personCharge', 'status']
+const blueprintFields = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'conType', 'memo', 'htmlDesc', 'conid', 'NavigationUrl',
+  'NavigationImageWxz', 'MobileUrl', 'NavigationType', 'ChildItemLocation', 'NavigationShowType', 'HorizontalAlignment', 'IsShowAtNav', 'IsShowChildItem',
+  'BeginGroup', 'VersionId', 'DifficultyFactor', 'Manhour', 'Number', 'Sum', 'Total', 'personCharge', 'status']
 const blueprintIdentity = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', metaName: 'Base_NavigationInfo'}
-const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', name: 'Node one', memo: 'before', htmlDesc: '<p>before</p>',
-  conid: 'SCENE-1', NavigationUrl: 'cfg:APP-1/page-1', DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
+const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', prowid:'000000', FunOrderValue:0, name: 'Node one', funCode:'NODE-1', FunName:'Node one', conType:'Navitem', memo: 'before', htmlDesc: '<p>before</p>',
+  conid: 'SCENE-1', NavigationUrl: 'cfg:APP-1/page-1', NavigationImageWxz:'Document',MobileUrl:'',NavigationType:'',ChildItemLocation:'',NavigationShowType:'',HorizontalAlignment:'',
+  IsShowAtNav:1,IsShowChildItem:1,BeginGroup:0,DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
   personCharge: 'U1', status: 'ready', VersionId: 'rule=1;script=1;style=1'})
 
-function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean} = {}) {
+function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]} = {}) {
   const outputs = options.outputs ?? blueprintFields
   const readable = new Set(options.readable ?? outputs)
   const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid' && field !== 'SysId'))
-  let stored: DataRow[] = [blueprintRow()]
+  let stored: DataRow[] = options.rows??[blueprintRow()]
   const rows = () => structuredClone(stored)
   let unknownReceipt = false
   const result = (view: DataView, resultRows: DataRow[]) => ({
@@ -240,13 +246,15 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
   type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
   const save = vi.fn(async (command: SaveCommand) => {
     if (options.unknownSave && !unknownReceipt) {unknownReceipt = true; throw new Error('transport timeout')}
-    return command.changes.map(change => {
+    const receipts=command.changes.map(change => {
       const changed = [...(change.changes.changed ?? [])]
-      if (changed[0]) stored = stored.map(current => current['rowid'] === changed[0]?.['rowid'] ? {...changed[0]} : current)
+      stored = stored.map(current => changed.find(candidate=>candidate['rowid']===current['rowid'])??current)
       const nextContext = result(view, rows())
       return {metaName: change.identity.metaName, added: [], changed, deleted: [],
         changedFields: changed.map(item => Object.keys(item)), context: nextContext}
     })
+    unknownReceipt=false
+    return receipts
   })
   const dataSet = DataSet.fromJson({scenarioId: blueprintIdentity.scenarioId, dataSetName: 'Blueprint fixture', tables: {
     Base_NavigationInfo: {modelBinding: {modelId: `${blueprintIdentity.scenarioId}p000`, modelName: blueprintIdentity.metaName},
@@ -257,7 +265,17 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
   }})
   const view = dataSet.getView('Base_NavigationInfo')!
   view.bindQueryExecutor({queryColumns: target => target.columns.filter(column => outputs.includes(column.name)),
-    executeQuery: async target => result(target, rows()), save, hasUnconfirmedSave: () => unknownReceipt})
+    executeQuery: async (target,params) => {
+      const filter=params.filter
+      const matches=(row:DataRow,value:unknown):boolean=>{
+        if(value===null||typeof value!=='object')return true
+        const item=value as Record<string,unknown>
+        if(Array.isArray(item['filters']))return item['filters'].every(child=>matches(row,child))
+        const field=item['field'],expected=item['value']
+        return typeof field!=='string'||item['operator']!=='eq'||String(row[field]??'')===String(expected??'')
+      }
+      return result(target,rows().filter(row=>matches(row,filter)))
+    }, save, hasUnconfirmedSave: () => unknownReceipt})
   return {dataSet, view, save, rows, destroy: () => dataSet.destroy()}
 }
 
@@ -266,7 +284,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     const f = createBlueprintDataViewFixture()
     try {
       const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {})
-      expect(f.view.queryConfig.fields).toEqual(blueprintFields)
+      expect([...(f.view.queryConfig.fields??[])].sort()).toEqual([...blueprintFields].sort())
       expect(session.hasOutput('Manhour')).toBe(true)
       await session.load('NODE-1')
       expect(session.value('memo')).toBe('before')
@@ -300,9 +318,10 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try {
       const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {})
       await session.load('NODE-1')
-      session.update('memo', 'cancel me')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'cancel me'}})
       session.cancel()
-      expect(session.value('memo')).toBe('before')
+      expect(session.nodeData().capability.name).toBe('Node one')
       expect(f.view.hasEditingChanges()).toBe(false)
       expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
       expect(f.save).not.toHaveBeenCalled()
@@ -315,13 +334,52 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try {
       const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {})
       await session.load('NODE-1')
-      session.update('memo', 'first edit')
-      await expect(session.save()).rejects.toThrow('transport timeout')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'first edit'}})
+      await expect(session.saveSelectedNode()).rejects.toThrow('transport timeout')
       expect(f.view.hasUnconfirmedSave).toBe(true)
-      expect(() => session.update('memo', 'second edit')).toThrow(/结果|核验/)
+      expect(() => session.updateNodeData({...before,capability:{...before.capability,name:'second edit'}})).toThrow(/回执|核验/)
       expect(f.view.dirtyTracking.hasPendingChanges('NODE-1')).toBe(true)
+      await session.saveSelectedNode()
+      expect(f.save).toHaveBeenCalledTimes(2)
+      expect(f.save.mock.calls[0]?.[0].changes[0]?.changes.changed).toEqual(f.save.mock.calls[1]?.[0].changes[0]?.changes.changed)
+      expect(session.nodeData().capability.name).toBe('first edit')
       session.dispose()
     } finally {f.destroy()}
+  })
+
+  it('saveSelectedNode commits only its selected row and refuses another row dirty in the same tree view',async()=>{
+    const child={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-1',name:'Child',FunName:'Child'}
+    const f=createBlueprintDataViewFixture({rows:[blueprintRow(),child]})
+    try{
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree()
+      await session.load('NODE-1')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'Root renamed'}})
+      await session.saveSelectedNode()
+      expect(f.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual(['NODE-1'])
+      f.view.updateEditingValue('NODE-2','memo','other row')
+      await expect(session.saveSelectedNode()).rejects.toThrow(/其他节点/)
+      expect(f.save).toHaveBeenCalledTimes(1)
+      expect(f.view.getEditingPatch('NODE-2')).toMatchObject({memo:'other row'})
+      session.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('blocks changing the selected node while its DataView field edits are pending',async()=>{
+    const child={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-1',name:'Child',FunName:'Child'}
+    const f=createBlueprintDataViewFixture({rows:[blueprintRow(),child]})
+    try{
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree();await session.load('NODE-1')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'Pending'}})
+      await expect(session.load('NODE-2')).rejects.toThrow(/未保存/)
+      expect(session.nodeId).toBe('NODE-1')
+      expect(session.nodeData().capability.name).toBe('Pending')
+      session.dispose()
+    }finally{f.destroy()}
   })
 
   it('fails closed when an estimate is not a formal output column or lacks read/write permission', async () => {
@@ -337,5 +395,71 @@ describe('BlueprintWorkspace DataView ownership', () => {
       expect(() => session.update('status', 'changed')).toThrow(/权限|字段|列/)
       session.dispose()
     } finally {f.destroy()}
+  })
+
+  it('checks only the changed wire field and rejects a denied sibling field without partial edits', async () => {
+    const f=createBlueprintDataViewFixture({writable:['name']})
+    try{
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'Renamed'}})
+      expect(f.view.getEditingPatch('NODE-1')).toEqual({name:'Renamed'})
+      const after=session.nodeData()
+      expect(()=>session.updateNodeData({...after,capability:{...after.capability,description:'denied'}})).toThrow(/memo|权限|字段/)
+      expect(f.view.getEditingPatch('NODE-1')).toEqual({name:'Renamed'})
+      session.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('allows a visible capability field without reading or writing unrelated hidden kind and sibling columns',async()=>{
+    const f=createBlueprintDataViewFixture({readable:blueprintFields.filter(field=>field!=='conType'),writable:['name']})
+    try{
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      const before=session.nodeData()
+      expect(before.kind).toBe('unknown')
+      session.updateNodeData({...before,capability:{...before.capability,name:'Renamed'}})
+      expect(f.view.getEditingPatch('NODE-1')).toEqual({name:'Renamed'})
+      session.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('does not write hidden or unselected wire fields while updating one visible field', async () => {
+    const f=createBlueprintDataViewFixture({outputs:blueprintFields.filter(field=>field!=='MobileUrl'),writable:['name']})
+    try{
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      const before=session.nodeData()
+      session.updateNodeData({...before,capability:{...before.capability,name:'Renamed'}})
+      expect(f.view.getEditingPatch('NODE-1')).toEqual({name:'Renamed'})
+      expect(f.view.getEditingPatch('NODE-1')).not.toHaveProperty('MobileUrl')
+      session.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('hides unreadable and disables non-writable fields across all NodeBasicInfo panels',()=>{
+    const access=vi.fn((field:string)=>({read:field!=='memo',write:false}))
+    const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'secret'},
+      navigation:{title:'Node',icon:'Document',target:'cfg:tool',mobileTarget:'',openMode:'current',placement:'left',order:1,publishInMenu:true,showChildren:true,beginGroup:false},
+      dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},
+      blueprintNodeFieldAccess:access,blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),
+      markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),
+      linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
+    const Control=defineComponent({name:'FieldControl',props:{disabled:Boolean,readonly:Boolean,modelValue:null},template:'<input :disabled="disabled" :readonly="readonly" />'})
+    const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
+    const Panels=defineComponent({components:{NodeBasicInfo,NodeTargetConfig,NodeStateConfig,NodeLayoutConfig},props:{state:Object},
+      template:'<div><NodeBasicInfo :state="state"/><NodeTargetConfig :state="state"/><NodeStateConfig :state="state"/><NodeLayoutConfig :state="state"/></div>'})
+    const wrapper=mount(Panels,{props:{state},global:{stubs:{ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
+      ElInputNumber:Control,ElRadioGroup:Control,ElRadioButton:true,ElOption:true,IconPicker:true}}})
+    expect(wrapper.text()).not.toContain('功能描述')
+    expect(wrapper.findAllComponents(Control).length).toBeGreaterThan(0)
+    expect(wrapper.findAllComponents(Control).every(control=>control.props('disabled')===true||control.props('readonly')===true)).toBe(true)
+    expect(access).toHaveBeenCalledWith('name')
+    expect(access).toHaveBeenCalledWith('FunName')
+    expect(access).toHaveBeenCalledWith('MobileUrl')
+    expect(access).toHaveBeenCalledWith('IsShowAtNav')
+    expect(access).toHaveBeenCalledWith('ChildItemLocation')
+    wrapper.unmount()
   })
 })

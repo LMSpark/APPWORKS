@@ -7,8 +7,8 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 <template>
   <div v-if="flags.isModule.value && state.blueprintDraft.navigation">
     <el-divider content-position="left">布局配置</el-divider>
-    <el-form-item label="子项布局" class="fi fi--wide">
-      <el-radio-group v-model="state.blueprintDraft.navigation.placement" @change="state.markBlueprintDirty">
+    <el-form-item v-if="access('ChildItemLocation').read" label="子项布局" class="fi fi--wide">
+      <el-radio-group v-model="state.blueprintDraft.navigation.placement" :disabled="!access('ChildItemLocation').write" @change="state.markBlueprintDirty">
         <el-radio-button
           v-for="option in CHILD_PLACEMENT_OPTIONS"
           :key="option.value || '__default__'"
@@ -29,4 +29,5 @@ import { CHILD_PLACEMENT_OPTIONS } from '../childPlacementLabels'
 const props = defineProps<{ state: DevState }>()
 
 const flags = useNodeKindFlags(props.state)
+const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
 </script>

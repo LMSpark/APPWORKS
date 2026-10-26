@@ -2104,6 +2104,14 @@ flowchart TD
 - **真实 SPA 烟测：**NewApp/D99A 原登录标签仍在 `/dev` 工作台，应用内 SPA 路径有效，蓝图树显示 41 个页面，当前选中 `DataBaseManage`。热更新后只读查看工作台结构和节点表单，未点删除、未保存/修改正式蓝图；故此次验证 UI 宿主继续运行，不代表服务端真实删除权限或正式删除回执已在线验证。
 - **状态与后续：**普通叶子节点现在通过 SPARK data，工作台参考蓝图整合仍 active。非叶子节点删除、挂载页面的文件+蓝图复合删除、AI 策划触发 `ProjectWorkspace.saveAll()` 的蓝图 gateway、文件工作区的多写入口仍为差距；禁止据此宣称蓝图所有数据都已收敛到 DataView。下一批继续逐消费者处理唯一数据通道与参考功能完整性，所有在线写入仍须走已验证 DataView/命令 owner。
 
+### 2026-10-27 项目策划 AI 蓝图写入身份合同 fail-closed
+
+- **审计结论：**参考策划工具的 `replaceBlueprintChildren` 输出使用稳定项目 `nodeId`，历史蓝图保存链将其作为 `Base_NavigationInfo.rowid`。当前正式 `BlueprintWorkspaceDataView` 新行路径会按后端字段权限拒绝写主键；`prepareNewRow` 生成的身份不能无损表达策划输出 ID，也没有第二个正式映射字段。策划结果还可能同时包含新增、修改、移动和删除；不能只接受可映射子集或改成 append-only。
+- **修复：**`resolveProjectPlanningDomainRoot` 现在向动态 `model_script` 暴露 null-prototype、冻结的窄只读 facade；读取数据先深复制并冻结，真实 `ProjectBlueprint`、design/session 与可变节点对象不会泄漏。`replaceBlueprintChildren` 及未公开写操作在任何树变更和 `ProjectWorkspace.saveAll()` 前，以稳定 `nodeId` 与授权 DataView `rowid` 身份合同为由明确失败。AI delivery 收到失败后不调用旧蓝图 gateway；策划整树保持原样，未形成部分内存写入。普通 `ProjectWorkspace` 文件保存合同不变。
+- **自动化验收：**新增拒绝前蓝图不变、代理原型/属性描述符不能访问原对象、冻结读取快照不可变、delivery 失败不进入 `saveAll` 等用例。主控独立运行定向 **3 个文件、39/39 tests**、目标 ESLint、`pnpm typecheck`、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均通过。首次 `verify:rules` 发现 facade 中 9 处禁止类型断言，均已消除后全链通过。build 仅有既有 Rolldown PURE 注释、CodeMirror 动态导入及 chunk 大小告警。
+- **SPA 烟测：**只读打开当前 NewApp/D99A `/dev` 标签；项目蓝图已就绪，显示 41 页面，七个信息域可见，当前选中 `DataBaseManage`。未运行 AI 策划或写入任何蓝图、模型、字典、文件记录；本烟测不证明新的 fail-closed 错误在线呈现或 DataView 可写权限。
+- **状态与下一步：**AI 全树策划自动提交已安全关闭，但参考 AI 策划写功能暂时受阻，不能称整合完成。下一步先设计并验证正式 `nodeId`/`rowid` 身份承接与全树批次授权、回执/部分成功恢复合同，再恢复策划提交；严禁旧 gateway fallback、仅追加降级或伪造权限。参考桌面显示、AI新增/填表、原型预览及 SRS 完成回执等缺口继续开放。SPA、SPARK data 唯一通道目标继续 active；未改/启动/部署 Java，未生成 ClassModel。
+
 ### 2026-10-27 挂载页面删除切换到 DataView 命令链
 
 - **Ruling：**挂载页面删除保留“两项独立确认”的语义：先由当前 `Base_NavigationInfo` DataView 删除并读回叶子节点，再由 `PageToolFilesCommand` DataView 删除并读回页面目录为空；两类资源没有跨源事务，因此文件阶段失败必须显示部分完成并沿原命令恢复。代价是恢复过程中蓝图节点可能已删除而文件仍待清理，用户需留在原项目完成显式保存。

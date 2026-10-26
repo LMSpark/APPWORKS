@@ -11,7 +11,7 @@ import type {
   AiAgentRuntimeContext,
 } from '@spark-appworks/spark-ai/agent'
 import type { ClassModelKnowledgeProvider } from '@spark-appworks/spark-ai/class-model'
-import { PROJECT_BLUEPRINT_NODE_KINDS } from '@spark-appworks/spark-utils'
+import { deepClone, PROJECT_BLUEPRINT_NODE_KINDS } from '@spark-appworks/spark-utils'
 import type {
   ProjectBlueprint,
   ProjectWorkspace,
@@ -104,6 +104,21 @@ export type ProjectPlanningAgentWorkflowBindingOptions = Readonly<{
   /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */
   knowledge?: ClassModelKnowledgeProvider
 }>
+
+/** Read-only ProjectBlueprint surface exposed to dynamic planning scripts. */
+export type ProjectPlanningBlueprintFacade = Readonly<{
+  projectId: string
+  blueprintTree: ProjectBlueprint['blueprintTree']
+  flatRows: readonly unknown[]
+  readProjectPlanningInput: ProjectBlueprint['readProjectPlanningInput']
+  readBlueprintPlanningInputs: ProjectBlueprint['readBlueprintPlanningInputs']
+  readBlueprintNodePlanningInput: ProjectBlueprint['readBlueprintNodePlanningInput']
+  readPlanningProjection: ProjectBlueprint['readPlanningProjection']
+  getChildNodes: (nodeId?: string) => readonly unknown[]
+  findNodeById: (nodeId: string) => unknown
+  completeProjectPlanning: ProjectBlueprint['completeProjectPlanning']
+  replaceBlueprintChildren: ProjectBlueprint['replaceBlueprintChildren']
+}> & Readonly<Record<string, unknown>>
 
 export function resolveProjectPlanningRunInput(
   project: ProjectBlueprint,
@@ -238,7 +253,7 @@ export function buildProjectPlanningAgentInput(
 export function resolveProjectPlanningDomainRoot(
   options: ProjectPlanningAgentWorkflowBindingOptions,
   ctx: AiAgentRuntimeContext,
-): ProjectBlueprint {
+): ProjectPlanningBlueprintFacade {
   const moduleInstanceId = ctx.moduleInstanceId.trim()
   if (moduleInstanceId.length === 0) {
     throw new Error('projectPlanning ProjectBlueprint requires host.moduleInstanceId.')
@@ -249,7 +264,63 @@ export function resolveProjectPlanningDomainRoot(
       `projectPlanning editor mismatch: expected "${moduleInstanceId}", got "${editor.project.projectId}".`,
     )
   }
-  return editor.project
+  return guardProjectPlanningBlueprint(editor.project)
+}
+
+const PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER =
+  '项目蓝图策划暂不能提交：稳定 nodeId 尚不能由获准的 Base_NavigationInfo DataView rowid 表达。请保留策划结果，待正式身份合同支持后再提交。'
+
+/**
+ * Keep planning inputs readable through a detached, frozen facade. The live
+ * ProjectBlueprint instance is never exposed to dynamic model_script code.
+ */
+function guardProjectPlanningBlueprint(project: ProjectBlueprint): ProjectPlanningBlueprintFacade {
+  const snapshot = <T>(value: T): T => cloneFrozenPlanningValue(value)
+  const nodeData = (node: { toNodeData(): unknown } | null): unknown =>
+    node === null ? null : snapshot(node.toNodeData())
+  const facade: ProjectPlanningBlueprintFacade = {
+    __proto__: null,
+    projectId: project.projectId,
+    blueprintTree: snapshot(project.blueprintTree),
+    flatRows: snapshot(project.flatRows.map(node => node.toNodeData())),
+    readProjectPlanningInput: () => snapshot(project.readProjectPlanningInput()),
+    readBlueprintPlanningInputs: () => snapshot(project.readBlueprintPlanningInputs()),
+    readBlueprintNodePlanningInput: (nodeId: string) => snapshot(project.readBlueprintNodePlanningInput(nodeId)),
+    readPlanningProjection: () => snapshot(project.readPlanningProjection()),
+    getChildNodes: (nodeId?: string) => snapshot(project.getChildNodes(nodeId).map(node => node.toNodeData())),
+    findNodeById: (nodeId: string) => nodeData(project.findNodeById(nodeId)),
+    completeProjectPlanning: (input?: Parameters<ProjectBlueprint['completeProjectPlanning']>[0]) =>
+      snapshot(project.completeProjectPlanning(input)),
+    replaceBlueprintChildren: () => { throw new Error(PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER) },
+  }
+  Object.freeze(facade)
+  return new Proxy(facade, {
+    get(target, property) {
+      if (typeof property === 'string' && Object.prototype.hasOwnProperty.call(target, property)) return target[property]
+      if (typeof property === 'string') throw new Error(PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER)
+      return undefined
+    },
+    set() { throw new Error(PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER) },
+    deleteProperty() { throw new Error(PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER) },
+    defineProperty() { throw new Error(PROJECT_PLANNING_BLUEPRINT_WRITE_BLOCKER) },
+  })
+}
+
+function cloneFrozenPlanningValue<T>(value: T): T {
+  return freezePlanningValue(deepClone(value))
+}
+
+function freezePlanningValue<T>(value: T, seen = new WeakSet<object>()): T {
+  if (value !== null && typeof value === 'object') {
+    if (seen.has(value)) return value
+    seen.add(value)
+    for (const key of Reflect.ownKeys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (descriptor !== undefined && 'value' in descriptor) freezePlanningValue(descriptor.value, seen)
+    }
+    Object.freeze(value)
+  }
+  return value
 }
 
 export function createProjectPlanningSystemPrompt(input: ProjectPlanningAgentInput): string {

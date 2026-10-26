@@ -2,9 +2,38 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { createAppAgentWorkflowRuntimeBindings } from '@/services/ai/agent-workflow-bindings'
 import { createAgentWorkflowDefinitionFromDesign } from '@/services/workflow-designs'
-import { evaluateProjectPlanningToolGate } from '@/services/project-planning/project-planning-agent-workflow-binding'
+import { evaluateProjectPlanningToolGate, resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
+import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 
 describe('projectPlanning formal node input', () => {
+  it('blocks blueprint replacement before it can mutate the project tree', () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({
+      projectId,
+      pageFiles: { readPageFile: async () => '' },
+      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    })
+    editor.project.replaceBlueprintTree({
+      nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {},
+      children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }],
+    })
+    editor.project.markBlueprintClean('root')
+    const originalTree = editor.project.blueprintTree
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor }, { moduleInstanceId: projectId } as never)
+
+    expect(() => planningRoot.replaceBlueprintChildren({ children: [] })).toThrow(/nodeId.*DataView.*rowid/iu)
+    expect(Object.getPrototypeOf(planningRoot)).toBeNull()
+    expect(Object.getOwnPropertyDescriptor(planningRoot, 'design')).toBeUndefined()
+    expect(Object.getOwnPropertyDescriptor(planningRoot, 'session')).toBeUndefined()
+    expect(Reflect.get(Object.getPrototypeOf(planningRoot) ?? {}, 'replaceBlueprintChildren')).toBeUndefined()
+    const detachedTree = Object.getOwnPropertyDescriptor(planningRoot, 'blueprintTree')?.get?.call(planningRoot) as {
+      children: unknown[]
+    }
+    expect(() => detachedTree.children.pop()).toThrow()
+    expect(editor.project.blueprintTree).toEqual(originalTree)
+    expect(editor.project.blueprintDirty).toBe(false)
+  })
+
   it('interpolates the formal kind and teaches grouped blueprint writes', () => {
     const prompt = createAppAgentWorkflowRuntimeBindings({}).systemPromptInterpolator({
       editorSource: 'projectPlanning', template: '', hints: [], input: {

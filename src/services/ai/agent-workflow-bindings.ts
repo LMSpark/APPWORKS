@@ -39,6 +39,7 @@ import {
   resolveProjectPlanningDomainRoot,
   type ProjectPlanningAgentInput,
   type ProjectPlanningAgentWorkflowBindingOptions,
+  type ProjectPlanningBlueprintFacade,
 } from '@/services/project-planning/project-planning-agent-workflow-binding'
 
 const PAGE_DESIGN_WORKFLOW_ID = 'agent.workflow.pageDesign'
@@ -103,7 +104,7 @@ export async function activateProjectPlanningAgentWorkflow(
 
 export function createAppAgentWorkflowRuntimeBindings(
   options: CreateAppAgentWorkflowRuntimeBindingsOptions,
-): AgentWorkflowRuntimeBindings<ProjectBlueprint | ProjectWorkspace> {
+): AgentWorkflowRuntimeBindings<ProjectBlueprint | ProjectWorkspace | ProjectPlanningBlueprintFacade> {
   return {
     manifestUrlResolver: (ref) => {
       if (ref !== DTS_CLASS_MODEL_MANIFEST_REF) {

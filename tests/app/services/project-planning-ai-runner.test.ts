@@ -15,6 +15,7 @@ import type {
 } from '@spark-appworks/spark-ai/agent'
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import { runProjectPlanningAiSession } from '@/services/project-planning/project-planning-ai-runner'
+import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 
 const mocks = vi.hoisted(() => {
   const projectPlanningRun = vi.fn()
@@ -240,6 +241,31 @@ describe('runProjectPlanningAiSession', () => {
     expect(saveAll).toHaveBeenCalledOnce()
     expect(result.blueprintDirty).toBe(true)
     expect(result.savedBlueprint).toBe(true)
+  })
+
+  it('fails closed before blueprint mutation and delivery can call the legacy save path', async () => {
+    const editor = createEditor('demo')
+    const originalTree = editor.project.blueprintTree
+    editor.project.markBlueprintClean('root')
+    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    mocks.projectPlanningRun.mockImplementationOnce(async () => {
+      const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as {
+        getProjectPlanningEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
+      }
+      const root = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      root.replaceBlueprintChildren({ children: [] })
+      return createRunResult()
+    })
+
+    await expect(runProjectPlanningAiSession({
+      editor,
+      host: createAiHost(),
+      saveBlueprintAfterRun: true,
+    })).rejects.toThrow(/nodeId.*DataView.*rowid/iu)
+
+    expect(editor.project.blueprintTree).toEqual(originalTree)
+    expect(editor.project.blueprintDirty).toBe(false)
+    expect(saveAll).not.toHaveBeenCalled()
   })
 
   it('creates an isolated host per run when none is injected', async () => {

@@ -1950,3 +1950,10 @@ flowchart TD
 - 权限边界复核：正式查询上下文在交付给 DataView 消费行前会去除 `lingma_sys_params`（`packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts`）；其中 `c` 由权限 owner 规范成行级 `allowAddChild`，只能经 `DataView.createChildActionState(rowKey)` 验证授权语义。当前公共页面消费合同不暴露原始 `c` 字段；不能用 UI 状态声称取得字面 `c`，也不使用 DevTools、原始 HTTP 或内部快照绕过 SPARK data。
 - `ValueFun` 解析仅针对查询输出投影字段；未显式投影时使用当前视图查询列（`packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts`）。当前真实 SPA 的正式默认加载路径在此解析阶段失败。台账既有调查无法从错误别名确定具体原始模型字段；本次未修改字段定义或运行时容错逻辑。只有找到现存的、正式配置且排除异常字段的有效导航视图，才能继续通过公开 `DataView` action state 做只读授权语义烟测；现有证据未确认该视图存在。
 - 本轮仅登录及 SPA 导航/错误观察，无业务数据写入；自动化客户端合同和参考 Java 源码证据不等同于当前服务的 `c` 响应。**状态：**NewApp 会话已恢复；当前部署 `Base_NavigationInfo` 查询在 DataView 接纳前被 `ValueFun` 配置/投影解析错误阻断，真实 `c`/父行新增权限及子节点保存回读烟测仍未完成。整体唯一数据通道目标继续 active。
+
+### 2026-10-27 正式蓝图 DataView 只读配置盘点
+
+- 登录后沿 NewApp/D99A 的 SPA `数据空间管理` 查询正式数据空间 ID `7AB874097A1E8711A42FD845939A6E05`，正式目录读回名称“功能管理”、应用“元数据管理”；打开设计器只读查看到 23 个模型，主业务模型为 `Base_NavigationInfo`。查询与设计器均在正式页面链路完成，未调用直连后端接口。
+- 在 `Base_NavigationInfo` 的“数据视图”页只读查看现存 `default` 与 `catalogBindings` 两个命名视图。二者均未配置查询字段投影（沿用模型输出字段）；`catalogBindings` 的输出类型、节点主键、父字段、子节点标志字段及自引用输出类型均未配置，因而不是可直接用于子项权限/树语义验证的既有自引用视图。页面明确表示无投影时沿用模型输出。
+- 设计器字段候选仍提示“字段候选尚未完整读取或有未保存修改”；不从该屏臆断 `ValueFun` 原模型字段身份。仅点开查询输出后发现界面不能启动查询预览；随即通过“取消未提交修改”丢弃视图/绑定草稿，关闭设计器并回到目录，未保存任何视图、字段、布局或模型更改。
+- **状态：**已确认目标正式空间中没有可直接承接该烟测的现成窄投影自引用 DataView；DevSystem 当前默认查询仍被 `ValueFun 缺少 Type` 阻断。要继续验证需先在允许的正式配置边界定位并纠正实际异常字段/合同，或取得另一个既有有效自引用视图；否则不创建临时正式视图、不写父子节点数据，也不声称部署端 `c` 已核实。整体统一数据链目标 active。

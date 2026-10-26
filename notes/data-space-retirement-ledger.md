@@ -1742,3 +1742,10 @@ flowchart TD
 - 选中目录明确标注为测试的 `dm_test`（正式数据库目录 rowid `22D7FFAB908C4C5A87C6AA79414DEB56`）。当前行获得 `current-row spark-selection-row`；视图 DataView 正式读回 `viewtesst` 一条。选择该视图后字段区域正式显示 Total 14，字段列与行内容（包括 description、flowstate、ReportID、id 等）均由页面呈现。物理表页显示 No Data。没有点注册、设计、删除、刷新等写入入口，没有执行数据库连接测试，没有保存任何模型、视图或字段。
 - 该结果核实的是 D99A 当前正式菜单到本仓 TableAndView SPA 页面，以及 `数据库目录 → 视图 → 字段目录` 的可见读回链；不证明此前失效的其他应用旧路径 `/DataCenter/ServerManagerment.html` 应映射到本页面，也未获取当前 SPA 的请求 ID/响应体。部署页面的请求体级 SPARK data owner 仍以仓内对应 DataView 集成测试和运行时实现核对，不能把 UI 点击单独当作请求合同证据。
 - **状态：TableAndView 正式入口与测试库视图/字段只读链已在 D99A SPA 实际显示；旧应用节点默认页映射、物理表正式查询以及写入类目录命令回执仍未验收。**
+
+## 2026-10-26 登录恢复后的 alias 与七条字典排序请求/响应只读复核
+
+- 当前 IAB 的 D99A 标签仍保有授权登录态，用户栏显示“王涛”；没有重输凭据。通过应用列表只读进入“数据资产管理”后，shell 显示 app `00BE6ED455CD4BD7B785C61A12A1E67D`，页面报“无法确定系统页面：原页面身份已失效”，可见导航没有目标业务项。故旧路径 `/DataCenter/ServerManagerment.html` 的正式 target 仍未确认，不能映射为 D99A 的服务器管理页。D99A 数据字典 path 不带 navigation ID 时也报“当前路径对应多个导航项”；使用当前已知正式导航身份 `EDB0E34486FFB903E896E5C281230961` 才读到目录。它验证了路由依赖真实 owner identity，不是跨应用 alias 证明。
+- 在 D99A 正式数据字典目录只读打开共享烟测字典 `B1Sort_20261024_1925F4C2`（ID `327D74EC0ABC4196AA75C56D944B8201`），DataView 查询显示 7 行。通过浏览器 DevTools 只观察标准表头点击已发出的请求/响应：请求 `29596.3661` 为 `POST /api/DataOperation/GetData`，DataView 模型 `_Base_DictData`、`typeid` 等于该字典 ID、`val descending`；HTTP 200、envelope `Code=200`、`Count=7`，响应和 UI 均为 G4S_B、G4S_A、C、B1AI_Q、B1AI_P、B、A。请求 `29596.3663` 为同一 DataView 与同一字典过滤的 `val ascending`，HTTP/envelope 200、Count 7，响应和 UI 均为 A、B、B1AI_P、B1AI_Q、C、G4S_A、G4S_B。完整脱敏摘要见 `notes/evidence/metadata-integration-20261026/b1-sort-live-spa-readonly-20261026.json`；凭据头、服务端签名 key 等响应内容未保存。
+- 表头第三态请求 `29596.3662` 没有排序字段，虽也返回 200/Count 7，但其结果次序与初始工作区显示的 `ordIdx` 顺序不同。该结果只登记为“无显式 order 时的实际回包”，不声称是稳定默认排序或数据损坏；后续要核对 RendererTable 清除临时排序后是否恢复 DataView 默认查询排序。当前只触发查询状态，无 DataView 行修改、无“设置排序”、无保存/取消/删除请求；测试数据原值未改变。已有专用隔离字典完整排序持久化仍以本台账前节的正式闭环验收为准。
+- **状态：**旧应用 alias 目标仍待原始导航节点合同；七行字典的升序/降序请求、正式响应和渲染一致已在线确认，排序清除态默认查询语义待核；本节全程只读。总体数据空间整合继续 implementing。

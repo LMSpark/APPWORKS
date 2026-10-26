@@ -1,0 +1,102 @@
+{
+  "capturedAt": "2026-10-26T15:09:00+08:00",
+  "application": {
+    "tenant": "NewApp",
+    "id": "D99A1DCE9894698799101EFD70F8FC76",
+    "displayedUser": "王涛"
+  },
+  "dictionary": {
+    "name": "B1Sort_20261024_1925F4C2",
+    "id": "327D74EC0ABC4196AA75C56D944B8201"
+  },
+  "method": "SPA UI table-header sort only; CDP observed the browser's existing request/response. No direct API call, row edit, sort-setting command, save, or delete was made.",
+  "requests": [
+    {
+      "requestId": "29596.3661",
+      "httpMethod": "POST",
+      "path": "/api/DataOperation/GetData",
+      "model": "_Base_DictData",
+      "filter": {
+        "field": "typeid",
+        "operator": "equal",
+        "value": "327D74EC0ABC4196AA75C56D944B8201"
+      },
+      "page": { "index": 1, "size": 20 },
+      "sort": { "field": "val", "direction": "descending" },
+      "httpStatus": 200,
+      "envelope": { "code": 200, "message": "操作成功", "count": 7 },
+      "responseOrder": [
+        { "val": "G4S_20261025_F721_B", "ordIdx": 5 },
+        { "val": "G4S_20261025_F721_A", "ordIdx": 4 },
+        { "val": "C", "ordIdx": 3 },
+        { "val": "B1AI_0003_Q", "ordIdx": 0 },
+        { "val": "B1AI_0003_P", "ordIdx": 0 },
+        { "val": "B", "ordIdx": 2 },
+        { "val": "A", "ordIdx": 1 }
+      ],
+      "uiMatchesResponseOrder": true
+    },
+    {
+      "requestId": "29596.3662",
+      "httpMethod": "POST",
+      "path": "/api/DataOperation/GetData",
+      "model": "_Base_DictData",
+      "filter": {
+        "field": "typeid",
+        "operator": "equal",
+        "value": "327D74EC0ABC4196AA75C56D944B8201"
+      },
+      "page": { "index": 1, "size": 20 },
+      "sort": null,
+      "httpStatus": 200,
+      "envelope": { "code": 200, "message": "操作成功", "count": 7 },
+      "responseOrder": [
+        "B1AI_0003_P",
+        "A",
+        "B1AI_0003_Q",
+        "G4S_20261025_F721_B",
+        "C",
+        "G4S_20261025_F721_A",
+        "B"
+      ],
+      "uiMatchesResponseOrder": true,
+      "observation": "The request had no sort field; this response is recorded as an unordered result, not a stable default-order guarantee."
+    },
+    {
+      "requestId": "29596.3663",
+      "httpMethod": "POST",
+      "path": "/api/DataOperation/GetData",
+      "model": "_Base_DictData",
+      "filter": {
+        "field": "typeid",
+        "operator": "equal",
+        "value": "327D74EC0ABC4196AA75C56D944B8201"
+      },
+      "page": { "index": 1, "size": 20 },
+      "sort": { "field": "val", "direction": "ascending" },
+      "httpStatus": 200,
+      "envelope": { "code": 200, "message": "操作成功", "count": 7 },
+      "responseOrder": [
+        { "val": "A", "ordIdx": 1 },
+        { "val": "B", "ordIdx": 2 },
+        { "val": "B1AI_0003_P", "ordIdx": 0 },
+        { "val": "B1AI_0003_Q", "ordIdx": 0 },
+        { "val": "C", "ordIdx": 3 },
+        { "val": "G4S_20261025_F721_A", "ordIdx": 4 },
+        { "val": "G4S_20261025_F721_B", "ordIdx": 5 }
+      ],
+      "uiMatchesResponseOrder": true
+    }
+  ],
+  "legacyNavigation": {
+    "appId": "00BE6ED455CD4BD7B785C61A12A1E67D",
+    "attempt": "Opened the existing Data Assets app card from the authenticated app list using its Enter App action.",
+    "observed": "The shell identified app 00BE and showed '无法确定系统页面：原页面身份已失效，请从导航菜单重新选择'; the app navigation did not expose the target page. No route mapping or app configuration was changed.",
+    "target": "/DataCenter/ServerManagerment.html",
+    "status": "unresolved"
+  },
+  "routeIdentity": {
+    "dictionaryPathWithoutNavigationId": "ambiguous: 当前路径对应多个导航项",
+    "dictionaryPathWithNavigationId": "loaded from the supplied formal navigation identity ED...230961"
+  }
+}

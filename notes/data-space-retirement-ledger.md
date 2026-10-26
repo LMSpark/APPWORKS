@@ -1919,3 +1919,11 @@ flowchart TD
 - 自动化验收：`pnpm exec vitest run tests/app/dev/page-tool-files-command.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts` **2 files / 35 tests passed**，覆盖父行 `c` 拒绝、字段写权限拒绝、validator 拒绝、获准新增、文件命令未知回执、导航未知/已接受回执、明确失败补偿和重试。`pnpm run typecheck`、改动文件 ESLint、完整 `pnpm run verify:rules`、`pnpm run build`、`git diff --check` 均通过。AI model spec 扫描保留 2 条既有 warning；build 有第三方注解、动态导入及 chunk size warning，构建成功。
 - **真实 SPA 烟测未完成：**本轮打开的本地 IAB 标签被重定向到未登录的平台首页。computer-use 技能不允许自动填写认证表单；未能复用已认证会话，因此没有线上 `c` 查询响应、文件创建或导航保存回执证据，不以自动化夹具替代真实验收。未启动、修改或部署 Java，也未写线上数据。
 - **状态：**客户端子节点创建路径及自动化闭环完成，服务端实际是否在当前部署查询中返回每个父行的 `c`、以及真实 SPA 保存回读仍待认证会话烟测。本项提交后继续维护唯一台账；叶节点删除、树查询行集合权限完整性、物理表预览和 workflow 文件读链等既有开放项不变，整体统一数据架构目标继续 active。
+
+### 2026-10-27 下一批 DataSet 逃逸项合同复核
+
+- 复核基线 `HEAD=c0f426119f291c5f1acef73dbd5b11d46b9c5f26`，分支 `codex/ai-data-entry`，开始时工作树干净；未改业务代码、未改 Java、未请求服务或写数据。
+- **节点属性草稿状态更正：**先前“NodeBasicInfo 仍由 ProjectBlueprint 独立草稿保存”的历史结论已过期。当前 `useDevState` 的 `blueprintDraft` 代理从活动 `BlueprintWorkspaceDataView.nodeData()` 读值；字段/分组 setter 调用 `updateNodeData()`，写入原 DataView 编辑覆盖；`saveNodeChanges()` 调用同一 session 的 `saveSelectedNode()`。`tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` 已覆盖 DataView 编辑、取消、字段拒绝与回执行为。因此不再将 NodeBasicInfo 记为独立业务草稿源；组件仍使用代理读取权限过滤后的 DataView 投影。
+- **物理目录预览仍不可安全迁移：**活动 `database-catalog-preview-view-ops.ts` 对任意物理表/视图直接调用 GetData，只解析 `Items/Count`，并可回退/固定 `rowid` 为主键，在本地合成只读权限。正式 DataView 绑定以 `scenarioId + metaName` 和已注册模型输出/主键/服务端权限快照为依据；任意目录对象不能借表名伪造正式模型身份。更窄的正式模型数据页可走现有 DataSpace 链，但不等价于任意物理目录预览。解锁仍需部署响应证明库/表身份、稳定主键、权限投影及分页总数；当前不改原始 HTTP 为表面 DataView，也不改 Java。
+- **工作流文件目录仍不可安全迁移：**`workflow-designs.ts` 的目录和 `design.json` / `definition.json` 仍由 LowcodeDesign API 直读；消费者包括 `WorkflowDesigns.vue` 与 AI workflow bindings。DataView 的 file identity、scope guard、查询结果接纳及 staged-file 单文件写入示例只是底座，尚没有工作流目录/文件 owner 合同或正式权限/身份回执。必须让目录与两个消费者共用明确的 app/workflow/file 身份、授权结果、异步 scope 隔离和只读接纳合同；保存回执另按获准写 owner 定义。不能将现有 API 简单包装进 DataView 作为完成。
+- **状态：**蓝图根/子节点新增及属性编辑已由 DataView 承担；子树删除仍受查询结果行集合完整性合同限制；物理表/视图预览与 workflow file 目录读仍有明确服务/资源合同缺口。本轮合同审计没有产生安全的代码迁移，未执行真实 SPA 读写；总体统一数据架构继续 active，后续优先寻找已具正式身份与权限回执、能不改 Java 完成的业务闭环。

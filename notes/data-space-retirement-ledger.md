@@ -1902,3 +1902,11 @@ flowchart TD
 - 验证：受影响的蓝图、目录宿主与页面历史测试 **4 files / 136 tests passed**；新增回执运行时聚焦用例 **2 passed**；ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules`、生产 build、`git diff --check` 均通过。规则扫描保留 2 条既有 AI model-spec warning，退出码 0；build 有现有第三方注解/动态导入及 chunk 大小 warning，成功。
 - **部署验证边界：**本轮没有活动的已认证 SPA 浏览器会话，因此没有线上根模块新增或服务端 `c` 字段回执烟测。源码与自动化合同证明客户端能消费上述权限；是否当前部署服务每次都返回对应父行的 `c` 位，仍须在正式查询响应核验。没有修改、启动或部署 Java，没有写线上模型/业务数据。
 - **状态：**根模块新增已进入同一 DataView 权限/保存链；根级新增 permission 与子级 `c` permission 分层明确。子节点新增、删除及完整树行集合权限合同仍开放；物理表预览与 workflow 文件读取等逃逸项仍开放，整体数据链收敛继续 active。
+
+### 2026-10-26 蓝图子节点新增的资源边界复核
+
+- 继续评估将 `addChildNode` 改为 Base_NavigationInfo DataView 新增行，并消费父行 `DataView.createChildActionState(parent)`（服务端 `lingma_sys_params.c`）权限。代码追踪确认当前 UI 操作的既有语义是 `ProjectWorkspace.createMountedPage()`：创建页面文件并新增关联导航行；仅新增树行会产生无文件目标的导航节点，不能算业务闭环。
+- 正式文件资源边界目前不具备创建/删除实现：`ProjectPageFileGateway.createFiles/deleteFiles` 都是可选注入，`PageFileApi` 对缺少能力抛出“当前平台未提供受治理的页面文件创建/删除能力”；生产 `createLowcodeProjectGateways()` 的 `pageFiles` 仅提供读取、内容/版本等能力，没有 `createFiles/deleteFiles`。仓内也未检索到可复用的正式 create/delete file API 实现。
+- **Ruling：**撤下本轮未测的子节点半实现；不把旧 `createMountedPage` 当成可接受的第二写通道，也不单独落库导航行。待 SPARK data 正式承接页面文件资源身份、创建/删除、回执和补偿语义后，再在同一用户操作中由 DataView 提交导航行，并验证两项真实资源结果。父行 `c` 权限解析能力已存在，权限不足以弥补文件资源合同缺失。
+- 自动化验证未因这次只读合同复核重跑；无代码或正式模型/业务数据变化。当前 Windows 应用清单没有浏览器窗口，无法核验部署服务是否实际返回 `c`，也未执行写烟测。没有修改、启动或部署 Java。
+- **状态：**子节点新增仍开放，明确 blocker 是文件资源创建/删除的 SPARK data 资源合同；根级新增 DataView 改动已在前一提交。叶节点删除仍受查询行集合完整权限合同限制；物理目录预览及 workflow 文件目录/内容读取仍属已登记逃逸项；全仓数据链收敛目标继续 active。

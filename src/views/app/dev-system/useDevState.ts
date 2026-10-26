@@ -43,6 +43,7 @@ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-sp
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
+import type {PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
 
 const {
   isConfigFilesPageSurface,
@@ -190,6 +191,17 @@ export function useDevState() {
     })().finally(()=>{if(blueprintWorkspaceLoad===loading)blueprintWorkspaceLoad=undefined})
     blueprintWorkspaceLoad=loading
     return loading
+  }
+  /**
+   * 通过当前蓝图运行 DataSet 中的 file 命令视图创建并回读工具快照。
+   * @param input 当前页面、文件路径、文件原文与异步作用域守卫。
+   * @returns 文件 owner 已确认的快照编号及文件名。
+   */
+  async function createPageToolSnapshot(input:PageToolSnapshotInput):Promise<PageToolSnapshotResult>{
+    await loadBlueprintWorkspaceDataView()
+    const owner=pageToolFilesDataView
+    if(!owner)throw new Error('PAGE_TOOL_SNAPSHOT_DATAVIEW_REQUIRED: 工具文件DataView尚未装配')
+    return owner.createSnapshot(input)
   }
   function registerExternalDataViewSession(session: ExternalDataViewSession): () => void {
     externalDataViewSessions.add(session)
@@ -1470,6 +1482,7 @@ export function useDevState() {
     refreshBlueprintTreeProjection,
     blueprintWorkspaceDataView,
     loadBlueprintWorkspaceDataView,
+    createPageToolSnapshot,
 
     editor,
     project,

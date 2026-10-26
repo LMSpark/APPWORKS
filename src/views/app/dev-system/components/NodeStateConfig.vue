@@ -9,6 +9,8 @@ AI用途：调整节点导航展示并经领域dirty与Workspace保存。
     <el-divider content-position="left">导航显示</el-divider>
     <el-form-item v-if="access('IsShowAtNav').read" label="发布到菜单"><el-switch v-model="state.blueprintDraft.navigation.publishInMenu" :disabled="!access('IsShowAtNav').write" @change="state.markBlueprintDirty" /></el-form-item>
     <el-form-item v-if="access('IsShowChildItem').read" label="显示子项"><el-switch v-model="state.blueprintDraft.navigation.showChildren" :disabled="!access('IsShowChildItem').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('NavigationShowType').read" label="显示方式"><el-input v-model="state.blueprintDraft.navigation.displayMode" :disabled="!access('NavigationShowType').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <el-form-item v-if="access('HorizontalAlignment').read" label="水平对齐"><el-input v-model="state.blueprintDraft.navigation.horizontalAlignment" :disabled="!access('HorizontalAlignment').write" @change="state.markBlueprintDirty" /></el-form-item>
     <el-form-item v-if="access('BeginGroup').read" label="开始分组"><el-switch v-model="state.blueprintDraft.navigation.beginGroup" :disabled="!access('BeginGroup').write" @change="state.markBlueprintDirty" /></el-form-item>
     <el-form-item v-if="access('FunOrderValue').read" label="排序"><el-input-number v-model="state.blueprintDraft.navigation.order" :disabled="!access('FunOrderValue').write" @change="state.markBlueprintDirty" /></el-form-item>
   </div>

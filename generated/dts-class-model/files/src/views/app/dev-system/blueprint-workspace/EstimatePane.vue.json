@@ -11,7 +11,140 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-10-06T21:12:48.630Z",
-  "models": {}
+  "$defs": {
+    "Access": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Access",
+      "properties": {
+        "read": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "write": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "read",
+        "write"
+      ],
+      "additionalProperties": false
+    },
+    "EstimateAccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EstimateAccess",
+      "properties": {
+        "DifficultyFactor": {
+          "$ref": "#/$defs/Access"
+        },
+        "Manhour": {
+          "$ref": "#/$defs/Access"
+        },
+        "Number": {
+          "$ref": "#/$defs/Access"
+        },
+        "Sum": {
+          "$ref": "#/$defs/Access"
+        },
+        "Total": {
+          "$ref": "#/$defs/Access"
+        },
+        "personCharge": {
+          "$ref": "#/$defs/Access"
+        },
+        "status": {
+          "$ref": "#/$defs/Access"
+        }
+      },
+      "required": [
+        "DifficultyFactor",
+        "Manhour",
+        "Number",
+        "Sum",
+        "Total",
+        "personCharge",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-26T08:18:06.556Z",
+  "models": {
+    "Access": {
+      "name": "Access",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    read: boolean;\n    write: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "read",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "write",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "EstimateAccess": {
+      "name": "EstimateAccess",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    DifficultyFactor: Access;\n    Manhour: Access;\n    Number: Access;\n    Sum: Access;\n    Total: Access;\n    personCharge: Access;\n    status: Access;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "DifficultyFactor",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Manhour",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Number",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Sum",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "Total",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "personCharge",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
 }

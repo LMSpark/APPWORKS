@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 966,
+  "scannedFileCount": 968,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13546,6 +13546,23 @@
         ]
       }
     },
+    "src/lowcode/resources/shared/page-tool-files-command.ts": {
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/shared/page-tool-files-command",
+        "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+        "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/shared/page-tool-files-command",
+        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolFilesDataView（共 3 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PageToolSnapshotInput",
+          "PageToolSnapshotResult",
+          "PageToolFilesDataView"
+        ]
+      }
+    },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json",
       "module": {
@@ -14112,6 +14129,22 @@
         "symbols": []
       }
     },
+    "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
+      "module": {
+        "name": "app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
+        "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+        "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+        "packageName": "app",
+        "modulePath": "views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
+        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview\n职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。\n边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "BlueprintNodeFormData",
+          "BlueprintWorkspaceDataView"
+        ]
+      }
+    },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "file": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
       "module": {
@@ -14413,6 +14446,7 @@
           "StatusMessage",
           "DevContextConfig",
           "DevWorkspaceTab",
+          "ExternalDataViewSession",
           "DevState"
         ]
       }
@@ -17024,6 +17058,10 @@
       "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
       "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
     },
+    "BlueprintNodeFormData": {
+      "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
+    },
     "BlueprintPlanningAgentInput": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
@@ -17035,6 +17073,10 @@
     "BlueprintPlanningRunInput": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
+    },
+    "BlueprintWorkspaceDataView": {
+      "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
     },
     "BooleanSchemaOptions": {
       "sourcePath": "packages/spark-json-document/src/schema/schema-helpers.ts",
@@ -18640,6 +18682,10 @@
       "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
       "file": "files/packages/spark-ai/src/agent/native-runtime/native-script-context.ts.json"
     },
+    "ExternalDataViewSession": {
+      "sourcePath": "src/views/app/dev-system/useDevState.ts",
+      "file": "files/src/views/app/dev-system/useDevState.ts.json"
+    },
     "FetchNestedInput": {
       "sourcePath": "packages/spark-data/src/node-tree/tree-manager.ts",
       "file": "files/packages/spark-data/src/node-tree/tree-manager.ts.json"
@@ -20228,6 +20274,10 @@
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
+    "PageToolFilesDataView": {
+      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
+    },
     "PageToolFileVersionSummary": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
@@ -20239,6 +20289,14 @@
     "PageToolOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
+    },
+    "PageToolSnapshotInput": {
+      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
+    },
+    "PageToolSnapshotResult": {
+      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
     },
     "PageUploadedFile": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",

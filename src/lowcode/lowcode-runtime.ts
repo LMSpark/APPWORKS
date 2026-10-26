@@ -468,6 +468,14 @@ function toolFilePath(applicationId: string, pageId: string): string {
   return `${applicationId}/${id}`
 }
 
+function assertProjectFilePath(applicationId:string,customPath:string):string {
+  const normalized=customPath.trim(),segments=normalized.split('/')
+  if(normalized!==customPath||segments[0]!==applicationId||segments.length<2||/[\\%\u0000-\u001f\u007f?#]/.test(normalized)
+    ||segments.some(segment=>segment.length===0||segment.trim()!==segment||segment==='.'||segment==='..'))throw new Error('文件快照路径必须属于当前应用')
+  if(lowcodeApi.readRequestScope().headers['X-AppId']!==applicationId)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 文件快照所属应用已失效')
+  return normalized
+}
+
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')
@@ -633,6 +641,20 @@ export function createPageToolFilesIo(projectId:string){
     upload:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await scenarioFileUpload.uploadTextVersion({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
+    },
+    listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css'})=>{
+      if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      return [...await lowcodeApi.design.listFileVersions({appType:'designfile',customPath:assertProjectFilePath(appId,customPath),fileName})]
+    },
+    uploadVersion:async({appId:app,customPath,fileName,version,text}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number;text:string})=>{
+      if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
+      await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),fileName:`${version}__${fileName}`,text})
+    },
+    readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number}):Promise<string|null>=>{
+      if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
+      const path=assertProjectFilePath(appId,customPath)
+      try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:path,fileName:`${version}__${fileName}`})}
+      catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     remove:async(app:string,page:string,name:'rule.json'|'script.js'|'style.css')=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')

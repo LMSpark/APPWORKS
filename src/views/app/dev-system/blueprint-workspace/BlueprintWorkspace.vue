@@ -23,14 +23,12 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import {
-  LowcodeDesignFileUpload,
   encodeLowcodeBlueprintFileVersions,
   lowcodeBlueprintFileVersionKey,
   parseLowcodeBlueprintFileVersions,
   type LowcodeBlueprintFileName,
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import { lowcodeHttp } from '@/lowcode/lowcode-runtime'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
 import PlanningPane from './PlanningPane.vue'
@@ -50,7 +48,6 @@ const session = shallowRef<BlueprintWorkspaceDataView>()
 const dataViewRevision = ref(0)
 const sessionDirty = computed(() => {void dataViewRevision.value; return session.value?.dirty ?? false})
 const fileVersions = computed(() => {void dataViewRevision.value; return String(session.value?.value('VersionId') ?? '').trim()})
-const fileUpload = new LowcodeDesignFileUpload({ http: lowcodeHttp, readScope: () => lowcodeApi.readRequestScope() })
 const runtimeSummary = computed(() => {
   void dataViewRevision.value
   const target = String(session.value?.value('NavigationUrl') ?? '')
@@ -166,16 +163,12 @@ async function saveDelivery() {
     let versions = parseLowcodeBlueprintFileVersions(fileVersions.value)
     for (const fileName of ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]) {
       assertTarget()
-      const snapshots = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName })
-      assertTarget()
-      const version = snapshots.reduce((maximum, item) => Math.max(maximum, item.version), 0) + 1
-      if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
-      const versionedName = `${version}__${fileName}`
       const text = texts.get(fileName)
       if (text === undefined) throw new Error('交付文本缺失')
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 交付期间已修改`)
-      attemptedSnapshots.push(versionedName)
-      await fileUpload.uploadTextVersion({ customPath, fileName: versionedName, text })
+      const snapshot = await props.state.createPageToolSnapshot({pageId,customPath,fileName,text,assertCurrent:assertTarget,
+        onAttempt:result=>{if(!attemptedSnapshots.includes(result.fileName))attemptedSnapshots.push(result.fileName)}})
+      const {version,fileName:versionedName}=snapshot
       written.push(versionedName)
       assertTarget()
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 上传期间已修改，未更新发布引用`)

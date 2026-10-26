@@ -14,6 +14,7 @@
       "StatusMessage",
       "DevContextConfig",
       "DevWorkspaceTab",
+      "ExternalDataViewSession",
       "DevState"
     ]
   },
@@ -108,6 +109,93 @@
         "props"
       ]
     },
+    "ExternalDataViewSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExternalDataViewSession",
+      "$defs": {
+        "method.isDirty.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isDirty.return": {
+          "type": "boolean"
+        },
+        "method.hasUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedSave.return": {
+          "type": "boolean"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.moveBlueprintNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveBlueprintNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.treeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.treeProjection.return": {
+          "$ref": "../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.hasTreeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasTreeProjection.return": {
+          "type": "boolean"
+        },
+        "method.childCreateActionState.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childCreateActionState.return": {
+          "enum": [
+            "enabled",
+            "hidden",
+            "disabled",
+            "unknown"
+          ]
+        }
+      }
+    },
     "DevState": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -147,6 +235,10 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<never[] | ProjectBlueprintDomain.ProjectBlueprintTreeNodeData[]>"
         },
+        "childCreateActionState": {
+          "type": "object",
+          "title": "(parentNodeId: string) => \"enabled\" | \"hidden\" | \"disabled\" | \"unknown\""
+        },
         "blueprintLoading": {
           "type": "object",
           "title": "import(\"vue\").Ref<boolean, boolean>"
@@ -166,14 +258,10 @@
         "blueprintDraft": {
           "type": "object",
           "properties": {
-            "nodeId": {
-              "type": "string"
-            },
-            "parentNodeId": {
-              "type": "string"
-            },
-            "projectId": {
-              "type": "string"
+            "source": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
             },
             "kind": {
               "enum": [
@@ -184,6 +272,192 @@
                 "content",
                 "unknown"
               ]
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "nodeId": {
+                    "type": "string"
+                  },
+                  "parentNodeId": {
+                    "type": "string"
+                  },
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "module",
+                      "page",
+                      "embedded",
+                      "service",
+                      "content",
+                      "unknown"
+                    ]
+                  },
+                  "capability": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "ownerId": {
+                        "type": "string"
+                      },
+                      "deliveryStatus": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "navigation": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "icon": {
+                        "type": "string"
+                      },
+                      "order": {
+                        "type": "number"
+                      },
+                      "placement": {
+                        "enum": [
+                          "parent",
+                          "left",
+                          "right",
+                          "top",
+                          "tabs",
+                          "popup"
+                        ]
+                      },
+                      "target": {
+                        "type": "string"
+                      },
+                      "mobileTarget": {
+                        "type": "string"
+                      },
+                      "openMode": {
+                        "enum": [
+                          "embedded",
+                          "current",
+                          "subsystem",
+                          "new-window",
+                          "modal"
+                        ]
+                      },
+                      "displayMode": {
+                        "type": "string"
+                      },
+                      "horizontalAlignment": {
+                        "type": "string"
+                      },
+                      "publishInMenu": {
+                        "enum": [
+                          false,
+                          true
+                        ]
+                      },
+                      "showChildren": {
+                        "enum": [
+                          false,
+                          true
+                        ]
+                      },
+                      "beginGroup": {
+                        "enum": [
+                          false,
+                          true
+                        ]
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "order",
+                      "publishInMenu",
+                      "showChildren",
+                      "beginGroup"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "dataSpace": {
+                    "type": "object",
+                    "properties": {
+                      "scenarioId": {
+                        "type": "string"
+                      },
+                      "models": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "metaName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "metaName"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "scenarioId",
+                      "models"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "prototype": {
+                    "type": "object",
+                    "properties": {
+                      "htmlDescription": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "source": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                  },
+                  "children": {
+                    "type": "array",
+                    "items": true
+                  }
+                },
+                "required": [
+                  "nodeId",
+                  "parentNodeId",
+                  "projectId",
+                  "kind",
+                  "capability",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "parentNodeId": {
+              "type": "string"
             },
             "capability": {
               "type": "object",
@@ -204,9 +478,6 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "name"
-              ],
               "additionalProperties": false
             },
             "navigation": {
@@ -271,13 +542,6 @@
                   ]
                 }
               },
-              "required": [
-                "title",
-                "order",
-                "publishInMenu",
-                "showChildren",
-                "beginGroup"
-              ],
               "additionalProperties": false
             },
             "dataSpace": {
@@ -302,10 +566,6 @@
                   }
                 }
               },
-              "required": [
-                "scenarioId",
-                "models"
-              ],
               "additionalProperties": false
             },
             "prototype": {
@@ -316,26 +576,29 @@
                 }
               },
               "additionalProperties": false
-            },
-            "source": {
-              "type": "object",
-              "properties": {},
-              "additionalProperties": true
-            },
-            "children": {
-              "type": "array",
-              "items": true
             }
           },
           "required": [
-            "nodeId",
-            "parentNodeId",
-            "projectId",
+            "source",
             "kind",
-            "capability",
-            "source"
+            "nodeId",
+            "projectId",
+            "parentNodeId",
+            "capability"
           ],
           "additionalProperties": false
+        },
+        "blueprintNodeFieldAccess": {
+          "type": "object",
+          "title": "(field: string) => Readonly<{ read: boolean; write: boolean; }>"
+        },
+        "blueprintNodeFieldsWritable": {
+          "type": "object",
+          "title": "(fields: readonly string[]) => boolean"
+        },
+        "blueprintNodeSectionWritable": {
+          "type": "object",
+          "title": "(section: string) => boolean"
         },
         "blueprintEmpty": {
           "type": "object",
@@ -480,6 +743,38 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<boolean>"
         },
+        "registerExternalDataViewSession": {
+          "type": "object",
+          "title": "(session: ExternalDataViewSession) => () => void"
+        },
+        "notifyExternalDataViewChanged": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "moveBlueprintNodeInDataView": {
+          "type": "object",
+          "title": "(nodeId: string, parentId: string | null, index: number) => Promise<void>"
+        },
+        "loadBlueprintTreeFromDataView": {
+          "type": "object",
+          "title": "() => Promise<ProjectBlueprintDomain.ProjectBlueprintTreeData>"
+        },
+        "refreshBlueprintTreeProjection": {
+          "type": "object",
+          "title": "(session?: ExternalDataViewSession) => void"
+        },
+        "blueprintWorkspaceDataView": {
+          "type": "object",
+          "title": "import(\"vue\").ShallowRef<BlueprintWorkspaceDataView | undefined, BlueprintWorkspaceDataView | undefined>"
+        },
+        "loadBlueprintWorkspaceDataView": {
+          "type": "object",
+          "title": "() => Promise<BlueprintWorkspaceDataView>"
+        },
+        "createPageToolSnapshot": {
+          "type": "object",
+          "title": "(input: PageToolSnapshotInput) => Promise<PageToolSnapshotResult>"
+        },
         "editor": {
           "$ref": "../../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         },
@@ -568,7 +863,7 @@
         },
         "addRootNode": {
           "type": "object",
-          "title": "() => void"
+          "title": "() => Promise<void>"
         },
         "addChildNode": {
           "type": "object",
@@ -618,11 +913,15 @@
         "editableProjects",
         "projectOptionsLoading",
         "treeData",
+        "childCreateActionState",
         "blueprintLoading",
         "blueprintSaving",
         "blueprintDirty",
         "selectedNode",
         "blueprintDraft",
+        "blueprintNodeFieldAccess",
+        "blueprintNodeFieldsWritable",
+        "blueprintNodeSectionWritable",
         "blueprintEmpty",
         "pageFileNames",
         "activePageId",
@@ -656,6 +955,14 @@
         "projectPlanningAiTimeline",
         "hasAnyFileDirty",
         "hasAnyDirty",
+        "registerExternalDataViewSession",
+        "notifyExternalDataViewChanged",
+        "moveBlueprintNodeInDataView",
+        "loadBlueprintTreeFromDataView",
+        "refreshBlueprintTreeProjection",
+        "blueprintWorkspaceDataView",
+        "loadBlueprintWorkspaceDataView",
+        "createPageToolSnapshot",
         "editor",
         "project",
         "addStatus",
@@ -693,7 +1000,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-15T12:24:57.596Z",
+  "generatedAt": "2026-10-26T18:23:16.659Z",
   "models": {
     "EditableProjectOption": {
       "name": "EditableProjectOption",
@@ -806,6 +1113,149 @@
           }
         ],
         "members": {}
+      }
+    },
+    "ExternalDataViewSession": {
+      "name": "ExternalDataViewSession",
+      "jsdoc": "DataView-backed page areas register the same dirty/save owner with the DevSystem shell.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "isDirty",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveBlueprintNode",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "treeProjection",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintDomain.ProjectBlueprintTreeData"
+              }
+            },
+            {
+              "name": "hasTreeProjection",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "childCreateActionState",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "enabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "hidden"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "disabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
     },
     "DevState": {

@@ -6,6 +6,65 @@ import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermi
 function timeoutAfterAccept():Error{const error=new Error('timeout after accept');error.name='RequestError';Object.assign(error,{config:{url:'/test'}});return error}
 
 describe('PageToolFilesDataView',()=>{
+  it('publishes an exact snapshot through its DataView command and returns the confirmed file version',async()=>{
+    const files=new Map<string,string>(), snapshots=new Map<string,string>()
+    const uploadVersion=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text)})
+    const io={list:async()=>[...files.keys()],read:async(_app:string,_page:string,name:string)=>files.get(name)??null,
+      upload:async()=>{},remove:async()=>{},listVersions:async(command:{customPath:string;fileName:string})=>[
+        {version:7,fileName:`7__${command.fileName}`,lastModified:null},...[...snapshots.keys()].flatMap(key=>{const match=key.match(new RegExp(`^${command.customPath}/(\\d+)__${command.fileName}$`));return match?[{version:Number(match[1]),fileName:`${match[1]}__${command.fileName}`,lastModified:null}]:[]}),
+      ],
+      uploadVersion,readVersion:async(command:{customPath:string;fileName:string;version:number})=>snapshots.get(`${command.customPath}/${command.version}__${command.fileName}`)??null}
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const save=vi.spyOn(dataSet,'saveChanges')
+    const resource=new PageToolFilesDataView(dataSet,'APP',io,()=>{})
+    const result=await resource.createSnapshot({pageId:'PAGE',customPath:'APP/PAGE',fileName:'rule.json',text:'exact snapshot',assertCurrent:()=>{}})
+    expect(result).toEqual({version:8,fileName:'8__rule.json'})
+    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
+    expect(uploadVersion).toHaveBeenCalledWith({appId:'APP',customPath:'APP/PAGE',fileName:'rule.json',version:8,text:'exact snapshot'})
+    expect(dataSet.getTable('PageToolFilesCommand')?.resourceId).toBe('page-tool-files:APP')
+  })
+
+  it('retains an accepted snapshot receipt across a target switch before DataSet.saveChanges returns',async()=>{
+    const snapshots=new Map<string,string>(),upload=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{
+      snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text)
+    })
+    const io={list:async()=>[],read:async()=>null,upload:async()=>{},remove:async()=>{},
+      listVersions:async(command:{customPath:string;fileName:string})=>[
+        {version:7,fileName:`7__${command.fileName}`,lastModified:null},...[...snapshots.keys()].flatMap(key=>{
+          const match=key.match(new RegExp(`^${command.customPath}/(\\d+)__${command.fileName}$`))
+          return match?[{version:Number(match[1]),fileName:`${match[1]}__${command.fileName}`,lastModified:null}]:[]
+        }),
+      ],uploadVersion:upload,readVersion:async(command:{customPath:string;fileName:string;version:number})=>
+        snapshots.get(`${command.customPath}/${command.version}__${command.fileName}`)??null}
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),resource=new PageToolFilesDataView(dataSet,'APP',io,()=>{})
+    let switched=false
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'rule.json' as const,text:'accepted once',assertCurrent:()=>{if(switched)throw Error('target switched')}}
+    const save=dataSet.saveChanges.bind(dataSet)
+    const saveSpy=vi.spyOn(dataSet,'saveChanges').mockImplementation(async(...args)=>{
+      const result=await save(...args)
+      switched=true
+      return result
+    })
+    await expect(resource.createSnapshot(input)).rejects.toThrow('target switched')
+    expect(resource.view.rows[0]?.['snapshotVersion']).toBe('8')
+    switched=false
+    await expect(resource.createSnapshot(input)).resolves.toEqual({version:8,fileName:'8__rule.json'})
+    expect(upload).toHaveBeenCalledTimes(1)
+    expect(saveSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('reuses the same DataView snapshot command after an unknown upload receipt',async()=>{
+    const snapshots=new Map<string,string>(), upload=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text);throw timeoutAfterAccept()})
+    const io={list:async()=>[],read:async()=>null,upload:async()=>{},remove:async()=>{},
+      listVersions:async(command:{customPath:string;fileName:string})=>[...snapshots.keys()].flatMap(key=>{const match=key.match(new RegExp(`^${command.customPath}/(\\d+)__${command.fileName}$`));return match?[{version:Number(match[1]),fileName:`${match[1]}__${command.fileName}`,lastModified:null}]:[]}),
+      uploadVersion:upload,readVersion:async(command:{customPath:string;fileName:string;version:number})=>snapshots.get(`${command.customPath}/${command.version}__${command.fileName}`)??null}
+    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',io,()=>{})
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,text:'same text',assertCurrent:()=>{}}
+    await expect(resource.createSnapshot(input)).rejects.toThrow('timeout after accept')
+    await expect(resource.createSnapshot(input)).resolves.toEqual({version:1,fileName:'1__script.js'})
+    expect(upload).toHaveBeenCalledTimes(1)
+  })
+
   it('checks parent permission before creating files and compensates known navigation rejection',async()=>{
     const create=vi.fn(async()=> 'PAGE'),add=vi.fn(async()=>{}),compensate=vi.fn(async()=>{})
     await expect(createChildPageWithFiles({parentId:'P',assertParent:()=>{throw Error('c denied')},createFiles:create,addNode:add,isNodeReceiptUnknown:()=>false,compensate})).rejects.toThrow('c denied')

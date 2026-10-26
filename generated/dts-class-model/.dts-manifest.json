@@ -2979,7 +2979,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-26T03:46:29.129Z"
+      "sourceModifiedAt": "2026-10-26T09:14:05.340Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3074,7 +3074,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts.json",
-      "sourceModifiedAt": "2026-10-18T16:24:50.479Z"
+      "sourceModifiedAt": "2026-10-26T17:21:54.191Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
@@ -3179,7 +3179,7 @@
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-wire.ts.json",
-      "sourceModifiedAt": "2026-10-06T20:57:27.509Z"
+      "sourceModifiedAt": "2026-10-26T13:39:46.433Z"
     },
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
@@ -3369,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:54:09.666Z"
+      "sourceModifiedAt": "2026-10-26T09:06:55.776Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-15T11:11:25.933Z"
+      "sourceModifiedAt": "2026-10-26T18:35:04.029Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -3934,7 +3934,7 @@
     "src/lowcode/resources/database/database-server-catalog-metadata.ts": {
       "sourceFile": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
       "shardFile": "files/src/lowcode/resources/database/database-server-catalog-metadata.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.156Z"
+      "sourceModifiedAt": "2026-10-26T07:31:10.269Z"
     },
     "src/lowcode/resources/database/database-server-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-server-view-ops.ts",
@@ -4010,6 +4010,11 @@
       "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
       "shardFile": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
       "sourceModifiedAt": "2026-10-24T20:18:50.902Z"
+    },
+    "src/lowcode/resources/shared/page-tool-files-command.ts": {
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "shardFile": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
+      "sourceModifiedAt": "2026-10-26T18:37:35.921Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
@@ -4181,40 +4186,45 @@
       "shardFile": "files/src/views/app/Dashboard.vue.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.665Z"
     },
+    "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
+      "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+      "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
+      "sourceModifiedAt": "2026-10-26T18:00:43.944Z"
+    },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
-      "sourceModifiedAt": "2026-10-15T11:19:03.914Z"
+      "sourceModifiedAt": "2026-10-26T18:18:59.724Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.629Z"
+      "sourceModifiedAt": "2026-10-26T08:14:16.291Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.630Z"
+      "sourceModifiedAt": "2026-10-26T08:15:46.930Z"
     },
     "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/EstimatePane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.630Z"
+      "sourceModifiedAt": "2026-10-26T08:18:06.556Z"
     },
     "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/PlanningPane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.631Z"
+      "sourceModifiedAt": "2026-10-26T08:14:01.869Z"
     },
     "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/PrototypePane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.633Z"
+      "sourceModifiedAt": "2026-10-26T08:14:05.069Z"
     },
     "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/ReleasePane.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.633Z"
+      "sourceModifiedAt": "2026-10-26T08:15:46.917Z"
     },
     "src/views/app/dev-system/childPlacementLabels.ts": {
       "sourceFile": "src/views/app/dev-system/childPlacementLabels.ts",
@@ -4224,22 +4234,22 @@
     "src/views/app/dev-system/components/NodeBasicInfo.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeBasicInfo.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.635Z"
+      "sourceModifiedAt": "2026-10-26T14:17:36.298Z"
     },
     "src/views/app/dev-system/components/NodeLayoutConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeLayoutConfig.vue.json",
-      "sourceModifiedAt": "2026-10-06T20:07:51.529Z"
+      "sourceModifiedAt": "2026-10-26T13:49:22.606Z"
     },
     "src/views/app/dev-system/components/NodeStateConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeStateConfig.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.636Z"
+      "sourceModifiedAt": "2026-10-26T18:30:27.208Z"
     },
     "src/views/app/dev-system/components/NodeTargetConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeTargetConfig.vue.json",
-      "sourceModifiedAt": "2026-10-06T21:12:48.636Z"
+      "sourceModifiedAt": "2026-10-26T14:18:45.462Z"
     },
     "src/views/app/dev-system/composables/useDevFileEditor.ts": {
       "sourceFile": "src/views/app/dev-system/composables/useDevFileEditor.ts",
@@ -4284,7 +4294,7 @@
     "src/views/app/dev-system/ProjectBlueprintTree.vue": {
       "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
       "shardFile": "files/src/views/app/dev-system/ProjectBlueprintTree.vue.json",
-      "sourceModifiedAt": "2026-10-06T20:07:51.527Z"
+      "sourceModifiedAt": "2026-10-26T17:52:39.239Z"
     },
     "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue": {
       "sourceFile": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
@@ -4294,7 +4304,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:24:57.596Z"
+      "sourceModifiedAt": "2026-10-26T18:23:16.659Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4599,7 +4609,7 @@
     "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
-      "sourceModifiedAt": "2026-10-24T22:40:06.769Z"
+      "sourceModifiedAt": "2026-10-26T07:31:10.283Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue",

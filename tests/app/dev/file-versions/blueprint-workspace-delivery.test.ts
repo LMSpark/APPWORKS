@@ -9,21 +9,17 @@ import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.v
 import NodeLayoutConfig from '@/views/app/dev-system/components/NodeLayoutConfig.vue'
 
 const api = vi.hoisted(() => ({
-  listFileVersions: vi.fn(), upload: vi.fn(),
+  createSnapshot: vi.fn(),
   readRequestScope: vi.fn(() => ({ token: 'scope-A', headers: { 'X-AppId': 'APP-A' } })),
 }))
 vi.doMock('@/lowcode/lowcode-runtime', () => ({
   lowcodeHttp: {}, lowcodeApi: {
     readRequestScope: api.readRequestScope,
-    design: { listFileVersions: api.listFileVersions },
+    design: {},
   },
 }))
 const runtime = vi.hoisted(() => ({ load: vi.fn() }))
 vi.doMock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: runtime.load}))
-vi.doMock('@spark-appworks/spark-lowcode-api', async importOriginal => ({
-  ...await importOriginal<typeof import('@spark-appworks/spark-lowcode-api')>(),
-  LowcodeDesignFileUpload: class { uploadTextVersion = api.upload },
-}))
 const {default: BlueprintWorkspace} = await import('@/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue')
 
 const Slot = defineComponent({ template: '<div><slot name="extra" /><slot /></div>' })
@@ -73,6 +69,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       if(state.registerExternalDataViewSession.mock.calls.length===0)state.registerExternalDataViewSession({isDirty:()=>current.dirty,save:()=>current.save()})
       return current
     }),
+    createPageToolSnapshot: api.createSnapshot,
     refreshBlueprintTreeProjection: vi.fn(),
     project: { readPageFileText: vi.fn((name: string) => name === 'script.js' ? '' : `text:${name}`) },
   }
@@ -91,20 +88,21 @@ describe('BlueprintWorkspace file delivery', () => {
   beforeEach(() => {
     api.readRequestScope.mockReset().mockReturnValue({ token: 'scope-A', headers: { 'X-AppId': 'APP-A' } })
     runtime.load.mockReset()
-    api.listFileVersions.mockReset().mockResolvedValue([{ version: 7, fileName: '7__rule.json', lastModified: null }])
-    api.upload.mockReset().mockResolvedValue({ state: 'success' })
+    api.createSnapshot.mockReset().mockImplementation(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void})=>{
+      const result={version:8,fileName:`8__${input.fileName}`};input.onAttempt?.(result);return result
+    })
   })
 
   it('allocates from actual snapshots and confirms independent references, preserving empty text', async () => {
     const { wrapper, dataSet } = setup(); await flushPromises()
     expect(wrapper.findComponent(Delivery).props('canPublish')).toBe(true)
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
-    expect(api.upload.mock.calls.map(call => call[0])).toEqual([
-      { customPath: 'APP-A/tool-A', fileName: '8__rule.json', text: 'text:rule.json' },
-      { customPath: 'APP-A/tool-A', fileName: '8__script.js', text: '' },
-      { customPath: 'APP-A/tool-A', fileName: '8__style.css', text: 'text:style.css' },
+    expect(api.createSnapshot.mock.calls.map(call => ({pageId:call[0].pageId,customPath:call[0].customPath,fileName:call[0].fileName,text:call[0].text}))).toEqual([
+      { pageId:'tool-A',customPath: 'APP-A/tool-A', fileName: 'rule.json', text: 'text:rule.json' },
+      { pageId:'tool-A',customPath: 'APP-A/tool-A', fileName: 'script.js', text: '' },
+      { pageId:'tool-A',customPath: 'APP-A/tool-A', fileName: 'style.css', text: 'text:style.css' },
     ])
-    expect(api.upload).toHaveBeenCalledTimes(3)
+    expect(api.createSnapshot).toHaveBeenCalledTimes(3)
     expect(dataSet.getView('Base_NavigationInfo')?.rows[0]?.['VersionId']).toBe('rule=8;script=8;style=8')
     wrapper.unmount()
   })
@@ -115,7 +113,7 @@ describe('BlueprintWorkspace file delivery', () => {
     await flushPromises()
     const changedBeforeDelivery = state.notifyExternalDataViewChanged.mock.calls.length
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
-    expect(api.upload).toHaveBeenCalledTimes(1)
+    expect(api.createSnapshot).toHaveBeenCalledTimes(1)
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('已确认快照：8__rule.json；已确认发布引用：无'), 'error')
     expect(state.notifyExternalDataViewChanged).toHaveBeenCalledTimes(changedBeforeDelivery + 1)
     wrapper.unmount()
@@ -124,14 +122,13 @@ describe('BlueprintWorkspace file delivery', () => {
   it.each(['cfg:APP-B/tool-A', 'cfg:APP-A/../APP-B/tool-A'])('rejects a path outside the current application: %s', async target => {
     const { wrapper } = setup({target}); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
-    expect(api.upload).not.toHaveBeenCalled()
-    expect(api.listFileVersions).not.toHaveBeenCalled()
+    expect(api.createSnapshot).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 
   it('stops after a target switch without publishing the uploaded snapshot', async () => {
     let finish!: () => void
-    api.upload.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve }))
+    api.createSnapshot.mockImplementationOnce(async (input:{onAttempt?:(result:{version:number;fileName:string})=>void})=>{input.onAttempt?.({version:8,fileName:'8__rule.json'});return await new Promise(resolve=>{finish=()=>resolve({version:8,fileName:'8__rule.json'})})})
     const { wrapper, state } = setup(); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     state.selectedNode.value = { nodeId: 'node-B' }; await flushPromises()
@@ -142,7 +139,7 @@ describe('BlueprintWorkspace file delivery', () => {
 
   it('preserves a confirmed snapshot but stops publishing edits made during upload', async () => {
     let finish!: () => void
-    api.upload.mockReturnValueOnce(new Promise<void>(resolve => { finish = resolve }))
+    api.createSnapshot.mockImplementationOnce(async (input:{onAttempt?:(result:{version:number;fileName:string})=>void})=>{input.onAttempt?.({version:8,fileName:'8__rule.json'});return await new Promise(resolve=>{finish=()=>resolve({version:8,fileName:'8__rule.json'})})})
     const { wrapper, state } = setup(); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     state.project.readPageFileText.mockReturnValue('edited')
@@ -152,7 +149,7 @@ describe('BlueprintWorkspace file delivery', () => {
   })
 
   it('does not publish an unconfirmed snapshot upload', async () => {
-    api.upload.mockRejectedValueOnce(new Error('snapshot readback changed'))
+    api.createSnapshot.mockImplementationOnce(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void})=>{input.onAttempt?.({version:8,fileName:`8__${input.fileName}`});throw new Error('snapshot readback changed')})
     const { wrapper, state } = setup(); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('已尝试快照：8__rule.json'), 'error')
@@ -162,7 +159,7 @@ describe('BlueprintWorkspace file delivery', () => {
   it('stops when the published reference readback disagrees with the requested pointer', async () => {
     const { wrapper, state } = setup({readbackVersion: 'rule=99;script=1;style=1'}); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
-    expect(api.upload).toHaveBeenCalledTimes(1)
+    expect(api.createSnapshot).toHaveBeenCalledTimes(1)
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('字段 VersionId 保存后读回不一致'), 'error')
     wrapper.unmount()
   })
@@ -280,6 +277,51 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('keeps display mode and horizontal alignment on the same DataView draft, cancel, save, and readback path', async () => {
+    const f=createBlueprintDataViewFixture()
+    try {
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      const node=session.nodeData()
+      session.updateNodeData({...node,navigation:{...node.navigation!,displayMode:'wide',horizontalAlignment:'right'}})
+      expect(f.view.getEditingPatch('NODE-1')).toEqual({NavigationShowType:'wide',HorizontalAlignment:'right'})
+
+      session.cancel()
+      expect(f.view.getEditingPatch('NODE-1')).toBeUndefined()
+      expect(session.nodeData().navigation?.displayMode).toBe('')
+      expect(session.nodeData().navigation?.horizontalAlignment).toBe('')
+
+      session.updateNodeData({...session.nodeData(),navigation:{...session.nodeData().navigation!,displayMode:'wide',horizontalAlignment:'right'}})
+      await session.save()
+      expect(f.rows()[0]?.['NavigationShowType']).toBe('wide')
+      expect(f.rows()[0]?.['HorizontalAlignment']).toBe('right')
+      session.dispose()
+    } finally {f.destroy()}
+  })
+
+  it('rejects display attributes when the current formal DataView denies their read or write access', async () => {
+    const f=createBlueprintDataViewFixture({writable:blueprintFields.filter(field=>!['NavigationShowType','HorizontalAlignment'].includes(field))})
+    try {
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      const node=session.nodeData()
+      expect(session.canRead('NavigationShowType')).toBe(true)
+      expect(session.canWrite('NavigationShowType')).toBe(false)
+      expect(()=>session.updateNodeData({...node,navigation:{...node.navigation!,displayMode:'wide'}})).toThrow('不允许读写正式字段 NavigationShowType')
+      session.dispose()
+    } finally {f.destroy()}
+
+    const hidden=createBlueprintDataViewFixture({readable:blueprintFields.filter(field=>!['NavigationShowType','HorizontalAlignment'].includes(field))})
+    try {
+      const session=new BlueprintWorkspaceDataView(hidden.dataSet,'APP-1',()=>{})
+      await session.load('NODE-1')
+      expect(session.canRead('NavigationShowType')).toBe(false)
+      expect(session.canWrite('HorizontalAlignment')).toBe(false)
+      expect(session.nodeData().navigation?.displayMode).toBeUndefined()
+      session.dispose()
+    } finally {hidden.destroy()}
+  })
+
   it('exposes child-create action only from the loaded formal DataView row state', async () => {
     const f = createBlueprintDataViewFixture({childActionState:'enabled'})
     try {

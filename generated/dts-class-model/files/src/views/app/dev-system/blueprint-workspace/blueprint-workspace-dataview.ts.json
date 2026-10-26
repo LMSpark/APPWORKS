@@ -1,0 +1,1010 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview\n职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。\n边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "BlueprintNodeFormData",
+      "BlueprintWorkspaceDataView"
+    ]
+  },
+  "$defs": {
+    "OptionalFormFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OptionalFormFields",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "BlueprintNodeFormData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeFormData",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "BlueprintSource"
+        },
+        "kind": {
+          "enum": [
+            "module",
+            "page",
+            "embedded",
+            "service",
+            "content",
+            "unknown"
+          ]
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "capability": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "navigation": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "dataSpace": {
+          "$ref": "#/$defs/OptionalFormFields"
+        },
+        "prototype": {
+          "$ref": "#/$defs/OptionalFormFields"
+        }
+      },
+      "required": [
+        "source",
+        "kind",
+        "projectId",
+        "nodeId",
+        "parentNodeId",
+        "capability"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintWorkspaceDataView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintWorkspaceDataView",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "row": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "hasTreeProjection": {
+          "type": "boolean"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "isBusy": {
+          "type": "boolean"
+        },
+        "hasPendingRootCreate": {
+          "type": "boolean"
+        },
+        "hasPendingChildCreate": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadProjectTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectTree.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.moveNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addRootModule.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.addRootModule.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.hasOutput.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasOutput.return": {
+          "type": "boolean"
+        },
+        "method.assertCanAddChild.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanAddChild.return": true,
+        "method.preflightChildNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightChildNode.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.addChildNode.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNode.return": {
+          "type": "object",
+          "title": "Promise<string | number>"
+        },
+        "method.nodeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.nodeData.return": {
+          "$ref": "#/$defs/BlueprintNodeFormData"
+        },
+        "method.preflightNodeData.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "#/$defs/BlueprintNodeFormData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightNodeData.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.updateNodeData.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "#/$defs/BlueprintNodeFormData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeData.return": true,
+        "method.treeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.treeProjection.return": {
+          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.childCreateActionState.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childCreateActionState.return": {
+          "enum": [
+            "enabled",
+            "hidden",
+            "disabled",
+            "unknown"
+          ]
+        },
+        "method.canRead.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canRead.return": {
+          "type": "boolean"
+        },
+        "method.canWrite.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canWrite.return": {
+          "type": "boolean"
+        },
+        "method.canWriteFields.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canWriteFields.return": {
+          "type": "boolean"
+        },
+        "method.value.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.value.return": true,
+        "method.update.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.update.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveSelectedNode.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveSelectedNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-26T18:00:43.944Z",
+  "models": {
+    "OptionalFormFields": {
+      "name": "OptionalFormFields",
+      "jsdoc": "Permission-filtered form projection; unreadable wire members are absent.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [Key in keyof T]?: T[Key] | undefined;\n}",
+        "members": {}
+      }
+    },
+    "BlueprintNodeFormData": {
+      "name": "BlueprintNodeFormData",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ProjectBlueprintTreeNodeData, 'capability' | 'navigation' | 'dataSpace' | 'prototype'> & {\n    capability: OptionalFormFields<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['navigation']>> | undefined;\n    dataSpace?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>> | undefined;\n    prototype?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>> | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<ProjectBlueprintTreeNodeData, 'capability' | 'navigation' | 'dataSpace' | 'prototype'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    capability: OptionalFormFields<ProjectBlueprintTreeNodeData['capability']>;\n    navigation?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['navigation']>> | undefined;\n    dataSpace?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['dataSpace']>> | undefined;\n    prototype?: OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>> | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prototype",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintWorkspaceDataView": {
+      "name": "BlueprintWorkspaceDataView",
+      "jsdoc": "一个已查询目标的 DataView 编辑入口；正式元数据和查询权限均由原 DataSpace owner 提供。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, projectId: string, assertCurrent: () => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "projectId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasTreeProjection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBusy",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingRootCreate",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingChildCreate",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadProjectTree",
+              "jsdoc": "Load the displayed tree through the same bound DataView owner used by edits.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveNode",
+              "jsdoc": "Temporarily widens this same DataView to project rows and stages a permission-checked move.",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addRootModule",
+              "jsdoc": "Create an unmounted root module through the current formal Base_NavigationInfo query owner.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasOutput",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "assertCanAddChild",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "preflightChildNode",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addChildNode",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "nodeData",
+              "jsdoc": "Read the selected editable node as a permission-filtered compatibility projection.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "BlueprintNodeFormData",
+                "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+              }
+            },
+            {
+              "name": "preflightNodeData",
+              "jsdoc": "Validate a domain projection without writing, so multi-owner commands can preflight before creating files.",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeFormData",
+                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeData",
+              "jsdoc": "Apply a domain projection by diffing through the canonical wire mapper and preflighting every changed field.",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeFormData",
+                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "treeProjection",
+              "jsdoc": "Build the display tree strictly from the current DataView rows and their edit overlays.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData"
+              }
+            },
+            {
+              "name": "childCreateActionState",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "enabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "hidden"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "disabled"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "canRead",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canWrite",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canWriteFields",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "value",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "update",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "丢弃 DataView 编辑覆盖或已暂存行修改；没有页面副本需要清空。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveSelectedNode",
+              "jsdoc": "Save only the selected node; any staged changes on other rows remain untouched.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

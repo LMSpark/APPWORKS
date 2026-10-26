@@ -56,6 +56,10 @@
               "type": "object",
               "title": "import(\"vue\").ComputedRef<never[] | import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData[]>"
             },
+            "childCreateActionState": {
+              "type": "object",
+              "title": "(parentNodeId: string) => \"enabled\" | \"hidden\" | \"disabled\" | \"unknown\""
+            },
             "blueprintLoading": {
               "type": "object",
               "title": "import(\"vue\").Ref<boolean, boolean>"
@@ -75,14 +79,10 @@
             "blueprintDraft": {
               "type": "object",
               "properties": {
-                "nodeId": {
-                  "type": "string"
-                },
-                "parentNodeId": {
-                  "type": "string"
-                },
-                "projectId": {
-                  "type": "string"
+                "source": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
                 },
                 "kind": {
                   "enum": [
@@ -93,6 +93,192 @@
                     "content",
                     "unknown"
                   ]
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "nodeId": {
+                        "type": "string"
+                      },
+                      "parentNodeId": {
+                        "type": "string"
+                      },
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "enum": [
+                          "module",
+                          "page",
+                          "embedded",
+                          "service",
+                          "content",
+                          "unknown"
+                        ]
+                      },
+                      "capability": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "ownerId": {
+                            "type": "string"
+                          },
+                          "deliveryStatus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "navigation": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "order": {
+                            "type": "number"
+                          },
+                          "placement": {
+                            "enum": [
+                              "parent",
+                              "left",
+                              "right",
+                              "top",
+                              "tabs",
+                              "popup"
+                            ]
+                          },
+                          "target": {
+                            "type": "string"
+                          },
+                          "mobileTarget": {
+                            "type": "string"
+                          },
+                          "openMode": {
+                            "enum": [
+                              "embedded",
+                              "current",
+                              "subsystem",
+                              "new-window",
+                              "modal"
+                            ]
+                          },
+                          "displayMode": {
+                            "type": "string"
+                          },
+                          "horizontalAlignment": {
+                            "type": "string"
+                          },
+                          "publishInMenu": {
+                            "enum": [
+                              false,
+                              true
+                            ]
+                          },
+                          "showChildren": {
+                            "enum": [
+                              false,
+                              true
+                            ]
+                          },
+                          "beginGroup": {
+                            "enum": [
+                              false,
+                              true
+                            ]
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "order",
+                          "publishInMenu",
+                          "showChildren",
+                          "beginGroup"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "dataSpace": {
+                        "type": "object",
+                        "properties": {
+                          "scenarioId": {
+                            "type": "string"
+                          },
+                          "models": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "metaName": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "metaName"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "scenarioId",
+                          "models"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "prototype": {
+                        "type": "object",
+                        "properties": {
+                          "htmlDescription": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "source": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                      },
+                      "children": {
+                        "type": "array",
+                        "items": true
+                      }
+                    },
+                    "required": [
+                      "nodeId",
+                      "parentNodeId",
+                      "projectId",
+                      "kind",
+                      "capability",
+                      "source"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "parentNodeId": {
+                  "type": "string"
                 },
                 "capability": {
                   "type": "object",
@@ -113,9 +299,6 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "name"
-                  ],
                   "additionalProperties": false
                 },
                 "navigation": {
@@ -180,13 +363,6 @@
                       ]
                     }
                   },
-                  "required": [
-                    "title",
-                    "order",
-                    "publishInMenu",
-                    "showChildren",
-                    "beginGroup"
-                  ],
                   "additionalProperties": false
                 },
                 "dataSpace": {
@@ -211,10 +387,6 @@
                       }
                     }
                   },
-                  "required": [
-                    "scenarioId",
-                    "models"
-                  ],
                   "additionalProperties": false
                 },
                 "prototype": {
@@ -225,26 +397,29 @@
                     }
                   },
                   "additionalProperties": false
-                },
-                "source": {
-                  "type": "object",
-                  "properties": {},
-                  "additionalProperties": true
-                },
-                "children": {
-                  "type": "array",
-                  "items": true
                 }
               },
               "required": [
-                "nodeId",
-                "parentNodeId",
-                "projectId",
+                "source",
                 "kind",
-                "capability",
-                "source"
+                "nodeId",
+                "projectId",
+                "parentNodeId",
+                "capability"
               ],
               "additionalProperties": false
+            },
+            "blueprintNodeFieldAccess": {
+              "type": "object",
+              "title": "(field: string) => Readonly<{ read: boolean; write: boolean; }>"
+            },
+            "blueprintNodeFieldsWritable": {
+              "type": "object",
+              "title": "(fields: readonly string[]) => boolean"
+            },
+            "blueprintNodeSectionWritable": {
+              "type": "object",
+              "title": "(section: string) => boolean"
             },
             "blueprintEmpty": {
               "type": "object",
@@ -389,6 +564,38 @@
               "type": "object",
               "title": "import(\"vue\").ComputedRef<boolean>"
             },
+            "registerExternalDataViewSession": {
+              "type": "object",
+              "title": "(session: import(\"./useDevState\").ExternalDataViewSession) => () => void"
+            },
+            "notifyExternalDataViewChanged": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "moveBlueprintNodeInDataView": {
+              "type": "object",
+              "title": "(nodeId: string, parentId: string | null, index: number) => Promise<void>"
+            },
+            "loadBlueprintTreeFromDataView": {
+              "type": "object",
+              "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeData>"
+            },
+            "refreshBlueprintTreeProjection": {
+              "type": "object",
+              "title": "(session?: import(\"./useDevState\").ExternalDataViewSession) => void"
+            },
+            "blueprintWorkspaceDataView": {
+              "type": "object",
+              "title": "import(\"vue\").ShallowRef<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined, import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined>"
+            },
+            "loadBlueprintWorkspaceDataView": {
+              "type": "object",
+              "title": "() => Promise<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView>"
+            },
+            "createPageToolSnapshot": {
+              "type": "object",
+              "title": "(input: import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolSnapshotInput) => Promise<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolSnapshotResult>"
+            },
             "editor": {
               "type": "object",
               "title": "import(\"@spark-appworks/spark-project-model\").ProjectWorkspace"
@@ -479,7 +686,7 @@
             },
             "addRootNode": {
               "type": "object",
-              "title": "() => void"
+              "title": "() => Promise<void>"
             },
             "addChildNode": {
               "type": "object",
@@ -529,11 +736,15 @@
             "editableProjects",
             "projectOptionsLoading",
             "treeData",
+            "childCreateActionState",
             "blueprintLoading",
             "blueprintSaving",
             "blueprintDirty",
             "selectedNode",
             "blueprintDraft",
+            "blueprintNodeFieldAccess",
+            "blueprintNodeFieldsWritable",
+            "blueprintNodeSectionWritable",
             "blueprintEmpty",
             "pageFileNames",
             "activePageId",
@@ -567,6 +778,14 @@
             "projectPlanningAiTimeline",
             "hasAnyFileDirty",
             "hasAnyDirty",
+            "registerExternalDataViewSession",
+            "notifyExternalDataViewChanged",
+            "moveBlueprintNodeInDataView",
+            "loadBlueprintTreeFromDataView",
+            "refreshBlueprintTreeProjection",
+            "blueprintWorkspaceDataView",
+            "loadBlueprintWorkspaceDataView",
+            "createPageToolSnapshot",
             "editor",
             "project",
             "addStatus",

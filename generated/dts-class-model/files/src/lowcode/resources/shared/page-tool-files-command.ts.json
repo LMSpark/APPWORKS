@@ -1,0 +1,1207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/page-tool-files-command",
+    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+    "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/page-tool-files-command",
+    "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolFilesDataView（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "PageToolSnapshotInput",
+      "PageToolSnapshotResult",
+      "PageToolFilesDataView"
+    ]
+  },
+  "$defs": {
+    "PageToolFileUploadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileUploadCommand",
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "appId",
+        "pageId",
+        "fileName",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "FileIo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileIo",
+      "$defs": {
+        "method.list.params": {
+          "type": "object",
+          "properties": {
+            "appId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "appId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.upload.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageToolFileUploadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.upload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "appId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PageToolSnapshotInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolSnapshotInput",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onAttempt.params": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "$ref": "#/$defs/PageToolSnapshotResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAttempt.return": true
+      }
+    },
+    "PageToolSnapshotResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolSnapshotResult",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "fileName"
+      ],
+      "additionalProperties": false
+    },
+    "FileVersion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileVersion",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "fileName",
+        "lastModified"
+      ],
+      "additionalProperties": false
+    },
+    "FileVersionListCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileVersionListCommand",
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        }
+      },
+      "required": [
+        "appId",
+        "customPath",
+        "fileName"
+      ],
+      "additionalProperties": false
+    },
+    "FileVersionReadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileVersionReadCommand",
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "appId",
+        "customPath",
+        "fileName",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "FileVersionWriteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileVersionWriteCommand",
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "version": {
+          "type": "number"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "appId",
+        "customPath",
+        "fileName",
+        "version",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "SnapshotFileIo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SnapshotFileIo",
+      "$defs": {
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/FileVersionListCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<readonly FileVersion[]>"
+        },
+        "method.uploadVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/FileVersionWriteCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.readVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/FileVersionReadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readVersion.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        }
+      }
+    },
+    "PageToolFilesDataView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFilesDataView",
+      "properties": {
+        "view": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-data\").DataView"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "hasUnconfirmedSave": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "appId": {
+              "type": "string"
+            },
+            "io": {
+              "$ref": "#/$defs/FileIo"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            },
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.compensateCreate.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "parentId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.compensateCreate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageToolSnapshotInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createSnapshot.return": {
+          "type": "object",
+          "title": "Promise<PageToolSnapshotResult>"
+        },
+        "method.hasPendingCommandForParent.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasPendingCommandForParent.return": {
+          "type": "boolean"
+        },
+        "method.pendingCommandForParent.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.pendingCommandForParent.return": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "enum": [
+                "create",
+                "compensate"
+              ]
+            },
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action",
+            "pageId"
+          ],
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-26T18:37:35.921Z",
+  "models": {
+    "PageToolFileUploadCommand": {
+      "name": "PageToolFileUploadCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileIo": {
+      "name": "FileIo",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: PageToolFileName) => Promise<void>;\n}> & Partial<SnapshotFileIo>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: PageToolFileName) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Partial<SnapshotFileIo>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "list",
+              "parameters": [
+                {
+                  "name": "appId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "appId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "upload",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileUploadCommand",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "remove",
+              "parameters": [
+                {
+                  "name": "appId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageToolSnapshotInput": {
+      "name": "PageToolSnapshotInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */\n    pageId: string;\n    /** 由当前导航 DataView 解析并经应用范围校验的文件目录。 */\n    customPath: string;\n    /** 仅允许页面工具三文件之一。 */\n    fileName: PageToolFileName;\n    /** 当前工具编辑器读取的完整文件原文，允许空字符串。 */\n    text: string;\n    /** 在每次异步边界校验页面、节点与请求作用域仍为原目标。 */\n    assertCurrent: () => void;\n    /** 获得版本号且即将提交快照时记录可核验的文件名。 */\n    onAttempt?: (result: PageToolSnapshotResult) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */\n    pageId: string;\n    /** 由当前导航 DataView 解析并经应用范围校验的文件目录。 */\n    customPath: string;\n    /** 仅允许页面工具三文件之一。 */\n    fileName: PageToolFileName;\n    /** 当前工具编辑器读取的完整文件原文，允许空字符串。 */\n    text: string;\n    /** 在每次异步边界校验页面、节点与请求作用域仍为原目标。 */\n    assertCurrent: () => void;\n    /** 获得版本号且即将提交快照时记录可核验的文件名。 */\n    onAttempt?: (result: PageToolSnapshotResult) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "当前蓝图工作区中正在交付的页面身份，用于校验命令目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "jsdoc": "由当前导航 DataView 解析并经应用范围校验的文件目录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "jsdoc": "仅允许页面工具三文件之一。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "当前工具编辑器读取的完整文件原文，允许空字符串。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "在每次异步边界校验页面、节点与请求作用域仍为原目标。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onAttempt",
+              "jsdoc": "获得版本号且即将提交快照时记录可核验的文件名。",
+              "parameters": [
+                {
+                  "name": "result",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolSnapshotResult",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageToolSnapshotResult": {
+      "name": "PageToolSnapshotResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 经文件目录及原文回读确认的版本号。 */\n    version: number;\n    /** 经回执确认的 version__fileName。 */\n    fileName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 经文件目录及原文回读确认的版本号。 */\n    version: number;\n    /** 经回执确认的 version__fileName。 */\n    fileName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "jsdoc": "经文件目录及原文回读确认的版本号。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "jsdoc": "经回执确认的 version__fileName。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileVersion": {
+      "name": "FileVersion",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileVersionListCommand": {
+      "name": "FileVersionListCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileVersionReadCommand": {
+      "name": "FileVersionReadCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    appId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    appId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "appId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileVersionWriteCommand": {
+      "name": "FileVersionWriteCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FileVersionReadCommand & Readonly<{\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FileVersionReadCommand",
+            "targetName": "FileVersionReadCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SnapshotFileIo": {
+      "name": "SnapshotFileIo",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    listVersions: (command: FileVersionListCommand) => Promise<readonly FileVersion[]>;\n    uploadVersion: (command: FileVersionWriteCommand) => Promise<void>;\n    readVersion: (command: FileVersionReadCommand) => Promise<string | null>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    listVersions: (command: FileVersionListCommand) => Promise<readonly FileVersion[]>;\n    uploadVersion: (command: FileVersionWriteCommand) => Promise<void>;\n    readVersion: (command: FileVersionReadCommand) => Promise<string | null>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "listVersions",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileVersionListCommand",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly FileVersion[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "uploadVersion",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileVersionWriteCommand",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readVersion",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileVersionReadCommand",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageToolFilesDataView": {
+      "name": "PageToolFilesDataView",
+      "jsdoc": "File resource command owner; page identity and request guard are captured per command.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, appId: string, io: FileIo, assertCurrent: () => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "appId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "io",
+              "type": {
+                "type": "reference",
+                "name": "FileIo",
+                "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "create",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "compensateCreate",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createSnapshot",
+              "jsdoc": "创建发布快照是一个 file DataView 命令。版本号在 owner 内由真实目录计算；上传后同时回读目录与原文，\n失败时保留 DataView 命令行及原版本号，后续保存只核验/接续这条命令。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolSnapshotInput",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageToolSnapshotResult",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasPendingCommandForParent",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "pendingCommandForParent",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        action: 'create' | 'compensate';\n        pageId: string;\n    }"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

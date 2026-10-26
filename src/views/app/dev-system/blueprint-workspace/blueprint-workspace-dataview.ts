@@ -603,10 +603,25 @@ export class BlueprintWorkspaceDataView {
   }
 
   public async save(): Promise<void> {
+    this.assertUsable()
+    if(this.isBusy)throw new Error('蓝图 DataView 正在查询或保存')
     if(this.#unconfirmedDeleteId!==undefined){
       const id=String(this.#unconfirmedDeleteId),parentId=this.#unconfirmedDeleteParentId
       if(!parentId)throw new Error('蓝图 DataView 删除待核验缺少原父节点身份')
       await this.removeLeafNode(id,this.#projectId,parentId)
+      return
+    }
+    if(this.#unconfirmedChildId!==undefined){
+      const id=this.#unconfirmedChildId
+      const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
+      const expected=this.#unconfirmedPatches.get(id)
+      if(!row||!expected)throw new Error('蓝图 DataView 子节点待核验缺少原命令行或字段快照')
+      if(['rowid','SysId','prowid'].some(field=>this.view.fieldAccess(row,field).read!=='visible'))throw new Error('蓝图 DataView 子节点待核验身份字段不可读')
+      const parentId=typeof expected['prowid']==='string'?expected['prowid'].trim():''
+      if(!parentId||row['rowid']!==id||row['SysId']!==this.#projectId||row['prowid']!==parentId)throw new Error('蓝图 DataView 子节点待核验目标或父身份不匹配')
+      const parent=this.view.rows.find(candidate=>candidate['rowid']===parentId&&candidate['SysId']===this.#projectId)
+      if(!parent||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 子节点待核验父节点不可识别')
+      await this.addChildNode(parentId,{})
       return
     }
     await this.saveIds()

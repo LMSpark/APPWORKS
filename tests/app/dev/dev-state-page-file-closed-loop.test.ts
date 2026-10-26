@@ -162,7 +162,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false,additionalUnknownReceipts=0,applyUnknownReceipt=true){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -201,17 +201,21 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   })
   type SaveCommand=Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0]
   let unknownReceipt=false
+  let unknownReceiptsRemaining=(unknownSave?1:0)+additionalUnknownReceipts
   let knownFailurePending=knownSaveFailure
   const save=vi.fn(async(command:SaveCommand)=>{
     if(knownFailurePending){knownFailurePending=false;throw new Error('explicit save rejection')}
-    const loseReceipt=unknownSave&&!unknownReceipt
+    const loseReceipt=unknownReceiptsRemaining>0
+    if(loseReceipt)unknownReceiptsRemaining--
     const receipts=command.changes.map(change=>{
     const added=[...(change.changes.added??[])]
-    for(const row of added)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
     const changed=[...(change.changes.changed??[])]
-    for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
     const deleted=[...(change.changes.deleted??[])]
-    for(const removed of deleted){const index=rows.findIndex(row=>row['rowid']===removed['rowid']&&row['SysId']===projectId);if(index>=0)rows.splice(index,1)}
+    if(!loseReceipt||applyUnknownReceipt){
+      for(const row of added)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
+      for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
+      for(const removed of deleted){const index=rows.findIndex(row=>row['rowid']===removed['rowid']&&row['SysId']===projectId);if(index>=0)rows.splice(index,1)}
+    }
     return {metaName:change.identity.metaName,added,changed,deleted,changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
     })
     if(loseReceipt){unknownReceipt=true;throw new Error('transport timeout')}
@@ -431,6 +435,98 @@ describe('DevState 页面文件闭环', () => {
       expect(pageFiles.upload).toHaveBeenCalledTimes(3)
       expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']===parent.nodeId)).toHaveLength(1)
       expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('工作台 Save All 在同一 owner 内恢复未知子行命令并清除专属待处理状态',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
+      await state.addChildNode(parent)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      const firstId=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(firstId).toBeTruthy()
+      const otherRow=owner.view.rows.find(row=>row['rowid']==='CHILD-A')
+      expect(otherRow).toBeTruthy()
+      owner.view.setCurrentRow(otherRow??null)
+
+      await state.saveAll()
+
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.[0]?.['rowid']).toBe(firstId)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(owner.dirty).toBe(false)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['rowid']===firstId&&row['prowid']===parent.nodeId)).toHaveLength(1)
+
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(owner.dirty).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子行回执持续未知且尚未应用时 Save All 保留原ID后可继续核验',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,1,false)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
+      await state.addChildNode(parent)
+      const id=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(id).toBeTruthy()
+
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.[0]?.['rowid']).toBe(id)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      expect(owner.dirty).toBe(true)
+
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(3)
+      expect(fixture.save.mock.calls[2]?.[0].changes[0]?.changes.added?.[0]?.['rowid']).toBe(id)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(owner.dirty).toBe(false)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['rowid']===id&&row['SysId']==='APP-A'&&row['prowid']===parent.nodeId)).toHaveLength(1)
+    }finally{ownerScope.stop()}
+  })
+
+  it('子行待核验父身份不可读或不匹配时 Save All 拒绝并保留原命令',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
+      await state.addChildNode(parent)
+      const id=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(id).toBeTruthy()
+      const child=owner.view.rows.find(row=>row['rowid']===id)
+      expect(child).toBeTruthy()
+      const originalParent=child?.['prowid']
+
+      if(child)child['prowid']='OTHER-PARENT'
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasPendingChildCreate).toBe(true)
+
+      if(child)child['prowid']=originalParent
+      const originalFieldAccess=owner.view.fieldAccess.bind(owner.view)
+      const fieldAccess=vi.spyOn(owner.view,'fieldAccess').mockImplementation((row,field)=>field==='prowid'
+        ? {...originalFieldAccess(row,field),read:'invisible',write:'denied'}
+        : originalFieldAccess(row,field))
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      fieldAccess.mockRestore()
+
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(owner.dirty).toBe(false)
     }finally{ownerScope.stop()}
   })
 

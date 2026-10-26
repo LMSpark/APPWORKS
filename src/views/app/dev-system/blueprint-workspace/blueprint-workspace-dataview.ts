@@ -46,6 +46,8 @@ export class BlueprintWorkspaceDataView {
   #unconfirmedIds: Array<string | number> = []
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
   #unconfirmedRootId: string | number | undefined
+  #unconfirmedDeleteId: string | number | undefined
+  #unconfirmedDeleteParentId: string | undefined
   #unconfirmedChildId: string | number | undefined
   #childReceiptState: 'pending'|'unknown'|'accepted'|undefined
   #queryOutputFields: ReadonlySet<string>
@@ -81,6 +83,7 @@ export class BlueprintWorkspaceDataView {
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}
   public get dirty(): boolean {
     if(this.#unconfirmedChildId!==undefined)return true
+    if(this.#unconfirmedDeleteId!==undefined)return true
     if (this.hasUnconfirmedSave) return true
     return this.view.rows.some(row => {const id=this.view.getPkKey(row);return id!==undefined&&(this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))})
   }
@@ -147,6 +150,71 @@ export class BlueprintWorkspaceDataView {
       this.view.setCurrentRow(this.#row??null)
       return this.treeProjection()
     }catch(error){this.#treeQueryLoaded=false;throw error}
+  }
+
+  /** Delete one ordinary leaf through the current project tree DataView and confirm it by readback. */
+  public async removeLeafNode(nodeId:string,expectedProjectId:string,expectedParentNodeId:string):Promise<ProjectBlueprintTreeData>{
+    this.assertUsable()
+    const targetId=nodeId.trim(),projectId=expectedProjectId.trim(),parentId=expectedParentNodeId.trim()
+    if(!targetId||!projectId||!parentId)throw new Error('蓝图 DataView 删除目标身份不完整')
+    if(projectId!==this.#projectId)throw new Error('蓝图 DataView 删除目标项目身份不匹配')
+    if(this.isBusy)throw new Error('蓝图 DataView 正在查询或保存，不能删除节点')
+    if(this.#unconfirmedDeleteId!==undefined){
+      if(this.#unconfirmedDeleteId!==targetId||this.#unconfirmedDeleteParentId!==parentId)throw new Error('蓝图 DataView 存在其他删除待核验目标')
+      const id=this.#unconfirmedDeleteId
+      if(this.hasUnconfirmedSave||this.view.dirtyTracking.hasPendingChanges(id)){
+        const recovered=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
+        if(!recovered.success)throw recovered.error??new Error(recovered.message??'蓝图 DataView 删除保存仍未确认')
+      }
+      const revision=++this.#revision,selectedNodeId=this.#nodeId
+      const rows=await this.queryProjectRows(revision,selectedNodeId)
+      this.#treeQueryLoaded=true
+      if(rows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除结果回读后目标仍存在')
+      this.#unconfirmedDeleteId=undefined
+      this.#unconfirmedDeleteParentId=undefined
+      if(this.#nodeId===targetId)this.#nodeId=''
+      this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
+      this.view.setCurrentRow(this.#row??null)
+      return this.treeProjection()
+    }
+    if(this.hasUnconfirmedSave)throw new Error('蓝图 DataView 存在其他未确认保存')
+    if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    for(const field of ['prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+
+    const revision=++this.#revision,selectedNodeId=this.#nodeId
+    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    this.#treeQueryLoaded=true
+    this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
+    this.view.setCurrentRow(this.#row??null)
+    this.treeProjection()
+
+    const target=rows.find(row=>row['rowid']===targetId&&row['SysId']===this.#projectId)
+    if(!target)throw new Error('蓝图 DataView 项目树未返回身份匹配的删除目标')
+    if(target['rowid']!==targetId||target['SysId']!==projectId||String(target['prowid']??'').trim()!==parentId){
+      throw new Error('蓝图 DataView 删除目标身份或父节点不匹配')
+    }
+    if(rows.some(row=>String(row['prowid']??'').trim()===targetId))throw new Error('蓝图 DataView 仅允许删除无子节点的普通叶子')
+    if(this.view.deleteActionState(target)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许删除目标节点')
+    const id=this.view.getPkKey(target)
+    if((typeof id!=='string'&&typeof id!=='number')||String(id)!==targetId)throw new Error('蓝图 DataView 正式主键与删除目标身份不匹配')
+
+    const removed=await this.view.removeRow(id)
+    if(removed!==true)throw new Error('蓝图 DataView 未准备目标删除变更')
+    this.#unconfirmedDeleteId=id
+    this.#unconfirmedDeleteParentId=parentId
+    const saved=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
+    if(!saved.success)throw saved.error??new Error(saved.message??'蓝图 DataView 删除保存失败')
+
+    const readbackRevision=++this.#revision
+    const confirmedRows=await this.queryProjectRows(readbackRevision,selectedNodeId)
+    this.#treeQueryLoaded=true
+    if(confirmedRows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除保存后目标仍存在')
+    this.#unconfirmedDeleteId=undefined
+    this.#unconfirmedDeleteParentId=undefined
+    if(this.#nodeId===targetId){this.#nodeId='';this.#row=undefined}
+    else this.#row=confirmedRows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
+    this.view.setCurrentRow(this.#row??null)
+    return this.treeProjection()
   }
 
   /** Temporarily widens this same DataView to project rows and stages a permission-checked move. */
@@ -525,6 +593,7 @@ export class BlueprintWorkspaceDataView {
     this.assertUsable()
     if (this.isBusy) throw new Error('保存或查询期间不能取消蓝图修改')
     if (this.hasUnconfirmedSave) throw new Error('保存结果未确认，不能取消；请先沿原 DataSet 保存入口核验')
+    if(this.#unconfirmedDeleteId!==undefined)throw new Error('蓝图 DataView 删除结果待核验，不能取消')
     if (!this.dirty) return
     const ids=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       .filter(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))

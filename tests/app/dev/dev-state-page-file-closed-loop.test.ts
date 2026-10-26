@@ -23,6 +23,7 @@ const httpFns = vi.hoisted(() => ({
   put: vi.fn(),
   post: vi.fn(),
   delete: vi.fn(),
+  blueprintDeleteNode: vi.fn(),
   clearCache: vi.fn(),
   interceptors: {
     request: { use: vi.fn() },
@@ -128,6 +129,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
           const response = await httpFns.put(`${blueprintKey}:nodes:${id}`, patch)
           return response.node ?? response
         },
+        deleteNode: async (id:string) => {await httpFns.blueprintDeleteNode(id)},
       },
       projectReferences: {
         listProjects: async () => [],
@@ -162,7 +164,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -196,7 +198,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
       ? {read:'visible' as const,write:readonlyFields.has(field)?'denied' as const:'allowed' as const,component:readonlyFields.has(field)?'readonly' as const:'editable' as const,required:false,writeMode:readonlyFields.has(field)?'readonly' as const:'editable' as const}
       : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
     readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)&&!hiddenFields.has(field)?'visible' as const:'invisible' as const,
-    addActionState:()=>(access.addAllowed?'enabled':'disabled') as 'enabled'|'disabled',editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
+    addActionState:()=>(access.addAllowed?'enabled':'disabled') as 'enabled'|'disabled',editActionState:()=>'enabled' as const,deleteActionState:()=>(access.deleteAllowed?'enabled':'disabled') as 'enabled'|'disabled',
     createChildActionState:()=>(access.childAllowed?'enabled':'disabled') as 'enabled'|'disabled',viewActionState:()=>'enabled' as const,
   })
   type SaveCommand=Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0]
@@ -210,7 +212,9 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     for(const row of added)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
     const changed=[...(change.changes.changed??[])]
     for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
-    return {metaName:change.identity.metaName,added,changed,deleted:[],changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
+    const deleted=[...(change.changes.deleted??[])]
+    for(const removed of deleted){const index=rows.findIndex(row=>row['rowid']===removed['rowid']&&row['SysId']===projectId);if(index>=0)rows.splice(index,1)}
+    return {metaName:change.identity.metaName,added,changed,deleted,changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
     })
     if(loseReceipt){unknownReceipt=true;throw new Error('transport timeout')}
     unknownReceipt=false
@@ -622,6 +626,151 @@ describe('DevState 页面文件闭环', () => {
       expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
       expect(state.statusMessages.value.some(item=>item.text.includes('DataView'))).toBe(true)
     } finally {ownerScope.stop(); vi.useRealTimers()}
+  })
+
+  it('普通叶子蓝图节点删除经完整项目树 DataView 保存并正式回读', async () => {
+    const leaf={...node('LEAF-A','普通叶子','', 'APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalled()
+      expect(deleteNode).not.toHaveBeenCalled()
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
+      expect(httpFns.delete).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true)
+    } finally {ownerScope.stop()}
+  })
+
+  it('普通节点删除权限不足时拒绝且不调用任何保存入口', async () => {
+    const deniedRoot=blueprintRoot([{...node('DENIED-A','拒绝节点','','APP-A'),kind:'module' as const}],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',deniedRoot,{deleteAllowed:false})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      state.removeNodeFromTree({parent:{data:deniedRoot}},{...deniedRoot.children![0]!})
+      await nextTick()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(deleteNode).not.toHaveBeenCalled()
+      expect(httpFns.delete).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
+
+  })
+
+  it('普通节点删除拒绝非叶子目标且不部分提交', async () => {
+    const grandchild={...node('GRAND-A','孙节点','','APP-A'),kind:'module' as const}
+    const parent={...node('PARENT-A','父节点','','APP-A'),kind:'module' as const,children:[grandchild]}
+    const root=blueprintRoot([parent],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      state.removeNodeFromTree({parent:{data:root}},{...parent})
+      await nextTick()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(deleteNode).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
+  })
+
+  it('普通节点删除拒绝目标项目身份错配且不部分提交', async () => {
+    const leaf={...node('LEAF-MISMATCH','身份错配','','APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
+      state.removeNodeFromTree({parent:{data:root}},{...leaf,projectId:'OTHER-PROJECT'})
+      await nextTick()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(deleteNode).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
+  })
+
+  it('普通叶子删除保存失败或结果未知时保留待核验状态且不回退旧 gateway', async () => {
+    const leaf={...node('LEAF-A','普通叶子','', 'APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalled()
+      expect(deleteNode).not.toHaveBeenCalled()
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
+      expect(httpFns.delete).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true)
+      const refreshed=await owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added).toEqual([])
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.changed).toEqual([])
+      expect(deleteNode).not.toHaveBeenCalled()
+      expect(owner.hasUnconfirmedSave).toBe(false)
+      expect(refreshed.children?.some(item=>item.nodeId==='LEAF-A')).toBe(false)
+    } finally {ownerScope.stop()}
+  })
+
+  it('普通叶子删除明确保存失败时保留 pending-delete 并可沿同一 DataSet 重试', async () => {
+    const leaf={...node('LEAF-FAIL','保存失败叶子','','APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},false,true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.view.dirtyTracking.hasPendingChanges('LEAF-FAIL')).toBe(true)
+      expect(owner.dirty).toBe(true)
+      expect(deleteNode).not.toHaveBeenCalled()
+
+      const refreshed=await owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(owner.dirty).toBe(false)
+      expect(refreshed.children?.some(item=>item.nodeId==='LEAF-FAIL')).toBe(false)
+    } finally {ownerScope.stop()}
+  })
+
+  it('挂载页面删除仍保留文件与蓝图组合删除链', async () => {
+    const mounted=node('MOUNTED-A','挂载页面','cfg:mounted-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.loadBlueprint()
+      pageFiles.files.set('mounted-page/rule.json','[]')
+      const removeMountedPage=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'removeMountedPage')
+      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      await vi.waitFor(()=>expect(removeMountedPage).toHaveBeenCalledWith({pageId:'mounted-page',nodeId:'MOUNTED-A'}))
+      await vi.waitFor(()=>expect(httpFns.blueprintDeleteNode).toHaveBeenCalledWith('MOUNTED-A'))
+      await vi.waitFor(()=>expect(httpFns.delete).toHaveBeenCalledWith('designfile:APP-A/mounted-page'))
+      expect(fixture.save).not.toHaveBeenCalled()
+    } finally {ownerScope.stop()}
   })
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {

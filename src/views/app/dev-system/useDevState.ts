@@ -1423,9 +1423,18 @@ export function useDevState() {
 
     const pageId = resolvePageNodePageId(data)
     const shouldRemoveMountedPage = pageId.length > 0 && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(data))
+    if(!shouldRemoveMountedPage&&blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return}
+    if(!shouldRemoveMountedPage)blueprintSaving.value=true
     const deletePromise = shouldRemoveMountedPage
       ? editor.removeMountedPage({ pageId, nodeId: data.nodeId })
-      : editor.deleteNode(data.nodeId)
+      : (async()=>{
+        try{
+          const owner=await loadBlueprintWorkspaceDataView()
+          await owner.removeLeafNode(data.nodeId,data.projectId,data.parentNodeId)
+          refreshBlueprintTreeProjection()
+          externalDataViewRevision.value++
+        }finally{blueprintSaving.value=false}
+      })()
     void deletePromise.then(
       () => {
         if (selectedNode.value?.nodeId === data.nodeId) {

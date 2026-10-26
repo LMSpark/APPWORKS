@@ -2094,3 +2094,12 @@ flowchart TD
 - **需求说明书导出判定：**可用 `LowcodeProjectBlueprintApi.submitDocument()` 只返回 `submitted + legacy-menu-scope`，底层 `/api/File/exportSRS` 没有可见任务 ID 或按身份查询/核验原提交的合同。当前 `bindDataSetCommandSubmit()` 的未知提交需要 `verify`，否则安全重试语义不成立。故没有增加按钮或直接调用接口，避免把请求 ACK 当文件生成成功或未知结果时重复提交。解锁需正式稳定幂等命令身份及可核验回执，且 UI 仍需通过 DataSet command owner 发起。
 - **范围复核与下一步：**(1) 先画出 `ProjectWorkspace` 蓝图 gateway 与活动 DataView owner 的所有消费者/共享状态，再在单一可验证操作上消除重复提交路径；优先不能触发树删除级联的只读消费者，保存则要求按字段权限、未知回执和正式回读验证。(2) 为节点新增/移动/删除保留 DataView 已有守卫；删除在完整子树、引用和文件结果不可证前继续不扩展。(3) 文件资源按三文件保存、快照、创建补偿和删除分别核路径，先消除已被证明可替代的第二写入入口。(4) 策划 AI 附件、文档导出任务、原型历史/NavHost仍等正式资源及幂等/权限/回执合同；不以包一层请求宣称统一。
 - 本次为只读审计，无线上请求或数据写入；没有可安全落地的 SRS 导出实现切片，低价实施者复核后也未改业务代码。**状态：**统一 SPARK data 的目标仍 active；本次新增的 direct blueprint gateway 与双文件写入入口是已证实缺口，逐消费者迁移仍开放。SPA 不刷新、不改 Java，真实在线验收只通过已授权 SPA 和正式 DataView 进行。
+
+### 2026-10-27 普通蓝图叶子节点删除接入 DataView
+
+- **范围与合同：**将工作台普通、无子节点的蓝图记录删除改由当前 `BlueprintWorkspaceDataView` 执行；完整查询并确认项目树闭包后，检查项目/行/父节点身份、叶子条件及当次 `deleteActionState`，再走 `DataView.removeRow → DataSet.saveChanges(原行ID) → refresh/readback`。明确拒绝非叶子、权限不足、身份错配、繁忙、已有脏数据或其它未知回执。挂载页面仍保留 `removeMountedPage` 的蓝图+工具文件组合链，不把跨资源删除冒充单行 DataView 操作；Java 未改。
+- **未知与失败结果：**已保存但回执未知时保留原目标 ID 与父身份，只允许同一 DataView/DataSet 对原 ID 继续核验，再正式读回确认目标已不存在；明确失败时 pending-delete 留在原 DataView，可沿相同 DataSet 重试。两种情况都不调用 `ProjectWorkspace.deleteNode` fallback。UI 普通叶子删除期间使用工作台忙状态，确认成功后刷新当前 DataView 树投影。
+- **TDD 与复核：**新增用例先在旧代码上 RED：普通叶子、权限拒绝、非叶子、项目错配和未知回执均观察到旧 gateway 旁路；mounted-page 组合链测试通过。实施后覆盖 DataView 删除保存、正式回读、明确失败/未知回执原 ID 重试及 mounted-page 仍走原路径。主控独立检查差异并重跑全测试文件。
+- **自动化门禁：**`tests/app/dev/dev-state-page-file-closed-loop.test.ts` 34 项通过；目标删除切片 7 项通过；目标文件 ESLint、全仓 `typecheck`、`verify:rules` 和 `build` 均通过，`git diff --check` 通过。`verify:rules` 报告既有 AI model spec 2 条 warning、1 条 info；build 有既有 Rolldown 注释、CodeMirror 动态导入和大 chunk 警告，均未阻断。
+- **真实 SPA 烟测：**NewApp/D99A 原登录标签仍在 `/dev` 工作台，应用内 SPA 路径有效，蓝图树显示 41 个页面，当前选中 `DataBaseManage`。热更新后只读查看工作台结构和节点表单，未点删除、未保存/修改正式蓝图；故此次验证 UI 宿主继续运行，不代表服务端真实删除权限或正式删除回执已在线验证。
+- **状态与后续：**普通叶子节点现在通过 SPARK data，工作台参考蓝图整合仍 active。非叶子节点删除、挂载页面的文件+蓝图复合删除、AI 策划触发 `ProjectWorkspace.saveAll()` 的蓝图 gateway、文件工作区的多写入口仍为差距；禁止据此宣称蓝图所有数据都已收敛到 DataView。下一批继续逐消费者处理唯一数据通道与参考功能完整性，所有在线写入仍须走已验证 DataView/命令 owner。

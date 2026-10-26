@@ -81,12 +81,13 @@ const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
 const hasNavigation = computed({get:()=>props.state.blueprintDraft.navigation !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.navigation={title:props.state.blueprintDraft.capability.name??'',order:0,publishInMenu:true,showChildren:true,beginGroup:false};else delete props.state.blueprintDraft.navigation;props.state.markBlueprintDirty()}})
 const hasPrototype = computed({get:()=>props.state.blueprintDraft.prototype !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.prototype={htmlDescription:''};else delete props.state.blueprintDraft.prototype;props.state.markBlueprintDirty()}})
 const catalogOpen = ref(false), catalogLoading = ref(false), catalogError = ref('')
+const catalogReady = ref(false)
 const catalogView = shallowRef<DataView>()
 type PickerTarget = {nodeId:string; projectId:string; runtime:PageRuntime; view:DataView; revision:number}
 const pickerTarget = shallowRef<PickerTarget>()
 let pickerRevision = 0
 const canChooseScene = computed(()=>access('conid').read && access('conid').write && !props.state.pageDataDirty.value)
-const catalogViewReady = computed(()=>catalogView.value?.requestState === RequestState.Loaded && !catalogView.value.loadingError)
+const catalogViewReady = computed(()=>catalogReady.value && catalogView.value?.requestState === RequestState.Loaded && !catalogView.value.loadingError)
 const catalogFilterFields = [
   {type:'r-text',props:{field:'Name',label:'名称或场景 ID',placeholder:'搜索名称或场景 ID',
     filterAlternatives:[{field:'Name',operator:'contains'},{field:'rowid',operator:'eq'}]}},
@@ -106,6 +107,7 @@ function closeScenePicker(value=false):void {
   pickerRevision++
   pickerTarget.value=undefined
   catalogOpen.value=false
+  catalogReady.value=false
   catalogView.value=undefined
 }
 async function waitForCatalogRequest(view:DataView):Promise<void> {
@@ -128,11 +130,11 @@ async function openScenePicker():Promise<void> {
   if(!nodeId || !runtime?.isLoaded || props.state.blueprintDraft.nodeId!==nodeId){catalogError.value='蓝图节点与运行实例尚未就绪';return}
   const view=runtime.resolveView(catalogViewKey)
   if(!view || view.tableName!=='Base_DataSet' || view.viewId!=='catalog' || view.dataSet?.scenarioId!==CATALOG_SCENARIO_ID){
-    catalogOpen.value=true;catalogView.value=undefined;catalogError.value=`正式数据空间目录视图不存在或身份不匹配：${catalogViewKey}`;return
+    catalogOpen.value=true;catalogReady.value=false;catalogView.value=undefined;catalogError.value=`正式数据空间目录视图不存在或身份不匹配：${catalogViewKey}`;return
   }
   const target:PickerTarget={nodeId,projectId,runtime,view,revision:++pickerRevision}
-  pickerTarget.value=target;catalogView.value=view;catalogOpen.value=true;catalogError.value=''
-  if(view.requestState===RequestState.Loaded && !view.loadingError)return
+  pickerTarget.value=target;catalogView.value=view;catalogReady.value=view.requestState===RequestState.Loaded && !view.loadingError;catalogOpen.value=true;catalogError.value=''
+  if(catalogReady.value)return
   catalogLoading.value=true
   try{
     if(view.requestState===RequestState.Loading || view.requestState===RequestState.Preparing) await waitForCatalogRequest(view)
@@ -142,6 +144,7 @@ async function openScenePicker():Promise<void> {
     if(!isPickerTargetCurrent(target)){closeScenePicker();return}
     if(view.loadingError)throw view.loadingError
     if(view.requestState!==RequestState.Loaded)throw new Error('数据空间目录查询未完成')
+    catalogReady.value=true
   }catch(error){if(isPickerTargetCurrent(target))catalogError.value=error instanceof Error?error.message:String(error)}
   finally{if(isPickerTargetCurrent(target))catalogLoading.value=false}
 }
@@ -164,7 +167,7 @@ function chooseScene():void {
   closeScenePicker()
 }
 watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.state.blueprintPageRuntime.value?.instanceId],()=>{
-  if(catalogOpen.value){pickerRevision++;catalogLoading.value=false;catalogError.value='';catalogOpen.value=false;catalogView.value=undefined;pickerTarget.value=undefined}
+  if(catalogOpen.value){pickerRevision++;catalogLoading.value=false;catalogError.value='';catalogOpen.value=false;catalogReady.value=false;catalogView.value=undefined;pickerTarget.value=undefined}
 })
 onBeforeUnmount(()=>{pickerRevision++;pickerTarget.value=undefined})
 </script>

@@ -2,6 +2,7 @@ import {defineComponent, h, nextTick, ref} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
+import RendererDialog from '@/../packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 
@@ -20,10 +21,13 @@ const DialogStub = defineComponent({
   emits: ['update:modelValue'],
   setup(props, {slots}) { return () => props.modelValue ? h('div', {'data-testid': 'scene-dialog'}, [slots['default']?.(), slots['footer']?.()]) : null },
 })
-const FilterStub = defineComponent({props: {dataViewKey: String, autoQuery: Boolean, children: Array}, setup: () => () => h('div')})
+const FullscreenDialogStub = defineComponent({
+  setup(_props, {slots}) { return () => h('section', {'data-testid': 'fullscreen-shell'}, [slots['default']?.(), slots['footer']?.()]) },
+})
+const FilterStub = defineComponent({props: {dataViewKey: String, autoQuery: Boolean, children: Array}, setup: () => () => h('div', {'data-testid': 'filter-stub'})})
 const TableStub = defineComponent({
   props: {dataViewKey: String, children: Array, showPagination: {type: Boolean, default: true}, onRowClick: Function},
-  setup() { return () => h('button', {'data-testid': 'candidate-row', onClick: () => activeView?.setCurrentRow(candidate)}, 'candidate') },
+  setup() { return () => h('button', {'data-testid': 'table-stub', onClick: () => activeView?.setCurrentRow(candidate)}, [h('span', {'data-testid': 'candidate-row'}, 'candidate')]) },
 })
 const FieldSelectStub = defineComponent({
   props: {dataViewKey: String, dataMember: String, dataField: String, optionDataViewKey: String, optionValueField: String,
@@ -121,6 +125,16 @@ async function clickCandidate(row: Record<string, unknown>): Promise<void> {
 describe('development blueprint scene picker', () => {
   beforeEach(() => {candidate = {rowid: 'SCENE-NEW', Name: 'Order data'}})
 
+  it('forwards the default slot into the actual RendererDialog body and the footer separately', () => {
+    const dialog = mount(RendererDialog, {props: {modelValue: true, title: '选择数据空间'},
+      slots: {default: () => h('p', {'data-testid': 'dialog-content'}, 'catalog body'),
+        footer: () => h('button', {'data-testid': 'dialog-footer'}, '确定')},
+      global: {stubs: {FullscreenDialog: FullscreenDialogStub}}})
+    expect(dialog.find('.renderer-dialog-body [data-testid="dialog-content"]').text()).toBe('catalog body')
+    expect(dialog.find('[data-testid="dialog-footer"]').exists()).toBe(true)
+    dialog.unmount()
+  })
+
   it('replaces manual ID entry with the standard field binding and a paged, filtered catalog dialog', async () => {
     const {view, runtime} = makeState()
     expect(wrapper!.find('input').exists()).toBe(false)
@@ -145,6 +159,16 @@ describe('development blueprint scene picker', () => {
     expect(table.props('onRowClick')).toBeUndefined()
     expect(table.props('showPagination')).not.toBe(false)
     expect(view.refresh).toHaveBeenCalledOnce()
+  })
+
+  it('keeps the catalog body visible when its non-reactive DataView request state changes from loading to loaded', async () => {
+    const {completeRefresh} = makeState({deferred: true})
+    await openPicker()
+    expect(wrapper!.text()).toContain('正在读取数据空间目录')
+    completeRefresh()
+    await flushPromises()
+    expect(wrapper!.findComponent(FilterStub).exists()).toBe(true)
+    expect(wrapper!.findComponent(TableStub).exists()).toBe(true)
   })
 
   it('writes the clicked catalog row ID through the blueprinted conid current row only after access checks', async () => {

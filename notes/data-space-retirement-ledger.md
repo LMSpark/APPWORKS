@@ -2055,3 +2055,17 @@ flowchart TD
 - **自动化验证：**场景选择、DevState 宿主闭环和数据设计工作区历史测试 3 文件/54 项通过；目标源码与测试 ESLint、最终 `pnpm run typecheck`、`pnpm run verify:pages-config`、`pnpm run build` 通过。构建有既有打包器 ineffective dynamic import 警告。`pnpm run verify:rules` 失败，扫描器报告未由本批修改的 `blueprint-readonly-info.ts:5` 中 `queryBlueprintReadonlyView` 有 4 个位置参数（限值 3）；规则链在该项中断，后续子门禁未由此次命令执行。证据：`notes/evidence/blueprint-scene-picker-red.txt`（原始运行器输出压缩保存在同名 `.raw.zip`）、`blueprint-scene-picker-regression.txt`、`blueprint-scene-picker-typecheck.txt`、`blueprint-scene-picker-verify-rules.txt`。
 - **真实 SPA 烟测：**沿当前已登录 SPA 标签查看开发工作台，未整页刷新。页面显示“项目蓝图为空”及 `项目蓝图加载失败: RequestError: Request failed with status code 502`；因此没有可选择的正式节点/目录记录，无法完成目录弹窗、筛选、分页或保存后重开实测。没有改动或提交业务数据。此为当前线上验收阻断，不以夹具测试替代真实验收。
 - **状态与后续：**数据空间选择组件与正式绑定门控已实现并通过自动化验证；真实服务可用时须补 SPA 只读目录展示及节点切换隔离烟测。改绑保存回读、默认绑定/创建、解绑与完整引用检查仍未实施；本切片不代表项目蓝图六域整合完成。保持 SPA 和 SPARK data 唯一通道，不修改/启动/部署 Java；整体计划 active。
+
+#### 场景选择弹窗运行时修复与 SPA 复测（2026-10-27）
+
+- **运行时缺陷与修复：**复测中弹窗有标题和底栏、主体白空。根因是 `DataView.requestState` / `loadingError` 为普通对象属性，Vue computed 首次读取“未 Loaded”后没有响应式依赖；查询结束仅切换 `catalogLoading`，表格条件没有重新计算。通过显式响应式 `catalogReady` 表示此次目录视图已完成查询，在查询成功、错误、关闭和运行时/节点切换时设置/清理，不增加查询或保存链。
+- **TDD 与自动化：**新增延迟查询 RED，查询从 Loading 切到 Loaded 后原条件不渲染 Filter/Table；新增直接挂载实际 `RendererDialog` 的默认主体/底栏 slot 合同测试。修复后定向回归 3 文件/56 项通过，改动文件 ESLint、最终 typecheck、build 和 `git diff --check` 通过。证据：`notes/evidence/blueprint-scene-picker-body-red.txt`、`blueprint-scene-picker-regression.txt`。当前全仓 `verify:rules` 已记录在上节，未改动的 `blueprint-readonly-info.ts:5` 仍导致其失败。
+- **真实 SPA 只读烟测：**此前 502 后，在同一已登录标签 SPA 不整页刷新，工作台恢复显示正式蓝图 41 页面。进入 `DataBaseManage` 节点 `A0FA2BA0CF0C82B40DF6A319A3D5831D`，打开“选择场景”后目录 DataView 成功返回总数 1301、10 条/页；按“开票申请”过滤后得到 4 项。没有点候选、没有按“确定”、没有保存或改动正式业务行。
+- **新增验收发现：**现有共享 `Base_DataSet@catalog` 的 DataView 默认 `autoCurrentFirst/autoSelectFirst` 行为会令查询首行成为当前/选中项；即使用户未点击候选，“确定”也处于可用状态。表格当前公开 props 没有直接选择回调，而 `currentRow` 也不能区分自动选中与用户点选。不能依赖当前行伪造显式选择；也不能只改本地 `pagedata.json`，因为工作台从正式 SPARK data 场景配置 owner 读回运行视图。
+- **后续处理裁定：**Ruling：在正式数据空间场景中新增仅供蓝图选择的命名 DataView，显式关闭自动当前行/自动选中，并从该视图经标准 RendererTable 写入选择状态；先通过 SPARK data 设计器创建并回读，再镜像更新仓内 pagedata，最后测试“查询/筛选后确定保持禁用，用户点行后才可确定”。原因是共享 catalog 不应为蓝图选择改变默认行为，且远端配置才是 PageRuntime 真源；如果标准表格链仍不能证明点选事件，可安全返回 DataView 当前行，则此项保持阻断，不能加页面行副本或私有选择算法。该 DataView 无业务数据写入、不改 Java。
+
+#### 项目蓝图默认绑定与解绑参考命令复核（2026-10-27）
+
+- **参考命令事实：**参考 `ApplicationFunMan.ts:895-955` 新建默认空间时创建 `Base_DataSet`（`rowid=nodeId`、`Name=funName`、`Type=datasource`、`sysid`），并把导航行 `conid`、`dataSourceId` 设为 nodeId；如果数据集行已存在则只改名称。参考 `:965-1022` 以其它导航绑定、导航宿主关系和“零模型”判断空空间；`:1029-1078` 清空两个导航字段并可能删 Base_DataSet。这是参考旧 API 行为，不直接作为本仓合同。
+- **本仓可证边界：**当前正式蓝图 DataView 投影只显式承接 `conid`，参考 `dataSourceId` 在本仓工作台 wire projection 中没有证据；不能猜测并镜像。蓝图树查询有最大行数和分页限制，`Base_Navigation_DataRelation` 尚未由该工作区加载，因此不能用已加载行证明无引用，不得实施“安全清理”删除。DataSet `saveChanges({views})` 能按正式视图选择改动，但文档明确不提供跨来源事务；即使一次命令覆盖多个来源，也不能宣称数据库多资源原子提交，部分/未知回执须分别处理。
+- **计划：**先证实 `dataSourceId` 正式字段定义及行/字段权限，再经同一工作区正式 DataSet/DataView 接入显式默认绑定的多资源变更；核实各资源回执和未完成状态。解绑先限定为经正式 DataView 授权的导航字段清空；Base_DataSet 删除继续关闭，直到所有引用类别、完整分页及删除权限均有正式证据。没有业务写入；计划 active。

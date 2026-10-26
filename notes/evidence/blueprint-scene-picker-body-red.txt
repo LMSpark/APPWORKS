@@ -1,0 +1,11 @@
+Blueprint scene picker blank-body regression RED evidence
+
+Command:
+  pnpm exec vitest run tests/app/dev/blueprint-scene-picker.test.ts -t "keeps the catalog body" --reporter=dot
+
+Result before fix:
+  1 targeted test failed; 9 tests skipped.
+  Assertion at tests/app/dev/blueprint-scene-picker.test.ts:156 expected the catalog Filter/Table body to render after the deferred formal DataView refresh completed, but the conditional body remained absent.
+
+Cause observed:
+  catalogViewReady cached false when the dialog first rendered during Loading. DataView.requestState is not a Vue reactive dependency, so changing it to Loaded did not invalidate the computed value. Completing the request updated catalogLoading and left the body blank.

@@ -45,6 +45,7 @@ export class BlueprintWorkspaceDataView {
   #loadInFlight: Promise<unknown> | undefined
   #unconfirmedIds: Array<string | number> = []
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
+  #unconfirmedRootId: string | number | undefined
   #queryOutputFields: ReadonlySet<string>
 
   public constructor(
@@ -191,9 +192,84 @@ export class BlueprintWorkspaceDataView {
     this.#row=rows.find(row=>row['rowid']===selectedNodeId)
   }
 
+  /** Create an unmounted root module through the current formal Base_NavigationInfo query owner. */
+  public async addRootModule(): Promise<void> {
+    this.assertUsable()
+    if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
+    if (this.hasUnconfirmedSave) {
+      if (this.#unconfirmedRootId === undefined) throw new Error('蓝图 DataView 存在其他未确认保存')
+      await this.saveIds([this.#unconfirmedRootId])
+      await this.view.refresh()
+      if (this.view.loadingError) throw this.view.loadingError
+      this.treeProjection()
+      return
+    }
+    if (this.#unconfirmedRootId !== undefined) {
+      const id=this.#unconfirmedRootId
+      const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
+      if (!row || !this.view.dirtyTracking.hasPendingChanges(id)) throw new Error('蓝图根模块已核验但当前没有可安全重试的原新增草稿')
+      for (const field of Object.keys(this.#unconfirmedPatches.get(id)??{})) if (this.view.fieldAccess(row,field).write !== 'allowed') {
+        throw new Error(`蓝图 DataView 当前查询不允许重试新增字段 ${field}`)
+      }
+      await this.commitRootModule(id,this.#unconfirmedPatches.get(id)??{})
+      this.treeProjection()
+      return
+    }
+    if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    if (!this.#treeQueryLoaded) throw new Error('蓝图 DataView 尚未加载项目树，不能新增根模块')
+    if (this.view.addActionState() !== 'enabled') throw new Error('蓝图 DataView 当前查询不允许新增根模块')
+
+    const input: Record<string, unknown> = {
+      SysId: this.#projectId, prowid: '000000', name: '新模块', memo: '', funCode: '', personCharge: '', status: '',
+      conType: 'Model', FunName: '新模块', FunOrderValue: '0', NavigationImageWxz: 'FolderOpened', NavigationUrl: '', MobileUrl: '',
+      NavigationType: '', ChildItemLocation: 'Left', NavigationShowType: '', HorizontalAlignment: '',
+      IsShowAtNav: '1', IsShowChildItem: '1', BeginGroup: '0', conid: '', htmlDesc: '',
+    }
+    for (const field of Object.keys(input)) {
+      if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出根模块新增字段 ${field}`)
+      const access = this.view.newRowFieldAccess(field)
+      if (access.read !== 'visible' || access.write !== 'allowed') throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
+    }
+    const created = await this.view.addRow(input)
+    if ('success' in created) throw new Error('蓝图 DataView 未准备出正式新增行')
+    const row = created
+    const id = this.view.getPkKey(row)
+    if ((typeof id !== 'string' && typeof id !== 'number') || !String(id).trim() || row['rowid'] !== id
+      || row['SysId'] !== this.#projectId || row['prowid'] !== '000000') throw new Error('蓝图 DataView owner 未准备有效根模块身份')
+    if (this.view.rows.some(candidate => candidate !== row && this.view.getPkKey(candidate) === id)) throw new Error('蓝图 DataView owner 准备的根模块身份已存在')
+    for (const field of Object.keys(input)) {
+      const access = this.view.fieldAccess(row, field)
+      if (access.read !== 'visible' || access.write !== 'allowed') throw new Error(`蓝图 DataView 新增行字段权限拒绝 ${field}`)
+    }
+    const validation = this.view.validator?.validateColumns(row, new Set(Object.keys(input)))
+    if (validation && !validation.valid) throw new Error(validation.errors[0]?.message ?? '蓝图根模块字段校验失败')
+
+    await this.commitRootModule(id,input)
+  }
+
+  private async commitRootModule(id:string|number,expected:Record<string,unknown>):Promise<void>{
+    this.#unconfirmedIds = [id]
+    this.#unconfirmedRootId = id
+    this.#unconfirmedPatches = new Map([[id, {...expected}]])
+    const saved = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [id]}]})
+    if (!saved.success) throw saved.error ?? new Error(saved.message ?? '蓝图根模块保存失败')
+    await this.view.refresh()
+    if (this.view.loadingError) throw this.view.loadingError
+    const confirmed = this.view.rows.find(candidate => this.view.getPkKey(candidate) === id && candidate['SysId'] === this.#projectId)
+    if (!confirmed || Object.entries(expected).some(([field, value]) => !sameWireValue(confirmed[field], value))) {
+      throw new Error('蓝图根模块保存后未通过 DataView 正式回读')
+    }
+    this.#row = this.view.rows.find(candidate => candidate['rowid'] === this.#nodeId && candidate['SysId'] === this.#projectId)
+    this.#unconfirmedIds = []
+    this.#unconfirmedPatches.clear()
+    this.#unconfirmedRootId = undefined
+  }
+
   public hasOutput(field: string): boolean {
     return this.#queryOutputFields.has(field)
   }
+
+  public get hasPendingRootCreate(): boolean {return this.#unconfirmedRootId!==undefined}
 
   /** Read the selected editable node as a permission-filtered compatibility projection. */
   public nodeData(): BlueprintNodeFormData {
@@ -406,6 +482,7 @@ export class BlueprintWorkspaceDataView {
       for(const [key,patch] of this.#unconfirmedPatches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 核验后未读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 核验回读不一致`)}
       this.#row = targetNodeId?recoveredRow:undefined
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear()
+      this.#unconfirmedRootId=undefined
       return
     }
     if(this.#nodeId)this.currentRow()

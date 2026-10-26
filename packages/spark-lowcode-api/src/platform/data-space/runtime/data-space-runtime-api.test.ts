@@ -521,6 +521,24 @@ describe('DataSpace runtime save owner', () => {
       changes: { changed: [{ rowid: 'ROW-1', salary: 130 }] } }] })).resolves.toHaveLength(1)
   })
 
+  it('confirms a root create lost in transport by its owner-prepared primary key without replay', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const row = context.prepareNewRow({rowid: 'ROOT-NEW', SysId: 'APP-A', prowid: '000000', name: '新模块'})
+    const command = {changes: [{identity, context, changes: {added: [row]}}]}
+    http.saveError = new Error('socket closed after create')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed after create')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [{...row,
+      lingma_sys_key: 'NEW-ROW-KEY', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}], Count: 1}})
+    const [receipt] = await api.dataSpace.runtime.save(command)
+    expect(http.saveRequests).toHaveLength(1)
+    expect(receipt?.added).toEqual([row])
+    expect(receipt?.context.rows).toContainEqual(row)
+  })
+
   it('refuses to mix another change into an unconfirmed batch', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)

@@ -5,6 +5,7 @@ import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 
@@ -25,6 +26,45 @@ const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterce
 // This consumer fixture supplies C; the metadata chain suite verifies the production loader against formal records.
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   loadScenarioDataSet: previewLoad,
+  loadLowcodeRuntimeScenario: async ({ projectId }: { projectId: string }) => {
+    const fields = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'funCode', 'NavigationUrl', 'NavigationImageWxz',
+      'MobileUrl', 'NavigationType', 'ChildItemLocation', 'NavigationShowType', 'HorizontalAlignment', 'IsShowAtNav', 'IsShowChildItem',
+      'BeginGroup', 'conid', 'conType', 'memo', 'htmlDesc', 'VersionId', 'DifficultyFactor', 'Manhour', 'Number', 'Sum', 'Total',
+      'personCharge', 'status']
+    const dataSet = DataSet.fromJson({scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, tables: {Base_NavigationInfo: {
+      modelBinding: {modelId: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`, modelName: 'Base_NavigationInfo'},
+      columns: fields.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
+      views: {default: {autoLoad: false}},
+    }}})
+    const view = dataSet.getView('Base_NavigationInfo')!
+    const rows = ['orders-page-node', 'orders-page-v2-node', 'demo-node'].map(rowid => ({rowid, SysId: projectId,
+      prowid: '000000', FunOrderValue: '0', name: rowid, FunName: rowid, conType: 'Model'}))
+    view.bindQueryExecutor({
+      queryColumns: current => current.columns,
+      executeQuery: async (_current, params) => {
+        const filter = params.filter as {filters?: Array<{field?: string; value?: unknown}>} | undefined
+        const matching = rows.filter(row => row.SysId === projectId && (filter?.filters ?? []).every(condition =>
+          condition.field === undefined || String(row[condition.field as keyof typeof row] ?? '') === String(condition.value ?? '')))
+        return {
+          rows: matching, total: matching.length,
+          assertIdentity: (identity: {scenarioId: string; metaName: string}) => {
+            if (identity.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || identity.metaName !== 'Base_NavigationInfo') throw new Error('blueprint identity mismatch')
+          },
+          rowKey: (row: Readonly<Record<string, unknown>>) => row['rowid'],
+          prepareNewRow: (row: Readonly<Record<string, unknown>>) => ({...row, rowid: `new-${Date.now()}`}),
+          fieldAccess: (_rowKey: unknown, _field: string) => ({read: 'visible' as const, write: 'denied' as const, component: 'readonly' as const, required: false, writeMode: 'readonly' as const}),
+          readFieldAccess: (_row: Readonly<Record<string, unknown>>, _field: string) => 'visible' as const,
+          addActionState: () => 'disabled' as const,
+          editActionState: () => 'disabled' as const,
+          deleteActionState: () => 'disabled' as const,
+          createChildActionState: () => 'disabled' as const,
+          viewActionState: () => 'enabled' as const,
+        }
+      },
+      save: async () => [],
+    })
+    return dataSet
+  },
   loadLowcodeScenarioDefinitions: async (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => {
     const models = await readModels() ?? [{id: 'orders-model', metaName: 'Orders'}]
     const definitions = Object.fromEntries(Object.entries(metadataConfig.tables).filter(([, table]) => 'resourceId' in table && table.resourceId.startsWith('pagedata:')))

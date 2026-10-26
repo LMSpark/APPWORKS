@@ -1893,3 +1893,12 @@ flowchart TD
 - TDD/回归：针对字段映射、只读列、隐藏列、单行提交、取消、未知回执以及创建工具的权限预检/双 owner 处理补用例。`pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` **2 files / 39 tests passed**；changed-file ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均通过。规则扫描保留 2 条已有 AI model-spec warning，退出码 0；构建保留第三方 CodeMirror dynamic import 注解警告，成功。
 - **验证边界：**仅自动化 DataView 权限响应夹具通过；当前 Windows 浏览器清单没有浏览器窗口，未进行 SPA 在线节点字段读写/保存/关闭重开烟测，真实行字段权限仍待正式会话核验。未修改 Java、未直接请求业务写 API。新增/删除/挂载/解绑树行、全树行集合完整权限、物理预览 GetData 与 workflow 文件读取仍是已登记的 DataSet 外路径/合同缺口；整体收敛计划继续 active。
 - **交付：**源码、测试及本节台账已提交并推送到 `codex/ai-data-entry`；提交完成后通过 `git ls-remote` 核对远程分支与本地 HEAD 一致。
+
+### 2026-10-26 蓝图根模块新增权限与 DataView 提交
+
+- 服务端运行权限合同复核：`lingma_sys_params.c=true` 已由 `DataSpaceQueryContext` 映射为该查询父行的新增子行权限；`DataView.createChildActionState(parentRow)` 消费此状态，子行写入由 DataSpace save owner 使用原父行凭据。`c` 不代表根级新增，根级操作使用查询上下文的模型级 `allowAdd`，新增字段仍须逐字段通过 `newRowFieldAccess`、正式输出字段和 validator。
+- 蓝图旧根模块新增已迁至 `BlueprintWorkspaceDataView.addRootModule()`：先检查同一 `Base_NavigationInfo` DataView 的新增权限与全部字段读写，再由 DataView owner 生成正式行身份，使用 DataSet `saveChanges` 限定提交该行，成功后 refresh 并正式回读；未知回执保留原新行 ID，通过原 DataView owner 核验，禁止再次创建。
+- `DevState.addRootNode` 只调用该领域命令，保留原 SPA 工作区生命周期、未确认保存提示和导航刷新。补充页面历史测试的 DataView 宿主 mock，确保场景身份使用 `LOWCODE_APPLICATION_CATALOG_FORM_KEY`。
+- 验证：受影响的蓝图、目录宿主与页面历史测试 **4 files / 136 tests passed**；新增回执运行时聚焦用例 **2 passed**；ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules`、生产 build、`git diff --check` 均通过。规则扫描保留 2 条既有 AI model-spec warning，退出码 0；build 有现有第三方注解/动态导入及 chunk 大小 warning，成功。
+- **部署验证边界：**本轮没有活动的已认证 SPA 浏览器会话，因此没有线上根模块新增或服务端 `c` 字段回执烟测。源码与自动化合同证明客户端能消费上述权限；是否当前部署服务每次都返回对应父行的 `c` 位，仍须在正式查询响应核验。没有修改、启动或部署 Java，没有写线上模型/业务数据。
+- **状态：**根模块新增已进入同一 DataView 权限/保存链；根级新增 permission 与子级 `c` permission 分层明确。子节点新增、删除及完整树行集合权限合同仍开放；物理表预览与 workflow 文件读取等逃逸项仍开放，整体数据链收敛继续 active。

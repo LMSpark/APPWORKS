@@ -1271,19 +1271,22 @@ export function useDevState() {
   // 树增删
   // ═══════════════════════════════════════════════════════════
 
-  function addRootNode(): void {
-    if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点', 'warning'); return}
-    const node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData = { nodeId: crypto.randomUUID(), parentNodeId: project.rootNode?.id ?? '', projectId: projectId.value, kind: 'module', capability: {name: '新模块'}, navigation: {title:'新模块',icon:'FolderOpened',order:0,placement:'left',publishInMenu:true,showChildren:true,beginGroup:false},source:{},children:[] }
-    void editor.addBlueprintNode({ node }).then(
-      async () => {
-        await syncRuntimeNavigationIfDefaultProject()
-        addStatus('已添加根模块', 'info')
-      },
-      (e: unknown) => {
-        void editor.loadBlueprint()
-        addStatus(`添加模块失败: ${String(e)}`, 'error')
-      },
-    )
+  async function addRootNode(): Promise<void> {
+    let session:BlueprintWorkspaceDataView|undefined
+    try {
+      session=await loadBlueprintWorkspaceDataView()
+      if (hasExternalDataViewChanges() && !session.hasPendingRootCreate) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再新增节点', 'warning'); return}
+      await session.addRootModule()
+      refreshBlueprintTreeProjection()
+      externalDataViewRevision.value++
+      await syncRuntimeNavigationIfDefaultProject()
+      addStatus('已通过 Base_NavigationInfo DataView 保存根模块', 'success')
+    } catch (e) {
+      const unconfirmed=session?.hasPendingRootCreate===true&&session.hasUnconfirmedSave
+      addStatus(unconfirmed
+        ? `根模块保存回执未知；请再次执行新增以沿原 DataView 保存入口核验：${String(e)}`
+        : `添加根模块失败: ${String(e)}`, unconfirmed ? 'warning' : 'error')
+    }
   }
 
   async function addChildNode(parent: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {

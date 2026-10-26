@@ -136,7 +136,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[]}={},unknownSave=false){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];addAllowed?:boolean}={},unknownSave=false){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -164,22 +164,27 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     rows:selected,total:selected.length,
     assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
     rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
+    prepareNewRow:(row:Readonly<Record<string,unknown>>)=>({...row,rowid:crypto.randomUUID()}),
+    isFieldReadOnly:(field:string)=>readonlyFields.has(field),
     fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))&&!hiddenFields.has(field)
       ? {read:'visible' as const,write:readonlyFields.has(field)?'denied' as const:'allowed' as const,component:readonlyFields.has(field)?'readonly' as const:'editable' as const,required:false,writeMode:readonlyFields.has(field)?'readonly' as const:'editable' as const}
       : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
     readFieldAccess:(row:Readonly<Record<string,unknown>>,field:string)=>Object.hasOwn(row,field)&&!hiddenFields.has(field)?'visible' as const:'invisible' as const,
-    addActionState:()=>'disabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
+    addActionState:()=>(access.addAllowed?'enabled':'disabled') as 'enabled'|'disabled',editActionState:()=>'enabled' as const,deleteActionState:()=>'disabled' as const,
     createChildActionState:()=>'disabled' as const,viewActionState:()=>'enabled' as const,
   })
   type SaveCommand=Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0]
   let unknownReceipt=false
   const save=vi.fn(async(command:SaveCommand)=>{
-    if(unknownSave&&!unknownReceipt){unknownReceipt=true;throw new Error('transport timeout')}
+    const loseReceipt=unknownSave&&!unknownReceipt
     const receipts=command.changes.map(change=>{
+    const added=[...(change.changes.added??[])]
+    for(const row of added)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
     const changed=[...(change.changes.changed??[])]
     for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
-    return {metaName:change.identity.metaName,added:[],changed,deleted:[],changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
+    return {metaName:change.identity.metaName,added,changed,deleted:[],changedFields:changed.map(row=>Object.keys(row)),context:result(rows.filter(row=>row['SysId']===projectId))}
     })
+    if(loseReceipt){unknownReceipt=true;throw new Error('transport timeout')}
     unknownReceipt=false
     return receipts
   })
@@ -267,6 +272,53 @@ describe('DevState 页面文件闭环', () => {
       expect(owner.value('name')).toBe('DataView 名称')
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual([selected.nodeId])
     } finally {ownerScope.stop()}
+  })
+
+  it('新增根模块通过共享 Base_NavigationInfo DataView 按正式创建权限保存', async () => {
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.addRootNode()
+      expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('通过 Base_NavigationInfo DataView 保存')
+      await vi.waitFor(()=>expect(fixture.save).toHaveBeenCalled())
+      const added=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added
+      expect(added).toHaveLength(1)
+      expect(added?.[0]).toMatchObject({SysId:'APP-A',prowid:'000000',name:'新模块',FunName:'新模块'})
+      expect(String(added?.[0]?.['rowid']??'')).not.toBe('')
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.some(row=>row['rowid']===added?.[0]?.['rowid'])).toBe(true)
+    } finally {ownerScope.stop()}
+  })
+
+  it('新增根模块任一必需字段没有 DataView 新行写权限时不提交', async () => {
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,readonlyFields:['name']})
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.addRootNode()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('不允许新增字段 name')
+    } finally {ownerScope.stop()}
+  })
+
+  it('根模块新增回执未知时沿原新增 ID 核验，不创建第二根行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true},true)
+    blueprintRuntime.load.mockResolvedValue(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.addRootNode()
+      expect(state.blueprintWorkspaceDataView.value?.hasUnconfirmedSave).toBe(true)
+      const firstId=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
+      expect(firstId).toBeTruthy()
+      await state.addRootNode()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.[0]?.['rowid']).toBe(firstId)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']==='000000')).toHaveLength(2)
+      expect(state.blueprintWorkspaceDataView.value?.hasUnconfirmedSave).toBe(false)
+    }finally{ownerScope.stop()}
   })
 
   it('创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer',async()=>{

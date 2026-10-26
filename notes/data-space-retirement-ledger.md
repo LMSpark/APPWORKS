@@ -1655,3 +1655,10 @@ flowchart TD
 - 由 `gpt-6-luna` 增加 `tests/runtime/page/runtime/system-page-dirty.test.ts` 回归测试：原 DataView dirty source 在单页模式下使路由跳转拒绝、保持原 URL 和 system-page instance；同一 source 清理后跳转成功。写者临时绕过既有守卫验证 RED，结果因导航未拒绝而失败，随后恢复源码；没有生产代码改动。主控独立复跑该文件，1文件/3项通过；`git diff --check`通过。原始日志在 `ignored/cache/task-spa-dirty-single-mode-route-guard-{red,green}-20261026.log`。
 - 为当前正式烟测恢复本地 Vite 后确认 `/login` 表单可显示，租户选项为已授权企业；没有提交登录凭据或业务操作。导航深链路目标仍未通过本地导航注册，故真实后端 SPARK data 查询/回执烟测继续未完成；本地 Vite 已停止。
 - **状态：新增 SPA 离开保护回归证据；现有生产守卫满足本场景，没有代码缺陷需要修复。数据库登记部署协议、AI 服务端Agent配置、字典完整范围唯一性仍依赖正式运行合同/会话。整体目标继续 implementing。**
+
+## 2026-10-26 最新远程复核、重复约束边界与登录后 SPA 导航诊断
+
+- 再次执行 `git fetch --all --prune`。当前 `HEAD=deb709146`；`github/10-17=7e288e7db` 与 `origin/10-17=11ed2e806` 均为当前分支祖先，本地分支相对二者分别领先10和20、落后0；无待合并的相关远程提交。`codex/ai-data-entry` 未配置 upstream；没有改分支配置、重置或推送。
+- 由低价模型只读审计 B1 AI 字典批量新增重复约束：正式领域合同是对**当前已加载且可读的同一条目 DataView 行、编辑覆盖、暂存新增及本批候选**按既定 trim/case-insensitive 规则整批拒绝重复；`DataColumn.unique` 同样只校验本视图已加载/待提交行。没有源码、服务合同或线上证据证明跨分页、跨过滤或数据库全局唯一。保持当前 fail-closed 行为，不补扫全部记录、不启用错误的全局唯一声明；更广约束列为服务/业务合同缺口。
+- 用户确认已登录后，在本地 `http://127.0.0.1:5273` SPA 只做导航和读取。应用列表加载正常，但进入“数据资产管理”触发正式导航错误：配置节点 `BD30E16E34BC2393D9C520C9DF0AE8AA` 的旧路径 `/DataCenter/ServerManagerment.html` 缺少明确工具目标；页面要求从导航菜单重新选择。对应 legacy path 在当前源码/配置没有明确映射，仓内只有独立的 `/dbms` 目录页与 `service-management-page` 页面注册。不得按 URL 文本猜测目标、伪造工具身份或绕过导航直接请求；本轮未进入目标业务页、未执行数据平台业务写入，也没有提交登录凭据。应用列表加载的具体请求链本轮未检查，不据此断言零 SPARK data 请求。
+- SPA 阻断的下一步应取得该正式导航节点的明确工具目标/部署路由合同，再经真实 PageRuntime/DataView 做只读查询与保存回执烟测。已授权登录本身不能证明目标节点身份有效。数据库登记、删除引用完整性、连接测试部署端点/连通性及 B1 跨范围唯一性仍开放；总体整合继续 implementing。

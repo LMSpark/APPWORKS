@@ -330,6 +330,10 @@
           "type": "object",
           "title": "import(\"@spark-appworks/spark-data\").DataView"
         },
+        "ownerDataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
         "dirty": {
           "type": "boolean"
         },
@@ -494,7 +498,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T21:54:27.043Z",
+  "generatedAt": "2026-10-26T22:08:48.756Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -1081,6 +1085,11 @@
           "attributes": [
             {
               "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerDataSet",
               "readable": true,
               "writable": false
             },

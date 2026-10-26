@@ -8,21 +8,15 @@
 
 import type { PageFileReader } from './page-content-loader'
 import type {
-  PageFileCreateOptions,
   PageToolFileName,
   PageToolFileVersionSummary,
 } from '../page/page-file'
 import { assertNonEmptyPageId } from '../page/page-file'
 
-/** 为明确pageId创建三工具文件的真实请求。 */
-export type PageFileCreateParams = PageFileCreateOptions & { pageId: string }
-
 /** 宿主真实三文件及编号快照能力；编号最大值不能视为正式发布。 */
 export type ProjectPageFileGateway = Readonly<{
   readPageFile: PageFileReader
   saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>
-  createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>
-  deleteFiles?: (pageId: string) => Promise<void>
   listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>
   restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>
   createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>
@@ -45,16 +39,6 @@ export class PageFileApi {
   public async saveFileContent(pageId: string, filename: PageToolFileName, content: string): Promise<void> {
     const operation = this.gateway.saveFileContent ?? unavailable('保存')
     await operation(assertNonEmptyPageId(pageId), filename, content)
-  }
-
-  public async createFiles(params: PageFileCreateParams): Promise<Record<string, unknown>> {
-    const operation = this.gateway.createFiles ?? unavailable('创建')
-    return operation({ ...params, pageId: assertNonEmptyPageId(params.pageId) })
-  }
-
-  public async deleteFiles(pageId: string): Promise<void> {
-    const operation = this.gateway.deleteFiles ?? unavailable('删除')
-    await operation(assertNonEmptyPageId(pageId))
   }
 
   public async listVersions(pageId: string, filename: PageToolFileName): Promise<PageToolFileVersionSummary[]> {

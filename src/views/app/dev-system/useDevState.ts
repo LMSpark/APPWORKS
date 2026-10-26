@@ -130,6 +130,7 @@ export type ExternalDataViewSession = Readonly<{
   hasTreeProjection?: () => boolean
   childCreateActionState?: (parentNodeId:string) => 'enabled'|'hidden'|'disabled'|'unknown'
 }>
+type PendingPageBindingCreate={pageId:string;parentId:string;nodeId:string;projectId:string;title:string;icon:string;stage:'files'|'blueprint'|'compensate'|'done'}
 
 // ═══════════════════════════════════════════════════════════
 // 共享状态工厂
@@ -157,6 +158,7 @@ export function useDevState() {
   const blueprintPageRuntime = shallowRef<PageRuntime>()
   let pageToolFilesDataView:PageToolFilesDataView|undefined
   let pendingMountedPageDelete:{pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}|undefined
+  let pendingPageBindingCreate:PendingPageBindingCreate|undefined
   let blueprintWorkspaceLoad: Promise<BlueprintWorkspaceDataView> | undefined
   let blueprintWorkspaceLoadRevision=0
   let unregisterBlueprintWorkspaceSession:(()=>void)|undefined
@@ -201,6 +203,7 @@ export function useDevState() {
       blueprintPageRuntime.value=runtime;blueprintWorkspaceDataView.value=session
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
+        if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){
           if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
           await fileOwner.save();refreshBlueprintTreeProjection();return
@@ -277,6 +280,57 @@ export function useDevState() {
       if(blueprintDeleted)throw new Error(`MOUNTED_PAGE_FILE_DELETE_PARTIAL: 蓝图节点已删除，文件清理待确认：${String(error)}`)
       throw error
     }
+  }
+  async function resumePendingPageBindingCreate():Promise<void>{
+    const pending=pendingPageBindingCreate
+    if(!pending)return
+    if(projectId.value!==pending.projectId||currentEditor.value.project.projectId!==pending.projectId)throw new Error('PAGE_BINDING_SCOPE: 项目身份已切换')
+    const fileOwner=pageToolFilesDataView
+    if(!fileOwner)throw new Error('PAGE_TOOL_FILE_OWNER: 文件命令 DataView 尚未装配')
+    if(pending.stage==='compensate'){
+      await fileOwner.compensateCreate(pending.pageId,pending.parentId)
+      pendingPageBindingCreate=undefined
+      addStatus(`工具 ${pending.pageId} 蓝图绑定失败，默认页面文件已按原补偿命令清理`,'warning')
+      return
+    }
+    const scope=currentScopeKey(),workspace=currentEditor.value
+    const assertTarget=()=>{if(currentScopeKey()!==scope||currentEditor.value!==workspace
+      ||selectedNode.value?.nodeId!==pending.nodeId)throw new Error('工具创建期间原项目或节点目标已切换')}
+    assertTarget()
+    if(pending.stage==='files'){
+      await fileOwner.create(pending.parentId,pending.pageId);assertTarget()
+      pending.stage='blueprint'
+    }
+    const owner=await loadBlueprintWorkspaceDataView();assertTarget()
+    if(owner.projectId!==pending.projectId||owner.nodeId!==pending.nodeId)throw new Error('PAGE_BINDING_IDENTITY: 蓝图 DataView 目标身份不匹配')
+    try{
+      if(owner.hasUnconfirmedSave){await owner.saveSelectedNode();assertTarget()}
+      else{
+        if(owner.dirty)throw new Error('蓝图 DataView 有待保存修改，请先完成保存或取消')
+        const before=owner.nodeData()
+        const navigation={...(before.navigation??{order:0}),title:pending.title,target:`cfg:${pending.pageId}`,icon:pending.icon,
+          publishInMenu:true,showChildren:true,beginGroup:false}
+        const next:BlueprintNodeFormData={...before,kind:'page',navigation}
+        owner.preflightNodeData(next);owner.updateNodeData(next)
+        blueprintDraftRevision.value++;externalDataViewRevision.value++
+        await owner.saveSelectedNode();assertTarget()
+      }
+    }catch(error){
+      if(owner.hasUnconfirmedSave)throw error
+      if(owner.dirty)owner.cancel()
+      pending.stage='compensate'
+      try{await fileOwner.compensateCreate(pending.pageId,pending.parentId);pendingPageBindingCreate=undefined}
+      catch(cleanupError){throw new Error(`PAGE_BINDING_COMPENSATION_PENDING: ${String(error)}; ${String(cleanupError)}`)}
+      throw error
+    }
+    pending.stage='done'
+    pendingPageBindingCreate=undefined
+    refreshBlueprintTreeProjection();notifyExternalDataViewChanged()
+    if(isDefaultUserProjectScope())await reloadAndSyncNavigation()
+    handlePathChange(`/${pending.pageId}`);bumpPageCache(pending.pageId,'__created')
+    await editor.selectPage(pending.pageId);assertTarget()
+    persistActivePageId(pending.pageId)
+    addStatus(`工具 ${pending.pageId} 的导航绑定已通过 Base_NavigationInfo DataView 保存`,'success')
   }
   async function moveBlueprintNodeInDataView(nodeId: string, parentId: string | null, index: number): Promise<void> {
     if (blueprintDirty.value) throw new Error('节点基本信息有未保存草稿，请先保存或取消后再移动树节点')
@@ -450,6 +504,12 @@ export function useDevState() {
   ): Promise<boolean> {
     const nextScope = normalizeEditScope(scope)
     if (sameEditScope(nextScope)) return true
+
+    if(pendingPageBindingCreate){
+      addStatus('工具页面创建流程尚未完成，请在原项目中保存并核验后再切换','warning')
+      projectPicker.tenantId=tenantId.value;projectPicker.projectId=projectId.value
+      return false
+    }
 
     if(pendingMountedPageDelete){
       addStatus('挂载页面删除流程尚未完成，请在原项目中保存并核验后再切换','warning')
@@ -1229,16 +1289,26 @@ export function useDevState() {
   async function createPageForSelectedNode(params: { pageId: string; title: string; icon: string }): Promise<boolean> {
     const pageId = params.pageId.trim()
     const selected=selectedNode.value
-    if (!pageId || !selected) return false
+    if(!pageId||!selected||pageIoBusy.value||pendingPageBindingCreate)return false
+    if(pageId!==params.pageId||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId)||pageId==='.'||pageId==='..'){
+      addStatus('工具页面 ID 无效','warning');return false
+    }
+    if(selected.projectId!==projectId.value){addStatus('所选蓝图节点不属于当前项目','warning');return false}
 
     pageIoBusy.value = true
-    let pageFilesCreated=false
-    let nodeBindingSaved=false
+    let saga:PendingPageBindingCreate|undefined
     try {
       const scope=currentScopeKey(),workspace=currentEditor.value
       const owner=await loadBlueprintWorkspaceDataView()
-      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建目标已切换')
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId
+        ||owner.projectId!==projectId.value||owner.nodeId&&owner.nodeId!==selected.nodeId)throw new Error('工具创建目标已切换或身份不匹配')
+      const tree=await owner.loadProjectTree()
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建期间项目或节点已切换')
+      const targetExists=(items:readonly ProjectBlueprintDomain.ProjectBlueprintTreeNodeData[]):boolean=>items.some(item=>
+        item.navigation?.target===`cfg:${pageId}`||item.children!==undefined&&targetExists(item.children))
+      if(targetExists(tree.children)||project.findPageTool(pageId))throw new Error(`工具页面 ${pageId} 已存在，不能重复创建`)
       if(owner.nodeId!==selected.nodeId)await owner.load(selected.nodeId)
+      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具创建期间项目或节点已切换')
       if(owner.dirty||owner.hasUnconfirmedSave)throw new Error('蓝图 DataView 有待保存或待核验修改，请先完成保存或取消')
       const before=owner.nodeData()
       const title=params.title.trim()?params.title.trim():before.capability.name??''
@@ -1246,33 +1316,23 @@ export function useDevState() {
         publishInMenu:true,showChildren:true,beginGroup:false}
       const next:BlueprintNodeFormData={...before,kind:'page',navigation}
       owner.preflightNodeData(next)
-      await editor.createPageFiles({pageId,title:params.title,icon:params.icon})
-      pageFilesCreated=true
-      owner.updateNodeData(next)
-      blueprintDraftRevision.value++;externalDataViewRevision.value++
-      await owner.saveSelectedNode()
-      nodeBindingSaved=true
-      if(currentScopeKey()!==scope||currentEditor.value!==workspace||selectedNode.value.nodeId!==selected.nodeId)throw new Error('工具绑定已保存，但工作区目标随后发生变化')
-      refreshBlueprintTreeProjection()
-      notifyExternalDataViewChanged()
-      if(isDefaultUserProjectScope())await reloadAndSyncNavigation()
-      handlePathChange(`/${pageId}`)
-      bumpPageCache(pageId, '__created')
-      await editor.selectPage(pageId)
-      persistActivePageId(pageId)
-      addStatus(`工具 ${pageId} 的导航绑定已通过 Base_NavigationInfo DataView 保存`, 'success')
+      const fileOwner=pageToolFilesDataView
+      if(fileOwner?.ownerDataSet!==owner.dataSet||owner.dataSet.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY)throw new Error('工具创建所需 Blueprint/PageToolFiles owner 未绑定同一正式 DataSet')
+      const parentId=`page-binding:${selected.nodeId}`
+      saga={pageId,parentId,nodeId:selected.nodeId,projectId:selected.projectId,title,icon:params.icon,stage:'files'}
+      pendingPageBindingCreate=saga
+      await resumePendingPageBindingCreate()
       return true
     } catch (e) {
       const owner=blueprintWorkspaceDataView.value
-      if(pageFilesCreated&&!nodeBindingSaved&&owner?.hasUnconfirmedSave!==true){
-        try{
-          if(owner?.dirty)owner.cancel()
-          await editor.deletePageFiles(pageId);pageFilesCreated=false
-        }
-        catch(cleanupError){addStatus(`工具绑定失败，页面文件补偿删除也失败；需人工核对 ${pageId}: ${String(cleanupError)}`,'error')}
-      }else if(pageFilesCreated&&owner?.hasUnconfirmedSave===true){
-        addStatus(`工具绑定回执未知，已保留页面文件 ${pageId}；请先核验 Base_NavigationInfo DataView 回执，不要重复创建`,'warning')
-      }else if(pageFilesCreated&&nodeBindingSaved){
+      const fileOwner=pageToolFilesDataView
+      if(saga?.stage==='blueprint'&&owner?.hasUnconfirmedSave===true){
+        addStatus(`工具绑定回执未知，已保留原文件创建命令 ${pageId}；Save All 将先核验页面文件，再核验蓝图绑定`,'warning')
+      }else if(saga?.stage==='files'&&fileOwner?.hasUnconfirmedSave){
+        addStatus(`工具文件创建回执未知，原命令 ${pageId} 已保留；Save All 将先核验该命令再保存蓝图`,'warning')
+      }else if(saga?.stage==='compensate'&&pendingPageBindingCreate===saga){
+        addStatus(`工具绑定失败，默认页面文件补偿命令 ${pageId} 尚待保存`,'warning')
+      }else if(saga?.stage==='done'){
         addStatus(`导航绑定已保存；后续页面打开或导航刷新失败，保留页面文件 ${pageId} 以匹配正式记录`,'warning')
       }
       addStatus(`创建页面失败: ${String(e)}`, 'error')
@@ -1325,6 +1385,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function selectNode(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
+    if(pendingPageBindingCreate&&pendingPageBindingCreate.nodeId!==node.nodeId){addStatus('工具页面创建流程尚未完成，请保存或核验后再切换节点','warning');return}
     const selectionRevision=++nodeSelectionRevision,scope=currentScopeKey(),workspace=currentEditor.value
     cancelAutoSave()
     if (hasExternalDataViewChanges()) {

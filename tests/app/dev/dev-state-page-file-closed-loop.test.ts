@@ -108,8 +108,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
           const response = await httpFns.get(`${pageFileKey}/${command.pageId}/${command.fileName}`)
           return String(response?.content ?? '')
         },
-        createFiles: async (params: {pageId:string}) => {await httpFns.post(`${pageFileKey}/${params.pageId}/create`);return {pageId:params.pageId}},
-        deleteFiles: async (pageId:string) => {await httpFns.delete(`${pageFileKey}/${pageId}`)},
         saveFileContent: async (pageId: string, fileName: string, content: string) => {
           await httpFns.put(`${pageFileKey}/${pageId}/${fileName}`, { content })
         },
@@ -513,7 +511,11 @@ describe('DevState 页面文件闭环', () => {
       const changed=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.find(row=>row['rowid']==='CHILD-A')
       expect(changed).toMatchObject({conType:'page',NavigationUrl:'cfg:new-tool',FunName:'New tool',NavigationImageWxz:'Document'})
       expect(httpFns.put.mock.calls.some(([url])=>String(url).startsWith('project-blueprint:'))).toBe(false)
-      expect(httpFns.post).toHaveBeenCalledWith('designfile:APP-A/new-tool/create')
+      expect(httpFns.post).not.toHaveBeenCalledWith('designfile:APP-A/new-tool/create')
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect(fixture.dataSet.getView('PageToolFilesCommand')?.rows.some(row=>row['action']==='create'&&row['pageId']==='new-tool')).toBe(true)
+      await expect(state.createPageForSelectedNode({pageId:'new-tool',title:'Duplicate',icon:'Document'})).resolves.toBe(false)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
     }finally{ownerScope.stop()}
   })
 
@@ -532,7 +534,32 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('工具绑定保存回执未知时保留页面文件并等待原 DataView 核验',async()=>{
+  it('蓝图绑定明确失败时经原文件 command owner 补偿默认文件，不调用旧删除 gateway',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},false,true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+      httpFns.post.mockClear();httpFns.delete.mockClear()
+      const dataSetSave=vi.spyOn(fixture.dataSet,'saveChanges')
+      await expect(state.createPageForSelectedNode({pageId:'binding-fail',title:'Binding fail',icon:'Document'})).resolves.toBe(false)
+      const actions=fixture.dataSet.getView('PageToolFilesCommand')?.rows.map(row=>row['action'])
+      expect(actions).toContain('compensate')
+      expect(dataSetSave).toHaveBeenCalledTimes(3)
+      expect(dataSetSave.mock.calls[0]?.[0]?.views?.[0]?.tableName).toBe('PageToolFilesCommand')
+      expect(dataSetSave.mock.calls[2]?.[0]?.views?.[0]?.tableName).toBe('PageToolFilesCommand')
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect(pageFiles.remove).toHaveBeenCalledTimes(3)
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('binding-fail/'))).toBe(false)
+      expect(httpFns.post).not.toHaveBeenCalled()
+      expect(httpFns.delete).not.toHaveBeenCalled()
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.find(row=>row['rowid']==='CHILD-A')?.['NavigationUrl']).toBe('')
+    }finally{ownerScope.stop()}
+  })
+
+  it('工具绑定保存回执未知时保留文件与原命令并等待 DataView 核验',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
@@ -543,10 +570,48 @@ describe('DevState 页面文件闭环', () => {
       httpFns.post.mockClear();httpFns.delete.mockClear()
       await expect(state.createPageForSelectedNode({pageId:'uncertain-tool',title:'Uncertain tool',icon:'Document'})).resolves.toBe(false)
       expect(fixture.save).toHaveBeenCalledTimes(1)
-      expect(httpFns.post).toHaveBeenCalledWith('designfile:APP-A/uncertain-tool/create')
+      expect(httpFns.post).not.toHaveBeenCalledWith('designfile:APP-A/uncertain-tool/create')
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect(fixture.dataSet.getView('PageToolFilesCommand')?.rows.some(row=>row['action']==='create'&&row['pageId']==='uncertain-tool')).toBe(true)
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(fixture.dataSet.getView('Base_NavigationInfo')?.hasUnconfirmedSave).toBe(true)
-      expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('工具绑定回执未知，已保留页面文件')
+      expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('工具绑定回执未知，已保留原文件创建命令')
+      const commandId=fixture.dataSet.getView('PageToolFilesCommand')?.rows.find(row=>row['action']==='create')?.['commandId']
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.dataSet.getView('PageToolFilesCommand')?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+    }finally{ownerScope.stop()}
+  })
+
+  it('文件创建回执未知时 Save All 先核验原创建命令，再保存蓝图绑定',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
+      await state.selectNode(node)
+      pageFiles.upload.mockImplementationOnce(async(command)=>{
+        pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+        const error=Object.assign(new Error('timeout after accept'),{name:'RequestError',config:{url:'/file-upload'}})
+        throw error
+      })
+      await expect(state.createPageForSelectedNode({pageId:'file-unknown',title:'File unknown',icon:'Document'})).resolves.toBe(false)
+      const fileView=fixture.dataSet.getView('PageToolFilesCommand')
+      const commandId=fileView?.rows.find(row=>row['action']==='create')?.['commandId']
+      expect(commandId).toBeTruthy()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(pageFiles.upload).toHaveBeenCalledTimes(1)
+      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await state.saveAll()
+      expect(fixture.save).not.toHaveBeenCalled()
+      expect(fileView?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
+      await state.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(fileView?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(4)
+      expect([...pageFiles.files.keys()].filter(key=>key.startsWith('file-unknown/'))).toHaveLength(3)
     }finally{ownerScope.stop()}
   })
 

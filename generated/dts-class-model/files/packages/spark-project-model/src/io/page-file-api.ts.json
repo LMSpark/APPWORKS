@@ -10,32 +10,11 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件保存与编号快照语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace保存三文件或管理N__filename快照。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "PageFileCreateParams",
       "ProjectPageFileGateway",
       "PageFileApi"
     ]
   },
   "$defs": {
-    "PageFileCreateParams": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageFileCreateParams",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "icon": {
-          "type": "string"
-        },
-        "pageId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "pageId"
-      ],
-      "additionalProperties": false
-    },
     "ProjectPageFileGateway": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -64,32 +43,6 @@
           "additionalProperties": false
         },
         "method.saveFileContent.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.createFiles.params": {
-          "type": "object",
-          "properties": {
-            "params": {
-              "$ref": "#/$defs/PageFileCreateParams"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.createFiles.return": {
-          "type": "object",
-          "title": "Promise<Record<string, unknown>>"
-        },
-        "method.deleteFiles.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.deleteFiles.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -198,32 +151,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.createFiles.params": {
-          "type": "object",
-          "properties": {
-            "params": {
-              "$ref": "#/$defs/PageFileCreateParams"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.createFiles.return": {
-          "type": "object",
-          "title": "Promise<Record<string, unknown>>"
-        },
-        "method.deleteFiles.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.deleteFiles.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.listVersions.params": {
           "type": "object",
           "properties": {
@@ -297,46 +224,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.382Z",
+  "generatedAt": "2026-10-26T22:11:07.970Z",
   "models": {
-    "PageFileCreateParams": {
-      "name": "PageFileCreateParams",
-      "jsdoc": "为明确pageId创建三工具文件的真实请求。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "PageFileCreateOptions & {\n    pageId: string;\n}",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "PageFileCreateOptions",
-            "targetName": "PageFileCreateOptions"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "{\n    pageId: string;\n}"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "pageId",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
     "ProjectPageFileGateway": {
       "name": "ProjectPageFileGateway",
       "jsdoc": "宿主真实三文件及编号快照能力；编号最大值不能视为正式发布。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
+        "declarationTypeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -369,61 +268,6 @@
                 },
                 {
                   "name": "content",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "createFiles",
-              "parameters": [
-                {
-                  "name": "params",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageFileCreateParams",
-                    "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "Record",
-                    "typeArguments": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "unknown"
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "deleteFiles",
-              "parameters": [
-                {
-                  "name": "pageId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -624,61 +468,6 @@
                 },
                 {
                   "name": "content",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "createFiles",
-              "parameters": [
-                {
-                  "name": "params",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageFileCreateParams",
-                    "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "Record",
-                    "typeArguments": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "unknown"
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "deleteFiles",
-              "parameters": [
-                {
-                  "name": "pageId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"

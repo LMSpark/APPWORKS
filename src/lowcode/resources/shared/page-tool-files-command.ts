@@ -57,6 +57,7 @@ function confirmedText(text:string|null,expected:string):boolean{return text===e
 /** File resource command owner; page identity and request guard are captured per command. */
 export class PageToolFilesDataView {
   readonly view
+  public get ownerDataSet():DataSet{return this.dataSet}
   readonly #snapshotVersions=new Map<string,number>()
   readonly #snapshotGuards=new Map<string,()=>void>()
   readonly #snapshotAttemptCallbacks=new Map<string,(result:PageToolSnapshotResult)=>void>()
@@ -185,7 +186,12 @@ export class PageToolFilesDataView {
   }
   private async run(action:Action,pageId:string,parentId:string):Promise<string>{
     this.assertCurrent();const parent=parentId.trim();if(!parent)throw new Error('FILE_SCOPE: parentId 不能为空')
-    let created=this.view.rows.find(row=>row['action']===action&&row['parentId']===parent&&(()=>{const key=this.view.getPkKey(row);return key!==undefined&&this.view.dirtyTracking.hasPendingChanges(key)})())
+    const requestedPageId=pageId.trim()
+    const sameRequestedPage=(row:DataRow)=>action!=='create'||!requestedPageId||String(row['pageId']??'')===requestedPageId
+    let created=this.view.rows.find(row=>row['action']===action&&row['parentId']===parent&&sameRequestedPage(row)&&(()=>{const key=this.view.getPkKey(row);return key!==undefined&&(this.view.dirtyTracking.hasPendingChanges(key)||this.#pendingUnknownActions.get(String(key))===action)})())
+    const accepted=this.view.rows.find(row=>row['action']===action&&row['parentId']===parent&&sameRequestedPage(row)
+      &&row['result']===(action==='create'?'created':'compensated')&&(()=>{const key=this.view.getPkKey(row);return key!==undefined&&!this.view.dirtyTracking.hasPendingChanges(key)})())
+    if(!created&&accepted)return String(accepted['pageId']??'')
     if(!created){await this.view.refresh();this.assertCurrent()}
     if(!created){const normalized=pageId.trim()||`child-${crypto.randomUUID()}`
       created=undefined

@@ -17,7 +17,7 @@ import type {
   ProjectBlueprintNodePatch,
 } from '../blueprint/project-blueprint-node'
 import type { ProjectBlueprintGateway } from '../io/project-blueprint-client'
-import type { PageFileCreateOptions, PageToolFileVersionSummary } from '../page/page-file'
+import type { PageToolFileVersionSummary } from '../page/page-file'
 import {
   assertNonEmptyPageId,
   PAGE_TOOL_FILE_NAMES,
@@ -36,62 +36,18 @@ import {
   type ProjectSummary,
 } from '../io/project-reference-client'
 import {
-  normalizeProjectBlueprintTreeNodeData,
   normalizeBlueprintTree,
   resolvePageNodePageId,
 } from '../blueprint/project-blueprint-tree'
 import {
   createBlueprintNodeDraft,
   createBlueprintNodePatch,
-  type BlueprintNodeDraft,
 } from '../blueprint/project-blueprint-edit'
 
 /** Project Page Load Options 的调用配置。 */
 export type ProjectPageLoadOptions = {
     /** force Reload 字段。 */
 forceReload?: boolean
-}
-
-/** 为当前正式节点创建明确pageId工具并绑定cfg目标。 */
-export type CreatePageForSelectedNodeParams = {
-    /** page Id 标识。 */
-pageId: string
-    /** 显示标题。 */
-title?: string
-    /** icon 字段。 */
-icon?: string
-}
-
-/** 工具创建与蓝图节点挂载命令；补偿删除仅在明确启用时执行。 */
-type CreateMountedPageParams = {
-    /** page Id 标识。 */
-pageId: string
-    /** 显示标题。 */
-title?: string
-    /** icon 字段。 */
-icon?: string
-    /** node 字段。 */
-node?: ProjectBlueprintTreeNodeData
-    /** parent Id 标识。 */
-parentId?: string | null
-    /** index 字段。 */
-index?: number
-    /** 蓝图节点挂载失败时是否补偿删除已创建的页面文件。 */
-rollbackPageOnBlueprintFailure?: boolean
-}
-
-/** 明确工具身份的三文件创建请求。 */
-type CreatePageFilesParams = PageFileCreateOptions & {
-    /** page Id 标识。 */
-pageId: string
-}
-
-/** Page Node Create Mounted Result 的返回结果。 */
-export type PageNodeCreateMountedResult = {
-    /** 当前页码。 */
-page: Record<string, unknown>
-    /** node 字段。 */
-node: ProjectBlueprintTreeNodeData
 }
 
 /** 按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。 */
@@ -682,82 +638,6 @@ async deleteNode(nodeId: string): Promise<ProjectBlueprintTreeNodeData | null> {
     return result
   }
 
-    /** 创建 Page For Selected Node。 */
-async createPageForSelectedNode(params: CreatePageForSelectedNodeParams): Promise<PageNodeCreateMountedResult> {
-    const pageId = params.pageId.trim()
-    if (!pageId) {
-      throw new Error('pageId 不能为空')
-    }
-    const selected = this.requireSelectedNode('未选中蓝图节点，无法创建并绑定页面')
-    const pageNode = this.openPage(pageId)
-    const page = await this.createPageFilesForModel(pageNode, {
-      ...(params.title === undefined ? {} : { title: params.title }),
-      ...(params.icon === undefined ? {} : { icon: params.icon }),
-    })
-
-    const previousEditDto = createBlueprintNodeDraft(selected)
-    try {
-      const nextEditDto: BlueprintNodeDraft = { node: { ...previousEditDto.node, kind: 'page', navigation: { title: params.title?.trim() ? params.title.trim() : previousEditDto.node.capability.name, order: previousEditDto.node.navigation?.order ?? 0, publishInMenu: true, showChildren: true, beginGroup: false, ...previousEditDto.node.navigation, target: `cfg:${pageId}`, ...(params.icon ? { icon: params.icon } : {}) } } }
-      this.project.applyBlueprintNodeEdit(nextEditDto)
-      const node = this.project.design.findNodeById(nextEditDto.node.nodeId)
-      if (!node) throw new Error(`项目节点未找到: ${nextEditDto.node.nodeId}`)
-      await this.saveSelectedBlueprintNode()
-      this.project.setActivePage(pageId)
-      return { page, node: this.getSelectedNode() ?? node.toNodeData() }
-    } catch (error) {
-      this.project.applyBlueprintNodeEdit(previousEditDto)
-      const node = this.project.design.findNodeById(previousEditDto.node.nodeId)
-      if (!node) throw new Error(`项目节点未找到: ${previousEditDto.node.nodeId}`)
-      this.project.markBlueprintClean('node')
-      await this.deletePageFilesForModel(pageNode)
-      throw error
-    }
-  }
-
-    /** 创建 Mounted Page。 */
-async createMountedPage(params: CreateMountedPageParams): Promise<PageNodeCreateMountedResult> {
-    const { pageId, ...modelParams } = params
-    const pageNode = this.openPage(pageId)
-    const page = await this.createPageFilesForModel(pageNode, {
-      ...(modelParams.title === undefined ? {} : { title: modelParams.title }),
-      ...(modelParams.icon === undefined ? {} : { icon: modelParams.icon }),
-    })
-    try {
-      const node = await this.mountPageBlueprintNode({ pageId, ...modelParams })
-      await this.reloadBlueprint({ selectedNodeId: node.nodeId })
-      return { page, node }
-    } catch (error) {
-      if (modelParams.rollbackPageOnBlueprintFailure === true) {
-        await this.deletePageFilesForModel(pageNode)
-      }
-      throw error
-    }
-  }
-
-    /** 创建 Page Files。 */
-async createPageFiles(params: CreatePageFilesParams): Promise<Record<string, unknown>> {
-    const { pageId, ...modelParams } = params
-    const pageNode = this.openPage(pageId)
-    const result = await this.createPageFilesForModel(pageNode, {
-      ...(modelParams.title === undefined ? {} : { title: modelParams.title }),
-      ...(modelParams.icon === undefined ? {} : { icon: modelParams.icon }),
-    })
-    this.project.markPageLoadedChanged(pageId, false)
-    return result
-  }
-
-    /** 删除 Page Files。 */
-async deletePageFiles(pageId: string): Promise<void> {
-    const normalized = pageId.trim()
-    const pageNode = this.project.openPageDesign(normalized)
-    await this.deletePageFilesForModel(pageNode)
-    if (this.project.getActivePage()?.pageId === normalized) {
-      this.project.clearActivePage()
-    }
-    this.project.closePageDesign(normalized)
-    this.project.markPageLoadedChanged(normalized, false)
-  }
-
 async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectBlueprintTreeNodeData> {
     if (nodeId.trim().length === 0) {
       throw new Error('nodeId must be a non-empty string')
@@ -838,26 +718,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     return this.requireProjectReferenceClient().listProjectPages(projectId)
   }
 
-  private async mountPageBlueprintNode(params: CreateMountedPageParams): Promise<ProjectBlueprintTreeNodeData> {
-    assertNonEmptyPageId(params.pageId)
-    return this.requireBlueprintOperation('addNode')({
-      ...(params.parentId === undefined ? {} : { parentId: params.parentId }),
-      node: this.defaultMountedPageBlueprintNode(params),
-      ...(params.index === undefined ? {} : { index: params.index }),
-    })
-  }
-
-  private defaultMountedPageBlueprintNode(params: CreateMountedPageParams): ProjectBlueprintTreeNodeData {
-    const pageId = assertNonEmptyPageId(params.pageId)
-    const title = params.title?.trim()
-    const icon = params.icon?.trim()
-    const node = params.node ?? {
-      nodeId: crypto.randomUUID(), parentNodeId: params.parentId ?? this.project.rootNode?.id ?? '', projectId: this.project.projectId,
-      kind: 'page' as const, capability: { name: title !== undefined && title.length > 0 ? title : pageId }, navigation: { title: title !== undefined && title.length > 0 ? title : pageId, icon: icon !== undefined && icon.length > 0 ? icon : 'Document', target: `cfg:${pageId}`, order: params.index ?? 0, publishInMenu: true, showChildren: true, beginGroup: false }, source: {},
-    }
-    return normalizeProjectBlueprintTreeNodeData(node)
-  }
-
   private resolveSelectedPageId(): string {
     const node = this.requireSelectedNode('未选中蓝图节点，无法加载页面')
     if (!resolvePageNodePageId(node)) {
@@ -918,24 +778,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     if (page.getFileText(name) !== baseline || page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_EDIT_DURING_LOAD: ${name} 在装载期间发生编辑`)
     page.hydrateFileText(name, result.data ?? '')
     this.unconfirmedToolSaves.delete(pendingKey)
-  }
-
-  private async createPageFilesForModel(
-    page: PageTool,
-    options: PageFileCreateOptions = {},
-  ): Promise<Record<string, unknown>> {
-    const result = await this.fileApi.createFiles({
-      pageId: page.pageId,
-      ...(options.title === undefined ? {} : { title: options.title }),
-      ...(options.icon === undefined ? {} : { icon: options.icon }),
-    })
-    this.clearPageCache(page.pageId)
-    return result
-  }
-
-  private async deletePageFilesForModel(page: PageTool): Promise<void> {
-    await this.fileApi.deleteFiles(page.pageId)
-    this.clearPageCache(page.pageId)
   }
 
   private async savePageFileFromModel(page: PageTool, name: PageToolFileName, submittedText = page.getFileText(name)): Promise<void> {
@@ -1052,12 +894,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     const page = this.project.getActivePage()
     if (page) return page
     throw new Error(message)
-  }
-
-  private openPage(pageId: string): PageTool {
-    const normalized = pageId.trim()
-    if (!normalized) throw new Error('pageId 不能为空')
-    return this.project.openPageDesign(normalized)
   }
 
   private requireProjectReferenceClient(): ProjectReferenceClient {

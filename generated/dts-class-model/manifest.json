@@ -11308,7 +11308,6 @@
         "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件保存与编号快照语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace保存三文件或管理N__filename快照。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "PageFileCreateParams",
           "ProjectPageFileGateway",
           "PageFileApi"
         ]
@@ -11565,8 +11564,6 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPageLoadOptions",
-          "CreatePageForSelectedNodeParams",
-          "PageNodeCreateMountedResult",
           "ProjectWorkspaceOptions",
           "ProjectWorkspace"
         ]
@@ -17527,10 +17524,6 @@
       "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
       "file": "files/src/services/page-design/page-design-agent-run-provider.ts.json"
     },
-    "CreatePageForSelectedNodeParams": {
-      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
-      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
-    },
     "CreateSimpleInputContractOptions": {
       "sourcePath": "packages/spark-ai/src/agent/business/business-kit.ts",
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json"
@@ -20187,10 +20180,6 @@
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
-    "PageFileCreateParams": {
-      "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
-      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
-    },
     "PageFileReadCommand": {
       "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
       "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
@@ -20206,10 +20195,6 @@
     "PageMode": {
       "sourcePath": "packages/spark-app/src/navigation/useTabPages.ts",
       "file": "files/packages/spark-app/src/navigation/useTabPages.ts.json"
-    },
-    "PageNodeCreateMountedResult": {
-      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
-      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "PageNodeOptions": {
       "sourcePath": "packages/spark-app/src/app/start.ts",

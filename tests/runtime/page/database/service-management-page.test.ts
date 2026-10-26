@@ -3,7 +3,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import {registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
+import {registerAllRenderers, RendererFilter, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
 import {LowcodeDatabaseServer} from '@/lowcode/resources/database/lowcode-database-server'
@@ -76,6 +76,53 @@ describe('service-management-page', () => {
     expect(header).toContain('端口')
     expect(header).not.toMatch(/账号|密码|用户名/)
     expect(table.find('.el-table__body-wrapper').text()).toContain('主库')
+  })
+
+  it('filters the server catalog by name through the bound DataView', async () => {
+    let loaded: DataSet | undefined
+    const originalLoadCatalog = LowcodeDatabaseServer.loadCatalog.bind(LowcodeDatabaseServer)
+    const loadCatalog = vi.spyOn(LowcodeDatabaseServer, 'loadCatalog').mockImplementation(async (...args) => {
+      loaded = await originalLoadCatalog(...args)
+      return loaded
+    })
+    const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    const table = wrapper.findComponent(RendererTable)
+    const filter = wrapper.findComponent(RendererFilter)
+    expect(filter.exists()).toBe(true)
+    const ds = loaded!
+    const view = requireDatabaseServerView(ds)
+    const requestsBeforeSearch = http.requests.filter(request => request.url === '/api/DataOperation/GetData').length
+    filter.vm.filterModel['ServerName'] = '主'
+    await flushPromises()
+    expect(http.requests.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(requestsBeforeSearch)
+    expect(view.filterExpression).toBeUndefined()
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(filter.props('children')).toEqual(expect.arrayContaining([
+      expect.objectContaining({type: 'r-text', props: expect.objectContaining({field: 'ServerName'})}),
+      expect.objectContaining({type: 'r-text', props: expect.objectContaining({field: 'ip_address'})}),
+      expect.objectContaining({type: 'r-select', props: expect.objectContaining({field: 'Type'})}),
+    ]))
+    expect(table.props('filter')).toMatchObject({autoQuery: false})
+    const queryRequests = http.requests.filter(request => request.url === '/api/DataOperation/GetData')
+    expect(queryRequests).toHaveLength(requestsBeforeSearch + 1)
+    expect(view.filterExpression).toEqual({field: 'ServerName', operator: 'contains', value: '主'})
+    const searchedTable = (queryRequests.at(-1)?.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table
+      .find(item => item.Name === 'Base_serverInfo')
+    expect(searchedTable?.Filter).toMatchObject({Field: 'ServerName', ValueFun: {Value: '主'}})
+    expect(table.find('.el-table__body-wrapper').text()).toContain('主库')
+    await filter.findAll('button').find(button => button.text() === '重置')!.trigger('click')
+    await flushPromises()
+    expect(filter.vm.filterModel['ServerName']).toBeUndefined()
+    expect(view.filterExpression).toBeDefined()
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(view.filterExpression).toBeUndefined()
+    const resetRequests = http.requests.filter(request => request.url === '/api/DataOperation/GetData')
+    expect(resetRequests).toHaveLength(requestsBeforeSearch + 2)
+    const resetTable = (resetRequests.at(-1)?.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table
+      .find(item => item.Name === 'Base_serverInfo')
+    expect(resetTable?.Filter).toBeNull()
   })
 
   it('reports missing navigation scenario identity before loading', async () => {

@@ -1718,3 +1718,12 @@ flowchart TD
 - 用户明确提供当前本机测试登录组合后，在 http://127.0.0.1:5273/login 尝试登录。表单租户列表可见“领码科技”；先提交表单当前显示值返回 [1003] 企业信息不存在：领码科技。从当次选项列表显式选中同名“领码科技”再提交，返回 [1004] 用户名或密码有误，界面提示剩4次机会。到此停止，不切换其他租户、不继续猜账号或密码。已清空表单密码字段；用户名与凭据未写入日志/证据文件。
 - 登录未建立，不能继续 TableAndView alias 实页烟测或其他真实 SPA 读回。页面显式错误证明当前本地部署登录目标与提供的组合不匹配/不可用；不能据此判定服务端数据权限或数据库目录能力。
 - **状态：TableAndView alias 在线点击、阶段A设计器真实布局/保存/重开与B2真实命令回执仍待有效 D99A 会话。下一次在线烟测须由用户提供/恢复该本地部署认可的有效登录态；已知无效组合不再重试。** 低价模型只读复核阶段A静态差异后未发现可凭源码安全直接改动的单项缺口；布局与完整闭环必须经SPA实际对照，避免猜改。
+
+## 2026-10-26 数据库服务器目录标准筛选补齐
+
+- 参考仓服务器管理页提供服务器名称、IP地址、类型三个筛选项；当前仓页面已有绑定目录 DataView 和标准 `RendererTable`，但 `RendererTable.filter` 未配置 children，实际没有筛选表单。按既有 `RFilter` / `RendererFilter` ClassModel 与实现合同补齐三个标准字段组件；`autoQuery:false`，用户点“查询”时才经已绑定 DataView 执行查询，重置后再次查询清空条件。没有增设页面查询状态、直接HTTP、第二查询owner或保存路径。
+- 低价实施 RED 原始输出：`node_modules/.cache/server-catalog-search-red.log`，断言因筛选“查询”按钮不存在而失败；GREEN 后目标页面测试 9/9。新增运行时测试验证输入阶段零请求、正式请求 owner `Base_serverInfo` 的 `Filter` 值、DataView 过滤表达式和重置请求 `Filter:null`。实施者 scoped ESLint/typecheck 通过；主控独立复跑目标测试 9/9、数据库目录宿主回归 13 文件189/189、scoped ESLint、`pnpm run typecheck`、`git diff --check` 均通过。测试有现存 renderer registry 重注册 warning 与预期的失败回执夹具日志，不影响通过结果。
+- 实现文件：`src/views/features/data-platform/database-management/ui/service-management-page.vue`；测试：`tests/runtime/page/database/service-management-page.test.ts`。本次未修改公开 ClassModel 声明，无正式生成物需要刷新；无 Java 修改、后端服务启停、线上写入。
+- 参考仓 `DEFAULT_DB_TYPES` 还含 `DM`，当前 `DATABASE_SERVER_TYPE_OPTIONS` 不含 DM；当前服务器目录中曾读到 DM 等类型。类型筛选选项是否应由正式枚举/选项 DataView 消费、及完整类型集合仍需沿正式 SPARK data 元数据源核实。本批保留此差异，不扩写硬编码类型，也不宣称类型筛选已完全覆盖所有服务端值。
+- 当前 D99A 会话登录仍未成功，故此修复只完成源码与夹具级请求验收，未进行部署 SPA 中的筛选点击、服务端过滤结果实测；不能以本地测试代替真实应用证据。
+- **状态：服务器目录名称/IP/类型标准筛选已接入 DataView 并通过本地门禁；DM 等类型选项合同和真实 SPA 端到端结果待核。**

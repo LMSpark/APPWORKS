@@ -1001,7 +1001,7 @@ flowchart TD
 - A3.6验收完成可提交：最终field-create48、独立UI子集2、工作区UI3/352skip，独立审查PASS，typecheck/scoped/full lint、正式生成963、AI-codegen、完整rules刷新后及build均通过。原同DataSet全局abandon残留已清，not-applied与confirmed明确丢弃语义分开；page-thin3→1。真实独立字段填写/取消/重开空值、整个设计器独立重开原3模型/9字段通过，32条API仅查询/文件读取、0次UI持久化。a3-6-acceptance.md/JSON/三截图归档；真实创建删除、未加载保存等阶段A余项仍未核销。
 - A3.6提交核实：b81a6c5d9b50e8345dea938f511ffd9d5005e86d，父2f43753c2，27个明确暂存文件与提交路径逐项一致；提交后工作区干净、ahead11，未推送。继续阶段A未加载保存真实验收，通过CDP只读观察实际页面请求；只改T中SourceScope说明，独立重开确认后恢复原值，原三模型及字段/配置保留。
 - 阶段A未加载保存真实验收PASS（普通模型说明范围）：新实例不展开字段/关系/参数，仅改T SourceScope说明；保存及恢复两个窗口各只有1条Base_DataModel CRUD，Changed仅原ID的description，0新增/删除、0补查、0文件写入；两次独立重开分别确认新值和原值。正式前后3模型/16字段/0关系，字段及关系业务列hash、pagedata原文hash相同，另外2模型不变，目标仅updatetime变化。证据a-unloaded-save-acceptance.md/JSON/三截图。元数据宿主初始化及画布查询不混作保存补查；本项不扩称所有来源均通过。
-- 阶段A整页显示待办（真实烟测发现）：普通模型保存的Loading阶段短暂展示DATA_SPACE_MODEL_CONTEXT及“提交尚未完全确认”，完成后清除并释放状态；记录为显示问题，不把正常正在回读误报未知结果。未修，最终整页审查须覆盖，不能静默核销。
+- 阶段A整页显示待办（真实烟测发现，后续已由A4关闭）：普通模型保存中的已知pending曾短暂展示DATA_SPACE_MODEL_CONTEXT及“提交尚未完全确认”。提交`6040c40bd`已区分已知保存与未知结果；`notes/evidence/metadata-integration-20261024/a4-save-display-acceptance.md`及配套JSON记录两次真实SPA保存中提示正确、无上下文错误/未知警告，独立重开读回原值。本行保留发现历史，不再作为当前未修项。
 - 未加载保存证据提交核实：87632d28cf86f91d4cf487b3001daa756de5eacb，6个明确文档/图证文件，提交后工作区干净、ahead12，未推送。阶段A联合生命周期已开始：只新建T中ContentType临时模型7026EA5EB0FC7DEE00E001C7031E3892，原3模型身份保留；一批新增模型+8字段Code200，精确字段回读9000.1588为8条，布局独立文件保存/回读200。暂未完成来源变更、改名和清理；cache/a-lifecycle-working-evidence.json持续记录。
 - 生命周期新增后发现目录曾显示字段0，但精确新模型回读为8，随后绑定模型的过滤查询不包含该新模型；独立重开为正确的“未加载”。记录为同实例字段加载范围/数量显示待核，不当作数据库字段丢失，不用其他模型查询冒充本模型完整回读。
 - 阶段A生命周期推进：临时模型来源ContentType→shif成功、8字段ID保留；模型改名IntegrationLifecycle_20261024成功；独立字段新增LifecycleComputed_20261024（CDF7370A52E2BCFC47628BF0A68E5555）真实保存及精确回读成功。整个设计器独立重开确认模型ID/来源/新名和9字段，pagedata无该模型绑定、只有新模型布局位置。已到精确删除预览：1模型+9字段、0关系，原3模型均不在清单；按浏览器不可恢复删除操作时确认规则等待用户明确确认，未执行删除。
@@ -1589,3 +1589,11 @@ flowchart TD
 - 当前 SPA 仍停在登录页。本轮没有服务请求、业务写入或资源删除。Windows UI 自动化规范禁止代填网页登录凭据；下一次在线只读诊断需用户在 SPA 手动恢复已授权会话。恢复后只读取可安全复用的测试库目录、精确物理可连接性和正式目标身份；若没有确认安全的目标，继续保留真实登记烟测未验收，不对业务库或备份库试写。
 - 独立只读复核通用 AI 批量新增：`DataColumn.allowAIAdd`、原 DataView/字段权限、独立配置的固定 system prompt、用户可编辑 business prompt、标准组件及原 DataView 暂存/保存链均已有代码与 SPA 证据；未发现新的可安全代码改动。旧 Agent 创建回执 unknown 与旧 turn `CANCELLING` 保持历史待核，不在线重放或清理。
 - **状态：远程整合复核完成；B2与总体整合继续 implementing。当前下一步仍是取得已授权 SPA 会话后进行安全的只读目标诊断；本次无代码实现、无业务烟测、无推送。**
+
+## 2026-10-26 阶段A状态复核与A4历史项核销
+
+- 当前源码与Git历史复核确认A4已关闭：保存中的专用状态由提交`6040c40bd`实现；现有`ModelEditSession.isKnownPendingMutation()`校验目标身份/读取权限，模型面板对通过校验的pending显示“正在保存模型配置…”，无效身份仍走原错误路径。实服摘要和回读证据见`notes/evidence/metadata-integration-20261024/a4-save-display-acceptance.md`与同目录JSON；两次真实保存各仅改目标模型说明，保存中无`DATA_SPACE_MODEL_CONTEXT`/未知警告，独立重开后核对目标值。
+- 本轮重新验证：`pnpm exec vitest run tests/runtime/page/design/native/data-space-model-edit.test.ts`通过26/26；原生设计页面针对“已知模型写入中不显示未知警告”用例通过1/1（同文件另364项按`-t`筛选跳过）。新增RED探针尝试以fixture `holdNextQuery()`暂停普通保存后的模型查询，实际普通模型保存路径未发起该查询、模型视图维持Loaded；探针在进入UI断言前因等待虚构Loading阶段而超时，属测试轨迹错误，不是产品失败。原输出保留在本地`cache/model-save-readback-loading-regression-red-20261026.log`；未保留测试或产品改动。
+- **Ruling:** 不重开A4产品实现；现有正式代码、历史真实SPA证据及本轮测试均指向已关闭。强行增加不存在的保存后查询会改变数据链并引入多余请求。若用户仍观察到不同的Loading窗口，应先取得该窗口的实际请求/状态轨迹，再针对真实路径补RED；代价是某个未覆盖的特殊触发条件可能仍需单独核验。
+- B2数据库“登记已有库”仍未开放实现：正式端点索引中的`/api/Db/registerDB/{serverId}`与参考前端`dbOperateData`命令不一致，部署映射与逐项回执尚无实证。不得因端点索引或Java参考源码直接新增页面HTTP或伪造命令协议；保留为合同缺口，待已授权SPA会话只读诊断后再裁决。
+- **状态：A4历史待办已核销，阶段A其余完整对照/跨实例未知恢复仍开放；B2与总体整合继续 implementing。当前IAB已无SPA标签，在线验证仍需用户恢复登录会话；本轮没有服务请求或业务写入。**

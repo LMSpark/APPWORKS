@@ -1963,3 +1963,10 @@ flowchart TD
 - 在已认证 NewApp SPA 的正式数据空间设计器中只读检查 `Base_NavigationInfo` →“字段呈现”，定位到异常字段 **`MobileUrl`**（说明“移动端地址”，类型 `varchar`，当前勾选输出）。其值函数单元格显示空值，同时提示“值函数原文已保留；格式无效，请明确选择函数修复或清空。”页面运行时错误为 `SPARK 字段 ValueFun ValueFun 缺少 Type`。这把前一节“尚不能从错误别名确定具体原始模型字段”更新为已定位 `MobileUrl`；但 UI 不展示保留的原始配置文本或字段 rowid，不能进一步推断其原始函数内容/来源。
 - 因 `MobileUrl` 是共享模型输出字段，清空或重设会影响该模型所有消费者；既有确认只覆盖七个估算字段输出配置，不包含此字段。本轮未操作“编辑”、未修改模型/视图、未保存配置，也未使用容错跳过正式字段。真实 DataView 接纳及 `c` 权限 action state 烟测仍被此异常阻断。
 - 本轮仅 SPA 只读核验与台账更正；没有直接 API/HTTP、后端 Java、业务数据写入或页面刷新。后续先核对 `MobileUrl` 的原生字段/ValueFun 合同与消费者，再确定不扩大影响面的修复边界；未获授权前保持正式配置不变。整体统一数据链目标继续 active。
+
+### 2026-10-27 MobileUrl 对 DataView 查询接纳的源码复核
+
+- 主控复核低价只读审查结论：蓝图 `BlueprintWorkspaceDataView` 正式绑定 `Base_NavigationInfo@default`，请求字段包含 `MobileUrl`。`captureDataSpaceViewQuery()` 在 `params.projection` 未提供时先从 `view.fieldProjection` 构造全部输出字段并解析每个非空 `ValueFun`，之后才根据 `params.fields` 取子集；因此现有蓝图限定字段列表仍会被共享 `MobileUrl` 的 malformed ValueFun 阻断。这是 DataView 查询选项解析顺序造成的全查询失败，不表示服务端拒绝 `c`。
+- 查询未成功时没有当次 DataView 查询上下文，`fieldAccess`/行操作状态不能据此验证授权。`lowcode-application.ts` 的导航根辅助 `GetData` 会归一化行，但不建立 DataView 查询/权限上下文，不能拿来替代权限烟测。目标模型现有 `catalogBindings` 属另一正式视图但无自引用输出配置；改用它也不能代表当前蓝图 scope。
+- `MobileUrl` 在蓝图运行/编辑中有真实消费者（导航移动端目标），不能直接从业务读取字段清单永久删去来绕开错误。未发现已验证且隔离于正式配置的 SPA 只读投影入口；当前不通过改模型配置、篡改视图或直连请求绕过错误。后续候选是核实字段实际 ValueFun 原文并取得精确修复授权，或在不损失字段业务语义的前提下为 SPARK data 查询建立明确的投影选择先后合同并完成回归；改变共享字段的读取/计算语义须另行评估。
+- 本轮源码复核为只读；没有Java改动、请求、模型配置或业务数据写入。用户凭据已用于重新进入 SPA，测试账号不再是阻断。真实部署 `c` 权限及子节点保存回读仍未验证，整体目标继续 active。

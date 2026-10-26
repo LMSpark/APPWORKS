@@ -2085,3 +2085,12 @@ flowchart TD
 - **验证：**三文件聚焦回归 45 项通过；目标 ESLint、`typecheck`、`verify:pages-config`、`verify:dirs`、全量 `verify:rules`、`build`、`git diff --check` 通过。`verify:rules` 的 AI model spec 扫描有两条既有 warning 和一条 info，扫描与总门禁仍通过；build 存在既有打包器动态导入警告。一次较早 typecheck 抓到测试夹具的可选访问和宽状态类型问题，均已收窄后最终 typecheck 通过。测试运行器会输出 Vue Test Utils 未注册 Element Plus 组件的警告，45 项结果全通过。
 - **SPA 只读复验：**登录的 NewApp/D99A 开发工作台未整页刷新，正式项目蓝图已就绪、41 页。基本信息页只显示节点能力字段；切换“数据空间”页后可见“绑定场景 / 选择场景 / 已保存场景 未绑定”，并显示“请先在当前数据空间中选择并保存一个正式场景”。没有选择候选、编辑、保存或改动正式蓝图/元数据。截图与交互状态仅证明当前 tab 分区和空绑定呈现，不证明 `conid` 写回权限或目录跨切换稳定性。
 - **状态：**六域在 SPA 工作区中的显示域归位已修正；本次不推进绑定写回或旧参考双字段逻辑。`dataSourceId` 正式字段定义及当次权限仍未证实，默认绑定/解绑、多资源创建/清理继续阻断；原型历史与 NavHost 写操作授权、真实 B1 消费、AI新增、预览/导出和工作流文件统一通道等仍按上述条目开放。整体开发工作台蓝图整合与 SPARK data 收敛计划继续 active。本批无业务数据写入、无 Java 改动。
+
+### 2026-10-27 开发工作台唯一数据通道二次审计
+
+- **当前分支复核：**`codex/ai-data-entry` 工作区在上次提交 `cae02cc2f` 后干净，HEAD 与 `origin/codex/ai-data-entry` 一致。此次未修改正式业务配置、蓝图行或 Java。
+- **蓝图读写仍是混合链：**开发工作台 SPA 主树确实经 `PageRuntime → BlueprintWorkspaceDataView → DataView/DataSet.saveChanges` 读取和保存；但 `ProjectWorkspace` 所持 `blueprintGateway` 仍由 `createLowcodeProjectGateways()` 装配，在 `lowcode-runtime.ts` 对 `lowcodeApi.blueprint` 执行读、新增、更新、删除、移动。AI 项目策划使用 `editor.saveAll()` 时仍可触发 `ProjectWorkspace` 的直接蓝图保存逻辑。故“主工作台树主要操作已使用 DataView”不等于“蓝图全部读写唯一走 SPARK data”；不可先删这些方法，必须逐消费者迁移并确认 AI 输出、节点批量保存及回执语义。
+- **文件与导入：**场景定义使用正式 DataSet/DataView；页面三文件普通 `ProjectWorkspace` gateway 与 `PageToolFilesDataView` 命令 owner 并存，命令 owner 内部再调用文件适配器。要逐写入类型核清真实调用和回执，不能把命令行当文件正文，也不能假设跨数据库/文件原子提交。策划附件上传及 `planningAttachmentRef` 绑定当前为显式拒绝实现，不是可运行上传旁路；在有文件资源和引用回读合同前不得重新打开。
+- **需求说明书导出判定：**可用 `LowcodeProjectBlueprintApi.submitDocument()` 只返回 `submitted + legacy-menu-scope`，底层 `/api/File/exportSRS` 没有可见任务 ID 或按身份查询/核验原提交的合同。当前 `bindDataSetCommandSubmit()` 的未知提交需要 `verify`，否则安全重试语义不成立。故没有增加按钮或直接调用接口，避免把请求 ACK 当文件生成成功或未知结果时重复提交。解锁需正式稳定幂等命令身份及可核验回执，且 UI 仍需通过 DataSet command owner 发起。
+- **范围复核与下一步：**(1) 先画出 `ProjectWorkspace` 蓝图 gateway 与活动 DataView owner 的所有消费者/共享状态，再在单一可验证操作上消除重复提交路径；优先不能触发树删除级联的只读消费者，保存则要求按字段权限、未知回执和正式回读验证。(2) 为节点新增/移动/删除保留 DataView 已有守卫；删除在完整子树、引用和文件结果不可证前继续不扩展。(3) 文件资源按三文件保存、快照、创建补偿和删除分别核路径，先消除已被证明可替代的第二写入入口。(4) 策划 AI 附件、文档导出任务、原型历史/NavHost仍等正式资源及幂等/权限/回执合同；不以包一层请求宣称统一。
+- 本次为只读审计，无线上请求或数据写入；没有可安全落地的 SRS 导出实现切片，低价实施者复核后也未改业务代码。**状态：**统一 SPARK data 的目标仍 active；本次新增的 direct blueprint gateway 与双文件写入入口是已证实缺口，逐消费者迁移仍开放。SPA 不刷新、不改 Java，真实在线验收只通过已授权 SPA 和正式 DataView 进行。

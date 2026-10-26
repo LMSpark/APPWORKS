@@ -1931,7 +1931,7 @@ flowchart TD
 ### 2026-10-27 数据逃逸候选复核与 `c` 返回合同答复
 
 - 用户询问服务端返回数据是否可增加子行权限。本仓正式行权限合同已有可选 `lingma_sys_params.c`，仅自引用模型可返回；只有 `c === true` 才允许当前行作为新增子行父节点。`DataSpaceRowPermission.allowAddChild()`、`DataSpaceQueryContext.createChildActionState()` 与 `DataView.createChildActionState()` 已串接消费；根级 `allowAdd` 独立。此为客户端合同事实，不证明当前部署服务实际返回 `c`。
-- 新开 IAB SPA 标签仍被重定向至 `/login`，不能复用用户先前确认的登录态。随后按用户明确提供的本地测试账号在 `127.0.0.1:5273` 执行一次登录，页面实际返回 `[1003] 企业信息不存在：领码科技`；未再次尝试其它租户或账号。当前错误页截图已保留在交互浏览器标签。本次没有采集线上查询回执或执行业务写入，真实部署 `c` 回包核验保持待办。
+- 新开 IAB SPA 标签仍被重定向至 `/login`，不能复用用户先前确认的登录态。随后按用户明确提供的本地测试账号在 `127.0.0.1:5273` 执行一次登录，页面实际返回 `[1003] 企业信息不存在：领码科技`；未再次尝试其它租户或账号。登录页公开企业目录的实际下拉仍包含“领码科技”；源码确认该目录按 `Base_Enterprise_Info.ShortName` 供登录 `entName` 使用。当前 Vite 配置代理目标为 `https://spark.lingmacn.com`。因此目录可见与同目标登录接口拒绝存在服务端/部署状态不一致；不据此猜密码错误或切换租户。错误页截图已保留在交互浏览器标签。本次没有采集线上查询回执或执行业务写入，真实部署 `c` 回包核验保持待办。
 - 低价只读盘点覆盖物理目录预览、workflow 文件、蓝图节点删除/资源及注册命令；主控另独立核对看似可迁移的 legacy layout 读取：它实际由正式 `DataSpaceReferenceLayoutResource` 作为 file DataView 查询，设计会话通过同一视图 `refresh()` 接纳，并校验 `DataSet`/resource identity；其底层 `LowcodeDesignApi` 只是数据资源 owner，不是页面第二查询链。`readRequestScope().token` 已包含所选 application id 与 application revision，已有异步应用切换测试验证旧结果失效，故不构成新缺口或安全迁移候选。
 - 当前没有可在“不改 Java、SPA、唯一 SPARK data API”合同下立即实施且能端到端验证的新增垂直切片。物理预览仍缺任意目录资源的正式模型身份、稳定主键、权限快照和完整分页证据；workflow 文件仍缺目录/文件 DataView 身份与权限/结果接纳合同；蓝图删除仍缺完整子树集合及挂载文件/引用完整性证明。未以 DataView 外壳包装原请求。
 - **状态：**本轮只读复核，无源码/模型/业务数据改动。树新增/编辑的客户端 DataView 实现保持已推送状态；部署端 `c` 实际返回、SPA 保存回读及其它已登记逃逸仍开放。整体数据统一目标继续 active，后续优先取得现有服务合同/已认证 SPA 证据后再开下一项实施。

@@ -104,6 +104,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   omitCountByModel = new Set<string>()
   databasePrimaryKey = 'rowid'
   unregisteredByServer: Record<string, string[]> = {}
+  unregisteredDbBody: unknown = undefined
   unregisteredByDb: Record<string, string[]> = {}
   unregisteredTableBody: unknown = undefined
   unregisteredViewsByDb: Record<string, string[]> = {}
@@ -160,7 +161,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     this.requests.push(config)
     if (config.url?.startsWith('/api/Db/getUnregisteredDb/')) {
       const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))
-      return {data: this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}
+      return {data: this.unregisteredDbBody ?? this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Db/getUnregisteredTable/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredTable/'.length))

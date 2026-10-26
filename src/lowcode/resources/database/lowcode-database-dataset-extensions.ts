@@ -52,7 +52,7 @@ function attachUnregisteredDbNamesView(
     loadRows: async () => {
       const serverId = scalar(dataSet.getTable(tables.commandInput)?.rows[0]?.['serverId'])
       if (!serverId) throw new Error('查询未登记数据库缺少服务器 ID')
-      const response = await http.get<string[]>(`/api/Db/getUnregisteredDb/${encodeURIComponent(serverId)}`)
+      const response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredDb/${encodeURIComponent(serverId)}`), '查询未登记数据库失败')
       if (!Array.isArray(response)) throw new Error('未登记数据库列表响应格式无效')
       return response.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
     },

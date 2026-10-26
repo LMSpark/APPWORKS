@@ -83,6 +83,22 @@ describe('database-catalog-db-view-ops', () => {
     expect(ds.getTable('DatabaseDirectoryUnregisteredViewNames')).toBeUndefined()
   })
 
+  it('accepts the standard AjaxResult envelope for unregistered database names', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const serverView = requireDatabaseCatalogServerView(ds)
+    serverView.setSelectedRows([serverView.rows[0]!])
+    const serverId = databaseCatalogServerSelectedId(serverView)
+    http.unregisteredDbBody = {Code: 200, Message: 'success', Result: ['Staging', 'Archive']}
+
+    const names = await databaseCatalogQueryUnregisteredDbNames(ds, serverId, {
+      commandInput: 'DatabaseDirectoryCommandInput',
+      unregisteredDbNames: 'DatabaseDirectoryUnregisteredDatabaseNames',
+    })
+
+    expect(names).toEqual(['Staging', 'Archive'])
+  })
+
   it('does not invent a database type when the selected server has no readable type', async () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

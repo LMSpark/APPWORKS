@@ -588,9 +588,17 @@
               "type": "object",
               "title": "import(\"vue\").ShallowRef<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined, import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined>"
             },
+            "blueprintPageRuntime": {
+              "type": "object",
+              "title": "import(\"vue\").ShallowRef<import(\"@spark-appworks/spark-project-model\").PageRuntime | undefined, import(\"@spark-appworks/spark-project-model\").PageRuntime | undefined>"
+            },
             "loadBlueprintWorkspaceDataView": {
               "type": "object",
               "title": "() => Promise<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView>"
+            },
+            "loadNavigationDictionaryOptions": {
+              "type": "object",
+              "title": "() => Promise<void>"
             },
             "createPageToolSnapshot": {
               "type": "object",
@@ -784,7 +792,9 @@
             "loadBlueprintTreeFromDataView",
             "refreshBlueprintTreeProjection",
             "blueprintWorkspaceDataView",
+            "blueprintPageRuntime",
             "loadBlueprintWorkspaceDataView",
+            "loadNavigationDictionaryOptions",
             "createPageToolSnapshot",
             "editor",
             "project",

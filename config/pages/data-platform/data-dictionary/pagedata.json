@@ -7,7 +7,11 @@
     },
     "_Base_DictData": {
       "modelBinding": {"modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04", "modelName": "_Base_DictData"},
-      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "valueField": "val", "labelField": "txt", "queryConfig": {"allPages": true}}}
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "valueField": "val", "labelField": "txt", "queryConfig": {"allPages": true}},
+        "NavigationShowType_Content": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt", "filterExpression": {"field": "typeid", "operator": "eq", "value": "6AC2214E0E68E3D0C642A23F7224B666"}, "queryConfig": {"allPages": true, "fields": ["rowid", "typeid", "val", "txt"]}},
+        "Navigationposition": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt", "filterExpression": {"field": "typeid", "operator": "eq", "value": "5BFAFA09FE5D58B02F9994D6712B7098"}, "queryConfig": {"allPages": true, "fields": ["rowid", "typeid", "val", "txt"]}}
+      }
     }
   },
   "resourceRelations": [],

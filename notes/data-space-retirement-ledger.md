@@ -2031,3 +2031,11 @@ flowchart TD
 - **正式生成与门禁：**运行 `pnpm run generate:class-model-surface`，968 个 DTS、1991 个符号、1599 个索引、3178 条语义缺口；`NodeBasicInfo.sections` 声明已进入生成物，Section 文档补齐后语义缺口回到原值。主控最终全仓 `typecheck`、三处改动源/测试 ESLint、`verify:rules`、`pnpm run build` 均通过。构建含既有 bundler 动态导入警告；AI model spec 有 2 项既有 warning 和 1 项 info。
 - **真实 SPA 只读烟测：**NewApp/D99A 已登录工作台热更新后显示七个主标签（六域加本仓扩展），仍显示 41 个页面。已查看基本信息、导航属性、导航宿主和任务信息；导航域真实呈现标题、图标、目标、移动端目标、打开方式、子项布局、菜单显示/排序字段；两个缺资源域显示登记提示。未写入、保存、上传或改变正式蓝图数据。
 - **边界与下一步：**本批只完成信息架构重组，不代表参考项目蓝图所有操作已恢复。后续仍需：为动态字典选项建立正式 DataView 绑定；获得 `Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation` 正式绑定与权限后再实现原型版本和 NavHost；继续核准数据空间改绑、AI新增和导出任务及共享消费者。保持 SPA 与 SPARK data 唯一数据通道；不改、不启动、不部署 Java。整体计划 active。
+
+#### 导航属性动态字典选项 DataView 接线（2026-10-27）
+
+- **实施：**在正式数据字典场景 `69B79AB779DF4C12A5595DACDF3283F1` 的 `_Base_DictData` 下新增隔离只读视图 `NavigationShowType_Content` 与 `Navigationposition`，分别按正式类型 ID 过滤并仅查询 `rowid/typeid/val/txt`。开发工作台 `PageRuntime` 同时拥有蓝图目录 DataSet 和字典编辑场景 DataSet；导航面板的标准 `FieldSelect` 用完整 `场景ID@模型名@视图ID` 绑定当前 `Base_NavigationInfo` 行与选项 DataView。候选查询失败、类型/字段/候选不完整时保持只读并显示错误；所有编辑仍由标准字段组件写入原蓝图 DataView，发出变更后通知既有外部脏态，不引入页面草稿或第二保存器。
+- **主控复核与修正：**确认 `filterExpression` 位于视图顶层、运行时使用真实 `PageRuntime` 的同一 `resolveView` 绑定、工作区释放运行时并隔离项目切换。发现新标准字段需发出 `update:modelValue` 通知外部脏态，已补齐回调及组件合同测试；测试文件移入 `tests/app/dev/blueprint/` 后目录门禁通过。
+- **自动化验证：**目标领域/配置测试最终 81 项通过（含数据空间目录、动态字典视图配置、导航字段绑定与外部脏态通知）；受影响文件 ESLint、全仓 `typecheck`、`verify:pages-config`、`verify:rules`、`generate:class-model-surface` 和 `build` 通过。ClassModel 正式生成 968 个 DTS、1991 个符号、1599 个索引、3178 条语义缺口；规则扫描保留既有 2 条 AI model spec warning、1 条 info。构建保留既有 CodeMirror ineffective dynamic import warning。没有 Java 更改。
+- **真实 SPA 只读烟测：**在原已登录标签恢复开发工作台，正式蓝图回读 41 个页面。进入“导航属性”并切换至“数据空间设计”节点后，动态候选把 `0` 展示为“在模块子级中显示”、`Left` 展示为“居左”，证明正式字典 DataView 已被运行消费。仅切换节点与查看选项标签，未编辑、保存或上传；未验证具备字段写权限节点的下拉交互与保存读回。
+- **状态与后续：**动态字典消费这一项已完成代码闭环并通过只读 SPA 展示；开发工作台按参考项目蓝图的整体实施仍 active。下一步继续取得 `Base_Navigation_Desc_Version` 与 `Base_Navigation_DataRelation` 的正式身份、字段和当次权限证据，再实施原型历史及导航宿主管理；同时继续核准数据空间改绑、AI新增、功能预览/导出及共享消费者。六阶段/扩展的信息架构不等于全业务等价，不能据此宣称整合完成。持续遵守 SPA、唯一 SPARK data 数据通道及不改/不启动/不部署后端 Java。

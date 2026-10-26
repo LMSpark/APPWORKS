@@ -13,7 +13,7 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
     <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability']" /></el-tab-pane>
     <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><el-alert class="domain-note" type="info" :closable="false" title="原型历史资源未绑定，当前仅维护原型描述" /></el-tab-pane>
     <el-tab-pane label="数据空间" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据空间')" /></el-tab-pane>
-    <el-tab-pane label="导航属性" name="navigation"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :state="state" /></el-tab-pane>
+    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="session && state.blueprintPageRuntime.value?.isLoaded"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="state.blueprintPageRuntime.value.instanceId" :state="state" /></template></el-tab-pane>
     <el-tab-pane label="导航宿主" name="nav-host"><el-alert type="warning" :closable="false" title="正式模型绑定未就绪，暂不可编辑导航宿主" /></el-tab-pane>
     <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
     <el-tab-pane label="本仓扩展" name="extensions"><el-tabs v-model="activeExtension" class="extension-tabs"><el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane><el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane><el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane></el-tabs></el-tab-pane>
@@ -30,6 +30,7 @@ import {
   type LowcodeBlueprintFileName,
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
 import PrototypePane from './PrototypePane.vue'
@@ -43,6 +44,7 @@ import NodeLayoutConfig from '../components/NodeLayoutConfig.vue'
 import NodeStateConfig from '../components/NodeStateConfig.vue'
 
 const props = defineProps<{ state: DevState }>()
+const {sparkProvide,sparkRemove}=useSparkComponent({type:'dev-system-blueprint-workspace'})
 const activeStage = ref('basic')
 const activeExtension = ref('estimate')
 const loading = ref(false)
@@ -92,18 +94,22 @@ const estimateAccess = computed(() => {void dataViewRevision.value; return ({
 })})
 const deliveryAccess = computed(() => {void dataViewRevision.value; return access('NavigationUrl').write && access('VersionId').read && access('VersionId').write})
 
-onBeforeUnmount(() => { disposed = true; loadRevision++ })
+onBeforeUnmount(() => { disposed = true; loadRevision++; sparkRemove(PAGE_RUNTIME) })
 
 async function load(): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
   const projectId = props.state.projectId
   if (!nodeId) {session.value=undefined; return}
   const revision = ++loadRevision
+  sparkRemove(PAGE_RUNTIME)
   session.value = undefined
   loading.value = true
   try {
     const current=await props.state.loadBlueprintWorkspaceDataView()
     if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId)return
+    const runtime=props.state.blueprintPageRuntime.value
+    if(!runtime?.isLoaded)throw new Error('蓝图工作区 PAGE_RUNTIME 未就绪')
+    sparkProvide(PAGE_RUNTIME,runtime)
     session.value=current
     await current.load(nodeId)
     if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId){session.value=undefined;return}

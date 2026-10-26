@@ -86,6 +86,8 @@ function formalModels(): FormalModel[] {
       { id: 'nav-funcode', name: 'funCode', type: 'varchar', primaryKey: false },
       { id: 'nav-name', name: 'name', type: 'varchar', primaryKey: false },
       { id: 'nav-url', name: 'NavigationUrl', type: 'varchar', primaryKey: false },
+      { id: 'nav-show-type', name: 'NavigationShowType', type: 'varchar', primaryKey: false },
+      { id: 'nav-horizontal-alignment', name: 'HorizontalAlignment', type: 'varchar', primaryKey: false },
     ] }),
     formalModel({ id: '90A82E287930A234FEC3E687C94A93EAp000', metaName: 'Base_DataSet', primaryKey: 'rowid', fields: [
       { id: 'C29690D7067240CC840539CE0CBEE821', name: 'rowid', type: 'varchar', primaryKey: true },
@@ -157,7 +159,7 @@ class CatalogFixtureHttpClient extends HttpClientBase {
   public navigationRows: Record<string, unknown>[] = [
     { rowid: 'NAV-ROOT', SysId: 'APP-1', conid: null, prowid: '000000', FunName: '元数据管理', name: '', NavigationUrl: '' },
     { rowid: 'NAV-GROUP', SysId: 'APP-1', conid: null, prowid: 'NAV-ROOT', FunName: '', name: '目录配置', NavigationUrl: null },
-    { rowid: 'NAV-BOUND', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-GROUP', FunName: '数据空间管理', funCode: 'DATA-SPACE-MANAGE', name: 'DataSetManage',
+    { rowid: 'NAV-BOUND', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-GROUP', FunName: '数据空间管理', funCode: 'DATA-SPACE-MANAGE', name: 'DataSetManage', NavigationShowType:'0', HorizontalAlignment:'Left',
       NavigationUrl: 'vue:/features/data-platform/data-set-management/ui/data-set-list-page' },
     { rowid: 'NAV-BOUND-2', SysId: 'APP-1', conid: 'DATASET-1', prowid: 'NAV-ROOT', FunName: '服务管理', name: '', NavigationUrl: null },
     { rowid: 'NAV-OTHER', SysId: 'APP-1', conid: 'DATASET-OTHER', prowid: 'NAV-ROOT', FunName: '其它功能', name: '', NavigationUrl: '' },
@@ -515,6 +517,42 @@ const ElementDialogStub = defineComponent({
 })
 
 describe('blueprint tree DataView move draft', () => {
+  it('keeps the formal currentRow pointer aligned with selected node identity and its edit overlay through cancel', async () => {
+    const fixture=await createCatalogScriptFixture({},http=>{http.navigationEditableFields=['NavigationShowType','HorizontalAlignment'];http.navigationResponseRows=[http.navigationRows.find(row=>row['rowid']==='NAV-BOUND')!]})
+    const session=new BlueprintWorkspaceDataView(fixture.blueprintDataSet,'APP-1',()=>{})
+    await session.load('NAV-BOUND')
+    expect(session.view.currentRow).toBe(session.row)
+    expect(session.view.currentRow?.['rowid']).toBe('NAV-BOUND')
+    session.view.updateEditingValue('NAV-BOUND','NavigationShowType','1')
+    expect(session.view.getEditingRow('NAV-BOUND')?.['NavigationShowType']).toBe('1')
+    session.cancel()
+    expect(session.view.getEditingRow('NAV-BOUND')?.['NavigationShowType']).not.toBe('1')
+    fixture.http.navigationResponseRows=[fixture.http.navigationRows.find(row=>row['rowid']==='NAV-GROUP')!]
+    await session.load('NAV-GROUP')
+    expect(session.view.currentRow).toBe(session.row)
+    expect(session.view.currentRow?.['rowid']).toBe('NAV-GROUP')
+    session.view.updateEditingValue('NAV-GROUP','HorizontalAlignment','Center')
+    expect(session.view.getEditingRow('NAV-GROUP')?.['HorizontalAlignment']).toBe('Center')
+    session.cancel()
+    expect(session.view.getEditingRow('NAV-GROUP')?.['HorizontalAlignment']).not.toBe('Center')
+    expect(fixture.http.saveRequests).toHaveLength(0)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('keeps field read and write decisions on the selected formal row', async()=>{
+    const fixture=await createCatalogScriptFixture({},http=>{http.navigationEditableFields=['NavigationShowType'];http.navigationHiddenFields=['HorizontalAlignment'];http.navigationResponseRows=[http.navigationRows.find(row=>row['rowid']==='NAV-BOUND')!]})
+    const session=new BlueprintWorkspaceDataView(fixture.blueprintDataSet,'APP-1',()=>{})
+    await session.load('NAV-BOUND')
+    expect(session.canRead('NavigationShowType')).toBe(true)
+    expect(session.canWrite('NavigationShowType')).toBe(true)
+    expect(session.canRead('HorizontalAlignment')).toBe(false)
+    expect(session.canWrite('HorizontalAlignment')).toBe(false)
+    expect(()=>session.update('HorizontalAlignment','Center')).toThrow('当前查询权限不允许写入')
+    expect(session.dirty).toBe(false)
+    expect(fixture.http.saveRequests).toHaveLength(0)
+    fixture.pageRuntime.dispose()
+  })
+
   it('preflights every affected row, rejects unauthorized siblings without partial edits, and detects descendant cycles', async () => {
     const fixture = await createCatalogScriptFixture({}, http => {
       http.navigationEditableFieldsByRow = {

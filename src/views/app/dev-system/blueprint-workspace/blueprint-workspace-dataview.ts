@@ -97,11 +97,13 @@ export class BlueprintWorkspaceDataView {
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     this.#nodeId = targetNodeId
     this.#row = undefined
+    this.view.setCurrentRow(null)
     if(this.#treeQueryLoaded){
       const row=this.view.rows.find(candidate=>candidate['rowid']===targetNodeId&&candidate['SysId']===this.#projectId)
       if(!row)throw new Error(`蓝图 DataView 项目树未返回目标行 ${targetNodeId}`)
       if(this.view.fieldAccess(row,'rowid').read!=='visible'||this.view.fieldAccess(row,'SysId').read!=='visible')throw new Error('蓝图 DataView 当前行身份不可读')
       this.#row=row
+      this.view.setCurrentRow(row)
       return
     }
     if(this.view.mutating)throw new Error('蓝图 DataView 正在保存；旧目标结果已失效')
@@ -128,6 +130,7 @@ export class BlueprintWorkspaceDataView {
       throw new Error('蓝图 DataView 返回了身份不匹配或不可读的目标行')
     }
     this.#row = row
+    this.view.setCurrentRow(row)
   }
 
   /** Load the displayed tree through the same bound DataView owner used by edits. */
@@ -141,6 +144,7 @@ export class BlueprintWorkspaceDataView {
       await this.queryProjectRows(revision,selectedNodeId)
       this.#treeQueryLoaded=true
       this.#row=this.view.rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
+      this.view.setCurrentRow(this.#row??null)
       return this.treeProjection()
     }catch(error){this.#treeQueryLoaded=false;throw error}
   }
@@ -156,6 +160,7 @@ export class BlueprintWorkspaceDataView {
     const rows=await this.queryProjectRows(revision,selectedNodeId)
     this.#treeQueryLoaded=true
     this.#row=rows.find(row=>row['rowid']===selectedNodeId)
+    this.view.setCurrentRow(this.#row??null)
     try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
     const byId=new Map(rows.map(row=>[String(row['rowid']),row]))
     const moving=byId.get(nodeKey);if(!moving)throw new Error(`蓝图 DataView 未返回待移动节点 ${nodeKey}`)
@@ -193,6 +198,7 @@ export class BlueprintWorkspaceDataView {
     for(const [row,patch] of patches){const id=this.view.getPkKey(row);if(id===undefined)throw new Error('蓝图 DataView 行缺少正式主键');for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(id,field,value)}
     // Moving a non-selected tree row must never retarget the detail editor.
     this.#row=rows.find(row=>row['rowid']===selectedNodeId)
+    this.view.setCurrentRow(this.#row??null)
   }
 
   /** Create an unmounted root module through the current formal Base_NavigationInfo query owner. */
@@ -524,6 +530,7 @@ export class BlueprintWorkspaceDataView {
       .filter(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))
     this.view.discardPendingChanges(ids)
     this.#row=this.view.rows.find(candidate=>candidate['rowid']===this.#nodeId&&candidate['SysId']===this.#projectId)
+    this.view.setCurrentRow(this.#row??null)
   }
 
   public async save(): Promise<void> {await this.saveIds()}

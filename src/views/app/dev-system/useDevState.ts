@@ -36,11 +36,12 @@ import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shel
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import type {DataView} from '@spark-appworks/spark-data'
-import type {DataSet} from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 import type {PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
@@ -151,7 +152,7 @@ export function useDevState() {
   const externalDataViewRevision = ref(0)
   const externalDataViewSessions = new Set<ExternalDataViewSession>()
   const blueprintWorkspaceDataView = shallowRef<BlueprintWorkspaceDataView>()
-  let blueprintWorkspaceDataSet: DataSet | undefined
+  const blueprintPageRuntime = shallowRef<PageRuntime>()
   let pageToolFilesDataView:PageToolFilesDataView|undefined
   let blueprintWorkspaceLoad: Promise<BlueprintWorkspaceDataView> | undefined
   let blueprintWorkspaceLoadRevision=0
@@ -161,7 +162,7 @@ export function useDevState() {
     unregisterBlueprintWorkspaceSession?.();unregisterBlueprintWorkspaceSession=undefined
     blueprintWorkspaceDataView.value?.dispose();blueprintWorkspaceDataView.value=undefined
     pageToolFilesDataView=undefined
-    blueprintWorkspaceDataSet?.destroy();blueprintWorkspaceDataSet=undefined
+    blueprintPageRuntime.value?.dispose();blueprintPageRuntime.value=undefined
     blueprintWorkspaceLoad=undefined
     externalDataViewRevision.value++
   }
@@ -171,16 +172,29 @@ export function useDevState() {
     if(blueprintWorkspaceLoad)return blueprintWorkspaceLoad
     const revision=++blueprintWorkspaceLoadRevision
     const loading=(async()=>{
-      const dataSet=await loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY})
-      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace){dataSet.destroy();throw new Error('蓝图 DataView 项目作用域已切换')}
-      const session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>{
-        if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已失效')
-      })
-      pageToolFilesDataView=new PageToolFilesDataView(dataSet,projectKey,createPageToolFilesIo(projectKey),()=>{
-        if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('page-tool-files scope 已失效')
-      })
+      const runtime=new PageRuntime({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+        loadScenario:async scenarioId=>{
+          const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已切换')}
+          assertCurrent()
+          if(scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY)return loadLowcodeRuntimeScenario({projectId:projectKey,scenarioId})
+          if(scenarioId===LowcodeDictionary.editorScenarioId)return (await LowcodeDictionary.loadEditor()).dataSet
+          throw new Error(`蓝图运行时未声明场景 ${scenarioId}`)
+        }})
+      try{await runtime.load()}catch(error){runtime.dispose();throw error}
+      const dataSet=runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+      if(!dataSet){runtime.dispose();throw new Error('蓝图运行时缺少正式目录DataSet')}
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace){runtime.dispose();throw new Error('蓝图 DataView 项目作用域已切换')}
+      let session:BlueprintWorkspaceDataView
+      try{
+        session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>{
+          if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('蓝图 DataView 项目作用域已失效')
+        })
+        pageToolFilesDataView=new PageToolFilesDataView(dataSet,projectKey,createPageToolFilesIo(projectKey),()=>{
+          if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('page-tool-files scope 已失效')
+        })
+      }catch(error){runtime.dispose();throw error}
       const fileOwner=pageToolFilesDataView
-      blueprintWorkspaceDataSet=dataSet;blueprintWorkspaceDataView.value=session
+      blueprintPageRuntime.value=runtime;blueprintWorkspaceDataView.value=session
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
@@ -191,6 +205,24 @@ export function useDevState() {
     })().finally(()=>{if(blueprintWorkspaceLoad===loading)blueprintWorkspaceLoad=undefined})
     blueprintWorkspaceLoad=loading
     return loading
+  }
+  async function loadNavigationDictionaryOptions():Promise<void>{
+    const runtime=blueprintPageRuntime.value
+    if(!runtime?.isLoaded)throw new Error('导航字典候选所需 PAGE_RUNTIME 未就绪')
+    const projectKey=projectId.value,revision=blueprintWorkspaceLoadRevision
+    const scenarioId=LowcodeDictionary.editorScenarioId
+    for(const [viewId,typeId,expected] of [
+      ['NavigationShowType_Content','6AC2214E0E68E3D0C642A23F7224B666',['0','1']],
+      ['Navigationposition','5BFAFA09FE5D58B02F9994D6712B7098',['Left','Center','Right']],
+    ] as const){
+      const view=runtime.resolveView(`${scenarioId}@_Base_DictData@${viewId}`)
+      if(!view)throw new Error(`导航字典视图缺失 ${viewId}`)
+      if(view.rows.length===0){await view.refresh();if(blueprintPageRuntime.value!==runtime||runtime.destroyed||projectId.value!==projectKey||blueprintWorkspaceLoadRevision!==revision||view.destroyed)throw new Error('导航字典候选查询已因项目切换失效');if(view.loadingError)throw view.loadingError}
+      const rows=view.rows
+      if(rows.length!==expected.length||rows.some(row=>row['typeid']!==typeId||['typeid','val','txt'].some(field=>view.fieldAccess(row,field).read!=='visible')))throw new Error(`导航字典 ${viewId} 返回候选不完整或字段不可读`)
+      const values=rows.map(row=>String(row['val']))
+      if(expected.some(value=>!values.includes(value)))throw new Error(`导航字典 ${viewId} 候选值不符合正式映射`)
+    }
   }
   /**
    * 通过当前蓝图运行 DataSet 中的 file 命令视图创建并回读工具快照。
@@ -1481,7 +1513,9 @@ export function useDevState() {
     loadBlueprintTreeFromDataView,
     refreshBlueprintTreeProjection,
     blueprintWorkspaceDataView,
+    blueprintPageRuntime,
     loadBlueprintWorkspaceDataView,
+    loadNavigationDictionaryOptions,
     createPageToolSnapshot,
 
     editor,

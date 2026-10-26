@@ -1,13 +1,14 @@
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.vue'
 import type { DevState } from '@/views/app/dev-system/useDevState'
 
 describe('NodeStateConfig navigation display attributes', () => {
-  it('edits display mode and horizontal alignment through the existing navigation draft', async () => {
+  it('binds navigation display attributes to formal option views and refreshes external dirty state', async () => {
     const access = vi.fn(() => ({ read: true, write: true }))
-    const markBlueprintDirty = vi.fn()
+    const notifyExternalDataViewChanged = vi.fn()
+    const loadNavigationDictionaryOptions = vi.fn(async () => {})
     const state = {
       blueprintDraft: {
         navigation: {
@@ -16,32 +17,35 @@ describe('NodeStateConfig navigation display attributes', () => {
         },
       },
       blueprintNodeFieldAccess: access,
-      markBlueprintDirty,
+      notifyExternalDataViewChanged,
+      loadNavigationDictionaryOptions,
     }
-    const Input = defineComponent({
-      props: { modelValue: { type: String, default: '' }, disabled: Boolean },
-      emits: ['update:modelValue', 'change'],
-      template: '<input :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" @change="$emit(\'change\', $event.target.value)" />',
+    const FieldSelectStub = defineComponent({
+      props: { dataViewKey: String, dataMember: String, dataField: String, optionDataViewKey: String, optionValueField: String, optionLabelField: String, readonly: Boolean },
+      emits: ['update:modelValue'],
+      template: '<button :data-field="dataField" :disabled="readonly" />',
     })
     const FormItem = defineComponent({ props: { label: String }, template: '<label>{{ label }}<slot /></label>' })
     const wrapper = mount(NodeStateConfig, {
       props: { state: state as unknown as DevState },
-      global: { stubs: { ElDivider: true, ElFormItem: FormItem, ElInput: Input, ElSwitch: true, ElInputNumber: true } },
+      global: { stubs: { ElDivider: true, ElFormItem: FormItem, ElAlert: true, FieldSelect: FieldSelectStub, ElInput: true, ElSwitch: true, ElInputNumber: true } },
     })
 
-    const fields = wrapper.findAllComponents(Input)
-    expect(fields.map(field => field.element.getAttribute('value'))).toEqual(['compact', 'center'])
+    await nextTick()
+    await Promise.resolve()
+    await nextTick()
+    expect(loadNavigationDictionaryOptions).toHaveBeenCalledOnce()
+    const fields = wrapper.findAllComponents(FieldSelectStub)
+    expect(fields.map(field => field.props('dataField'))).toEqual(['NavigationShowType', 'HorizontalAlignment'])
+    expect(fields[0]?.props()).toMatchObject({dataMember: 'currentRow', optionValueField: 'val', optionLabelField: 'txt', readonly: false})
+    expect(fields[0]?.props('optionDataViewKey')).toContain('NavigationShowType_Content')
+    expect(fields[1]?.props('optionDataViewKey')).toContain('Navigationposition')
     expect(access).toHaveBeenCalledWith('NavigationShowType')
     expect(access).toHaveBeenCalledWith('HorizontalAlignment')
 
-    await fields[0]!.setValue('wide')
-    await fields[0]!.trigger('change')
-    await fields[1]!.setValue('right')
-    await fields[1]!.trigger('change')
-
-    expect(state.blueprintDraft.navigation.displayMode).toBe('wide')
-    expect(state.blueprintDraft.navigation.horizontalAlignment).toBe('right')
-    expect(markBlueprintDirty).toHaveBeenCalledTimes(2)
+    fields[0]!.vm.$emit('update:modelValue', '1')
+    fields[1]!.vm.$emit('update:modelValue', 'Right')
+    expect(notifyExternalDataViewChanged).toHaveBeenCalledTimes(2)
     wrapper.unmount()
   })
 
@@ -49,18 +53,19 @@ describe('NodeStateConfig navigation display attributes', () => {
     const state = {
       blueprintDraft: { navigation: { displayMode: 'compact', horizontalAlignment: 'center' } },
       blueprintNodeFieldAccess: (field: string) => ({ read: field !== 'NavigationShowType', write: false }),
-      markBlueprintDirty: vi.fn(),
+      notifyExternalDataViewChanged: vi.fn(),
+      loadNavigationDictionaryOptions: vi.fn(async () => {}),
     }
-    const Input = defineComponent({ props: { modelValue: String, disabled: Boolean }, template: '<input :disabled="disabled" />' })
+    const FieldSelectStub = defineComponent({ props: { dataField: String, readonly: Boolean }, template: '<input :data-field="dataField" :disabled="readonly" />' })
     const FormItem = defineComponent({ props: { label: String }, template: '<label>{{ label }}<slot /></label>' })
     const wrapper = mount(NodeStateConfig, {
       props: { state: state as unknown as DevState },
-      global: { stubs: { ElDivider: true, ElFormItem: FormItem, ElInput: Input, ElSwitch: true, ElInputNumber: true } },
+      global: { stubs: { ElDivider: true, ElFormItem: FormItem, ElAlert: true, FieldSelect: FieldSelectStub, ElInput: true, ElSwitch: true, ElInputNumber: true } },
     })
 
     expect(wrapper.text()).not.toContain('显示方式')
     expect(wrapper.text()).toContain('水平对齐')
-    expect(wrapper.findComponent(Input).props('disabled')).toBe(true)
+    expect(wrapper.findComponent(FieldSelectStub).props('readonly')).toBe(true)
     wrapper.unmount()
   })
 })

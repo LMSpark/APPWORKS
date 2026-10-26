@@ -2010,3 +2010,11 @@ flowchart TD
 - **整合实施顺序：**(1) 逐操作核参考字段/资源/调用者/取消及失败行为，并映射到 `Base_NavigationInfo` 和现有 DataSpace/资源 DataView；(2) 先按 SPA 和标准组件重组为参考六域信息层级，保留估算、交付、AI 审批等本仓能力；(3) 每个缺失领域操作分别接入获正式身份及授权证据的 DataView/命令 owner，文件和数据库命令分别确认，不假设事务；(4) 页面与 AI/导出消费者共享同一 owner，删除业务层直接 API 旁路；(5) 自动化覆盖节点切换、取消、失权、旧请求、分资源部分成功，再逐项做已认证 SPA 只读或明确批准的写回读烟测。
 - 当前正在实施的 `BlueprintWorkspace.vue` 文件快照命令 DataView 化是“开发交付”阶段的一个具体逃逸项，不等于参考蓝图工作台整体整合完成。实现者为低价模型；主控继续审合同、SPA 烟测并逐批更新本台账。
 - 本轮参考对照仅读源码，未执行应用内读写或 Java 操作。**状态：**开发工作台整合范围已按参考行为拆清，整体未完成；继续以本台账为唯一计划。
+
+#### 原型历史与导航宿主的正式资源合同补查
+
+- 实际参考 API 对原型历史版本 `Base_Navigation_Desc_Version` 按 `prowid` 查询 `{rowid,prowid,VersionName,desc}`，新增 `{prowid,VersionName,desc}`，删除以 `rowid` 定位；应用版本会把其 `desc` 写回当前 `Base_NavigationInfo.htmlDesc`。当前内容保存与历史记录新增是两个独立提交，不能伪装为事务。参考代码识别的字段名不证明本仓正式字段类型、主键或权限。
+- 参考导航宿主读取/写入 `Base_Navigation_DataRelation`，字段语义含当前节点 `prowid`、宿主参数、目标数据空间、模型/物理来源名称、值/文本/父字段及参数处理方式；下游运行菜单把该关系投影为 `dataMenus` resource/fields/routeParameters。它不是项目蓝图树边，也不是本仓 `DataResourceRelation` 或 DataView cascade。
+- 核对本仓 `config/pages/application/project-blueprint/pagedata.json` 的正式场景绑定，目前仅有 `Base_NavigationInfo`（`default` 与 `catalogBindings`）；`Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation` 均未绑定。`config/pages/data-platform/data-space-catalog/pagedata.json` 也未声明两模型；全仓源码/测试未发现这两模型的本仓业务 DataView owner。
+- **当前阻断与最小落地条件：**原型历史和导航宿主管理暂不能直接加业务界面/命令；须先用正式数据空间/元数据 DataView 读到两模型绑定 ID、字段定义和当前查询输出权限，再由当次 DataView 的行/字段权限判定读写；保持每条记录以父节点身份过滤、旧请求切换失效、文件/数据库等资源回执分开。不得从参考列名猜 `modelId`、字段类型、主键、required/output 或运行授权，也不得通过直连参考 API 实施。
+- **下一批顺序：**继续完成当前开发交付快照命令的 DataView 收敛；之后优先复核本仓已有 `Base_NavigationInfo` DataView 字段，补齐无需新增模型绑定的参考导航属性，并按参考六域重组工作区信息层级。原型版本和 NavHost 在正式绑定/授权证据取得前登记为待解锁；数据空间权限页面保持本仓 0.3 暂缓边界，任务信息维持真实缺口。

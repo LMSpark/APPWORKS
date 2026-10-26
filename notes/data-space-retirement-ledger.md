@@ -1823,3 +1823,10 @@ flowchart TD
 - **执行记录：**当前仓库活动源码的逃逸分类至少包含：物理目录预览原始 GetData、蓝图页面行记录的独立 draft/lowcode API（其底层虽是正式 DataSpace query/save owner）、蓝图运行时树操作未经共享 DataView 状态、AI 工作流目录/文件直读，以及应用级关系依赖字典候选 helper。它们语义不同，不能只用 grep/直接 HTTP 数量判定；登记/目录命令等已由 DataSet 命令视图承接的 HTTP 属于资源 owner 内部提交实现，不算页面第二套编辑状态，但仍须逐项核身份/权限/回执。
 - **Ruling：**先补 SPARK data 的真实资源合同，再逐类收敛页面消费。当前物理预览、workflow file 与无场景身份的应用级关系依赖查询均不具备已验证的统一接入合同；蓝图仍须先获得实际 DataView 的估算字段输出/权限读回。禁止将原 HTTP/LowcodeClient 调用简单包装成 `DataView` 即宣称统一，也不以修改 Java 或人工补造模型、主键、授权快照解阻。
 - **状态：**本轮远程更新后 `HEAD=3723a93d77d5a62c9f8e095781f3769a79f6a5a7`，工作树干净且与 `origin/codex/ai-data-entry` 同步；当前没有安全的单项代码迁移可以在缺失服务合同的情况下成立。SPA 登录本地仍返回企业信息不存在，真实权限/响应烟测未恢复。该次为只读审计及台账更新；没有改业务代码、正式数据或 Java。统一 DataSet 入口仍是开放的核心架构工作，整体计划继续 implementing。
+
+## 2026-10-26 蓝图估算输出授权与 DataView 迁移启动
+
+- 用户明确批准将 `Base_NavigationInfo` 的 `DifficultyFactor`、`Manhour`、`Number`、`Sum`、`Total`、`personCharge`、`status` 七列设为共享模型输出列，授权范围仅是这些字段；变更仍须通过正式 SPARK data / DataView 模型设计写入，并在写入前核对字段身份及可编辑权限。不得推及其他字段或用 Java/原始 HTTP 修改。
+- 根源码复核确认 `DataSpaceRuntimeApi.queryColumns()` 与 `query()` 均使用 `DataSpaceDesignApi.resolveOutputFields(model)`；显式查询字段只能在正式输出集合内解析。因此，将七列手工加到页面 DataTable 或通过模型元数据外围绕开 IsOutput 会违反现有查询合同。此前 SPA 设计页见到的这七列定义及 IsOutput 未选状态仍是部署配置证据，不等于本轮已经变更。
+- 低价实施者重新启动 BlueprintWorkspace 迁移，范围为选中节点通过 `Base_NavigationInfo` DataSet/DataView 完成读取、编辑、取消与显式保存；现有发布文件上传、版本快照和导航指针边界保留。本轮尚未改源码或正式模型；代码先通过测试落实，模型写入与真实权限核验由主控在可用正式会话中执行。
+- **状态：**用户授权已解除“是否扩大共享模型输出”的产品决策阻塞，蓝图迁移进入实施；七列实际字段输出/读写权限、模型保存读回、DataSet 页面烟测仍未完成。本地浏览器目前只有未登录 SPA 页面；不将来源码或 fixture 当成部署验证。物理预览与 workflow file 的公共资源合同缺口仍开放，其他 DataSet 逃逸项继续按优先级处理。本节只记录决策及源码证据，没有写入正式模型、业务数据或 Java。

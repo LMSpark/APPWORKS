@@ -458,8 +458,8 @@ constructor(options: DynamicRouterOptions) {
     platformNavTree: RuntimeNavigation | null,
     publicNavTree: RuntimeNavigation | null,
   ): void {
-    const routeOwners = new Map<string, string[]>()
-    const aliasDeclarations: Array<Readonly<{canonicalPath: string; nodeId: string; aliases: readonly string[]}>> = []
+    const routeOwners = new Map<string, Array<Readonly<{nodeId: string; scope: string | undefined; component: unknown; isPage: boolean}>>>()
+    const aliasDeclarations: Array<Readonly<{canonicalPath: string; nodeId: string; scope: string | undefined; component: unknown; aliases: readonly string[]}>> = []
     const scopes: Array<Readonly<{tree: RuntimeNavigation; options: RouteRegistrationOptions}>> = []
     if (publicNavTree) scopes.push({tree: publicNavTree, options: {skipTenantPrefix: true}})
     if (tenantNavTree) scopes.push({tree: tenantNavTree, options: {}})
@@ -471,13 +471,14 @@ constructor(options: DynamicRouterOptions) {
         if (target.kind === 'route') {
           const relativePath = this.normalizePath(target.path.split(/[?#]/, 1)[0] ?? '')
           const routePath = this.mapNavigationRoutePath(relativePath, options)
-          routeOwners.set(routePath, [...(routeOwners.get(routePath) ?? []), node.id])
           const component = this.staticComponentMap.get(relativePath)
+          routeOwners.set(routePath, [...(routeOwners.get(routePath) ?? []), {nodeId: node.id,
+            scope: options.systemPageScope, component, isPage: target.routeKind === 'page'}])
           const aliases = target.routeKind === 'page' && component !== undefined
             ? this.staticComponentAliases.get(relativePath) ?? []
             : []
           if (aliases.length > 0) {
-            aliasDeclarations.push({canonicalPath: routePath, nodeId: node.id,
+            aliasDeclarations.push({canonicalPath: routePath, nodeId: node.id, scope: options.systemPageScope, component,
               aliases: aliases.map(alias => this.mapNavigationRoutePath(alias, options))})
           }
         }
@@ -487,11 +488,21 @@ constructor(options: DynamicRouterOptions) {
     for (const {tree, options} of scopes) visit(tree.items, options)
 
     const aliasPaths = new Set<string>()
+    const checkedCanonicalPaths = new Set<string>()
     for (const declaration of aliasDeclarations) {
       const canonicalOwners = routeOwners.get(declaration.canonicalPath) ?? []
-      if (canonicalOwners.length !== 1 || canonicalOwners[0] !== declaration.nodeId) {
+      const declarations = aliasDeclarations.filter(item => item.canonicalPath === declaration.canonicalPath)
+      const sameAliasSet = (left: readonly string[], right: readonly string[]) => left.length === right.length
+        && left.every((value, index) => value === right[index])
+      if (canonicalOwners.length === 0 || new Set(canonicalOwners.map(owner => owner.nodeId)).size !== canonicalOwners.length
+        || canonicalOwners.some(owner => !owner.isPage || owner.scope !== declaration.scope || owner.component !== declaration.component)
+        || declarations.length !== canonicalOwners.length
+        || declarations.some(item => item.scope !== declaration.scope || item.component !== declaration.component
+          || !sameAliasSet(item.aliases, declaration.aliases))) {
         throw new Error(`系统页面 alias 正式 owner 不唯一：${declaration.canonicalPath}`)
       }
+      if (checkedCanonicalPaths.has(declaration.canonicalPath)) continue
+      checkedCanonicalPaths.add(declaration.canonicalPath)
       for (const aliasPath of declaration.aliases) {
         if (routeOwners.has(aliasPath) || aliasPaths.has(aliasPath)) {
           throw new Error(`系统页面 alias 路径冲突：${aliasPath} 已由正式路由占用`)

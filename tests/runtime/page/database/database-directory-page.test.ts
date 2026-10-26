@@ -526,7 +526,7 @@ describe('database directory page', () => {
     await selectRow(tables[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`)
+    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`, tableViewNode)
   })
 
   it('resolves a cross-module duplicate only within the current host branch', async () => {
@@ -536,13 +536,15 @@ describe('database directory page', () => {
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`)
+    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`, tableViewNode)
   })
 
   it('navigates through real useNavigation and DynamicRouter with node identity and databaseId', async () => {
     const source = {...directoryNode, blueprintScenarioId: DATABASE_TABLE_VIEW_SCENARIO_ID}
     const selectedTarget = {...tableViewNode, blueprintScenarioId: 'target-selected-space'}
-    const items = [{...directoryModule, children: [source, selectedTarget]}] as RuntimeNavigationItem[]
+    const otherOwner = {...tableViewNode, id: 'table-view-target-other', title: '另一入口'}
+    const items = [{...directoryModule, children: [source, selectedTarget]},
+      {id: 'other-module', title: '其他模块', itemKind: 'module', children: [otherOwner]}] as RuntimeNavigationItem[]
     mocks.navItems.splice(0, mocks.navItems.length, ...items)
     const navRoot = {title: 'Root', childPlacement: 'sidebar' as const, items}
     const router = createRouter({history: createMemoryHistory(), routes: []})
@@ -575,13 +577,17 @@ describe('database directory page', () => {
     await pageButton(page, '管理').trigger('click')
     await flushPromises()
     await flushPromises()
-    expect(routePush).toHaveBeenCalledWith(expect.stringContaining('/DataBaseManage/TableAndView?view=main&databaseId=DB1#top'))
+    expect(routePush).toHaveBeenCalledWith(expect.objectContaining({
+      path: '/DataBaseManage/TableAndView',
+      query: expect.objectContaining({view: 'main', databaseId: 'DB1', __sparkNavigationId: selectedTarget.id}),
+      hash: '#top',
+    }))
     const targetRoute = router.currentRoute.value
     const targetInstance = dynamic.getSystemPageInstance(targetRoute)
     expect(targetRoute.path).toContain('/DataBaseManage/TableAndView')
-    expect(targetRoute.fullPath).toContain('/DataBaseManage/TableAndView?view=main&databaseId=DB1#top')
-    expect(targetRoute.matched[0]?.aliasOf?.path).toBe(`/features/data-platform/database-management/table-and-view/ui/table-and-view-page`)
-    expect(targetRoute.query['__sparkNavigationId']).toBeUndefined()
+    expect(targetRoute.fullPath).toContain('/DataBaseManage/TableAndView?view=main&databaseId=DB1&__sparkNavigationId=table-view-target#top')
+    expect(targetRoute.matched[0]?.aliasOf?.path).toContain(`/features/data-platform/database-management/table-and-view/ui/table-and-view-page`)
+    expect(targetRoute.query['__sparkNavigationId']).toBe(selectedTarget.id)
     expect(targetRoute.query['databaseId']).toBe('DB1')
     expect(targetRoute.meta['nodeId']).toBe(selectedTarget.id)
     expect(targetRoute.meta['blueprintScenarioId']).toBe('target-selected-space')
@@ -641,7 +647,7 @@ describe('database directory page', () => {
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith('/DataBaseManage/TableAndView?view=main&databaseId=DB-PK-1#top')
+    expect(navigateToPath).toHaveBeenCalledWith('/DataBaseManage/TableAndView?view=main&databaseId=DB-PK-1#top', tableViewNode)
   })
 
   it('saves a database entered through the bound RendererForm and closes only after the DataSet receipt', async () => {

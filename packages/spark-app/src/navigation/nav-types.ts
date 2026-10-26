@@ -31,8 +31,8 @@ export type NavigationContext = {
   moduleContext: ComputedRef<RuntimeNavigationContextState | null>
   /** 导航到指定节点（处理外部链接、重定向、首个叶子等） */
   navigateTo: (node: RuntimeNavigationItem) => void
-  /** 导航到指定路径（自动追加租户前缀） */
-  navigateToPath: (path: string) => void
+  /** 导航到指定路径（自动追加租户前缀）；alias 页面可传正式导航项以保留实例身份 */
+  navigateToPath: (path: string, node?: RuntimeNavigationItem) => void
   /** 设置当前模块上下文选择器的值 */
   setContextValue: (value: string | number | null) => void
   /** 判断节点是否在活动路径上 */

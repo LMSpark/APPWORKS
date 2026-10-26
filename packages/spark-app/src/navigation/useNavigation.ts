@@ -44,6 +44,7 @@ type NamedRoutePush = Readonly<{
   routePath: string
   inputPath: string
   identityNodeId?: string
+  preserveInputPath?: boolean
 }>
 
 function contextSourceKey(nodeId: string, source: string): string {
@@ -468,7 +469,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       query[SYSTEM_PAGE_NAVIGATION_ID_QUERY] = command.identityNodeId
     }
     void router.push({
-      name: command.routeName,
+      ...(command.preserveInputPath ? {path: requested.path} : {name: command.routeName}),
       query,
       hash: requested.hash,
       ...(Object.keys(params).length > 0 ? { params } : {}),
@@ -516,7 +517,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * 否则降级为 router.push(path)。
    * 不再依赖导航节点的 linkTarget 字段 —— 路由表是唯一权威。
    */
-  function navigateByPath(path: string, identityNodeId?: string): void {
+  function navigateByPath(path: string, identityNode?: RuntimeNavigationItem): void {
     // 跨应用导航：@app:projectId/path → 委托给外部回调
     if (path.startsWith('@app:') && _options?.onCrossAppNavigate) {
       const match = /^@app:([^/]+)(\/.*)?$/.exec(path)
@@ -530,10 +531,34 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     const resolvedAlias = router.resolve(targetPath).matched.find(record => record.aliasOf !== undefined
       && record.meta['systemPageIdentityHost'] === true)
     if (resolvedAlias) {
-      void router.push(targetPath)
+      if (identityNode === undefined) {
+        void router.push(targetPath)
+        return
+      }
+      const target = resolveNavNodeRuntimeTarget(identityNode)
+      const matchingNodes: RuntimeNavigationItem[] = []
+      const visit = (nodes: readonly RuntimeNavigationItem[]) => {
+        for (const node of nodes) {
+          if (node.id === identityNode.id) matchingNodes.push(node)
+          if (node.children) visit(node.children)
+        }
+      }
+      visit(navRoot.items)
+      const formalPath = target.kind === 'route' ? addTenantPrefix(target.path) : ''
+      const aliasOf = resolvedAlias.aliasOf
+      if (aliasOf === undefined) throw new Error('系统页面 alias 缺少正式目标路由')
+      const canonicalPath = aliasOf.path
+      if (matchingNodes.length !== 1 || matchingNodes[0] !== identityNode || target.kind !== 'route'
+        || target.routeKind !== 'page' || normalizeComparablePath(formalPath.split(/[?#]/, 1)[0] ?? '')
+          !== normalizeComparablePath(canonicalPath)) {
+        throw new Error('系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配')
+      }
+      if (resolvedAlias.name === undefined) throw new Error('系统页面 alias 缺少正式命名路由')
+      pushNamedRoute({routeName: resolvedAlias.name, routePath: canonicalPath, inputPath: targetPath,
+        identityNodeId: identityNode.id, preserveInputPath: true})
       return
     }
-    if (identityNodeId !== undefined) {
+    if (identityNode !== undefined) {
       const resolvedTarget = router.resolve(targetPath)
       const selectedRoute = router.getRoutes().find(routeRecord => routeRecord.name === resolvedTarget.name)
       if (selectedRoute?.meta['systemPageIdentityHost'] === true && selectedRoute.name !== undefined) {
@@ -541,7 +566,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
           routeName: selectedRoute.name,
           routePath: selectedRoute.path,
           inputPath: targetPath,
-          identityNodeId,
+          identityNodeId: identityNode.id,
         })
         return
       }
@@ -590,8 +615,8 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     void router.push(targetPath)
   }
 
-  function navigateToPath(path: string) {
-    navigateByPath(path)
+  function navigateToPath(path: string, node?: RuntimeNavigationItem) {
+    navigateByPath(path, node)
   }
 
   function navigateTo(node: RuntimeNavigationItem) {
@@ -656,7 +681,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     // 叶子节点
     if (target.kind === 'route') {
       if (target.routeKind === 'page') {
-        navigateByPath(target.path, node.id)
+        navigateByPath(target.path, node)
       } else {
         navigateByPath(target.path)
       }

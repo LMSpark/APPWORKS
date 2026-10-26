@@ -97,6 +97,27 @@ describe('database TableAndView legacy Router alias', () => {
     expect(restoredDatabaseA?.instanceId).toBe(databaseA?.instanceId)
   })
 
+  it('allows multiple formal owners of the same canonical page path to share its alias', async () => {
+    const secondOwner = {...formalTableViewNode(), id: 'table-view-target-2', title: '表和视图管理副入口'}
+    const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode(), secondOwner]))
+    await expect(dynamic.registerRoutes()).resolves.toBeUndefined()
+    expect(router.getRoutes().filter(route => route.path === TENANT_PREFIX + LEGACY_PATH)).toHaveLength(1)
+  })
+
+  it('resolves the shared legacy alias only when navigation supplies the selected formal owner marker', async () => {
+    const secondOwner = {...formalTableViewNode(), id: 'table-view-target-2', title: '表和视图管理副入口'}
+    const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode(), secondOwner]))
+    await dynamic.registerRoutes()
+    const legacyRoutePath = `/t/TENANT/APP${LEGACY_PATH}`
+    await router.push(`${legacyRoutePath}?databaseId=DB-A`)
+    expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
+    expect(router.currentRoute.value.meta['systemPageIdentityError']).toMatch(/多个导航项/)
+    await router.push(`${legacyRoutePath}?databaseId=DB-A&__sparkNavigationId=${TABLE_VIEW_NODE_ID}`)
+    expect(router.currentRoute.value.meta['nodeId']).toBe(TABLE_VIEW_NODE_ID)
+    expect(router.currentRoute.value.meta['blueprintScenarioId']).toBe(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    expect(router.currentRoute.value.query['databaseId']).toBe('DB-A')
+  })
+
   it('does not create a legacy alias when no formal TableAndView owner is present', async () => {
     const {router, dynamic} = await setup(async () => rootNavigation([]))
     await dynamic.registerRoutes()

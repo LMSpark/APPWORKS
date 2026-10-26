@@ -335,7 +335,7 @@ function openTableView(): void {
     legacyUrl.hash = targetUrl.hash
     const tenantPrefix = route.path.match(/^\/t\/[^/]+\/[^/]+/)?.[0] ?? ''
     const destination = appendDatabaseId(`${tenantPrefix}${legacyUrl.pathname}${legacyUrl.search}${legacyUrl.hash}`, String(databaseId))
-    nav.navigateToPath(destination)
+    nav.navigateToPath(destination, target.item)
   } catch (cause) {
     actionError.value = cause instanceof Error ? cause.message : String(cause)
   }

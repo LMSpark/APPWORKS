@@ -569,7 +569,7 @@
     "packages/spark-app/src/navigation/nav-types.ts": {
       "sourceFile": "packages/spark-app/src/navigation/nav-types.ts",
       "shardFile": "files/packages/spark-app/src/navigation/nav-types.ts.json",
-      "sourceModifiedAt": "2026-08-09T21:40:30.838Z"
+      "sourceModifiedAt": "2026-10-26T06:07:31.026Z"
     },
     "packages/spark-app/src/navigation/runtime-navigation.ts": {
       "sourceFile": "packages/spark-app/src/navigation/runtime-navigation.ts",
@@ -589,12 +589,12 @@
     "packages/spark-app/src/navigation/useNavigation.ts": {
       "sourceFile": "packages/spark-app/src/navigation/useNavigation.ts",
       "shardFile": "files/packages/spark-app/src/navigation/useNavigation.ts.json",
-      "sourceModifiedAt": "2026-10-26T05:15:21.769Z"
+      "sourceModifiedAt": "2026-10-26T06:02:28.496Z"
     },
     "packages/spark-app/src/navigation/useTabPages.ts": {
       "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
       "shardFile": "files/packages/spark-app/src/navigation/useTabPages.ts.json",
-      "sourceModifiedAt": "2026-10-09T09:18:00.630Z"
+      "sourceModifiedAt": "2026-10-26T05:42:51.403Z"
     },
     "packages/spark-app/src/router/cross-project-ref-page.ts": {
       "sourceFile": "packages/spark-app/src/router/cross-project-ref-page.ts",
@@ -609,7 +609,7 @@
     "packages/spark-app/src/router/dynamic.ts": {
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "shardFile": "files/packages/spark-app/src/router/dynamic.ts.json",
-      "sourceModifiedAt": "2026-10-26T05:11:39.335Z"
+      "sourceModifiedAt": "2026-10-26T05:56:50.975Z"
     },
     "packages/spark-app/src/router/external-link-frame-page.ts": {
       "sourceFile": "packages/spark-app/src/router/external-link-frame-page.ts",
@@ -4344,7 +4344,7 @@
     "src/views/DataBaseManage/DataBaseManage/index.vue": {
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
       "shardFile": "files/src/views/DataBaseManage/DataBaseManage/index.vue.json",
-      "sourceModifiedAt": "2026-10-26T05:13:26.634Z"
+      "sourceModifiedAt": "2026-10-26T05:55:58.747Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",

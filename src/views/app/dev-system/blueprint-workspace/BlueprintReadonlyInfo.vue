@@ -22,7 +22,7 @@ watch(()=>[props.runtime.instanceId,props.nodeId,props.binding] as const,async([
   loaded.value=false;error.value=undefined
   if(!nodeId)return
   loading.value=true
-  try{const runtime=props.runtime;await queryBlueprintReadonlyView(runtime,binding,nodeId,()=>props.assertCurrent(nodeId,runtime));if(current===revision)loaded.value=true}
+  try{const runtime=props.runtime;await queryBlueprintReadonlyView({runtime,binding,nodeId,assertCurrent:()=>props.assertCurrent(nodeId,runtime)});if(current===revision)loaded.value=true}
   catch(failure){if(current===revision)error.value=failure instanceof Error?failure.message:String(failure)}
   finally{if(current===revision)loading.value=false}
 },{immediate:true})

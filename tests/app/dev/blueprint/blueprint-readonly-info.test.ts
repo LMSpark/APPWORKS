@@ -12,7 +12,7 @@ describe('blueprint readonly DataView binding',()=>{
   it('filters by current node and returns the same DataView without projecting row arrays',async()=>{
     const view=fakeView([{rowid:'h1',prowid:'n1',desc:'history',secret:'hidden'}])
     const runtime={resolveView:vi.fn(()=>view)}
-    const result=await queryBlueprintReadonlyView(runtime as never,'scene@Base_Navigation_Desc_Version@default','n1',()=>{})
+    const result=await queryBlueprintReadonlyView({runtime:runtime as never,binding:'scene@Base_Navigation_Desc_Version@default',nodeId:'n1',assertCurrent:()=>{}})
     expect(result).toBe(view)
     expect(view.filterExpression).toMatchObject({field:'prowid',operator:'eq',value:'n1'})
     expect(view.rows).toHaveLength(1)
@@ -24,18 +24,18 @@ describe('blueprint readonly DataView binding',()=>{
     const view=fakeView([{rowid:'h1',prowid:'n1',desc:'history'}])
     view.refresh.mockRejectedValueOnce(new Error('query failed'))
     const runtime={resolveView:()=>view}
-    await expect(queryBlueprintReadonlyView(runtime as never,'scene@Base_Navigation_DataRelation@default','n1',()=>{})).rejects.toThrow('query failed')
+    await expect(queryBlueprintReadonlyView({runtime:runtime as never,binding:'scene@Base_Navigation_DataRelation@default',nodeId:'n1',assertCurrent:()=>{}})).rejects.toThrow('query failed')
     expect(view.rows).toEqual([])
     expect(view.resetState).toHaveBeenCalledTimes(2)
   })
 
   it('rejects and clears rows outside the requested node or without readable prowid',async()=>{
     const mismatch=fakeView([{rowid:'r1',prowid:'other',title:'wrong node'}])
-    await expect(queryBlueprintReadonlyView({resolveView:()=>mismatch} as never,'scene@Base_Navigation_DataRelation@default','n1',()=>{})).rejects.toThrow('身份不匹配')
+    await expect(queryBlueprintReadonlyView({runtime:{resolveView:()=>mismatch} as never,binding:'scene@Base_Navigation_DataRelation@default',nodeId:'n1',assertCurrent:()=>{}})).rejects.toThrow('身份不匹配')
     expect(mismatch.rows).toEqual([])
     const hidden=fakeView([{rowid:'r2',prowid:'n1',title:'unreadable scope'}])
     hidden.fieldAccess=()=>({read:'invisible'})
-    await expect(queryBlueprintReadonlyView({resolveView:()=>hidden} as never,'scene@Base_Navigation_DataRelation@default','n1',()=>{})).rejects.toThrow('不可读')
+    await expect(queryBlueprintReadonlyView({runtime:{resolveView:()=>hidden} as never,binding:'scene@Base_Navigation_DataRelation@default',nodeId:'n1',assertCurrent:()=>{}})).rejects.toThrow('不可读')
     expect(hidden.rows).toEqual([])
   })
 
@@ -44,7 +44,7 @@ describe('blueprint readonly DataView binding',()=>{
     const view=fakeView([{rowid:'h1',prowid:'n1',desc:'late'}])
     view.refresh=vi.fn(()=>new Promise<void>(resolve=>{finish=()=>{view.rows=[{rowid:'h1',prowid:'n1',desc:'late'}];resolve()}}))
     let current=true
-    const pending=queryBlueprintReadonlyView({resolveView:()=>view} as never,'scene@Base_Navigation_Desc_Version@default','n1',()=>{if(!current)throw new Error('scope stale')})
+    const pending=queryBlueprintReadonlyView({runtime:{resolveView:()=>view} as never,binding:'scene@Base_Navigation_Desc_Version@default',nodeId:'n1',assertCurrent:()=>{if(!current)throw new Error('scope stale')}})
     current=false;finish()
     await expect(pending).rejects.toThrow('scope stale')
     expect(view.rows).toEqual([])

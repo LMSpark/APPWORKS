@@ -2,7 +2,7 @@ import {DataViewFilter, type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 
 /** Apply a node filter to a declared DataView and retain all result ownership in that view. */
-export async function queryBlueprintReadonlyView(runtime:PageRuntime,binding:string,nodeId:string,assertCurrent:()=>void):Promise<DataView>{
+export async function queryBlueprintReadonlyView({runtime,binding,nodeId,assertCurrent}:{runtime:PageRuntime;binding:string;nodeId:string;assertCurrent:()=>void}):Promise<DataView>{
   const target=nodeId.trim()
   if(!target)throw new Error('只读信息查询缺少当前导航节点身份')
   assertCurrent()

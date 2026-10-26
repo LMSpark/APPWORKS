@@ -2069,3 +2069,19 @@ flowchart TD
 - **参考命令事实：**参考 `ApplicationFunMan.ts:895-955` 新建默认空间时创建 `Base_DataSet`（`rowid=nodeId`、`Name=funName`、`Type=datasource`、`sysid`），并把导航行 `conid`、`dataSourceId` 设为 nodeId；如果数据集行已存在则只改名称。参考 `:965-1022` 以其它导航绑定、导航宿主关系和“零模型”判断空空间；`:1029-1078` 清空两个导航字段并可能删 Base_DataSet。这是参考旧 API 行为，不直接作为本仓合同。
 - **本仓可证边界：**当前正式蓝图 DataView 投影只显式承接 `conid`，参考 `dataSourceId` 在本仓工作台 wire projection 中没有证据；不能猜测并镜像。蓝图树查询有最大行数和分页限制，`Base_Navigation_DataRelation` 尚未由该工作区加载，因此不能用已加载行证明无引用，不得实施“安全清理”删除。DataSet `saveChanges({views})` 能按正式视图选择改动，但文档明确不提供跨来源事务；即使一次命令覆盖多个来源，也不能宣称数据库多资源原子提交，部分/未知回执须分别处理。
 - **计划：**先证实 `dataSourceId` 正式字段定义及行/字段权限，再经同一工作区正式 DataSet/DataView 接入显式默认绑定的多资源变更；核实各资源回执和未完成状态。解绑先限定为经正式 DataView 授权的导航字段清空；Base_DataSet 删除继续关闭，直到所有引用类别、完整分页及删除权限均有正式证据。没有业务写入；计划 active。
+
+### 2026-10-27 开发工作台蓝图正式字段复核
+
+- 在已登录 NewApp/D99A SPA 的数据空间管理页按正式 ID 打开“功能管理”空间 `7AB874097A1E8711A42FD845939A6E05`，从关系画布进入 `Base_NavigationInfo` 的“字段呈现”只读检查。可见 `conid`、`NavigationUrl`、`MobileUrl` 等正式字段；字段清单未见 `dataSourceId`。这证明当前 SPA 模型字段合同没有展示该成员，不推断底层物理表是否存在同名列。未修改字段或保存设计。
+- 同场景 `Base_Navigation_Desc_Version` 的正式模型字段清单可见 `prowid`、`rowid`、`desc`、`versionId`、`VersionName`、`version`，输出列已勾选。字段/输出定义不证明实际查询行授权或新增/删除权限；未通过历史记录表单、DataView 回执测试写权限。
+- 返回开发工作台同一 SPA（未整页刷新），正式蓝图状态“已就绪”、显示 41 个页面，六个参考域标签及“本仓扩展”均在当前宿主内。查看的 `DataBaseManage` 节点“导航宿主”视图为空结果；场景绑定控件仍待选择，未改动或保存蓝图数据。此为空集合呈现与宿主加载证据，不证明 NavHost 有写权限或数据不存在于其他节点。
+- **Ruling：**当前模型缺少可核的 `dataSourceId` 字段定义，故默认空间双字段绑定/解绑不能按参考旧 API 写入；继续仅将正式 `conid` 视为本仓已证实的场景身份，暂缓创建/删除跨模型数据空间命令，直至正式模型与运行权限合同被证实。原因是按参考列名猜测或向 wire projection 手工补列会绕过 DataTable/权限合同；若底层物理字段实际上存在，当前暂停会延后完整参考行为恢复。
+
+### 2026-10-27 开发工作台蓝图域归位复核与门禁收口
+
+- **修正：**“绑定场景”仍被 `NodeBasicInfo` 放在“基本信息”标签，与参考仓的独立“数据空间”域不符。现将同一组件的 `data-space` section 归入“数据空间”标签；“基本信息”只保留能力字段。目录候选依旧绑定正式 `Base_DataSet@catalog` DataView，当前节点 `conid` 仍由标准 `FieldSelect` 绑定蓝图 DataView；选择、提交与取消仍走同一工作台 DataView/统一保存，没有新增页面状态或请求通道。数据规划提示改为指向当前数据空间域。
+- **生成/合同：**将只读蓝图视图查询从四个位置参数改为单一 options 参数，解除正式规则扫描的 max-args 阻断；调用点及测试同步。ClassModel 没有变化，因此未重跑或手改 ClassModel 产物。
+- **测试目录：**将只读视图和场景选择测试移到 `tests/app/dev/blueprint/`，满足本仓目录数量上限；未删减测试覆盖。
+- **验证：**三文件聚焦回归 45 项通过；目标 ESLint、`typecheck`、`verify:pages-config`、`verify:dirs`、全量 `verify:rules`、`build`、`git diff --check` 通过。`verify:rules` 的 AI model spec 扫描有两条既有 warning 和一条 info，扫描与总门禁仍通过；build 存在既有打包器动态导入警告。一次较早 typecheck 抓到测试夹具的可选访问和宽状态类型问题，均已收窄后最终 typecheck 通过。测试运行器会输出 Vue Test Utils 未注册 Element Plus 组件的警告，45 项结果全通过。
+- **SPA 只读复验：**登录的 NewApp/D99A 开发工作台未整页刷新，正式项目蓝图已就绪、41 页。基本信息页只显示节点能力字段；切换“数据空间”页后可见“绑定场景 / 选择场景 / 已保存场景 未绑定”，并显示“请先在当前数据空间中选择并保存一个正式场景”。没有选择候选、编辑、保存或改动正式蓝图/元数据。截图与交互状态仅证明当前 tab 分区和空绑定呈现，不证明 `conid` 写回权限或目录跨切换稳定性。
+- **状态：**六域在 SPA 工作区中的显示域归位已修正；本次不推进绑定写回或旧参考双字段逻辑。`dataSourceId` 正式字段定义及当次权限仍未证实，默认绑定/解绑、多资源创建/清理继续阻断；原型历史与 NavHost 写操作授权、真实 B1 消费、AI新增、预览/导出和工作流文件统一通道等仍按上述条目开放。整体开发工作台蓝图整合与 SPARK data 收敛计划继续 active。本批无业务数据写入、无 Java 改动。

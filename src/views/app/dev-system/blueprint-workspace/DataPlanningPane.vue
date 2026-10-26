@@ -12,7 +12,7 @@ AI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式
     <el-alert v-if="!fieldAccess.read" title="当前查询没有返回场景字段或读取权限" type="warning" :closable="false" />
     <el-alert v-if="state.sceneBindingPending.value" title="场景绑定尚未通过顶栏保存并正式回读；请先保存或取消节点修改，再加载设计器。" type="warning" :closable="false" />
     <DevDataSetDesigner v-else-if="state.persistedDataSpaceId.value" :key="state.persistedDataSpaceId.value" :state="state" />
-    <el-alert v-else title="请先在基本信息中选择并保存一个正式数据空间场景。" type="info" :closable="false" />
+    <el-alert v-else title="请先在当前数据空间中选择并保存一个正式场景。" type="info" :closable="false" />
   </section>
 </template>
 <script setup lang="ts">

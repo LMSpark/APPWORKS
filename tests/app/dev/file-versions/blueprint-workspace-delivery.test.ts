@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
 import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.vue'
@@ -29,6 +30,8 @@ const TestInput = defineComponent({props:{modelValue:null,disabled:Boolean,type:
 const TestFormItem = defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
 const TestAlert = defineComponent({props:{title:String},template:'<div>{{title}}</div>'})
 const TestEmpty = defineComponent({props:{description:String},template:'<div>{{description}}</div>'})
+const StandardField = defineComponent({props:['dataViewKey','dataMember','dataField','optionDataViewKey','optionValueField','optionLabelField','readonly','clearable'],template:'<div data-test-standard-field />'})
+const StandardRenderer = defineComponent({props:['dataViewKey','label','disabled','modelValue','title','width','closeDisabled','children','highlightCurrentRow'],emits:['click','update:modelValue'],template:'<div data-test-standard-renderer><slot /></div>'})
 const Delivery = defineComponent({ props: ['canPublish'], emits: ['save'], template: '<button @click="$emit(\'save\')">交付</button>' })
 const Planning = defineComponent({props:['modelValue','fieldAccess'],emits:['update:modelValue'],template:'<div v-if="fieldAccess.read"><input data-testid="planning" :disabled="!fieldAccess.write" :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value)"></div><span v-else>无读取权限</span>'})
 const scenarioId = '7AB874097A1E8711A42FD845939A6E05'
@@ -83,6 +86,8 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     createPageToolSnapshot: api.createSnapshot,
     refreshBlueprintTreeProjection: vi.fn(),
     blueprintDraft: {nodeId:'node-A',kind:'page',capability,navigation:undefined,dataSpace:undefined,prototype:undefined},
+    pageDataDirty: ref(false),
+    persistedDataSpaceId: ref(''), sceneBindingPending: ref(false),
     hasAnyDirty: computed(() => {void accessRevision.value;return owner?.dirty ?? false}),
     blueprintNodeFieldAccess: (field:string) => {void accessRevision.value;return {read:owner?.canRead(field)??false,write:owner?.canWrite(field)??false}},
     blueprintNodeSectionWritable: () => false,
@@ -93,9 +98,10 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     props: { state }, global: {
       directives: { loading: () => {} }, stubs: {
         ElTabs: Slot, ElTabPane: TabPane, ElEmpty: TestEmpty, ElAlert: TestAlert, PlanningPane: Planning, PrototypePane: true,
-        DataPlanningPane: true, EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
+        EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
         NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: defineComponent({template:'<div data-test-node-state-stub />'}),
         ElDivider: true, ElFormItem: TestFormItem, ElInput: TestInput, ElSelect: true, ElSwitch: true, ElOption: true, IconPicker: true,
+        FieldSelect: StandardField, RendererButton: StandardRenderer, RendererDialog: StandardRenderer, RendererFilter: StandardRenderer, RendererTable: StandardRenderer,
       },
     },
   })
@@ -112,10 +118,18 @@ describe('BlueprintWorkspace file delivery', () => {
   })
 
   it('organizes the SPA work area by the reference six domains and preserves local extensions', async () => {
-    const { wrapper } = setup(); await flushPromises()
+    const { wrapper, state } = setup(); await flushPromises()
     const names = wrapper.findAll('.tab-pane').map(node => node.attributes('name'))
     expect(names).toEqual(['basic', 'prototype', 'data', 'navigation', 'nav-host', 'task-info', 'extensions', 'estimate', 'delivery', 'release'])
-    expect(wrapper.findAllComponents(NodeBasicInfo).map(component=>component.props('sections'))).toEqual([['capability']])
+    const basicInfo = wrapper.findAllComponents(NodeBasicInfo)
+    expect(basicInfo.map(component=>component.props('sections'))).toEqual([['capability'], ['data-space']])
+    expect(basicInfo[0]?.text()).not.toContain('绑定场景')
+    expect(basicInfo[1]?.text()).toContain('绑定场景')
+    expect(basicInfo[1]?.element.closest('.tab-pane')?.querySelector('h3')?.textContent).toBe('数据空间')
+    const planning = mount(DataPlanningPane, {props:{state: state as never,fieldAccess:{read:true,write:true}},global:{stubs:{ElAlert:TestAlert}}})
+    expect(planning.text()).toContain('在当前数据空间中选择并保存')
+    expect(planning.text()).not.toContain('在基本信息中选择并保存')
+    planning.unmount()
     expect(wrapper.text()).not.toContain('原型历史资源未绑定')
     expect(wrapper.text()).not.toContain('正式模型绑定未就绪')
     expect(wrapper.text()).toContain('参考实现暂无对应任务资源')
@@ -555,14 +569,14 @@ describe('BlueprintWorkspace DataView ownership', () => {
     const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'secret'},
       navigation:{title:'Node',icon:'Document',target:'cfg:tool',mobileTarget:'',openMode:'current',placement:'left',order:1,publishInMenu:true,showChildren:true,beginGroup:false},
       dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},
-      blueprintNodeFieldAccess:access,blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),
+      projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintPageRuntime:ref(undefined),pageDataDirty:ref(false),blueprintNodeFieldAccess:access,blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),
       markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),
       linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
     const Control=defineComponent({name:'FieldControl',props:{disabled:Boolean,readonly:Boolean,modelValue:null},template:'<input :disabled="disabled" :readonly="readonly" />'})
     const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
     const Panels=defineComponent({components:{NodeBasicInfo,NodeTargetConfig,NodeStateConfig,NodeLayoutConfig},props:{state:Object},
       template:'<div><NodeBasicInfo :state="state"/><NodeTargetConfig :state="state"/><NodeStateConfig :state="state"/><NodeLayoutConfig :state="state"/></div>'})
-    const wrapper=mount(Panels,{props:{state},global:{stubs:{FieldSelect:Control,ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
+    const wrapper=mount(Panels,{props:{state},global:{stubs:{FieldSelect:Control,RendererButton:StandardRenderer,RendererDialog:StandardRenderer,RendererFilter:StandardRenderer,RendererTable:StandardRenderer,ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
       ElInputNumber:Control,ElRadioGroup:Control,ElRadioButton:true,ElOption:true,IconPicker:true}}})
     expect(wrapper.text()).not.toContain('功能描述')
     expect(wrapper.findAllComponents(Control).length).toBeGreaterThan(0)
@@ -576,11 +590,11 @@ describe('BlueprintWorkspace DataView ownership', () => {
   })
 
   it('filters NodeBasicInfo to capability fields while retaining the default full view',()=>{
-    const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'memo'},navigation:{title:'Node',icon:'Document',target:'cfg:tool',order:1,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},
+    const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'memo'},navigation:{title:'Node',icon:'Document',target:'cfg:tool',order:1,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintPageRuntime:ref(undefined),pageDataDirty:ref(false),
       blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:false})),blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
     const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
     const Basic=defineComponent({components:{NodeBasicInfo},props:{state:Object,sections:Array},template:'<NodeBasicInfo :state="state" :sections="sections" />'})
-    const global={stubs:{ElDivider:true,ElFormItem:FormItem,ElInput:true,ElSelect:true,ElSwitch:true,ElOption:true,IconPicker:true}}
+    const global={stubs:{FieldSelect:StandardField,RendererButton:StandardRenderer,RendererDialog:StandardRenderer,RendererFilter:StandardRenderer,RendererTable:StandardRenderer,ElAlert:true,ElDivider:true,ElFormItem:FormItem,ElInput:true,ElSelect:true,ElSwitch:true,ElOption:true,IconPicker:true}}
     const filtered=mount(Basic,{props:{state,sections:['capability']},global})
     expect(filtered.text()).toContain('能力名称')
     expect(filtered.text()).not.toContain('提供导航')
@@ -589,7 +603,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     filtered.unmount()
     const compatible=mount(Basic,{props:{state},global})
     expect(compatible.text()).toContain('提供导航')
-    expect(compatible.text()).toContain('绑定数据空间')
+    expect(compatible.text()).toContain('绑定场景')
     expect(compatible.text()).toContain('提供原型')
     compatible.unmount()
     const navigation=mount(Basic,{props:{state,sections:['navigation']},global})

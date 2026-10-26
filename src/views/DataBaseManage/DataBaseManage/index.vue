@@ -36,7 +36,7 @@ AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正
       <RendererDialog v-if="deleteConfirmation" :data-view-key="databaseKey" :model-value="true" title="删除数据库目录记录" :width="480"
         :close-disabled="busy || deleteUnconfirmed" @update:model-value="closeDeleteConfirmation">
         <p v-if="deleteConfirmation">确定删除数据库目录中的“{{ deleteConfirmation.name }}”记录吗？</p>
-        <p>此操作只删除目录记录，不会删除物理数据库，也不会扫描或删除相关引用。</p>
+        <p>有有效表或视图时，服务会拒绝删除；不会删除物理数据库。</p>
         <p v-if="deleteUnconfirmed" role="status">删除结果尚未确认。核验只确认原提交，不会再次写入；请使用下方核验操作。</p>
         <p v-if="actionError" role="alert">{{ actionError }}</p>
         <template #footer>

@@ -216,6 +216,7 @@ describe('database directory page', () => {
     expect(rendererDialog?.props('dataViewKey')).toBe(`${dataSet!.scenarioId}@${DATABASE_CATALOG_DB_MODEL}@default`)
     expect(dialog.text()).toContain(name)
     expect(dialog.text()).toContain('确认删除')
+    expect(dialog.text()).toContain('有有效表或视图时，服务会拒绝删除；不会删除物理数据库。')
     const cancel = dialog.findAll('button').find(button => button.text() === '取消')
     expect(cancel).toBeTruthy()
     await cancel!.trigger('click')

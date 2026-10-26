@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-25）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/验证/烟测/更新状态；完整整合仍 implementing。本批 B2 目录与关系编辑已完成冻结复审、工程门禁及真实 SPA 保存/关闭重开验收，证据和提交范围见文末。后续继续核定已有数据库登记、注册回执与未知结果核验等剩余用例，尚未开放该组产品实施。A 的整页对照及其他未核销项继续保留。旧总体与外部API/I5/I6/I7子计划保持 superseded。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
+> **当前入口（2026-10-26）**：用户已批准按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 实施，要求低价模型实施、主控派工/复核/烟测/更新台账；总体仍为 implementing。本批起点 `3497eac4a`（`docs: record B1 SPA sort acceptance`）记录了 B1 隔离字典排序的真实 SPA 闭环验收，详细请求、回执、回读与边界见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。该验收覆盖暂存、取消、显式保存、跨字典隔离及同 SPA 关闭重开，不代表完整 B1：AI 候选生成、删除引用完整性及下游消费仍开放。本批补充删除守卫七种 DataView 状态的回归用例，独立复跑 97/97 通过，仍只证明失败关闭，不证明全局引用完整。B2 目录/关系实现及目录编辑、删除、连接测试和 TableAndView alias 的代码/自动化进展见文末；数据库登记、真实部署回执与连通性、删除引用/物理完整性以及旧路径实页验收仍未收口。`/DataCenter/ServerManagerment.html` 的正式目标身份尚未确认，不按 URL 猜测映射。阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。下一项工作按最近留存的整合/B1计划和已证实缺口选择，不宣称整体完成。下方历史记录保留原时间、范围及证据，不作为当前开工指令或完成证明。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 
@@ -732,7 +732,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前推进阶段B的B2目录与关系编辑；阶段A整页对照、跨实例未知恢复及B1剩余闭环继续开放，C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-25）：** A1—A9已逐组记录提交；A8及之前已按要求推送，后续不自动推送。阶段A完整整页对照、跨实例未知恢复等仍开放。B1目录353范围及筛选、共享typeid精确更正、批量排序与同一SPA保存重开已验证。通用AI批量新增G1—G4已提交`fe003c69d`：allowAIAdd归DataTable.columns/DataColumn，DataView仅投影；系统提示词按正式Agent配置固定，用户仅输入业务提示。保留B1Sort_20261024_1925F4C2（327D74EC0ABC4196AA75C56D944B8201）及7条记录，不删除。`a176ae2f5`和`1f8885312`已提交字典正式消费/命名视图读回与标准下拉消费证据，全局删除引用完整性仍开放。顶栏裁切及14入口可达已提交`6c013a7fc`，目标页面注册/模型缺口另记。本批B2目录原路径、精确导航/DataSet身份、按需子查询、dirty/unknown切换与标准表格取消高亮已收敛；关系编辑已删除旧SaveDraft，标准组件直接绑定原DataView，补正式表达式、精确单行保存、异步结构预检、unknown核验与取消恢复。数据库套件147/147、宿主等53/53，typecheck/lint/正式生成/完整rules/build均通过。真实SPA两窗口证明新增、取消、正式保存、切换PX及关闭重开、仅名称精确提交；保留测试关系`34A3F87EA002AF6EB93B3E5C0A173EEA`，不删除。目录与关系组已本地提交60792d74c，未推送。当前进入B2批量注册可靠性组：主控已核有效RED，gpt-6-luna正在实施命令DataView逐项状态、精确核验与SPA恢复入口；两个旧测试库实服返回Unknown database，真实登记成功验收待可用目标。详细进展见文末。完整B2的已有数据库登记、批量注册回执/unknown/部分成功、其他CRUD、连接测试、旧TableAndView别名及整页对照仍开放；字段和建库操作可能触发DDL，本批未执行。旧turn2114024898052624384及Agent创建d13f39f8-5d34-40d3-876b-8b7f95dd673f仍未知，旧SPA与进程31708保留。唯一活动台账在隔离worktree ai-data-entry；原D盘现场保持，完整整合goal仍active。
+**当前断点（2026-10-26；本批起点 HEAD `3497eac4a`）：** 该基线提交记录了 B1 隔离排序真实 SPA 验收；`notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json` 记载专用字典三条数据经 DataView 暂存排序、取消、显式保存、跨字典切换及同 SPA 关闭重开后正式读回。该窄项已通过，不代表完整 B1 或整合完成。B1 的 AI 候选生成、删除引用完整性和下游消费仍开放；全局/跨过滤唯一性没有正式合同证明，不扩大为全局校验。按最近留存计划继续选择下一项，优先核清仍开放的 B1 AI/引用消费合同及可独立验证的闭环，并保留服务端合同缺口。B2 目录/关系及编辑、删除、连接测试、旧路径 alias 已有代码和自动化进展；已有数据库登记及真实逐项回执、部署端连接合同/物理连通性、删除的物理与引用完整性、alias 实页点击仍未验收。旧路径 `/DataCenter/ServerManagerment.html` 的正式导航目标仍未确认，不猜映射。阶段 A 完整整页对照与跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。SPARK data 唯一数据通道、不改/启动/部署 Java 后端、不推送；整体仍 implementing。最新证据和剩余边界见本文末尾。
 
 ### 1. 目标、边界与完成口径
 
@@ -1691,3 +1691,10 @@ flowchart TD
 - 同 SPA 切换至 `px_lsq_status`（ID `D39BC0D2B65836CD7D80AC84C53C5B99`），请求 `26952.2934` Code 200、Count 7，无测试字典数据混入或写入。关闭后重开 B1 专用字典，默认请求 `26952.2942` 按 `rowid ascending, ordIdx ascending` 返回并渲染 A/B/C，ordIdx 1/2/3。整个重开窗口 8 个网络事件、0 个 Document 请求，URL 保持原正式 SPA 路由，未整页刷新；最终工作区干净关闭。保留测试字典和三条测试数据，不做删除。
 - 完整请求/回执、字段范围、回读和边界记录见 `notes/evidence/metadata-integration-20261026/b1-sort-live-acceptance.json`。本结果核销当前构建的**隔离 B1 排序暂存、取消、显式保存、同 SPA 跨字典隔离及关闭重开持久化**烟测缺口，替代前节“当前版本仍未实测”的状态；此前七行共享字典只读观察保持历史有效，但不再代表当前排序持久化状态。
 - **状态：B1排序闭环的真实 SPA 验收完成，测试字典按计划保留；未删除任何模型/数据。B1 AI 候选生成、删除引用完整性、下游消费仍开放，不能将完整 B1 或总体数据空间整合标为完成。旧应用旧 URL `/DataCenter/ServerManagerment.html` 的正式导航目标仍未确认。**
+
+## 2026-10-26 B1 字典删除守卫状态对称回归
+
+- 按全局引用覆盖仍未确立、删除守卫必须失败关闭的合同，新增 7 个参数化状态反例：`clearAll`、`resetState`、查询 `Loading`、查询 `Failed`、仅 definition 已加载、仅 entries 已加载、两视图均 `Loaded`。每种状态均断言 `canRemoveDefinition` 为 false、`removeDefinition()` 拒绝、两视图无编辑覆盖/dirty 草稿、保存 owner 零调用。没有把 fixture 行伪称为全局引用查询结果。
+- 低价模型实施 RED 时以临时旧逻辑替身模拟“两视图 Loaded 即允许删除”：最终用例 `both-views-loaded` 失败，1 failed / 96 passed；恢复生产逻辑后 GREEN 为 97/97。日志位于忽略目录 `node_modules/.cache/b1-delete-guard/{red,green}.{log,exit}`。生产源码未改，测试为唯一代码变更。
+- 主控独立运行 `pnpm --filter @spark-appworks/spark-lowcode-api exec vitest run src/platform/resources/dictionary/dictionary-workspace.test.ts`，97/97通过；`pnpm exec eslint packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts --max-warnings=0` 与 `git diff --check` 通过。
+- **状态：字典删除拒绝在公开 DataView 状态转换下有回归覆盖；这只证明当前本地 fail-closed 防护不因视图状态打开，不证明全局引用完整性、服务端拒绝/级联或可以安全启用删除。引用完整性继续开放，未执行业务删除或线上写入。**

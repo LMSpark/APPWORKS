@@ -558,6 +558,33 @@ describe('Dictionary resource through formal DataViews', () => {
       expect(http.saves).toHaveLength(0)
     } finally {dataSet.destroy()}
   })
+  it.each(['clearAll', 'resetState', 'loading', 'failed', 'definition-only-loaded', 'entries-only-loaded', 'both-views-loaded'] as const)(
+    'keeps dictionary deletion closed after public view state: %s', async state => {
+      const {workspace, http, dataSet} = fixture()
+      const definition = workspace.definition
+      const entries = workspace.entries
+      try {
+        await workspace.load()
+        if (state === 'clearAll') {definition.clearAll(); entries.clearAll()}
+        if (state === 'resetState') {definition.resetState(); entries.resetState()}
+        if (state === 'loading') {definition.requestState = RequestState.Loading}
+        if (state === 'failed') {definition.requestState = RequestState.Failed; definition.loadingError = new Error('查询失败')}
+        if (state === 'definition-only-loaded') entries.resetState()
+        if (state === 'entries-only-loaded') definition.resetState()
+        if (state === 'both-views-loaded') {
+          expect(definition.requestState).toBe(RequestState.Loaded)
+          expect(entries.requestState).toBe(RequestState.Loaded)
+        }
+
+        expect(workspace.canRemoveDefinition).toBe(false)
+        await expect(workspace.removeDefinition()).rejects.toThrow(/数据库、配置和代码消费者/)
+        expect(definition.hasEditingChanges()).toBe(false)
+        expect(entries.hasEditingChanges()).toBe(false)
+        expect(definition.dirtyTracking.hasPendingChanges()).toBe(false)
+        expect(entries.dirtyTracking.hasPendingChanges()).toBe(false)
+        expect(http.saves).toHaveLength(0)
+      } finally {dataSet.destroy()}
+    })
   it('does not discard the original capture or draft when recovery verification reads fail', async () => {
     const {workspace, http, dataSet} = fixture()
     await workspace.load()

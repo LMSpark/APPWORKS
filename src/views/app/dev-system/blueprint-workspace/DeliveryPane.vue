@@ -8,7 +8,7 @@ AI用途：编辑rule/script/style并触发父工作台真实交付动作。
   <section class="delivery-pane">
     <div class="delivery-actions">
       <span>三个文件独立追加版本；页面数据来自 DataSpace。</span>
-      <el-button type="primary" :loading="saving" @click="$emit('save')">保存三个交付文件</el-button>
+      <el-button type="primary" :loading="saving" :disabled="!canPublish" @click="$emit('save')">保存三个交付文件</el-button>
     </div>
     <el-tabs v-model="activeFile" type="card" class="delivery-tabs">
       <el-tab-pane v-for="file in files" :key="file" :label="file" :name="file">
@@ -25,7 +25,7 @@ import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import DevFileEditor from '../DevFileEditor.vue'
 import DevPreviewTab from '../DevPreviewTab.vue'
 import type { DevState } from '../useDevState'
-defineProps<{ state: DevState; saving: boolean }>()
+defineProps<{ state: DevState; saving: boolean; canPublish: boolean }>()
 defineEmits<{ save: [] }>()
 const files: readonly PageToolFileName[] = ['rule.json', 'script.js', 'style.css']
 const activeFile = ref<PageToolFileName | 'preview'>('rule.json')

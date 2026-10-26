@@ -6,18 +6,22 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
 -->
 <template>
   <el-tabs v-if="state.selectedNode.value" v-model="activeStage" type="border-card" class="blueprint-workspace" v-loading="loading">
-    <el-tab-pane label="功能策划" name="planning"><PlanningPane v-model="draft.planningContent" :saving="saving" @save="save({ memo: draft.planningContent }, '功能策划')" /></el-tab-pane>
-    <el-tab-pane label="原型设计" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" @save="save({ htmlDesc: draft.prototypeHtml }, '原型设计')" /></el-tab-pane>
-    <el-tab-pane label="数据规划" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" @save="save({ conid: draft.formKey }, '数据规划')" /></el-tab-pane>
-    <el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" @save="saveEstimate" /></el-tab-pane>
-    <el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" @save="saveDelivery" /></el-tab-pane>
-    <el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" @save="save({ IsShowAtNav: draft.visible ? 1 : 0, NavigationType: draft.navigationType }, '发布运行')" /></el-tab-pane>
+    <template #extra>
+      <el-button size="small" :disabled="!sessionDirty || saving || loading" @click="cancelEdits">取消节点修改</el-button>
+      <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
+    </template>
+    <el-tab-pane label="功能策划" name="planning"><PlanningPane v-model="draft.planningContent" :saving="saving" :field-access="access('memo')" @save="save('功能策划')" /></el-tab-pane>
+    <el-tab-pane label="原型设计" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型设计')" /></el-tab-pane>
+    <el-tab-pane label="数据规划" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" :field-access="access('conid')" @save="save('数据规划')" /></el-tab-pane>
+    <el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane>
+    <el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane>
+    <el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane>
   </el-tabs>
   <el-empty v-else description="在左侧 WBS 中选择节点" />
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import {
   LowcodeDesignFileUpload,
   encodeLowcodeBlueprintFileVersions,
@@ -27,7 +31,11 @@ import {
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { lowcodeHttp } from '@/lowcode/lowcode-runtime'
-import type { DevState } from '../useDevState'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import type { DataSet } from '@spark-appworks/spark-data'
+import type { DevState, ExternalDataViewSession } from '../useDevState'
+import { BlueprintWorkspaceDataView } from './blueprint-workspace-dataview'
 import PlanningPane from './PlanningPane.vue'
 import PrototypePane from './PrototypePane.vue'
 import DataPlanningPane from './DataPlanningPane.vue'
@@ -35,91 +43,121 @@ import EstimatePane from './EstimatePane.vue'
 import DeliveryPane from './DeliveryPane.vue'
 import ReleasePane from './ReleasePane.vue'
 
-/** 六阶段提交给真实后端的可写字段载荷，不作为独立节点真源。 */
-type MutablePatch = Readonly<Record<string, string | number>>
 const props = defineProps<{ state: DevState }>()
 const activeStage = ref('planning')
 const loading = ref(false)
 const saving = ref(false)
 let loadRevision = 0
 let disposed = false
-onBeforeUnmount(() => { disposed = true; loadRevision++ })
-function emptyDraft() {
-  return { planningContent: '', prototypeHtml: '', formKey: '', difficultyFactor: 0, manhour: 0, quantity: 0, sum: 0, total: 0, personInCharge: '', status: '', visible: false, navigationType: 0, runtimeTarget: '' }
-}
-const draft = reactive(emptyDraft())
-const fileVersions = ref('')
+let dataSet: DataSet | undefined
+let dataSetProjectId = ''
+let unregisterSession: (() => void) | undefined
+const session = shallowRef<BlueprintWorkspaceDataView>()
+const dataViewRevision = ref(0)
+const sessionDirty = computed(() => {void dataViewRevision.value; return session.value?.dirty ?? false})
+const fileVersions = computed(() => {void dataViewRevision.value; return String(session.value?.value('VersionId') ?? '').trim()})
 const fileUpload = new LowcodeDesignFileUpload({ http: lowcodeHttp, readScope: () => lowcodeApi.readRequestScope() })
-const runtimeSummary = computed(() => draft.runtimeTarget.startsWith('cfg:') ? '配置页面资源' : draft.runtimeTarget.startsWith('vue:') ? 'Vue 页面资源' : '未配置')
+const runtimeSummary = computed(() => {
+  void dataViewRevision.value
+  const target = String(session.value?.value('NavigationUrl') ?? '')
+  return target.startsWith('cfg:') ? '配置页面资源' : target.startsWith('vue:') ? 'Vue 页面资源' : '未配置'
+})
+const draft = {
+  read(field: string) {void dataViewRevision.value; return session.value?.value(field)},
+  write(field: string, value: unknown) {session.value?.update(field, value); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()},
+  get planningContent() {return String(this.read('memo') ?? '')},
+  set planningContent(value: string) {this.write('memo', value)},
+  get prototypeHtml() {return String(this.read('htmlDesc') ?? '')},
+  set prototypeHtml(value: string) {this.write('htmlDesc', value)},
+  get formKey() {return String(this.read('conid') ?? '')},
+  set formKey(value: string) {this.write('conid', value)},
+  get difficultyFactor() {return Number(this.read('DifficultyFactor') ?? 0)},
+  set difficultyFactor(value: number) {this.write('DifficultyFactor', value)},
+  get manhour() {return Number(this.read('Manhour') ?? 0)},
+  set manhour(value: number) {this.write('Manhour', value)},
+  get quantity() {return Number(this.read('Number') ?? 0)},
+  set quantity(value: number) {this.write('Number', value)},
+  get sum() {return Number(this.read('Sum') ?? 0)},
+  set sum(value: number) {this.write('Sum', value)},
+  get total() {return Number(this.read('Total') ?? 0)},
+  set total(value: number) {this.write('Total', value)},
+  get personInCharge() {return String(this.read('personCharge') ?? '')},
+  set personInCharge(value: string) {this.write('personCharge', value)},
+  get status() {return String(this.read('status') ?? '')},
+  set status(value: string) {this.write('status', value)},
+  get visible() {return Number(this.read('IsShowAtNav') ?? 0) !== 0},
+  set visible(value: boolean) {this.write('IsShowAtNav', value ? 1 : 0)},
+  get navigationType() {return Number(this.read('NavigationType') ?? 0)},
+  set navigationType(value: number) {this.write('NavigationType', value)},
+}
+type FieldAccess = Readonly<{read: boolean; write: boolean}>
+const access = (field: string): FieldAccess => ({read: session.value?.canRead(field) ?? false, write: session.value?.canWrite(field) ?? false})
+const estimateAccess = computed(() => {void dataViewRevision.value; return ({
+  DifficultyFactor: access('DifficultyFactor'), Manhour: access('Manhour'), Number: access('Number'),
+  Sum: access('Sum'), Total: access('Total'), personCharge: access('personCharge'), status: access('status'),
+})})
+const deliveryAccess = computed(() => {void dataViewRevision.value; return access('NavigationUrl').write && access('VersionId').read && access('VersionId').write})
 
-function estimateNumber(value: unknown): number {
-  const number = Number(value ?? 0)
-  return Number.isFinite(number) ? number : 0
+function releaseSession(destroyDataSet: boolean): void {
+  unregisterSession?.(); unregisterSession = undefined
+  session.value?.dispose(); session.value = undefined
+  if (destroyDataSet) {dataSet?.destroy(); dataSet = undefined; dataSetProjectId = ''}
 }
 
-function applyRecord(record: Awaited<ReturnType<typeof lowcodeApi.blueprint.readRecords>>[number]) {
-  const source = record.source
-  Object.assign(draft, {
-    planningContent: record.capability.description ?? '', prototypeHtml: record.prototype?.htmlDescription ?? '',
-    formKey: record.dataSpace?.scenarioId ?? '',
-    difficultyFactor: estimateNumber(source['DifficultyFactor'] ?? source['difficultyFactor']),
-    manhour: estimateNumber(source['Manhour'] ?? source['manhour']), quantity: estimateNumber(source['Number'] ?? source['number']),
-    sum: estimateNumber(source['Sum'] ?? source['sum']), total: estimateNumber(source['Total'] ?? source['total']),
-    personInCharge: record.capability.ownerId ?? '', status: record.capability.deliveryStatus ?? '',
-    visible: record.navigation?.publishInMenu ?? false,
-    navigationType: estimateNumber(source['NavigationType'] ?? source['navigationType']), runtimeTarget: record.navigation?.target ?? '',
-  })
-  fileVersions.value = String(source['versionId'] ?? source['VersionId'] ?? source['VERSIONID'] ?? '').trim()
-}
+onBeforeUnmount(() => { disposed = true; loadRevision++; releaseSession(true) })
 
-async function load() {
+async function load(): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
-  if (!nodeId) return
+  const projectId = props.state.projectId
+  if (!nodeId) {releaseSession(false); return}
   const revision = ++loadRevision
-  const initialDraft = JSON.stringify(draft)
   loading.value = true
   try {
-    const record = (await lowcodeApi.blueprint.readRecords(props.state.projectId)).find(item => item.nodeId === nodeId)
-    if (!record) throw new Error(`远程节点不存在：${nodeId}`)
-    if (!disposed && revision === loadRevision) {
-      if (initialDraft === JSON.stringify(draft)) applyRecord(record)
-      else {
-        fileVersions.value = String(record.source['versionId'] ?? record.source['VersionId'] ?? record.source['VERSIONID'] ?? '').trim()
-        draft.runtimeTarget = record.navigation?.target ?? ''
-      }
+    if (!dataSet || dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || dataSetProjectId !== projectId) {
+      releaseSession(true)
+      const loaded = await loadLowcodeRuntimeScenario({projectId, scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+      if (disposed || revision !== loadRevision || props.state.projectId !== projectId) {loaded.destroy(); return}
+      dataSet = loaded
+      dataSetProjectId = projectId
     }
+    if (!session.value) {
+      const loaded = dataSet
+      if (!loaded) throw new Error('蓝图 DataSet 未初始化')
+      session.value = new BlueprintWorkspaceDataView(loaded, projectId, () => {
+        if (disposed || props.state.projectId !== projectId) throw new Error('蓝图 DataView 项目作用域已失效')
+      })
+      const registeredSession: ExternalDataViewSession = {isDirty: () => session.value?.dirty ?? false, save: () => session.value?.save() ?? Promise.resolve()}
+      unregisterSession = props.state.registerExternalDataViewSession(registeredSession)
+    }
+    const current = session.value
+    if (!current) throw new Error('蓝图 DataView 未初始化')
+    await current.load(nodeId)
+    dataViewRevision.value++
+    props.state.notifyExternalDataViewChanged()
   } catch (error) {
-    if (!disposed && revision === loadRevision) props.state.addStatus(`六阶段内容加载失败: ${String(error)}`, 'error')
+    if (!disposed && revision === loadRevision) props.state.addStatus(`六阶段 DataView 加载失败: ${String(error)}`, 'error')
   } finally { if (!disposed && revision === loadRevision) loading.value = false }
 }
 
-async function save(patch: MutablePatch, label: string) {
+async function save(label: string): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
-  if (!nodeId || saving.value || loading.value) return
-  if ('conid' in patch && props.state.pageDataDirty.value) { props.state.addStatus('请先保存场景视图编辑，再修改场景绑定', 'warning'); return }
-  const initialDraft = JSON.stringify(draft)
-  const initialNode = JSON.stringify(props.state.selectedNode.value)
+  const current = session.value
+  if (!nodeId || !current || saving.value || loading.value) return
   const projectId = props.state.projectId
   saving.value = true
   try {
-    const record = await lowcodeApi.blueprint.updateNodeFields(projectId, nodeId, patch)
-    if (!disposed && props.state.projectId === projectId && props.state.selectedNode.value?.nodeId === nodeId && initialDraft === JSON.stringify(draft)) {
-      applyRecord(record)
-      if ('conid' in patch && initialNode === JSON.stringify(props.state.selectedNode.value) && !props.state.blueprintDirty.value) {
-        props.state.project.applyBlueprintNodeEdit({node:{...props.state.selectedNode.value,...record}})
-        props.state.project.markBlueprintClean('node')
-        try { await props.state.loadSelectedScenarioViews() }
-        catch(error){props.state.addStatus(`场景绑定已保存；视图配置加载失败: ${String(error)}`,'error')}
-      }
-    }
-    props.state.addStatus(`${label}已保存并从远程后端读回`, 'success')
+    await current.save()
+    if (disposed || props.state.projectId !== projectId || props.state.selectedNode.value?.nodeId !== nodeId) throw new Error('保存已提交，但工作区目标随后发生变化')
+    props.state.notifyExternalDataViewChanged()
+    props.state.addStatus(`${label}已通过 Base_NavigationInfo DataView 保存并读回；保存范围为当前节点全部暂存字段`, 'success')
   } catch (error) {
-    props.state.addStatus(`${label}保存失败: ${String(error)}`, 'error')
+    props.state.addStatus(`${label} DataView 保存失败或回执待核验: ${String(error)}`, 'error')
   } finally { saving.value = false }
 }
 
-function saveEstimate() {
-  void save({ DifficultyFactor: draft.difficultyFactor, Manhour: draft.manhour, Number: draft.quantity, Sum: draft.sum, Total: draft.total, personCharge: draft.personInCharge, status: draft.status }, '节点估算')
+function cancelEdits(): void {
+  try {session.value?.cancel(); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()}
+  catch (error) {props.state.addStatus(`取消蓝图 DataView 修改失败: ${String(error)}`, 'error')}
 }
 
 async function saveDelivery() {
@@ -127,6 +165,9 @@ async function saveDelivery() {
   const pageId = props.state.activePageId.value
   if (!nodeId || !pageId || saving.value || loading.value) return
   const projectId = props.state.projectId
+  const current = session.value
+  if (!current || !deliveryAccess.value) {props.state.addStatus('发布交付要求当前 DataView 正式返回 NavigationUrl、VersionId 且允许读写', 'warning'); return}
+  if (current.dirty || current.hasUnconfirmedSave) {props.state.addStatus('请先保存或取消当前节点字段修改，再提交发布文件', 'warning'); return}
   const scopeToken = lowcodeApi.readRequestScope().token
   const texts = new Map((['rule.json', 'script.js', 'style.css'] as const).map(name => [name, props.state.project.readPageFileText(name)]))
   const written: string[] = []
@@ -139,8 +180,9 @@ async function saveDelivery() {
   }
   saving.value = true
   try {
-    const customPath = draft.runtimeTarget.startsWith('cfg:')
-      ? draft.runtimeTarget.slice(4)
+    const runtimeTarget = String(current.value('NavigationUrl') ?? '')
+    const customPath = runtimeTarget.startsWith('cfg:')
+      ? runtimeTarget.slice(4)
       : `${projectId}/${pageId}`
     const pathSegments = customPath.split('/')
     if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || pathSegments[0] !== projectId || pathSegments.length < 2
@@ -163,16 +205,16 @@ async function saveDelivery() {
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 上传期间已修改，未更新发布引用`)
       versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       attemptedReferences.push(versionedName)
-      const record = await lowcodeApi.blueprint.updateNodeFields(projectId, nodeId, {
-        NavigationUrl: `cfg:${customPath}`,
-        VersionId: encodeLowcodeBlueprintFileVersions(versions),
-      })
-      const readbackVersions = String(record.source['versionId'] ?? record.source['VersionId'] ?? record.source['VERSIONID'] ?? '').trim()
+      current.update('NavigationUrl', `cfg:${customPath}`)
+      current.update('VersionId', encodeLowcodeBlueprintFileVersions(versions))
+      dataViewRevision.value++
+      props.state.notifyExternalDataViewChanged()
+      await current.save()
+      const readbackVersions = String(current.value('VersionId') ?? '').trim()
       if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== encodeLowcodeBlueprintFileVersions(versions)) throw new Error(`${fileName} 发布指针回读不一致`)
       confirmed.push(versionedName)
       assertTarget()
-      fileVersions.value = readbackVersions
-      draft.runtimeTarget = record.navigation?.target ?? ''
+      props.state.notifyExternalDataViewChanged()
     }
     props.state.addStatus('开发交付三个文件已独立上传、切换版本并读回', 'success')
   } catch (error) {
@@ -180,13 +222,7 @@ async function saveDelivery() {
   } finally { saving.value = false }
 }
 
-watch([() => props.state.selectedNode.value?.nodeId ?? '', () => props.state.projectId], () => {
-  loadRevision++
-  loading.value = false
-  Object.assign(draft, emptyDraft())
-  fileVersions.value = ''
-  void load()
-}, { immediate: true })
+watch([() => props.state.selectedNode.value?.nodeId ?? '', () => props.state.projectId], () => {void load()}, { immediate: true })
 </script>
 
 <style scoped>

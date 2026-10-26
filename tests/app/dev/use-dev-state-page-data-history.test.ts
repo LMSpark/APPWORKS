@@ -283,7 +283,7 @@ describe('tool and shared scenario editing owners',()=>{
   const Slot=defineComponent({template:'<div><slot /></div>'})
   const Button=defineComponent({props:['disabled'],template:'<button :disabled="disabled"><slot /></button>'})
   const Input=defineComponent({props:['disabled'],template:'<input :disabled="disabled" />'})
-  const wrapper=shallowMount(DataPlanningPane,{props:{form:{formKey:'scene'},state,saving:false},global:{stubs:{ElForm:Slot,ElFormItem:Slot,ElButton:Button,ElInput:Input}}})
+  const wrapper=shallowMount(DataPlanningPane,{props:{form:{formKey:'scene'},state,saving:false,fieldAccess:{read:true,write:true}},global:{stubs:{ElForm:Slot,ElFormItem:Slot,ElButton:Button,ElInput:Input}}})
   expect(wrapper.findComponent(DevDataSetDesigner).exists()).toBe(true)
   expect(wrapper.findComponent(DevDataSetDesigner).props('state')).toBe(state)
   await state.writeScenarioViewText(fixtureText(50));await wrapper.vm.$nextTick()

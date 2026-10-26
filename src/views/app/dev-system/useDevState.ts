@@ -111,6 +111,12 @@ paramName: string}
 /** Dev Workspace Tab 的语义模型。 */
 export type DevWorkspaceTab = 'props' | 'preview' | ProjectBlueprintDomain.PageToolFileName
 
+/** DataView-backed page areas register the same dirty/save owner with the DevSystem shell. */
+export type ExternalDataViewSession = Readonly<{
+  isDirty: () => boolean
+  save: () => Promise<void>
+}>
+
 // ═══════════════════════════════════════════════════════════
 // 共享状态工厂
 // ═══════════════════════════════════════════════════════════
@@ -131,6 +137,18 @@ export function useDevState() {
     tenantId: initialScope.tenantId,
     projectId: initialScope.projectId,
   })
+  const externalDataViewRevision = ref(0)
+  const externalDataViewSessions = new Set<ExternalDataViewSession>()
+  function registerExternalDataViewSession(session: ExternalDataViewSession): () => void {
+    externalDataViewSessions.add(session)
+    externalDataViewRevision.value++
+    return () => {externalDataViewSessions.delete(session); externalDataViewRevision.value++}
+  }
+  function notifyExternalDataViewChanged(): void {externalDataViewRevision.value++}
+  function hasExternalDataViewChanges(): boolean {
+    void externalDataViewRevision.value
+    return [...externalDataViewSessions].some(session => session.isDirty())
+  }
   const editableProjects = ref<EditableProjectOption[]>([])
   const projectOptionsLoading = ref(false)
   const pageFileNames = PAGE_TOOL_FILE_NAMES
@@ -256,7 +274,7 @@ export function useDevState() {
     const nextScope = normalizeEditScope(scope)
     if (sameEditScope(nextScope)) return true
 
-    if ((project.readDirtyProjection().hasAnyDirty || editor.dirtyScenarioIds.length > 0) && options.force !== true) {
+    if ((project.readDirtyProjection().hasAnyDirty || editor.dirtyScenarioIds.length > 0 || hasExternalDataViewChanges()) && options.force !== true) {
       addStatus('当前项目模型还有未保存改动，请先保存后再切换编辑项目', 'warning')
       projectPicker.tenantId = tenantId.value
       projectPicker.projectId = projectId.value
@@ -373,6 +391,7 @@ export function useDevState() {
   const hasAnyDirty = computed(() => {
     void scenarioDefinitionRevision.value
     return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || editor.unconfirmedPageFiles.length > 0
+      || hasExternalDataViewChanges()
   })
 
   const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
@@ -973,6 +992,10 @@ export function useDevState() {
     let stage = '蓝图属性'
     allSaving.value = true; cancelAutoSave()
     try {
+      stage = '蓝图 DataView'
+      for (const session of externalDataViewSessions) if (session.isDirty()) await session.save()
+      assertCurrent()
+      stage = '蓝图属性'
       if ((blueprintDirty.value || !hasAnyDirty.value) && !await saveCurrentNavScope()) throw new Error('蓝图属性未保存；后续文件尚未提交')
       assertCurrent(); stage = '工具工作文件'
       const hadFiles = workspace.unconfirmedPageFiles.length > 0 || [...workspace.project.design.pages].some(page => page.getDirtyFileNames().length > 0)
@@ -994,6 +1017,10 @@ export function useDevState() {
 
   async function selectNode(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     cancelAutoSave()
+    if (hasExternalDataViewChanges()) {
+      addStatus('当前蓝图节点有 DataView 未保存修改，请先保存或取消后再切换节点', 'warning')
+      return
+    }
     if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
     if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
       scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
@@ -1206,6 +1233,8 @@ export function useDevState() {
     // 计算属性
     hasAnyFileDirty,
     hasAnyDirty,
+    registerExternalDataViewSession,
+    notifyExternalDataViewChanged,
 
     editor,
     project,

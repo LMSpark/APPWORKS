@@ -1830,3 +1830,12 @@ flowchart TD
 - 根源码复核确认 `DataSpaceRuntimeApi.queryColumns()` 与 `query()` 均使用 `DataSpaceDesignApi.resolveOutputFields(model)`；显式查询字段只能在正式输出集合内解析。因此，将七列手工加到页面 DataTable 或通过模型元数据外围绕开 IsOutput 会违反现有查询合同。此前 SPA 设计页见到的这七列定义及 IsOutput 未选状态仍是部署配置证据，不等于本轮已经变更。
 - 低价实施者重新启动 BlueprintWorkspace 迁移，范围为选中节点通过 `Base_NavigationInfo` DataSet/DataView 完成读取、编辑、取消与显式保存；现有发布文件上传、版本快照和导航指针边界保留。本轮尚未改源码或正式模型；代码先通过测试落实，模型写入与真实权限核验由主控在可用正式会话中执行。
 - **状态：**用户授权已解除“是否扩大共享模型输出”的产品决策阻塞，蓝图迁移进入实施；七列实际字段输出/读写权限、模型保存读回、DataSet 页面烟测仍未完成。本地浏览器目前只有未登录 SPA 页面；不将来源码或 fixture 当成部署验证。物理预览与 workflow file 的公共资源合同缺口仍开放，其他 DataSet 逃逸项继续按优先级处理。本节只记录决策及源码证据，没有写入正式模型、业务数据或 Java。
+
+### 2026-10-26 本轮执行与复核
+
+- 在已登录的 D99A/NewApp SPA 数据空间设计器中，正式打开 `Base_NavigationInfo` → 字段呈现。七个获批目标字段均存在；其中 `Manhour`、`Sum`、`Number`、`Total`、`DifficultyFactor` 起初未勾选且控件可编辑，`personCharge`、`status` 已勾选。未改动其他字段；共享模型中 `MobileUrl.ValueFun` 原有格式错误保留未动。
+- 经模型设计器既有 DataView 保存入口提交一次。界面先提示提交回执尚未完全确认，未重试；随后既有核验流程显示“本次字段配置已批量保存”。关闭模型并重新打开，七列仍全部输出、保存按钮禁用。此为正式 SPA 保存及读回证据，不是线级请求捕获；无业务行数据写入，无 Java 修改。
+- 低价实施者完成蓝图工作区迁移，根复核将三个重要发现修复后冻结：`hasUnconfirmedSave` 时拒绝新编辑；节点清空后重选可重建 DataView session；发布指针更新后通知统一保存状态。工作区现在通过 `loadLowcodeRuntimeScenario(LOWCODE_APPLICATION_CATALOG_FORM_KEY)` 读取 `Base_NavigationInfo` 默认 DataView；所有显示字段读取、编辑、取消和 DataSet 提交均由该 DataView 承担。估算字段按 DataView 当前输出列与读写权限 fail-closed；提交只保存当前节点已暂存字段，保留其他字段编辑覆盖。Save All/切换项目/切换节点纳入同一会话脏态及未知回执保护。交付页文件上传仍由原文件资源 owner 分别处理，导航版本指针改经 DataView 保存。
+- 自动化证据：受影响工作区、DataView 与宿主测试合并为 2 文件/35 项通过；受影响文件 ESLint、全仓 `typecheck`、生产 `build`、目录限制及完整 `verify:rules` 通过。`verify:rules` 中 AI model-spec 扫描保留既有 2 条警告（`DataViewFilter` 与 `ScenarioViewConfig` 缺 `fromJson()`），扫描及整套规则退出码为 0。正式 `generate:lowcode-contracts` 刷新消费者账本并通过 `--check`。
+- **权限边界：**正式 SPA 核实并成功使用了元数据设计 DataView 对七列输出设置的编辑权限；运行时节点字段权限不从账号或菜单推断，源码以当次节点 DataView `canRead/canWrite` 和 output columns 控制，自动化测试覆盖拒绝路径。尚无本轮部署运行页下针对真实节点记录的字段级权限/业务数据保存烟测，因此不宣称真实运行数据权限读写已端到端验收。
+- **状态：**七列共享模型输出配置已正式保存并关闭/重开读回；蓝图页面实现已改为唯一 `DataSet/DataView` 编辑保存链，自动化门禁全部通过。完整 SPA 节点端到端运行烟测仍待补；物理目录预览与工作流文件读取等其他已登记逃逸项未包含在本轮。本轮完成的是针对蓝图数据行链的一项收敛，不表示整个仓库数据游离问题已解决。

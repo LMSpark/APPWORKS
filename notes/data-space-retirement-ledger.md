@@ -1815,3 +1815,11 @@ flowchart TD
 - 正常 DataView 查询仅在显式 `fieldProjection` 的输出字段 ValueFun 或查询聚合继承时调用该解析器；当前仓内 `config/pages/application/project-blueprint/pagedata.json` 的 `default`、`catalogBindings` 均没有显式 fieldProjection/聚合配置。故准确取证需要记录设计器预览实际 view ID、projection 输出字段和值函数，再按同一正式字段 DataView 身份读回 `Base_NavigationInfo.MobileUrl.ValueFun` 原文后对应。不得通过放松解析器、忽略坏值或修改共享字段来先行绕过。
 - 为继续当前本地 SPA 只读验证创建新 IAB 标签后，页面可见企业选项含“领码科技”，使用用户提供的测试账号发起一次登录返回 `[1003] 企业信息不存在：领码科技`；未重试其他企业、未保存密码。当前没有可复用的登录会话，无法继续该部署查询；源码检查和测试设计继续进行。
 - **状态：**蓝图预览失败仍是确证的本地校验错误，但具体 ValueFun 行/投影来源未证实；估算字段输出与权限仍未知。登录烟测当前由本地 SPA 的 tenant registry 回执阻断；不将用户账号或部署数据/权限缺口写入共享模型。统一数据链逃逸项继续开放，本节没有代码、模型或业务数据写入，没有修改/启动/部署 Java。
+
+## 2026-10-26 DataSet 逃逸项第二轮合同复核
+
+- 低价模型只读复核 `database-catalog-preview-view-ops.ts` 的物理表/视图预览。DataView 扩展口确实可承载显式资源身份、真实结果主键及正式行/字段授权状态；但当前 GetData 适配仍只提取 `Items/Count`，表主键可回退伪造为 `rowid`，可见性与只读权限在前端合成。安全迁移有条件可行，前提是正式响应为每行提供可核验主键和权限快照（写身份还需 `lingma_sys_key`）；当前无非测试响应体证据证明这些值实际存在。无 Java/服务合同证据前，不扩展前端协议、不造权限、不声称物理预览已统一。
+- 低价模型只读审查 `src/services/workflow-designs.ts` 活跃的 `listWorkflowDesigns/readWorkflowDesign/readWorkflowDefinition`。它们服务于旧 `WorkflowDesigns.vue` 与 AI 工作流定义读取，当前通过 lowcode design file API 读取目录/文件。已存在的 `attachStagedDesignView` 仅支持单文件编辑行，调用方提供 load/persist owner；结构化工作流配置页的 `attachWorkflowDesignEdit` 调用 `/api/DataWorkFlowDesign/read`，它与 `design.json`、`definition.json` 文件不是同一种资源，不能替代。最小解锁是公共 SPARK data 文件资源层正式承接应用/文件夹身份、目录查询、workflowId/文件名读取、切换失效与结果接纳，再由页面和 AI 运行时复用同一 owner。此次没有实施临时包装，也没有改源码。
+- **执行记录：**当前仓库活动源码的逃逸分类至少包含：物理目录预览原始 GetData、蓝图页面行记录的独立 draft/lowcode API（其底层虽是正式 DataSpace query/save owner）、蓝图运行时树操作未经共享 DataView 状态、AI 工作流目录/文件直读，以及应用级关系依赖字典候选 helper。它们语义不同，不能只用 grep/直接 HTTP 数量判定；登记/目录命令等已由 DataSet 命令视图承接的 HTTP 属于资源 owner 内部提交实现，不算页面第二套编辑状态，但仍须逐项核身份/权限/回执。
+- **Ruling：**先补 SPARK data 的真实资源合同，再逐类收敛页面消费。当前物理预览、workflow file 与无场景身份的应用级关系依赖查询均不具备已验证的统一接入合同；蓝图仍须先获得实际 DataView 的估算字段输出/权限读回。禁止将原 HTTP/LowcodeClient 调用简单包装成 `DataView` 即宣称统一，也不以修改 Java 或人工补造模型、主键、授权快照解阻。
+- **状态：**本轮远程更新后 `HEAD=3723a93d77d5a62c9f8e095781f3769a79f6a5a7`，工作树干净且与 `origin/codex/ai-data-entry` 同步；当前没有安全的单项代码迁移可以在缺失服务合同的情况下成立。SPA 登录本地仍返回企业信息不存在，真实权限/响应烟测未恢复。该次为只读审计及台账更新；没有改业务代码、正式数据或 Java。统一 DataSet 入口仍是开放的核心架构工作，整体计划继续 implementing。

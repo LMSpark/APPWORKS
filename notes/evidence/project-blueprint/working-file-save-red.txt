@@ -1,0 +1,78 @@
+Command: pnpm vitest run tests/app/dev/page-tool-files-command.test.ts packages/spark-project-model/tests/project-model.test.ts
+
+Output:
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ packages/spark-project-model/tests/project-model.test.ts (27 tests | 1 failed) 54ms
+     × fails closed without a DataView page-file owner instead of writing through ProjectPageFileGateway 9ms
+ ❯ tests/app/dev/page-tool-files-command.test.ts (21 tests | 3 failed) 71ms
+     × saves a working file as one DataSet command after baseline check and exact readback 11ms
+     × rejects a stale baseline and keeps a failed command identity for explicit retry 1ms
+     × verifies an unknown working-file receipt against the original command before replay 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/project-model.test.ts > ProjectBlueprint > fails closed without a DataView page-file owner instead of writing through ProjectPageFileGateway
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ packages/spark-project-model/tests/project-model.test.ts:61:53
+     59|     workspace.project.setActivePage('orders')
+     60|     workspace.project.writePageFile({fileName:'script.js',text:'draft'…
+     61|     await expect(workspace.savePageFile('script.js')).rejects.toThrow(…
+       |                                                     ^
+     62|     expect(write).not.toHaveBeenCalled()
+     63|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/app/dev/page-tool-files-command.test.ts > PageToolFilesDataView > saves a working file as one DataSet command after baseline check and exact readback
+TypeError: owner.saveFileChange is not a function
+ ❯ tests/app/dev/page-tool-files-command.test.ts:14:24
+     12|     const owner=new PageToolFilesDataView(dataSet,'APP',{list:async()=…
+     13|       upload,remove:async()=>{}},()=>{})
+     14|     await expect(owner.saveFileChange({pageId:'PAGE',customPath:'APP/P…
+       |                        ^
+     15|     expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFile…
+     16|     expect(upload).toHaveBeenCalledExactlyOnceWith({appId:'APP',pageId…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/app/dev/page-tool-files-command.test.ts > PageToolFilesDataView > rejects a stale baseline and keeps a failed command identity for explicit retry
+TypeError: owner.saveFileChange is not a function
+ ❯ tests/app/dev/page-tool-files-command.test.ts:25:24
+     23|       list:async()=>[...files.keys()],read:async(_app:string,_page:str…
+     24|     },()=>{})
+     25|     await expect(owner.saveFileChange({pageId:'PAGE',customPath:'APP/P…
+       |                        ^
+     26|     expect(upload).not.toHaveBeenCalled()
+     27|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/app/dev/page-tool-files-command.test.ts > PageToolFilesDataView > verifies an unknown working-file receipt against the original command before replay
+TypeError: owner.saveFileChange is not a function
+ ❯ tests/app/dev/page-tool-files-command.test.ts:35:24
+     33|     },()=>{})
+     34|     const command={pageId:'PAGE',customPath:'APP/PAGE',fileName:'scrip…
+     35|     await expect(owner.saveFileChange(command)).rejects.toThrow('timeo…
+       |                        ^
+     36|     const commandId=owner.view.rows[0]?.['commandId']
+     37|     await expect(owner.saveFileChange(command)).resolves.toBe('updated…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 44 passed (48)
+   Start at  06:43:00
+   Duration  3.76s (transform 2.64s, setup 343ms, import 3.51s, tests 125ms, environment 2.51s)

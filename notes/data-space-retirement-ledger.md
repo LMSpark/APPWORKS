@@ -1735,3 +1735,10 @@ flowchart TD
 - 类型下拉实际只提供 MySQL、SQL Server、Oracle、PostgreSQL 四项，未提供目录中已有的 DM、KINGBASE。低价只读合同核查确认 `RendererFilter` / `FieldSelect` 支持绑定筛选 DataView及动态 `optionDataViewKey`，但仓内没有确认可代表服务器类型的正式选项模型/DataView；不能以当前目录行推导全局枚举，也不能擅加 DM/KINGBASE。由正式模型/服务合同确认存储值、显示名和支持状态后，才可决定静态枚举或绑定现有权威 DataView。
 - 使用“重置”后再次显式查询，正式列表恢复全部 5 行且筛选摘要清空；结束时没有筛选残留。两次筛选中间出现短暂旧表格是异步读回时序，后续最新 DOM 状态显示相应过滤结果；未将旧快照误记为最终结果。真实网络请求 ID/请求体未由本次浏览器观测工具取得，故请求字段级线上证据仍以本地 DataView 请求测试为准：目标测试9/9通过，数据库目录回归13文件189/189，typecheck、scoped ESLint、diff检查通过。
 - 本次没有保存、登记、删除、测试数据库连接或变更服务目录。当前状态：名称/IP筛选部署端结果已验证并可重置恢复；类型候选和正式权威选项来源未闭合，真实 Type 条件查询未执行；本地修复已提交 `470a7b125`，本节仅为烟测台账追加。
+
+## 2026-10-26 TableAndView 正式 SPA 入口只读复核
+
+- 由 D99A 元数据管理 SPA 左侧“表和视图管理”进入，URL 在同一应用导航中解析为 `/features/data-platform/database-management/table-and-view/ui/table-and-view-page`，无整页刷新。首屏数据库目录显示 Total 31，证明该导航页可正常装配并显示目录。
+- 选中目录明确标注为测试的 `dm_test`（正式数据库目录 rowid `22D7FFAB908C4C5A87C6AA79414DEB56`）。当前行获得 `current-row spark-selection-row`；视图 DataView 正式读回 `viewtesst` 一条。选择该视图后字段区域正式显示 Total 14，字段列与行内容（包括 description、flowstate、ReportID、id 等）均由页面呈现。物理表页显示 No Data。没有点注册、设计、删除、刷新等写入入口，没有执行数据库连接测试，没有保存任何模型、视图或字段。
+- 该结果核实的是 D99A 当前正式菜单到本仓 TableAndView SPA 页面，以及 `数据库目录 → 视图 → 字段目录` 的可见读回链；不证明此前失效的其他应用旧路径 `/DataCenter/ServerManagerment.html` 应映射到本页面，也未获取当前 SPA 的请求 ID/响应体。部署页面的请求体级 SPARK data owner 仍以仓内对应 DataView 集成测试和运行时实现核对，不能把 UI 点击单独当作请求合同证据。
+- **状态：TableAndView 正式入口与测试库视图/字段只读链已在 D99A SPA 实际显示；旧应用节点默认页映射、物理表正式查询以及写入类目录命令回执仍未验收。**

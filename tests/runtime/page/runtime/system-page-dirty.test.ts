@@ -11,6 +11,42 @@ const wrappers: ReturnType<typeof mount>[] = []
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount())})
 
 describe('native system page dirty sources', () => {
+  it('blocks single-mode route navigation while the active system page is dirty', async () => {
+    const dirty = ref(true)
+    const page = defineComponent({setup() {
+      SystemPages.useSystemPageDirtySource({get isDirty() {return dirty.value}})
+      return () => h('div', 'native edit')
+    }})
+    const clean = defineComponent({render: () => h('div', 'clean')})
+    const router = createRouter({history: createMemoryHistory(), routes: []})
+    const dynamic = createDynamicRouter({router, pageComponent: clean,
+      loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
+        {id: 'edit', title: 'Edit', path: '/edit', itemKind: 'system-page'},
+        {id: 'clean', title: 'Clean', path: '/clean', itemKind: 'system-page'},
+      ]}), componentMap: {'/edit': page, '/clean': clean}})
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    await router.push('/edit?scenarioId=A')
+    let tabs: ReturnType<typeof useTabPages> | undefined
+    const host = mount(defineComponent({setup() {
+      tabs = useTabPages(); tabs.setMode('single')
+      return () => h(RouterView)
+    }}), {global: {plugins: [router]}})
+    wrappers.push(host)
+    await flushPromises()
+    const instance = dynamic.getSystemPageInstance(router.currentRoute.value)!
+    expect(instance.isDirty).toBe(true)
+
+    await expect(router.push('/clean')).rejects.toThrow('未保存')
+    expect(router.currentRoute.value.fullPath).toBe('/edit?scenarioId=A')
+    expect(dynamic.getSystemPageInstanceById(instance.instanceId)?.instanceId).toBe(instance.instanceId)
+    expect(instance.isDirty).toBe(true)
+
+    dirty.value = false
+    await router.push('/clean')
+    expect(router.currentRoute.value.path).toBe('/clean')
+  })
+
   it('guards close, single mode and project switching using the original source without storing drafts', async () => {
     expect(Reflect.get(SystemPages, 'useSystemPageDirtySource')).toBeTypeOf('function')
     const dirty = ref(true)

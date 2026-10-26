@@ -1648,3 +1648,10 @@ flowchart TD
 - 真实 SPA 状态：原 IAB 标签不存在。启动本地 Vite 前端后，带租户的直接深链路由未在该本地项目导航注册，Vue Router 回退到项目首页；自动化树没有可操作业务控件，也没有可复用登录态。因此未完成已部署服务登录/读回/命令回执烟测；没有执行登记、删除、排序或 AI 写操作。Vite 已停止。自动化测试不冒充服务烟测。
 - **Ruling：不因已知 endpoint index 或参考 Java 源码开放“登记已有数据库”实现。当前 SPA 不可用于只读捕获部署命令/回执，写入协议及逐项结果仍未确证；若猜 `/api/Db/registerDB/{serverId}` 或直接复用普通目录行保存，可能造成服务端误操作并绕过旧命令语义。待正式部署合同或已授权 SPA 只读证据，再按 DataSet/DataView 命令链实施；本轮无 Java 修改。**
 - **状态：远程整合核对完成；通用 AI 和 B2 数据库相关自动化复核通过；真实 SPA/服务端 smoke 仍未完成。B2 已有库登记合同、数据库删除引用完整性、连接测试部署端点/连通性与整页对照继续开放；B1 AI 下游唯一性范围仍需确认正式约束来源。总体数据空间整合继续 implementing。下一步先恢复可用的已授权 SPA 会话做只读正式合同诊断，或按唯一台账剩余不依赖服务写入的前端闭环继续。**
+
+## 2026-10-26 SPA 单页模式脏工作区离开保护
+
+- 复核通用 AI 生命周期审计指出的“卸载兜底可能丢弃脏状态”：正常 SPA 单页模式离开由 `useTabPages` 的全局路由守卫在离开前检查当前 system-page instance；多页模式通过 KeepAlive 保留实例，关闭/批量关闭/切单页模式前分别做脏态检查。应用切换由 `ProjectNavigationGuard` 检查所有运行实例。`useDictionaryWorkspace.onBeforeUnmount` 的强制释放只覆盖身份/进程 teardown；当前导航路径可先阻断正常离开，无需新增第二份草稿状态或改生产生命周期代码。
+- 由 `gpt-6-luna` 增加 `tests/runtime/page/runtime/system-page-dirty.test.ts` 回归测试：原 DataView dirty source 在单页模式下使路由跳转拒绝、保持原 URL 和 system-page instance；同一 source 清理后跳转成功。写者临时绕过既有守卫验证 RED，结果因导航未拒绝而失败，随后恢复源码；没有生产代码改动。主控独立复跑该文件，1文件/3项通过；`git diff --check`通过。原始日志在 `ignored/cache/task-spa-dirty-single-mode-route-guard-{red,green}-20261026.log`。
+- 为当前正式烟测恢复本地 Vite 后确认 `/login` 表单可显示，租户选项为已授权企业；没有提交登录凭据或业务操作。导航深链路目标仍未通过本地导航注册，故真实后端 SPARK data 查询/回执烟测继续未完成；本地 Vite 已停止。
+- **状态：新增 SPA 离开保护回归证据；现有生产守卫满足本场景，没有代码缺陷需要修复。数据库登记部署协议、AI 服务端Agent配置、字典完整范围唯一性仍依赖正式运行合同/会话。整体目标继续 implementing。**

@@ -82,8 +82,7 @@ export async function databaseCatalogCopyTable(dataSet: DataSet, input: Database
   const newRowId = crypto.randomUUID().replaceAll('-', '').toUpperCase()
   const schemaName = scalar(sourceRow['schemaName']) || 'dbo'
   const status = scalar(sourceRow['status']) || '1'
-  await tableView.addRow({
-    rowid: newRowId,
+  await tableView.addRowWithIdentity({field: 'rowid', value: newRowId}, {
     dbid: dbId,
     tblname: newTableName,
     tbldesc: newTableDesc,

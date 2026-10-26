@@ -15,6 +15,19 @@ import type { BaseContainerApi } from './base-container-api.js'
 import { createCancelledCrudResult } from '../interactionControl.js'
 import type { EventDispatcher } from '../useEventDefaults.js'
 
+async function addRowThroughCurrentOwner(view: DataView, row: DataRow) {
+  if (!view.requiresExplicitIdentitySubmission || !Object.hasOwn(row, view.primaryKey)) return view.addRow(row)
+  if (!view.supportsExplicitIdentityCreate) return view.addRow(row)
+  const value = row[view.primaryKey]
+  if ((typeof value !== 'string' && typeof value !== 'number')
+    || (typeof value === 'string' && value.trim().length === 0)
+    || (typeof value === 'number' && !Number.isFinite(value))) {
+    throw new Error(`DATA_VIEW_NEW_ROW_IDENTITY: ${view.primaryKey} 必须是非空字符串或有限数字`)
+  }
+  return view.addRowWithIdentity({field: view.primaryKey, value},
+    Object.fromEntries(Object.entries(row).filter(([field]) => field !== view.primaryKey)))
+}
+
 export function createBaseCrudMethods(
   resolvedView: ValueRef<DataView | null>,
   dispatch: EventDispatcher,
@@ -36,7 +49,7 @@ export function createBaseCrudMethods(
       if (!view) return null
       const { cancel } = await dispatch('add-row', row)
       if (cancel) return createCancelledCrudResult<DataRow>('addRow cancelled by business handler')
-      return await view.addRow(row)
+      return await addRowThroughCurrentOwner(view, row)
     },
     async editRowById(id, patch) {
       const view = resolvedView.value

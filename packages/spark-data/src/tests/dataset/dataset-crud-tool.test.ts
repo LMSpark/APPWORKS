@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DataSetCrudTool, DataSet, SparkData } from '@spark-appworks/spark-data'
 
 function createValueCascadeTool() {
@@ -16,6 +16,60 @@ const valueCascade = {kind: 'field' as const, cascadeId: 'city', tableName: 'Ord
   optionsView: {tableName: 'Cities', viewId: 'choices'}, valuePolicy: {mode: 'retain' as const}}
 
 describe('DataSetCrudTool', () => {
+  async function createFormalIdentityTool() {
+    const tool = DataSetCrudTool.fromJson({dataSetName: 'FormalIdentityDS', scenarioId: 'FORMAL-SPACE', tables: {
+      Users: {tableName: 'Users', modelBinding: {modelId: 'USERS', modelName: 'Users'},
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+        views: {default: {commitMode: 'staged'}}},
+    }})
+    const view = tool.getView({tableName: 'Users', viewId: 'default'})
+    view.bindQueryExecutor({executeQuery: async () => ({
+      rows: [{id: 'EXISTING', name: 'Existing'}], total: 1, resultPrimaryKey: 'id',
+      assertIdentity: identity => {
+        if (identity.scenarioId !== 'FORMAL-SPACE' || identity.metaName !== 'Users') throw new Error('query identity mismatch')
+      },
+      rowKey: row => row['id'],
+      prepareNewRow: row => ({...row, id: 'GENERATED'}),
+      prepareNewRowWithIdentity: (row, identity) => ({...row, [identity.field]: identity.value}),
+      fieldAccess: () => ({read: 'visible', write: 'allowed', required: false, component: 'editable', writeMode: 'editable'}),
+      readFieldAccess: () => 'visible',
+      addActionState: available => available ? 'enabled' : 'disabled',
+      editActionState: () => 'enabled', deleteActionState: () => 'enabled',
+      createChildActionState: () => 'enabled', viewActionState: () => 'enabled',
+    })})
+    await view.loadFromServer()
+    expect(view.requiresExplicitIdentitySubmission).toBe(true)
+    expect(view.supportsExplicitIdentityCreate).toBe(true)
+    return {tool, view}
+  }
+
+  it('routes a formal explicit primary key through DataView identity submission', async () => {
+    const {tool, view} = await createFormalIdentityTool()
+    try {
+      const identitySubmit = vi.spyOn(view, 'addRowWithIdentity')
+      await expect(tool.createRow({tableName: 'Users', data: {id: 'USER-2', name: 'Bob'}}))
+        .resolves.toMatchObject({id: 'USER-2', name: 'Bob'})
+      expect(identitySubmit).toHaveBeenCalledWith({field: 'id', value: 'USER-2'}, {name: 'Bob'})
+    } finally { tool.dataSet.destroy() }
+  })
+
+  it('keeps batch partial failures while routing each explicit identity through DataView', async () => {
+    const {tool, view} = await createFormalIdentityTool()
+    try {
+      const identitySubmit = vi.spyOn(view, 'addRowWithIdentity')
+      const result = await tool.createRows({tableName: 'Users', items: [
+        {id: 'USER-2', name: 'Bob'},
+        {id: 'EXISTING', name: 'Duplicate'},
+        {id: 'USER-3', name: 'Carol'},
+      ]})
+      expect(result.data).toMatchObject({successCount: 2, failureCount: 1})
+      expect(identitySubmit).toHaveBeenCalledTimes(3)
+      expect(view.dirtyTracking.pendingCreateIds.has('USER-2')).toBe(true)
+      expect(view.dirtyTracking.pendingCreateIds.has('USER-3')).toBe(true)
+      expect(view.dirtyTracking.pendingCreateIds.has('EXISTING')).toBe(false)
+    } finally { tool.dataSet.destroy() }
+  })
+
   it('maintains value cascades by identity with serialized value configuration and undo/redo', () => {
     const tool = createValueCascadeTool()
     try {

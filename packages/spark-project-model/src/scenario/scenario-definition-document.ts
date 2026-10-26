@@ -18,6 +18,20 @@ type DocumentOptions = Readonly<{
   persisted: boolean
 }>
 
+async function addDesiredDefinitionRow(view: DataView, row: DataRow): Promise<unknown> {
+  const keyField = view.primaryKey
+  if (!view.requiresExplicitIdentitySubmission || !Object.hasOwn(row, keyField)) return view.addRow(row)
+  if (!view.supportsExplicitIdentityCreate) return view.addRow(row)
+  const value = row[keyField]
+  if ((typeof value !== 'string' && typeof value !== 'number')
+    || (typeof value === 'string' && value.trim().length === 0)
+    || (typeof value === 'number' && !Number.isFinite(value))) {
+    throw new Error(`SCENARIO_DOCUMENT_IDENTITY: ${keyField} 必须是非空字符串或有限数字`)
+  }
+  return view.addRowWithIdentity({field: keyField, value},
+    Object.fromEntries(Object.entries(row).filter(([field]) => field !== keyField)))
+}
+
 /** 完整定义文档的交互命令；不持有另一份可编辑文本、行集合或保存通道。 */
 export class ScenarioDefinitionDocument {
   readonly #history = new SnapshotHistory<string>(100)
@@ -209,7 +223,7 @@ export class ScenarioDefinitionDocument {
         const existing = new Map(view.rows.map(row => [this.key(view, row), row]))
         for (const [key, row] of desired) {
           const original = existing.get(key)
-          if (!original) {operations.push(view.addRow(row)); continue}
+          if (!original) {operations.push(addDesiredDefinitionRow(view, row)); continue}
           const id = view.getPkKey(original)
           if (id === undefined) throw new Error('SCENARIO_DOCUMENT_KEY: 原定义缺少身份')
           const values = view.getEditingRow(id) ?? original

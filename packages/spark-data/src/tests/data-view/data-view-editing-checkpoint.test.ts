@@ -16,13 +16,16 @@ function setup() {
 async function setupNewRowQuery(options: {
   isFieldReadOnly?: (field: string, scope: string) => boolean
   addEnabled?: boolean
+  childEnabled?: boolean
   keyless?: boolean
   omitPrepareNewRow?: boolean
+  explicitIdentity?: boolean
+  remapIdentity?: boolean
 } = {}) {
   const dataSet = SparkData.createDataSet({scenarioId: 'SPACE', dataSetName: 'Candidate', tables: {Items: {
     tableName: 'Items', modelBinding: {modelId: 'ITEMS', modelName: 'Items'},
     columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string', required: true},
-      {name: 'restricted', type: 'string'}, {name: 'computed', type: 'string', isComputed: true},
+      {name: 'parentId', type: 'string'}, {name: 'restricted', type: 'string'}, {name: 'computed', type: 'string', isComputed: true},
       {name: 'expression', type: 'string', computeExpression: "title + ' computed'"},
       {name: 'generated', type: 'number', autoIncrement: true}],
     views: {default: {commitMode: 'staged'}},
@@ -35,18 +38,20 @@ async function setupNewRowQuery(options: {
     const scope = String(params.context?.['scope'] ?? 'default')
     return {
       rows: [{id: '1', title: 'original', restricted: 'original'}], total: 1,
+      ...(!options.keyless ? {resultPrimaryKey: 'id'} : {}),
       assertIdentity: identity => {
         if (identity.scenarioId !== 'SPACE' || identity.metaName !== 'Items') throw new Error('identity mismatch')
       },
       rowKey: row => row['id'],
       ...(options.keyless ? {resultPrimaryKey: ''} : {}),
       ...(options.omitPrepareNewRow ? {} : {prepareNewRow: (row: Record<string, unknown>) => ({...row, id: '2'})}),
+      ...(options.explicitIdentity ? {prepareNewRowWithIdentity: (row: Record<string, unknown>, identity: {field: string; value: string | number}) => ({...row, id: options.remapIdentity ? 'REMAPPED' : identity.value})} : {}),
       isFieldReadOnly: field => options.isFieldReadOnly?.(field, scope) ?? false,
       fieldAccess: () => ({read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'}),
       readFieldAccess: () => 'visible',
       addActionState: available => options.addEnabled === false || available === false ? 'disabled' : 'enabled',
       editActionState: () => 'enabled', deleteActionState: () => 'enabled',
-      createChildActionState: () => 'enabled', viewActionState: () => 'enabled',
+      createChildActionState: (_rowKey: unknown, available = true) => options.childEnabled === false || !available ? 'disabled' : 'enabled', viewActionState: () => 'enabled',
     }
   }})
   await view.loadFromServer()
@@ -142,6 +147,7 @@ describe('DataView editing checkpoints', () => {
     const readOnlyFields: string[] = []
     view.bindQueryExecutor({executeQuery: async () => ({
       rows: [{id: '1', title: 'original', restricted: 'original'}], total: 1,
+      resultPrimaryKey: 'id',
       assertIdentity: identity => {
         if (identity.scenarioId !== 'SPACE' || identity.metaName !== 'Items') throw new Error('identity mismatch')
       },
@@ -167,9 +173,12 @@ describe('DataView editing checkpoints', () => {
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(readOnlyFields).toEqual(['title'])
 
-    const added = await view.addRow({title: 'new', restricted: 'candidate'})
+    await expect(view.addRow({title: 'new', restricted: 'candidate'})).rejects.toThrow(/restricted/u)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    const added = await view.addRow({title: 'new'})
     expect(view.fieldAccess(added, 'title')).toEqual(access)
     expect(view.fieldAccess(added, 'restricted').write).toBe('denied')
+    expect(readOnlyFields).toContain('restricted')
   })
 
   it('denies a later query-context read-only field before addRow and leaves no pending create', async () => {
@@ -192,6 +201,96 @@ describe('DataView editing checkpoints', () => {
   it('denies new-row input when the current query says adding is unavailable', async () => {
     const {view} = await setupNewRowQuery({addEnabled: false})
     expect(view.newRowFieldAccess('title').write).toBe('denied')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('accepts a separate formal identity without granting primary-key field editing', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true})
+    expect(view.supportsExplicitIdentityCreate).toBe(true)
+    expect(view.newRowFieldAccess('id').write).toBe('denied')
+    await expect(view.addRow({id: 'DIRECT', title: 'candidate'})).rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED')
+
+    const added = await view.addRowWithIdentity({field: 'id', value: 'EXPLICIT'}, {title: 'candidate'})
+
+    expect(added).toMatchObject({id: 'EXPLICIT', title: 'candidate'})
+    expect(view.dirtyTracking.pendingCreateIds.has('EXPLICIT')).toBe(true)
+    expect(() => view.updateEditingValue('EXPLICIT', 'id', 'MUTATED')).toThrow(/不允许修改主键字段/u)
+  })
+
+  it('keeps formal identity additions on the DataSet staging path even in immediate mode', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true})
+    view.commitMode = 'immediate'
+    await view.addRowWithIdentity({field: 'id', value: 'IMMEDIATE-MODE'}, {title: 'candidate'})
+    expect(view.dirtyTracking.pendingCreateIds.has('IMMEDIATE-MODE')).toBe(true)
+    expect(view.rows.some(row => row['id'] === 'IMMEDIATE-MODE')).toBe(true)
+  })
+
+  it('does not infer formal identity support for a local configuration view', () => {
+    const view = setup()
+    expect(view.supportsExplicitIdentityCreate).toBe(false)
+  })
+
+  it('rejects identity when the owner does not explicitly support it or the field mismatches', async () => {
+    const unsupported = await setupNewRowQuery()
+    await expect(unsupported.view.addRowWithIdentity({field: 'id', value: 'NEW'}, {title: 'candidate'}))
+      .rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_OWNER')
+    const supported = await setupNewRowQuery({explicitIdentity: true})
+    await expect(supported.view.addRowWithIdentity({field: 'other', value: 'NEW'}, {title: 'candidate'}))
+      .rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH')
+    expect(supported.view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('preflights every identity-backed new field before staging any row', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true, isFieldReadOnly: field => field === 'restricted'})
+    const rowsBefore = structuredClone(view.rows)
+    await expect(view.addRowWithIdentity({field: 'id', value: 'NEW'}, {title: 'candidate', restricted: 'denied'}))
+      .rejects.toThrow(/restricted/u)
+    expect(view.rows).toEqual(rowsBefore)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it.each(['computed', 'expression', 'generated', 'missing'] as const)(
+    'rejects identity-backed non-input or unknown fields before staging: %s', async field => {
+      const {view} = await setupNewRowQuery({explicitIdentity: true})
+      const rowsBefore = structuredClone(view.rows)
+      await expect(view.addRowWithIdentity({field: 'id', value: 'NEW'}, {[field]: 'candidate'}))
+        .rejects.toThrow()
+      expect(view.rows).toEqual(rowsBefore)
+      expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    },
+  )
+
+  it('requires root add permission for identity-backed root additions', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true, addEnabled: false})
+    await expect(view.addRowWithIdentity({field: 'id', value: 'NEW'}, {title: 'candidate'}))
+      .rejects.toThrow('DATA_VIEW_ADD_DISABLED')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('rejects identity-backed inputs that conflict with owner-derived query defaults', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true})
+    view.filterExpression = {field: 'parentId', operator: 'eq', value: 'PARENT-1'}
+    await view.refresh()
+    await expect(view.addRowWithIdentity({field: 'id', value: 'CHILD'}, {title: 'candidate', parentId: 'PARENT-2'}))
+      .rejects.toThrow('DATA_VIEW_NEW_ROW_DEFAULT_CONFLICT')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    await expect(view.addRowWithIdentity({field: 'id', value: 'CHILD-OK'}, {title: 'candidate', parentId: 'PARENT-1'}))
+      .resolves.toMatchObject({id: 'CHILD-OK', parentId: 'PARENT-1'})
+  })
+
+  it('rejects explicit identity staging after the query owner becomes stale', async () => {
+    const {view, failNextQuery} = await setupNewRowQuery({explicitIdentity: true})
+    failNextQuery()
+    await view.refresh()
+    await expect(view.addRowWithIdentity({field: 'id', value: 'STALE'}, {title: 'candidate'}))
+      .rejects.toThrow('DATA_VIEW_RESULT_STALE')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('rejects an owner that silently remaps the requested identity before staging', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true, remapIdentity: true})
+    await expect(view.addRowWithIdentity({field: 'id', value: 'REQUESTED'}, {title: 'candidate'}))
+      .rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH')
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
   })
 

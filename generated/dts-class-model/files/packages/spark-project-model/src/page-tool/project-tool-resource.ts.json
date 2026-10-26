@@ -39,7 +39,7 @@
         },
         "executeQuery": {
           "type": "object",
-          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 11 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 12 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
         },
         "save": {
           "type": "object",
@@ -47,11 +47,11 @@
         },
         "hasUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 11 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
         },
         "abandonUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 11 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
         },
         "source": {
           "$ref": "../../../spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
@@ -99,6 +99,10 @@
         "prepareNewRow": {
           "type": "object",
           "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "prepareNewRowWithIdentity": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, identity: DataViewNewRowIdentity) => Record<string, unknown>"
         },
         "isFieldReadOnly": {
           "type": "object",

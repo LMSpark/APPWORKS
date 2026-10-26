@@ -471,6 +471,7 @@ export class DataSpaceRuntimeApi {
         page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
       config: origin?.config ?? DataSpaceRequestConfig.resolveQuery(),
     })
+    if (context.rows.some(row => !keys.includes(key(row)))) return unknown
     const found = new Map(context.rows.map(row => [String(context.rowKey(row) ?? '').trim(), row]))
     const same = (left: unknown, right: unknown) => Object.is(left, right) || JSON.stringify(left) === JSON.stringify(right)
     const states = [

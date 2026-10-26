@@ -1266,7 +1266,7 @@ export class DataSetCrudTool {
     const viewId = params.viewId ?? 'default'
     const table = this.getTableOrThrow(tableName)
     const view = this.getViewOrThrow(tableName, viewId)
-    const result = await view.addRow(data)
+    const result = await this.addRowToView(view, data)
     // 无远端 API 的 default view 同时承担 DataTable.rows 的静态源数据，需要双向保持一致。
     this.syncInlineDefaultRows(table, viewId)
     return result
@@ -1286,9 +1286,11 @@ export class DataSetCrudTool {
     const viewId = params.viewId ?? 'default'
     const table = this.getTableOrThrow(tableName)
     const view = this.getViewOrThrow(tableName, viewId)
-    const result = this.shouldUseRemoteBatch(table, view)
+    const hasFormalExplicitIdentity = view.requiresExplicitIdentitySubmission
+      && items.some(item => Object.hasOwn(item, view.primaryKey))
+    const result = this.shouldUseRemoteBatch(table, view) && !hasFormalExplicitIdentity
       ? await view.crud.batchCreateRecords(items)
-      : await this.executeBatchLocal(items, (item) => view.addRow(item))
+      : await this.executeBatchLocal(items, item => this.addRowToView(view, item))
     this.syncInlineDefaultRows(table, viewId)
     return result
   }
@@ -1633,6 +1635,21 @@ export class DataSetCrudTool {
 
   private shouldUseRemoteBatch(table: DataTable, view: DataView): boolean {
     return table.api !== undefined && view.commitMode === 'immediate'
+  }
+
+  /** 显式正式主键只通过当前正式查询owner的独立身份入口提交；本地/命令视图保留原 addRow 合同。 */
+  private addRowToView(view: DataView, data: DataRow): Promise<DataRow | CrudResult<DataRow>> {
+    if (!view.requiresExplicitIdentitySubmission || !Object.hasOwn(data, view.primaryKey)) return view.addRow(data)
+    if (!view.supportsExplicitIdentityCreate) return view.addRow(data)
+    const field = view.primaryKey
+    const value = data[field]
+    if ((typeof value !== 'string' && typeof value !== 'number')
+      || (typeof value === 'string' && value.trim().length === 0)
+      || (typeof value === 'number' && !Number.isFinite(value))) {
+      throw new Error(`DATA_SET_CRUD_IDENTITY: ${field} 必须是非空字符串或有限数字`)
+    }
+    const ordinary = Object.fromEntries(Object.entries(data).filter(([name]) => name !== field))
+    return view.addRowWithIdentity({field, value}, ordinary)
   }
 
   private async executeBatchLocal<T>(

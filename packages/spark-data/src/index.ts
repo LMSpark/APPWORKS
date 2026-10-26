@@ -26,7 +26,7 @@ export { SparkData } from './spark-data'
 
 export { DataSet } from './dataset'
 export { DataTable } from './data-table'
-export { DataView } from './data-view'
+export { DataView, type DataViewNewRowIdentity } from './data-view'
 export { DataViewFilter } from './query/filter/data-view-filter'
 export { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 export { DataViewFilterCodec } from './query/filter/data-view-filter-codec'

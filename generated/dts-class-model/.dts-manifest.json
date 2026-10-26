@@ -1449,7 +1449,7 @@
     "packages/spark-component/src/components/containers/support/crud/base-crud-methods.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/support/crud/base-crud-methods.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/support/crud/base-crud-methods.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.134Z"
+      "sourceModifiedAt": "2026-10-26T23:47:45.151Z"
     },
     "packages/spark-component/src/components/containers/support/crud/crud-defaults.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/support/crud/crud-defaults.ts",
@@ -2409,7 +2409,7 @@
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/action-data.ts.json",
-      "sourceModifiedAt": "2026-10-15T13:10:24.572Z"
+      "sourceModifiedAt": "2026-10-26T23:38:28.531Z"
     },
     "packages/spark-component/src/page/actions/action-executor.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-executor.ts",
@@ -2594,12 +2594,12 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-26T03:46:29.123Z"
+      "sourceModifiedAt": "2026-10-26T23:49:06.571Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
       "shardFile": "files/packages/spark-data/src/dataset-crud-tool.ts.json",
-      "sourceModifiedAt": "2026-10-10T09:59:07.505Z"
+      "sourceModifiedAt": "2026-10-26T23:49:06.573Z"
     },
     "packages/spark-data/src/dataset-history.ts": {
       "sourceFile": "packages/spark-data/src/dataset-history.ts",
@@ -2614,7 +2614,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-23T00:16:12.848Z"
+      "sourceModifiedAt": "2026-10-26T23:31:06.223Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -3014,7 +3014,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:19.719Z"
+      "sourceModifiedAt": "2026-10-26T23:46:41.878Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3069,7 +3069,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-10-23T17:23:36.152Z"
+      "sourceModifiedAt": "2026-10-26T23:46:35.898Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
@@ -3169,7 +3169,7 @@
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-api.ts.json",
-      "sourceModifiedAt": "2026-10-06T20:57:27.508Z"
+      "sourceModifiedAt": "2026-10-26T23:35:53.424Z"
     },
     "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
@@ -3199,7 +3199,7 @@
     "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-26T03:46:29.134Z"
+      "sourceModifiedAt": "2026-10-26T23:32:19.852Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
@@ -3379,7 +3379,7 @@
     "packages/spark-project-model/src/scenario/scenario-definition-document.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-document.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-definition-document.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:54:00.489Z"
+      "sourceModifiedAt": "2026-10-26T23:47:18.750Z"
     },
     "packages/spark-project-model/src/scenario/scenario-definition-records.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-records.ts",
@@ -3849,7 +3849,7 @@
     "src/lowcode/resources/database/database-catalog-copy-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-copy-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-copy-view-ops.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:15.650Z"
+      "sourceModifiedAt": "2026-10-26T23:32:19.854Z"
     },
     "src/lowcode/resources/database/database-catalog-db-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
@@ -4014,7 +4014,7 @@
     "src/lowcode/resources/shared/page-tool-files-command.ts": {
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "shardFile": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:08:48.756Z"
+      "sourceModifiedAt": "2026-10-26T22:44:42.528Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
@@ -4049,7 +4049,7 @@
     "src/services/ai/agent-workflow-bindings.ts": {
       "sourceFile": "src/services/ai/agent-workflow-bindings.ts",
       "shardFile": "files/src/services/ai/agent-workflow-bindings.ts.json",
-      "sourceModifiedAt": "2026-10-07T03:12:55.212Z"
+      "sourceModifiedAt": "2026-10-26T23:11:43.242Z"
     },
     "src/services/ai/ai-agent-run.ts": {
       "sourceFile": "src/services/ai/ai-agent-run.ts",
@@ -4124,7 +4124,7 @@
     "src/services/project-planning/project-planning-agent-workflow-binding.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json",
-      "sourceModifiedAt": "2026-10-06T19:55:09.112Z"
+      "sourceModifiedAt": "2026-10-26T23:11:38.623Z"
     },
     "src/services/project-planning/project-planning-ai-runner.ts": {
       "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
@@ -4189,12 +4189,12 @@
     "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
-      "sourceModifiedAt": "2026-10-26T20:51:19.771Z"
+      "sourceModifiedAt": "2026-10-26T22:33:48.619Z"
     },
     "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-26T21:41:25.274Z"
+      "sourceModifiedAt": "2026-10-26T22:52:40.961Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",

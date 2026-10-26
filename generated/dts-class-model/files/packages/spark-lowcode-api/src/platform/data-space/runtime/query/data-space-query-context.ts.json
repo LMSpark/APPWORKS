@@ -319,6 +319,22 @@
           "type": "object",
           "title": "Record<string, unknown>"
         },
+        "method.prepareNewRowWithIdentity.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataSpaceRow"
+            },
+            "identity": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataViewNewRowIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareNewRowWithIdentity.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
         "method.rowKey.params": {
           "type": "object",
           "properties": {
@@ -501,7 +517,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T17:23:36.152Z",
+  "generatedAt": "2026-10-26T23:46:35.898Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -865,6 +881,41 @@
                     "type": "reference",
                     "name": "DataSpaceRow",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareNewRowWithIdentity",
+              "jsdoc": "Prepare a formal new row with caller-supplied identity kept separate from ordinary field input.\nThe identity must match this exact query result key and is never replaced by an owner-generated key.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRow",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                },
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewNewRowIdentity"
                   }
                 }
               ],

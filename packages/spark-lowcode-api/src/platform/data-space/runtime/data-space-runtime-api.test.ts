@@ -525,7 +525,8 @@ describe('DataSpace runtime save owner', () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)
     const context = await api.dataSpace.runtime.query(identity)
-    const row = context.prepareNewRow({rowid: 'ROOT-NEW', SysId: 'APP-A', prowid: '000000', name: '新模块'})
+    expect(context.prepareNewRow({rowid: 'LEGACY-ROW', SysId: 'APP-A', prowid: '000000'})).toMatchObject({rowid: 'LEGACY-ROW'})
+    const row = context.prepareNewRowWithIdentity({SysId: 'APP-A', prowid: '000000', name: '新模块'}, {field: 'rowid', value: 'ROOT-NEW'})
     const command = {changes: [{identity, context, changes: {added: [row]}}]}
     http.saveError = new Error('socket closed after create')
     await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed after create')
@@ -1223,17 +1224,90 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
-  it('accepts the actual returned identity for a pending created row', async () => {
+  it('retains generated identities for ordinary creates while explicit IDs use the separate identity API', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
     await view.loadFromServer()
-    await view.addRow({ rowid: 'NEW-INPUT', salary: 200 })
+    const generated = await view.addRow({salary: 200})
+    if ('success' in generated) throw new Error('新增未返回待提交行')
+    const generatedId = view.getPkKey(generated)
+    if (generatedId === undefined) throw new Error('普通新增未生成身份')
     http.saveResult = { maplistadd: [{ physical: [{ rowid: 'ROW-2', salary: 210 }] }] }
     await expect(view.saveChanges()).resolves.toMatchObject({ success: true, data: { createdCount: 1 } })
-    expect(view.rows.find(row => view.getPkKey(row) === 'NEW-INPUT')).toBeUndefined()
+    expect(view.rows.find(row => view.getPkKey(row) === generatedId)).toBeUndefined()
     expect(view.rows.find(row => view.getPkKey(row) === 'ROW-2')).toMatchObject({ salary: 210 })
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
     expect(JSON.stringify(http.saveRequests[0]?.data)).not.toContain('_pk')
+
+    const explicit = await view.addRowWithIdentity({field: 'rowid', value: 'EXPLICIT'}, {salary: 220})
+    expect(explicit).toHaveProperty('rowid', 'EXPLICIT')
+    await expect(view.addRow({rowid: 'DIRECT', salary: 230})).rejects.toThrow('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED')
+    expect(view.dirtyTracking.pendingCreateIds.has('DIRECT')).toBe(false)
+    ds.destroy()
+  })
+
+  it('keeps an explicit identity unchanged while an unknown add receipt is verified through the original context', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'STABLE'}, {salary: 110})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'STABLE')).toMatchObject({salary: 110})
+
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'STABLE', salary: 110, lingma_sys_key: 'STABLE-KEY', lingma_sys_params: {r: ['salary'], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success: true, data: {createdCount: 1}})
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.rows).toContainEqual(expect.objectContaining({rowid: 'STABLE', salary: 110}))
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    ds.destroy()
+  })
+
+  it('rejects an explicit identity changed by a save receipt and keeps the same draft recoverable', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'FIXED-ID'}, {salary: 115})
+    http.saveResult = {maplistadd: [{physical: [{rowid: 'REWRITTEN-ID', salary: 115}]}]}
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_RECEIPT_EXPLICIT_IDENTITY')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('FIXED-ID')).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'FIXED-ID')).toMatchObject({salary: 115})
+    expect(http.saveRequests).toHaveLength(1)
+
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'FIXED-ID', salary: 115, lingma_sys_key: 'FIXED-KEY',
+        lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).resolves.toMatchObject({success: true, data: {createdCount: 1}})
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    ds.destroy()
+  })
+
+  it('keeps an unknown explicit-identity receipt unresolved when verification returns a different identity', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'UNKNOWN-ID'}, {salary: 116})
+    http.saveError = new Error('socket closed')
+    await expect(view.saveChanges()).rejects.toThrow('socket closed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'REWRITTEN-ID', salary: 116, lingma_sys_key: 'OTHER-KEY',
+        lingma_sys_params: {r: [], e: [], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.rows.find(row => row['rowid'] === 'UNKNOWN-ID')).toMatchObject({salary: 116})
+    expect(view.dirtyTracking.pendingCreateIds.has('UNKNOWN-ID')).toBe(true)
+    expect(http.saveRequests).toHaveLength(1)
     ds.destroy()
   })
 
@@ -1322,7 +1396,7 @@ describe('DataView original query execution boundary', () => {
     await view.editRowById('ROW-2', { salary: 250 })
     view.updateEditingValue('ROW-2', 'salary', 275)
     await view.removeRow('ROW-3')
-    await view.addRow({ rowid: 'ROW-NEW', salary: 400 })
+    await view.addRowWithIdentity({field: 'rowid', value: 'ROW-NEW'}, {salary: 400})
 
     expect(view.discardPendingChanges([])).toBe(0)
     expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
@@ -1413,7 +1487,7 @@ describe('DataView original query execution boundary', () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
     await view.loadFromServer()
-    await view.addRow({ rowid: 'ROW-NEW', salary: 300 })
+    await view.addRowWithIdentity({field: 'rowid', value: 'ROW-NEW'}, {salary: 300})
     view.updateEditingValue('ROW-NEW', 'salary', 350)
     await view.removeRow('ROW-NEW')
     await view.editRowById('ROW-1', { salary: 120 })
@@ -1434,15 +1508,18 @@ describe('DataView original query execution boundary', () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
     await view.loadFromServer()
-    await view.addRow({ rowid: 'NEW-INPUT', salary: 200 })
+    const created = await view.addRow({salary: 200})
+    if ('success' in created) throw new Error('新增未返回待提交行')
+    const createdId = view.getPkKey(created)
+    if (createdId === undefined) throw new Error('新增缺少身份')
     http.saveResult = { maplistadd: [{ physical: [{ rowid: 'ROW-2', salary: 210 }] }] }
     let release: (() => void) | undefined
     http.saveGate = new Promise<void>(resolve => { release = resolve })
     const started = new Promise<void>(resolve => { http.saveStarted = resolve })
     const save = view.saveChanges()
     await started
-    if (operation === 'edit') await view.editRowById('NEW-INPUT', { salary: 250 })
-    else await view.removeRow('NEW-INPUT')
+    if (operation === 'edit') await view.editRowById(createdId, { salary: 250 })
+    else await view.removeRow(createdId)
     release?.()
     await save
     if (operation === 'edit') {
@@ -1734,7 +1811,7 @@ describe('DataView original query execution boundary', () => {
     expect(second).toHaveProperty('rowid', expect.stringMatching(/^[A-F0-9]{32}$/))
     expect(first).not.toEqual(second)
     expect(view.dirtyTracking.pendingCreateIds.size).toBe(2)
-    const explicit = await view.addRow({rowid: 'EXPLICIT', salary: 103})
+    const explicit = await view.addRowWithIdentity({field: 'rowid', value: 'EXPLICIT'}, {salary: 103})
     expect(explicit).toHaveProperty('rowid', 'EXPLICIT')
     ds.destroy()
   })

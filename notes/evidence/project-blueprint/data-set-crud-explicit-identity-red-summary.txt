@@ -1,0 +1,12 @@
+RED run summary (not the original raw terminal log)
+Date: 2026-10-27
+Command reported by the low-cost implementer:
+  pnpm exec vitest run packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts -t "routes a formal explicit primary key|keeps batch partial failures"
+
+Reported result: 1 test file, 2 failed, 20 skipped, exit code 1.
+
+Observed failures:
+- Single formal explicit-primary-key create was rejected with DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED from DataView.addRow via DataSetCrudTool.createRow.
+- Batch create returned successCount=0 and failureCount=3; expected successCount=2 and failureCount=1.
+
+The implementer confirmed the test output was not written to disk. This file records the run details reported by the implementer; it is not a verbatim/raw runner transcript and does not satisfy the original raw-log retention requirement. The production routing fix and passing regression tests are verified separately.

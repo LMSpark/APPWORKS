@@ -18,6 +18,7 @@
       "FilterBlueprintPlanningNodesOptions",
       "ResolveScopedProjectPlanningRunInputOptions",
       "ProjectPlanningAgentWorkflowBindingOptions",
+      "ProjectPlanningBlueprintFacade",
       "ProjectPlanningGateValidationResult"
     ]
   },
@@ -240,6 +241,53 @@
         }
       }
     },
+    "ProjectPlanningBlueprintFacade": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningBlueprintFacade",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "blueprintTree": true,
+        "flatRows": {
+          "type": "array",
+          "items": true
+        },
+        "readProjectPlanningInput": true,
+        "readBlueprintPlanningInputs": true,
+        "readBlueprintNodePlanningInput": true,
+        "readPlanningProjection": true,
+        "completeProjectPlanning": true,
+        "replaceBlueprintChildren": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildNodes.return": {
+          "type": "array",
+          "items": true
+        },
+        "method.findNodeById.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findNodeById.return": true
+      }
+    },
     "ProjectPlanningGateValidationResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -264,7 +312,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T19:55:09.112Z",
+  "generatedAt": "2026-10-26T23:11:38.623Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
@@ -589,6 +637,112 @@
               "type": {
                 "type": "reference",
                 "name": "ProjectWorkspace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningBlueprintFacade": {
+      "name": "ProjectPlanningBlueprintFacade",
+      "jsdoc": "Read-only ProjectBlueprint surface exposed to dynamic planning scripts.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    blueprintTree: ProjectBlueprint['blueprintTree'];\n    flatRows: readonly unknown[];\n    readProjectPlanningInput: ProjectBlueprint['readProjectPlanningInput'];\n    readBlueprintPlanningInputs: ProjectBlueprint['readBlueprintPlanningInputs'];\n    readBlueprintNodePlanningInput: ProjectBlueprint['readBlueprintNodePlanningInput'];\n    readPlanningProjection: ProjectBlueprint['readPlanningProjection'];\n    getChildNodes: (nodeId?: string) => readonly unknown[];\n    findNodeById: (nodeId: string) => unknown;\n    completeProjectPlanning: ProjectBlueprint['completeProjectPlanning'];\n    replaceBlueprintChildren: ProjectBlueprint['replaceBlueprintChildren'];\n}> & Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    projectId: string;\n    blueprintTree: ProjectBlueprint['blueprintTree'];\n    flatRows: readonly unknown[];\n    readProjectPlanningInput: ProjectBlueprint['readProjectPlanningInput'];\n    readBlueprintPlanningInputs: ProjectBlueprint['readBlueprintPlanningInputs'];\n    readBlueprintNodePlanningInput: ProjectBlueprint['readBlueprintNodePlanningInput'];\n    readPlanningProjection: ProjectBlueprint['readPlanningProjection'];\n    getChildNodes: (nodeId?: string) => readonly unknown[];\n    findNodeById: (nodeId: string) => unknown;\n    completeProjectPlanning: ProjectBlueprint['completeProjectPlanning'];\n    replaceBlueprintChildren: ProjectBlueprint['replaceBlueprintChildren'];\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintTree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flatRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readProjectPlanningInput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readBlueprintPlanningInputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readBlueprintNodePlanningInput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPlanningProjection",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "completeProjectPlanning",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "replaceBlueprintChildren",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getChildNodes",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly unknown[]"
+              }
+            },
+            {
+              "name": "findNodeById",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
               }
             }
           ]

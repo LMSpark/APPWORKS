@@ -12,6 +12,7 @@
     "symbols": [
       "DataViewRecomputeColumnsOptions",
       "DataViewServerRowsPayload",
+      "DataViewNewRowIdentity",
       "DataView"
     ]
   },
@@ -277,6 +278,31 @@
       "properties": {},
       "additionalProperties": true
     },
+    "DataViewNewRowIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewNewRowIdentity",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
     "DataViewActionState": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DataViewActionState",
@@ -390,6 +416,22 @@
           "additionalProperties": false
         },
         "method.prepareNewRow.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.prepareNewRowWithIdentity.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "#/$defs/DataViewQueryRow"
+            },
+            "identity": {
+              "$ref": "#/$defs/DataViewNewRowIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareNewRowWithIdentity.return": {
           "type": "object",
           "title": "Record<string, unknown>"
         },
@@ -865,6 +907,12 @@
         "validateQueryResult": {
           "type": "object",
           "title": "(result: DataViewQueryResult) => void | Promise<void>"
+        },
+        "supportsExplicitIdentityCreate": {
+          "type": "boolean"
+        },
+        "requiresExplicitIdentitySubmission": {
+          "type": "boolean"
         },
         "primaryKey": {
           "type": "string"
@@ -2154,6 +2202,22 @@
           "type": "object",
           "title": "Promise<DataRow | CrudResult<DataRow>>"
         },
+        "method.addRowWithIdentity.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "#/$defs/DataViewNewRowIdentity"
+            },
+            "data": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addRowWithIdentity.return": {
+          "type": "object",
+          "title": "Promise<DataRow | CrudResult<DataRow>>"
+        },
         "method.removeRow.params": {
           "type": "object",
           "properties": {
@@ -2614,7 +2678,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T03:46:29.123Z",
+  "generatedAt": "2026-10-26T23:49:06.571Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -2898,6 +2962,35 @@
         "members": {}
       }
     },
+    "DataViewNewRowIdentity": {
+      "name": "DataViewNewRowIdentity",
+      "jsdoc": "显式新增时独立提交的正式行身份，不作为普通 DataView 字段写入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    field: string;\n    value: string | number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    field: string;\n    value: string | number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataViewActionState": {
       "name": "DataViewActionState",
       "jsdoc": "后端权限与当前可用状态共同决定的动作呈现，不等价于保存授权。",
@@ -2970,11 +3063,11 @@
       "jsdoc": "单次查询的私有结果能力；持有原行身份、权限呈现与新增身份准备，不公开签名快照。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+            "typeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -3052,6 +3145,42 @@
                   "type": {
                     "type": "reference",
                     "name": "DataViewQueryRow",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareNewRowWithIdentity",
+              "jsdoc": "仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryRow",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewNewRowIdentity",
                     "sourcePath": "packages/spark-data/src/data-view.ts"
                   }
                 }
@@ -3771,6 +3900,18 @@
               "jsdoc": "本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。\n抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。\n仅属于运行实例，不写入视图配置；不适用于保存回执或本地行替换。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "supportsExplicitIdentityCreate",
+              "jsdoc": "当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresExplicitIdentitySubmission",
+              "jsdoc": "当前正式查询是否声明了结果主键；显式主键不得绕过 DataView identity API 或由外层批量 CRUD 直写。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "primaryKey",
@@ -5747,6 +5888,62 @@
               "name": "addRow",
               "jsdoc": "本地新增行。commitMode='staged' 时标记为 pending-create（saveChanges 统一提交）；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.createRecord。\n@param data 新行数据。",
               "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addRowWithIdentity",
+              "jsdoc": "通过原查询owner独立提交正式主键身份与普通新增字段。\n仅当当前结果报告相同 resultPrimaryKey、owner声明prepareNewRowWithIdentity，且表级新增获准时使用。\n普通字段在任何行进入DataView前逐项预检正式列、计算规则与新行写权限；owner返回身份须与请求完全一致。\n@param identity 与当前结果主键完全一致的正式身份字段和值。\n@param data 待写入的新行普通字段，不包含身份字段。\n@returns 被同一DataView接受并进入新增脏追踪的完整行。",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewNewRowIdentity",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
                 {
                   "name": "data",
                   "type": {

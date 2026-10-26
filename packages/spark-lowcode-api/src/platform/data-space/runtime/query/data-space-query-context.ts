@@ -5,6 +5,7 @@
  * AI用途：从实际查询行消费权限并构造可验证的保存请求。
  */
 import { DataSpaceDesignApi } from '../../design/data-space-design-api'
+import type { DataViewNewRowIdentity } from '@spark-appworks/spark-data'
 import type { DataSpaceQueryIdentity } from '../data-space-runtime-contract'
 import { DataSpaceRowPermission } from '../protocol/data-space-permission'
 import type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from '../protocol/data-space-permission'
@@ -70,6 +71,7 @@ export class DataSpaceQueryContext {
   readonly #rows: readonly DataSpaceRow[]
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
   readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
+  readonly #explicitNewRowIds = new Set<string | number>()
   #invalid = false
   #aggregateResult = false
   #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
@@ -134,6 +136,10 @@ export class DataSpaceQueryContext {
     this.assertCurrent()
     const keyField = this.keyField
     if (!keyField || keyField === '_pk' || /[,+]/.test(keyField)) throw new Error('SPARK_NEW_ROW_KEY: 新增缺少唯一正式 keyField')
+    return this.prepareNewRowForKey(input, keyField)
+  }
+
+  private prepareNewRowForKey(input: DataSpaceRow, keyField: string): Record<string, unknown> {
     const row = {...input}
     delete row['_pk']
     delete row['lingma_sys_key']
@@ -143,6 +149,26 @@ export class DataSpaceQueryContext {
       globalThis.crypto.getRandomValues(bytes)
       row[keyField] = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase()
     }
+    return row
+  }
+
+  /**
+   * Prepare a formal new row with caller-supplied identity kept separate from ordinary field input.
+   * The identity must match this exact query result key and is never replaced by an owner-generated key.
+   */
+  public prepareNewRowWithIdentity(input: DataSpaceRow, identity: DataViewNewRowIdentity): Record<string, unknown> {
+    this.assertCurrent()
+    const keyField = this.keyField
+    if (!keyField || keyField === '_pk' || /[,+]/.test(keyField) || identity.field !== keyField
+      || Object.hasOwn(input, identity.field)
+      || (typeof identity.value !== 'string' && typeof identity.value !== 'number')
+      || (typeof identity.value === 'string' && identity.value.trim().length === 0)
+      || (typeof identity.value === 'number' && !Number.isFinite(identity.value))) {
+      throw new Error('SPARK_NEW_ROW_IDENTITY: 显式身份必须与原查询的唯一正式主键一致')
+    }
+    const row = this.prepareNewRowForKey({...input, [identity.field]: identity.value}, keyField)
+    if (!Object.is(row[identity.field], identity.value)) throw new Error('SPARK_NEW_ROW_IDENTITY: 新增准备改变了请求身份')
+    this.#explicitNewRowIds.add(identity.value)
     return row
   }
 
@@ -253,6 +279,15 @@ export class DataSpaceQueryContext {
       if (receipt[action].length !== (requested[action]?.length ?? 0)) throw new Error('SPARK 保存回执行身份数量不匹配')
     }
     const keyField = this.keyField
+    for (const [index, actual] of receipt.added.entries()) {
+      const submitted = requested.added?.[index]
+      if (submitted === undefined) throw new Error('SPARK 保存回执行身份数量不匹配')
+      const submittedId = submitted[keyField]
+      if ((typeof submittedId === 'string' || typeof submittedId === 'number') && this.#explicitNewRowIds.has(submittedId)
+        && !Object.is(this.rowKeyValue(actual), submittedId)) {
+        throw new Error('SPARK_SAVE_RECEIPT_EXPLICIT_IDENTITY: 显式正式身份不能被保存回执改写')
+      }
+    }
     const resolveExisting = (action: 'changed' | 'deleted'): DataSpaceSaveRow[] => {
       const selected = new Set((requested[action] ?? []).map(row => canonicalKey(this.rowKeyValue(row))))
       const received = new Set<string>()
@@ -320,6 +355,10 @@ export class DataSpaceQueryContext {
       scope: this.#scope, readScope: this.#readScope,
       ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
     if (this.#model) context.bindFormalModel(this.#model)
+    for (const row of receipt.added) {
+      const id = this.rowKeyValue(row)
+      if (typeof id === 'string' || typeof id === 'number') this.#explicitNewRowIds.delete(id)
+    }
     this.assertCurrent()
     const changedFields = Object.freeze(command.receipt.changed.map(row =>
       Object.freeze(Object.keys(this.canonicalReceiptRow(row)))))

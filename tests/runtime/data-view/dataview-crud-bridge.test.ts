@@ -5,6 +5,7 @@ import { createRequest } from '@spark-appworks/spark-utils'
 import { isActionDescriptorDisabled } from '../../../packages/spark-component/src/page/actions/executor-helpers'
 import { executeActionDescriptor } from '../../../packages/spark-component/src/page/actions/action-executor'
 import { nodeToActionDescriptor } from '../../../packages/spark-component/src/page/actions/node-to-descriptor'
+import { createBaseCrudMethods } from '../../../packages/spark-component/src/components/containers/support/crud/base-crud-methods'
 import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import type {
@@ -189,6 +190,18 @@ async function flushAsync() {
 }
 
 describe('DataView CRUD bridge', () => {
+  it('base CRUD methods route formal explicit identities through DataView', async () => {
+    const {dataSet, view} = await createDataView()
+    const dispatch = vi.fn(async () => ({cancel: false}))
+    const methods = createBaseCrudMethods({value: view}, dispatch)
+    const identitySubmit = vi.spyOn(view, 'addRowWithIdentity')
+    try {
+      await expect(methods.addRow({id: 2, name: 'Bob'})).resolves.toMatchObject({id: 2, name: 'Bob'})
+      expect(identitySubmit).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
+      expect(dispatch).toHaveBeenCalledWith('add-row', {id: 2, name: 'Bob'})
+    } finally { dataSet.destroy() }
+  })
+
   it('view CRUD should direct-commit to remote when create/update/delete API is configured', async () => {
     const dataSet = SparkData.createDataSet({
       dataSetName: 'CrudRemoteDS',
@@ -284,11 +297,11 @@ describe('DataView CRUD bridge', () => {
     expect(view.rows.find(row => row['id'] === 'node-1')?.['path']).toBe('/new')
   })
 
-  it('builtin append-row should call view.addRow instead of appendRow', async () => {
+  it('builtin append-row submits a formal primary key through the separate identity API', async () => {
     const { dataSet, view } = await createDataView()
     const pageService = createPageService()
     const createdRow: DataRow = { id: 2, name: 'Bob' }
-    const addRowSpy = vi.spyOn(view, 'addRow').mockResolvedValue(createdRow)
+    const addRowWithIdentitySpy = vi.spyOn(view, 'addRowWithIdentity').mockResolvedValue(createdRow)
     const appendRowSpy = vi.spyOn(view, 'appendRow')
 
     const desc = nodeToActionDescriptor({
@@ -302,7 +315,7 @@ describe('DataView CRUD bridge', () => {
     await executeActionDescriptor(desc, createActionContext(dataSet, pageService))
     await flushAsync()
 
-    expect(addRowSpy).toHaveBeenCalledWith({ id: 2, name: 'Bob' })
+    expect(addRowWithIdentitySpy).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
     expect(appendRowSpy).not.toHaveBeenCalled()
   })
 
@@ -497,11 +510,11 @@ describe('DataView CRUD bridge', () => {
     expect(isActionDescriptorDisabled(descriptor!, view)).toBe(true)
   })
 
-  it('action executor append-row should call view.addRow instead of appendRow', async () => {
+  it('action executor append-row submits an explicit key through the identity API', async () => {
     const { dataSet, view } = await createDataView()
     const pageService = createPageService()
     const createdRow: DataRow = { id: 2, name: 'Bob' }
-    const addRowSpy = vi.spyOn(view, 'addRow').mockResolvedValue(createdRow)
+    const addRowWithIdentitySpy = vi.spyOn(view, 'addRowWithIdentity').mockResolvedValue(createdRow)
     const appendRowSpy = vi.spyOn(view, 'appendRow')
 
     await executeActionDescriptor(
@@ -513,7 +526,7 @@ describe('DataView CRUD bridge', () => {
       createActionContext(dataSet, pageService),
     )
 
-    expect(addRowSpy).toHaveBeenCalledWith({ id: 2, name: 'Bob' })
+    expect(addRowWithIdentitySpy).toHaveBeenCalledWith({field: 'id', value: 2}, {name: 'Bob'})
     expect(appendRowSpy).not.toHaveBeenCalled()
   })
 

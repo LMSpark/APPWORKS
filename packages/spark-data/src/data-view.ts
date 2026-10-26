@@ -139,6 +139,8 @@ type DataViewQueryBindingOptions = Readonly<{
 }>
 /** 查询 owner 提供的只读业务行；视图复制后编辑，原行保留为私有保存基线。 */
 type DataViewQueryRow = Readonly<Record<string, unknown>>
+/** 显式新增时独立提交的正式行身份，不作为普通 DataView 字段写入。 */
+export type DataViewNewRowIdentity = Readonly<{field: string; value: string | number}>
 /** 后端权限与当前可用状态共同决定的动作呈现，不等价于保存授权。 */
 type DataViewActionState = 'hidden' | 'disabled' | 'enabled'
 /** 字段读取、写入和组件呈现的独立通道；必填事实与写白名单由查询 owner 提供。 */
@@ -162,6 +164,8 @@ type DataViewQueryResult = Readonly<{
   assertIdentity(identity: DataViewQueryIdentity): void
   rowKey(row: DataViewQueryRow): unknown
   prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>
+  /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */
+  prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>
   /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */
   isFieldReadOnly?(field: string): boolean
   fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess
@@ -406,6 +410,8 @@ rows: DataRow[] = []
   #queryResultRefreshIdentity: string | undefined
   #computedQueryToken: object | undefined
   #queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
+  /** 显式身份新增在保存回执前不得被owner换成其他主键。 */
+  readonly #explicitNewRowIds = new Set<string | number>()
   #ingestingQueryResult = false
 
   /** 一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。 */
@@ -630,6 +636,21 @@ rows: DataRow[] = []
       return DENIED_FIELD_ACCESS
     }
     return this.queryNewRowFieldAccess(context, field)
+  }
+
+  /** 当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。 */
+  get supportsExplicitIdentityCreate(): boolean {
+    const context = this.currentQueryResult()
+    const keyField = context?.resultPrimaryKey
+    return context !== undefined && keyField !== undefined && keyField !== '' && !this._resultStale
+      && context.prepareNewRowWithIdentity !== undefined && this.effectivePkFields.includes(keyField)
+  }
+
+  /** 当前正式查询是否声明了结果主键；显式主键不得绕过 DataView identity API 或由外层批量 CRUD 直写。 */
+  get requiresExplicitIdentitySubmission(): boolean {
+    const context = this.currentQueryResult()
+    return context !== undefined && !this._resultStale && context.resultPrimaryKey !== undefined
+      && context.resultPrimaryKey !== '' && this.effectivePkFields.includes(context.resultPrimaryKey)
   }
 
   /** 返回字段双通道呈现；本视图新增草稿按当次新增可用性编辑声明字段，既有行仍消费原字段权限。查询失效暂停写入。 */
@@ -2572,6 +2593,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       tracking.cancelCreate(id)
       tracking.clearDirty(id)
       tracking.cancelDelete(id)
+      this.#explicitNewRowIds.delete(id)
       editingChanged = this._editingPatches.delete(id) || editingChanged
       editingChanged = this._editingOriginalRows.delete(id) || editingChanged
     }
@@ -2640,8 +2662,82 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (this.#queryExecutor !== undefined) {
       const context = this.#queryResult
       if (context?.prepareNewRow === undefined) throw new Error('DATA_VIEW_NEW_ROW_OWNER: 新增缺少原查询身份准备能力')
+      if (context.resultPrimaryKey !== undefined) {
+        const keyField = context.resultPrimaryKey
+        if (keyField !== '' && Object.hasOwn(data, keyField)) {
+          throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须通过 addRowWithIdentity 独立提交')
+        }
+        this.preflightNewRowFields(context, data)
+      }
       row = context.prepareNewRow({ ...this.queryOwnershipDefaults(), ...data })
     } else row = this._primaryKeyDelegate.ensurePrimaryKey(data)
+    return this.acceptNewRow(row)
+  }
+
+  /**
+   * 通过原查询owner独立提交正式主键身份与普通新增字段。
+   * 仅当当前结果报告相同 resultPrimaryKey、owner声明prepareNewRowWithIdentity，且表级新增获准时使用。
+   * 普通字段在任何行进入DataView前逐项预检正式列、计算规则与新行写权限；owner返回身份须与请求完全一致。
+   * @param identity 与当前结果主键完全一致的正式身份字段和值。
+   * @param data 待写入的新行普通字段，不包含身份字段。
+   * @returns 被同一DataView接受并进入新增脏追踪的完整行。
+   */
+  async addRowWithIdentity(
+    identity: DataViewNewRowIdentity,
+    data: Partial<DataRow>,
+  ): Promise<DataRow | CrudResult<DataRow>> {
+    this.assertResultWritable()
+    if (this.queryParentPendingCreate()) throw new Error('DATA_VIEW_ADD_PARENT_PENDING: 请先保存父记录')
+    const context = this.currentQueryResult()
+    if (context?.prepareNewRowWithIdentity === undefined) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_OWNER: 当前查询owner不支持显式正式身份新增')
+    }
+    const keyField = context.resultPrimaryKey
+    if (typeof identity.field !== 'string' || identity.field !== keyField || !this.effectivePkFields.includes(identity.field)
+      || (typeof identity.value !== 'string' && typeof identity.value !== 'number')
+      || (typeof identity.value === 'string' && identity.value.trim().length === 0)
+      || (typeof identity.value === 'number' && !Number.isFinite(identity.value))
+      || Object.hasOwn(data, identity.field)) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 显式身份必须是当前正式结果主键且与普通字段分离')
+    }
+    if (this.addActionState() !== 'enabled') throw new Error('DATA_VIEW_ADD_DISABLED: 当前正式查询不允许新增')
+    this.preflightNewRowFields(context, data)
+    const defaults = this.queryOwnershipDefaults()
+    for (const [field, value] of Object.entries(defaults)) {
+      if (Object.hasOwn(data, field) && !this.sameQuerySaveValue(data[field], value)) {
+        throw new Error(`DATA_VIEW_NEW_ROW_DEFAULT_CONFLICT: ${field} 与当前查询归属默认值冲突`)
+      }
+    }
+    if (this.rows.some(row => Object.is(row[identity.field], identity.value))) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_DUPLICATE: 当前DataView已存在该正式身份')
+    }
+    if (this.shouldDirectCommitCrud('create')) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_STAGED_ONLY: 显式正式身份必须沿原查询owner与DataSet保存')
+    }
+    this.assertResultWritable()
+    context.assertIdentity(this.queryIdentity())
+    const row = context.prepareNewRowWithIdentity({ ...defaults, ...data }, identity)
+    if (!Object.is(row[identity.field], identity.value)) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 查询owner未原样保留请求身份')
+    }
+    return this.acceptNewRow(row, true)
+  }
+
+  private preflightNewRowFields(context: DataViewQueryResult, data: Partial<DataRow>): void {
+    context.assertIdentity(this.queryIdentity())
+    for (const field of Object.keys(data)) {
+      const column = this.getColumn(field)
+      if (!column) throw new Error(`DATA_VIEW_NEW_ROW_FIELD_UNKNOWN: ${field} 不是当前DataTable正式列`)
+      if (this._computedDelegate.isConfigured(field) || column.isComputed || column.computeExpression !== undefined) {
+        throw new Error(`DATA_VIEW_NEW_ROW_FIELD_COMPUTED: ${field} 是计算字段，不能作为新增输入`)
+      }
+      if (this.newRowFieldAccess(field).write !== 'allowed') {
+        throw new Error(`DATA_VIEW_NEW_ROW_FIELD_DENIED: 当前正式查询不允许新增字段 ${field}`)
+      }
+    }
+  }
+
+  private async acceptNewRow(row: DataRow, preserveIdentity = false): Promise<DataRow | CrudResult<DataRow>> {
     if (this.shouldDirectCommitCrud('create')) {
       return this.crudDelegate.createRecord(row)
     }
@@ -2649,6 +2745,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const pkKey = this.getPkKey(row)
     if (pkKey !== undefined) {
       this.dirtyTrackingDelegate.trackCreate(pkKey, row)
+      if (preserveIdentity) this.#explicitNewRowIds.add(pkKey)
     }
     return row
   }
@@ -2672,6 +2769,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const result = this.deleteRowById(id)
     if (result) {
       this.dirtyTrackingDelegate.trackDelete(id, snapshot)
+      this.#explicitNewRowIds.delete(id)
     }
     return result
   }
@@ -3128,10 +3226,15 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         throw new Error('DATA_VIEW_SAVE_RECEIPT: 行身份不属于提交')
       }
     }
-    for (const accepted of receipt.added) {
+    for (const [index, accepted] of receipt.added.entries()) {
       const row = dataRowFromRecord(structuredClone(accepted))
       this._applyComputedColumns([row])
-      if (this.getPkKey(row) === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+      const acceptedId = this.getPkKey(row)
+      if (acceptedId === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+      const submitted = added[index]
+      if (submitted !== undefined && this.#explicitNewRowIds.has(submitted.id) && acceptedId !== submitted.id) {
+        throw new Error('DATA_VIEW_SAVE_RECEIPT_IDENTITY: 显式正式身份不能被保存回执改写')
+      }
     }
   }
 
@@ -3166,6 +3269,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       this._applyComputedColumns([row])
       const nextId = this.getPkKey(row)
       if (nextId === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+      if (this.#explicitNewRowIds.has(submitted.id) && nextId !== submitted.id) {
+        throw new Error('DATA_VIEW_SAVE_RECEIPT_IDENTITY: 显式正式身份不能被保存回执改写')
+      }
+      this.#explicitNewRowIds.delete(submitted.id)
       this.dirtyTrackingDelegate.cancelCreate(submitted.id)
       if (current === null) {
         this.dirtyTrackingDelegate.trackDelete(nextId, row)
@@ -3256,6 +3363,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.#queryResultRefreshIdentity = undefined
     this.#computedQueryToken = undefined
     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
+    this.#explicitNewRowIds.clear()
     const selectionChanged = this._currentRowId !== null || this._keylessCurrentRow !== null || this._selectedRowIds.length > 0 || this._keylessSelectedRows.length > 0
     this.rows = []
     this.total = 0

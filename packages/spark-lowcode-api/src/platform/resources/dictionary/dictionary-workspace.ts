@@ -112,7 +112,7 @@ export class DictionaryWorkspace {
       if (this.#creating && this.definition.rows.length === 0) {
         if (this.entries.rows.length > 0) throw new Error('新字典身份下已有条目，不能继续创建')
         if (this.definition.addActionState() !== 'enabled') throw new Error('当前查询不允许新建字典')
-        await this.definition.addRow({rowid: this.#input.dictionaryId, AppId: '',
+        await this.definition.addRowWithIdentity({field: 'rowid', value: this.#input.dictionaryId}, {AppId: '',
           TypeName: '', dictionaryType: '0', val: '编码', txt: '显示文本', crttime: formatCreationTime()})
       }
       this.assertScope()

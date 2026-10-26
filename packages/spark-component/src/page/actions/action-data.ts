@@ -242,7 +242,23 @@ async function doAppend(operation: AppendOperation): Promise<void> {
   if (view.dataSet?.scenarioId === undefined && (!(idField in payload) || payload[idField] === undefined || payload[idField] === null)) {
     payload[idField] = inferNextRowId(view, idField)
   }
-  const result = await view.addRow(payload)
+  const hasFormalIdentity = view.supportsExplicitIdentityCreate
+    && Object.hasOwn(payload, view.primaryKey)
+    && payload[view.primaryKey] !== undefined
+    && payload[view.primaryKey] !== null
+  let result: DataRow | CrudResult<DataRow>
+  if (hasFormalIdentity) {
+    const identityValue = payload[view.primaryKey]
+    if ((typeof identityValue !== 'string' && typeof identityValue !== 'number')
+      || (typeof identityValue === 'string' && identityValue.trim().length === 0)
+      || (typeof identityValue === 'number' && !Number.isFinite(identityValue))) {
+      throw new Error('append-row 的主键必须是非空字符串或有限数字')
+    }
+    result = await view.addRowWithIdentity(
+      {field: view.primaryKey, value: identityValue},
+      Object.fromEntries(Object.entries(payload).filter(([field]) => field !== view.primaryKey)),
+    )
+  } else result = await view.addRow(payload)
   if (isCrudResult(result) && !result.success) {
     notifier.notify('warning', desc.failureMessage
       ? interpolate(desc.failureMessage, {}, null)

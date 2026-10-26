@@ -8994,6 +8994,7 @@
         "symbols": [
           "DataViewRecomputeColumnsOptions",
           "DataViewServerRowsPayload",
+          "DataViewNewRowIdentity",
           "DataView"
         ]
       }
@@ -13904,6 +13905,7 @@
           "FilterBlueprintPlanningNodesOptions",
           "ResolveScopedProjectPlanningRunInputOptions",
           "ProjectPlanningAgentWorkflowBindingOptions",
+          "ProjectPlanningBlueprintFacade",
           "ProjectPlanningGateValidationResult"
         ]
       }
@@ -18308,6 +18310,10 @@
       "sourcePath": "packages/spark-data/src/core/data-view-key.ts",
       "file": "files/packages/spark-data/src/core/data-view-key.ts.json"
     },
+    "DataViewNewRowIdentity": {
+      "sourcePath": "packages/spark-data/src/data-view.ts",
+      "file": "files/packages/spark-data/src/data-view.ts.json"
+    },
     "DataViewPermissionState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json"
@@ -20607,6 +20613,10 @@
     "ProjectPlanningAttachmentUploadResult": {
       "sourcePath": "src/services/project-planning/project-planning-attachments.ts",
       "file": "files/src/services/project-planning/project-planning-attachments.ts.json"
+    },
+    "ProjectPlanningBlueprintFacade": {
+      "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+      "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
     },
     "ProjectPlanningCompletionInput": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",

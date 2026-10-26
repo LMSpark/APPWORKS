@@ -2155,3 +2155,19 @@ flowchart TD
 - **回归：**覆盖已应用但回执未知、重复 Save All 幂等、连续未知且尚未应用后再核验、原父身份被篡改/不可读时拒绝并保留命令、DataView 当前行变化时不串目标。`tests/app/dev/dev-state-page-file-closed-loop.test.ts` **45/45**，`blueprint-workspace-delivery.test.ts` **30/30**；主控独立重跑 `pnpm typecheck`、目标 ESLint、`pnpm run verify:rules`、`pnpm run build`、`git diff --check` 均通过。规则扫描保留既有 AI model spec 2 warning、1 info；build 保留既有 Rolldown pure annotation、CodeMirror ineffective dynamic import、chunk size warning。
 - **SPA 烟测：**只读复查同一登录的 NewApp/D99A `/dev` SPA 标签，蓝图树 41 页、七域页签显示、当前节点 DataBaseManage，未保存/创建/删除正式记录。此烟测仅确认工作台仍可呈现，不证明服务端新子节点权限或在线未知回执。
 - **范围状态：**实现只覆盖 DevSystem PageRuntime/DataView owner 仍存活期间；owner 随 scope dispose 后的 unknown receipt 恢复仍未解决。AI 策划 `replaceBlueprintChildren → ProjectWorkspace.saveAll → ProjectBlueprintGateway` 的蓝图旁路仍开放；参考桌面显示、AI新增/填表、原型预览、SRS可靠完成回执等差距继续按上一节登记。源代码实现提交 `9fec2cdb5` 已推送到 `origin/codex/ai-data-entry`；无 Java 修改。整体开发工作台参考蓝图整合与 SPARK data 唯一通道目标继续 active。
+
+### 2026-10-27 AI 蓝图身份映射与全树恢复合同复审
+
+- **正式身份证据：**`DataView.newRowFieldAccess` 和 `updateEditingValue` 将 effective PK 字段判为不可写；`DataView.addRow` 要求当前查询 owner 的 `prepareNewRow` 并以其主键追踪新增。`DataSpaceQueryContext.prepareNewRow` 在 key 缺失时生成 128-bit hex key，若输入带 key 则原样保留；直接向 `view.addRow` 注入 AI `rowid` 虽可能通过 owner，但绕开正式 PK 字段守卫，不能采用。
+- **可行候选与语义代价：**先由 DataView owner 生成 rowid、在同一计划内将 AI 临时 `nodeId` 映射到正式身份，再父优先创建，可技术上解决父外键转换；但最终持久身份不再是 AI 输出的 `nodeId`，改变了当前 `nodeId === rowid` 语义，须产品合同明确后才能做。
+- **全树回执缺口：**子行新增授权要求父节点存在于原查询并有当次 `c` 权限，所以后代权限需在父创建并回读后验证。逐节点保存会出现部分成功；当前运行时只确认整批全部生效或全部未生效，部分应用时拒绝重放；PageRuntime 销毁会丢失剩余计划和临时 ID 映射。蓝图 pagedata 未配置 DataSet transaction endpoint，不能据此承诺整树原子性。
+- **所需合同：**恢复 AI 整树写入前，需定义规划期引用与 owner 持久身份映射/回执、跨 PageRuntime 的命令日志与原身份恢复、后代权限逐步核验时的部分完成交互，以及部分应用的补齐/补偿责任。保持上一节 fail-closed；不直接写 PK、不退回 gateway、不降成 append-only。未改代码、未做线上写入、无 Java 变更。
+
+### 2026-10-27 DataView 显式身份新增合同与工作台后续阻断
+
+- **身份合同：**新增 `DataView.addRowWithIdentity({field,value}, fields)`，仅针对当前正式查询结果的唯一主键，身份与普通字段分开；主键字段访问仍为只读。提交前校验原查询身份、表级新增权限、正式列/计算字段/字段级写权限、查询与级联默认值冲突、重复身份及 owner 原样保留身份。正式 `addRow` 不再接受调用方直接塞入已声明的结果主键。接口当前为根新增；不提供 `parentRow` 伪校验，也不声称能建立子外键或消费子行 `c` 权限。
+- **调用者收敛：**标准组件新增、append-row、`DataSetCrudTool` 单条/批量新增、场景定义文档、字典定义和数据库复制按当前 owner 能力路由；批量仍逐项经 DataView 并保留成功/失败数。不支持显式身份的正式 owner 由 DataView 拒绝，不回退到外部直写。本地/数组/文件命令 owner 保持其原合同。AI Data Entry 输出字段排除正式主键，继续由 DataSpace owner 生成身份。未改 `ProjectBlueprintApi`，未改变其旧直接运行时使用；该旁路仍是单独的工作台整合差距。
+- **回执与范围：**DataSpace owner保留显式身份并校验正式回执；回执改写身份或未知后按原身份回读不到时保持待核验，不按新 ID 重放。仅自动化夹具验证；未以线上请求证明实际服务接受用户指定的 Base_NavigationInfo.rowid。AI 蓝图完整替换仍未接回 DataView；当前 API 只支持根新增，子节点授权、父键关系、混合增改删移动、跨 PageRuntime 未知恢复及部分成功责任仍未闭合，因此上一节 AI 写入 fail-closed 继续有效。
+- **TDD 证据：**低价实施者运行 DataSetCrudTool 两条 RED（旧路由下单条正式主键新增以 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED` 拒绝，批量 `0/3` 成功而预期 `2/1`）。原始终端日志未落盘；`notes/evidence/project-blueprint/data-set-crud-explicit-identity-red-summary.txt` 是运行者报告的摘要，明确不是原始日志。修复后主控独立定向回归 6 文件/304 项通过：DataView 与 DataSetCrudTool 56、标准组件桥接 24、DataSpace runtime 与 AI Data Entry 152、场景定义资源 72。目标 ESLint、`pnpm run typecheck`、正式 `pnpm run generate:class-model-surface`、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 通过。AI model spec 保留既有 2 warning/1 info；build 保留既有 Rolldown pure annotation、CodeMirror ineffective dynamic import 与 chunk-size 告警。
+- **SPA 烟测：**同一 NewApp/D99A 开发工作台 SPA 会话仍可显示 41 个页面、七个节点信息页签、当前节点 DataBaseManage 与“蓝图已就绪”。只读检查，没有点保存/新增/删除；不证明新身份写入、字段权限或服务端回执。
+- **交付与状态：**无 Java 修改、无线上业务写入。本次 DataView 身份能力已完成自动化验证，准备与本条台账一并提交并推送；整体“开发工作台按参考仓项目蓝图整合、数据唯一走 SPARK data”继续 active。下一批先设计并验证正式父行/子行关系身份和可恢复蓝图命令，再接入策划 AI；桌面显示、AI填表、原型预览、SRS可靠导出及工具文件保存 owner 生命周期等差距仍按前述条目追踪。

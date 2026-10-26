@@ -474,6 +474,14 @@ export class BlueprintWorkspaceDataView {
     return {nodeId:`project-blueprint:${this.#projectId}`,parentNodeId:'',projectId:this.#projectId,kind:'module',capability:{name:this.#projectId},source:{},children:roots}
   }
 
+  public childCreateActionState(parentNodeId:string):'enabled'|'hidden'|'disabled'|'unknown'{
+    this.assertUsable()
+    if(!this.#treeQueryLoaded)return 'unknown'
+    const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
+    if(!parent)return 'unknown'
+    return this.view.createChildActionState(parent)
+  }
+
   public canRead(field: string): boolean {
     this.assertUsable()
     const row = this.#row

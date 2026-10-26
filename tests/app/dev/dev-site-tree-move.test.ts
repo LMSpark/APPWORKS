@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
@@ -17,6 +17,7 @@ function createState(node: ProjectBlueprintTreeNodeData): DevState {
   }])
   state.addRootNode = vi.fn<DevState['addRootNode']>()
   state.addChildNode = vi.fn<DevState['addChildNode']>()
+  state.childCreateActionState = vi.fn<DevState['childCreateActionState']>(()=>'unknown')
   state.removeNodeFromTree = vi.fn<DevState['removeNodeFromTree']>()
   state.selectNode = vi.fn<DevState['selectNode']>(async () => {})
   state.moveNodeInTree = vi.fn<DevState['moveNodeInTree']>(async () => {})
@@ -35,6 +36,23 @@ const ElTreeDropStub = defineComponent({
 })
 
 describe('ProjectBlueprintTree move persistence', () => {
+  it('shows a child-create action only for enabled formal DataView state and invokes the existing command', async () => {
+    const node: ProjectBlueprintTreeNodeData = {nodeId:'orders',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}}
+    const state=createState(node)
+    const actionState=ref<'enabled'|'hidden'|'disabled'|'unknown'>('unknown')
+    state.childCreateActionState=vi.fn<DevState['childCreateActionState']>(()=>actionState.value)
+    const wrapper=mount(ProjectBlueprintTree,{props:{state},global:{stubs:{NavIcon:true,ElButton:{emits:['click'],template:'<button @click="$emit(\'click\',$event)"><slot /></button>'},ElDropdown:true,ElDropdownItem:true,ElDropdownMenu:true,ElEmpty:true,ElInput:true,ElTag:true,ElTree:{props:['data'],template:'<div><slot v-for="item in data" :node="{data:item}" :data="item" /></div>'}}}})
+    expect(wrapper.findAll('.node-actions button')).toHaveLength(1) // delete remains; child add is hidden
+    actionState.value='hidden'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('.node-actions button')).toHaveLength(1)
+    actionState.value='enabled'
+    await wrapper.vm.$nextTick()
+    const addButton=wrapper.find('.node-actions button')
+    expect(addButton.exists()).toBe(true)
+    await addButton.trigger('click')
+    expect(state.addChildNode).toHaveBeenCalledWith(node)
+  })
   it('persists drag-drop through moveNodeInTree', async () => {
     const node: ProjectBlueprintTreeNodeData = {nodeId:'orders',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}}
     const state = createState(node)

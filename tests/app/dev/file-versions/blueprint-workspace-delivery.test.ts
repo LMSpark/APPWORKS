@@ -218,7 +218,7 @@ const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', prowid:'000000', F
   IsShowAtNav:1,IsShowChildItem:1,BeginGroup:0,DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
   personCharge: 'U1', status: 'ready', VersionId: 'rule=1;script=1;style=1'})
 
-function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]} = {}) {
+function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'} = {}) {
   const outputs = options.outputs ?? blueprintFields
   const readable = new Set(options.readable ?? outputs)
   const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid' && field !== 'SysId'))
@@ -241,7 +241,7 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
     },
     readFieldAccess: (item: DataRow, field: string) => readable.has(field) && Object.hasOwn(item, field) ? 'visible' as const : 'invisible' as const,
     addActionState: () => 'hidden' as const, editActionState: () => 'enabled' as const,
-    deleteActionState: () => 'hidden' as const, createChildActionState: () => 'hidden' as const, viewActionState: () => 'enabled' as const,
+    deleteActionState: () => 'hidden' as const, createChildActionState: () => options.childActionState??'hidden', viewActionState: () => 'enabled' as const,
   })
   type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
   const save = vi.fn(async (command: SaveCommand) => {
@@ -280,6 +280,42 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('exposes child-create action only from the loaded formal DataView row state', async () => {
+    const f = createBlueprintDataViewFixture({childActionState:'enabled'})
+    try {
+      const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {})
+      expect(session.childCreateActionState('NODE-1')).toBe('unknown')
+      await session.loadProjectTree()
+      expect(session.childCreateActionState('NODE-1')).toBe('enabled')
+      expect(session.childCreateActionState('MISSING')).toBe('unknown')
+      session.dispose()
+    } finally {f.destroy()}
+  })
+
+  it('keeps denied and unavailable child-create action states non-enabled', async () => {
+    for (const state of ['hidden','disabled'] as const) {
+      const f = createBlueprintDataViewFixture({childActionState:state})
+      try {
+        const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {})
+        await session.loadProjectTree()
+        expect(session.childCreateActionState('NODE-1')).toBe(state)
+        expect(session.childCreateActionState('MISSING')).toBe('unknown')
+        session.dispose()
+      } finally {f.destroy()}
+    }
+  })
+
+  it('rejects child-create action state after its DataView scope becomes stale', async () => {
+    const f = createBlueprintDataViewFixture({childActionState:'enabled'})
+    let current=true
+    try {
+      const session = new BlueprintWorkspaceDataView(f.dataSet, 'APP-1', () => {if(!current)throw new Error('scope stale')})
+      await session.loadProjectTree()
+      current=false
+      expect(()=>session.childCreateActionState('NODE-1')).toThrow('scope stale')
+      session.dispose()
+    } finally {f.destroy()}
+  })
   it('reads the selected node through a project and row scoped formal view', async () => {
     const f = createBlueprintDataViewFixture()
     try {

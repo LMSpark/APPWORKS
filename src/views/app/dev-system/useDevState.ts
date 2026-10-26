@@ -124,6 +124,7 @@ export type ExternalDataViewSession = Readonly<{
   moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>
   treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData
   hasTreeProjection?: () => boolean
+  childCreateActionState?: (parentNodeId:string) => 'enabled'|'hidden'|'disabled'|'unknown'
 }>
 
 // ═══════════════════════════════════════════════════════════
@@ -182,7 +183,8 @@ export function useDevState() {
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
-        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection}
+        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
+        childCreateActionState:id=>session.childCreateActionState(id)}
       unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
       return session
     })().finally(()=>{if(blueprintWorkspaceLoad===loading)blueprintWorkspaceLoad=undefined})
@@ -228,6 +230,14 @@ export function useDevState() {
   function hasExternalDataViewChanges(): boolean {
     void externalDataViewRevision.value
     return [...externalDataViewSessions].some(session => session.isDirty() || session.hasUnconfirmedSave?.() === true)
+  }
+  function childCreateActionState(parentNodeId:string):'enabled'|'hidden'|'disabled'|'unknown'{
+    void externalDataViewRevision.value
+    const owners=[...externalDataViewSessions].filter(session=>session.childCreateActionState)
+    if(owners.length!==1)return 'unknown'
+    const owner=owners[0]
+    if(!owner?.childCreateActionState)return 'unknown'
+    try{return owner.childCreateActionState(parentNodeId)}catch{return 'unknown'}
   }
   const editableProjects = ref<EditableProjectOption[]>([])
   const projectOptionsLoading = ref(false)
@@ -1397,6 +1407,7 @@ export function useDevState() {
     editableProjects,
     projectOptionsLoading,
     treeData,
+    childCreateActionState,
     blueprintLoading,
     blueprintSaving,
     blueprintDirty,

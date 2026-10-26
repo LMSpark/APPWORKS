@@ -66,7 +66,7 @@ AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模
             {{ formatNavigationPlacementLabel(data.navigation?.placement) }}
           </el-tag>
           <span class="node-actions">
-            <el-button size="small" link type="primary" @click.stop="state.addChildNode(data)">
+            <el-button v-if="state.childCreateActionState(data.nodeId) === 'enabled'" size="small" link type="primary" @click.stop="state.addChildNode(data)">
               <NavIcon name="Plus" :size="12" />
             </el-button>
             <el-button

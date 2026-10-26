@@ -1970,3 +1970,11 @@ flowchart TD
 - 查询未成功时没有当次 DataView 查询上下文，`fieldAccess`/行操作状态不能据此验证授权。`lowcode-application.ts` 的导航根辅助 `GetData` 会归一化行，但不建立 DataView 查询/权限上下文，不能拿来替代权限烟测。目标模型现有 `catalogBindings` 属另一正式视图但无自引用输出配置；改用它也不能代表当前蓝图 scope。
 - `MobileUrl` 在蓝图运行/编辑中有真实消费者（导航移动端目标），不能直接从业务读取字段清单永久删去来绕开错误。未发现已验证且隔离于正式配置的 SPA 只读投影入口；当前不通过改模型配置、篡改视图或直连请求绕过错误。后续候选是核实字段实际 ValueFun 原文并取得精确修复授权，或在不损失字段业务语义的前提下为 SPARK data 查询建立明确的投影选择先后合同并完成回归；改变共享字段的读取/计算语义须另行评估。
 - 本轮源码复核为只读；没有Java改动、请求、模型配置或业务数据写入。用户凭据已用于重新进入 SPA，测试账号不再是阻断。真实部署 `c` 权限及子节点保存回读仍未验证，整体目标继续 active。
+
+### 2026-10-27 `MobileUrl.ValueFun` 安全修复与 SPA DataView 恢复验收
+
+- 按用户对精确字段记录的授权，通过已认证 SPA 的数据空间设计器编辑 `7AB874097A1E8711A42FD845939A6E05@Base_NavigationInfo` 字段呈现；本次只清空正式字段记录 `2D7EDDD3F8FC928F93D3AE3318300252`（`MobileUrl`，`varchar`，说明“移动端地址”）的无效 ValueFun。先前正式元数据 DataView 读出的原值为字面 JSON 空字符串 `""`，不是可执行函数配置；保留 `MobileUrl` 字段、输出勾选和移动端目标值语义，不改其它字段/视图。全过程通过 SPARK data 设计器保存，没有使用直连 API、浏览器内网请求、数据库或 Java。
+- 保存按钮第一次返回“提交尚未完全确认，请先核验；不会重复提交”。未再次点击保存；随后 SPA 状态回显“本次字段配置已批量保存”，字段配置按钮全部变为禁用。关闭模型和数据空间后，再由正式目录重开该空间；重新按需加载 `Base_NavigationInfo` 字段呈现，`MobileUrl` 的无效格式提示已消失。重开后正式模型查询预览以“完整结果”查询成功，返回 `行数 10、总数 2949、状态 Loaded`，输出字段集合包含 `MobileUrl` / “移动端地址”。这确认修复后 DataView 可以接纳查询并读到完整分页结果；未写任何业务行。
+- 本地修复查询投影解析顺序：仅解析本次请求选中的输出字段 `ValueFun`；未知/重复/非法请求字段仍失败，未指定 `fields` 时仍严格校验全部输出字段。回归用例覆盖未选中的异常 ValueFun 不阻断 `salary` 投影、显式选中异常字段拒绝，以及字段列表缺省时拒绝。`pnpm --dir packages/spark-lowcode-api exec vitest run --config vitest.config.ts src/platform/data-space/runtime/data-space-runtime-api.test.ts`：1 个测试文件、123/123 通过；权限 parity 测试 54/54 通过；针对两处改动文件 ESLint 通过；`git diff --check` 通过。包级 `typecheck` 仍因 `dictionary-workspace.test.ts` 的 5 条已有无关错误失败，未触碰该测试文件。
+- 服务端子行权限结论仍未实证：仓内正式消费合同为自引用行读取 `lingma_sys_params.c`，且只有明确 `c === true` 才允许；执行入口是 `DataView.createChildActionState(rowKey)`，原始权限参数不会直接暴露给行消费者。本次 SPA 正式查询虽成功，但完整结果预览没有呈现 `c`、`lingma_sys_params` 或公开父行新增 action state；因此不能据此声称当前部署服务返回了 `c`，也未新增/保存子节点。真实子行权限与保存回读烟测仍待有公开 DataView action-state 验收入口/既有有效自引用视图后完成。
+- 本节实现改动仅涉及 SPARK data 查询投影解析及其回归测试；真实 SPA 元数据修复亦通过设计器的 SPARK data/DataView 链完成。没有修改 Java 或写入业务行；真实 `c` 权限仍未验证，统一 SPARK data 目标及物理目录/workflow 文件旁路继续在唯一计划中跟踪。

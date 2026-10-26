@@ -1074,6 +1074,28 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
+  it('parses ValueFun only for requested projection fields', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    view.fieldProjection = [
+      { fieldId: 'SALARY', source: 'resource', resourceFieldId: 'SALARY', resourceField: 'salary', viewField: 'salary',
+        type: 'number', label: 'Salary', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+        primaryKey: false, value: '', valueFunction: '', expression: '' },
+      { fieldId: 'MOBILE', source: 'resource', resourceFieldId: 'MOBILE', resourceField: 'MobileUrl', viewField: 'MobileUrl',
+        type: 'string', label: 'Mobile URL', output: true, sortOrder: 1, sortDirection: null, group: 0, distinct: false,
+        primaryKey: false, value: '', valueFunction: '{', expression: '' },
+    ]
+
+    try {
+      await expect(view.loadFromServer({ fields: ['salary'] })).resolves.toBeDefined()
+      expect(http.queryRequests).toHaveLength(1)
+      await expect(view.loadFromServer({ fields: ['MobileUrl'] })).rejects.toThrow('ValueFun 不是有效 JSON')
+      expect(http.queryRequests).toHaveLength(1)
+      await expect(view.loadFromServer()).rejects.toThrow('ValueFun 不是有效 JSON')
+      expect(http.queryRequests).toHaveLength(1)
+    } finally { ds.destroy() }
+  })
+
   it('filters on a non-output model field without requesting it as output', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const { api, ds, view } = connectedView(http)

@@ -31,28 +31,36 @@ function projectionValueFunction(field: DataViewFieldProjection): DataSpaceViewQ
 
 function viewQueryFields(view: DataView, params: QueryParams): DataSpaceViewQueryField[] {
   const projection = params.projection ?? view.fieldProjection
-  const available: DataSpaceViewQueryField[] = projection.length > 0
-    ? projection.filter(field => field.output).map(field => ({
+  const candidates: Array<{ projection: DataViewFieldProjection | undefined; queryField: DataSpaceViewQueryField }> = projection.length > 0
+    ? projection.filter(field => field.output).map(field => ({ projection: field, queryField: {
       name: requireViewText(field.resourceField, '模型字段 Name'),
       ...(field.viewField === field.resourceField ? {} : { alias: field.viewField }),
       group: field.group, isOutput: true, order: field.sortOrder,
-      orderType: field.sortDirection === 'asc' ? 'ascending' : field.sortDirection === 'desc' ? 'descending' : null,
+      orderType: field.sortDirection === 'asc' ? 'ascending' as const
+        : field.sortDirection === 'desc' ? 'descending' as const : null,
       ...(field.expression.trim() ? { expression: field.expression } : {}),
-      valueFun: projectionValueFunction(field),
-    }))
-    : view.queryColumns
-      .map(column => ({ name: column.name, isOutput: true }))
+    } }))
+    : view.queryColumns.map(column => ({ projection: undefined, queryField: { name: column.name, isOutput: true } }))
+  const available = candidates.map(candidate => candidate.queryField)
   if (!available.length) throw new TypeError('SPARK DataView 缺少有效模型输出字段')
   const names = available.map(field => field.alias ?? field.name)
   if (new Set(names).size !== names.length) throw new TypeError('SPARK DataView 输出字段重复')
-  if (params.fields === undefined) return available
-  if (!Array.isArray(params.fields) || !params.fields.length || new Set(params.fields).size !== params.fields.length) {
-    throw new TypeError('SPARK DataView fields 必须是非空、不重复的输出字段列表')
+  let selected: typeof candidates
+  if (params.fields === undefined) {
+    selected = candidates
+  } else {
+    if (!Array.isArray(params.fields) || !params.fields.length || new Set(params.fields).size !== params.fields.length) {
+      throw new TypeError('SPARK DataView fields 必须是非空、不重复的输出字段列表')
+    }
+    selected = params.fields.map(name => {
+      const candidate = candidates.find(item => (item.queryField.alias ?? item.queryField.name) === name)
+      if (!candidate) throw new TypeError(`SPARK DataView 未知输出字段: ${name}`)
+      return candidate
+    })
   }
-  return params.fields.map(name => {
-    const field = available.find(item => (item.alias ?? item.name) === name)
-    if (!field) throw new TypeError(`SPARK DataView 未知输出字段: ${name}`)
-    return field
+  return selected.map(({projection: field, queryField}) => {
+    const valueFun = field ? projectionValueFunction(field) : undefined
+    return { ...queryField, ...(valueFun === undefined ? {} : { valueFun }) }
   })
 }
 

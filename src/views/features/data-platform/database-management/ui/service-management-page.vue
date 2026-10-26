@@ -54,7 +54,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
   useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/lowcode-database-server'
-import {DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS, DATABASE_SERVER_TYPE_OPTIONS} from '@/lowcode/resources/database/database-server-catalog-metadata'
+import {DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
 import {
   databaseServerBeginCreate,
   databaseServerBeginEdit,
@@ -90,7 +90,7 @@ const listFilter = computed<RFilterProps>(() => ({
   children: [
     {type: 'r-text', props: {field: 'ServerName', label: '服务器名称'}},
     {type: 'r-text', props: {field: 'ip_address', label: '服务器IP地址'}},
-    {type: 'r-select', props: {field: 'Type', label: '类型', options: [...DATABASE_SERVER_TYPE_OPTIONS]}},
+    {type: 'r-select', props: {field: 'Type', label: '类型', options: [...DATABASE_SERVER_FILTER_TYPE_OPTIONS]}},
   ],
 }))
 const listError = computed(() => {revision.value; return view.value?.loadingError?.message ?? ''})

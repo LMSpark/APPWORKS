@@ -12,6 +12,13 @@ export const DATABASE_SERVER_TYPE_OPTIONS = [
   {value: 'POSTGRESQL', label: 'PostgreSQL'},
 ] as const satisfies ReadonlyArray<Readonly<{value: string; label: string}>>
 
+/** Observed server-directory filter choices; deliberately separate from registration/API enum metadata. */
+export const DATABASE_SERVER_FILTER_TYPE_OPTIONS = [
+  ...DATABASE_SERVER_TYPE_OPTIONS,
+  {value: 'DM', label: 'DM'},
+  {value: 'KINGBASE', label: 'Kingbase'},
+] as const satisfies ReadonlyArray<Readonly<{value: string; label: string}>>
+
 /** `/Db/registerServer` 命令参数（参考注册表单）；rowid 由前端生成以便结果未知时按主键核验。 */
 export const DATABASE_SERVER_REGISTER_COLUMNS: DataColumn[] = [
   {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},

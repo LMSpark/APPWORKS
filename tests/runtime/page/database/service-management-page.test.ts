@@ -7,6 +7,7 @@ import {registerAllRenderers, RendererFilter, RendererTable, Spark} from '@spark
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
 import {LowcodeDatabaseServer} from '@/lowcode/resources/database/lowcode-database-server'
+import {DATABASE_SERVER_REGISTER_COLUMNS, DATABASE_SERVER_TYPE_OPTIONS} from '@/lowcode/resources/database/database-server-catalog-metadata'
 import {
   databaseServerCanCreate,
   requireDatabaseServerView,
@@ -123,6 +124,36 @@ describe('service-management-page', () => {
     const resetTable = (resetRequests.at(-1)?.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table
       .find(item => item.Name === 'Base_serverInfo')
     expect(resetTable?.Filter).toBeNull()
+  })
+
+  it.each(['DM', 'KINGBASE'])('filters the server catalog by observed server type %s without changing registration types', async (type) => {
+    let loaded: DataSet | undefined
+    const originalLoadCatalog = LowcodeDatabaseServer.loadCatalog.bind(LowcodeDatabaseServer)
+    vi.spyOn(LowcodeDatabaseServer, 'loadCatalog').mockImplementation(async (...args) => {
+      loaded = await originalLoadCatalog(...args)
+      return loaded
+    })
+    const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    const filter = wrapper.findComponent(RendererFilter)
+    const ds = loaded!
+    const view = requireDatabaseServerView(ds)
+    const filterChildren = filter.props('children')
+    if (!filterChildren) throw new Error('Type filter children are missing')
+    const filterNode = filterChildren.find((node: {props?: Record<string, unknown>}) => node.props?.['field'] === 'Type')
+    expect(filterNode).toBeDefined()
+    if (!filterNode) throw new Error('Type filter node is missing')
+    expect(filterNode.props?.['options']).toEqual(expect.arrayContaining([
+      expect.objectContaining({value: type}),
+    ]))
+    expect(DATABASE_SERVER_TYPE_OPTIONS.map(option => option.value)).not.toContain(type)
+    expect(DATABASE_SERVER_REGISTER_COLUMNS.find(column => column.name === 'Type')?.enumOptions)
+      .toEqual([...DATABASE_SERVER_TYPE_OPTIONS])
+
+    filter.vm.filterModel['Type'] = type
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+
+    expect(view.filterExpression).toEqual({field: 'Type', operator: 'eq', value: type})
   })
 
   it('reports missing navigation scenario identity before loading', async () => {

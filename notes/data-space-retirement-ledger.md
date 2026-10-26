@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-26；本轮入口 HEAD `56c5c2091`，已推送 `origin/codex/ai-data-entry`）**：用户授权按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 持续实施，使用低价模型、主控派工/复核/烟测并实时提交推送；不改/启动/部署后端 Java，不走第二数据通道。服务器目录已补标准名称/IP/类型筛选（`470a7b125`），D99A SPA 名称/IP结果已验证；类型静态候选缺 DM、KINGBASE，权威选项来源待核。TableAndView 经 D99A 原生菜单的 `dm_test → viewtesst → 14字段` 只读链已验证。七条字典排序请求/响应及隔离排序写入历史验收已留证；本轮再次只读打开该七行共享字典，标准表头排序后关闭/重开仍恢复 `ordIdx` 配置默认顺序。旧应用 00BE 的 `/DataCenter/ServerManagerment.html` target 仍未确认；实页提示原页面身份失效且节点缺明确工具目标，不能按路径猜映射。B1 通用 AI 候选生成、同一 DataView 显式保存及 SPA 关闭重开已有真实闭环证据；但没有发现正式业务字段以 `_Base_DictData` 为动态选项源，选项值/标签及字典身份合同仍开放。删除引用审计确认缺少数据库、配置、代码消费者的权威完整查询合同，继续失败关闭。另有 `DataSpaceDesignApi.readRelationDependencyOptions()` 直接请求 GetData，应用级无场景字典资源尚不能由当前 DataView 查询身份表达，需补公共资源绑定后迁移。AI 录入客户端仅发送业务提示与字段白名单、请求不含 `systemPrompt`；服务端正式 Agent ID 与已批准提示词配置版本的绑定还没有可审计的部署证据。B2 数据库登记、部署连接测试/物理连通性、删除引用与物理完整性、命令回执及整页对照仍开放；阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。以下为同一唯一台账的历史与当前证据，不把代码/夹具结果冒充部署成功。
+> **当前入口（2026-10-26；本轮入口 HEAD `c299827de`，已推送 `origin/codex/ai-data-entry`）**：用户授权按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 持续实施，使用低价模型、主控派工/复核/烟测并实时提交推送；不改/启动/部署后端 Java，不走第二数据通道。服务器目录名称/IP筛选（470a7b125）及Type筛选候选修正已接入，筛选候选独立列出在线既有DM/KINGBASE且不扩充注册合同；D99A SPA名称/IP结果已验证，Type修复的真实SPA点击结果待登录态恢复。 TableAndView 经 D99A 原生菜单的 `dm_test → viewtesst → 14字段` 只读链已验证。七条字典排序请求/响应及隔离排序写入历史验收已留证；本轮再次只读打开该七行共享字典，标准表头排序后关闭/重开仍恢复 `ordIdx` 配置默认顺序。旧应用 00BE 的 `/DataCenter/ServerManagerment.html` target 仍未确认；实页提示原页面身份失效且节点缺明确工具目标，不能按路径猜映射。B1 通用 AI 候选生成、同一 DataView 显式保存及 SPA 关闭重开已有真实闭环证据；但没有发现正式业务字段以 `_Base_DictData` 为动态选项源，选项值/标签及字典身份合同仍开放。删除引用审计确认缺少数据库、配置、代码消费者的权威完整查询合同，继续失败关闭。另有 `DataSpaceDesignApi.readRelationDependencyOptions()` 直接请求 GetData，应用级无场景字典资源尚不能由当前 DataView 查询身份表达，需补公共资源绑定后迁移。AI 录入客户端仅发送业务提示与字段白名单、请求不含 `systemPrompt`；服务端正式 Agent ID 与已批准提示词配置版本的绑定还没有可审计的部署证据。B2 数据库登记、部署连接测试/物理连通性、删除引用与物理完整性、命令回执及整页对照仍开放；阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。以下为同一唯一台账的历史与当前证据，不把代码/夹具结果冒充部署成功。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 
@@ -1772,3 +1772,11 @@ flowchart TD
 - 权限是另一个真实缺口：正式 DataView 查询权限上下文从查询行的 `lingma_sys_params` 提取（`data-space-query-context.ts:65`）；当前缺失权限策略有默认 `allow`（`data-space-permission.ts:31`）。`readRelationDependencyOptions()` 的应用级响应只解析行与总数（`data-space-design-api.ts:210`），没有建立正式 DataView 授权结果，也没有定义缺权限时的安全策略。直接复用该 helper、套用 `DATA_SPACE_DESIGN_FORM_KEY`、伪造正式模型或新增页面私有 executor，都不能补出正式身份与权限合同。
 - **Ruling：**保留此项为公共数据层缺口；先明确应用级资源的正式查询身份、DataView 执行 owner、权限结果/缺省策略、AppId 切换失效及分页回执合同，再迁移该 API 并补真实资源视图测试。理由是用户要求 SPARK data 唯一通道；代价是关系依赖字典候选尚不能用于页面关系编辑。本轮没有修改数据或 Java，也没有改写被审计入口。
 - **状态：**G4 通用 AI 候选生成/保存/关闭重开已由既有 SPA 证据通过；完整 B1 仍因字典实际下游字段消费、删除全局引用覆盖和 system prompt 部署关联未闭合。当前实现中发现的应用级字典查询旁路已登记为优先架构缺口，整体计划继续 implementing。
+
+## 2026-10-26 服务器目录类型筛选候选修正
+
+- 低价模型先添加失败用例：目录筛选的 `Type` 选项应包含在线正式目录已观测到的 `DM`、`KINGBASE`，且筛选请求条件值沿现有 RendererFilter/DataView 链写入 `Type eq <值>`；测试同时约束注册字段枚举保持原值。首次运行两例均因候选缺失失败。
+- 将 `DATABASE_SERVER_FILTER_TYPE_OPTIONS` 独立于 `DATABASE_SERVER_TYPE_OPTIONS`，仅服务器目录筛选组件消费新增的 `DM`、`KINGBASE`。注册表单、注册列和 `Base_serverInfo.Type` 元数据维持原候选合同；特别是没有将目录存在的 KINGBASE 推断为注册/连接 API 已支持。
+- 主控复核并运行 `pnpm exec vitest run tests/runtime/page/database/service-management-page.test.ts`：11/11 通过；对三个改动文件运行 ESLint 与 `git diff --check` 均通过。未改 Java、未改公共 ClassModel 声明、未写入真实目录。
+- **真实 SPA 烟测仍待做：**本轮 IAB 登录页已打开，但当前未登录。computer-use 技能禁止自动填写用户认证表单；因此没有声称筛选点击或真实服务端过滤已通过。用户完成手动登录后，沿 D99A 正式导航验证 `DM`/`KINGBASE` 筛选回包与列表结果。
+- **状态：**代码修正及聚焦自动化验收完成；线上筛选读回待恢复授权 SPA 会话。服务端数据库类型注册能力仍以正式 API DTO 为准，KINGBASE 不在此实现中宣称获得支持。

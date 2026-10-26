@@ -86,6 +86,36 @@
         { "val": "G4S_20261025_F721_B", "ordIdx": 5 }
       ],
       "uiMatchesResponseOrder": true
+    },
+    {
+      "requestId": "29596.3672",
+      "trigger": "Closed the unmodified read-only workspace, then reopened the same selected dictionary in the same SPA.",
+      "httpMethod": "POST",
+      "path": "/api/DataOperation/GetData",
+      "model": "_Base_DictData",
+      "filter": {
+        "field": "typeid",
+        "operator": "equal",
+        "value": "327D74EC0ABC4196AA75C56D944B8201"
+      },
+      "page": { "index": 1, "size": 20 },
+      "sort": [
+        { "field": "rowid", "direction": "ascending", "wireOrder": 1 },
+        { "field": "ordIdx", "direction": "ascending", "wireOrder": 2 }
+      ],
+      "httpStatus": 200,
+      "envelope": { "code": 200, "message": "操作成功", "count": 7 },
+      "responseOrder": [
+        { "val": "B1AI_0003_P", "ordIdx": 0 },
+        { "val": "B1AI_0003_Q", "ordIdx": 0 },
+        { "val": "A", "ordIdx": 1 },
+        { "val": "B", "ordIdx": 2 },
+        { "val": "C", "ordIdx": 3 },
+        { "val": "G4S_20261025_F721_A", "ordIdx": 4 },
+        { "val": "G4S_20261025_F721_B", "ordIdx": 5 }
+      ],
+      "uiMatchesResponseOrder": true,
+      "observation": "The configured opening order is restored on a newly opened workspace. This establishes reopen behavior, not what clearing a header sort should do within the same open workspace."
     }
   ],
   "legacyNavigation": {

@@ -11,11 +11,12 @@ import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
 import {databaseCatalogDbSelectedId} from './database-catalog-table-view-ops'
 
 const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark'] as const
-export type DatabaseCatalogDbEditState = Readonly<{id: string | number; mode: 'add'; row: DataRow}>
+const existingEditFields = ['Name', 'SchemaName', 'Remark'] as const
+export type DatabaseCatalogDbEditState = Readonly<{id: string | number; mode: 'add' | 'edit'; row: DataRow}>
 
 export type DatabaseCatalogDbEditingUi = Readonly<{
   id: string | number
-  mode: 'add'
+  mode: 'add' | 'edit'
   unconfirmed: boolean
   readbackFailed: boolean
 }>
@@ -48,7 +49,7 @@ export function databaseCatalogDbEditing(view: DataView, edit: DatabaseCatalogDb
   if (!edit) return undefined
   const unconfirmed = view.hasUnconfirmedSave
   const pending = view.hasEditingChanges(edit.id) || view.dirtyTracking.hasPendingChanges()
-  return {id: edit.id, mode: 'add', unconfirmed, readbackFailed: !unconfirmed && !pending && !!view.loadingError}
+  return {id: edit.id, mode: edit.mode, unconfirmed, readbackFailed: !unconfirmed && !pending && !!view.loadingError}
 }
 
 function idleDb(view: DataView, edit: DatabaseCatalogDbEditState | undefined): boolean {
@@ -100,14 +101,50 @@ export async function databaseCatalogDbBeginCreate(dbView: DataView, serverView:
   return {id, mode: 'add', row: current}
 }
 
+function selectedDatabaseRow(view: DataView): DataRow | undefined {
+  const values = view.getSelectedValues()
+  if (values.length !== 1) return undefined
+  const matches = view.rows.filter(row => view.getPkKey(row) === values[0])
+  return matches.length === 1 ? matches[0] : undefined
+}
+
+export function databaseCatalogDbCanEdit(view: DataView, edit: DatabaseCatalogDbEditState | undefined): boolean {
+  if (!idleDb(view, edit) || view.hasUnconfirmedSave) return false
+  const target = selectedDatabaseRow(view)
+  return !!target && view.editActionState(target) === 'enabled'
+    && existingEditFields.some(field => {
+      const access = view.fieldAccess(target, field)
+      return access.read === 'visible' && access.write === 'allowed'
+    })
+}
+
+export function databaseCatalogDbBeginEdit(view: DataView, target?: DataRow): DatabaseCatalogDbEditState {
+  if (!databaseCatalogDbCanEdit(view, undefined)) throw new Error('当前不能编辑此数据库')
+  const selected = selectedDatabaseRow(view)
+  if (!selected || target && selected !== target) throw new Error('数据库编辑目标或查询已变化')
+  const id = view.getPkKey(selected)
+  if (typeof id !== 'string' && typeof id !== 'number') throw new Error('数据库编辑目标缺少正式主键')
+  view.setCurrentRowById(id)
+  return {id, mode: 'edit', row: selected}
+}
+
 export function databaseCatalogDbCancelEdit(view: DataView, edit: DatabaseCatalogDbEditState): DatabaseCatalogDbEditState | undefined {
   if (view.hasUnconfirmedSave) throw new Error('请先核验未确认的保存结果')
   if (view.mutating) throw new Error('保存进行中，不能取消')
   const ui = databaseCatalogDbEditing(view, edit)
   if (ui?.readbackFailed) return undefined
-  if (!view.rows.includes(edit.row) || view.getPkKey(edit.row) !== edit.id) throw new Error('数据库编辑目标或查询已变化')
+  assertEditTarget(view, edit)
   view.discardPendingChanges([edit.id])
   return undefined
+}
+
+function assertEditTarget(view: DataView, edit: DatabaseCatalogDbEditState): DataRow {
+  const target = view.rows.find(row => view.getPkKey(row) === edit.id)
+  const current = view.currentRow
+  if (!target || !current || view.getPkKey(current) !== edit.id) {
+    throw new Error('数据库编辑目标或查询已变化')
+  }
+  return target
 }
 
 async function commit(dataSet: DataSet, view: DataView, id: string | number): Promise<void> {
@@ -115,6 +152,7 @@ async function commit(dataSet: DataSet, view: DataView, id: string | number): Pr
   if (!result.success) throw new Error(result.message ?? '数据库保存失败')
   await view.refresh()
   if (view.loadingError) throw view.loadingError
+  if (!view.rows.some(row => view.getPkKey(row) === id)) throw new Error(`数据库保存回执成功，但重新读取目录未见该记录（${id}），请勿重复提交`)
 }
 
 export async function databaseCatalogDbSaveEdit(
@@ -133,17 +171,29 @@ export async function databaseCatalogDbSaveEdit(
     if (view.loadingError) throw view.loadingError
     return undefined
   }
-  if (!view.rows.includes(edit.row) || view.getPkKey(edit.row) !== edit.id) throw new Error('数据库编辑目标或查询已变化')
+  if (view.requestState !== RequestState.Loaded || view.loadingError) throw new Error('数据库目录尚未加载完成，不能保存')
+  const target = assertEditTarget(view, edit)
   const patch = view.getEditingPatch(edit.id) ?? {}
   const value = view.getEditingRow(edit.id)
   if (!value) throw new Error('数据库编辑记录已失效')
-  const allowedSet = new Set<string>(createFields)
+  const allowedSet = new Set<string>(edit.mode === 'add' ? createFields : existingEditFields)
   if (Object.keys(patch).some(field => !allowedSet.has(field))) throw new Error('数据库保存包含不允许修改的字段')
-  if (view.addActionState() !== 'enabled') throw new Error('数据库保存权限已变化')
-  if (view.fieldAccess(edit.row, 'Name').write !== 'allowed') throw new Error('数据库名称字段当前不可写，不能新增')
-  for (const field of createFields) {
+  if (edit.mode === 'add') {
+    if (view.addActionState() !== 'enabled') throw new Error('数据库保存权限已变化')
+    if (view.fieldAccess(target, 'Name').write !== 'allowed') throw new Error('数据库名称字段当前不可写，不能新增')
+  } else {
+    if (view.editActionState(target) !== 'enabled') throw new Error('数据库保存权限或目标查询已变化')
+  }
+  const editableFields = edit.mode === 'add' ? createFields : existingEditFields
+  for (const field of editableFields) {
     if (!Object.hasOwn(patch, field) && field !== 'Name') continue
-    if (view.fieldAccess(edit.row, field).write !== 'allowed') continue
+    if (view.fieldAccess(target, field).write !== 'allowed') {
+      if (Object.hasOwn(patch, field)) throw new Error(`数据库字段 ${field} 当前不可写，不能保存`)
+      continue
+    }
+    if (edit.mode === 'edit' && Object.hasOwn(patch, field) && view.fieldAccess(target, field).read !== 'visible') {
+      throw new Error(`数据库字段 ${field} 当前不可读，不能保存`)
+    }
     const input = value[field]
     if (typeof input !== 'string' && typeof input !== 'number') throw new Error(`字段 ${field} 必须是文本或数字`)
     const text = scalar(input)

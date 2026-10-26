@@ -122,6 +122,73 @@ describe('database directory page', () => {
     expect(mocks.dirtySources.at(-1)?.isDirty).toBe(true)
   })
 
+  it('opens an edit form for the selected existing database and saves only its editable fields', async () => {
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const dataSet = await load.mock.results[0]?.value
+    const dbView = dataSet?.getView(DATABASE_CATALOG_DB_MODEL, 'default')
+    expect(dbView?.rows[0]).toBeTruthy()
+    const save = vi.spyOn(dataSet!, 'saveChanges')
+
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    const editButton = wrapper.findAll('button').find(button => button.text() === '编辑数据库')
+    expect(editButton, '选中既有数据库行后应提供编辑入口').toBeTruthy()
+    await editButton!.trigger('click')
+    await flushPromises()
+
+    const dialog = wrapper.findAll('.el-dialog').at(-1)!
+    expect(dialog.exists()).toBe(true)
+    const form = dialog.findComponent(RendererForm)
+    expect(form.exists()).toBe(true)
+    const editName = dialog.findAll('.el-form-item').find(item => item.find('label').text() === '数据库名称')
+    expect(editName).toBeTruthy()
+    expect(dialog.text()).not.toContain('类型')
+    await editName!.get('input').setValue('业务库-修改')
+    const remark = dialog.findAll('.el-form-item').find(item => item.find('label').text() === '备注')
+    expect(remark).toBeTruthy()
+    await remark!.get('input').setValue('来自页面编辑')
+    await pageButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    const id = dbView!.getPkKey(dbView!.rows[0]!)
+    expect(save).toHaveBeenCalledWith({views: [{tableName: DATABASE_CATALOG_DB_MODEL, viewId: 'default', ids: [id]}]})
+    const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = request?.data as Array<{TableName?: string; CrudModel?: {Changed?: Record<string, unknown>[]; Added?: unknown[]; Deleted?: unknown[]}}>
+    expect(payload).toHaveLength(1)
+    expect(payload[0]).toMatchObject({TableName: DATABASE_CATALOG_DB_MODEL,
+      CrudModel: {Changed: [expect.objectContaining({rowid: id, Name: '业务库-修改', Remark: '来自页面编辑'})]}})
+    expect(payload[0]?.CrudModel?.Added ?? []).toHaveLength(0)
+    expect(payload[0]?.CrudModel?.Deleted ?? []).toHaveLength(0)
+  })
+
+  it('cancels edits to an existing database row and restores the bound DataView values', async () => {
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const dataSet = await load.mock.results[0]?.value
+    const dbView = dataSet?.getView(DATABASE_CATALOG_DB_MODEL, 'default')
+    const row = dbView?.rows[0]
+    expect(row).toBeTruthy()
+    const before = {Name: row!['Name'], SchemaName: row!['SchemaName'], Remark: row!['Remark']}
+
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    const editButton = wrapper.findAll('button').find(button => button.text() === '编辑数据库')
+    expect(editButton, '选中既有数据库行后应提供编辑入口').toBeTruthy()
+    await editButton!.trigger('click')
+    await flushPromises()
+    const dialog = wrapper.findAll('.el-dialog').at(-1)!
+    const name = dialog.findAll('.el-form-item').find(item => item.find('label').text() === '数据库名称')!
+    await name.get('input').setValue('应取消')
+    const cancel = dialog.findAll('button').find(button => button.text() === '取消')
+    expect(cancel).toBeTruthy()
+    await cancel!.trigger('click')
+    await flushPromises()
+
+    expect(row).toMatchObject(before)
+    expect(dbView!.hasEditingChanges(dbView!.getPkKey(row!))).toBe(false)
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
   it('keeps the native page dirty while a DataView save result is unconfirmed', async () => {
     const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
     await open()

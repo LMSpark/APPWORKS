@@ -37,6 +37,13 @@ export const DATABASE_DIRECTORY_FORM_FIELDS: SparkNode[] = [
   {type: 'r-text', props: {field: 'Remark', label: '备注'}},
 ]
 
+/** Existing database edits expose only the three fields covered by its edit permission contract. */
+export const DATABASE_DIRECTORY_EDIT_FORM_FIELDS: SparkNode[] = [
+  {type: 'r-text', props: {field: 'Name', label: '数据库名称'}},
+  {type: 'r-text', props: {field: 'SchemaName', label: 'Schema'}},
+  {type: 'r-text', props: {field: 'Remark', label: '备注'}},
+]
+
 function directoryView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModel>>): Record<string, unknown> {
   return {
     autoLoad: false,

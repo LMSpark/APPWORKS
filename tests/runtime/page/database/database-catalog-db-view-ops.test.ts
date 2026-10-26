@@ -36,6 +36,113 @@ beforeEach(() => {
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
 describe('database-catalog-db-view-ops', () => {
+  it('edits only the selected existing database row through its original DataView/DataSet', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbView(ds)
+    const beginEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbBeginEdit
+    expect(beginEdit, '现有 _base_dbInfo 行应有 DataView 编辑入口').toBeTypeOf('function')
+
+    const row = dbView.rows[0]!
+    dbView.setSelectedRows([row])
+    const id = dbView.getPkKey(row)!
+    const original = {Name: row['Name'], SchemaName: row['SchemaName'], Remark: row['Remark']}
+    const edit = beginEdit!(dbView, row)
+    expect(edit).toMatchObject({id, mode: 'edit', row})
+    expect(dbView.fieldAccess(row, 'Name').write).toBe('allowed')
+    expect(dbView.fieldAccess(row, 'SchemaName').write).toBe('allowed')
+    expect(dbView.fieldAccess(row, 'Remark').write).toBe('allowed')
+
+    dbView.updateEditingValue(id, 'Name', '业务库-更新')
+    dbView.updateEditingValue(id, 'SchemaName', 'app')
+    dbView.updateEditingValue(id, 'Remark', '目录说明')
+    await (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit)
+
+    const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = request?.data as Array<{TableName?: string; CrudModel?: {Changed?: Record<string, unknown>[]; Added?: unknown[]; Deleted?: unknown[]}}>
+    expect(payload).toHaveLength(1)
+    expect(payload[0]).toMatchObject({TableName: DATABASE_CATALOG_DB_MODEL})
+    expect(payload[0]?.CrudModel?.Changed).toEqual([expect.objectContaining({
+      rowid: id, Name: '业务库-更新', SchemaName: 'app', Remark: '目录说明',
+    })])
+    expect(payload[0]?.CrudModel?.Added ?? []).toHaveLength(0)
+    expect(payload[0]?.CrudModel?.Deleted ?? []).toHaveLength(0)
+    expect(original).toEqual({Name: '业务库', SchemaName: 'dbo', Remark: ''})
+  })
+
+  it('rejects existing-row edit without an allowed field and when the target/query identity expires, without submitting', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbView(ds)
+    const beginEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbBeginEdit
+    expect(beginEdit, '现有 _base_dbInfo 行应有权限和身份守卫的编辑入口').toBeTypeOf('function')
+
+    const row = dbView.rows[0]!
+    dbView.setSelectedRows([row])
+    const edit = beginEdit!(dbView, row)
+    dbView.updateEditingValue(edit.id, 'Name', '不得部分提交')
+    dbView.updateEditingValue(edit.id, 'Remark', '越权修改')
+    vi.spyOn(dbView, 'fieldAccess').mockImplementation((target, field) => target === row && field === 'Remark'
+      ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
+      : {read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'})
+    await expect((await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, edit))
+      .rejects.toThrow()
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+
+    vi.restoreAllMocks()
+    const cancelEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbCancelEdit
+    cancelEdit(dbView, edit)
+    const refreshedRow = dbView.rows.find(item => dbView.getPkKey(item) === edit.id)!
+    dbView.setSelectedRows([refreshedRow])
+    const stale = beginEdit!(dbView, refreshedRow)
+    dbView.rows.splice(dbView.rows.indexOf(refreshedRow), 1)
+    await expect((await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbSaveEdit(ds, dbView, stale))
+      .rejects.toThrow()
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
+  it('allows Name-only edits when SchemaName is denied and submits only the permitted change', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbView(ds)
+    const beginEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbBeginEdit!
+    const row = dbView.rows[0]!
+    dbView.setSelectedRows([row])
+    const edit = beginEdit(dbView, row)
+    vi.spyOn(dbView, 'fieldAccess').mockImplementation((_target, field) => field === 'SchemaName'
+      ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
+      : {read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'})
+    dbView.updateEditingValue(edit.id, 'Name', '仅改名称')
+
+    await databaseCatalogDbSaveEdit(ds, dbView, edit)
+
+    const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = request?.data as Array<{CrudModel?: {Changed?: Record<string, unknown>[]}}>
+    expect(payload).toHaveLength(1)
+    expect(payload[0]?.CrudModel?.Changed).toEqual([expect.objectContaining({rowid: edit.id, Name: '仅改名称'})])
+    expect(payload[0]?.CrudModel?.Changed?.[0]).not.toHaveProperty('SchemaName')
+  })
+
+  it('cancels an existing-row edit back to its original values without submitting', async () => {
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbView(ds)
+    const beginEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbBeginEdit
+    expect(beginEdit, '现有 _base_dbInfo 行应支持 DataView 编辑态取消').toBeTypeOf('function')
+    const row = dbView.rows[0]!
+    dbView.setSelectedRows([row])
+    const id = dbView.getPkKey(row)!
+    const before = {Name: row['Name'], SchemaName: row['SchemaName'], Remark: row['Remark']}
+    const edit = beginEdit!(dbView, row)
+    dbView.updateEditingValue(id, 'Name', '取消后不得保留')
+    dbView.updateEditingValue(id, 'Remark', '取消说明')
+    const cancelEdit = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbCancelEdit
+    expect(cancelEdit(dbView, edit)).toBeUndefined()
+    expect(row).toMatchObject(before)
+    expect(dbView.hasEditingChanges(id)).toBe(false)
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
   it('requires explicit server selection and saves one database row through its DataView/DataSet', async () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

@@ -9,7 +9,7 @@
     <p v-if="unregisteredHint" role="status">{{ unregisteredHint }}</p>
     <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
     <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
-    <RendererForm :data-view-key="catalogKey" :children="DATABASE_DIRECTORY_FORM_FIELDS" :auto-columns="false" context-data-member="currentRow"
+    <RendererForm :data-view-key="catalogKey" :children="editing.mode === 'add' ? DATABASE_DIRECTORY_FORM_FIELDS : DATABASE_DIRECTORY_EDIT_FORM_FIELDS" :auto-columns="false" context-data-member="currentRow"
       :show-data-view-meta="false" :grid-columns="1"
       :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}" />
     <template #footer>
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import {RendererButton, RendererDialog, RendererForm} from '@spark-appworks/spark-component'
 import type {DatabaseCatalogDbEditingUi} from '@/lowcode/resources/database/database-catalog-db-view-ops'
-import {DATABASE_DIRECTORY_FORM_FIELDS} from '@/lowcode/resources/database/lowcode-database-directory'
+import {DATABASE_DIRECTORY_EDIT_FORM_FIELDS, DATABASE_DIRECTORY_FORM_FIELDS} from '@/lowcode/resources/database/lowcode-database-directory'
 
 defineProps<{
   catalogKey: string

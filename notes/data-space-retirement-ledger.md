@@ -1597,3 +1597,11 @@ flowchart TD
 - **Ruling:** 不重开A4产品实现；现有正式代码、历史真实SPA证据及本轮测试均指向已关闭。强行增加不存在的保存后查询会改变数据链并引入多余请求。若用户仍观察到不同的Loading窗口，应先取得该窗口的实际请求/状态轨迹，再针对真实路径补RED；代价是某个未覆盖的特殊触发条件可能仍需单独核验。
 - B2数据库“登记已有库”仍未开放实现：正式端点索引中的`/api/Db/registerDB/{serverId}`与参考前端`dbOperateData`命令不一致，部署映射与逐项回执尚无实证。不得因端点索引或Java参考源码直接新增页面HTTP或伪造命令协议；保留为合同缺口，待已授权SPA会话只读诊断后再裁决。
 - **状态：A4历史待办已核销，阶段A其余完整对照/跨实例未知恢复仍开放；B2与总体整合继续 implementing。当前IAB已无SPA标签，在线验证仍需用户恢复登录会话；本轮没有服务请求或业务写入。**
+
+## 2026-10-26 B2 数据库目录现存记录编辑
+
+- 按用户要求再次 `git fetch --all --prune`。当前 `HEAD=116f5faff` 是 `origin/10-17` 与 `github/10-17` 的祖先，远程没有新提交需要合并；工作区开始时干净。没有重置、丢弃或推送远程状态。
+- 依据数据库目录操作合同与 `_base_dbInfo` DataView 实现现存记录编辑：页面新增“编辑数据库”入口；标准 `RendererForm` 绑定目录 DataView 的当前行，编辑字段限制为 `Name/SchemaName/Remark`，隐藏连接凭据及创建专用字段。按钮与保存分别核对选中主键、行编辑权限及实际修改字段的读写权限；取消通过 DataView 丢弃该行草稿；提交仅调用 `DataSet.saveChanges({views:[{tableName,viewId,ids:[pk]}]})`，回读后核对同一主键。页面没有新增 HTTP、owner 或第二份草稿，未修改/启动/部署 Java。
+- 测试先行证据：原始 RED 为两文件 5 项失败（缺 beginEdit/helper 与页面入口），保存在忽略文件 `cache/db-edit-red-20261026.log`；修复后目录相关套件 `tests/runtime/page/database` 13 文件 177/177 通过。`pnpm run typecheck`、六个目标文件 ESLint（`--max-warnings=0`）、`pnpm run verify:rules`、`pnpm run build` 均退出0；`git diff --check` 通过。构建保留 Rolldown 注释位置、CodeMirror 动态/静态混合导入与大 chunk 的既有警告。正式ClassModel/公开组件合同未改，无需刷新派生产物。
+- 真实 SPA 烟测本批未执行：当前没有可复用的已授权 SPA 会话；因此不将夹具的提交/回读当作部署服务证据。没有服务请求或业务写入。
+- **状态：B2 数据库目录现存记录编辑的代码与自动化验证完成，随本台账本批提交到本地分支，未推送；部署服务编辑回执及关闭重开仍待已授权 SPA 烟测。B2仍开放已有数据库登记、数据库级连接测试、数据库删除与引用完整性、真实回执/未知结果及整页对照；总体整合继续 implementing。**

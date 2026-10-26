@@ -55,6 +55,8 @@ import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-databa
 import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
 import {
   databaseCatalogDbBeginCreate,
+  databaseCatalogDbBeginEdit,
+  databaseCatalogDbCanEdit,
   databaseCatalogDbCanCreate,
   databaseCatalogDbCancelEdit,
   databaseCatalogDbEditing,
@@ -110,6 +112,8 @@ const toolbar = computed<RToolbarProps>(() => {
   return {children: [
     {type: 'r-button', props: {label: '新增数据库', disabled: busy.value || !!edit.value || !databases || !servers
       || !databaseCatalogDbCanCreate(databases, servers, edit.value), onClick: beginCreate}},
+    {type: 'r-button', props: {label: '编辑数据库', disabled: busy.value || !!edit.value || !databases
+      || !databaseCatalogDbCanEdit(databases, edit.value), onClick: beginEdit}},
     {type: 'r-button', props: {label: '管理', disabled: busy.value || !selectedDatabase.value, onClick: openTableView}},
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
@@ -273,6 +277,16 @@ async function beginCreate(): Promise<void> {
   })
 }
 
+async function beginEdit(): Promise<void> {
+  await act(() => {
+    const view = databaseView.value
+    const target = selectedDatabase.value
+    if (!view || !target) throw new Error('请先选择可编辑的数据库')
+    edit.value = databaseCatalogDbBeginEdit(view, target)
+    unregisteredHint.value = ''
+  })
+}
+
 async function cancelEdit(): Promise<void> {
   await act(() => {
     const view = databaseView.value
@@ -284,6 +298,7 @@ async function cancelEdit(): Promise<void> {
 }
 
 async function saveEdit(): Promise<void> {
+  const mode = edit.value?.mode
   await act(async () => {
     const ds = dataSet.value
     const view = databaseView.value
@@ -294,7 +309,7 @@ async function saveEdit(): Promise<void> {
     if (dataSet.value !== ds || databaseView.value !== view || actionGeneration !== action) return
     edit.value = next
     if (!edit.value) unregisteredHint.value = ''
-  }, edit.value?.mode === 'add' ? '数据库已新增' : '数据库已保存')
+  }, mode === 'add' ? '数据库已新增' : '数据库已保存')
 }
 
 async function loadUnregisteredNames(): Promise<void> {

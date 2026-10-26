@@ -33,6 +33,18 @@ AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正
         :editing="editing" :busy="busy" :action-error="actionError" :unregistered-hint="unregisteredHint"
         :can-load-unregistered="canLoadUnregistered" @cancel="cancelEdit" @save="saveEdit"
         @load-unregistered="loadUnregisteredNames" />
+      <RendererDialog v-if="deleteConfirmation" :data-view-key="databaseKey" :model-value="true" title="删除数据库目录记录" :width="480"
+        :close-disabled="busy || deleteUnconfirmed" @update:model-value="closeDeleteConfirmation">
+        <p v-if="deleteConfirmation">确定删除数据库目录中的“{{ deleteConfirmation.name }}”记录吗？</p>
+        <p>此操作只删除目录记录，不会删除物理数据库，也不会扫描或删除相关引用。</p>
+        <p v-if="deleteUnconfirmed" role="status">删除结果尚未确认。核验只确认原提交，不会再次写入；请使用下方核验操作。</p>
+        <p v-if="actionError" role="alert">{{ actionError }}</p>
+        <template #footer>
+          <RendererButton label="取消" :disabled="busy || deleteUnconfirmed" @click="closeDeleteConfirmation(false)" />
+          <RendererButton :label="deleteUnconfirmed ? '核验删除结果' : '确认删除'" button-type="danger"
+            :disabled="busy || !deleteConfirmation" @click="deleteCapturedDatabase" />
+        </template>
+      </RendererDialog>
       <p v-if="actionError && !editing" role="alert">{{ actionError }}</p>
     </template>
   </section>
@@ -45,7 +57,7 @@ import {normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, useSparkComponent,
+import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, useSparkComponent,
   type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useRoute} from 'vue-router'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
@@ -58,6 +70,8 @@ import {
   databaseCatalogDbBeginEdit,
   databaseCatalogDbCanEdit,
   databaseCatalogDbCanCreate,
+  databaseCatalogDbCanDelete,
+  databaseCatalogDbDelete,
   databaseCatalogDbCancelEdit,
   databaseCatalogDbEditing,
   databaseCatalogDbSaveEdit,
@@ -82,6 +96,7 @@ const dataSet = shallowRef<DataSet>()
 const serverView = shallowRef<DataView>()
 const databaseView = shallowRef<DataView>()
 const edit = shallowRef<DatabaseCatalogDbEditState>()
+const deleteConfirmation = shallowRef<{id: string | number; name: string}>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref('')
 let runtime: PageRuntime | undefined
@@ -96,6 +111,7 @@ const listFilter = computed<RFilterProps>(() => ({autoQuery: true, collapsible: 
 const databaseError = computed(() => {revision.value; return databaseView.value?.loadingError?.message ?? ''})
 const serverError = computed(() => {revision.value; return serverView.value?.loadingError?.message ?? ''})
 const editing = computed(() => {revision.value; const view = databaseView.value; return view ? databaseCatalogDbEditing(view, edit.value) : undefined})
+const deleteUnconfirmed = computed(() => {revision.value; return !!databaseView.value?.hasUnconfirmedSave})
 const selectedServerLabel = computed(() => {
   revision.value
   const view = serverView.value
@@ -114,6 +130,8 @@ const toolbar = computed<RToolbarProps>(() => {
       || !databaseCatalogDbCanCreate(databases, servers, edit.value), onClick: beginCreate}},
     {type: 'r-button', props: {label: '编辑数据库', disabled: busy.value || !!edit.value || !databases
       || !databaseCatalogDbCanEdit(databases, edit.value), onClick: beginEdit}},
+    {type: 'r-button', props: {label: '删除', disabled: busy.value || !!edit.value || !databases
+      || !databaseCatalogDbCanDelete(databases, selectedDatabase.value ? databases.getPkKey(selectedDatabase.value) : undefined), onClick: beginDelete}},
     {type: 'r-button', props: {label: '管理', disabled: busy.value || !selectedDatabase.value, onClick: openTableView}},
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
@@ -287,6 +305,44 @@ async function beginEdit(): Promise<void> {
   })
 }
 
+async function beginDelete(): Promise<void> {
+  const view = databaseView.value
+  const target = selectedDatabase.value
+  const id = view && target ? view.getPkKey(target) : undefined
+  if (!view || !target || (typeof id !== 'string' && typeof id !== 'number')) {
+    actionError.value = '请先选择可删除的数据库目录记录'
+    return
+  }
+  if (!databaseCatalogDbCanDelete(view, id)) {
+    actionError.value = '当前不能删除此数据库目录记录'
+    return
+  }
+  deleteConfirmation.value = {id, name: scalarName(target['Name'], id)}
+  actionError.value = ''
+}
+
+function scalarName(value: unknown, fallback: string | number): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : String(fallback)
+}
+
+async function deleteCapturedDatabase(): Promise<void> {
+  const captured = deleteConfirmation.value
+  if (!captured) return
+  await act(async () => {
+    const ds = dataSet.value
+    const view = databaseView.value
+    if (!ds || !view) throw new Error('数据库目录已失效')
+    await databaseCatalogDbDelete(ds, view, captured.id)
+    if (dataSet.value === ds && databaseView.value === view && deleteConfirmation.value?.id === captured.id) {
+      deleteConfirmation.value = undefined
+    }
+  }, `已删除数据库目录记录：${captured.name}`)
+}
+
+function closeDeleteConfirmation(open: boolean): void {
+  if (!open && !busy.value && !deleteUnconfirmed.value) deleteConfirmation.value = undefined
+}
+
 async function cancelEdit(): Promise<void> {
   await act(() => {
     const view = databaseView.value
@@ -334,6 +390,7 @@ function release(): void {
   unsubscribe?.(); unsubscribe = undefined
   sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
   edit.value = undefined; serverView.value = undefined; databaseView.value = undefined
+  deleteConfirmation.value = undefined
   dataSet.value?.destroy(); dataSet.value = undefined
 }
 

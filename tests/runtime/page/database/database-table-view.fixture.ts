@@ -103,6 +103,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   failNextVerifyRead = false
   omitCountByModel = new Set<string>()
   databasePrimaryKey = 'rowid'
+  allowDeleteByModel = new Set<string>()
   unregisteredByServer: Record<string, string[]> = {}
   unregisteredDbBody: unknown = undefined
   unregisteredByDb: Record<string, string[]> = {}
@@ -363,7 +364,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
         lingma_sys_key: 'row-key',
         lingma_sys_params: {r: fieldNames.filter(field => !hiddenFields.has(field)), e: fieldNames.filter(field => !deniedFields.has(field) && !hiddenFields.has(field)), h: [...hiddenFields], m: [], d: tableName === DATABASE_CATALOG_TABLE_MODEL
           || tableName === DATABASE_CATALOG_VIEW_MODEL
-          || tableName === DATABASE_CATALOG_RELATION_MODEL},
+          || tableName === DATABASE_CATALOG_RELATION_MODEL || this.allowDeleteByModel.has(tableName)},
       })), ...(this.omitCountByModel.has(tableName) ? {} : {Count: rows.length})}}},
       status: 200, statusText: 'OK', headers: {}}
   }

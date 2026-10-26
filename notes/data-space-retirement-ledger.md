@@ -1605,3 +1605,11 @@ flowchart TD
 - 测试先行证据：原始 RED 为两文件 5 项失败（缺 beginEdit/helper 与页面入口），保存在忽略文件 `cache/db-edit-red-20261026.log`；修复后目录相关套件 `tests/runtime/page/database` 13 文件 177/177 通过。`pnpm run typecheck`、六个目标文件 ESLint（`--max-warnings=0`）、`pnpm run verify:rules`、`pnpm run build` 均退出0；`git diff --check` 通过。构建保留 Rolldown 注释位置、CodeMirror 动态/静态混合导入与大 chunk 的既有警告。正式ClassModel/公开组件合同未改，无需刷新派生产物。
 - 真实 SPA 烟测本批未执行：当前没有可复用的已授权 SPA 会话；因此不将夹具的提交/回读当作部署服务证据。没有服务请求或业务写入。
 - **状态：B2 数据库目录现存记录编辑的代码与自动化验证完成，随本台账本批提交到本地分支，未推送；部署服务编辑回执及关闭重开仍待已授权 SPA 烟测。B2仍开放已有数据库登记、数据库级连接测试、数据库删除与引用完整性、真实回执/未知结果及整页对照；总体整合继续 implementing。**
+
+## 2026-10-26 B2 数据库目录单行删除
+
+- 按现存 B2 操作合同，本批只实现 `_base_dbInfo` 一条目录记录删除。确认框使用标准 `RendererDialog/RendererButton` 并显式绑定完整 `scenarioId@_base_dbInfo@default`；打开时捕获正式主键与库名，删除权限在确认和保存前重核。文案明确：只删目录登记，不删物理数据库，不扫描或删除相关引用。
+- 唯一写链为 `DataView.removeRow(pk)` → `DataSet.saveChanges` 精确指定原 view 与单个主键 → 原 DataView refresh 并确认目标缺席。明确失败才丢弃本地删除草稿；未知回执保留原捕获和关闭保护，“核验删除结果”只复用原 DataSet 保存捕获进行核验，不新建提交器、不自动重放。核验仍未知时维持待确认；确认未应用时恢复本地行并要求用户重新确认。没有新增页面 HTTP、直接 SPARK 请求、owner 或引用扫描；没有修改/启动/部署 Java。
+- 测试先行 RED：2个目标文件共37项中34通过、3项按预期失败（删除操作与入口不存在），原输出在忽略文件 `ignored/cache/db-delete-red-20261026.log`。主控复核后两目标文件39/39通过；目录套件13文件182/182通过。主控独立复跑 typecheck、5个目标文件 ESLint、`verify:rules` 与 `build` 均退出0；`git diff --check` 与 ClassModel目录/概要/指南合同核对通过。构建保留 Rolldown 注释位置、CodeMirror 动态/静态混合导入及大 chunk 的既有警告。
+- 真实 SPA 烟测本批未执行；没有可复用的已授权 SPA 会话。未调用删除服务、未写真实目录数据。自动化夹具证明保存范围、权限/目标守卫及未知回执恢复路径，不证明当前部署服务接受删除或引用约束行为。
+- **状态：B2 数据库目录单行删除代码与自动化复核完成，随本台账本批提交本地分支，未推送。现存记录编辑和单行删除代码已提交；二者的部署服务保存/删除回执及关闭重开仍待已授权 SPA 烟测。B2仍开放已有数据库登记、数据库级连接测试、物理/引用完整性、真实部署回执和整页对照；总体整合继续 implementing。**

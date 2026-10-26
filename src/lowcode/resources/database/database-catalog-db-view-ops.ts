@@ -118,6 +118,82 @@ export function databaseCatalogDbCanEdit(view: DataView, edit: DatabaseCatalogDb
     })
 }
 
+function databaseRowById(view: DataView, id: string | number): DataRow | undefined {
+  return view.rows.find(row => view.getPkKey(row) === id)
+}
+
+function saveResultIsUnconfirmed(view: DataView): boolean {
+  return view.hasUnconfirmedSave
+}
+
+function currentLoadError(view: DataView): Error | null {
+  return view.loadingError
+}
+
+export function databaseCatalogDbCanDelete(view: DataView, id: string | number | undefined): boolean {
+  if ((typeof id !== 'string' && typeof id !== 'number') || !String(id).trim() || !idleDb(view, undefined)
+    || view.hasUnconfirmedSave) return false
+  const target = databaseRowById(view, id)
+  return !!target && view.deleteActionState(target) === 'enabled'
+}
+
+/** 删除目录中的单条数据库登记记录；不删除物理数据库，也不扫描其引用。 */
+export async function databaseCatalogDbDelete(dataSet: DataSet, view: DataView, id: string | number): Promise<void> {
+  if (view.hasUnconfirmedSave) {
+    let verification: Awaited<ReturnType<DataSet['saveChanges']>>
+    try {
+      verification = await dataSet.saveChanges({applyEditingRows: false,
+        views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+    } catch (cause) {
+      if (saveResultIsUnconfirmed(view)) throw new Error('删除结果仍无法确认，原删除变更已保留；请稍后再次核验')
+      view.discardPendingChanges([id])
+      await view.refresh()
+      const loadError = currentLoadError(view)
+      if (loadError) throw loadError
+      throw new Error(`已核验原删除未生效，目录记录仍保留；如仍要删除，请重新确认（${cause instanceof Error ? cause.message : String(cause)}）`)
+    }
+    if (saveResultIsUnconfirmed(view)) throw new Error('删除结果仍无法确认，原删除变更已保留；请稍后再次核验')
+    if (!verification.success) {
+      view.discardPendingChanges([id])
+      await view.refresh()
+      const loadError = currentLoadError(view)
+      if (loadError) throw loadError
+      throw new Error('已核验原删除未生效，目录记录仍保留；如仍要删除，请重新确认')
+    }
+    await view.refresh()
+    const loadError = currentLoadError(view)
+    if (loadError) throw loadError
+    if (databaseRowById(view, id)) throw new Error(`原删除提交已核验，但目录仍返回该记录（${id}）；请检查当前目录结果后再决定`)
+    return
+  }
+  if (view.requestState !== RequestState.Loaded || view.loadingError || view.mutating) {
+    throw new Error('数据库目录尚未就绪，不能删除')
+  }
+  if (!databaseCatalogDbCanDelete(view, id)) throw new Error('当前不能删除此数据库目录记录')
+  const target = databaseRowById(view, id)
+  if (!target || view.getPkKey(target) !== id) throw new Error('数据库删除目标已变化')
+  if (view.deleteActionState(target) !== 'enabled') throw new Error('数据库删除权限已变化')
+  const removed = await view.removeRow(id)
+  if (removed === false) throw new Error('数据库目录记录未能暂存删除')
+  let result: Awaited<ReturnType<DataSet['saveChanges']>>
+  try {
+    result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+  } catch (cause) {
+    if (saveResultIsUnconfirmed(view)) throw new Error('删除结果尚未确认，请核验目录状态后再操作，不要重复删除')
+    view.discardPendingChanges([id])
+    throw cause
+  }
+  if (!result.success) {
+    if (saveResultIsUnconfirmed(view)) throw new Error('删除结果尚未确认，请核验目录状态后再操作，不要重复删除')
+    view.discardPendingChanges([id])
+    throw new Error(result.message ?? '删除数据库目录记录失败')
+  }
+  await view.refresh()
+  const loadError = currentLoadError(view)
+  if (loadError) throw loadError
+  if (databaseRowById(view, id)) throw new Error(`删除回执成功，但重新读取目录仍存在该记录（${id}）`)
+}
+
 export function databaseCatalogDbBeginEdit(view: DataView, target?: DataRow): DatabaseCatalogDbEditState {
   if (!databaseCatalogDbCanEdit(view, undefined)) throw new Error('当前不能编辑此数据库')
   const selected = selectedDatabaseRow(view)

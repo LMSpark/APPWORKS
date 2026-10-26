@@ -70,6 +70,82 @@ describe('database-catalog-db-view-ops', () => {
     expect(original).toEqual({Name: '业务库', SchemaName: 'dbo', Remark: ''})
   })
 
+  it('deletes exactly the requested primary key through the scoped DataView save and verifies it is absent', async () => {
+    http.allowDeleteByModel.add(DATABASE_CATALOG_DB_MODEL)
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const view = requireDatabaseCatalogDbView(ds)
+    const remove = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbDelete
+    expect(remove, '现有 _base_dbInfo 行应有经 DataView 的单行删除入口').toBeTypeOf('function')
+    const target = view.rows[0]!
+    const id = view.getPkKey(target)!
+    const save = vi.spyOn(ds, 'saveChanges')
+
+    await remove!(ds, view, id)
+
+    expect(save).toHaveBeenCalledWith({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+    const request = http.requests.find(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    const payload = request?.data as Array<{TableName?: string; CrudModel?: {Deleted?: Record<string, unknown>[]}}>
+    expect(payload).toHaveLength(1)
+    expect(payload[0]).toMatchObject({TableName: DATABASE_CATALOG_DB_MODEL,
+      CrudModel: {Deleted: [expect.objectContaining({rowid: id})]}})
+    expect(payload[0]?.CrudModel?.Deleted).toHaveLength(1)
+    expect(view.rows.some(row => view.getPkKey(row) === id)).toBe(false)
+    expect(http.requests.filter(item => item.url === '/api/DataOperation/GetData'
+      && JSON.stringify(item.data).includes(DATABASE_CATALOG_DB_MODEL)).length).toBeGreaterThan(1)
+  })
+
+  it('rechecks delete permission and target identity and never submits when either is invalid', async () => {
+    http.allowDeleteByModel.add(DATABASE_CATALOG_DB_MODEL)
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const view = requireDatabaseCatalogDbView(ds)
+    const remove = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbDelete
+    expect(remove, '删除入口必须在提交前核对权限和身份').toBeTypeOf('function')
+    const row = view.rows[0]!
+    const id = view.getPkKey(row)!
+    vi.spyOn(view, 'deleteActionState').mockReturnValue('disabled')
+    await expect(remove!(ds, view, id)).rejects.toThrow()
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+
+    vi.restoreAllMocks()
+    const staleId = view.getPkKey(row)!
+    view.rows.splice(view.rows.indexOf(row), 1)
+    await expect(remove!(ds, view, staleId)).rejects.toThrow()
+    expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
+  it('preserves the staged deletion when the save result is unknown and does not retry', async () => {
+    http.allowDeleteByModel.add(DATABASE_CATALOG_DB_MODEL)
+    const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const view = requireDatabaseCatalogDbView(ds)
+    const remove = (await import('@/lowcode/resources/database/database-catalog-db-view-ops')).databaseCatalogDbDelete!
+    const id = view.getPkKey(view.rows[0]!)!
+    let unconfirmed = false
+    let saves = 0
+    vi.spyOn(ds, 'saveChanges').mockImplementation(async () => {
+      saves++
+      if (saves === 1) {
+        unconfirmed = true
+        Object.defineProperty(view, 'hasUnconfirmedSave', {configurable: true, get: () => unconfirmed})
+        throw new Error('transport disconnected')
+      }
+      unconfirmed = false
+      http.rows[DATABASE_CATALOG_DB_MODEL] = http.rows[DATABASE_CATALOG_DB_MODEL]!.filter(row => row['rowid'] !== id)
+      view.discardPendingChanges([id])
+      return {success: true} as never
+    })
+
+    await expect(remove(ds, view, id)).rejects.toThrow(/尚未确认/)
+    expect(view.dirtyTracking.pendingDeleteIds.has(id)).toBe(true)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    await remove(ds, view, id)
+    expect(saves).toBe(2)
+    expect(view.dirtyTracking.pendingDeleteIds.has(id)).toBe(false)
+    expect(view.rows.some(row => view.getPkKey(row) === id)).toBe(false)
+  })
+
   it('rejects existing-row edit without an allowed field and when the target/query identity expires, without submitting', async () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)

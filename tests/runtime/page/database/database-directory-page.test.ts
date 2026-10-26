@@ -3,9 +3,9 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererForm, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererDialog, RendererForm, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {NAV_KEY, useNavigation, type NavigationContext, type RuntimeNavigationItem} from '@spark-appworks/spark-app'
-import type {DataView as SparkDataView} from '@spark-appworks/spark-data'
+import type {DataRow, DataView as SparkDataView} from '@spark-appworks/spark-data'
 import DatabaseDirectoryPage from '@/views/DataBaseManage/DataBaseManage/index.vue'
 import {DATABASE_TABLE_VIEW_SCENARIO_ID, DatabaseTableViewHttp, bootstrapDatabaseTableViewRuntime} from './database-table-view.fixture'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
@@ -187,6 +187,97 @@ describe('database directory page', () => {
     expect(row).toMatchObject(before)
     expect(dbView!.hasEditingChanges(dbView!.getPkKey(row!))).toBe(false)
     expect(http.requests.some(item => item.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+  })
+
+  it('confirms deletion by database name and deletes only the row captured when confirmation opened', async () => {
+    http.rows[DATABASE_CATALOG_DB_MODEL]!.push({rowid: 'DB2', serverId: 'S1', Name: '归档库', ServerName: '主库', SchemaName: 'dbo', Remark: ''})
+    http.allowDeleteByModel.add(DATABASE_CATALOG_DB_MODEL)
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const dataSet = await load.mock.results[0]?.value
+    const dbView = dataSet?.getView(DATABASE_CATALOG_DB_MODEL, 'default')
+    expect(dbView?.rows.length).toBeGreaterThan(1)
+    const captured = dbView!.rows[0]!
+    const other = dbView!.rows[1]!
+    const capturedId = dbView!.getPkKey(captured)!
+    const otherId = dbView!.getPkKey(other)!
+    const name = String(captured['Name'])
+    const save = vi.spyOn(dataSet!, 'saveChanges')
+
+    const table = wrapper.findAllComponents(RendererTable)[1]!
+    await table.findAll('.el-table__body-wrapper tbody tr')[0]!.trigger('click')
+    await flushPromises()
+    const deleteButton = wrapper.findAll('button').find(button => button.text() === '删除')
+    expect(deleteButton, '选中目录行后应有删除入口').toBeTruthy()
+    await deleteButton!.trigger('click')
+    await flushPromises()
+    let dialog = wrapper.findAll('.el-dialog').at(-1)!
+    const rendererDialog = wrapper.findAllComponents(RendererDialog).find(item => item.props('modelValue') === true)
+    expect(rendererDialog?.props('dataViewKey')).toBe(`${dataSet!.scenarioId}@${DATABASE_CATALOG_DB_MODEL}@default`)
+    expect(dialog.text()).toContain(name)
+    expect(dialog.text()).toContain('确认删除')
+    const cancel = dialog.findAll('button').find(button => button.text() === '取消')
+    expect(cancel).toBeTruthy()
+    await cancel!.trigger('click')
+    await flushPromises()
+    expect(save).not.toHaveBeenCalled()
+    expect(dbView!.rows.some((row: DataRow) => dbView!.getPkKey(row) === capturedId)).toBe(true)
+
+    await deleteButton!.trigger('click')
+    await flushPromises()
+    dialog = wrapper.findAll('.el-dialog').at(-1)!
+    const rows = table.findAll('.el-table__body-wrapper tbody tr')
+    await rows[1]!.trigger('click')
+    await flushPromises()
+    const confirm = dialog.findAll('button').find(button => button.text() === '确认删除')
+    expect(confirm).toBeTruthy()
+    await confirm!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(save).toHaveBeenCalledWith({views: [{tableName: DATABASE_CATALOG_DB_MODEL, viewId: 'default', ids: [capturedId]}]})
+    expect(dbView!.rows.some((row: DataRow) => dbView!.getPkKey(row) === capturedId)).toBe(false)
+    expect(dbView!.rows.some((row: DataRow) => dbView!.getPkKey(row) === otherId)).toBe(true)
+  })
+
+  it('keeps the confirmation open after an unknown delete and exposes the original DataSet verification action', async () => {
+    http.allowDeleteByModel.add(DATABASE_CATALOG_DB_MODEL)
+    const load = vi.spyOn(LowcodeDatabaseDirectory, 'loadCatalog')
+    const wrapper = await open()
+    const dataSet = await load.mock.results[0]?.value
+    expect(dataSet).toBeTruthy()
+    const dbView = dataSet!.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    const row = dbView.rows[0]!
+    const id = dbView.getPkKey(row)!
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    const ops = await import('@/lowcode/resources/database/database-catalog-db-view-ops')
+    let unconfirmed = false
+    const deletion = vi.spyOn(ops, 'databaseCatalogDbDelete').mockImplementation(async () => {
+      if (!unconfirmed) {
+        unconfirmed = true
+        Object.defineProperty(dbView, 'hasUnconfirmedSave', {configurable: true, get: () => unconfirmed})
+        throw new Error('删除结果尚未确认，请核验')
+      }
+      unconfirmed = false
+      return undefined
+    })
+
+    await wrapper.findAll('button').find(button => button.text() === '删除')!.trigger('click')
+    await flushPromises()
+    let dialog = wrapper.findAll('.el-dialog').at(-1)!
+    await dialog.findAll('button').find(button => button.text() === '确认删除')!.trigger('click')
+    await flushPromises()
+    dialog = wrapper.findAll('.el-dialog').at(-1)!
+    expect(dialog.text()).toContain('核验只确认原提交')
+    const verify = dialog.findAll('button').find(button => button.text() === '核验删除结果')
+    expect(verify).toBeTruthy()
+    expect(dialog.findAll('button').find(button => button.text() === '取消')?.attributes('disabled')).toBeDefined()
+
+    await verify!.trigger('click')
+    await flushPromises()
+    expect(deletion).toHaveBeenCalledTimes(2)
+    expect(deletion).toHaveBeenNthCalledWith(1, dataSet, dbView, id)
+    expect(deletion).toHaveBeenNthCalledWith(2, dataSet, dbView, id)
+    expect(wrapper.findAll('.el-dialog')).toHaveLength(0)
   })
 
   it('keeps the native page dirty while a DataView save result is unconfirmed', async () => {

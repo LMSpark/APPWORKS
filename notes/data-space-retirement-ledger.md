@@ -1942,3 +1942,11 @@ flowchart TD
 - 查询切面将权限写回每行，GetData 结果包装器再把行集合放入 `Result.data`；因此源码链有把该位回传的既有路径。客户端回归 `pnpm exec vitest run packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-permission-parity.test.ts` **1 file / 54 tests passed**，覆盖仅 `c === true` 授权、缺省/错误类型拒绝、父行索引及失效上下文拒绝。该用例是客户端合同夹具，不是服务端或部署响应测试。
 - 与本仓 `DataPermissionSets.c?: boolean` 及只消费明确 `true` 的父行授权映射一致。这里仅证明本机参考 Java 源码存在实现；无法证明当前运行服务部署了该版本、目标模型被识别为自引用，或真实响应包含 `c`。
 - 本轮未更改 Java、未发服务请求、未写业务数据；SPA 标签当前不在登录态，线上权限回执仍需授权会话核验。服务端源码证据不得替代真实响应。
+
+### 2026-10-27 恢复 NewApp SPA 会话与蓝图权限烟测阻断
+
+- 用户明确授权使用本地测试账号。首次提交登录页默认显示的企业名称 `领码科技` 返回 `[1003] 企业信息不存在：领码科技`；随后在企业下拉中重新选中正式目录项，再提交同一授权测试账号，成功进入 NewApp 应用列表，页眉显示用户“王涛”。未尝试其它账号或租户，未回显口令。该结果证实重新选中目录项可恢复当前会话；不单独推断服务端具体拒绝根因。
+- 从 NewApp 的正式应用导航打开“开发工作台”，运行身份为 `NewApp/D99A1DCE9894698799101EFD70F8FC76`，应用为“元数据管理”。真实 SPA 蓝图装载显示 `项目蓝图加载失败: TypeError: SPARK 字段 ValueFun ValueFun 缺少 Type`，页面树为“项目蓝图为空”。因此没有成功接纳 `Base_NavigationInfo` 查询结果，未能观察任何父行权限，也未创建子节点或页面文件；没有保存、删除或更改正式模型配置。
+- 权限边界复核：正式查询上下文在交付给 DataView 消费行前会去除 `lingma_sys_params`（`packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts`）；其中 `c` 由权限 owner 规范成行级 `allowAddChild`，只能经 `DataView.createChildActionState(rowKey)` 验证授权语义。当前公共页面消费合同不暴露原始 `c` 字段；不能用 UI 状态声称取得字面 `c`，也不使用 DevTools、原始 HTTP 或内部快照绕过 SPARK data。
+- `ValueFun` 解析仅针对查询输出投影字段；未显式投影时使用当前视图查询列（`packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts`）。当前真实 SPA 的正式默认加载路径在此解析阶段失败。台账既有调查无法从错误别名确定具体原始模型字段；本次未修改字段定义或运行时容错逻辑。只有找到现存的、正式配置且排除异常字段的有效导航视图，才能继续通过公开 `DataView` action state 做只读授权语义烟测；现有证据未确认该视图存在。
+- 本轮仅登录及 SPA 导航/错误观察，无业务数据写入；自动化客户端合同和参考 Java 源码证据不等同于当前服务的 `c` 响应。**状态：**NewApp 会话已恢复；当前部署 `Base_NavigationInfo` 查询在 DataView 接纳前被 `ValueFun` 配置/投影解析错误阻断，真实 `c`/父行新增权限及子节点保存回读烟测仍未完成。整体唯一数据通道目标继续 active。

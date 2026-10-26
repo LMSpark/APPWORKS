@@ -1927,3 +1927,11 @@ flowchart TD
 - **物理目录预览仍不可安全迁移：**活动 `database-catalog-preview-view-ops.ts` 对任意物理表/视图直接调用 GetData，只解析 `Items/Count`，并可回退/固定 `rowid` 为主键，在本地合成只读权限。正式 DataView 绑定以 `scenarioId + metaName` 和已注册模型输出/主键/服务端权限快照为依据；任意目录对象不能借表名伪造正式模型身份。更窄的正式模型数据页可走现有 DataSpace 链，但不等价于任意物理目录预览。解锁仍需部署响应证明库/表身份、稳定主键、权限投影及分页总数；当前不改原始 HTTP 为表面 DataView，也不改 Java。
 - **工作流文件目录仍不可安全迁移：**`workflow-designs.ts` 的目录和 `design.json` / `definition.json` 仍由 LowcodeDesign API 直读；消费者包括 `WorkflowDesigns.vue` 与 AI workflow bindings。DataView 的 file identity、scope guard、查询结果接纳及 staged-file 单文件写入示例只是底座，尚没有工作流目录/文件 owner 合同或正式权限/身份回执。必须让目录与两个消费者共用明确的 app/workflow/file 身份、授权结果、异步 scope 隔离和只读接纳合同；保存回执另按获准写 owner 定义。不能将现有 API 简单包装进 DataView 作为完成。
 - **状态：**蓝图根/子节点新增及属性编辑已由 DataView 承担；子树删除仍受查询结果行集合完整性合同限制；物理表/视图预览与 workflow file 目录读仍有明确服务/资源合同缺口。本轮合同审计没有产生安全的代码迁移，未执行真实 SPA 读写；总体统一数据架构继续 active，后续优先寻找已具正式身份与权限回执、能不改 Java 完成的业务闭环。
+
+### 2026-10-27 数据逃逸候选复核与 `c` 返回合同答复
+
+- 用户询问服务端返回数据是否可增加子行权限。本仓正式行权限合同已有可选 `lingma_sys_params.c`，仅自引用模型可返回；只有 `c === true` 才允许当前行作为新增子行父节点。`DataSpaceRowPermission.allowAddChild()`、`DataSpaceQueryContext.createChildActionState()` 与 `DataView.createChildActionState()` 已串接消费；根级 `allowAdd` 独立。此为客户端合同事实，不证明当前部署服务实际返回 `c`。
+- 新开 IAB SPA 标签仍被重定向至 `/login`，不能复用用户先前确认的登录态。computer-use 的 Windows UI 指引明确禁止自动化认证对话框；未代填凭据，也未采集线上查询回执或执行业务写入。真实部署 `c` 回包核验保持待办。
+- 低价只读盘点覆盖物理目录预览、workflow 文件、蓝图节点删除/资源及注册命令；主控另独立核对看似可迁移的 legacy layout 读取：它实际由正式 `DataSpaceReferenceLayoutResource` 作为 file DataView 查询，设计会话通过同一视图 `refresh()` 接纳，并校验 `DataSet`/resource identity；其底层 `LowcodeDesignApi` 只是数据资源 owner，不是页面第二查询链。`readRequestScope().token` 已包含所选 application id 与 application revision，已有异步应用切换测试验证旧结果失效，故不构成新缺口或安全迁移候选。
+- 当前没有可在“不改 Java、SPA、唯一 SPARK data API”合同下立即实施且能端到端验证的新增垂直切片。物理预览仍缺任意目录资源的正式模型身份、稳定主键、权限快照和完整分页证据；workflow 文件仍缺目录/文件 DataView 身份与权限/结果接纳合同；蓝图删除仍缺完整子树集合及挂载文件/引用完整性证明。未以 DataView 外壳包装原请求。
+- **状态：**本轮只读复核，无源码/模型/业务数据改动。树新增/编辑的客户端 DataView 实现保持已推送状态；部署端 `c` 实际返回、SPA 保存回读及其它已登记逃逸仍开放。整体数据统一目标继续 active，后续优先取得现有服务合同/已认证 SPA 证据后再开下一项实施。

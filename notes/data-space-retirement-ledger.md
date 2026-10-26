@@ -1839,3 +1839,11 @@ flowchart TD
 - 自动化证据：受影响工作区、DataView 与宿主测试合并为 2 文件/35 项通过；受影响文件 ESLint、全仓 `typecheck`、生产 `build`、目录限制及完整 `verify:rules` 通过。`verify:rules` 中 AI model-spec 扫描保留既有 2 条警告（`DataViewFilter` 与 `ScenarioViewConfig` 缺 `fromJson()`），扫描及整套规则退出码为 0。正式 `generate:lowcode-contracts` 刷新消费者账本并通过 `--check`。
 - **权限边界：**正式 SPA 核实并成功使用了元数据设计 DataView 对七列输出设置的编辑权限；运行时节点字段权限不从账号或菜单推断，源码以当次节点 DataView `canRead/canWrite` 和 output columns 控制，自动化测试覆盖拒绝路径。尚无本轮部署运行页下针对真实节点记录的字段级权限/业务数据保存烟测，因此不宣称真实运行数据权限读写已端到端验收。
 - **状态：**七列共享模型输出配置已正式保存并关闭/重开读回；蓝图页面实现已改为唯一 `DataSet/DataView` 编辑保存链，自动化门禁全部通过。完整 SPA 节点端到端运行烟测仍待补；物理目录预览与工作流文件读取等其他已登记逃逸项未包含在本轮。本轮完成的是针对蓝图数据行链的一项收敛，不表示整个仓库数据游离问题已解决。
+
+## 2026-10-26 物理表/视图预览 DataView 迁移候选复核
+
+- 当前基线 `HEAD=5f06d120e9929c16e06211535eef2f3ee91680f9`，工作树初始干净，与远程分支同步。按唯一台账优先级，复核 `src/lowcode/resources/database/database-catalog-preview-view-ops.ts` 中物理表及视图预览直调 `GetData` 的迁移可行性；本轮没有修改代码、Java、模型或业务数据。
+- 现有正式运行查询合同只接收 `DataSpaceQueryIdentity={scenarioId, metaName}`。`DataSpaceQueryTable` 用 `metaName` 构造 `{Name, OutputType, Filter, inputParams, Fields}`；`DataSpaceRuntimeApi.query()` 还会以该身份读取正式 DataSpace 模型、校验输出字段及主键。因此将 `tableName/viewName` 当作 `metaName` 会伪造未注册模型身份，现有 query owner 不能安全承载任意物理目录对象。
+- 物理预览目前通过 `http.post('/api/DataOperation/GetData')` 发 `Type + DbId/DbName + Name + PrimaryKeyFields`，只解析 `Items/Count`；表主键可在目录候选缺失时回退 `rowid`。返回结果由预览模块的本地 `readonlyQueryResult` 合成 rowKey 与全字段只读权限，不消费正式查询返回的 `lingma_sys_params/lingma_sys_key` 权限快照。已有命令 DataView 只覆盖结果视图生命周期，不能证明底层查询已归 SPARK data owner 所有。
+- `packages/spark-lowcode-api` 现有模型 `DataSpaceQueryContext` 的行/字段授权来自真实返回行权限快照；公开行身份由回执主键或正式模型主键确定。当前没有生产响应证据证明物理 GetData 对任意来源会返回可校验实际主键和权限快照。已有 `tests/runtime/page/database/database-catalog-preview-view-ops.test.ts` 是直调响应夹具，只验证当前实现，不能证明部署服务契约。当前 IAB 标签列表为空，本轮未进行部署 SPA 物理预览读回或权限烟测。
+- **实施裁定：**不把原始请求搬进新 DataView adapter，也不新建通用 HTTP owner、伪造模型身份/主键/权限。物理预览安全迁移仍被正式资源身份与权限回执合同阻断；最小解除证据是在 SPA 现有物理预览入口捕获正式成功响应并确认资源身份、主键以及每行权限字段语义，或取得服务端既有公开合同。若原服务响应不提供这些事实，不修改 Java 的边界下无法将任意物理资源映射进当前模型 DataView；继续保留明确缺口，整体计划 active。

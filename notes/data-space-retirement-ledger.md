@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-26；本轮入口 HEAD `c299827de`，已推送 `origin/codex/ai-data-entry`）**：用户授权按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 持续实施，使用低价模型、主控派工/复核/烟测并实时提交推送；不改/启动/部署后端 Java，不走第二数据通道。服务器目录名称/IP筛选（470a7b125）及Type筛选候选修正已接入，筛选候选独立列出在线既有DM/KINGBASE且不扩充注册合同；D99A SPA名称/IP结果已验证，Type修复的真实SPA点击结果待登录态恢复。 TableAndView 经 D99A 原生菜单的 `dm_test → viewtesst → 14字段` 只读链已验证。七条字典排序请求/响应及隔离排序写入历史验收已留证；本轮再次只读打开该七行共享字典，标准表头排序后关闭/重开仍恢复 `ordIdx` 配置默认顺序。旧应用 00BE 的 `/DataCenter/ServerManagerment.html` target 仍未确认；实页提示原页面身份失效且节点缺明确工具目标，不能按路径猜映射。B1 通用 AI 候选生成、同一 DataView 显式保存及 SPA 关闭重开已有真实闭环证据；但没有发现正式业务字段以 `_Base_DictData` 为动态选项源，选项值/标签及字典身份合同仍开放。删除引用审计确认缺少数据库、配置、代码消费者的权威完整查询合同，继续失败关闭。另有 `DataSpaceDesignApi.readRelationDependencyOptions()` 直接请求 GetData，应用级无场景字典资源尚不能由当前 DataView 查询身份表达，需补公共资源绑定后迁移。AI 录入客户端仅发送业务提示与字段白名单、请求不含 `systemPrompt`；服务端正式 Agent ID 与已批准提示词配置版本的绑定还没有可审计的部署证据。B2 数据库登记、部署连接测试/物理连通性、删除引用与物理完整性、命令回执及整页对照仍开放；阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。以下为同一唯一台账的历史与当前证据，不把代码/夹具结果冒充部署成功。
+> **当前入口（2026-10-26；本轮入口 HEAD `c299827de`，已推送 `origin/codex/ai-data-entry`）**：用户授权按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 持续实施，使用低价模型、主控派工/复核/烟测并实时提交推送；不改/启动/部署后端 Java，不走第二数据通道。服务器目录名称/IP筛选（470a7b125）及Type筛选候选修正已接入，筛选候选独立列出在线既有DM/KINGBASE且不扩充注册合同；D99A SPA名称/IP结果已验证，Type修复的真实SPA点击结果待登录态恢复。 TableAndView 经 D99A 原生菜单的 `dm_test → viewtesst → 14字段` 只读链已验证。七条字典排序请求/响应及隔离排序写入历史验收已留证；本轮再次只读打开该七行共享字典，标准表头排序后关闭/重开仍恢复 `ordIdx` 配置默认顺序。旧应用 00BE 的 `/DataCenter/ServerManagerment.html` target 仍未确认；实页提示原页面身份失效且节点缺明确工具目标，不能按路径猜映射。B1 通用 AI 候选生成、同一 DataView 显式保存及 SPA 关闭重开已有真实闭环证据；但没有发现正式业务字段以 `_Base_DictData` 为动态选项源，选项值/标签及字典身份合同仍开放。删除引用审计确认缺少数据库、配置、代码消费者的权威完整查询合同，继续失败关闭。另有 `DataSpaceDesignApi.readRelationDependencyOptions()` 直接请求 GetData，应用级无场景字典资源尚不能由当前 DataView 查询身份表达，需补公共资源绑定后迁移。AI 录入客户端仅发送业务提示与字段白名单、请求不含 `systemPrompt`；服务端正式 Agent ID 与已批准提示词配置版本的绑定还没有可审计的部署证据。B2 数据库登记、部署连接测试/物理连通性、删除引用与物理完整性、命令回执及整页对照仍开放；阶段 A 整页对照和跨实例未知恢复仍开放；C/E pending，D 权限专题 deferred。新一轮活跃路径审计另发现物理表/视图预览直连 GetData（仅外层包成自定义 DataView）及 BlueprintWorkspace 规划记录读写绕过正式 DataView，作为统一数据链待迁移项。以下为同一唯一台账的历史与当前证据，不把代码/夹具结果冒充部署成功。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 
@@ -1780,3 +1780,13 @@ flowchart TD
 - 主控复核并运行 `pnpm exec vitest run tests/runtime/page/database/service-management-page.test.ts`：11/11 通过；对三个改动文件运行 ESLint 与 `git diff --check` 均通过。未改 Java、未改公共 ClassModel 声明、未写入真实目录。
 - **真实 SPA 烟测仍待做：**本轮 IAB 登录页已打开，但当前未登录。computer-use 技能禁止自动填写用户认证表单；因此没有声称筛选点击或真实服务端过滤已通过。用户完成手动登录后，沿 D99A 正式导航验证 `DM`/`KINGBASE` 筛选回包与列表结果。
 - **状态：**代码修正及聚焦自动化验收完成；线上筛选读回待恢复授权 SPA 会话。服务端数据库类型注册能力仍以正式 API DTO 为准，KINGBASE 不在此实现中宣称获得支持。
+
+## 2026-10-26 活跃业务数据脱离 DataSet/DataView 审计
+
+- 用户指出仍有多处数据游离于 DataSet 之外。低价模型对活动 `src/` 页面、低代码资源 owner 和包内非测试实现做只读检索；本次把活跃业务行、平台配置与合法存储适配分开，不以末端套 DataView 名称作为统一证据。
+- **活动业务读取缺口：**`src/lowcode/resources/database/database-catalog-preview-view-ops.ts:160,263` 对物理表/视图预览直接 `POST /api/DataOperation/GetData`，调用由 `src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue:909,947` 触发。返回结果再经自定义 `DataView` executor 展示，但 executor 本身解析响应，并在 `database-catalog-preview-view-ops.ts:57,100` 本地投影字段、合成只读 `fieldAccess`；它未通过正式 DataSpace runtime query owner，也没有消费正式查询权限回执。这是 DataView 外观下仍留在页面资源层的独立读取链。
+- **活动规划记录读写缺口：**`src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue:82,105,121-177` 直接读取并更新 blueprint 节点字段，另在同一页面维护独立 draft；字段包含 `Manhour`、`Number`、`Sum`、`Total` 等计划/估算数据，发布流程还上传版本文件并更新导航指针。这不属于正常 DataSet/DataView CRUD，须按记录数据与版本文件两个持久边界分别建模并迁移。
+- **活动配置读取差距：**`src/services/workflow-designs.ts:332,352` 与 `WorkflowDesigns.vue:2355` 直接列出/读取 workflow 设计文件；当前 `saveWorkflowDesign` 拒绝写入。该项是配置读取旁路，暂未发现落库写入闭环。
+- **已核实非旁路路径：**`lowcode-database-dataset-extensions.ts` 的数据库登记/目录命令虽请求专用 API，但通过 DataSet 命令视图绑定、刷新和 saveChanges；`staged-design-file-view.ts` 把结构化配置文件读写封装为绑定 DataView 的资源 owner。DataSet 中间态/命令视图可作为内部实现，但必须逐项复核其真实 owner、身份、权限与回执，不能仅靠 API 末端落入 DataView。
+- **Ruling：**优先消除物理预览直接查询链，再迁移 blueprint 节点数据读写与 workflow 设计配置读取；分别核对实际服务身份、权限和回执合同。当前正式模型运行 owner 仍要求 `scenarioId + modelName`，不能安全表达未注册物理对象；blueprint/workflow APIs 也未有权威 DataView 资源身份合同。未形成安全迁移前保留现状并登记，不造假模型身份、不改 Java、不声称统一完成。接下来的实现需先补公共 SPARK data 资源合同与 owner，并将业务层改为绑定 DataView；服务端权限缺失仍失败关闭。
+- **状态：**确认至少两条活动的业务行读取/读写链和一条活动配置读取不在正式 DataView 路径上；审计范围是仓内活动源码，不等于在线服务完整枚举。统一数据链仍有实质未完项，整体计划继续 implementing。

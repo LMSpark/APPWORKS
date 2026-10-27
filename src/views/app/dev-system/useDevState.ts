@@ -198,6 +198,7 @@ export function useDevState() {
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
+        if(fileOwner.hasPendingFileSave){await fileOwner.savePageFiles();refreshBlueprintTreeProjection();return}
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){
           if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
           await fileOwner.save();refreshBlueprintTreeProjection();return
@@ -239,6 +240,17 @@ export function useDevState() {
     const owner=pageToolFilesDataView
     if(!owner)throw new Error('PAGE_TOOL_SNAPSHOT_DATAVIEW_REQUIRED: 工具文件DataView尚未装配')
     return owner.createSnapshot(input)
+  }
+  async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean}):Promise<void>{
+    const {pageId,fileName,submittedText,requireActive=true}=input
+    const workspace=currentEditor.value,scope=currentScopeKey(),owner=await loadBlueprintWorkspaceDataView(),fileOwner=pageToolFilesDataView
+    const page=workspace.project.findPageTool(pageId)
+    if(fileOwner?.ownerDataSet!==owner.dataSet||page?.isLoaded!==true||(requireActive&&workspace.project.getActivePage()!==page))throw new Error('PAGE_TOOL_FILE_SAVE_OWNER: 活跃 PageToolFilesDataView、DataSet 或页面身份不匹配')
+    const text=submittedText??page.getFileText(fileName),revision=workspace.project.revision
+    await fileOwner.savePageFile({page,fileName,text,revision,assertCurrent:()=>{
+      if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(pageId)!==page||requireActive&&workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区、页面或owner已切换')
+    }})
+    workspace.project.markPageFileChanged(pageId,fileName)
   }
   function registerExternalDataViewSession(session: ExternalDataViewSession): () => void {
     externalDataViewSessions.add(session)
@@ -683,6 +695,9 @@ export function useDevState() {
     return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || editor.unconfirmedPageFiles.length > 0
       || hasExternalDataViewChanges()
   })
+  function hasPendingPageFileSave(): boolean {
+    return pageToolFilesDataView?.hasPendingFileSave === true
+  }
 
   const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
   const scenarioDefinitionRevision = ref(0)
@@ -979,6 +994,7 @@ export function useDevState() {
         ...options,
         pageId,
         editor,
+        savePageFile:(targetPageId,name,text)=>savePageToolFile({pageId:targetPageId,fileName:name,submittedText:text}),
         adapter: pageDesignAiAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,
@@ -1330,8 +1346,10 @@ export function useDevState() {
       stage = '蓝图属性'
       if ((blueprintDirty.value || !hasAnyDirty.value) && !await saveCurrentNavScope()) throw new Error('蓝图属性未保存；后续文件尚未提交')
       assertCurrent(); stage = '工具工作文件'
-      const hadFiles = workspace.unconfirmedPageFiles.length > 0 || [...workspace.project.design.pages].some(page => page.getDirtyFileNames().length > 0)
-      await workspace.saveDirtyPageFiles(); assertCurrent()
+      const dirtyTargets=[...new Map([...workspace.unconfirmedPageFiles,...[...workspace.project.design.pages].flatMap(page=>page.getDirtyFileNames().map(fileName=>({pageId:page.pageId,fileName})))].map(target=>[`${target.pageId}/${target.fileName}`,target])).values()]
+      const hadFiles=dirtyTargets.length>0
+      for(const target of dirtyTargets){await savePageToolFile({pageId:target.pageId,fileName:target.fileName,requireActive:false});assertCurrent()}
+      assertCurrent()
       if (hadFiles) addStatus('工具工作文件本轮提交已确认', 'success')
       stage = '场景定义'
       await workspace.saveDirtyScenarioDefinitions(); assertCurrent()
@@ -1615,6 +1633,7 @@ export function useDevState() {
     // 计算属性
     hasAnyFileDirty,
     hasAnyDirty,
+    hasPendingPageFileSave,
     registerExternalDataViewSession,
     notifyExternalDataViewChanged,
     moveBlueprintNodeInDataView,
@@ -1623,6 +1642,7 @@ export function useDevState() {
     blueprintWorkspaceDataView,
     blueprintPageRuntime,
     loadBlueprintWorkspaceDataView,
+    savePageToolFile,
     loadNavigationDictionaryOptions,
     createPageToolSnapshot,
 

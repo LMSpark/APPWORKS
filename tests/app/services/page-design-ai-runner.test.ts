@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { AiRunAdapterState, AiRunSnapshot } from '@spark-appworks/spark-app'
-import type { AiAgentHost, AiAgentTurnCallbacks } from '@spark-appworks/spark-ai/agent'
-import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
+import type { AiAgentHost } from '@spark-appworks/spark-ai/agent'
 import { runPageDesignAiSession } from '@/services/page-design/page-design-ai-runner'
 
 const mocks = vi.hoisted(() => ({
@@ -34,14 +33,6 @@ function createEditor(): ProjectWorkspace {
   editor.project.setActivePage('orders')
   editor.project.markPageLoadedChanged('orders', true)
   return editor
-}
-
-function createAiHost(): AiAgentHost {
-  const turnCallbacks: AiAgentTurnCallbacks = {
-    executeTurn: async () => ({ text: '', toolCalls: [] }),
-    appendMessages: async () => undefined,
-  }
-  return createAiAgentHost({ turnCallbacks })
 }
 
 function emptyAiRunSnapshot(): AiRunSnapshot {
@@ -96,7 +87,9 @@ describe('runPageDesignAiSession delivery', () => {
 
   it('saves dirty page files when saveDirtyFilesAfterRun is true', async () => {
     const editor = createEditor()
-    const savePageFile = vi.spyOn(editor, 'savePageFile')
+    const savePageFile = vi.fn(async(pageId:string,name:'rule.json'|'script.js'|'style.css',text:string)=>{
+      const page=editor.project.findPageTool(pageId);if(!page)throw Error('missing page');page.markFileSaved(name,text)
+    })
     const adapter = createAdapter(vi.fn(async () => {
       editor.project.writePageFile({ fileName: 'script.js', text: 'export default {}' })
       return 'completed' as const
@@ -108,10 +101,11 @@ describe('runPageDesignAiSession delivery', () => {
       editor,
       adapter,
       saveDirtyFilesAfterRun: true,
+      savePageFile,
     })
 
     expect(savePageFile).toHaveBeenCalledOnce()
-    expect(savePageFile).toHaveBeenCalledWith('script.js')
+    expect(savePageFile).toHaveBeenCalledWith('orders','script.js','export default {}')
     expect(result.savedDirtyFileNames).toEqual(['script.js'])
   })
 

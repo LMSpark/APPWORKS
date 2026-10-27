@@ -88,6 +88,8 @@ userMessage?: string
   saveDirtyFilesAfterRun?: boolean
   /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */
   deliverySaveFileNames?: readonly PageToolFileName[]
+  /** DevSystem当前活跃PageToolFilesDataView保存入口；autoSave时必需。 */
+  savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void>
 }
 
 /** Page Design Ai Run Result 的返回结果。 */
@@ -176,8 +178,9 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
     ...(command.deliverySaveFileNames === undefined
       ? {}
       : { saveFileNames: command.deliverySaveFileNames }),
+    ...(command.savePageFile===undefined?{}:{savePageFile:command.savePageFile}),
   })
-  const deliveryResult = { ...await delivery.save({ editor: command.editor, pageId, requestId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }), requestId, pageId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }
+  const deliveryResult = { ...await delivery.save({ editor: command.editor, pageId, requestId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }), ...(command.savePageFile===undefined?{}:{savePageFile:command.savePageFile}) }), requestId, pageId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }
   await delivery.trace({ editor: command.editor, pageId, requestId, ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }) }, deliveryResult)
   if (deliveryResult.status === 'failed') {
     throw createAiDeliveryFailureError(

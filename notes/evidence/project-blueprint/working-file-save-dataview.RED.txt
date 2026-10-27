@@ -1,0 +1,147 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/page-design-ai-runner.test.ts (3 tests | 1 failed) 32ms
+     × saves dirty page files when saveDirtyFilesAfterRun is true 10ms
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts (20 tests | 7 failed) 138ms
+     × preserves successful receipts when script.js fails 13ms
+     × preserves successful receipts when style.css fails 2ms
+     × waits for a successful file after another fails and retains edits made during its save 3ms
+     × keeps confirmed page writes when scenario save fails and reports the remaining scene dirty 11ms
+     × isolates real Host.ensure factories, same-page editors, request contexts and A/B release 13ms
+     × saves dirty page files and returns delivery artifacts after Agent Run succeeds 3ms
+     × saves only explicitly selected dirty files for a valid scope 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > pageDesign actual working-file delivery > preserves successful receipts when script.js fails
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > pageDesign actual working-file delivery > preserves successful receipts when style.css fails
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:133:81
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > pageDesign actual working-file delivery > waits for a successful file after another fails and retains edits made during its save
+Error: save has not started
+ ❯ finishSave tests/app/services/page-design-agent-run-provider.test.ts:143:48
+    141|
+    142|   it('waits for a successful file after another fails and retains edit…
+    143|     let finishSave: () => void = () => { throw new Error('save has not…
+       |                                                ^
+    144|     const saved: string[] = []
+    145|     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles…
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:161:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > keeps confirmed page writes when scenario save fails and reports the remaining scene dirty
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:215:81
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > isolates real Host.ensure factories, same-page editors, request contexts and A/B release
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ Object.run src/services/page-design/page-design-agent-run-provider.ts:310:52
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:305:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > saves dirty page files and returns delivery artifacts after Agent Run succeeds
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ Object.run src/services/page-design/page-design-agent-run-provider.ts:310:52
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:329:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > saves only explicitly selected dirty files for a valid scope
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ Object.run src/services/page-design/page-design-agent-run-provider.ts:310:52
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:363:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/app/services/page-design-ai-runner.test.ts > runPageDesignAiSession delivery > saves dirty page files when saveDirtyFilesAfterRun is true
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ Module.runPageDesignAiSession src/services/page-design/page-design-ai-runner.ts:183:46
+ ❯ tests/app/services/page-design-ai-runner.test.ts:105:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner
+ ❯ Object.save src/services/page-design/page-design-agent-run-provider.ts:124:50
+    122|       }
+    123|       const savePageFile=context.savePageFile??options.savePageFile
+    124|       if(targetNames.length&&!savePageFile)throw new Error('PAGE_TOOL_…
+       |                                                  ^
+    125|       const page=context.editor.project.getActivePage()
+    126|       if(targetNames.length&&(!page||page.pageId!==context.pageId||!pa…
+ ❯ tests/app/services/page-design-agent-run-provider.test.ts:155:75
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+ ❯ runWithCancel node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+ ❯ runWithTimeout node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10
+
+This error originated in "tests/app/services/page-design-agent-run-provider.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "waits for a successful file after another fails and retains edits made during its save". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  8 failed | 33 passed (41)
+     Errors  1 error
+   Start at  13:17:26
+   Duration  22.06s (transform 27.58s, setup 719ms, import 40.46s, tests 293ms, environment 5.48s)

@@ -1,0 +1,52 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ✓ tests/app/dev/page-tool-files-command.test.ts (21 tests) 197ms
+ ✓ tests/app/services/page-design-ai-runner.test.ts (3 tests) 21ms
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > reports a recovered scene as still dirty until later edits are explicitly delivered
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > reports a recovered scene as still dirty until later edits are explicitly delivered
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > reports a recovered scene as still dirty until later edits are explicitly delivered
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > keeps confirmed page writes when scenario save fails and reports the remaining scene dirty
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > keeps confirmed page writes when scenario save fails and reports the remaining scene dirty
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > shares manual and guarded AI DataView edits and confirms only explicit delivery by storage readback
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/app/services/page-design-agent-run-provider.test.ts > preparePageDesignAgentRun > shares manual and guarded AI DataView edits and confirms only explicit delivery by storage readback
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+ ✓ tests/app/services/page-design-agent-run-provider.test.ts (21 tests) 145ms
+ ✓ tests/app/dev/file-versions/dev-system-route-leave-guard.test.ts (2 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  47 passed (47)
+   Start at  13:36:39
+   Duration  17.51s (transform 29.69s, setup 975ms, import 45.46s, tests 367ms, environment 8.70s)

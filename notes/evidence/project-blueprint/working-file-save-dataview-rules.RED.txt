@@ -1,0 +1,14 @@
+$ pnpm run verify:arch && pnpm run verify:deps && pnpm run verify:pages-config && pnpm run verify:ai-codegen && pnpm run verify:docs && pnpm run verify:class-model && pnpm run verify:workflow-designs && pnpm run verify:lowcode-contracts && pnpm run verify:ai-model && pnpm run verify:project-blueprint-ssot && pnpm run verify:ajax-result-parity && pnpm run verify:send-code-parity && pnpm run verify:wire-query-parity && pnpm run verify:dirs && pnpm run verify:page-thin
+$ node tools/verify-architecture.mjs
+Verifying architecture rules...
+
+Architecture verification passed.
+$ node tools/verify-dependency-catalog.mjs
+dependency catalog: ok
+$ node tools/verify-pages-config.mjs
+pages-config: ok
+$ node tools/verify-ai-codegen-rules.mjs
+AI codegen rule scan failed: 1 violation(s).
+  src/views/app/dev-system/useDevState.ts:244 signature has too many positional parameters: savePageToolFile has 4, limit is 3; use a named options object or domain command object
+[ELIFECYCLE] Command failed with exit code 1.
+[ELIFECYCLE] Command failed with exit code 1.

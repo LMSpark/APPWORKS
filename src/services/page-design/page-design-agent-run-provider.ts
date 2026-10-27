@@ -56,6 +56,7 @@ export type PageDesignDeliveryContext = Readonly<{
   pageId: string
   requestId?: string
   scenarioId?: string
+  savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void>
 }>
 
 /** Create Page Design Delivery Port Options 的调用配置。 */
@@ -67,12 +68,13 @@ export type CreatePageDesignDeliveryPortOptions = Readonly<{
   /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */
   saveFileNames?: readonly PageToolFileName[]
   allowedOperations?: PageDesignAllowedOperations
+  savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void>
 }>
 
 /** 本次交付的明确文件范围及允许操作；省略范围与非法空范围语义不同。 */
 type PageDesignDeliverySelection = Pick<CreatePageDesignDeliveryPortOptions, 'saveFileNames' | 'allowedOperations'>
 /** 内联交付设置；沿用已确定的目标范围并显式决定是否实际保存。 */
-type PageDesignInlineDeliveryOptions = PageDesignDeliverySelection & Readonly<{ autoSave: boolean }>
+type PageDesignInlineDeliveryOptions = PageDesignDeliverySelection & Readonly<{ autoSave: boolean; savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void> }>
 
 export function createPageDesignInlineDeliveryPort(options: PageDesignInlineDeliveryOptions): AiDeliveryPort<PageDesignDeliveryContext> {
   const mode: AiDeliveryMode = options.autoSave ? 'auto' : 'manual'
@@ -81,6 +83,7 @@ export function createPageDesignInlineDeliveryPort(options: PageDesignInlineDeli
     shouldSave: options.autoSave,
     ...(options.saveFileNames === undefined ? {} : { saveFileNames: options.saveFileNames }),
     ...(options.allowedOperations === undefined ? {} : { allowedOperations: options.allowedOperations }),
+    ...(options.savePageFile === undefined ? {} : {savePageFile:options.savePageFile}),
   })
 }
 
@@ -117,7 +120,15 @@ function createPageDesignDeliveryPort(
           artifacts: [...createFilteredPageFileArtifacts({ artifactNames, dirtyFileNames, shouldSave: options.shouldSave }), ...sceneArtifact],
         }
       }
-      const saves = targetNames.map(name => context.editor.savePageFile(name))
+      const savePageFile=context.savePageFile??options.savePageFile
+      if(targetNames.length>0&&savePageFile===undefined)throw new Error('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave 缺少当前活跃 DataView owner')
+      const page=context.editor.project.getActivePage()
+      if(targetNames.length>0&&(page?.pageId!==context.pageId||page.isLoaded!==true))throw new Error('PAGE_DESIGN_REQUEST_MISMATCH: AI交付页面未就绪')
+      const saves:Array<Promise<void>>=[]
+      if(targetNames.length>0){
+        if(savePageFile===undefined||page===null)throw new Error('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED: AI autoSave owner或页面缺失')
+        for(const name of targetNames)saves.push(savePageFile(context.pageId,name,page.getFileText(name)))
+      }
       if (scene && shouldSaveScene) saves.push(scene.saveChanges({views: sceneViews}).then(result => {
         if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
       }))

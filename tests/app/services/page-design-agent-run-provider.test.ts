@@ -78,6 +78,7 @@ function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json'
     blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) },
   })
   editor.project.openPageDesign('orders')
+  editor.project.getActivePage()?.markLoaded()
   editor.project.setActivePage('orders')
   vi.spyOn(editor, 'selectPage').mockResolvedValue()
   vi.spyOn(editor, 'savePageFile').mockResolvedValue()
@@ -88,6 +89,15 @@ function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json'
     hasAnyDirty: dirtyFileNames.length > 0,
   })
   return editor
+}
+
+function dataViewFileSaver(editor:ProjectWorkspace,run?:(name:PageToolFileName,text:string)=>Promise<void>){
+  return async(pageId:string,name:PageToolFileName,text:string)=>{
+    const page=editor.project.findPageTool(pageId)
+    if(!page||editor.project.getActivePage()!==page)throw new Error('test DataView page scope mismatch')
+    await (run?.(name,text)??Promise.resolve())
+    page.markFileSaved(name,text)
+  }
 }
 
 function createRunResult(): AiAgentHostRunResult {
@@ -127,10 +137,11 @@ describe('pageDesign actual working-file delivery', () => {
         remoteFiles.set(fileName, text)
       } }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) } })
     const page = editor.project.openPageDesign('orders')
+    page.markLoaded()
     editor.project.setActivePage('orders')
     page.setFileText('script.js', 'script A')
     page.setFileText('style.css', 'style A')
-    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders' })
+    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders',savePageFile:dataViewFileSaver(editor,async(name,text)=>{if(name===failedName)throw Error(`write rejected: ${name}`);remoteFiles.set(name,text)}) })
 
     expect(result).toEqual({ mode: 'auto', status: 'failed', message: `write rejected: ${failedName}`,
       artifacts: ['script.js', 'style.css'].map(name => ({ kind: 'page-file', name,
@@ -149,10 +160,11 @@ describe('pageDesign actual working-file delivery', () => {
         await new Promise<void>((resolve) => { finishSave = resolve })
       } }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) } })
     const page = editor.project.openPageDesign('orders')
+    page.markLoaded()
     editor.project.setActivePage('orders')
     page.setFileText('script.js', 'script A')
     page.setFileText('style.css', 'style A')
-    const saving = createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders' })
+    const saving = createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders',savePageFile:dataViewFileSaver(editor,async(name,text)=>{if(name==='style.css')throw Error('style rejected');saved.push(text);await new Promise<void>(resolve=>{finishSave=resolve})}) })
     let settled = false
     void saving.then(() => { settled = true })
     await new Promise<void>((resolve) => { setTimeout(resolve, 0) })
@@ -180,7 +192,7 @@ describe('preparePageDesignAgentRun', () => {
       }}})
     await editor.selectPage('orders')
     const {view}=await editScene(editor), port=createPageDesignInlineDeliveryPort({autoSave:true})
-    const target={editor,pageId:'orders',scenarioId:'SCENE-A'}
+    const target={editor,pageId:'orders',scenarioId:'SCENE-A',savePageFile:dataViewFileSaver(editor)}
     expect((await port.save(target)).status).toBe('failed')
     view.updateEditingValue(view.getPkKey(view.rows[0]!)!,'modelPositions',{M:{x:55,y:60}})
     const verified=await port.save(target)
@@ -212,12 +224,12 @@ describe('preparePageDesignAgentRun', () => {
     await editor.selectPage('orders')
     const {scene, view} = await editScene(editor)
     editor.project.writePageFile({ fileName: 'script.js', text: 'script A' })
-    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', requestId: 'A', scenarioId: 'SCENE-A' })
+    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', requestId: 'A', scenarioId: 'SCENE-A',savePageFile:dataViewFileSaver(editor) })
     expect(result.status).toBe('failed')
     expect(result.artifacts).toEqual([{ kind: 'page-file', name: 'script.js', status: 'saved' }, { kind: 'scenario-view', name: 'SCENE-A', status: 'dirty' }])
     expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(editor.project.getActivePage()?.script.isDirty).toBe(false)
-    const verification = await createPageDesignInlineDeliveryPort({autoSave: true}).save({editor, pageId: 'orders', scenarioId: 'SCENE-A'})
+    const verification = await createPageDesignInlineDeliveryPort({autoSave: true}).save({editor, pageId: 'orders', scenarioId: 'SCENE-A',savePageFile:dataViewFileSaver(editor)})
     expect(verification.status).toBe('saved')
     expect(writes).toBe(1)
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
@@ -243,7 +255,7 @@ describe('preparePageDesignAgentRun', () => {
     const manual = await createPageDesignInlineDeliveryPort({autoSave: false}).save({editor, pageId: 'orders', scenarioId: 'SCENE-A'})
     expect(manual.artifacts).toEqual([{kind: 'scenario-view', name: 'SCENE-A', status: 'dirty'}])
     expect(writes).toHaveLength(0)
-    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', scenarioId: 'SCENE-A' })
+    const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', scenarioId: 'SCENE-A',savePageFile:dataViewFileSaver(editor) })
     expect(result).toEqual({ mode: 'auto', status: 'saved', artifacts: [{ kind: 'scenario-view', name: 'SCENE-A', status: 'saved' }] })
     expect(writes).toEqual([remote])
     expect(JSON.parse(remote)).toMatchObject({layout: {modelPositions: {M: {x: 25, y: 30}}, tablePositions: {Orders: {x: 40, y: 50}}}})
@@ -302,21 +314,21 @@ describe('preparePageDesignAgentRun', () => {
     expect(readPageDesignRunContext('B')?.pageId).toBe('orders')
     await expect(a.run('pageDesign', {})).rejects.toThrow('PAGE_DESIGN_REQUEST_RUNNING')
     releaseA()
-    expect((await runA).resultExtras?.['pageDesign']).toEqual({ requestId: 'A', pageId: 'orders' })
+    await expect(runA).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
     expect(readPageDesignRunContext('A')).toBeUndefined()
     expect(() => getters[0]?.('A')).toThrow('not prepared')
     expect(getters[1]?.('B')).toBe(editorB)
     expect(readPageDesignRunContext('B')?.pageId).toBe('orders')
     expect(editorB.savePageFile).not.toHaveBeenCalled()
     releaseB()
-    expect((await runB).resultExtras?.['pageDesign']).toEqual({ requestId: 'B', pageId: 'orders' })
-    expect(editorA.savePageFile).toHaveBeenCalledExactlyOnceWith('script.js')
-    expect(editorB.savePageFile).toHaveBeenCalledExactlyOnceWith('style.css')
+    await expect(runB).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
+    expect(editorA.savePageFile).not.toHaveBeenCalled()
+    expect(editorB.savePageFile).not.toHaveBeenCalled()
     expect(readPageDesignRunContext('B')).toBeUndefined()
     expect(() => getters[1]?.('B')).toThrow('not prepared')
   })
 
-  it('saves dirty page files and returns delivery artifacts after Agent Run succeeds', async () => {
+  it('fails closed when headless Agent Run has no active DevSystem file DataView owner', async () => {
     const editor = createEditor(['rule.json', 'script.js'])
     mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
 
@@ -326,21 +338,10 @@ describe('preparePageDesignAgentRun', () => {
       args: { pageId: 'orders', description: '生成订单页' },
     }, {} as AiAgentHost)
 
-    const result = await host.run('pageDesign', {} as JsonParams)
+    await expect(host.run('pageDesign', {} as JsonParams)).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
 
     expect(editor.selectPage).toHaveBeenCalledWith('orders', { forceReload: true })
-    expect(editor.savePageFile).toHaveBeenCalledTimes(2)
-    expect(editor.savePageFile).toHaveBeenCalledWith('rule.json')
-    expect(editor.savePageFile).toHaveBeenCalledWith('script.js')
-    expect(result.resultExtras?.['delivery']).toEqual({
-      requestId: 'request-1', pageId: 'orders',
-      mode: 'auto',
-      status: 'saved',
-      artifacts: [
-        { kind: 'page-file', name: 'rule.json', status: 'saved' },
-        { kind: 'page-file', name: 'script.js', status: 'saved' },
-      ],
-    })
+    expect(editor.savePageFile).not.toHaveBeenCalled()
   })
 
   it.each([[], ['unknown.json'], ['script.js', 'unknown.json'], [17], ['script.js', null],
@@ -355,15 +356,13 @@ describe('preparePageDesignAgentRun', () => {
     expect(readPageDesignRunContext('orders')).toBeUndefined()
   })
 
-  it('saves only explicitly selected dirty files for a valid scope', async () => {
+  it('fails closed for valid file delivery scope without the active DataView owner', async () => {
     const editor = createEditor(['rule.json', 'script.js'])
     mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
     const host = await preparePageDesignAgentRun({ requestId: 'valid-scope', alias: 'pageDesign',
       args: { pageId: 'orders' } }, {} as AiAgentHost)
-    const result = await host.run('pageDesign', { deliverySaveFileNames: ['script.js'] })
-    expect(editor.savePageFile).toHaveBeenCalledExactlyOnceWith('script.js')
-    expect(result.resultExtras?.['delivery']).toMatchObject({ status: 'saved',
-      artifacts: [{ kind: 'page-file', name: 'script.js', status: 'saved' }] })
+    await expect(host.run('pageDesign', { deliverySaveFileNames: ['script.js'] })).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
+    expect(editor.savePageFile).not.toHaveBeenCalled()
   })
 
   it('rejects an explicit empty inline delivery scope without writing', async () => {
@@ -371,6 +370,14 @@ describe('preparePageDesignAgentRun', () => {
     const port = createPageDesignInlineDeliveryPort({ autoSave: true, saveFileNames: [] })
     await expect(port.save({ editor, pageId: 'orders' })).rejects.toThrow('PAGE_DESIGN_SAVE_SCOPE_INVALID')
     expect(editor.savePageFile).not.toHaveBeenCalled()
+  })
+
+  it('fails closed for inline autoSave when no active file DataView callback is bound',async()=>{
+    const editor=createEditor(['script.js'])
+    const saveDirty=vi.spyOn(editor,'saveDirtyPageFiles')
+    await expect(createPageDesignInlineDeliveryPort({autoSave:true}).save({editor,pageId:'orders'})).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
+    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect(saveDirty).not.toHaveBeenCalled()
   })
 
   it('does not save and reports dirty artifacts when Agent Run fails', async () => {

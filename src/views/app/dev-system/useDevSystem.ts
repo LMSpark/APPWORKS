@@ -11,15 +11,25 @@
  * 左侧项目蓝图树，右侧节点属性与（若为配置页）页面内容。
  */
 import { computed, onScopeDispose, ref, watch } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useTenantRouter } from '@/composables/useTenantRouter'
 import { buildTenantPath } from '@/services/tenant-scope'
 import { useDevState, type DevWorkspaceTab } from './useDevState'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { onPageConfigChange } from '@/services/sse-events'
 
+export function canLeaveDevSystem(hasPendingPageFileSave: boolean): boolean {
+  return !hasPendingPageFileSave
+}
+
 export function useDevSystem() {
   const { router } = useTenantRouter()
   const state = useDevState()
+  onBeforeRouteLeave(() => {
+    if (canLeaveDevSystem(state.hasPendingPageFileSave())) return true
+    state.addStatus('存在待核验的文件保存结果；请留在当前页面完成原命令核验后再离开', 'warning')
+    return false
+  })
   const isPageFileName = (value: string): value is PageToolFileName =>
     state.pageFileNames.some((name) => name === value)
 

@@ -66,7 +66,7 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
 
     state.pageIoBusy.value = true
     try {
-      await editor.savePageFile(fileName)
+      await state.savePageToolFile({pageId,fileName})
       state.addStatus(`页面 ${pageId}/${fileName} 本轮提交已确认${isFileDirty(fileName) ? '，仍有新修改待保存' : ''}`, 'success')
     } catch (e) {
       state.addStatus(`保存 ${fileName} 失败: ${String(e)}${isUnconfirmed.value ? '；再次保存先核验原提交' : ''}`, 'error')

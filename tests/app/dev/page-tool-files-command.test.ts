@@ -24,6 +24,42 @@ describe('PageToolFilesDataView',()=>{
     expect(dataSet.getTable('PageToolFilesCommand')?.resourceId).toBe('page-tool-files:APP')
   })
 
+  it('saves a single PageTool file through its staged file DataView and marks the captured text saved',async()=>{
+    const files=new Map([['script.js','before']]),dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const upload=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text)})
+    const owner=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,
+      upload,remove:async()=>{}},()=>{})
+    const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
+    const save=vi.spyOn(dataSet,'saveChanges')
+    await owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:3,assertCurrent:()=>{}})
+    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'default',ids:[expect.any(String)]}]})
+    expect(upload).toHaveBeenCalledWith({appId:'APP',pageId:'PAGE',fileName:'script.js',text:'submitted'})
+    expect(files.get('script.js')).toBe('submitted');expect(page.getSavedFileText('script.js')).toBe('submitted');expect(page.isDirty()).toBe(false)
+  })
+
+  it('retains an unknown file receipt and verifies the original text without replay',async()=>{
+    const files=new Map([['script.js','before']]),upload=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,remove:async()=>{}},()=>{})
+    const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
+    const input={page,fileName:'script.js' as const,text:'submitted',revision:7,assertCurrent:()=>{}}
+    await expect(owner.savePageFile(input)).rejects.toThrow('timeout after accept')
+    await expect(owner.savePageFile(input)).resolves.toBeUndefined()
+    expect(upload).toHaveBeenCalledTimes(1);expect(page.getSavedFileText('script.js')).toBe('submitted')
+  })
+
+  it('marks only the captured file text saved when an edit arrives during upload',async()=>{
+    const files=new Map([['script.js','before']]);let finish!:()=>void
+    const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,
+      upload:async(command:{fileName:string;text:string})=>{await new Promise<void>(resolve=>{finish=resolve});files.set(command.fileName,command.text)},remove:async()=>{}},()=>{})
+    const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
+    const saving=owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:11,assertCurrent:()=>{}})
+    await vi.waitFor(()=>expect(finish).toBeTypeOf('function'))
+    page.setFileText('script.js','later edit');finish();await saving
+    expect(files.get('script.js')).toBe('submitted');expect(page.getSavedFileText('script.js')).toBe('submitted');expect(page.getFileText('script.js')).toBe('later edit');expect(page.isDirty()).toBe(true)
+  })
+
   it('retains an accepted snapshot receipt across a target switch before DataSet.saveChanges returns',async()=>{
     const snapshots=new Map<string,string>(),upload=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{
       snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text)

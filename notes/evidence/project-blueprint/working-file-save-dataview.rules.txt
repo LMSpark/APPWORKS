@@ -1,0 +1,50 @@
+$ pnpm run verify:arch && pnpm run verify:deps && pnpm run verify:pages-config && pnpm run verify:ai-codegen && pnpm run verify:docs && pnpm run verify:class-model && pnpm run verify:workflow-designs && pnpm run verify:lowcode-contracts && pnpm run verify:ai-model && pnpm run verify:project-blueprint-ssot && pnpm run verify:ajax-result-parity && pnpm run verify:send-code-parity && pnpm run verify:wire-query-parity && pnpm run verify:dirs && pnpm run verify:page-thin
+$ node tools/verify-architecture.mjs
+Verifying architecture rules...
+
+Architecture verification passed.
+$ node tools/verify-dependency-catalog.mjs
+dependency catalog: ok
+$ node tools/verify-pages-config.mjs
+pages-config: ok
+$ node tools/verify-ai-codegen-rules.mjs
+AI codegen rule scan passed: 1400 file(s) checked.
+$ node tools/verify-docs.mjs
+Doc governance verification passed: 487 file(s) checked.
+$ pnpm run ensure:class-model-bundle && pnpm --filter @spark-appworks/spark-ai run lint && pnpm --filter @spark-appworks/spark-ai run typecheck && pnpm exec vitest run packages/spark-ai/src/class-model/tests/read-dts-class-model-bundle-json.test.ts packages/spark-ai/src/class-model/tests/class-model-tool-schema-recovery.test.ts tests/scripts/class-model-bundle-assert.test.ts tests/scripts/class-model-incremental-build.test.ts
+$ node scripts/ensure-class-model-bundle.mjs
+$ eslint "src/**/*.{ts,tsx}" --max-warnings=0
+$ tsc --noEmit -p tsconfig.json
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+
+ Test Files  4 passed (4)
+      Tests  49 passed (49)
+   Start at  13:38:02
+   Duration  14.15s (transform 1.69s, setup 1.10s, import 2.86s, tests 9.42s, environment 9.66s)
+
+$ node tools/verify-workflow-designs.mjs
+$ node tools/lowcode-contracts/generate-ledgers.mjs --check
+lowcode contracts: 611 endpoints, 210 consumers
+$ node tools/verify-ai-model-spec.mjs
+AI model spec info:
+AI model spec warnings: 2 violation(s).
+  packages/spark-data/src/query/filter/data-view-filter.ts:132 [warn] DataViewFilter has no static fromJson() factory; add static fromJson(json: ...) or extends SparkAIModel
+  packages/spark-data/src/dataset.ts:390 [info] DataSet extends SparkAIModel with static fromJson; ensure parent class uses discriminator dispatch for polymorphic deserialization
+AI model spec scan passed: 399 file(s) checked, 2 warning(s), 1 info(s).
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:62 [warn] ScenarioViewConfig has no static fromJson() factory; add static fromJson(json: ...) or extends SparkAIModel
+$ node tools/verify-project-blueprint-ssot.mjs
+OK: ProjectBlueprintNodeKind owned by spark-utils; ProjectBlueprintNode owned by spark-project-model; lowcode records-only
+$ node tools/verify-ajax-result-parity.mjs
+OK: AjaxResult parity (Code, Extras, Message, Result, Time, Type)
+$ node tools/verify-send-code-type-parity.mjs
+OK: send-code parity (SendCodeType=EMAIL|MOBILE; SendCodeScene=18 scenes)
+$ node tools/verify-wire-query-parity.mjs
+OK: wire query parity (OrderType=ascending|descending; GroupFunType=avg|count|max|min|sum; WireFilterOperator=18 ops)
+$ node tools/verify-directory-limits.mjs
+directory limits: ok
+$ node tools/verify-page-thin.mjs
+page thin: ok
+VERIFY_RULES_EXIT=0

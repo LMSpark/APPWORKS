@@ -49,6 +49,10 @@
           },
           "shellTool": {
             "type": "boolean"
+          },
+          "dataSpaceId": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": ["path", "title", "scope", "source"]

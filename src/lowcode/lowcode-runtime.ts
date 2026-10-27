@@ -107,6 +107,7 @@ export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
       itemKind: 'system-page' as const,
       path: page.path,
       ...(page.icon === undefined ? {} : { icon: page.icon }),
+      ...(page.dataSpaceId === undefined ? {} : {blueprintScenarioId: page.dataSpaceId}),
     }))
   return {
     title: 'SPARK 应用工场',

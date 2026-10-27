@@ -1,5 +1,5 @@
 {
-  "gapCount": 3270,
+  "gapCount": 3276,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -34230,6 +34230,77 @@
       "declarationFile": "src/lowcode/resources/workflow-definition/workflow-design-ops.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/workflow-definition/workflow-design-ops.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "VuePageConfigEntry",
+      "memberName": "dataSpaceId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePageConfigEntry.dataSpaceId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 39,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "VuePagesConfig",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePagesConfig 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 41,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "VuePagesConfig",
+      "memberName": "$schema",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePagesConfig.$schema 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 42,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "VuePagesConfig",
+      "memberName": "protocol",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePagesConfig.protocol 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 43,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "VuePagesConfig",
+      "memberName": "schemaVersion",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePagesConfig.schemaVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 44,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "VuePagesConfig",
+      "memberName": "pages",
+      "reason": "missing-jsdoc",
+      "chainBreak": "VuePagesConfig.pages 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/registries/vue-page-registry.ts",
+      "declarationLine": 45,
+      "sourceFile": "src/registries/vue-page-registry.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "model",

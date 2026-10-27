@@ -15,6 +15,7 @@ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-sp
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
+import * as VuePageRegistry from '@/registries/vue-page-registry'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
 
@@ -745,6 +746,21 @@ describe('lowcode project navigation projection', () => {
       '/apps',
     ])
     expect(catalog.items.every((child) => child.itemKind === 'system-page')).toBe(true)
+  })
+
+  it('passes only a configured Vue page dataSpaceId to the system-page navigation item', () => {
+    const pages = VuePageRegistry.getVuePageOptions()
+    const configuredScenarioId = 'FORM-EXPLICIT-1'
+    vi.spyOn(VuePageRegistry, 'getVuePageOptions').mockReturnValue(pages.map(page => page.path === '/settings'
+      ? {...page, dataSpaceId: configuredScenarioId}
+      : page))
+
+    const navigation = lowcodeApplicationCatalogNavigation()
+    const configured = navigation.items.find(item => item.path === '/settings')
+    const unconfigured = navigation.items.find(item => item.path === '/app-list')
+
+    expect(configured?.blueprintScenarioId).toBe(configuredScenarioId)
+    expect(unconfigured?.blueprintScenarioId).toBeUndefined()
   })
 
   it.each(['Payroll.Calculate', 'Payroll.Calculate.Renamed'])('keeps the menu title and nested home path for capability %s', (name) => {

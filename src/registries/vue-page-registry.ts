@@ -41,6 +41,7 @@ type VuePageConfigEntry = Readonly<{
   hidden?: boolean
   /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */
   shellTool?: boolean
+  dataSpaceId?: string
 }>
 
 type VuePagesConfig = Readonly<{
@@ -156,6 +157,7 @@ export function getVuePageOptions(): Array<{
   icon?: string
   description?: string
   shellTool?: boolean
+  dataSpaceId?: string
 }> {
   return Object.entries(VUE_PAGE_REGISTRY).map(([path, entry]) => ({
     path,
@@ -165,6 +167,7 @@ export function getVuePageOptions(): Array<{
     ...(entry.icon === undefined ? {} : { icon: entry.icon }),
     ...(entry.description === undefined ? {} : { description: entry.description }),
     ...(entry.shellTool === undefined ? {} : { shellTool: entry.shellTool }),
+    ...(entry.dataSpaceId === undefined ? {} : {dataSpaceId: entry.dataSpaceId}),
   }))
 }
 
@@ -184,6 +187,7 @@ function createVuePageEntry(page: VuePageConfigEntry): VuePageEntry {
     ...(page.description === undefined ? {} : { description: page.description }),
     ...(page.hidden === undefined ? {} : { hidden: page.hidden }),
     ...(page.shellTool === undefined ? {} : { shellTool: page.shellTool }),
+    ...(page.dataSpaceId === undefined ? {} : {dataSpaceId: page.dataSpaceId}),
   }
 }
 
@@ -195,7 +199,7 @@ function toVuePageModuleKey(source: string): string {
   return `../views/${source.slice(prefix.length)}`
 }
 
-function parseVuePagesConfig(document: unknown): VuePagesConfig {
+export function parseVuePagesConfig(document: unknown): VuePagesConfig {
   const root = requireRecord(document, 'config/navigation/vue-pages.json')
   const schema = optionalString(root, '$schema', 'config/navigation/vue-pages.json')
   if (root['protocol'] !== VUE_PAGES_PROTOCOL) {
@@ -234,6 +238,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
   }
   const hidden = optionalBoolean(page, 'hidden', path)
   const shellTool = optionalBoolean(page, 'shellTool', path)
+  const dataSpaceId = optionalTrimmedString(page, 'dataSpaceId', path)
   const icon = optionalString(page, 'icon', path)
   const description = optionalString(page, 'description', path)
   return {
@@ -246,6 +251,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
     ...(description === undefined ? {} : { description }),
     ...(hidden === undefined ? {} : { hidden }),
     ...(shellTool === undefined ? {} : { shellTool }),
+    ...(dataSpaceId === undefined ? {} : {dataSpaceId}),
   }
 }
 
@@ -324,6 +330,19 @@ function optionalString(
   }
   const trimmed = value.trim()
   return trimmed.length === 0 ? undefined : trimmed
+}
+
+function optionalTrimmedString(
+  record: Readonly<Record<string, unknown>>,
+  key: string,
+  path: string,
+): string | undefined {
+  const value = record[key]
+  if (value === undefined) return undefined
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`${path}.${key} must be a non-empty string when provided.`)
+  }
+  return value.trim()
 }
 
 function optionalBoolean(

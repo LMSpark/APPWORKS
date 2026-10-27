@@ -10,6 +10,7 @@ import {
   getPublicPaths,
   getVuePageOptions,
   hasVuePage,
+  parseVuePagesConfig,
 } from '@/registries/vue-page-registry'
 
 afterEach(() => {
@@ -18,6 +19,39 @@ afterEach(() => {
 })
 
 describe('Vue page registry', () => {
+  it('normalizes an explicit dataSpaceId and leaves an omitted one unset', () => {
+    const config = parseVuePagesConfig({
+      protocol: 'spark-appworks.vue-pages',
+      schemaVersion: 1,
+      pages: [
+        {path: '/configured', title: 'Configured', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: ' SPACE-ID '},
+        {path: '/unconfigured', title: 'Unconfigured', scope: 'tenant', source: 'src/views/tenant/Settings.vue'},
+      ],
+    })
+
+    expect(config.pages[0]?.dataSpaceId).toBe('SPACE-ID')
+    expect(config.pages[1]?.dataSpaceId).toBeUndefined()
+  })
+
+  it('rejects a whitespace-only dataSpaceId', () => {
+    expect(() => parseVuePagesConfig({
+      protocol: 'spark-appworks.vue-pages',
+      schemaVersion: 1,
+      pages: [{path: '/blank', title: 'Blank', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: '   '}],
+    })).toThrow('dataSpaceId must be a non-empty string')
+  })
+
+  it('keeps duplicate path rejection when dataSpaceId is present', () => {
+    expect(() => parseVuePagesConfig({
+      protocol: 'spark-appworks.vue-pages',
+      schemaVersion: 1,
+      pages: [
+        {path: '/same', title: 'First', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-1'},
+        {path: '/same', title: 'Second', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-2'},
+      ],
+    })).toThrow('duplicated page path "/same"')
+  })
+
   it.each([
     ['/features/data-platform/data-set-management/ui/data-set-list-page', false],
     ['/features/data-platform/data-set-management/design/ui/data-set-design-page', false],

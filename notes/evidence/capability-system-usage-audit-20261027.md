@@ -10,6 +10,13 @@
 
 **范围纠偏：**本次只证明了 CapabilityContext 的底层运行时消费者，没有核清用户所指的“原来本仓能力体系”是否是参考仓中的业务能力模型、目录、工具/流程调用机制或工作台功能，也没有证明这些业务能力已被当前 DevSystem/SPARK data 整合。该项仍是开放分析项，不能用 DI 使用证据结案。
 
+## 进一步对照业务能力方案与当前实现
+
+- `notes/design-appworks-semantic-integration.md` 是已批准的整合设计书，其 §2 将参考仓 96 个页面语义归并成 44 项业务能力，包含 A2 蓝图、D1/D2 数据空间、C1-C4 结构化资源等；§3 列出应放在 `spark-data`、`spark-component`、`spark-lowcode-api` 的公共能力。它是实施蓝图，不是当前代码完成证据。
+- `notes/research-project-blueprint-semantics.md` §167-178 提出“蓝图节点按种类暴露受限修改命令、由统一执行器负责治理”；当前代码定义了 `ProjectBlueprint.capability` 的元数据与 `ProjectBlueprintImplGate` 规划门禁，但本次搜索未发现按节点 kind 派发这些业务 mutation 的统一执行器。该部分仍属设计目标。
+- `ProjectBlueprint.requiredCapabilities` 用于策划完成检查/Agent 规划工具的所需动作名称；它与可发现的业务能力目录、节点业务 mutation、CapabilityContext DI 键是不同概念。
+- 因而更精确的状态是：**已有批准的业务能力目录和蓝图设计目标；底层运行时 DI 与部分策划动作有生产消费者；业务能力命令、目录到 SPA 消费者的逐项落实仍需以当前源码和唯一台账逐项核对**。不能把“44 项已纳入设计书”表述成 44 项已实现，也不能把该现状压缩成“本仓完全没有能力体系”。
+
 ## 运行时 DI 的实际生产调用
 
 - 基础原语：`packages/spark-utils/src/capability/core.ts` 定义 `defineCapability`、`sparkProvide`、`sparkConsume`；消费时沿父上下文查找并执行 reader 校验。它本身不负责业务授权、查询或保存。
@@ -28,6 +35,6 @@
 
 ## 对当前整合任务的裁定
 
-现有 DI 继续服务真实运行实例和 DataView 上下文传递，沿用 `PAGE_RUNTIME → RendererTable/dataViewKey → DATA_SOURCE/DataRow → usePermission/DataView.fieldAccess`；权限依据仍是正式查询及 DataView，不把 ProjectBlueprint capability 元数据当授权键，也不在 CapabilityContext 上再造业务数据网关或权限算法。**业务能力体系的整合状态未定**：应回到参考仓能力对象、页面、执行链及当前源码，按能力身份、输入输出、数据绑定、授权、调用、结果和失败状态逐项比对，再决定复用、接入 SPARK data 或记录缺口。不能先把 DI 机制当成业务能力实现。
+现有 DI 继续服务真实运行实例和 DataView 上下文传递，沿用 `PAGE_RUNTIME → RendererTable/dataViewKey → DATA_SOURCE/DataRow → usePermission/DataView.fieldAccess`；权限依据仍是正式查询及 DataView，不把 ProjectBlueprint capability 元数据当授权键，也不在 CapabilityContext 上再造业务数据网关或权限算法。已批准的 44 项业务能力目录只证明目标范围已策划；逐项实现状态以当前源码和唯一台账为准。下一步核对蓝图的类型化命令方案与各能力 SPA 消费者，按能力身份、输入输出、数据绑定、授权、调用、结果和失败状态查清已实现、半接通与缺口，再动态选择最小切片。不能先把 DI 机制或设计文档当成业务能力实现。
 
 本次为只读源码审计：未改产品代码、未运行测试、未访问线上业务写接口。

@@ -2207,3 +2207,10 @@ flowchart TD
 - **本次正式 SPA 观察：**同一登录 SPA 只读进入“元数据管理 / 功能管理”数据空间设计，界面显示共 23 个模型；目录按需读取确认 `Base_Desktop_System` 存在，含 24 个字段，物理来源展示为 `QYVirtualPlat.Base_Desktop_System`，并可见 AppName、ShortCNName、AppOrdidx、AppUrl、MobileUrl、AppPopupMode、AppType、IsDesktopShow、IsReqLogin、AppSmallIconUrl、BgColor、FontColor、IconStyle 等语义字段。当前模型目录显示“数据视图（0）”；字段配置中仅 rowid 为输出，其余字段输出复选框当前均未启用。`Dict_Desktop_AppType` 同在该模型目录。整个检查未编辑或保存数据空间/模型，也未读写桌面业务记录；随后返回原 `/dev` 开发工作台 SPA。
 - **本仓差距与实施边界：**本仓 `config/pages/application/project-blueprint/pagedata.json` 仅绑定 `Base_NavigationInfo`、`Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation`，没有 `Base_Desktop_System`/`Dict_Desktop_AppType` 的 PageRuntime DataView，也没有桌面记录消费组件。当前目标模型只有 rowid 输出且目录没有视图；因此不能仅新增控件或猜 modelId/视图合同，更不能手动拼 API、以参考旧客户端 CRUD 旁路写入，或为了某个工作台修改共享模型输出字段。下一步先从现有正式模型绑定/数据空间合同确认稳定 modelId、可用字段输出及当次行/字段权限，再评估以独立视图配置新增只读加载和 DataView 新增/删除；字段输出若需改共享定义，先核下游影响并遵循正式数据空间编辑合同。本条仅为只读诊断，SPARK data 唯一通道目标保持不变。
 - **工作台状态：**`/dev` SPA 仍显示王涛会话、41 页面、七个信息域及当前节点 `DataBaseManage`，未触发业务写入；桌面显示关联仍未接入，不能列为完成。未改 Java、未更改线上元数据或桌面数据。
+
+### 2026-10-27 桌面显示关联 DataView 输出投影合同复核
+
+- **源码合同复核：**`DataView.fieldProjection` 可按视图选择输出字段，但候选只来自正式模型输出字段。`captureDataSpaceViewQuery()` 过滤 `output: true` 投影；正式模型绑定的 `DataSpaceRuntimeApi.executeQuery()` 通过 `resolveOutputFields(model)` 映射请求字段，非输出字段拒绝为 `SPARK_MODEL_FIELD_UNRESOLVED`。非输出字段只可被正式过滤表达式引用，不会随结果输出。
+- **回归依据：**`data-space-runtime-api.test.ts` 的“filters on a non-output model field without requesting it as output”验证过滤字段可用、结果字段仍只含已输出列及主键；`data-space-model-alias.test.ts` 的动态完整模式用例验证非输出字段不能被选作输出或保存。只证明本仓源码与模拟服务夹具合同，不证明实际后端对投影的行为。
+- **对桌面关联的影响：**上一条正式 SPA 只读观察中，`Base_Desktop_System` 仅 `rowid` 输出，且没有已配置视图。新增 pagedata 视图投影不能绕过模型输出配置；当前也没有经正式 DataView 查询读取 AppName、AppUrl、AppType 等字段的依据。不得改用参考仓直连 API、临时查询器或共享模型猜测性配置。桌面关联保持未实施；解锁需正式模型输出字段及其影响范围经核，或已有服务/DataView 合同支持不改变共享模型的合法读取。
+- **绑定与权限边界：**`buildDataViewKey` / `resolveDataViewKey` 可按完整 `scenarioId@modelName@viewId` 定位本次 DataView；`modelId + modelName` 仍必须来自正式 DataTable.modelBinding。视图投影只决定列，不授读写权限；字段权限继续来自当次正式查询结果。本次仅源码审计，未浏览器写入、未改 Java、未改线上配置或业务数据。

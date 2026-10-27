@@ -2471,9 +2471,8 @@ flowchart TD
 ### 2026-10-27 结构化目录正式模型身份只读根因复核
 
 - **取证方法：**用户授权的 NewApp/D99A 登录会话中，继续在同一个 SPA 标签通过已打开的目录工作区切换。只读取浏览器正式 DataView 请求/响应；全部请求为 `POST /api/DataOperation/GetData`，模型查询在 `Base_DataModel` 上按 `dataSetId = 当前页面 route 的正式场景 ID AND Name = loader 要求的模型名` 精确过滤，服务端包络 `Code=200, Message=操作成功`。未发送手工请求、未改变过滤或保存数据。
-- **逐项结果：**四个数据空间 `Base_DataSet` 按当前场景 ID 的正式读回均为 1 条，名称与导航目录一致。数据编码 `A133D679691178F192D7E9DA06829506`：`_Base_CodeDesign` 为 0 条；`Base_UserInfo` 为 1 条（rowid `…p003`、MetaName 正确）；`Base_StructureType` 为 1 条（rowid `…p001`、MetaName 正确）。数据工作流 `5E9676B1E38860B023921F48FB4370DE`：`_Base_DataWorkFlow` 为 0 条，`Base_UserInfo` 为 0 条。Excel 导入 `36B01771C627B9BF5CD493DC75B996A1`：`_Base_ImportConfig` 为 0 条，`Base_UserInfo` 为 1 条（MetaName 正确）。PDF 识别 `A2D63AB2AAEF156E7727094A23AEA433`：`_Base_PdfInspectRule` 为 0 条，`Base_UserInfo` 为 0 条。
-- **根因边界：**错误文案笼统，但正式回包已把此次四条目录故障收窄为“loader 需要的模型在该目录 DataSet 下不存在匹配记录”，而非该 DataSet 的主键缺失、查询未加载、字段投影/MetaName 校验失败或同一 DataSet 下重复。此证据不排除同名模型存在于其它 DataSet，也不证明那些目录的配置场景 ID 与产品目标相符。参考页目录、批准映射及正式模型来源仍须核对；在目标与模型合同未确认前不自动补模型、不改蓝图绑定、不放宽 loader 校验。
-- **更新与下一步：**详细请求过滤、回包计数及调用源码链见 `notes/evidence/structured-config-catalog-live-spa-20261027.md`。四目录 smoke 已完成；下一步只读比较原生页面/蓝图数据空间绑定、被批准的参考语义映射与现有模型目录，确认应修正入口场景还是补建正式 DataTable 模型，再单独按确认后的正式设计入口实施。无前端/Java/线上数据变更、无写操作；整体整合继续 active。
+- **根因边界：**错误文案笼统；本次正式回包只证明当前 `dataSetId + Name` 授权查询结果为 0，loader 因没有可绑定的可见正式模型行而停止。查询结果不能证明底层物理记录不存在，也不能排除该行被数据权限过滤、名称/场景绑定目标不符合预期，或其它空间存在同名模型；因此尚不能定性为数据库模型缺失或重复。已有 1 行的项目可确认返回 rowid、归属与 MetaName 一致。参考页目录、批准映射及正式模型权限/来源仍须核对；在目标与可见模型合同未确认前不自动补模型、不改蓝图绑定、不放宽 loader 校验。
+- **更新与下一步：**详细请求过滤、回包计数及调用源码链见 `notes/evidence/structured-config-catalog-live-spa-20261027.md`。四目录 smoke 已完成；下一步通过现有正式 DataView/模型目录只读核对各目标场景模型的可见性、数据权限和模型归属，并比对原生页面/蓝图场景绑定及批准的参考语义映射；查明后再判断应修正入口场景还是补建正式 DataTable 模型。无前端/Java/线上数据变更、无写操作；整体整合继续 active。
 
 ### 2026-10-27 Capability 能力体系生产使用核对
 

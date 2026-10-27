@@ -30,16 +30,16 @@
 
 | 页面场景 | 模型名 | 正式查询结果 | 判定 |
 | --- | --- | ---: | --- |
-| 数据编码 `A133D679691178F192D7E9DA06829506` | `_Base_CodeDesign` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
+| 数据编码 `A133D679691178F192D7E9DA06829506` | `_Base_CodeDesign` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
 | 数据编码同场景 | `Base_UserInfo` | 1 条，MetaName 与名称一致 | 有效模型行存在 |
 | 数据编码同场景 | `Base_StructureType` | 1 条，MetaName 与名称一致 | 有效模型行存在 |
-| 数据工作流 `5E9676B1E38860B023921F48FB4370DE` | `_Base_DataWorkFlow` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
-| 数据工作流同场景 | `Base_UserInfo` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
-| Excel 导入 `36B01771C627B9BF5CD493DC75B996A1` | `_Base_ImportConfig` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
+| 数据工作流 `5E9676B1E38860B023921F48FB4370DE` | `_Base_DataWorkFlow` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
+| 数据工作流同场景 | `Base_UserInfo` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
+| Excel 导入 `36B01771C627B9BF5CD493DC75B996A1` | `_Base_ImportConfig` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
 | Excel 导入同场景 | `Base_UserInfo` | 1 条，MetaName 与名称一致 | 有效模型行存在 |
-| PDF 识别 `A2D63AB2AAEF156E7727094A23AEA433` | `_Base_PdfInspectRule` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
-| PDF 识别同场景 | `Base_UserInfo` | 0 条 | 当前 DataSet 缺少 loader 所需模型 |
+| PDF 识别 `A2D63AB2AAEF156E7727094A23AEA433` | `_Base_PdfInspectRule` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
+| PDF 识别同场景 | `Base_UserInfo` | 0 条 | 当前正式查询没有返回 loader 所需模型 |
 
-这把四页的现场错误从笼统“模型必须唯一且属于当前数据空间”进一步定位为当前目录 DataSet 下精确过滤无记录；不属于同一 DataSet 的重复，也不是 `MetaName` 投影失败。此结果不能证明同名模型在其它空间不存在，也不能确认这些导航目标场景是否指向产品预期空间。工作流、PDF 页会并行读多个模型，页面展示的错误名只代表首先显示的拒绝项；这里按真实响应覆盖了各自所有必需模型。保持只读，未建模、未改绑定、未修改数据。
+这把四页的现场错误从笼统“模型必须唯一且属于当前数据空间”进一步定位为当前正式查询按 `dataSetId + Name` 没有返回可绑定行。它不能证明底层物理记录绝对不存在；记录缺失、数据权限过滤、名称错误或场景绑定目标错误仍须再查，也不能据此排除其它空间中的同名模型。已返回 1 行的项目，其 rowid、dataSetId、Name、MetaName 可确认符合绑定身份。工作流、PDF 页会并行读多个模型，页面展示的错误名只代表首先显示的拒绝项；这里按真实响应覆盖了各自所有必需模型。保持只读，未建模、未改绑定、未修改数据。
 
-实现链复核：各目录页读取 `route.meta.blueprintScenarioId`；loader 调用 `loadStructuredConfigCatalog`；后者通过 `DataSpaceDesignApi.readModel` 同 `Base_DataModel` DataView 按 `dataSetId + Name` 查正式记录后，以回包模型 `id/metaName` 形成 DataTable binding。上述请求过滤与响应计数均与该链一致。后续须先比对蓝图正式场景指向、参考页业务语义及批准的模型目录，再决定是否修蓝图或按正式设计界面补建 DataTable；不得用其它空间同名模型回退。
+实现链复核：各目录页读取 `route.meta.blueprintScenarioId`；loader 调用 `loadStructuredConfigCatalog`；后者通过 `DataSpaceDesignApi.readModel` 同 `Base_DataModel` DataView 按 `dataSetId + Name` 查正式记录后，以回包模型 `id/metaName` 形成 DataTable binding。上述请求过滤与响应计数均与该链一致。下一步先通过正式 DataView/模型目录检查目标场景下模型的可见性及权限，并比对蓝图正式场景、参考页业务语义与批准的模型目录，再判断是否需修场景绑定或补建正式 DataTable；不得用其它空间同名模型回退。

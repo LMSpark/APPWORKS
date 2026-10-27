@@ -342,26 +342,35 @@ function guardProjectPlanningBlueprint(
         throw new Error(`项目策划完整 DataView 计划字段未正式输出：${missingFields.map(([field]) => field).join(', ')}`)
       }
     }
-    if (plan.commands.length === 1 && plan.commands[0]?.kind === 'update') {
-      const update = plan.commands[0]
+    if (plan.commands.length > 0 && plan.commands.every(command => command.kind === 'update')) {
       const allowedFields = new Set(['name', 'memo'])
-      const previous = flatten(before).find(node => node.nodeId === update.nodeId)
-      const requested = flatten(plan.expectedTree).find(node => node.nodeId === update.nodeId)
-      if (!previous || !requested || (previous.children?.length ?? 0) !== 0
-        || previous.parentNodeId !== update.parentNodeId || requested.parentNodeId !== previous.parentNodeId
-        || Object.keys(update.fields).length === 0 || Object.keys(update.fields).some(field => !allowedFields.has(field))) {
-        throw new Error('当前 DataView 仅允许一次对既有叶节点同父更新正式 name/memo 字段')
+      const previousNodes=flatten(before),requestedNodes=flatten(plan.expectedTree)
+      const updates=plan.commands.map(update=>{
+        const previous=previousNodes.find(node=>node.nodeId===update.nodeId)
+        const requested=requestedNodes.find(node=>node.nodeId===update.nodeId)
+        if(!previous||!requested||(previous.children?.length??0)!==0||previous.parentNodeId!==update.parentNodeId||requested.parentNodeId!==previous.parentNodeId
+          ||Object.keys(update.fields).length===0||Object.keys(update.fields).some(field=>!allowedFields.has(field)))throw new Error('当前 DataView 仅允许同批对原树既有叶节点同父更新正式 name/memo 字段')
+        return requested satisfies BlueprintNodeFormData
+      })
+      if(updates.length<2){
+        const update=plan.commands[0]
+        const requested=update===undefined?undefined:requestedNodes.find(node=>node.nodeId===update.nodeId)
+        const previous=update===undefined?undefined:previousNodes.find(node=>node.nodeId===update.nodeId)
+        if(!update||!requested||!previous)throw new Error('项目策划更新计划缺少原树目标')
+        if((previous.children?.length??0)!==0||previous.parentNodeId!==update.parentNodeId||requested.parentNodeId!==previous.parentNodeId)throw new Error('当前 DataView 仅允许对原树现存叶节点同父更新正式 name/memo 字段')
       }
+      const prepared=updates.length>1?await owner.preflightNodeDataBatch(updates):undefined
       if (options.tryBeginDataViewBlueprintWrite !== undefined && !options.tryBeginDataViewBlueprintWrite(project.projectId)) {
         options.onRepeatedDataViewBlueprintWrite?.(project.projectId)
         throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected after the first DataView command started')
       }
       dataViewCommandStarted = true
-      const node = requested satisfies BlueprintNodeFormData
-      await owner.load(update.nodeId)
-      owner.updateNodeData(node)
+      if(updates.length===1){const update=updates[0];if(!update)throw new Error('项目策划更新计划缺少目标');await owner.load(update.nodeId);owner.updateNodeData(update)}
+      else if(prepared)owner.updateNodeDataBatch(prepared)
+      else throw new Error('项目策划多节点更新缺少完整 DataView 预检结果')
       try {
-        await owner.saveSelectedNode()
+        if(updates.length===1)await owner.saveSelectedNode()
+        else await owner.saveNodes(updates.map(node=>node.nodeId))
       } catch (error: unknown) {
         const pendingError = error instanceof Error ? error.message : String(error)
         const ownerState = owner
@@ -371,15 +380,17 @@ function guardProjectPlanningBlueprint(
         throw error
       }
       const confirmed = owner.treeProjection()
-      const confirmedNode = flatten(confirmed).find(candidate => candidate.nodeId === update.nodeId)
-      if (confirmedNode?.parentNodeId !== previous.parentNodeId || (confirmedNode.children?.length ?? 0) !== 0) {
-        throw new Error(`项目策划 DataView 更新后正式树回读身份不一致 ${update.nodeId}`)
+      for(const update of plan.commands){
+        const previous=previousNodes.find(node=>node.nodeId===update.nodeId)
+        const confirmedNode=flatten(confirmed).find(candidate=>candidate.nodeId===update.nodeId)
+        if(!previous)throw new Error(`项目策划 DataView 更新缺少原树身份 ${update.nodeId}`)
+        if(confirmedNode?.parentNodeId!==previous.parentNodeId||(confirmedNode.children?.length??0)!==0)throw new Error(`项目策划 DataView 更新后正式树回读身份不一致 ${update.nodeId}`)
+        const confirmedRecord=normalizeLowcodeProjectBlueprintRecords([confirmedNode.source])[0]
+        if(!confirmedRecord)throw new Error(`项目策划更新回读不能还原为正式 Base_NavigationInfo 记录 ${update.nodeId}`)
+        const confirmedWire=lowcodeProjectBlueprintFields(confirmedRecord)
+        const mismatches=Object.entries(update.fields).filter(([field,value])=>String(confirmedWire[field])!==String(value))
+        if(mismatches.length>0)throw new Error(`项目策划 DataView 正式回读与更新字段不一致 ${update.nodeId}：${mismatches.map(([field])=>field).join(', ')}`)
       }
-      const confirmedRecord = normalizeLowcodeProjectBlueprintRecords([confirmedNode.source])[0]
-      if (!confirmedRecord) throw new Error(`项目策划更新回读不能还原为正式 Base_NavigationInfo 记录 ${update.nodeId}`)
-      const confirmedWire = lowcodeProjectBlueprintFields(confirmedRecord)
-      const mismatches = Object.entries(update.fields).filter(([field, value]) => String(confirmedWire[field]) !== String(value))
-      if (mismatches.length > 0) throw new Error(`项目策划 DataView 正式回读与更新字段不一致 ${update.nodeId}：${mismatches.map(([field]) => field).join(', ')}`)
       project.replaceBlueprintChildren(confirmed.children)
       confirmedDataViewCompletion = project.completeProjectPlanning()
       options.onDataViewCompletionConfirmed?.(project.projectId, confirmedDataViewCompletion)
@@ -387,7 +398,7 @@ function guardProjectPlanningBlueprint(
       return snapshot(project.blueprintTree)
     }
     if (plan.commands.length === 0 || plan.commands.some(command => command.kind !== 'create')) {
-      throw new Error('当前 DataView 仅支持一个批次新增多个独立叶子或一次既有叶节点 name/memo 更新；移动、删除和父子同批计划保持拒绝')
+      throw new Error('当前 DataView 仅支持单批多个独立叶子新增，或单批多个原树现存叶节点 name/memo 更新；移动、删除和混合计划保持拒绝')
     }
     const creates = plan.commands
     const existingNodes = flatten(before)
@@ -544,7 +555,7 @@ export function createProjectPlanningSystemPrompt(input: ProjectPlanningAgentInp
     '执行规则: 不要把脚本写成普通文本回答；最终必须通过 model_script 的 script 字符串调用 this.xxx。',
     '知识查询规则: action 只用 model_action_guide({ kind: "ProjectBlueprint", actionName }) 查询；attribute 才用 model_attribute_guide；replaceBlueprintChildren/readProjectPlanningInput/readBlueprintPlanningInputs 都是 action。',
     '参数契约规则: 不要查询 ProjectBlueprintTreeNodeData 当作 attribute；children 的结构来自 model_action_guide({ kind: "ProjectBlueprint", actionName: "replaceBlueprintChildren" }) 的 paramsSchema.children。',
-    '执行前查询: model_action_guide({ kind: "ProjectBlueprint", actionName: "readProjectPlanningInput" }) + model_action_guide({ kind: "ProjectBlueprint", actionName: "readBlueprintPlanningInputs" }) + model_action_guide({ kind: "ProjectBlueprint", actionName: "replaceBlueprintChildren" })，然后 model_script 读取输入并写入 blueprint children。当前正式 DataView 命令允许一轮 AI 将多个彼此独立的叶子新增到一个或多个原树现存父节点，作为一个 Base_NavigationInfo DataView/DataSet 保存批次；每个父节点都必须属于原查询且与子行同项目，父子节点不得同批。任何更新、移动、删除、父子同批或新增与其他变更混合的计划必须保留结果并停止，不能拆批或降级。',
+    '执行前查询: model_action_guide({ kind: "ProjectBlueprint", actionName: "readProjectPlanningInput" }) + model_action_guide({ kind: "ProjectBlueprint", actionName: "readBlueprintPlanningInputs" }) + model_action_guide({ kind: "ProjectBlueprint", actionName: "replaceBlueprintChildren" })，然后 model_script 读取输入并写入 blueprint children。当前正式 DataView 命令允许一轮 AI 将多个彼此独立的叶子新增到一个或多个原树现存父节点，或批量更新多个原树现存叶节点的正式 name/memo；各自作为单个 Base_NavigationInfo DataView/DataSet 保存批次。更新目标必须同项目、保持原父节点且只修改 name/memo；其他组合、移动、删除、父子同批或新增与更新混合均须保留结果并停止，不能拆批。',
     `蓝图结构规则: 正式节点种类仅为 ${PROJECT_BLUEPRINT_NODE_KINDS.join('/')}；unknown 仅用于读入草稿诊断，不得作为策划完成结果。module 可任意分级，不强制每个 module 直接包含 page。`,
     '完成自检: agent_complete 会调用 ProjectBlueprint.completeProjectPlanning({ summary })；如果返回失败，按 tool result 的 missingFacts/requiredCapabilities/知识恢复提示补查或补执行后再次 agent_complete。',
     '不要在 model_script 中直接调用 completeProjectPlanning；完成只通过 agent_complete FC 触发。',
@@ -564,7 +575,7 @@ export function createProjectPlanningToolLoopNudge(context: {
     case 'plan_without_tool':
       return `projectId="${projectId}"；禁止只输出计划，下一回合必须发起 tool_call（见 model_action_guide / RECOVERY_HINT）。`
     case 'execution_phase':
-      return `projectId="${projectId}"；目录/指南阶段已完成，直接 model_script：根对象是 this（ProjectBlueprint），先 await this.readProjectPlanningInput() / await this.readBlueprintPlanningInputs()，再 await this.replaceBlueprintChildren({ children })。当前正式 DataView 命令允许一轮将多个独立叶子新增到一个或多个原树现存父节点，并在一个 DataView/DataSet 批次中确认；每个父节点必须是原树现存节点，且不得同批新增父子。更新、移动、删除或新增与其他变更混合必须保留结果并停止，不能拆批或降级。每个节点必须声明真实 kind 与 capability，交付资源只写 navigation.target。`
+      return `projectId="${projectId}"；目录/指南阶段已完成，直接 model_script：根对象是 this（ProjectBlueprint），先 await this.readProjectPlanningInput() / await this.readBlueprintPlanningInputs()，再 await this.replaceBlueprintChildren({ children })。当前正式 DataView 命令允许一轮将多个独立叶子新增到一个或多个原树现存父节点，或批量更新多个原树现存叶节点的正式 name/memo；更新须保持同项目和原父节点。移动、删除、父子同批或新增与更新混合必须保留结果并停止，不能拆批。每个节点必须声明真实 kind 与 capability，交付资源只写 navigation.target。`
     case 'model_script_retry':
       return `projectId="${projectId}"；按 RECOVERY_HINT 修正后重试 model_script；项目蓝图必须包含至少一个有明确 kind 的业务节点。`
     default:
@@ -646,7 +657,7 @@ function projectPlanningScriptSopLines(projectId: string): readonly string[] {
     'model_script 标准写法：以下内容必须作为 tool_call 参数 script 的 JavaScript 函数体交给运行时执行；不要作为自然语言回答。',
     '根对象就是 this（ProjectBlueprint）；通过 this.replaceBlueprintChildren({ children }) 写入项目蓝图。',
     '每个节点必须写 nodeId/parentNodeId/projectId/kind/capability/source；navigation/dataSpace/prototype 是可选正式分组，不把旧平铺字段写入蓝图。',
-    '当前运行时每次 AI run 最多发起一个 Base_NavigationInfo DataView/DataSet 保存批次；同一批允许多个彼此独立的叶子，可分别追加到不同的原树现存父节点。父子节点不得同批；多批新增、改动旧节点、移动、删除或新增与其他变更混合均不能表示，须保留结果且不要报告完整完成。',
+    '当前运行时每次 AI run 最多发起一个 Base_NavigationInfo DataView/DataSet 保存批次；支持多个彼此独立的叶子新增，或多个原树现存叶节点的正式 name/memo 更新。更新目标保持项目与原父节点身份；新增和更新不得混合，父子节点不得同批，移动和删除不支持。',
     'const projectInput = await this.readProjectPlanningInput()',
     'const existingNodes = await this.readBlueprintPlanningInputs()',
     'const parentNodeId = this.blueprintTree.nodeId',

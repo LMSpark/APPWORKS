@@ -13,6 +13,7 @@
       "BlueprintNodeFormData",
       "BlueprintChildNodeCreate",
       "BlueprintChildNodeCreateAtParent",
+      "BlueprintNodeDataBatchItem",
       "BlueprintWorkspaceDataView"
     ]
   },
@@ -122,6 +123,41 @@
         "nodeId",
         "fields",
         "parentNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodeDataBatchItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeDataBatchItem",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "node": {
+          "$ref": "#/$defs/BlueprintNodeFormData"
+        }
+      },
+      "required": [
+        "nodeId",
+        "key",
+        "patch",
+        "node"
       ],
       "additionalProperties": false
     },
@@ -384,6 +420,51 @@
           "additionalProperties": false
         },
         "method.updateNodeData.return": true,
+        "method.preflightNodeDataBatch.params": {
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeFormData"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preflightNodeDataBatch.return": {
+          "type": "object",
+          "title": "Promise<readonly BlueprintNodeDataBatchItem[]>"
+        },
+        "method.updateNodeDataBatch.params": {
+          "type": "object",
+          "properties": {
+            "prepared": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeDataBatchItem"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNodeDataBatch.return": true,
+        "method.saveNodes.params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveNodes.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.treeProjection.params": {
           "type": "object",
           "properties": {},
@@ -502,7 +583,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T07:54:59.712Z",
+  "generatedAt": "2026-10-27T08:34:51.105Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -609,6 +690,45 @@
           "attributes": [
             {
               "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeDataBatchItem": {
+      "name": "BlueprintNodeDataBatchItem",
+      "jsdoc": "Fully preflighted target identity and patch, ready for synchronous overlay staging.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodeId: string;\n    key: string | number;\n    patch: Readonly<Record<string, unknown>>;\n    node: BlueprintNodeFormData;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodeId: string;\n    key: string | number;\n    patch: Readonly<Record<string, unknown>>;\n    node: BlueprintNodeFormData;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "patch",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
               "readable": true,
               "writable": false
             }
@@ -1121,6 +1241,69 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "preflightNodeDataBatch",
+              "jsdoc": "Preflight every requested existing node before applying any edit overlay.",
+              "parameters": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeFormData[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeDataBatchItem[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateNodeDataBatch",
+              "jsdoc": "Stage preflighted existing-node updates on their formal DataView row identities.",
+              "parameters": [
+                {
+                  "name": "prepared",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeDataBatchItem[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "saveNodes",
+              "jsdoc": "Save exactly the requested preflighted rows through this DataSet and verify every changed field.",
+              "parameters": [
+                {
+                  "name": "nodeIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             },
             {

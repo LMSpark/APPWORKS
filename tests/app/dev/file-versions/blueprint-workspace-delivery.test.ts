@@ -265,7 +265,7 @@ const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', prowid:'000000', F
   IsShowAtNav:1,IsShowChildItem:1,BeginGroup:0,DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
   personCharge: 'U1', status: 'ready', VersionId: 'rule=1;script=1;style=1'})
 
-function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; refreshFailureAfterSave?:boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'; addEnabled?:boolean} = {}) {
+function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; unknownSaveAlways?:boolean; refreshFailureAfterSave?:boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'; addEnabled?:boolean} = {}) {
   const outputs = options.outputs ?? blueprintFields
   const readable = new Set(options.readable ?? outputs)
   const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid'))
@@ -295,7 +295,7 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
   })
   type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
   const save = vi.fn(async (command: SaveCommand) => {
-    if (options.unknownSave && !unknownReceipt) {unknownReceipt = true; throw new Error('transport timeout')}
+    if (options.unknownSaveAlways || (options.unknownSave && !unknownReceipt)) {unknownReceipt = true; throw new Error('transport timeout')}
     const receipts=command.changes.map(change => {
       const added = [...(change.changes.added ?? [])]
       stored = [...stored, ...added]
@@ -334,6 +334,107 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('saves two existing leaf updates in one DataSet batch and reads back each formal memo',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const second={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Node two',FunName:'Node two',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,first,second]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection(),requested=before.children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
+      const result=await Promise.resolve(facade.replaceBlueprintChildren({children:requested}))
+      expect(f.save).toHaveBeenCalledOnce()
+      expect(f.save.mock.calls[0]?.[0].changes[0]?.changes.changed).toHaveLength(2)
+      expect(f.rows().filter(row=>['NODE-1','NODE-2'].includes(String(row['rowid']))).map(row=>row['memo'])).toEqual(['updated 1','updated 2'])
+      expect(result.children.map(node=>node.capability.description)).toEqual(['updated 1','updated 2'])
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('preflights every batch target before staging when the later validator rejects',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const second={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Node two',FunName:'Node two',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,first,second]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      const before=owner.treeProjection(),requested=before.children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
+      vi.spyOn(owner.view.validator!,'validateColumns').mockImplementation((row)=>row['rowid']==='NODE-2'?{valid:false,errors:[{message:'second validator rejects'}]} as never:{valid:true,errors:[]} as never)
+      await expect(owner.preflightNodeDataBatch(requested)).rejects.toThrow('second validator rejects')
+      expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined();expect(owner.view.getEditingPatch('NODE-2')).toBeUndefined()
+      expect(f.save).not.toHaveBeenCalled()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('does not consume the AI write slot or stage either row when the later target lacks memo write access',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const second={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Node two',FunName:'Node two',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,first,second]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      const originalAccess=owner.view.fieldAccess.bind(owner.view)
+      vi.spyOn(owner.view,'fieldAccess').mockImplementation((row,field)=>row!==null&&row['rowid']==='NODE-2'&&field==='memo'?{...originalAccess(row,field),write:'denied',component:'readonly',writeMode:'readonly'} as never:originalAccess(row,field))
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const tryBeginDataViewBlueprintWrite=vi.fn(()=>true)
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner,tryBeginDataViewBlueprintWrite},{moduleInstanceId:'APP-1'} as never)
+      const requested=owner.treeProjection().children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
+      await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow(/memo|权限|字段/iu)
+      expect(tryBeginDataViewBlueprintWrite).not.toHaveBeenCalled()
+      expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined();expect(owner.view.getEditingPatch('NODE-2')).toBeUndefined()
+      expect(f.save).not.toHaveBeenCalled()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('discards the whole update batch if staging a later target throws',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const second={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Node two',FunName:'Node two',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,first,second]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      const write=owner.view.updateEditingValue.bind(owner.view)
+      vi.spyOn(owner.view,'updateEditingValue').mockImplementation((id,field,value)=>{if(id==='NODE-2')throw new Error('second overlay write failed');return write(id,field,value)})
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const requested=owner.treeProjection().children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
+      await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow('second overlay write failed')
+      expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined();expect(owner.view.getEditingPatch('NODE-2')).toBeUndefined()
+      expect(owner.dirty).toBe(false);expect(f.save).not.toHaveBeenCalled()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('retains an unknown multi-row receipt on the original DataView owner',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const second={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Node two',FunName:'Node two',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,first,second],unknownSaveAlways:true})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      const saveChanges=vi.spyOn(owner.dataSet,'saveChanges')
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection(),requested=before.children.map((node,index)=>({...node,capability:{...node.capability,description:`unknown ${index+1}`}}))
+      await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow(/未确认.*保留原 DataView command/iu)
+      expect(owner.hasUnconfirmedSave).toBe(true);expect(owner.dirty).toBe(true);expect(f.save).toHaveBeenCalledOnce()
+      await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow(/one DataView command per AI run/iu)
+      expect(f.save).toHaveBeenCalledOnce()
+      await expect(owner.save()).rejects.toThrow('transport timeout')
+      expect(owner.hasUnconfirmedSave).toBe(true);expect(owner.dirty).toBe(true)
+      expect(saveChanges).toHaveBeenCalledTimes(2)
+      const submittedIds=saveChanges.mock.calls.map(call=>call[0]?.views?.[0]?.ids)
+      expect(submittedIds[1]).toEqual(submittedIds[0])
+      expect(f.rows().filter(row=>['NODE-1','NODE-2'].includes(String(row['rowid']))).map(row=>row['memo'])).toEqual(['before','before'])
+      expect(f.save).toHaveBeenCalledTimes(2)
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
   it('ProjectPlanning updates one existing leaf through the real DataView owner and confirms formal readback', async () => {
     const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
     const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}

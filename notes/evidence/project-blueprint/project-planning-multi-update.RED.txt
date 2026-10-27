@@ -1,0 +1,9 @@
+ProjectPlanning multi-leaf update RED
+
+Command: pnpm exec vitest run tests/app/services/project-planning/grouped-planning-contract.test.ts
+Observed before implementation: 17 tests, 2 failed. The new test failed at project-planning-agent-workflow-binding.ts:390 with `当前 DataView 仅支持一个批次新增多个独立叶子或一次既有叶节点 name/memo 更新；移动、删除和父子同批计划保持拒绝`. This is the expected missing multi-update branch. The second failure was the pre-existing prompt assertion becoming stale after the contract update was introduced; it is updated to assert the new batch update instruction.
+
+Follow-up RED from 2026-10-27 multi-update review:
+
+Command: pnpm exec vitest run tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts -t "does not consume the AI write slot|discards the whole update batch"
+Observed: permission test failed because `tryBeginDataViewBlueprintWrite` was called before the later target's denied memo permission was detected. The staging failure test failed because the first target retained `{memo: "updated 1"}` after the second target threw. These were the two intended regression failures.

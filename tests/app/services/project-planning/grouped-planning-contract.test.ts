@@ -7,6 +7,27 @@ import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 
 describe('projectPlanning formal node input', () => {
+  it('commits two existing leaf name and memo updates as one DataView batch and verifies both readbacks', async () => {
+    const projectId='APP-A'
+    const first={nodeId:'first',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'First'},source:{rowid:'first',SysId:projectId,prowid:'root',name:'First',memo:'',conType:'Navitem'}}
+    const second={nodeId:'second',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'Second'},source:{rowid:'second',SysId:projectId,prowid:'root',name:'Second',memo:'',conType:'Navitem'}}
+    const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[first,second]}
+    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>root}})
+    editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
+    let readback=root
+    const owner={projectId,hasTreeProjection:true,dirty:false,hasPendingChildCreate:false,hasUnconfirmedSave:false,hasPendingBlueprintCommand:false,
+      treeProjection:()=>readback,hasOutput:()=>true,load:vi.fn(async()=>{}),
+      updateNodeDataBatch:vi.fn((prepared:readonly {node:typeof first}[])=>{readback={...root,children:prepared.map(({node})=>({...node,source:{...node.source,name:node.capability.name,memo:String(('description' in node.capability?node.capability.description:undefined)??'')}}))}}),
+      saveNodes:vi.fn(async()=>{}),preflightNodeDataBatch:vi.fn(async(updates:readonly typeof first[])=>updates.map((node,index)=>({nodeId:node.nodeId,key:node.nodeId,patch:{memo:`updated ${index+1}`},node})))}
+    const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner as never},{moduleInstanceId:projectId} as never)
+    const requested=[{...first,capability:{name:'First revised',description:'one'}},{...second,capability:{name:'Second revised',description:'two'}}]
+    const result=await Promise.resolve(facade.replaceBlueprintChildren({children:requested}))
+    expect(owner.preflightNodeDataBatch).toHaveBeenCalledOnce()
+    expect(owner.updateNodeDataBatch).toHaveBeenCalledOnce()
+    expect(owner.saveNodes).toHaveBeenCalledOnce()
+    expect(result.children.map(node=>[node.nodeId,node.capability.name,node.source['memo']])).toEqual([['first','First revised','one'],['second','Second revised','two']])
+  })
+
   it('keeps replaceBlueprintChildren in the formal action guide after async DataView adaptation', () => {
     const shard = JSON.parse(readFileSync('generated/dts-class-model/files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json', 'utf8')) as {
       $defs?: Record<string, { properties?: Record<string, unknown>; $defs?: Record<string, unknown> }>
@@ -299,7 +320,7 @@ describe('projectPlanning formal node input', () => {
     expect(prompt).toContain('orders (page) 订单')
     expect(prompt).toContain('capability: { name:')
     expect(prompt).toContain('每次 AI run 最多发起一个 Base_NavigationInfo DataView/DataSet 保存批次')
-    expect(prompt).toContain('同一个原树现存父节点')
+    expect(prompt).toContain('批量更新多个原树现存叶节点的正式 name/memo')
     expect(prompt).toContain('父子节点不得同批')
     expect(prompt).toContain('parentNodeId,')
     expect(prompt).not.toContain('nodeId: "core-service"')

@@ -14172,6 +14172,7 @@
           "BlueprintNodeFormData",
           "BlueprintChildNodeCreate",
           "BlueprintChildNodeCreateAtParent",
+          "BlueprintNodeDataBatchItem",
           "BlueprintWorkspaceDataView"
         ]
       }
@@ -17127,6 +17128,10 @@
       "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
     },
     "BlueprintChildNodeCreateAtParent": {
+      "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
+    },
+    "BlueprintNodeDataBatchItem": {
       "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
     },

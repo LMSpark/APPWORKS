@@ -40,6 +40,9 @@ export type BlueprintChildNodeCreateAtParent=BlueprintChildNodeCreate&Readonly<{
   parentNodeId:string
 }>
 
+/** Fully preflighted target identity and patch, ready for synchronous overlay staging. */
+export type BlueprintNodeDataBatchItem=Readonly<{nodeId:string;key:string|number;patch:Readonly<Record<string,unknown>>;node:BlueprintNodeFormData}>
+
 type PendingChildCreateBatch=Readonly<{
   children:readonly BlueprintChildNodeCreateAtParent[]
   ids:ReadonlyArray<string|number>
@@ -70,6 +73,7 @@ export class BlueprintWorkspaceDataView {
   #unconfirmedDeleteParentId: string | undefined
   #unconfirmedChildId: string | number | undefined
   #pendingChildBatch:PendingChildCreateBatch|undefined
+  #batchStageBlocked=false
   #childReceiptState: 'pending'|'unknown'|'accepted'|undefined
   #queryOutputFields: ReadonlySet<string>
 
@@ -104,6 +108,7 @@ export class BlueprintWorkspaceDataView {
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}
   public get dirty(): boolean {
     if(this.#unconfirmedIds.length>0)return true
+    if(this.#batchStageBlocked)return true
     if(this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)return true
     if(this.#unconfirmedDeleteId!==undefined)return true
     if (this.hasUnconfirmedSave) return true
@@ -113,7 +118,7 @@ export class BlueprintWorkspaceDataView {
   /** Keep the owner mounted while a write receipt or its required readback is unresolved. */
   public get hasPendingBlueprintCommand(): boolean {
     return this.hasUnconfirmedSave || this.#unconfirmedRootId !== undefined || this.#unconfirmedChildId !== undefined
-      || this.#pendingChildBatch !== undefined || this.#unconfirmedDeleteId !== undefined || this.#unconfirmedIds.length > 0
+      || this.#pendingChildBatch !== undefined || this.#unconfirmedDeleteId !== undefined || this.#unconfirmedIds.length > 0 || this.#batchStageBlocked
   }
   public get isBusy(): boolean {return this.view.mutating || this.view.requestState === RequestState.Loading}
 
@@ -736,6 +741,52 @@ export class BlueprintWorkspaceDataView {
     for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(key,field,value)
   }
 
+  /** Preflight every requested existing node before applying any edit overlay. */
+  public async preflightNodeDataBatch(nodes:readonly BlueprintNodeFormData[]):Promise<readonly BlueprintNodeDataBatchItem[]>{
+    if(nodes.length<2)throw new Error('蓝图 DataView 多节点更新至少需要两个目标')
+    const seen=new Set<string>()
+    const prepared:BlueprintNodeDataBatchItem[]=[]
+    for(const node of nodes){
+      if(seen.has(node.nodeId))throw new Error(`蓝图 DataView 重复更新目标 ${node.nodeId}`)
+      seen.add(node.nodeId)
+      await this.load(node.nodeId)
+      const patch=this.preflightNodeData(node),row=this.currentRow(),key=this.requireRowKey(row)
+      prepared.push({nodeId:node.nodeId,key,patch,node})
+    }
+    return prepared
+  }
+
+  /** Stage preflighted existing-node updates on their formal DataView row identities. */
+  public updateNodeDataBatch(prepared:readonly BlueprintNodeDataBatchItem[]):void{
+    if(prepared.length<2||new Set(prepared.map(item=>item.nodeId)).size!==prepared.length)throw new Error('蓝图 DataView 多节点暂存身份无效')
+    for(const item of prepared){const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===item.key);if(row?.['rowid']!==item.nodeId||row['SysId']!==this.#projectId)throw new Error(`蓝图 DataView 多节点暂存身份已变化 ${item.nodeId}`)}
+    try{for(const {key,patch} of prepared)for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(key,field,value)}
+    catch(error){
+      try{
+        this.view.discardPendingChanges(prepared.map(item=>item.key))
+        const remaining=prepared.filter(({key})=>this.view.getEditingPatch(key)!==undefined||this.view.dirtyTracking.hasPendingChanges(key))
+        if(remaining.length>0)throw new Error(`蓝图批量编辑回滚未清理目标 ${remaining.map(item=>String(item.key)).join(', ')}`)
+      }catch(rollbackError){
+        this.#batchStageBlocked=true
+        throw new Error(`蓝图批量暂存失败且原 DataView 目标仍待处理：${error instanceof Error?error.message:String(error)}；回滚失败：${rollbackError instanceof Error?rollbackError.message:String(rollbackError)}`)
+      }
+      throw error
+    }
+  }
+
+  /** Save exactly the requested preflighted rows through this DataSet and verify every changed field. */
+  public async saveNodes(nodeIds:readonly string[]):Promise<void>{
+    if(nodeIds.length<2||new Set(nodeIds).size!==nodeIds.length)throw new Error('蓝图 DataView 多节点保存身份无效')
+    const ids=nodeIds.map(nodeId=>{
+      const row=this.view.rows.find(candidate=>candidate['rowid']===nodeId&&candidate['SysId']===this.#projectId)
+      if(!row)throw new Error(`蓝图 DataView 保存目标不是当前项目正式行 ${nodeId}`)
+      const key=this.view.getPkKey(row)
+      if((typeof key!=='string'&&typeof key!=='number')||String(key)!==nodeId)throw new Error(`蓝图 DataView 正式主键与节点身份不匹配 ${nodeId}`)
+      return key
+    })
+    await this.saveIds(ids,ids.length)
+  }
+
   /** Build the display tree strictly from the current DataView rows and their edit overlays. */
   public treeProjection(): ProjectBlueprintTreeData {
     this.assertUsable()
@@ -829,6 +880,11 @@ export class BlueprintWorkspaceDataView {
     const ids=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       .filter(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))
     this.view.discardPendingChanges(ids)
+    if(this.#batchStageBlocked){
+      const blockedIds=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
+      if(blockedIds.some(id=>this.view.getEditingPatch(id)!==undefined||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('蓝图 DataView 批量失败状态仍有未清理目标')
+      this.#batchStageBlocked=false
+    }
     this.#row=this.view.rows.find(candidate=>candidate['rowid']===this.#nodeId&&candidate['SysId']===this.#projectId)
     this.view.setCurrentRow(this.#row??null)
   }
@@ -873,8 +929,9 @@ export class BlueprintWorkspaceDataView {
     await this.saveIds([id])
   }
 
-  private async saveIds(targetIds?:Array<string|number>): Promise<void> {
+  private async saveIds(targetIds?:Array<string|number>,expectedSavedCount?:number): Promise<void> {
     this.assertUsable()
+    if(this.#batchStageBlocked)throw new Error('蓝图 DataView 批量暂存回滚未确认，保存已阻断')
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     const targetNodeId=this.#nodeId, revision=this.#revision
     if (this.hasUnconfirmedSave || this.#unconfirmedIds.length>0) {
@@ -912,6 +969,8 @@ export class BlueprintWorkspaceDataView {
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]})
     this.assertTarget(revision, targetNodeId)
     if (!result.success) throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
+    const saveData=result.data
+    if(expectedSavedCount!==undefined&&(saveData?.savedCount!==expectedSavedCount||saveData.failedCount!==0))throw new Error(`蓝图 DataView 批量保存回执计数不匹配：expected=${expectedSavedCount} saved=${saveData?.savedCount??'unknown'} failed=${saveData?.failedCount??'unknown'}`)
     await this.view.refresh()
     this.assertTarget(revision, targetNodeId)
     if (this.view.loadingError) throw this.view.loadingError

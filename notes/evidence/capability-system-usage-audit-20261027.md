@@ -1,12 +1,14 @@
-# 仓内 Capability 能力体系使用情况（2026-10-27）
+# 仓内 Capability 相关代码使用核对（2026-10-27）
 
 ## 结论
 
 “能力体系”在本仓指向至少三类不同概念，不能混为一谈：
 
-1. Spark CapabilityContext 是活跃的生产运行时依赖注入机制。
-2. `ProjectBlueprint.capability` 是业务节点的名称/需求描述元数据，参与 DevSystem 编辑和 AI 策划上下文，不是 runtime capability key。
+1. Spark CapabilityContext 是活跃的生产运行时依赖注入机制；它传递对象引用和上下文，不等于业务能力目录或能力执行体系。
+2. `ProjectBlueprint.capability` 是业务节点的名称/需求描述与交付责任元数据，参与 DevSystem 编辑和 AI 策划上下文，但没有因此形成可发现、可调用、可授权并由 DataView 驱动的业务能力闭环。
 3. 菜单中的 `CapabilityDemo.vue` 是开发演示页，页面数据和 API 都是硬编码/模拟。它不证明真实业务能力闭环。
+
+**范围纠偏：**本次只证明了 CapabilityContext 的底层运行时消费者，没有核清用户所指的“原来本仓能力体系”是否是参考仓中的业务能力模型、目录、工具/流程调用机制或工作台功能，也没有证明这些业务能力已被当前 DevSystem/SPARK data 整合。该项仍是开放分析项，不能用 DI 使用证据结案。
 
 ## 运行时 DI 的实际生产调用
 
@@ -26,6 +28,6 @@
 
 ## 对当前整合任务的裁定
 
-现有 DI 用作真实运行实例和 DataView 上下文传递，不应因 demo 有 mock 就判定底层能力体系未使用。继续保持 `PAGE_RUNTIME → RendererTable/dataViewKey → DATA_SOURCE/DataRow → usePermission/DataView.fieldAccess` 一条链；权限依据仍是正式查询及 DataView，不把 ProjectBlueprint capability 元数据当授权键，不在 CapabilityContext 上再造业务数据网关或权限算法。后续整页业务恢复如果绕过标准组件绑定/手传数组，应记为具体消费者断点并修复该消费者，不另起一套能力系统。
+现有 DI 继续服务真实运行实例和 DataView 上下文传递，沿用 `PAGE_RUNTIME → RendererTable/dataViewKey → DATA_SOURCE/DataRow → usePermission/DataView.fieldAccess`；权限依据仍是正式查询及 DataView，不把 ProjectBlueprint capability 元数据当授权键，也不在 CapabilityContext 上再造业务数据网关或权限算法。**业务能力体系的整合状态未定**：应回到参考仓能力对象、页面、执行链及当前源码，按能力身份、输入输出、数据绑定、授权、调用、结果和失败状态逐项比对，再决定复用、接入 SPARK data 或记录缺口。不能先把 DI 机制当成业务能力实现。
 
 本次为只读源码审计：未改产品代码、未运行测试、未访问线上业务写接口。

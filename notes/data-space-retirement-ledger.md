@@ -2649,6 +2649,12 @@ flowchart TD
 - **真实 SPA 状态与剩余缺口：**本批没有在真实 SPA 中将 `ProjectToolVersion` 保存到正式 7AB 空间，也未关闭重开并从服务端读回；没有真实版本列表查询/操作烟测。因此不能声称 DevSystem 正式配置已完成或版本列表真实读回通过。后续通过 SPA 数据空间设计将资源登记到 7AB，保存并重开核对，再打开 DevSystem 验证标准 DataView 的实际查询与切换隔离。真实写入前不删除或改动已有模型。其他数据旁路继续按真实消费者和正式身份逐项收敛，整体 SPARK data 目标保持 active。
 - **本批数据与交付边界：**没有创建、删除或修改正式 SPA 数据，没有真实远端快照写入；不改 Java、不启动或部署后端。本地代码与本台账待收口提交/推送；版本删除权限及未知删除回执合同未具备，继续 fail closed。
 
+### 2026-10-28 ProjectToolVersion 正式登记与 DevSystem 烟测复核
+
+- **正式 SPA 登记结果（更新上节待验收状态）：**在已认证 D99 SPA 的数据空间目录中，以名称/ID 搜索命中功能管理空间 `7AB874097A1E8711A42FD845939A6E05`；使用模型目录的“新增工具文件版本目录”入口登记。设计器显示 `ProjectToolVersion`、6 个字段、1 个 `default` 视图，定义详情为 `resourceType=file`、`resourceId=project:tool-version`、`dataSetId=7AB...`，且无 `dataModelId/dataModelName`。点击“重新打开”后同一 7AB 定义仍显示该资源与字段/视图，证明本次正式 DataView 定义已由 SPARK data 设计链保存并服务端读回。无手改 pagedata、直接 API 或 Java 操作；先前中间生成的未配置画布占位节点在未提交时已取消。
+- **真实消费者烟测结果：**同一 SPA 内通过“开发工作台”导航进入 DevSystem，源码提交 `94d5b41e1` 已由本地运行版本加载。当前 `NewApp/D99A...` 蓝图的可选页面目标没有正式 `cfg:` 工具页：选中的“注册”节点目标为空，`开发交付`标签在 DOM 中为 disabled，版本按钮未挂载，所以无法触发真实 `ProjectToolVersion.default` 查询。没有新建工具、版本或测试业务数据来制造目标；没有写入远端快照。正式配置保存/读回通过，运行态版本列表查询、行权限呈现与页面/文件切换隔离仍待一个已有正式 `cfg:` 工具页目标后验收。
+- **代码交付复核：**实现与台账已提交并推送 `94d5b41e14d2323c7d3c03d0fdec88fc2563e676`（`codex/ai-data-entry`）；提交时工作树干净且 `HEAD` 与上游一致。ClassModel 生成、聚焦用例、typecheck、ESLint、`verify:class-model`、完整 `verify:rules`、production build、docs 与 diff check 结果见上节。版本删除持续 fail closed；SPARK data 全仓唯一通道整合仍 active。
+
 ### 2026-10-28 按数据空间设计补齐删除资源的 DataView 路线
 
 - **架构裁定（用户本轮确认）：**可以、并应通过数据空间设计补齐正式数据资源定义。先按真实业务身份补 DataTable、columns、DataView、查询参数和 executor 绑定，再让业务组件通过绑定视图消费查询与权限、调用 `DataView.removeRow()`，并由原 DataSet 提交和核验回执。清理的是页面/领域层第二套查询、编辑、取消、暂存或保存入口；owner 若只负责 DataView executor 内部的存储适配、范围校验或服务端回读，仍是 SPARK data 的内部实现，不能仅按类名删除。

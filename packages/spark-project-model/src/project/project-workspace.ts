@@ -14,7 +14,6 @@ import { PageContentLoader } from '../io/page-content-loader'
 import type {
   ProjectBlueprintTreeData,
   ProjectBlueprintTreeNodeData,
-  ProjectBlueprintNodePatch,
 } from '../blueprint/project-blueprint-node'
 import type { ProjectBlueprintGateway } from '../io/project-blueprint-client'
 import type { PageToolFileVersionSummary } from '../page/page-file'
@@ -39,10 +38,6 @@ import {
   normalizeBlueprintTree,
   resolvePageNodePageId,
 } from '../blueprint/project-blueprint-tree'
-import {
-  createBlueprintNodeDraft,
-  createBlueprintNodePatch,
-} from '../blueprint/project-blueprint-edit'
 
 /** Project Page Load Options 的调用配置。 */
 export type ProjectPageLoadOptions = {
@@ -536,50 +531,6 @@ ingestBlueprintTree(
     this.project.markPageLoadedChanged(page.pageId, true)
   }
 
-    /** 保存 Project Layout。 */
-async saveProjectLayout(options?: { skipReload?: boolean }): Promise<void> {
-    const root = this.project.rootNode
-    if (!root) throw new Error('项目蓝图根节点未加载')
-    if (root.id === `project-blueprint:${this.project.projectId}`) throw new Error('合成蓝图根仅供展示，不能作为持久资产保存')
-    const { patch } = createBlueprintNodePatch(createBlueprintNodeDraft(root.toNodeData()))
-    await this.requireBlueprintOperation('updateNode')(root.id, patch)
-    if (options?.skipReload === true) {
-      this.project.markBlueprintClean('root')
-      return
-    }
-    await this.reloadBlueprint({ selectedNodeId: this.project.session.session.selectedNodeId })
-  }
-
-async saveSelectedBlueprintNode(options?: { skipReload?: boolean }): Promise<void> {
-    let nodeId: string
-    let patch: ProjectBlueprintNodePatch
-
-    const workingDto = this.project.blueprintDraft
-    if (workingDto !== null) {
-      const result = createBlueprintNodePatch(workingDto)
-      nodeId = workingDto.node.nodeId
-      patch = result.patch
-    } else {
-      const node = this.requireSelectedNode('未选中蓝图节点，无法保存蓝图属性')
-      const result = createBlueprintNodePatch(createBlueprintNodeDraft(node))
-      nodeId = node.nodeId
-      patch = result.patch
-    }
-
-    if (nodeId === `project-blueprint:${this.project.projectId}`) throw new Error('合成蓝图根仅供展示，不能作为持久资产保存')
-    const treeKey = JSON.stringify(this.project.blueprintTree)
-    const draftKey = JSON.stringify(this.project.blueprintDraft)
-    const confirmed = await this.requireBlueprintOperation('updateNode')(nodeId, patch)
-    if(confirmed.nodeId!==nodeId || this.blueprintGroupKey(createBlueprintNodePatch(createBlueprintNodeDraft(confirmed)).patch)!==this.blueprintGroupKey(patch))throw new Error('PROJECT_BLUEPRINT_SAVE_UNCONFIRMED: 节点保存回读不一致')
-    if(JSON.stringify(this.project.blueprintTree)!==treeKey || JSON.stringify(this.project.blueprintDraft)!==draftKey)throw new Error('PROJECT_BLUEPRINT_EDIT_DURING_SAVE: 节点保存期间已发生编辑，保留当前草稿')
-    if (options?.skipReload === true) {
-      if(workingDto!==null)this.project.applyBlueprintNodeEdit(workingDto)
-      this.project.markBlueprintClean('node')
-      return
-    }
-    await this.reloadBlueprint({ selectedNodeId: nodeId })
-  }
-
 async ensureActivePageFilesLoaded(options?: ProjectPageLoadOptions): Promise<void> {
     const page = this.requireActivePage('无活动页面，无法加载页面文件')
     const loadOptions: { forceReload?: boolean } = {}
@@ -593,61 +544,6 @@ async loadPageFile(name: PageToolFileName, options?: ProjectPageLoadOptions): Pr
     const page = this.requireActivePage('无活动页面，无法加载页面文件')
     await this.loadSinglePageFile(page, name, { forceReload: options?.forceReload === true })
     this.project.markPageFileChanged(page.pageId, name)
-  }
-
-    /** 保存 Page File。 */
-async savePageFile(name: PageToolFileName): Promise<void> {
-    const page = this.requireActivePage('无活动页面，无法保存页面文件')
-    try {await this.savePageFileFromModel(page, name)}
-    finally {this.project.markPageFileChanged(page.pageId, name)}
-  }
-
-    /** 保存 Dirty Page Files。 */
-async saveDirtyPageFiles(): Promise<void> {
-    const recovering = this.unconfirmedToolSaves.size > 0
-    const targets = recovering ? [...this.unconfirmedToolSaves.values()] : [...this.project.design.pages].flatMap(page =>
-      page.getDirtyFileNames().map(name => ({page, name, text: page.getFileText(name)})))
-    for (const {page, name, text} of targets) {
-      try {await this.savePageFileFromModel(page, name, text)}
-      finally {this.project.markPageFileChanged(page.pageId,name)}
-    }
-  }
-
-    /** 保存 All。 */
-async saveAll(): Promise<void> {
-    await this.saveDirtyPageFiles()
-    await this.saveBlueprintFromSession()
-    await this.saveDirtyScenarioDefinitions()
-  }
-
-async addBlueprintNode(params: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }): Promise<ProjectBlueprintTreeNodeData> {
-    const node = await this.requireBlueprintOperation('addNode')(params)
-    await this.reloadBlueprint({ selectedNodeId: node.nodeId })
-    return node
-  }
-
-    /** 删除 Node。 */
-async deleteNode(nodeId: string): Promise<ProjectBlueprintTreeNodeData | null> {
-    const normalized = nodeId.trim()
-    if (!normalized) {
-      throw new Error('nodeId 不能为空')
-    }
-    const result = await this.requireBlueprintOperation('deleteNode')(normalized)
-    const root = await this.loadBlueprintRoot()
-    this.project.replaceBlueprintTree(root)
-    return result
-  }
-
-async moveMountedPage(nodeId: string, newParentId: string | null, index: number): Promise<ProjectBlueprintTreeNodeData> {
-    if (nodeId.trim().length === 0) {
-      throw new Error('nodeId must be a non-empty string')
-    }
-    const rootId = this.project.blueprintTree.nodeId
-    const parentId = newParentId ?? rootId
-    const wireParentId = parentId === `project-blueprint:${this.project.projectId}` ? null : parentId
-    const result = await this.requireBlueprintOperation('moveNode')(nodeId, wireParentId, index)
-    await this.reloadBlueprint({ selectedNodeId: nodeId })
-    return result
   }
 
 async listRemotePageVersions(filename: PageToolFileName): Promise<PageToolFileVersionSummary[]> {
@@ -696,8 +592,10 @@ notifyPageFileChanged(
     this.project.markPageFileChanged(pageId, filename)
   }
 
-async probeLink(url: string): Promise<{ embeddable: boolean; reason: string }> {
-    return this.requireBlueprintOperation('probeLink')(url)
+probeLink(url: string): Promise<{ embeddable: boolean; reason: string }> {
+    const probe = this.blueprintGateway.probeLink
+    if (!probe) throw new Error('当前平台未提供蓝图 probeLink 能力')
+    return probe(url)
   }
 
 async listReferenceProjects(): Promise<ProjectSummary[]> {
@@ -720,19 +618,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
       throw new Error('无法从项目节点解析出 pageId')
     }
     return pageId
-  }
-
-  private async saveBlueprintFromSession(): Promise<void> {
-    const blueprintDirty = this.project.session.blueprintDirty
-    if (!blueprintDirty) return
-
-    if (this.project.session.session.blueprintDirtyScope === 'root') {
-      await this.saveBlueprintNodes()
-      this.project.markBlueprintClean('root')
-      return
-    }
-    await this.saveSelectedBlueprintNode()
-    this.project.markBlueprintClean('node')
   }
 
   private async reloadBlueprint(options?: { selectedNodeId?: string | null }): Promise<ProjectBlueprintTreeData> {
@@ -772,37 +657,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     this.unconfirmedToolSaves.delete(pendingKey)
   }
 
-  private async savePageFileFromModel(page: PageTool, name: PageToolFileName, submittedText = page.getFileText(name)): Promise<void> {
-    const key = JSON.stringify([page.pageId, name])
-    if (this.pageFileSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存')
-    const check = () => {
-      if (this.disposed || this.project.findPageTool(page.pageId) !== page) throw new Error('PAGE_TOOL_SAVE_STALE: 原工具工作区已失效')
-    }
-    check()
-    this.pageFileSaves.add(key)
-    try {
-    const pending = this.unconfirmedToolSaves.get(key)
-    if (pending) {
-      const remote = await this.previewPageFileRemote(page.pageId, name); check()
-      const normalized = new PageTool({pageId: page.pageId}); normalized.hydrateFileText(name, remote)
-      if (normalized.getFileText(name) === pending.text) {
-        page.markFileSaved(name, pending.text); this.unconfirmedToolSaves.delete(key); this.clearPageCache(page.pageId, name)
-        return
-      }
-      if (normalized.getFileText(name) === pending.baseline) {
-        this.unconfirmedToolSaves.delete(key)
-        throw new Error(`PAGE_TOOL_SAVE_NOT_APPLIED: ${page.pageId}/${name} 原提交未应用；保留草稿，请显式重试保存`)
-      }
-      throw new Error(`PAGE_TOOL_CONFLICT: ${page.pageId}/${name} 远端与原提交及原基线均不一致；保留草稿，请核对后明确重新加载`)
-    }
-    const baseline = page.getSavedFileText(name)
-    try {await this.fileApi.saveFileContent(page.pageId, name, submittedText); check()}
-    catch (cause) {this.unconfirmedToolSaves.set(key, {page, name, text: submittedText, baseline}); throw cause}
-    page.markFileSaved(name, submittedText)
-    this.clearPageCache(page.pageId, name)
-    } finally {this.pageFileSaves.delete(key)}
-  }
-
   private clearPageCache(pageId: string, filename?: PageToolFileName): void {
     const normalized = pageId.trim()
     if (!normalized) return
@@ -814,62 +668,7 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     loader.clearPageCache(normalized)
   }
 
-  private requireBlueprintOperation<K extends Exclude<keyof ProjectBlueprintGateway, 'loadRoot'>>(name: K): NonNullable<ProjectBlueprintGateway[K]> {
-    const operation = this.blueprintGateway[name]
-    if (!operation) throw new Error(`当前平台未提供蓝图 ${name} 能力`)
-    return operation
-  }
-  private blueprintGroupKey(value:ProjectBlueprintNodePatch):string {
-    const texts=(record:Record<string,unknown>,keys:readonly string[]):Record<string,string>=>{
-      const result:Record<string,string>={}
-      for(const key of keys){const text=record[key];if(typeof text==='string' && text.trim())result[key]=text.trim()}
-      return result
-    }
-    const capability=texts(value.capability,['name','description','code','ownerId','deliveryStatus'])
-    const nav=value.navigation
-    const navigationTexts=nav ? texts(nav,['title','icon','target','mobileTarget','placement','openMode','displayMode','horizontalAlignment']) : {}
-    const horizontal=navigationTexts['horizontalAlignment']
-    if(horizontal)navigationTexts['horizontalAlignment']=horizontal.toLowerCase()
-    const navigation=nav ? {...navigationTexts,title:nav.title.trim() || value.capability.name.trim(),order:nav.order,publishInMenu:nav.publishInMenu,showChildren:nav.showChildren,beginGroup:nav.beginGroup} : undefined
-    const scenarioId=value.dataSpace?.scenarioId.trim()
-    const htmlDescription=value.prototype?.htmlDescription?.trim()
-    return JSON.stringify({kind:value.kind,capability,navigation,...(scenarioId ? {dataSpace:{scenarioId}} : {}),...(htmlDescription ? {prototype:{htmlDescription}} : {})})
-  }
   private async loadBlueprintRoot(): Promise<ProjectBlueprintTreeData> { return normalizeBlueprintTree(await this.blueprintGateway.loadRoot()) }
-  private async saveBlueprintNodes(): Promise<void> {
-    const submitted = this.project.blueprintTree
-    const submittedKey = JSON.stringify(submitted)
-    const server = await this.loadBlueprintRoot()
-    const flatten = (root: ProjectBlueprintTreeNodeData): ProjectBlueprintTreeNodeData[] => { const out:ProjectBlueprintTreeNodeData[]=[]; const visit=(node:ProjectBlueprintTreeNodeData,pid:string):void=>{ const {children,...data}=node;out.push({...data,parentNodeId:pid});for(const child of children ?? [])visit(child,node.nodeId) };if(root.nodeId===`project-blueprint:${this.project.projectId}`){for(const child of root.children ?? [])visit(child,'')}else visit(root,'');return out }
-    const desired = flatten(submitted)
-    const existing = flatten(server)
-    const byId = new Map(existing.map(node=>[node.nodeId,node]))
-    const desiredIds = new Set(desired.map(node=>node.nodeId))
-    for(const node of [...existing].reverse()) if(!desiredIds.has(node.nodeId)) await this.requireBlueprintOperation('deleteNode')(node.nodeId)
-    for(const node of desired) {
-      const previous=byId.get(node.nodeId)
-      const siblings=desired.filter(item=>item.parentNodeId===node.parentNodeId)
-      const index=siblings.findIndex(item=>item.nodeId===node.nodeId)
-      if(!previous) await this.requireBlueprintOperation('addNode')({parentId:node.parentNodeId || null,node,index})
-      else {
-        if(node.nodeId!==submitted.nodeId && (previous.parentNodeId!==node.parentNodeId || existing.filter(item=>item.parentNodeId===previous.parentNodeId).findIndex(item=>item.nodeId===node.nodeId)!==index)) await this.requireBlueprintOperation('moveNode')(node.nodeId,node.parentNodeId || null,index)
-      }
-    }
-    const currentById = new Map(flatten(await this.loadBlueprintRoot()).map(node=>[node.nodeId,node]))
-    for(const node of desired) {
-      const previous=currentById.get(node.nodeId)
-      if(!previous)throw new Error(`PROJECT_BLUEPRINT_SAVE_UNCONFIRMED: 节点未持久化 ${node.nodeId}`)
-      const {patch}=createBlueprintNodePatch(createBlueprintNodeDraft(node))
-      const before=createBlueprintNodePatch(createBlueprintNodeDraft(previous)).patch
-      if(this.blueprintGroupKey(before)!==this.blueprintGroupKey(patch))await this.requireBlueprintOperation('updateNode')(node.nodeId,patch)
-    }
-    const confirmed=await this.loadBlueprintRoot()
-    const semantic=(nodes:ProjectBlueprintTreeNodeData[]):string=>JSON.stringify(nodes.map(node=>({nodeId:node.nodeId,parentNodeId:node.parentNodeId,groups:this.blueprintGroupKey(createBlueprintNodePatch(createBlueprintNodeDraft(node)).patch)})))
-    if(semantic(flatten(confirmed))!==semantic(desired))throw new Error('PROJECT_BLUEPRINT_SAVE_UNCONFIRMED: 保存后蓝图回读不一致')
-    if(JSON.stringify(this.project.blueprintTree)!==submittedKey)throw new Error('PROJECT_BLUEPRINT_EDIT_DURING_SAVE: 保存期间蓝图已修改，保留当前草稿')
-    this.project.replaceBlueprintTree(confirmed,{selectedNodeId:this.project.session.session.selectedNodeId})
-  }
-
   private getSelectedNode(): ProjectBlueprintTreeNodeData | null {
     const selectedNodeId = this.project.session.session.selectedNodeId
     if (!selectedNodeId) return null

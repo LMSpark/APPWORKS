@@ -100,7 +100,6 @@ function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json'
   editor.project.getActivePage()?.markLoaded()
   editor.project.setActivePage('orders')
   vi.spyOn(editor, 'selectPage').mockResolvedValue()
-  vi.spyOn(editor, 'savePageFile').mockResolvedValue()
   vi.spyOn(editor.project, 'readDirtyProjection').mockReturnValue({
     dirtyFiles: new Set(dirtyFileNames),
     hasAnyFileDirty: dirtyFileNames.length > 0,
@@ -362,11 +361,11 @@ describe('preparePageDesignAgentRun', () => {
     expect(() => getters[0]?.('A')).toThrow('not prepared')
     expect(getters[1]?.('B')).toBe(editorB)
     expect(readPageDesignRunContext('B')?.pageId).toBe('orders')
-    expect(editorB.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editorB).toBe(false)
     releaseB()
     await expect(runB).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
-    expect(editorA.savePageFile).not.toHaveBeenCalled()
-    expect(editorB.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editorA).toBe(false)
+    expect('savePageFile' in editorB).toBe(false)
     expect(readPageDesignRunContext('B')).toBeUndefined()
     expect(() => getters[1]?.('B')).toThrow('not prepared')
   })
@@ -384,7 +383,7 @@ describe('preparePageDesignAgentRun', () => {
     await expect(host.run('pageDesign', {} as JsonParams)).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
 
     expect(editor.selectPage).toHaveBeenCalledWith('orders', { forceReload: true })
-    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
   })
 
   it.each([[], ['unknown.json'], ['script.js', 'unknown.json'], [17], ['script.js', null],
@@ -395,7 +394,7 @@ describe('preparePageDesignAgentRun', () => {
       args: { pageId: 'orders' } }, {} as AiAgentHost)
     await expect(host.run('pageDesign', { deliverySaveFileNames: value })).rejects.toThrow('PAGE_DESIGN_SAVE_SCOPE_INVALID')
     expect(mocks.delegateHost.run).not.toHaveBeenCalled()
-    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
     expect(readPageDesignRunContext('orders')).toBeUndefined()
   })
 
@@ -405,22 +404,21 @@ describe('preparePageDesignAgentRun', () => {
     const host = await preparePageDesignAgentRun({ requestId: 'valid-scope', alias: 'pageDesign',
       args: { pageId: 'orders' } }, {} as AiAgentHost)
     await expect(host.run('pageDesign', { deliverySaveFileNames: ['script.js'] })).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
-    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
   })
 
   it('rejects an explicit empty inline delivery scope without writing', async () => {
     const editor = createEditor(['rule.json', 'script.js'])
     const port = createPageDesignInlineDeliveryPort({ autoSave: true, saveFileNames: [] })
     await expect(port.save({ editor, pageId: 'orders' })).rejects.toThrow('PAGE_DESIGN_SAVE_SCOPE_INVALID')
-    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
   })
 
   it('fails closed for inline autoSave when no active file DataView callback is bound',async()=>{
     const editor=createEditor(['script.js'])
-    const saveDirty=vi.spyOn(editor,'saveDirtyPageFiles')
+    expect('saveDirtyPageFiles' in editor).toBe(false)
     await expect(createPageDesignInlineDeliveryPort({autoSave:true}).save({editor,pageId:'orders'})).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
-    expect(editor.savePageFile).not.toHaveBeenCalled()
-    expect(saveDirty).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
   })
 
   it('does not save and reports dirty artifacts when Agent Run fails', async () => {
@@ -442,7 +440,7 @@ describe('preparePageDesignAgentRun', () => {
     }
 
     expect(thrown).toBeInstanceOf(Error)
-    expect(editor.savePageFile).not.toHaveBeenCalled()
+    expect('savePageFile' in editor).toBe(false)
     expect(readAiDeliveryErrorExtras(thrown)?.delivery).toMatchObject({
       mode: 'auto',
       status: 'skipped',

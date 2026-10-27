@@ -80,7 +80,7 @@ function createEditor(projectId = 'hr-enterprise-planning-smoke'): ProjectWorksp
     ],
   })
   vi.spyOn(editor, 'loadBlueprint').mockResolvedValue(editor.project.blueprintTree)
-  vi.spyOn(editor, 'saveAll').mockResolvedValue()
+  expect('saveAll' in editor).toBe(false)
   return editor
 }
 
@@ -200,7 +200,7 @@ describe('prepareProjectPlanningAgentRun', () => {
 
     const result = await host.run('projectPlanning', {} as JsonParams)
 
-    expect(editor.saveAll).not.toHaveBeenCalled()
+    expect('saveAll' in editor).toBe(false)
     expect(result.resultExtras?.['delivery']).toEqual({
       mode: 'auto',
       status: 'skipped',
@@ -232,7 +232,7 @@ describe('prepareProjectPlanningAgentRun', () => {
 
     await expect(host.run('projectPlanning', {} as JsonParams)).rejects.toThrow(/没有获准的 Base_NavigationInfo DataView 命令上下文/iu)
 
-    expect(editor.saveAll).not.toHaveBeenCalled()
+    expect('saveAll' in editor).toBe(false)
   })
 
   it('rolls back delivery metadata when run fails', async () => {
@@ -266,7 +266,7 @@ describe('prepareProjectPlanningAgentRun', () => {
     }
 
     expect(thrown).toBeInstanceOf(Error)
-    expect(editor.saveAll).not.toHaveBeenCalled()
+    expect('saveAll' in editor).toBe(false)
     expect(readAiDeliveryErrorExtras(thrown)?.delivery).toEqual({
       mode: 'auto',
       status: 'rolledBack',

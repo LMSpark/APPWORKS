@@ -11323,7 +11323,7 @@
         "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "io/project-blueprint-client",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：正式蓝图节点读取与增改删移动网关。\n边界：按节点身份提交真实操作，不进行整树伪同步。\nAI用途：确认Workspace远端蓝图保存所需能力。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：正式蓝图根读取与链接可嵌入性检查网关。\n边界：蓝图 CRUD 由正式 DataView/DataSet 负责，不由 ProjectWorkspace 直写。\nAI用途：确认Workspace蓝图读取和链接检查所需能力。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LinkProbeResult",

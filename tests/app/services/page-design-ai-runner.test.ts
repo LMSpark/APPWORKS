@@ -67,7 +67,7 @@ describe('runPageDesignAiSession delivery', () => {
 
   it('keeps dirty page files unsaved by default', async () => {
     const editor = createEditor()
-    const saveDirtyPageFiles = vi.spyOn(editor, 'saveDirtyPageFiles').mockResolvedValue()
+    expect('saveDirtyPageFiles' in editor).toBe(false)
     const adapter = createAdapter(vi.fn(async () => {
       editor.project.writePageFile({ fileName: 'script.js', text: 'export default {}' })
       return 'completed' as const
@@ -80,7 +80,6 @@ describe('runPageDesignAiSession delivery', () => {
       adapter,
     })
 
-    expect(saveDirtyPageFiles).not.toHaveBeenCalled()
     expect(result.dirtyFileNames).toEqual(['script.js'])
     expect(result.savedDirtyFileNames).toEqual([])
   })
@@ -111,7 +110,7 @@ describe('runPageDesignAiSession delivery', () => {
 
   it('keeps dirty state for manual inspection when the inline run fails', async () => {
     const editor = createEditor()
-    const saveDirtyPageFiles = vi.spyOn(editor, 'saveDirtyPageFiles').mockResolvedValue()
+    expect('saveDirtyPageFiles' in editor).toBe(false)
     const adapter = createAdapter(vi.fn(async () => {
       editor.project.writePageFile({ fileName: 'script.js', text: 'export default {}' })
       throw new Error('run failed')
@@ -124,7 +123,6 @@ describe('runPageDesignAiSession delivery', () => {
       adapter,
     })).rejects.toThrow(/run failed/u)
 
-    expect(saveDirtyPageFiles).not.toHaveBeenCalled()
     expect(Array.from(editor.project.readDirtyProjection().dirtyFiles)).toEqual(['script.js'])
   })
 })

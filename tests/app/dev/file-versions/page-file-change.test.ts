@@ -10,7 +10,7 @@ describe('checked tool file changes', () => {
     expect(writes).toBe(1)
   })
 
-  it('prevents competing saves through the existing active-page entry while a checked change is pending', async () => {
+  it('serializes concurrent checked changes for one tool file', async () => {
     let rule = '{"type":"r-text"}', finish = () => {}, writes = 0
     const waiting = new Promise<void>(resolve => {finish = resolve})
     const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({})}, pageFiles: {
@@ -19,7 +19,7 @@ describe('checked tool file changes', () => {
     }})
     await workspace.selectPage('TOOL')
     const saving = workspace.savePageFileChange({pageId: 'TOOL', fileName: 'rule.json', expectedText: rule, text: '{"type":"r-table"}'})
-    await expect(workspace.savePageFile('rule.json')).rejects.toThrow(/正在保存/)
+    await expect(workspace.savePageFileChange({pageId: 'TOOL', fileName: 'rule.json', expectedText: rule, text: '{"type":"r-button"}'})).rejects.toThrow(/正在保存/)
     finish(); await saving
     expect(writes).toBe(1); expect(workspace.getActivePageTool()!.rule.children[0]?.type).toBe('r-table')
     expect(workspace.getActivePageTool()!.isDirty()).toBe(false)

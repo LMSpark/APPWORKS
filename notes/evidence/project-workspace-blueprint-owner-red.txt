@@ -1,0 +1,56 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ packages/spark-project-model/tests/io/navigation-tree-sync.test.ts (10 tests | 2 failed | 8 skipped) 18ms
+     × does not expose legacy blueprint mutation methods on ProjectWorkspace 10ms
+     × does not submit a blueprint tree through ProjectWorkspace.saveAll 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/io/navigation-tree-sync.test.ts > workspace formal blueprint saving > does not expose legacy blueprint mutation methods on ProjectWorkspace
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/spark-project-model/tests/io/navigation-tree-sync.test.ts:22:41
+     20|     const f=fixture([node('a')])
+     21|     expect(['addBlueprintNode','deleteNode','moveMountedPage','savePro…
+     22|       .some(name=>name in f.workspace)).toBe(false)
+       |                                         ^
+     23|   })
+     24|   it('does not submit a blueprint tree through ProjectWorkspace.saveAl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/spark-project-model/tests/io/navigation-tree-sync.test.ts > workspace formal blueprint saving > does not submit a blueprint tree through ProjectWorkspace.saveAll
+AssertionError: expected [ 'update:a' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "update:a",
++ ]
+
+ ❯ packages/spark-project-model/tests/io/navigation-tree-sync.test.ts:28:21
+     26|     f.workspace.project.replaceBlueprintChildren([{...node('a'),capabi…
+     27|     await f.workspace.saveAll()
+     28|     expect(f.calls).toEqual([])
+       |                     ^
+     29|     expect(f.workspace.project.blueprintDirty).toBe(true)
+     30|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 skipped (10)
+   Start at  05:55:03
+   Duration  4.07s (transform 1.59s, setup 206ms, import 2.02s, tests 18ms, environment 1.38s)
+

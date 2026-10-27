@@ -62,14 +62,6 @@ export function isDevStatePageDocumentDirty(state: DevState, name: PageToolFileN
   return state.project.readDirtyProjection().dirtyFiles.has(name)
 }
 
-export async function saveDevStatePageDocument(
-  state: DevState,
-  name: PageToolFileName,
-): Promise<void> {
-  if (!alignDevStateActivePage(state)) return
-  await state.editor.savePageFile(name)
-}
-
 export function createDevStateWithConfigPages(
   pages: readonly DevStateTestPage[] = ORDERS_PAGE_FIXTURE,
   activePageId = 'orders-page',

@@ -3299,7 +3299,7 @@
     "packages/spark-project-model/src/io/project-blueprint-client.ts": {
       "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
       "shardFile": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json",
-      "sourceModifiedAt": "2026-10-06T20:59:31.328Z"
+      "sourceModifiedAt": "2026-10-27T21:55:33.086Z"
     },
     "packages/spark-project-model/src/io/project-reference-client.ts": {
       "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
@@ -3369,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:04:08.828Z"
+      "sourceModifiedAt": "2026-10-27T21:59:14.208Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:04:08.830Z"
+      "sourceModifiedAt": "2026-10-27T21:55:58.724Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4124,7 +4124,7 @@
     "src/services/page-design/page-design-operation-guard.ts": {
       "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
       "shardFile": "files/src/services/page-design/page-design-operation-guard.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:04:08.832Z"
+      "sourceModifiedAt": "2026-10-27T21:59:45.693Z"
     },
     "src/services/project-model-artifacts/index.ts": {
       "sourceFile": "src/services/project-model-artifacts/index.ts",
@@ -4869,7 +4869,7 @@
     "src/views/tenant/AppList.vue": {
       "sourceFile": "src/views/tenant/AppList.vue",
       "shardFile": "files/src/views/tenant/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-07T08:37:01.996Z"
+      "sourceModifiedAt": "2026-10-27T21:38:00.176Z"
     },
     "src/views/tenant/AppProjectSettingsDialog.vue": {
       "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",

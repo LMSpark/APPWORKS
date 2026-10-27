@@ -225,7 +225,7 @@ describe('runProjectPlanningAiSession', () => {
   it('does not submit a dirty blueprint through ProjectWorkspace delivery', async () => {
     const editor = createEditor('demo')
     const aiHost = createAiHost()
-    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    expect('saveAll' in editor).toBe(false)
     editor.project.replaceBlueprintChildren([
       {
         nodeId: 'orders', parentNodeId: 'homepage_root', projectId: editor.project.projectId, kind: 'page',
@@ -239,14 +239,13 @@ describe('runProjectPlanningAiSession', () => {
       saveBlueprintAfterRun: true,
     })).rejects.toThrow(/没有获准的 Base_NavigationInfo DataView 命令上下文/iu)
 
-    expect(saveAll).not.toHaveBeenCalled()
     expect(editor.project.blueprintDirty).toBe(true)
   })
 
-  it('reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll', async () => {
+  it('reports DataView receipt as saved without exposing ProjectWorkspace.saveAll', async () => {
     const editor = createEditor('demo')
     editor.project.markBlueprintClean('root')
-    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    expect('saveAll' in editor).toBe(false)
     let current = editor.project.blueprintTree
     const owner = {
       projectId: 'demo', hasTreeProjection: true, dirty: false,
@@ -281,7 +280,6 @@ describe('runProjectPlanningAiSession', () => {
       .rejects.toThrow(/later plan change was refused|后续计划变更已拒绝/iu)
 
     expect(owner.addChildNode).toHaveBeenCalledOnce()
-    expect(saveAll).not.toHaveBeenCalled()
   })
 
   it('submits several independent leaves under one existing parent as one DataView batch', async () => {
@@ -412,7 +410,7 @@ describe('runProjectPlanningAiSession', () => {
   it('keeps DataView receipt pending even when dirtyTracking is clear', async () => {
     const editor = createEditor('demo')
     editor.project.markBlueprintClean('root')
-    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    expect('saveAll' in editor).toBe(false)
     const current = editor.project.blueprintTree
     let pending = false
     const owner = {
@@ -436,7 +434,6 @@ describe('runProjectPlanningAiSession', () => {
       .rejects.toThrow(/DataView 命令仍待核验/iu)
 
     expect(owner.addChildNode).toHaveBeenCalledOnce()
-    expect(saveAll).not.toHaveBeenCalled()
     expect(pending).toBe(true)
   })
 
@@ -444,7 +441,7 @@ describe('runProjectPlanningAiSession', () => {
     const editor = createEditor('demo')
     const originalTree = editor.project.blueprintTree
     editor.project.markBlueprintClean('root')
-    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    expect('saveAll' in editor).toBe(false)
     mocks.projectPlanningRun.mockImplementationOnce(async () => {
       const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as {
         getProjectPlanningEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
@@ -462,7 +459,6 @@ describe('runProjectPlanningAiSession', () => {
 
     expect(editor.project.blueprintTree).toEqual(originalTree)
     expect(editor.project.blueprintDirty).toBe(false)
-    expect(saveAll).not.toHaveBeenCalled()
   })
 
   it('creates an isolated host per run when none is injected', async () => {

@@ -23,7 +23,6 @@ const httpFns = vi.hoisted(() => ({
   put: vi.fn(),
   post: vi.fn(),
   delete: vi.fn(),
-  blueprintDeleteNode: vi.fn(),
   clearCache: vi.fn(),
   scopeToken: 'fixture-token',
   interceptors: {
@@ -124,11 +123,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       },
       blueprint: {
         loadRoot: async () => httpFns.get(blueprintKey),
-        updateNode: async (id: string, patch: unknown) => {
-          const response = await httpFns.put(`${blueprintKey}:nodes:${id}`, patch)
-          return response.node ?? response
-        },
-        deleteNode: async (id:string) => {await httpFns.blueprintDeleteNode(id)},
       },
       projectReferences: {
         listProjects: async () => [],
@@ -1198,12 +1192,11 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeFromTree({parent:{data:root}},{...leaf})
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalled()
-      expect(deleteNode).not.toHaveBeenCalled()
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true)
@@ -1217,12 +1210,11 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeFromTree({parent:{data:deniedRoot}},{...deniedRoot.children![0]!})
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
-      expect(deleteNode).not.toHaveBeenCalled()
       expect(httpFns.delete).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
 
@@ -1236,12 +1228,11 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeFromTree({parent:{data:root}},{...parent})
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
-      expect(deleteNode).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
   })
 
@@ -1252,12 +1243,11 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeFromTree({parent:{data:root}},{...leaf,projectId:'OTHER-PROJECT'})
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
-      expect(deleteNode).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
   })
 
@@ -1269,13 +1259,12 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       state.removeNodeFromTree({parent:{data:root}},{...leaf})
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalled()
-      expect(deleteNode).not.toHaveBeenCalled()
       expect(owner.hasUnconfirmedSave).toBe(true)
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
       expect(httpFns.delete).not.toHaveBeenCalled()
@@ -1285,7 +1274,6 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added).toEqual([])
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.changed).toEqual([])
-      expect(deleteNode).not.toHaveBeenCalled()
       expect(owner.hasUnconfirmedSave).toBe(false)
       const refreshed=await owner.loadProjectTree()
       expect(refreshed.children?.some(item=>item.nodeId==='LEAF-A')).toBe(false)
@@ -1426,7 +1414,7 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      const deleteNode=vi.spyOn(getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'}),'deleteNode').mockResolvedValue(null)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       state.removeNodeFromTree({parent:{data:root}},{...leaf})
@@ -1434,7 +1422,6 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.save).toHaveBeenCalledTimes(1)
       expect(owner.view.dirtyTracking.hasPendingChanges('LEAF-FAIL')).toBe(true)
       expect(owner.dirty).toBe(true)
-      expect(deleteNode).not.toHaveBeenCalled()
 
       const refreshed=await owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
       expect(fixture.save).toHaveBeenCalledTimes(2)
@@ -1456,7 +1443,7 @@ describe('DevState 页面文件闭环', () => {
       expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       state.removeNodeFromTree({parent:{data:root}},{...mounted})
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true))
-      expect(httpFns.blueprintDeleteNode).not.toHaveBeenCalled()
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(fixture.save).toHaveBeenCalled()
     } finally {ownerScope.stop()}

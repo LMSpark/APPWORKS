@@ -593,40 +593,6 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     },
     blueprint: {
       loadRoot: () => readLowcodeProjectBlueprintEditorTree(normalizedProjectId),
-      addNode: async params => {
-        toolFilePath(normalizedProjectId, params.node.nodeId)
-        const record = await lowcodeApi.blueprint.createNode(normalizedProjectId, {
-          ...params.node, parentNodeId: params.parentId ?? '',
-        })
-        return projectBlueprintRecordNode(record, new Map())
-      },
-      updateNode: async (id, patch) => {
-        toolFilePath(normalizedProjectId, id)
-        const records = await lowcodeApi.blueprint.readRecords(normalizedProjectId)
-        const before = records.find(record => record.nodeId === id)
-        if (!before) throw new Error('蓝图节点不存在')
-        const record = await lowcodeApi.blueprint.updateNode(normalizedProjectId, { ...before, ...patch })
-        return projectBlueprintRecordNode(record, new Map())
-      },
-      deleteNode: async id => {
-        toolFilePath(normalizedProjectId, id)
-        return projectBlueprintRecordNode(await lowcodeApi.blueprint.deleteNode(normalizedProjectId, id), new Map())
-      },
-      moveNode: async (id, parentId, index) => {
-        toolFilePath(normalizedProjectId, id)
-        if (!Number.isSafeInteger(index) || index < 0) throw new Error('蓝图位置必须为非负整数')
-        const records = await lowcodeApi.blueprint.readRecords(normalizedProjectId)
-        if (!records.some(record => record.nodeId === id)) throw new Error('移动节点不存在')
-        if (parentId && !records.some(record => record.nodeId === parentId)) throw new Error('移动目标父节点不存在')
-        const byId = new Map(records.map(record => [record.nodeId, record]))
-        let ancestor = parentId
-        while (ancestor) {
-          if (ancestor === id) throw new Error('不能将节点移到自身子树')
-          ancestor = byId.get(ancestor)?.parentNodeId ?? null
-        }
-        const moved = await lowcodeApi.blueprint.updateNodeFields(normalizedProjectId, id, { prowid: parentId ?? '000000', FunOrderValue: index })
-        return projectBlueprintRecordNode(moved, new Map())
-      },
     },
     projectReferences: {
       listProjects: async () => (await lowcodeApi.platform.listApplications()).map((application) => ({

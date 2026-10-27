@@ -1330,10 +1330,10 @@ describe('ProjectWorkspace scenario files', () => {
     expect(file.isDirty).toBe(true)
     expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
   })
-  it('rejects a legacy file-only draft in save-all without silently saving or dropping it',async()=>{
+  it('rejects a legacy file-only draft when saving scenario definitions without silently saving or dropping it',async()=>{
     const {workspace,writeText}=workspaceFixture();const file=await workspace.loadScenarioViews({scenarioId:'UNIT-SCENE'});file.setText(fixture(55))
     expect(workspace.dirtyScenarioIds).toEqual(['UNIT-SCENE'])
-    await expect(workspace.saveAll()).rejects.toThrow('SCENARIO_DEFINITION_UNAVAILABLE')
+    await expect(workspace.saveDirtyScenarioDefinitions()).rejects.toThrow('SCENARIO_DEFINITION_UNAVAILABLE')
     expect(writeText).not.toHaveBeenCalled();expect(file.getText()).toBe(fixture(55))
     expect(workspace.dirtyScenarioIds).toEqual(['UNIT-SCENE'])
   })

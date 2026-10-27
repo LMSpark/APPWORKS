@@ -62,27 +62,17 @@ describe('guardPageDesignEditor', () => {
     expect(guarded.project.readPlanningProjection()).toEqual([])
   })
 
-  it('denies direct blueprint gateway writes even when blueprint operations are allowed', async () => {
+  it('does not expose ProjectWorkspace blueprint write methods', async () => {
     const root: ProjectBlueprintTreeData = { nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }
     const gateway: ProjectBlueprintGateway = {
       loadRoot: vi.fn(async () => root),
-      addNode: vi.fn(async ({ node }: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }) => node),
-      updateNode: vi.fn(async (id, patch) => ({ ...root, ...patch, nodeId: id })),
-      deleteNode: vi.fn(async () => null),
-      moveNode: vi.fn(async (id: string) => ({ ...root, nodeId: id })),
     }
     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' }, blueprint: gateway })
     editor.project.replaceBlueprintTree(root)
     const guarded = guardPageDesignEditor(editor, { blueprint: true })
-    expect(() => guarded.addBlueprintNode({ node: root })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.saveProjectLayout()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.deleteNode('n')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.moveMountedPage('n', null, 0)).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.saveSelectedBlueprintNode()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(gateway.addNode).not.toHaveBeenCalled()
-    expect(gateway.updateNode).not.toHaveBeenCalled()
-    expect(gateway.deleteNode).not.toHaveBeenCalled()
-    expect(gateway.moveNode).not.toHaveBeenCalled()
+    for (const name of ['addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode']) {
+      expect(name in editor, name).toBe(false)
+    }
     expect(() => guarded.loadBlueprint()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
     expect(() => guarded.previewBlueprintRemote()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
     expect(gateway.loadRoot).not.toHaveBeenCalled()
@@ -103,8 +93,9 @@ describe('guardPageDesignEditor', () => {
     const page = guarded.project.openPageDesign('orders')
     guarded.project.setActivePage('orders')
     expect(() => page.setFileText('script.js', 'draft')).not.toThrow()
-    expect(() => guarded.savePageFile('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.saveDirtyPageFiles()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect('savePageFile' in editor).toBe(false)
+    expect('saveDirtyPageFiles' in editor).toBe(false)
+    expect('saveAll' in editor).toBe(false)
     expect(() => guarded.savePageFileChange({ pageId: 'orders', fileName: 'script.js', expectedText: '', text: 'x' })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
     expect(() => guarded.createRemotePageVersion('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
     expect(() => guarded.restoreRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')

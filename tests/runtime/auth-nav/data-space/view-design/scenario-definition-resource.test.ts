@@ -197,7 +197,7 @@ describe('formal definition resources through SPARK data', () => {
       await view.refresh()
       view.updateEditingValue(view.getPkKey(target(view))!, 'pageSize', 61)
       expect(workspace.dirtyScenarioIds).toEqual(['TARGET'])
-      await workspace.saveAll()
+      await workspace.saveDirtyScenarioDefinitions()
       expect(storage.writes).toHaveLength(1)
       expect(workspace.dirtyScenarioIds).toEqual([])
       const reopened = storage.open()

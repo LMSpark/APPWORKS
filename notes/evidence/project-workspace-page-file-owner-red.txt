@@ -1,0 +1,32 @@
+Command: pnpm exec vitest run packages/spark-project-model/tests/io/navigation-tree-sync.test.ts
+
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ packages/spark-project-model/tests/io/navigation-tree-sync.test.ts (2 tests | 1 failed) 15ms
+     × does not expose ProjectWorkspace direct page file write or aggregate save methods 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/io/navigation-tree-sync.test.ts > ProjectWorkspace blueprint write boundary > does not expose ProjectWorkspace direct page file write or aggregate save methods
+AssertionError: savePageFile: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/spark-project-model/tests/io/navigation-tree-sync.test.ts:28:36
+     26|     const {editor} = workspace()
+     27|     for (const name of ['savePageFile', 'saveDirtyPageFiles', 'saveAll…
+     28|       expect(name in editor, name).toBe(false)
+       |                                    ^
+     29|     }
+     30|   })
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  05:58:48
+   Duration  4.06s (transform 1.61s, setup 205ms, import 2.03s, tests 15ms, environment 1.37s)

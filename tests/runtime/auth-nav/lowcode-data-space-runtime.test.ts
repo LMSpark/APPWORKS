@@ -175,7 +175,7 @@ describe('host scenario file request wiring', () => {
     }
   })
 
-  it('saves tool working files and restores filename snapshots without changing the snapshot', async () => {
+  it('restores filename snapshots without changing the snapshot or exposing a direct working-file save', async () => {
     const workspace = sceneWorkspace()
     const snapshot = '\uFEFFconst value = "历史";\r\n'
     const files = new Map([['3__script.js', snapshot]])
@@ -210,10 +210,7 @@ describe('host scenario file request wiring', () => {
     })
     const page = workspace.project.openPageDesign('orders')
     workspace.project.setActivePage('orders')
-    page.setFileText('script.js', 'working')
-    await workspace.savePageFile('script.js')
-    expect(page.script.isDirty).toBe(false)
-    expect(files.get('script.js')).toBe('working')
+    expect('savePageFile' in workspace).toBe(false)
 
     await workspace.restoreRemotePageVersion(3, 'script.js')
     expect(files.get('script.js')).toBe(snapshot)
@@ -221,8 +218,7 @@ describe('host scenario file request wiring', () => {
     expect(page.script.text).toBe(snapshot)
     expect(page.script.isDirty).toBe(false)
     expect(requests.map(request => request.url)).toEqual([
-      '/api/File/UploadFile', '/api/File/DownFile', '/api/File/DownFile',
-      '/api/File/UploadFile', '/api/File/DownFile', '/api/File/content/text',
+      '/api/File/DownFile', '/api/File/UploadFile', '/api/File/DownFile', '/api/File/content/text',
     ])
   })
 
@@ -310,18 +306,12 @@ describe('host scenario file request wiring', () => {
     },
   )
 
-  it('keeps a failed tool working-file readback dirty', async () => {
+  it('does not expose direct working-file save for an unsaved editor draft', async () => {
     const workspace = sceneWorkspace()
     const page = workspace.project.openPageDesign('orders')
     workspace.project.setActivePage('orders')
     page.setFileText('script.js', 'submitted')
-    transport.request.mockImplementation(async (config: RequestConfig) => ({
-      data: config.url === '/api/File/UploadFile'
-        ? { Code: 200, Result: [{ state: 'success' }] }
-        : new ArrayBuffer(0),
-      status: 200, statusText: 'OK', headers: {},
-    }))
-    await expect(workspace.savePageFile('script.js')).rejects.toThrow('回读不一致')
+    expect('savePageFile' in workspace).toBe(false)
     expect(page.script.isDirty).toBe(true)
     expect(page.script.text).toBe('submitted')
   })

@@ -23,15 +23,14 @@ const METHOD_DOMAINS: Readonly<Record<string, OperationDomain>> = {
 
 const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'getScenarioViews', 'saveScenarioViews',
   'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
-  'createScenarioVersion', 'restoreScenarioVersion', 'saveAll', 'saveDirtyScenarioDefinitions', 'dispose'])
+  'createScenarioVersion', 'restoreScenarioVersion', 'saveDirtyScenarioDefinitions', 'dispose'])
 
 const RAW_BLUEPRINT_READ_METHODS=new Set(['loadBlueprint','previewBlueprintRemote'])
 
 // PageDesign model_script may inspect/project locally, but delivery writes belong to the
 // workspace's existing DataView and unified delivery owners, never to this proxy.
 const DELIVERY_WRITE_METHODS = new Set([
-  'addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode',
-  'saveBlueprintFromSession', 'saveBlueprintNodes', 'savePageFileChange', 'savePageFile', 'saveDirtyPageFiles',
+  'savePageFileChange',
   'restoreRemotePageVersion', 'createRemotePageVersion',
 ])
 

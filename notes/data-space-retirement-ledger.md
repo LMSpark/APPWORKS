@@ -2254,3 +2254,11 @@ flowchart TD
 - **TDD与自动化验证：**RED 原始证据 `notes/evidence/project-blueprint/navhost-project-switch.RED.txt` 记录旧页头允许自由输入项目 ID 的失败断言。目标测试 4 文件 **71/71 passed**；覆盖 NavHost 映射、不可读字段、宿主缺失/歧义、候选主键与值重复、已点击行重新解析、`selectPid` 明确拒绝，以及 DevSystem 导航 dirty/unknown 生命周期守卫。改动文件 ESLint、`pnpm run typecheck`、`pnpm run build`、完整 `pnpm run verify:rules` 与 `git diff --check` 通过。AI 模型扫描保留既有 2 warnings / 1 info；build 有仓库依赖 `#__PURE__` 注释、CodeMirror 动态导入及大 chunk 警告；未发现由本改动导致的失败。ClassModel 无新增公开合同。
 - **真实 SPA 烟测：**先观察到登录错误提示，随后 SPA 异步进入已认证应用列表，登录态显示王涛。通过已知路由 `.../t/NewApp/D99A1DCE9894698799101EFD70F8FC76/dev?__sparkNavigationId=appworks-tool-dev` 打开 DevSystem；蓝图显示 41 页面。NavHost 关系 DataView 按该路由导航身份查询后返回 0 行，界面明确提示“当前导航未配置项目切换关系”，项目选择入口保持关闭。未猜测替代导航身份、未创建/修改关系、未触发候选读取或项目切换；故真实成功切换、目标 ProjectWorkspace 装载及旧 owner 释放仍未验收，没有业务数据或配置写入。需先在正式 NavHost 配置中为该导航提供有效平面项目关系。
 - **当前状态：**本切片实现和自动化门禁通过；真实 SPA 已证实“宿主关系缺失时关闭项目选择”的 fail-closed 路径，成功切换路径因无对应关系未验收。代码已提交并推送；开发工作台整体蓝图整合仍 active，Planning/PageDesign gateway 树输入、更新后读回、多节点保存、桌面显示关联及 AI 填表等既有缺口不因本切片关闭。
+
+### 2026-10-27 NavHost `selectPid` 层级候选继续实施
+
+- **参考合同：**定位到参考仓 `packages/ui/domain/admin-shell/src/data-directory/catalog.ts` 与 `navigation-context-selector.vue`。`selectPid` 映射候选资源中的 parent ID 字段；配置时以 `{id, text, pid}` 建树并用树选择器呈现；所选 ID 仍是 `selectValParam` 映射值，文本来自 `selectTextParam`。本仓适配只切换当前 `ProjectWorkspace`，不照搬参考仓把 route query 当作 DevSystem 项目切换。
+- **复用/纠正：**仓内正式 `RendererTree` 绑定 DataView，使用 DataView `treeConfig` 构造/呈现树并通过标准树事件维护选中行；先按 ClassModel 与实际运行合同复核。参考 `buildCatalogTree` 对重复 ID 覆盖、孤儿提升根节点、循环链路消失，本仓实现必须检测并关闭异常层级，不能复制这类缺陷。
+- **当前工作：**低价模型实施者受托检查参考合同并 TDD 实现完整 `selectPid`；需求简报 `notes/evidence/project-blueprint/navhost-project-hierarchy-brief.md`。仅允许修改选择器子目录、对应测试与 RED/GREEN 证据，主控复核。不得写线上配置或业务数据，不改 Java。
+- **真实环境限制：**`appworks-tool-dev` 当前正式 NavHost 关系 DataView 为 0 行；实现中层级成功路径用自动化合同验证，不把它伪报为真实 SPA 成功。有效配置读回后再做成功切换烟测。
+- **状态：**层级实现进行中；按用户要求中间台账与成果分段提交推送。整体目标仍 active。

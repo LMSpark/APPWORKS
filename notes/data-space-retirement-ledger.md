@@ -1,15 +1,16 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-28；已提交产品代码基线 `5d0bce744`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；已提交产品代码基线 `dc224944f`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `3c20be5e5`）
+## 当前源码状态（2026-10-28，产品代码基线 `dc224944f`）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
 | PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；本轮 SPA 已认证但只打开数据空间设计器，PageDesign 真实 Agent 运行/消费烟测未做。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
 | Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读。WorkflowDesigns 页面通过同一 PageRuntime/DataSet 的完整绑定消费目录与正文 DataView；AI activation 经 `readWorkflowDefinition()` 消费 definition DataView。`LowcodeApi.design.listFiles/readTextFile` 仅在正式文件 resource executor 内作存储适配。 | 同一 SPA 从正式目录重开设计器并读到模型与视图。`directory` 真实只读 DataView 查询先返回 `LowcodeApiError(name=LowcodeApiError, code=1003, message='[1003] 文件夹路径不存在')`；最终实现精确接受此运行时消息及原始裸消息，拒绝其它错误。最新代码下查询显示 `Loaded`、行数 0、总数 0。Workflow 资源/装配/UI 测试 61/61，typecheck、目标 ESLint、`verify:rules`、build 通过。详细 SPA 读回和错误对象证据见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。本轮只读，未写 workflow 文件；当前无真实 workflowId，非空文件读取与 Agent 下游消费仍待有效目标验收。 |
 | 其余已知旁路 | `listApplications()` 的 AppList、PlatformApps、项目设置和动态导航四处生产路径仍直调 GetData；缺全局目录 DataView owner、查询范围和权限投影。物理表/视图预览 executor 仍直调 GetData 并本地合成只读权限。普通 ProjectWorkspace blueprint gateway 的生产 CRUD 调用者尚未确认，DevSystem/ProjectPlanning/PageDesign 活跃读取各有正式 DataView 路径。 | 应用目录和物理预览不能只包 DataView 外观；先取得正式身份、查询范围、权限与回执证据，再选真实消费者实施。NavHost 关系仍只读且当前正式查询为 0 行。应用目录具体调用者和候选 DataView 差异见第 9 节。 |
-| SPA 状态 | 当前 IAB 标签已登录为“王”，通过正式导航打开 D99A 数据空间目录及 `Agent工作流文件资源` 设计器；`AgentWorkflowFiles@directory` 查询结果已显示。 | 正式查询结果状态 `Loaded`、行数 0、总数 0；本轮未执行正式服务写入。 |
+| DevSystem 工具版本 | `ProjectToolVersion.default` 已在正式 7AB DataSet 中由标准 `RendererTable`/字段子组件消费；查询经 DataView 资源 executor 读取版本摘要。页面当前没有版本删除操作。底层 `deleteRemotePageVersion`、`PageFileApi.deleteVersion` 与 gateway 方法仍保留定义，但当前源码未找到生产消费者。 | 正式定义保存并关闭重开读回已由同 SPA 证据确认；但当前蓝图没有可用正式 `cfg:` 工具页目标，运行态版本查询/切换隔离未验。版本删除方法按未调用兼容面登记，不能再描述为当前活跃 UI 旁路；删除权限和未知回执能力仍未建立。 |
+| SPA 状态 | 本轮未操作真实 SPA；ambient 浏览器 URL 为本地平台根页，当前认证状态及目标页未核验。 | 本轮未执行正式查询、保存或业务数据写入。此前正式 `ProjectToolVersion` 配置保存/重开证据及 Workflow 目录查询证据保留各自历史范围，不能外推为本轮烟测。 |
 
 ## 2026-10-28 删除链源码复核
 
@@ -934,21 +935,21 @@ flowchart TD
 
 证据统一包含：源码HEAD/相关哈希、用例ID、当前目标及脱敏身份、操作、预期、实际回执摘要、回读、重开、下游、截图/日志位置和未通过原因。不留token/密码/权限凭据。历史证据只能说明其原时间/部署/目标；本轮本地结果不能覆盖线上验收列。
 
-### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `3c20be5e5` 及当前认证现场动态复核）
+### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `dc224944f` 动态复核）
 
-**基线与总状态。** 当前产品代码基线为 `3c20be5e5`；该切片增加 Workflow 文件缺失目录的精确空结果处理并完成同 SPA 只读空结果查询。消费者审计确认 WorkflowDesigns 与 AI activation 经同一文件 DataView owner；非空文件与下游消费尚未验收。最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 当前产品代码基线为 `dc224944f`；最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件缺失目录精确空结果处理与同 SPA 只读查询已有历史证据；消费者审计确认 WorkflowDesigns 与 AI activation 经同一文件 DataView owner，非空文件与下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
 1. **Workflow 文件资源目录 DataView 空集合路径已验收；继续验证真实文件读取消费者。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图，同一 SPA 重开后确认模型/视图并查询 `directory`：精确处理运行时 `[1003] 文件夹路径不存在` 后，DataView 显示 `Loaded`、0 行/0 总数。错误对象与界面结果见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。源码复核确认 WorkflowDesigns 与 AI activation 都经 `AgentWorkflowFileDataViewOwner` 使用 DataView，API 调用只在 executor 内部适配；不存在当前消费方的 raw Workflow 文件读取旁路。当前目录为空，没有可合法用于 `design`/`definition` 读取的 workflowId；不得猜造文件身份或写测试文件。下一步找出真实存在的 workflow 文件及其正式应用/权限上下文；若无可读目标，保留正文读取与 Agent 下游消费验收为待解锁项。
-2. **继续核平台应用目录正式 DataView 身份。** 只读追踪 `listApplications()` 确认四个生产调用面：`AppList.vue::loadProjects`、`PlatformApps.vue::loadProjects`、`project-settings.ts::loadProjectRuntimeSettings` 和 `lowcode-runtime.ts::readLowcodeRuntimeNavigation`；`projectReferences.listProjects` 仅 gateway 定义，本次未找到生产消费者。现有 `Base_AppSystemList@catalogApps` 归数据空间目录场景，当前 SPA 候选只有“元数据管理”一项；`LOWCODE_APPLICATION_CATALOG_FORM_KEY` 在项目蓝图场景绑定的是导航模型，不是应用目录 DataView。四个调用者都没有正式的全局/租户目录 DataView owner；当前直接 API 没有传租户过滤或暴露正式 DataView 行/字段权限投影。尚无可安全直接迁移的调用者。先明确目录范围、每类消费的目标身份/租户过滤、正式场景 PageRuntime owner 和服务端权限投影，再选一个实际消费者迁移并同批删除其 direct call；不得借用目录页 DataSet、把 FormKey 冒充 scenarioId 或包一层 DataView executor。
+2. **继续核平台应用目录正式 DataView 身份。** 用户已确认可通过数据空间设计补齐正式资源定义。低价只读审计确认 `listApplications()` 有四个生产调用面：`AppList.vue::loadProjects`、`PlatformApps.vue::loadProjects`、`project-settings.ts::loadProjectRuntimeSettings` 和 `lowcode-runtime.ts::readLowcodeRuntimeNavigation`；`projectReferences.listProjects` 仅 gateway 定义，本次未找到生产消费者。现有 `Base_AppSystemList@catalogApps` 归数据空间目录场景，历史 SPA 候选只有“元数据管理”一项；`LOWCODE_APPLICATION_CATALOG_FORM_KEY` 在项目蓝图场景绑定的是导航模型，不是应用目录 DataView。设计器可补正式模型绑定、DataView 与视图配置，但不能创建租户/全局筛选规则、证明该规则被服务端执行或从不含权限字段的 `GetData` 响应推导正式行/字段权限。四个消费者也没有共用的正式 PageRuntime/空间身份；`applicationCatalogQuery()` 当前为 `Filter:null`、无租户入参。故新配置路线已开放，但尚无安全直接迁移的消费者。先从正式查询合同确认目录范围、服务端过滤和权限投影，再按各页真实路由身份建立对应 DataView owner，之后选一个消费者迁移并同批删除 direct call；不得借用目录页 DataSet、把固定 FormKey 冒充场景身份或包一层 DataView executor。
 3. **核物理表/视图预览正式查询合同。** 页面虽经命令 DataView 触发，executor 仍直调 GetData 并本地合成权限；先确认物理资源身份、服务端授权、主键和分页/回执合同。现有 `{scenarioId, metaName}` 不能表达 `Type/DbId/DbName/name`，未有服务证据前不造模型身份、不合成权限。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。
 5. **按原业务语义处理其余服务依赖项。** B1 AI 候选字段/批量新增、字典删除引用完整性与下游消费、AI system prompt 部署绑定、B2 正式登记/连接回执、`_Base_DictData` 动态选项、C/E pending 和 D 权限专题，逐项按 DataSpace、实际消费者、正式权限/回执和下游影响解锁。服务能力未知时 fail closed，不用夹具或 HTTP 200代替真实结果。
 
 **每次重排都须留下可复核理由。** 先从当前源码追踪入口→消费者→DataView/资源 owner→保存/查询→释放；再分开记录原实现事实、目标、缺陷、待证合同。不得把“未找到生产调用者”写成旁路仍活动，也不得把“底层最终用了 DataSet”写成页面链已统一。若真实 SPA 未登录或缺少正式目标，仅可做源码与自动化审查，并把在线验收列为未完成；登录、页面显示或请求 200 不单独证明保存和消费。每轮结束更新本表及本节，保留日期化历史证据，不新增并行总计划。
 
-**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow DataSpace 绑定及目录视图的精确空结果路径已通过同一 SPA 的 DataView 查询。尚无真实 workflowId 可供设计正文读取及 AI 下游消费验收。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因单一资源无数据而停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
+**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow DataSpace 绑定及目录视图的精确空结果路径已通过历史同 SPA DataView 查询。尚无真实 workflowId 可供设计正文读取及 AI 下游消费验收。数据空间设计是补正式资源定义的路径，不代表能补出服务端过滤或权限。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因单一资源无数据而停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
 
 **2026-10-27 物理表/视图预览旁路审计（源码基线 `7d34c11e5`）。** `table-and-view-page.vue` 确实先把目录选择与分页参数写入 DataSet 输入行，再触发绑定预览 DataView 的 `refresh()`；因此“页面没有直调 HTTP”只证明 UI 经 DataView 入口，不证明数据查询全程由 SPARK data 的正式查询执行器和权限投影承接。`database-catalog-preview-view-ops.ts` 的 executor 仍直接 `POST /api/DataOperation/GetData`，自行解析 `Items/Count`、按返回行动态加列并本地投影；`readonlyQueryResult` 依据返回键和本地输出字段合成字段可读状态、禁止写入。请求身份被局部检查（数据库/对象名、DataSet 场景及应用/认证 scope），但查询没有正式模型的 `{scenarioId, metaName}` 身份、查询权限投影或目标返回身份核对；现有命令视图 helper 测试不覆盖此 executor。结果：确认该功能是活动的资源 executor 旁路，不能宣称已统一；没有证据允许用正式 DataView 权限合同替换，也没有执行线上请求或业务写入。报告证据为本轮只读源码审计结论；服务身份、权限与分页/读回合同仍是阻断。没有新增实现、测试、Java修改或 SPA 烟测。此审计不会改变第 1 项仍排首位的目录身份合同阻断，也不会把物理预览升级成可立即实施切片。
 
@@ -2662,3 +2663,10 @@ flowchart TD
 - **资源现状与实施判定：**数据空间设计页已有注册文件资源流程；正式 `ProjectToolCatalog/default`、`ProjectToolFile/default` 通过 `ProjectToolResource` 接入 DataView，后者以 `pageId/fileName/versionId` 读取工作文件或单个发布快照，版本摘要目前不是独立表行。目标版本身份已有真实组合（当前应用、pageId、fileName、version），版本目录模型、DataView 级删除权限及删除结果未知后的原目标核验仍需实现。另已在 `src/views/app/dev-system/useDevState.ts` 确认，DevSystem 的正式 `PageRuntime` 声明并装载 `LOWCODE_APPLICATION_CATALOG_FORM_KEY`，并在该 DataSet 上创建蓝图与 PageToolFiles DataView owner；因此本切片有明确宿主 DataSet 身份，不需要猜默认空间或新造运行时身份。不能把 `ProjectToolFile` 现有的只读单文件快照查询冒充版本目录 DataView。
 - **权限与回执复核：**低价模型复核并由主控核验 `ProjectToolResource`：目前查询结果对所有行返回 `deleteActionState: disabled`，字段写权限只开放工作文件 `text`；版本 API `listFileVersions()` 只返回文件目录派生的版本摘要，不提供版本级删除权限。若新增版本视图后自行把 deleteActionState 设为 enabled，就会制造授权事实，故删除迁移不能实施。底层 `removeFile()` 虽设置 `retry: 0` 并在成功后回列确认消失，但 DataView executor 还没有为传输中断保存不可重放的命令状态；普通保存重入有再次发送同一删除的风险。前述两项均没有通过新增正式模型/视图自动解决。
 - **下一步与边界：**版本资源身份和 DevSystem 正式 DataSet 已有依据，但删除继续 fail closed，直到正式查询/服务提供可消费的版本行删除授权与不可重放未知回执核验合同。届时再通过数据空间设计补正式版本目录表、字段、DataView及executor，并迁移 UI 删除入口；不能只包装 `PageFileApi.deleteVersion`。版本列表查询可以单独评估迁到 DataView，但不得顺带启用删除。保留现有创建/恢复流程，不写真实远端版本、不删除真实数据。此轮只读盘点，没有改产品代码、Java 或正式数据，没有执行破坏性删除；总体整合保持 active。
+
+### 2026-10-28 数据空间设计补齐路线与应用目录合同复核
+
+- **用户方向确认：**允许通过数据空间设计补齐正式数据空间资源定义。删除语义按业务链路理解：页面/领域入口经绑定 DataView 暂存删除，再由 DataSet 提交和核对回执；数据层 owner 可以继续负责 DataView executor 内部的文件/数据库适配、身份守卫与正式回读。不能按类名删除存储适配，也不能因设计器能保存资源定义就推断后端范围和权限已经具备。
+- **低价模型只读审计与主控复核（HEAD `dc224944f41a5ea94d222aebf2279d5ba401d874`）：**`listApplications()` 的四个生产调用面仍为 AppList、PlatformApps、项目设置和运行时导航。底层 `applicationCatalogQuery()` 固定 `Base_AppSystemList`、`Filter:null`、无租户入参；直接结果归一化只保留 rowid、应用名称/描述、企业标识与 IsSys，不含 DataView 查询上下文或行/字段权限。`Base_AppSystemList@catalogApps` 是数据空间目录场景的正式绑定，历史现场只显示“元数据管理”；`LOWCODE_APPLICATION_CATALOG_FORM_KEY` 当前蓝图 DataSet 绑定导航模型。数据空间设计可以为资源补正式绑定与视图配置，但不能自行证明租户/全局范围、服务端筛选或服务端权限投影。四个生产消费者均缺少其正式页面 DataSpace 身份/宿主生命周期，当前没有可安全同批迁移并删除直调的 consumer slice。
+- **删除版本路径的源码更正：**此前条目将 `DevFileEditor.confirmDeleteVersion → ProjectWorkspace.deleteRemotePageVersion` 描述为当前可执行 UI 入口，与当前 HEAD 不符。`DevFileEditor` 没有版本删除控件；全仓生产源码检索中 `deleteRemotePageVersion` 仅见定义，`PageFileApi.deleteVersion` 与低代码 gateway 的 `deleteVersion` 仅剩兼容定义/引用链，没有已确认生产调用者。本条及顶部快照将其改列为未调用兼容面；不据此删除公共方法，因为外部消费者范围与兼容合同未审。本结论不改变 `ProjectToolVersion` 当前没有 DataView 删除授权、不能启用版本删除的边界。
+- **状态与交付：**本轮只读源码审计与台账纠偏，没有创建/保存数据空间，没有执行 SPA 服务查询/写入，没有改产品代码或 Java。唯一台账顶层/第9节基线更新到 `dc224944f`；本轮未完成真实应用目录范围、服务端过滤与权限投影合同，SPARK data 全仓唯一通道目标保持 active。

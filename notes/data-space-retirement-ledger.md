@@ -2462,6 +2462,12 @@ flowchart TD
 - **真实 SPA 烟测：**修复热更新后，同一已认证 NewApp 会话的 JSON 数据页表格显示 `Total 11`；选择 `Base_DepartInfo.json` 后内容 DataView 读出 `$` 根对象及 5 个子字段。控制台无 error；只读查询与行选择，无保存/编辑。测试证明客户端请求保留应用 scope，不单独证明服务端跨应用隔离或完整权限结果；其他五个目录本批未做线上 smoke。
 - **计划状态：**本缺陷切片完成；整体目标仍 active。通用结构配置 DataView 仍在 TS 动态装配、未归正式 pagedata，继续作为四文件配置驱动差距；所有数据游离 DataSet 的全量旁路清单、目录服务端权限/范围等价性以及物理预览、工作流文件、NavHost 关系等已登记缺口仍开放。下一步先扩大到其余五个目录的只读 SPA 核验，再按活动调用者和正式 scope 合同继续挑选切片；不以本次 JSON 成功宣称全局整合完成。
 
+### 2026-10-27 结构配置目录剩余五页 SPA 只读烟测
+
+- **真实 SPA 路由与结果：**同一已登录 NewApp/D99A SPA 标签按正式应用菜单切换。逻辑视图 `EB720370EF06A5A656838F87E0716D6B` 显示 `Total 16`；JSON `FFDEF2AED3E19A38C0FCDDC748CF939B` 显示 `Total 11`。之前未现场核验的五个目录中，数据编码 `A133D679691178F192D7E9DA06829506` 报 `_Base_CodeDesign`，数据工作流 `5E9676B1E38860B023921F48FB4370DE` 报 `Base_UserInfo`，Excel 导入 `36B01771C627B9BF5CD493DC75B996A1` 报 `_Base_ImportConfig`，PDF 识别 `A2D63AB2AAEF156E7727094A23AEA433` 报 `Base_UserInfo`，统一错误为“正式数据空间模型必须唯一且属于当前数据空间”。各页面错误不能单独证明模型缺失，须区分缺失、重复或所属空间不符。
+- **SPA 与只读边界：**所有页面经同一 SPA 内应用菜单导航，无整页刷新；没有选行、编辑、保存或删除。当前浏览器控制台 `error` 日志为 0。证据快照见 `notes/evidence/structured-config-catalog-live-spa-20261027.md`。已完成此前待办的五目录烟测；数据编码已知缺口复现，另外三项正式模型身份/归属仍待逐项数据装配诊断。客户端 smoke 不证明服务端权限或跨应用隔离。
+- **状态与后续：**结构化目录这批 UI 核验已收束，但四个模型加载失败不能以页面测试通过代替真实结果；下一步按各 Loader → `loadStructuredConfigCatalog` → DataSet 正式模型绑定/查询投影逐一查模型归属、名称唯一性与视图字段，并只经 SPARK data 验证。JSON/逻辑视图通过只表示目录读取成功，不代表设计读写或其它目录闭环完成。无产品/Java 改动、无业务数据写入，整体整合继续 active。
+
 ### 2026-10-27 Capability 能力体系生产使用核对
 
 - **概念区分：**本仓 `spark-utils` 的 `CapabilityContext` / `sparkProvide` / `sparkConsume` 是活跃的运行时依赖传递机制；`ProjectBlueprint.capability.name/description` 是蓝图业务名称与策划需求元数据；导航 `/capability-demo` 才是一个固定数据和模拟 API 的演示页。后者不代表前两者均未使用。

@@ -2565,3 +2565,11 @@ flowchart TD
 - **平台应用目录候选：**低价模型独立复核并由主控核对了 `listApplications()` 的 5 个生产调用点。现有 `Base_AppSystemList@catalogApps` 属于数据空间目录场景，不是 `/app-list`、`/apps` 或项目运行时目录 owner；固定蓝图 FormKey 也不是该目录 DataView 身份。各消费者的租户/项目过滤与正式查询权限投影没有等价证据，当前无安全切片可迁移并同批删除直调。
 - **全仓下一切片筛选：**低价模型按活动消费者复核后，Agent Workflow 文件、全局应用目录、物理表/视图预览仍是优先候选，但三者分别缺资源身份/权限读合同、目录 scope/权限投影、物理资源正式身份/授权查询合同；没有找到能在同一代码切片真实迁入 DataView 并删除旧直调的已闭环消费者。pagedata DataView 读取链和没有生产调用点的 relation options 不列作旁路。
 - **本轮状态：**工作树起始时干净，HEAD 与 `origin/codex/ai-data-entry` 同为 `9e350efad40e237cdefdde00753bdea9ae83f7c4`。本轮只读复核，没有改产品代码、Java、浏览器/正式数据或运行测试；不报告 SPA 烟测通过。总体整合仍 active。下一工作项是为 Agent Workflow 语义资源取得正式场景/资源身份与权限证据；若无合同，继续找其它实际消费者和可闭环数据旁路，不伪造 DataView 包装。
+
+### 2026-10-28 用数据空间设计补齐 Workflow 资源空间
+
+- **用户决策与 SPA 正式写入：**用户明确允许通过数据空间设计补齐正式空间。本轮在已登录 SPA 经“新增数据空间”创建“Agent工作流文件资源”，所属应用为“元数据管理”，创建时间 `2026-10-28T01:50:44`；保存返回状态“数据空间已保存”，按名称独立查询读回唯一记录。设计器显示目标空间 ID `01000B6C7F84B4F1A85C91C4FC28E875`。该动作仅新增正式 DataSpace 目录记录，没有新增模型、字段、视图或写 Workflow 文件。
+- **设计器现场：**正式读回后打开数据空间设计，概览为模型0、关系0、无视图配置；页面显示“共享配置已变化，请预览并明确采用远端后重试”。未采用远端、未创建模型或写布局；当前可确认的是空间记录存在，配置仍为空且设计工作区存在并发/基线差异提示。
+- **源码与权限边界复核：**`LowcodeDataSpaceAssembler`/`loadScenarioDataSet` 可以装配显式 `resourceType:file` 的 DataTable/DataView，但没有注入对应文件 executor 就 fail closed（`src/lowcode/data-space/lowcode-data-space-assembler.ts`、`src/lowcode/data-space/lowcode-data-space-runtime.ts`）。正式定义文件的资源注册目前限于 pagedata 的五类定义资源（`packages/spark-project-model/src/scenario/scenario-definition-records.ts`）；ProjectTool owner 也只接受工具目录和页面工具文件。Workflow 的目录/正文仍经 `src/services/workflow-designs.ts` 直接 `listFiles/readTextFile`，AI activation 复用该读服务；当前写接口 fail closed。`/workflow-designs` 静态 Vue 页声明无 `blueprintScenarioId`，通用静态工具路由也不会自动提供 PageRuntime 场景身份。
+- **结论及下一步：**DataSpace 设计可补正式场景、表和视图绑定；创建一个空间本身不能生成 Workflow 文件 owner、授权投影、查询身份或运行路由绑定。先查清当前设计器共享配置差异并只读核对目标空间正式配置；继而定义已存在 LowcodeDesign 文件 API 的应用/工作流/文件身份、权限与异步失效合同，再把唯一读取 owner 接入该空间 DataView，最后让页面与 AI activation 共用 DataView 并移除旧读取入口。写入保存仍保持 fail closed，直到读写回执、基线冲突及未知结果合同有证据。不得将现有 API 简单包进 DataView宣称统一。
+- **本轮代码/工程状态：**无产品代码、Java、测试或文件资源写入；仅 SPA 创建上述正式空间并读回。没有运行构建或自动化测试，也没有宣称 Workflow 数据已统一。工作树仅需提交本台账更新；总体 SPARK data 整合保持 active。

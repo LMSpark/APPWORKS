@@ -1,5 +1,5 @@
 import {describe, expect, it, vi} from 'vitest'
-import {resolveNavHostProjectBinding, resolveProjectCandidate} from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
+import {configureProjectHierarchy, resolveNavHostProjectBinding, resolveProjectCandidate, validateProjectHierarchy} from '@/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract'
 
 function view(rows: Record<string, unknown>[], unread: string[] = []) {
   return {
@@ -21,9 +21,9 @@ describe('NavHost project binding', () => {
     expect(() => resolveNavHostProjectBinding(host as never, 'host-a')).toThrow(/不可读/)
   })
 
-  it('fails closed for unread or hierarchical selectPid configuration', () => {
+  it('maps readable selectPid configuration and fails closed when it is unreadable', () => {
     const row = {rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'projectCode', selectTextParam: 'displayName', selectPid: 'parentId'}
-    expect(() => resolveNavHostProjectBinding(view([row]) as never, 'host-a')).toThrow(/selectPid 层级配置暂不支持/)
+    expect(resolveNavHostProjectBinding(view([row]) as never, 'host-a')).toMatchObject({parentField: 'parentId'})
     expect(() => resolveNavHostProjectBinding(view([{...row, selectPid: ''}], ['selectPid']) as never, 'host-a')).toThrow(/不可读/)
   })
 
@@ -48,5 +48,48 @@ describe('NavHost project binding', () => {
     expect(() => resolveProjectCandidate(view(rows, ['rowid']) as never, rows[0]!, fields)).toThrow(/身份字段不可读/)
     expect(() => resolveProjectCandidate(candidate as never, {rowid: 'missing'} as never, fields)).toThrow(/已失效/)
     expect(() => resolveProjectCandidate(view([...rows, {rowid: 'row-2', projectCode: 'APP-A'}]) as never, rows[0]!, fields)).toThrow(/重复/)
+  })
+
+  it('maps selectPid to a nested DataView tree while preserving primary-key selection', () => {
+    const rows = [
+      {rowid: 'p-1', code: 'P1', name: 'Parent', parent: ''},
+      {rowid: 'c-1', code: 'C1', name: 'Child', parent: 'P1'},
+      {rowid: 'g-1', code: 'G1', name: 'Grandchild', parent: 'C1'},
+    ]
+    const candidate = view(rows) as ReturnType<typeof view> & {setTreeConfig: ReturnType<typeof vi.fn>; treeConfig?: unknown}
+    candidate.setTreeConfig = vi.fn(config => {candidate.treeConfig = config})
+    configureProjectHierarchy(candidate as never, {valueField: 'code', labelField: 'name', parentField: 'parent'})
+    expect(candidate.setTreeConfig).toHaveBeenCalledWith({idField: 'code', parentIdField: 'parent', textField: 'name', treeMode: 'flat'})
+  })
+
+  it('rejects unreadable parent fields and parent values that do not identify a candidate', () => {
+    const rows = [{rowid: 'p-1', code: 'P1', name: 'Parent', parent: ''}, {rowid: 'c-1', code: 'C1', name: 'Child', parent: 'missing'}]
+    const unreadable = view(rows, ['parent']) as ReturnType<typeof view> & {setTreeConfig: ReturnType<typeof vi.fn>}
+    unreadable.setTreeConfig = vi.fn()
+    expect(() => validateProjectHierarchy(unreadable as never, {valueField: 'code', labelField: 'name', parentField: 'parent'})).toThrow(/父级字段不可读/)
+    const candidate = view(rows) as ReturnType<typeof view> & {setTreeConfig: ReturnType<typeof vi.fn>}
+    candidate.setTreeConfig = vi.fn()
+    expect(() => validateProjectHierarchy(candidate as never, {valueField: 'code', labelField: 'name', parentField: 'parent'})).toThrow(/父项不存在/)
+  })
+
+  it('rejects self-parenting, cyclic hierarchy and repeated candidate values', () => {
+    for (const rows of [
+      [{rowid: 'p-1', code: 'P1', name: 'Self', parent: 'P1'}],
+      [{rowid: 'p-1', code: 'P1', name: 'One', parent: 'P2'}, {rowid: 'p-2', code: 'P2', name: 'Two', parent: 'P1'}],
+      [{rowid: 'p-1', code: 'P1', name: 'One', parent: ''}, {rowid: 'p-2', code: 'P1', name: 'Two', parent: ''}],
+    ]) {
+      const candidate = view(rows) as ReturnType<typeof view> & {setTreeConfig: ReturnType<typeof vi.fn>}
+      candidate.setTreeConfig = vi.fn()
+      expect(() => validateProjectHierarchy(candidate as never, {valueField: 'code', labelField: 'name', parentField: 'parent'})).toThrow()
+    }
+  })
+
+  it('rejects parent and value whitespace that the bound tree projection would not normalize', () => {
+    for (const rows of [
+      [{rowid: 'p-1', code: ' P1 ', name: 'Parent', parent: ''}, {rowid: 'c-1', code: 'C1', name: 'Child', parent: 'P1'}],
+      [{rowid: 'p-1', code: 'P1', name: 'Parent', parent: ''}, {rowid: 'c-1', code: 'C1', name: 'Child', parent: ' P1 '}],
+    ]) {
+      expect(() => validateProjectHierarchy(view(rows) as never, {valueField: 'code', labelField: 'name', parentField: 'parent'})).toThrow()
+    }
   })
 })

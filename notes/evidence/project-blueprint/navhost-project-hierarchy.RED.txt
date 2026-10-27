@@ -1,0 +1,47 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/dev/nav-host-project-picker/nav-host-project-picker-contract.test.ts (9 tests | 2 failed) 30ms
+     × maps selectPid to a nested DataView tree while preserving primary-key selection 6ms
+     × rejects unreadable parent fields and parent values that do not identify a candidate 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/nav-host-project-picker/nav-host-project-picker-contract.test.ts > NavHost project binding > maps selectPid to a nested DataView tree while preserving primary-key selection
+TypeError: configureProjectHierarchy is not a function
+ ❯ tests/app/dev/nav-host-project-picker/nav-host-project-picker-contract.test.ts:61:5
+     59|     const candidate = view(rows) as ReturnType<typeof view> & {setTree…
+     60|     candidate.setTreeConfig = vi.fn(config => {candidate.treeConfig = …
+     61|     configureProjectHierarchy(candidate as never, {valueField: 'code',…
+       |     ^
+     62|     expect(candidate.setTreeConfig).toHaveBeenCalledWith({idField: 'co…
+     63|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/app/dev/nav-host-project-picker/nav-host-project-picker-contract.test.ts > NavHost project binding > rejects unreadable parent fields and parent values that do not identify a candidate
+AssertionError: expected [Function] to throw error matching /父级字段不可读/ but got '(0 , __vite_ssr_import_1__.configureP…'
+
+- Expected:
+/父级字段不可读/
+
++ Received:
+"(0 , __vite_ssr_import_1__.configureProjectHierarchy) is not a function"
+
+ ❯ tests/app/dev/nav-host-project-picker/nav-host-project-picker-contract.test.ts:69:131
+     67|     const unreadable = view(rows, ['parent']) as ReturnType<typeof view…
+     68|     unreadable.setTreeConfig = vi.fn()
+     69|     expect(() => configureProjectHierarchy(unreadable as never, {value…
+       |                                                                                                                                   ^
+     70|     const candidate = view(rows) as ReturnType<typeof view> & {setTree…
+     71|     candidate.setTreeConfig = vi.fn()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  12:45:15
+   Duration  2.78s (transform 113ms, setup 285ms, import 92ms, tests 30ms, environment 1.82s)
+
+EXIT_CODE=1

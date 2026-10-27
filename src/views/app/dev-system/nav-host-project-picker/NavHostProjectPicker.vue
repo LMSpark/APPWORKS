@@ -4,8 +4,18 @@
     <RendererButton v-if="ready && viewKey" :data-view-key="viewKey" label="切换项目" @click="pickerOpen = true" />
     <span v-else-if="!error">{{ loading ? '正在读取导航项目…' : '当前导航未配置可用项目' }}</span>
     <el-dialog v-model="pickerOpen" title="切换开发项目" width="620px" destroy-on-close>
+      <RendererTree
+        v-if="ready && viewKey && parentField"
+        :key="viewKey"
+        :data-view-key="viewKey"
+        :node-key="primaryKey"
+        :children="fields"
+        :tree-props="{highlightCurrent: true, defaultExpandAll: true, expandOnClickNode: false}"
+        :show-data-view-meta="false"
+        :on-node-click="observeCandidateSelection"
+      />
       <RendererTable
-        v-if="ready && viewKey"
+        v-else-if="ready && viewKey"
         :key="viewKey"
         :data-view-key="viewKey"
         :children="fields"
@@ -26,17 +36,17 @@ import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, DataViewFilter, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererButton, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type {DevState} from '../useDevState'
-import {resolveNavHostProjectBinding, resolveProjectCandidate} from './nav-host-project-picker-contract'
+import {configureProjectHierarchy, resolveNavHostProjectBinding, resolveProjectCandidate, validateProjectHierarchy} from './nav-host-project-picker-contract'
 
 const props = defineProps<{state: DevState}>()
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'dev-system-nav-host-project-picker'})
-const loading = ref(false), error = ref(''), ready = ref(false), viewKey = ref(''), valueField = ref(''), labelField = ref(''), fields = ref<SparkNode[]>([])
+const loading = ref(false), error = ref(''), ready = ref(false), viewKey = ref(''), valueField = ref(''), labelField = ref(''), parentField = ref(''), primaryKey = ref(''), fields = ref<SparkNode[]>([])
 const busy = ref(false)
 const selectionRevision = ref(0)
 const pickerOpen = ref(false)
@@ -53,6 +63,8 @@ function dispose(): void {
   viewKey.value = ''
   valueField.value = ''
   labelField.value = ''
+  parentField.value = ''
+  primaryKey.value = ''
   fields.value = []
   busy.value = false
   sparkRemove(PAGE_RUNTIME)
@@ -105,7 +117,7 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     if (hostView.total === 0) throw new Error('当前导航未配置项目切换关系')
     if (hostView.total > 1) throw new Error('当前导航存在多条项目切换关系')
     const binding = resolveNavHostProjectBinding(hostView, hostId)
-    const {scenarioId, modelName, valueField: mappedValueField, labelField: mappedLabelField} = binding
+    const {scenarioId, modelName, valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField} = binding
     const next = new PageRuntime({pageId: 'dev-system-nav-host-project-picker', scenarioIds: [scenarioId],
       loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
     runtime = next
@@ -118,13 +130,15 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
       throw new Error('导航项目候选 DataView 身份不匹配')
     }
     candidateView.resetState()
+    if (mappedParentField) configureProjectHierarchy(candidateView, {valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField})
     candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
     await candidateView.refresh()
     if (stale || own !== generation) { next.dispose(); return }
     if (candidateView.loadingError) throw candidateView.loadingError
     if (candidateView.rows.length !== candidateView.total) throw new Error('导航项目候选 DataView 读取不完整')
     if (candidateView.rows.length === 0) throw new Error('导航项目候选为空')
-    const candidateFields = [mappedValueField, mappedLabelField, candidateView.primaryKey]
+    if (mappedParentField) validateProjectHierarchy(candidateView, {valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField})
+    const candidateFields = [mappedValueField, mappedLabelField, candidateView.primaryKey, ...(mappedParentField ? [mappedParentField] : [])]
     if (candidateFields.some(field => !field || candidateView.rows.some(row => candidateView.fieldAccess(row, field).read !== 'visible'))) {
       throw new Error('导航项目候选值、文案或行身份字段不可读')
     }
@@ -141,6 +155,8 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     viewKey.value = buildDataViewKey(modelName, 'default', scenarioId)
     valueField.value = mappedValueField
     labelField.value = mappedLabelField
+    parentField.value = mappedParentField ?? ''
+    primaryKey.value = candidateView.primaryKey
     sparkProvide(PAGE_RUNTIME, next)
     ready.value = true
   } catch (cause) {

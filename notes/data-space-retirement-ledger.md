@@ -6,7 +6,7 @@
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
-| PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；当前 SPA 未认证，真实运行烟测未完成。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
+| PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；本轮 SPA 已认证但只打开数据空间设计器，PageDesign 真实 Agent 运行/消费烟测未做。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
 | Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读，文件 API 仅留在 DataView executor 内作资源适配。 | 本轮同一 SPA 打开正式设计器并读到上述模型与视图；对 `directory` 执行真实只读预览，服务返回 `[1003] 文件夹路径不存在`。候选修复只将 `Error` 且 `code===1003`、完整消息精确匹配的缺失目录映射为空目录，先校验 scope；其他错误保持失败。测试 60/60、typecheck、目标 ESLint、`verify:rules`、build 通过。结构 RED 证明跨模块 Error 可绕过 `instanceof`，但未证明它就是现场形态；浏览器控制被接管，最新代码未完成 SPA 复测。空目录语义真实烟测仍未通过/确认，不宣称完成；未写 Workflow 文件或业务记录。 |
 | 其余已知旁路 | `listApplications()` 多个调用者仍 direct GetData，缺全局目录场景、范围与权限投影；物理表/视图预览 executor 仍 direct GetData 并本地合成只读权限。普通 ProjectWorkspace blueprint gateway 的生产 CRUD 调用者尚未确认，DevSystem/ProjectPlanning/PageDesign 活跃读取各有正式 DataView 路径。 | 应用目录和物理预览不能只包 DataView 外观；先取得正式身份、查询范围、权限与回执证据，再选真实消费者实施。NavHost 关系仍只读且当前正式查询为 0 行。 |
 | SPA 状态 | 当前 IAB 标签已登录为“王”，通过正式导航打开 D99A 数据空间目录及 `Agent工作流文件资源` 设计器；`AgentWorkflowFiles@directory` 预览对话框已打开。 | 真实目录预览返回 `[1003] 文件夹路径不存在`；本轮未执行正式服务写入。目录空结果烟测仍未完成。 |
@@ -936,7 +936,7 @@ flowchart TD
 
 ### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `5d0bce744` 及当前认证现场动态复核）
 
-**基线与总状态。** 最新已推送提交为 `0defe518adf2e0ab09720801967871b501e085fa`；其父提交 `5d0bce744` 增加了 Workflow 文件缺失目录的精确空结果处理。最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法；Workflow 文件 DataView 运行代码也已落地。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 最新已推送提交为 `658467d8bcbc7cf77925c97a28837ed1053f24da`；产品代码基线为 `5d0bce744`，增加了 Workflow 文件缺失目录的精确空结果处理。最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法；Workflow 文件 DataView 运行代码也已落地。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
@@ -948,7 +948,7 @@ flowchart TD
 
 **每次重排都须留下可复核理由。** 先从当前源码追踪入口→消费者→DataView/资源 owner→保存/查询→释放；再分开记录原实现事实、目标、缺陷、待证合同。不得把“未找到生产调用者”写成旁路仍活动，也不得把“底层最终用了 DataSet”写成页面链已统一。若真实 SPA 未登录或缺少正式目标，仅可做源码与自动化审查，并把在线验收列为未完成；登录、页面显示或请求 200 不单独证明保存和消费。每轮结束更新本表及本节，保留日期化历史证据，不新增并行总计划。
 
-**当前交付闸门。** 本次 PageDesign 读取切片已完成自动化及构建门禁并推送；Workflow 正式 DataSpace 绑定尚待认证 SPA。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因为一个登录阻断就停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
+**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow 正式 DataSpace 绑定已在 SPA 可见，缺失目录的真实 DataView 查询尚未按最新代码确认成功。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因为一个浏览器控制中断就停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
 
 **2026-10-27 物理表/视图预览旁路审计（源码基线 `7d34c11e5`）。** `table-and-view-page.vue` 确实先把目录选择与分页参数写入 DataSet 输入行，再触发绑定预览 DataView 的 `refresh()`；因此“页面没有直调 HTTP”只证明 UI 经 DataView 入口，不证明数据查询全程由 SPARK data 的正式查询执行器和权限投影承接。`database-catalog-preview-view-ops.ts` 的 executor 仍直接 `POST /api/DataOperation/GetData`，自行解析 `Items/Count`、按返回行动态加列并本地投影；`readonlyQueryResult` 依据返回键和本地输出字段合成字段可读状态、禁止写入。请求身份被局部检查（数据库/对象名、DataSet 场景及应用/认证 scope），但查询没有正式模型的 `{scenarioId, metaName}` 身份、查询权限投影或目标返回身份核对；现有命令视图 helper 测试不覆盖此 executor。结果：确认该功能是活动的资源 executor 旁路，不能宣称已统一；没有证据允许用正式 DataView 权限合同替换，也没有执行线上请求或业务写入。报告证据为本轮只读源码审计结论；服务身份、权限与分页/读回合同仍是阻断。没有新增实现、测试、Java修改或 SPA 烟测。此审计不会改变第 1 项仍排首位的目录身份合同阻断，也不会把物理预览升级成可立即实施切片。
 

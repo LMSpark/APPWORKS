@@ -1,8 +1,8 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-28；已提交产品代码基线 `dc224944f`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；已提交产品代码基线 `4576eb5e6`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `dc224944f`）
+## 当前源码状态（2026-10-28，产品代码基线 `4576eb5e6`）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -935,9 +935,9 @@ flowchart TD
 
 证据统一包含：源码HEAD/相关哈希、用例ID、当前目标及脱敏身份、操作、预期、实际回执摘要、回读、重开、下游、截图/日志位置和未通过原因。不留token/密码/权限凭据。历史证据只能说明其原时间/部署/目标；本轮本地结果不能覆盖线上验收列。
 
-### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `dc224944f` 动态复核）
+### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `4576eb5e6` 动态复核）
 
-**基线与总状态。** 当前产品代码基线为 `dc224944f`；最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件缺失目录精确空结果处理与同 SPA 只读查询已有历史证据；消费者审计确认 WorkflowDesigns 与 AI activation 经同一文件 DataView owner，非空文件与下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 当前产品代码基线为 `4576eb5e6`；最近产品切片移除了无生产消费者且绕过 DataSet 的页面版本删除 gateway/API，版本列表仍只读，删除授权未建立。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件缺失目录精确空结果处理与同 SPA 只读查询已有历史证据；消费者审计确认 WorkflowDesigns 与 AI activation 经同一文件 DataView owner，非空文件与下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
@@ -2677,3 +2677,4 @@ flowchart TD
 - **低价实施与 RED→GREEN：**先新增 `does not expose an ungoverned page-file version delete gateway` 负向用例；原实现失败，实际断言为预期 `false`、收到 `true`，原始输出见 [`page-version-delete-api-red.txt`](evidence/page-version-delete-api-red.txt)。随后移除三个删除入口、PageDesign guard 中的旧方法名和旧直删请求夹具。当前业务源码只剩负向测试中的字符串，不再含 `deleteRemotePageVersion` 或 gateway `deleteVersion`。
 - **主控复核与验证：**正式生成器刷新 ClassModel：977 DTS、2008 symbols，`ProjectWorkspace`/`PageFileApi` 删除成员及对应两条 semantic gap 从派生产物移除；其它若干生成分片的 TypeScript 内建 Symbol 编号重排来自生成器重算，未手改。定向 Vitest 2 files / 57 tests passed；`pnpm run typecheck`、定向 ESLint、完整 `pnpm run verify:rules`、production `pnpm run build`、`git diff --check` 均退出 0。`verify:rules` 有既存 AI model spec 2 warnings / 1 info，扫描通过。
 - **SPA与数据边界：**本轮未触发真实页面删除、未查询或写入正式版本数据、未登录认证表单；版本删除仍保持不可用。无 Java 修改/启动/部署。运行态版本 DataView 只有在已有正式 cfg 工具页目标时才能烟测，目标缺失继续列为未验。整体 SPARK data 唯一通道整合仍 active。
+- **交付：**源码、正式 ClassModel 产物、反例证据及本台账已提交并推送：`4576eb5e6`（`codex/ai-data-entry`）。本轮提交后工作树干净、HEAD 与上游一致。

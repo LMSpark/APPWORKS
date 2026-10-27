@@ -21,6 +21,7 @@ async function setupNewRowQuery(options: {
   omitPrepareNewRow?: boolean
   explicitIdentity?: boolean
   remapIdentity?: boolean
+  remapParent?: boolean
 } = {}) {
   const dataSet = SparkData.createDataSet({scenarioId: 'SPACE', dataSetName: 'Candidate', tables: {Items: {
     tableName: 'Items', modelBinding: {modelId: 'ITEMS', modelName: 'Items'},
@@ -45,7 +46,7 @@ async function setupNewRowQuery(options: {
       rowKey: row => row['id'],
       ...(options.keyless ? {resultPrimaryKey: ''} : {}),
       ...(options.omitPrepareNewRow ? {} : {prepareNewRow: (row: Record<string, unknown>) => ({...row, id: '2'})}),
-      ...(options.explicitIdentity ? {prepareNewRowWithIdentity: (row: Record<string, unknown>, identity: {field: string; value: string | number}) => ({...row, id: options.remapIdentity ? 'REMAPPED' : identity.value})} : {}),
+      ...(options.explicitIdentity ? {prepareNewRowWithIdentity: (row: Record<string, unknown>, identity: {field: string; value: string | number}) => ({...row, ...(options.remapParent ? {parentId: 'OTHER'} : {}), id: options.remapIdentity ? 'REMAPPED' : identity.value})} : {}),
       isFieldReadOnly: field => options.isFieldReadOnly?.(field, scope) ?? false,
       fieldAccess: () => ({read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'}),
       readFieldAccess: () => 'visible',
@@ -215,6 +216,31 @@ describe('DataView editing checkpoints', () => {
     expect(added).toMatchObject({id: 'EXPLICIT', title: 'candidate'})
     expect(view.dirtyTracking.pendingCreateIds.has('EXPLICIT')).toBe(true)
     expect(() => view.updateEditingValue('EXPLICIT', 'id', 'MUTATED')).toThrow(/不允许修改主键字段/u)
+  })
+
+  it('creates an explicit child from the canonical authorized parent without requiring root add permission', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true, addEnabled: false})
+    const parent = {...view.rows[0]!, id: '1', title: 'forged parent'}
+    const child = await view.addChildRow({parentRow: parent, parentField: 'id', childForeignKey: 'parentId', identity: {field: 'id', value: 'CHILD'}, data: {title: 'child'}})
+    expect(child).toMatchObject({id: 'CHILD', parentId: '1', title: 'child'})
+  })
+
+  it('rejects an owner that remaps the child foreign key before accepting any pending row', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true, remapParent: true})
+    const parent = {...view.rows[0]!, id: '1'}
+    await expect(view.addChildRow({parentRow: parent, parentField: 'id', childForeignKey: 'parentId', identity: {field: 'id', value: 'CHILD'}, data: {title: 'child'}}))
+      .rejects.toThrow('DATA_VIEW_CHILD_FK_MISMATCH')
+    expect(view.rows.some(row => row['id'] === 'CHILD')).toBe(false)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('rejects invalid canonical parent identities and non-output parent mapping fields', async () => {
+    const {view} = await setupNewRowQuery({explicitIdentity: true})
+    await expect(view.addChildRow({parentRow: {...view.rows[0]!, id: ' '}, parentField: 'id', childForeignKey: 'parentId', identity: {field: 'id', value: 'A'}, data: {title: 'child'}}))
+      .rejects.toThrow('DATA_VIEW_CHILD_PARENT_IDENTITY')
+    await expect(view.addChildRow({parentRow: view.rows[0]!, parentField: 'notOutput', childForeignKey: 'parentId', identity: {field: 'id', value: 'B'}, data: {title: 'child'}}))
+      .rejects.toThrow('DATA_VIEW_CHILD_PARENT_FIELD_OUTPUT')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
   })
 
   it('keeps formal identity additions on the DataSet staging path even in immediate mode', async () => {

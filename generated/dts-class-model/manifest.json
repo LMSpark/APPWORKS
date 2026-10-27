@@ -8995,6 +8995,7 @@
           "DataViewRecomputeColumnsOptions",
           "DataViewServerRowsPayload",
           "DataViewNewRowIdentity",
+          "DataViewChildRowInput",
           "DataView"
         ]
       }
@@ -18097,6 +18098,10 @@
     "DataViewCascadeValueBinding": {
       "sourcePath": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
       "file": "files/packages/spark-data/src/strategies/cascade/cascade-value-binding.ts.json"
+    },
+    "DataViewChildRowInput": {
+      "sourcePath": "packages/spark-data/src/data-view.ts",
+      "file": "files/packages/spark-data/src/data-view.ts.json"
     },
     "DataViewDisplayState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",

@@ -2594,7 +2594,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-26T23:49:06.571Z"
+      "sourceModifiedAt": "2026-10-27T00:17:37.253Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2614,7 +2614,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-26T23:31:06.223Z"
+      "sourceModifiedAt": "2026-10-27T00:03:59.125Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -4194,7 +4194,7 @@
     "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:52:40.961Z"
+      "sourceModifiedAt": "2026-10-27T00:16:58.421Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",

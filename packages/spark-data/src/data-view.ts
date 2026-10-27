@@ -123,6 +123,12 @@ type DataViewQueryIdentity = Readonly<{
   /** 仅非后端模型资源提供；不替代正式模型身份。 */
   resource?: DataViewResourceIdentity
 }>
+/** Internal explicit-identity staging mode; child permissions are supplied by the canonical parent's current query result. */
+type DataViewIdentityCreateOptions = Readonly<{
+  mode: 'root' | 'child'
+  parentKey?: unknown
+  expectedField?: Readonly<{field: string; value: unknown}>
+}>
 /** 非后端模型资源的显式身份；与所属 DataTable 声明一致，不能借此覆盖正式模型绑定。 */
 type DataViewResourceIdentity = Readonly<{
   /** 资源种类，必须与所属 DataTable.resourceType 完全一致。 */
@@ -141,6 +147,19 @@ type DataViewQueryBindingOptions = Readonly<{
 type DataViewQueryRow = Readonly<Record<string, unknown>>
 /** 显式新增时独立提交的正式行身份，不作为普通 DataView 字段写入。 */
 export type DataViewNewRowIdentity = Readonly<{field: string; value: string | number}>
+/** Parent-linked child creation using the current query result and a formal parent-to-child FK mapping. */
+export type DataViewChildRowInput = Readonly<{
+  /** Candidate parent; its key is resolved back to the canonical current DataView row before use. */
+  parentRow: DataRow
+  /** Formal parent field carrying the readable identity to map to the child foreign key. */
+  parentField: string
+  /** Formal output child field that receives the parent identity. */
+  childForeignKey: string
+  /** Optional formal child primary key; omitted to retain the query owner's generated identity. */
+  identity?: DataViewNewRowIdentity
+  /** Ordinary child inputs, excluding the primary key and mapped foreign key. */
+  data: Partial<DataRow>
+}>
 /** 后端权限与当前可用状态共同决定的动作呈现，不等价于保存授权。 */
 type DataViewActionState = 'hidden' | 'disabled' | 'enabled'
 /** 字段读取、写入和组件呈现的独立通道；必填事实与写白名单由查询 owner 提供。 */
@@ -637,6 +656,7 @@ rows: DataRow[] = []
     }
     return this.queryNewRowFieldAccess(context, field)
   }
+
 
   /** 当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。 */
   get supportsExplicitIdentityCreate(): boolean {
@@ -2686,6 +2706,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     identity: DataViewNewRowIdentity,
     data: Partial<DataRow>,
   ): Promise<DataRow | CrudResult<DataRow>> {
+    return this.addRowWithIdentityInternal(identity, data)
+  }
+
+  private async addRowWithIdentityInternal(identity: DataViewNewRowIdentity, data: Partial<DataRow>, options: DataViewIdentityCreateOptions = {mode: 'root'}): Promise<DataRow | CrudResult<DataRow>> {
     this.assertResultWritable()
     if (this.queryParentPendingCreate()) throw new Error('DATA_VIEW_ADD_PARENT_PENDING: 请先保存父记录')
     const context = this.currentQueryResult()
@@ -2700,8 +2724,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       || Object.hasOwn(data, identity.field)) {
       throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 显式身份必须是当前正式结果主键且与普通字段分离')
     }
-    if (this.addActionState() !== 'enabled') throw new Error('DATA_VIEW_ADD_DISABLED: 当前正式查询不允许新增')
-    this.preflightNewRowFields(context, data)
+    if (options.mode === 'root' && this.addActionState() !== 'enabled') throw new Error('DATA_VIEW_ADD_DISABLED: 当前正式查询不允许新增')
+    this.preflightNewRowFields(context, data, options.mode === 'child' ? options.parentKey : undefined)
     const defaults = this.queryOwnershipDefaults()
     for (const [field, value] of Object.entries(defaults)) {
       if (Object.hasOwn(data, field) && !this.sameQuerySaveValue(data[field], value)) {
@@ -2720,10 +2744,62 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (!Object.is(row[identity.field], identity.value)) {
       throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 查询owner未原样保留请求身份')
     }
+    if (options.expectedField && !this.sameQuerySaveValue(row[options.expectedField.field], options.expectedField.value)) throw new Error('DATA_VIEW_CHILD_FK_MISMATCH: 查询owner未保留映射的父身份')
     return this.acceptNewRow(row, true)
   }
 
-  private preflightNewRowFields(context: DataViewQueryResult, data: Partial<DataRow>): void {
+  /**
+   * Adds a child through the current DataView query owner, using its generated identity unless one is explicitly supplied.
+   * @param input Explicit parent identity mapping, optional child identity, and ordinary child values.
+   * @returns The staged child row accepted by this DataView.
+   */
+  async addChildRow(input: DataViewChildRowInput): Promise<DataRow | CrudResult<DataRow>> {
+    this.assertResultWritable()
+    const context = this.currentQueryResult()
+    if (!context) throw new Error('DATA_VIEW_CHILD_PARENT_STALE: 父行不属于当前查询结果')
+    const parentKey = this.getPkKey(input.parentRow)
+    const suppliedKey = input.parentRow[this.primaryKey]
+    if ((typeof parentKey !== 'string' && typeof parentKey !== 'number') || (typeof parentKey === 'string' && parentKey.trim() === '')
+      || !Object.is(suppliedKey, parentKey) || (typeof suppliedKey === 'string' && suppliedKey.trim() === '')) throw new Error('DATA_VIEW_CHILD_PARENT_IDENTITY: 父行正式主键缺失或无效')
+    const canonical = this.rows.find(row => Object.is(this.getPkKey(row), parentKey))
+    const source = context.rows.find(row => Object.is(context.rowKey(row), parentKey))
+    if (!canonical || !source) throw new Error('DATA_VIEW_CHILD_PARENT_STALE: 父行不属于当前查询结果')
+    if (this.createChildActionState(canonical) !== 'enabled') throw new Error('DATA_VIEW_CHILD_DISABLED: 当前查询不允许在该父行下新增')
+    if (!this.columns.some(column => column.name === input.parentField)) throw new Error('DATA_VIEW_CHILD_PARENT_FIELD_OUTPUT: 父身份字段不是正式输出字段')
+    if (context.resultPrimaryKey && Object.hasOwn(input.data, context.resultPrimaryKey)) throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 子节点正式主键必须与普通字段分离')
+    if (canonical[input.parentField] === undefined || canonical[input.parentField] === null || context.readFieldAccess(source, input.parentField) !== 'visible') throw new Error('DATA_VIEW_CHILD_PARENT_IDENTITY: 父身份缺失或不可读')
+    const fk = this.getColumn(input.childForeignKey)
+    if (!fk || !this.columns.some(column => column.name === input.childForeignKey)) throw new Error('DATA_VIEW_CHILD_FK_OUTPUT: 子外键不是正式输出字段')
+    if (context.fieldAccess(parentKey, input.childForeignKey).write !== 'allowed') throw new Error(`DATA_VIEW_NEW_ROW_FIELD_DENIED: ${input.childForeignKey}`)
+    if (Object.hasOwn(input.data, input.childForeignKey)) throw new Error('DATA_VIEW_CHILD_FK_CONFLICT: 子外键由父身份映射提供')
+    for (const field of Object.keys(input.data)) {
+      const column = this.getColumn(field)
+      if (!column || column.isComputed || column.computeExpression !== undefined || this._computedDelegate.isConfigured(field)) throw new Error(`DATA_VIEW_NEW_ROW_FIELD_UNKNOWN: ${field}`)
+      if (context.fieldAccess(parentKey, field).write !== 'allowed' || context.isFieldReadOnly?.(field) === true) throw new Error(`DATA_VIEW_NEW_ROW_FIELD_DENIED: ${field}`)
+    }
+    const data = {...input.data, [input.childForeignKey]: canonical[input.parentField]}
+    this.preflightNewRowFields(context, data, parentKey)
+    if (this.shouldDirectCommitCrud('create')) throw new Error('DATA_VIEW_CHILD_STAGED_ONLY: 子记录必须沿DataSet保存')
+    this.assertResultWritable()
+    context.assertIdentity(this.queryIdentity())
+    const defaults = this.queryOwnershipDefaults()
+    for (const [field, value] of Object.entries(defaults)) if (Object.hasOwn(data, field) && !this.sameQuerySaveValue(data[field], value)) {
+      throw new Error(`DATA_VIEW_NEW_ROW_DEFAULT_CONFLICT: ${field} 与当前查询归属默认值冲突`)
+    }
+    if (input.identity) {
+      return this.addRowWithIdentityInternal(input.identity, data, {mode: 'child', parentKey, expectedField: {field:input.childForeignKey,value:canonical[input.parentField]}})
+    }
+    if (!context.prepareNewRow) throw new Error('DATA_VIEW_NEW_ROW_OWNER: 当前查询owner不支持owner生成身份新增')
+    const row = context.prepareNewRow({...defaults, ...data})
+    if (!this.sameQuerySaveValue(row[input.childForeignKey], canonical[input.parentField])) throw new Error('DATA_VIEW_CHILD_FK_MISMATCH: 查询owner未保留映射的父身份')
+    const key = this.getPkKey(row)
+    if ((typeof key !== 'string' && typeof key !== 'number') || (typeof key === 'string' && key.trim() === '') || this.rows.some(item => Object.is(this.getPkKey(item), key))) {
+      throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_MISMATCH: 查询owner未准备有效且唯一的子节点身份')
+    }
+    return this.acceptNewRow(row)
+  }
+
+  private preflightNewRowFields(context: DataViewQueryResult, data: Partial<DataRow>, parentKey?: unknown): void {
     context.assertIdentity(this.queryIdentity())
     for (const field of Object.keys(data)) {
       const column = this.getColumn(field)
@@ -2731,7 +2807,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       if (this._computedDelegate.isConfigured(field) || column.isComputed || column.computeExpression !== undefined) {
         throw new Error(`DATA_VIEW_NEW_ROW_FIELD_COMPUTED: ${field} 是计算字段，不能作为新增输入`)
       }
-      if (this.newRowFieldAccess(field).write !== 'allowed') {
+      if ((parentKey === undefined ? this.newRowFieldAccess(field).write : context.fieldAccess(parentKey, field).write) !== 'allowed' || context.isFieldReadOnly?.(field) === true) {
         throw new Error(`DATA_VIEW_NEW_ROW_FIELD_DENIED: 当前正式查询不允许新增字段 ${field}`)
       }
     }

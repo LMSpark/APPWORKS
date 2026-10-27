@@ -353,28 +353,36 @@ export class BlueprintWorkspaceDataView {
     this.assertUsable()
     if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 正在保存或回执待核验')
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
-    const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
-    if(!parent||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
+    const parent=this.requireCurrentParent(parentNodeId)
+    if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
     if(this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许在所选父节点下新增子节点')
+  }
+
+  private requireCurrentParent(parentNodeId:string):DataRow{
+    const parent=this.view.rows.find(row=>row['rowid']===parentNodeId&&row['SysId']===this.#projectId)
+    if(!parent)throw new Error('蓝图 DataView 未返回可识别的所选父节点')
+    return parent
   }
 
   public preflightChildNode(parentNodeId:string,input:Record<string,unknown>):Record<string,unknown>{
     this.assertCanAddChild(parentNodeId)
+    const parent=this.requireCurrentParent(parentNodeId)
     const expected={...input,SysId:this.#projectId,prowid:parentNodeId}
     for(const field of Object.keys(expected)){
       if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出子节点新增字段 ${field}`)
-      const access=this.view.newRowFieldAccess(field)
-      if(access.read!=='visible'||access.write!=='allowed')throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
+      const access=this.view.fieldAccess(parent,field)
+      if(access.write!=='allowed')throw new Error(`蓝图 DataView 当前查询不允许新增字段 ${field}`)
     }
     const validation=this.view.validator?.validateColumns(expected,new Set(Object.keys(expected)))
     if(validation&&!validation.valid)throw new Error(validation.errors[0]?.message??'蓝图子节点字段校验失败')
     return expected
   }
 
-  public async addChildNode(parentNodeId:string,input:Record<string,unknown>):Promise<string|number>{
+  public async addChildNode(parentNodeId:string,input:Record<string,unknown>,explicitNodeId?:string):Promise<string|number>{
     if(this.hasPendingChildCreate){
       const id=this.#unconfirmedChildId
       if(id===undefined)throw new Error('蓝图子节点待核验身份缺失')
+      if(explicitNodeId!==undefined&&explicitNodeId!==id)throw new Error('蓝图子节点待核验身份与本次稳定节点ID不一致')
       const patch=this.#unconfirmedPatches.get(id)??{}
       if(this.#childReceiptState!=='accepted'){
         try{
@@ -389,10 +397,18 @@ export class BlueprintWorkspaceDataView {
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined;return id
     }
     const expected=this.preflightChildNode(parentNodeId,input)
-    const created=await this.view.addRow(expected)
+    const created=await this.view.addChildRow({
+      parentRow:this.requireCurrentParent(parentNodeId),
+      parentField:'rowid',childForeignKey:'prowid',
+      ...(explicitNodeId===undefined?{}:{identity:{field:'rowid',value:explicitNodeId}}),
+      data:Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='prowid')),
+    })
     if('success' in created)throw new Error('蓝图 DataView 未准备出正式新增行')
     const id=this.view.getPkKey(created)
-    if((typeof id!=='string'&&typeof id!=='number')||!String(id).trim()||created['rowid']!==id||created['SysId']!==this.#projectId||created['prowid']!==parentNodeId)throw new Error('蓝图 DataView owner 未准备有效子节点身份或父级绑定')
+    if((typeof id!=='string'&&typeof id!=='number')||!String(id).trim()||created['rowid']!==id||created['SysId']!==this.#projectId||created['prowid']!==parentNodeId){
+      if((typeof id==='string'||typeof id==='number')&&this.view.rows.some(row=>this.view.getPkKey(row)===id&&this.view.dirtyTracking.hasPendingChanges(id)))await this.view.removeRow(id)
+      throw new Error('蓝图 DataView owner 未准备有效子节点身份或父级绑定')
+    }
     const validation=this.view.validator?.validateColumns(created,new Set(Object.keys(expected)))
     if(validation&&!validation.valid){await this.view.removeRow(id);throw new Error(validation.errors[0]?.message??'蓝图子节点字段校验失败')}
     this.#unconfirmedIds=[id];this.#unconfirmedPatches=new Map([[id,expected]]);this.#unconfirmedChildId=id;this.#childReceiptState='pending'

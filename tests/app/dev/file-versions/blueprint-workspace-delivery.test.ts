@@ -263,15 +263,15 @@ const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', prowid:'000000', F
   IsShowAtNav:1,IsShowChildItem:1,BeginGroup:0,DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
   personCharge: 'U1', status: 'ready', VersionId: 'rule=1;script=1;style=1'})
 
-function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'} = {}) {
+function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'; addEnabled?:boolean} = {}) {
   const outputs = options.outputs ?? blueprintFields
   const readable = new Set(options.readable ?? outputs)
-  const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid' && field !== 'SysId'))
+  const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid'))
   let stored: DataRow[] = options.rows??[blueprintRow()]
   const rows = () => structuredClone(stored)
   let unknownReceipt = false
   const result = (view: DataView, resultRows: DataRow[]) => ({
-    rows: resultRows, total: resultRows.length, countReported: true,
+    rows: resultRows, total: resultRows.length, countReported: true, resultPrimaryKey:'rowid',
     assertIdentity(actual: {scenarioId: string; metaName: string}) {
       if (actual.scenarioId !== blueprintIdentity.scenarioId || actual.metaName !== blueprintIdentity.metaName) throw new Error('identity mismatch')
     },
@@ -279,23 +279,27 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
     fieldAccess: (key: unknown, field: string) => {
       const target = resultRows.find(item => item['rowid'] === key)
       const visible = target !== undefined && readable.has(field) && Object.hasOwn(target, field)
-      const allowed = visible && writable.has(field)
+      const allowed = target !== undefined && writable.has(field)
       return {read: visible ? 'visible' as const : 'invisible' as const, write: allowed ? 'allowed' as const : 'denied' as const,
         component: !visible ? 'hidden' as const : allowed ? 'editable' as const : 'readonly' as const,
         required: false, writeMode: allowed ? 'editable' as const : 'readonly' as const}
     },
     readFieldAccess: (item: DataRow, field: string) => readable.has(field) && Object.hasOwn(item, field) ? 'visible' as const : 'invisible' as const,
-    addActionState: () => 'hidden' as const, editActionState: () => 'enabled' as const,
+    prepareNewRow: (item: Readonly<Record<string, unknown>>) => ({...item, rowid:`OWNER-${stored.length+1}`}),
+    prepareNewRowWithIdentity: (item: Readonly<Record<string, unknown>>, identity: {field: string; value: string | number}) => ({...item, [identity.field]:identity.value}),
+    addActionState: () => options.addEnabled ? 'enabled' as const : 'hidden' as const, editActionState: () => 'enabled' as const,
     deleteActionState: () => 'hidden' as const, createChildActionState: () => options.childActionState??'hidden', viewActionState: () => 'enabled' as const,
   })
   type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
   const save = vi.fn(async (command: SaveCommand) => {
     if (options.unknownSave && !unknownReceipt) {unknownReceipt = true; throw new Error('transport timeout')}
     const receipts=command.changes.map(change => {
+      const added = [...(change.changes.added ?? [])]
+      stored = [...stored, ...added]
       const changed = [...(change.changes.changed ?? [])]
       stored = stored.map(current => changed.find(candidate=>candidate['rowid']===current['rowid'])??current)
       const nextContext = result(view, rows())
-      return {metaName: change.identity.metaName, added: [], changed, deleted: [],
+      return {metaName: change.identity.metaName, added, changed, deleted: [],
         changedFields: changed.map(item => Object.keys(item)), context: nextContext}
     })
     unknownReceipt=false
@@ -325,6 +329,47 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('saves and formally reads back an explicit rowid while omitted IDs retain owner generation', async () => {
+    const f=createBlueprintDataViewFixture({childActionState:'enabled'})
+    try {
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree()
+      const stable=await session.addChildNode('NODE-1',{name:'Stable child',FunName:'Stable child'},'STABLE-CHILD')
+      expect(stable).toBe('STABLE-CHILD')
+      expect(f.rows().find(row=>row['rowid']==='STABLE-CHILD')).toMatchObject({rowid:'STABLE-CHILD',prowid:'NODE-1',SysId:'APP-1'})
+      const generated=await session.addChildNode('NODE-1',{name:'Generated child',FunName:'Generated child'})
+      expect(generated).toBe('OWNER-3')
+      expect(f.rows().find(row=>row['rowid']==='OWNER-3')).toMatchObject({rowid:'OWNER-3',prowid:'NODE-1',SysId:'APP-1'})
+      session.dispose()
+    } finally {f.destroy()}
+  })
+  it('requires child-create c and parent-row field E independently', async () => {
+    const deniedE=createBlueprintDataViewFixture({childActionState:'enabled',writable:blueprintFields.filter(field=>field!=='name')})
+    try {
+      const session=new BlueprintWorkspaceDataView(deniedE.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree()
+      await expect(session.addChildNode('NODE-1',{name:'Denied child'},'DENIED-E')).rejects.toThrow('不允许新增字段 name')
+      session.dispose()
+    } finally {deniedE.destroy()}
+    const deniedC=createBlueprintDataViewFixture({childActionState:'hidden'})
+    try {
+      const session=new BlueprintWorkspaceDataView(deniedC.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree()
+      await expect(session.addChildNode('NODE-1',{name:'Denied child'},'DENIED-C')).rejects.toThrow('不允许在所选父节点下新增子节点')
+      session.dispose()
+    } finally {deniedC.destroy()}
+  })
+  it('allows child payload fields with E even when their read visibility is hidden', async () => {
+    const f=createBlueprintDataViewFixture({childActionState:'enabled',readable:blueprintFields.filter(field=>field!=='name')})
+    try {
+      const session=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await session.loadProjectTree()
+      const id=await session.addChildNode('NODE-1',{name:'Write-only child'},'WRITE-ONLY')
+      expect(id).toBe('WRITE-ONLY')
+      expect(f.rows().find(row=>row['rowid']==='WRITE-ONLY')?.['name']).toBe('Write-only child')
+      session.dispose()
+    } finally {f.destroy()}
+  })
   it('keeps display mode and horizontal alignment on the same DataView draft, cancel, save, and readback path', async () => {
     const f=createBlueprintDataViewFixture()
     try {

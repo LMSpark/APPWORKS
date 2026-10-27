@@ -13,6 +13,7 @@
       "DataViewRecomputeColumnsOptions",
       "DataViewServerRowsPayload",
       "DataViewNewRowIdentity",
+      "DataViewChildRowInput",
       "DataView"
     ]
   },
@@ -300,6 +301,44 @@
       "required": [
         "field",
         "value"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewChildRowInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewChildRowInput",
+      "properties": {
+        "parentRow": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "childForeignKey": {
+          "type": "string"
+        },
+        "identity": {
+          "$ref": "#/$defs/DataViewNewRowIdentity"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "parentRow",
+        "parentField",
+        "childForeignKey",
+        "data"
       ],
       "additionalProperties": false
     },
@@ -2218,6 +2257,19 @@
           "type": "object",
           "title": "Promise<DataRow | CrudResult<DataRow>>"
         },
+        "method.addChildRow.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataViewChildRowInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildRow.return": {
+          "type": "object",
+          "title": "Promise<DataRow | CrudResult<DataRow>>"
+        },
         "method.removeRow.params": {
           "type": "object",
           "properties": {
@@ -2678,7 +2730,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T23:49:06.571Z",
+  "generatedAt": "2026-10-27T00:17:37.253Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -2984,6 +3036,55 @@
             },
             {
               "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewChildRowInput": {
+      "name": "DataViewChildRowInput",
+      "jsdoc": "Parent-linked child creation using the current query result and a formal parent-to-child FK mapping.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Candidate parent; its key is resolved back to the canonical current DataView row before use. */\n    parentRow: DataRow;\n    /** Formal parent field carrying the readable identity to map to the child foreign key. */\n    parentField: string;\n    /** Formal output child field that receives the parent identity. */\n    childForeignKey: string;\n    /** Optional formal child primary key; omitted to retain the query owner's generated identity. */\n    identity?: DataViewNewRowIdentity;\n    /** Ordinary child inputs, excluding the primary key and mapped foreign key. */\n    data: Partial<DataRow>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Candidate parent; its key is resolved back to the canonical current DataView row before use. */\n    parentRow: DataRow;\n    /** Formal parent field carrying the readable identity to map to the child foreign key. */\n    parentField: string;\n    /** Formal output child field that receives the parent identity. */\n    childForeignKey: string;\n    /** Optional formal child primary key; omitted to retain the query owner's generated identity. */\n    identity?: DataViewNewRowIdentity;\n    /** Ordinary child inputs, excluding the primary key and mapped foreign key. */\n    data: Partial<DataRow>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentRow",
+              "jsdoc": "Candidate parent; its key is resolved back to the canonical current DataView row before use.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "Formal parent field carrying the readable identity to map to the child foreign key.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childForeignKey",
+              "jsdoc": "Formal output child field that receives the parent identity.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identity",
+              "jsdoc": "Optional formal child primary key; omitted to retain the query owner's generated identity.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "Ordinary child inputs, excluding the primary key and mapped foreign key.",
               "readable": true,
               "writable": false
             }
@@ -5956,6 +6057,48 @@
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addChildRow",
+              "jsdoc": "Adds a child through the current DataView query owner, using its generated identity unless one is explicitly supplied.\n@param input Explicit parent identity mapping, optional child identity, and ordinary child values.\n@returns The staged child row accepted by this DataView.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewChildRowInput",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
                   }
                 }
               ],

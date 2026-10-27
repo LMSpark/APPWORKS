@@ -6201,7 +6201,7 @@
       "chainBreak": "DataViewFieldAccess.read 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 114,
+      "declarationLine": 127,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6213,7 +6213,7 @@
       "chainBreak": "DataViewFieldAccess.write 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 115,
+      "declarationLine": 128,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6225,7 +6225,7 @@
       "chainBreak": "DataViewFieldAccess.component 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 116,
+      "declarationLine": 129,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6237,7 +6237,7 @@
       "chainBreak": "DataViewFieldAccess.required 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 117,
+      "declarationLine": 130,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6249,7 +6249,7 @@
       "chainBreak": "DataViewFieldAccess.writeMode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 118,
+      "declarationLine": 131,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6261,7 +6261,7 @@
       "chainBreak": "DataViewQueryResult.rows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 128,
+      "declarationLine": 141,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6273,7 +6273,7 @@
       "chainBreak": "DataViewQueryResult.total 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 129,
+      "declarationLine": 142,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6285,7 +6285,7 @@
       "chainBreak": "DataViewQueryResult.assertIdentity 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 130,
+      "declarationLine": 143,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6297,7 +6297,7 @@
       "chainBreak": "DataViewQueryResult.rowKey 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 131,
+      "declarationLine": 144,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6309,7 +6309,7 @@
       "chainBreak": "DataViewQueryResult.prepareNewRow 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 132,
+      "declarationLine": 145,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6321,7 +6321,7 @@
       "chainBreak": "DataViewQueryResult.fieldAccess 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 137,
+      "declarationLine": 150,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6333,7 +6333,7 @@
       "chainBreak": "DataViewQueryResult.readFieldAccess 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 138,
+      "declarationLine": 151,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6345,7 +6345,7 @@
       "chainBreak": "DataViewQueryResult.addActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 139,
+      "declarationLine": 152,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6357,7 +6357,7 @@
       "chainBreak": "DataViewQueryResult.editActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 140,
+      "declarationLine": 153,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6369,7 +6369,7 @@
       "chainBreak": "DataViewQueryResult.deleteActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 141,
+      "declarationLine": 154,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6381,7 +6381,7 @@
       "chainBreak": "DataViewQueryResult.createChildActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 142,
+      "declarationLine": 155,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6393,7 +6393,7 @@
       "chainBreak": "DataViewQueryResult.viewActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 143,
+      "declarationLine": 156,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6405,7 +6405,7 @@
       "chainBreak": "DataViewQueryExecutor.executeQuery 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 155,
+      "declarationLine": 168,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6417,7 +6417,7 @@
       "chainBreak": "DataViewQueryExecutor.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 156,
+      "declarationLine": 169,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6429,7 +6429,7 @@
       "chainBreak": "DataViewQuerySaveChanges.added 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 175,
+      "declarationLine": 188,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6441,7 +6441,7 @@
       "chainBreak": "DataViewQuerySaveChanges.changed 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 176,
+      "declarationLine": 189,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6453,7 +6453,7 @@
       "chainBreak": "DataViewQuerySaveChanges.deleted 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 177,
+      "declarationLine": 190,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6465,7 +6465,7 @@
       "chainBreak": "DataViewQuerySaveChange.identity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 181,
+      "declarationLine": 194,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6477,7 +6477,7 @@
       "chainBreak": "DataViewQuerySaveChange.tableConfig 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 182,
+      "declarationLine": 195,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6489,7 +6489,7 @@
       "chainBreak": "DataViewQuerySaveChange.context 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 183,
+      "declarationLine": 196,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6501,7 +6501,7 @@
       "chainBreak": "DataViewQuerySaveChange.changes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 184,
+      "declarationLine": 197,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6513,7 +6513,7 @@
       "chainBreak": "DataViewQuerySaveCommand.changes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 188,
+      "declarationLine": 201,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6525,7 +6525,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.metaName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 192,
+      "declarationLine": 205,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6537,7 +6537,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.added 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 193,
+      "declarationLine": 206,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6549,7 +6549,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.changed 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 194,
+      "declarationLine": 207,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6561,7 +6561,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.deleted 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 195,
+      "declarationLine": 208,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6573,7 +6573,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.changedFields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 196,
+      "declarationLine": 209,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6585,7 +6585,7 @@
       "chainBreak": "DataViewQuerySaveReceipt.context 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 197,
+      "declarationLine": 210,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6597,7 +6597,7 @@
       "chainBreak": "DataViewQuerySaveTarget.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 201,
+      "declarationLine": 214,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6609,7 +6609,7 @@
       "chainBreak": "DataViewQuerySaveTarget.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 202,
+      "declarationLine": 215,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6620,7 +6620,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 204,
+      "declarationLine": 217,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6632,7 +6632,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 205,
+      "declarationLine": 218,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6644,7 +6644,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput.includeEditingRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 206,
+      "declarationLine": 219,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -6656,7 +6656,7 @@
       "chainBreak": "DataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 865,
+      "declarationLine": 885,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "class"
     },

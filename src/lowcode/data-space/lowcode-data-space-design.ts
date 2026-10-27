@@ -4,7 +4,7 @@ import { LowcodeDataSpaceModelSourceReader } from './model-source/lowcode-data-s
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { LowcodeDataSpaceViewDesign, type SessionLoadOptions } from './view-design/lowcode-data-space-view-design'
 import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from './lowcode-data-space-runtime'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/workflow/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
 import { lowcodeDataSpaceLayout } from './lowcode-data-space-layout'
 
 function staleScope(): Error {

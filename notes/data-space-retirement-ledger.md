@@ -2591,4 +2591,11 @@ flowchart TD
 - **Workflow 消费链：**`WorkflowDesigns.vue` 持有页面生命周期 `PageRuntime`，目录 `RendererTable` 绑定完整键 `scenarioId@AgentWorkflowFiles@directory`；design/definition 文档从各自绑定 DataView 的 `currentRow` 读取。AI activation 原服务入口改为从正式数据空间目录 DataView 唯一解析资源空间，再经同一 file DataView 只读读取。查询结果只把本次成功返回的字段标为可读，全部写权限拒绝；异步边界及字段/行操作授权均校验当前应用 scope。Workflow 创建、保存、发布、删除继续 fail closed，未写入 Workflow 文件或业务数据。
 - **TDD 与工程复核：**先观察缺少 `loadDocument`、设计入口无文件资源 owner、缓存权限不检查 stale scope、正式 loader 未注入注册 executor 等 RED，再实现并转绿。主控复跑通过：Workflow UI `21/21`；服务与资源 `30/30`；DataSpace Design 注册/回滚/未知回执防重放 `3/3`；`loadLowcodeRuntimeScenario` loader `25/25`。变更文件 ESLint `--max-warnings=0`、`pnpm run typecheck`、`git diff --check` 均退出 0。未跑全量 build/verify:rules。
 - **真实 SPA 烟测状态：**当前 IAB 最初显示未认证的 `127.0.0.1:5273/` 平台首页；按用户此前提供的登录信息尝试一次后，SPARK 返回“用户名或密码有误”，页面显示该登录身份还剩4次机会。为避免锁定账号，没有重试；不会将受保护凭据跨工具转成明文。故本批没有通过设计页把 file binding 写入此前已创建的“Agent工作流文件资源”空间，也没有正式 API 回执/重开读回证据。正式 DataSpace 目录记录的历史创建证据不等于本批的 DataTable/DataView 登记验收；不声明真实 SPA 迁移通过。下一步请用户在当前页面手动登录，然后通过设计页登记资源并确认保存、重开、运行目录/文档 DataView；仍不写 Workflow 文件。
-- **代码/交付状态：**本批未改 Java、未启动/部署后端。唯一台账已更新；整体 SPARK data 清理仍 active，应用目录/物理表预览等其他数据旁路仍按已登记缺口动态选片。本批代码待提交/推送，SPA 配置写入与烟测待认证会话完成。
+- **代码/交付状态：**本批未改 Java、未启动/部署后端。代码与台账阶段提交 `240854440`、`1721322fa` 已推送；整体 SPARK data 清理仍 active，应用目录/物理表预览等其他数据旁路仍按已登记缺口动态选片。SPA 配置写入与烟测待认证会话完成。
+
+### 2026-10-28 Workflow 文件资源目录门禁与后续切片复核
+
+- **仓内规则修复：**首轮 `verify:rules` 发现新增 `src/lowcode/resources/workflow/` 违反 `src/lowcode/resources` 子目录上限（10→11）。未放宽基线；把 Agent Workflow 查询执行器和 PageRuntime owner 移入既有 `src/lowcode/resources/shared/`，清除空目录并更新引用。`node tools/verify-directory-limits.mjs` 通过。
+- **工程门禁复验：**Workflow UI、服务/资源和正式 loader 合并测试 `76/76`；DataSpace Design 登记、预检失败回滚、未知回执防重放 `3/3`；typecheck、全变更 ESLint `--max-warnings=0`、生产 build、完整 `verify:rules` 与 `git diff --check` 均退出 0。Build 有现存依赖的动态导入/纯注解警告，不影响退出结果。
+- **下一数据游离点只读审计：**低价模型复核并由主控检查：应用目录 direct `listApplications()` 虽指向正式 `Base_AppSystemList`，当前绑定只属于数据空间目录页，`AppList`/`PlatformApps`/project settings/runtime 导航缺各自正式目录 DataSet 身份、明确租户范围与等价服务端授权投影；物理预览已有 DataView 外壳但执行器仍直调 GetData、本地合成字段权限，SPARK data 当前查询身份不能表示物理 `Type/DbId/DbName/name`。两者都不满足同批删旁路的条件；先取正式服务/场景范围与权限证据，不能用包装测试替代。
+- **真实 SPA 与交付：**真实 SPA 登录仍未完成；一次登录尝试被拒绝，未继续重试或写入正式 DataSpace 资源绑定。本轮只读审计没有改正式业务数据。此次目录移动与引用修正待与本条台账一并提交/推送；总体目标继续 active。用户手动登录后继续设计登记和 SPA 查询读回烟测。

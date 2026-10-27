@@ -1,5 +1,5 @@
 import {DataSet, RequestState} from '@spark-appworks/spark-data'
-import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/workflow/agent-workflow-file-resource'
+import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
 const columns = [
   {name: 'workflowId', type: 'string', isPrimaryKey: true},
@@ -124,7 +124,7 @@ describe('Agent Workflow target space resolution', () => {
 })
 
 
-import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/workflow/agent-workflow-file-owner'
+import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/shared/agent-workflow-file-owner'
 
 describe('Agent Workflow file owner lifecycle', () => {
   function modelSet(scenarioId: string, rows: readonly Record<string, unknown>[]) {

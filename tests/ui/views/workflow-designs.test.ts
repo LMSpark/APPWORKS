@@ -56,7 +56,7 @@ vi.mock('@/services/workflow-designs', async (importOriginal) => {
   }
 })
 
-vi.mock('@/lowcode/resources/workflow/agent-workflow-file-owner', () => ({
+vi.mock('@/lowcode/resources/shared/agent-workflow-file-owner', () => ({
   createAgentWorkflowFileDataViewOwner: mocks.createOwner,
 }))
 

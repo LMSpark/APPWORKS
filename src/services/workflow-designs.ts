@@ -9,7 +9,7 @@ import {
   createAgentWorkflowDefinitionValidation,
 } from '@spark-appworks/spark-ai/agent'
 import type * as SparkAgent from '@spark-appworks/spark-ai/agent'
-import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/workflow/agent-workflow-file-owner'
+import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/shared/agent-workflow-file-owner'
 
 export type JsonRecord = Record<string, unknown>
 

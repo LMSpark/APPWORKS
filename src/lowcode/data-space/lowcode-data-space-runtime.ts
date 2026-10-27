@@ -11,7 +11,7 @@ import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/workflow/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{

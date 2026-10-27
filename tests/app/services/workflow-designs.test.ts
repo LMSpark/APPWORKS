@@ -13,7 +13,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     design: { readTextFile: lowcodeRuntimeMock.readTextFile },
   },
 }))
-vi.mock('@/lowcode/resources/workflow/agent-workflow-file-owner', () => ({
+vi.mock('@/lowcode/resources/shared/agent-workflow-file-owner', () => ({
   createAgentWorkflowFileDataViewOwner: lowcodeRuntimeMock.createFileOwner,
 }))
 

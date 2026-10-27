@@ -2416,3 +2416,10 @@ flowchart TD
 - **基线与范围：**从 clean HEAD `00cb3a116a5de4c0897015e1c90c2e1d5a43db5f`，按仍开放事项筛选有实际消费者、正式 DataSet/DataView 身份和权限/owner 合同的安全 TDD 切片。报告：`notes/evidence/project-blueprint/active-slice-20261027-report.md`。
 - **筛选结果：**无新切片满足条件。NavHost 关系编辑仍缺正式行/字段权限、CRUD owner 与读回合同；平台目录、物理预览、工作流文件资源身份与权限未证实，按既定范围排除。通用蓝图 gateway 虽仍有 raw mutation 方法，但源码未发现生产调用者直接调用；DevSystem 当前正式写入 owner 是 `BlueprintWorkspaceDataView` 外部 session。headless PageDesign/ProjectPlanning 没有已确认生产执行入口，已有 fail-closed/不经 `ProjectWorkspace.saveAll` 测试覆盖边界。对这些项添拒绝包装或重复测试既无 RED，也不构成活跃链迁移。
 - **改动与验收：**本轮只新增筛选报告和本台账记录；未改产品代码、未添加测试、未运行验证、未访问真实业务写接口；无密码读取或记录。后续待正式资源/权限/owner 合同或真实 gateway 生产调用链出现后再选择实现切片。
+
+### 2026-10-27 ServerManagerment 旧路径身份诊断
+
+- **检查对象：**旧节点 `BD30E16E34BC2393D9C520C9DF0AE8AA` / `/DataCenter/ServerManagerment.html`，对照参考页面、本仓正式页面 registry 与 system page owner 规则。详细证据见 `notes/evidence/project-blueprint/server-management-path-diagnosis-20261027.md`。
+- **项目 scope 判定：**历史只读 SPA 记录将旧节点归于“数据资产管理” app `00BE6ED455CD4BD7B785C61A12A1E67D`。参考仓服务器管理页面在 Metadata 域；本仓 registry 对应 canonical 页面明确描述为“Metadata 项目”入口，已知 Metadata 正式服务器页 owner 是导航 ID `78C58A7FE34F2987267A1E8AF10B2990`，项目 `D99A1DCE9894698799101EFD70F8FC76`。参考页面业务语义相同，但未找到旧节点原始蓝图/路由配置证明其 target 对应该页面；当前 registry 也没有旧 URL alias。故不能证明一一对应，且已知 app scope 不一致。
+- **处置：**停止产品改动，不新增 alias、RED 测试或 owner。Alias 会沿用 canonical owner，不能替换正式 navigationId、blueprintScenarioId 或项目身份。解锁需取得 00BE 节点的正式目标配置/部署回执并确认其场景与授权 scope。
+- **边界：**仅查本地源码、参考页面和已有脱敏历史证据；未登录、未发起线上请求或业务写入，未读取或记录密码。没有测试或 ESLint/typecheck，因为无产品改动；无提交/推送。

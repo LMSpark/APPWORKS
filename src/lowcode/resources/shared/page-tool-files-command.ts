@@ -40,7 +40,15 @@ type SnapshotFileIo=Readonly<{
 type FileSaveExecutor=Parameters<DataView['bindQueryExecutor']>[0]
 type FileSaveCommand=Parameters<NonNullable<FileSaveExecutor['save']>>[0]
 type FileSaveReceipt=Awaited<ReturnType<NonNullable<FileSaveExecutor['save']>>>[number]
-type PageToolFileSaveInput=Readonly<{page:PageTool;fileName:PageToolFileName;text:string;revision:number;assertCurrent:()=>void}>
+type PageToolFileSaveInput=Readonly<{
+  page:PageTool
+  fileName:PageToolFileName
+  text:string
+  revision:number
+  /** Whether this save requires the original page to remain the active page. */
+  requireActive?:boolean
+  assertCurrent:()=>void
+}>
 const SAVE_TABLE='PageToolFileSave'
 function isPageToolFileName(value:unknown):value is PageToolFileName{return FILES.some(name=>name===value)}
 function parseAction(value:unknown):Action{
@@ -70,14 +78,14 @@ export class PageToolFilesDataView {
   readonly #pendingUnknownActions=new Map<string,Action>()
   readonly saveView:DataView
   #savingFileView=false
-  readonly #fileSavePending=new Map<string,Readonly<{page:PageTool;fileName:PageToolFileName;text:string;baseline:string;revision:number;context:object;guard:()=>void}>>()
+  readonly #fileSavePending=new Map<string,Readonly<{page:PageTool;fileName:PageToolFileName;text:string;baseline:string;revision:number;requireActive:boolean|undefined;context:object;guard:()=>void}>>()
   readonly #fileSaveAttempts=new Map<string,PageToolFileSaveInput>()
-  constructor(private readonly dataSet:DataSet,private readonly appId:string,private readonly io:FileIo,private readonly assertCurrent:()=>void){
+  constructor(private readonly dataSet:DataSet,private readonly appId:string,private readonly io:FileIo,private assertCurrent:()=>void){
     if(!appId.trim())throw new Error('page-tool-files 缺少 appId')
     this.view=ensureDataSetFileCommandView({dataSet,tableName:TABLE,resourceId:`page-tool-files:${appId}`,columns:[{name:'commandId',primary:true},{name:'action'},{name:'pageId'},{name:'parentId'},
       {name:'customPath'},{name:'fileName'},{name:'text'},{name:'snapshotVersion'},{name:'versionedFileName'}]})
     this.view.commitMode='staged'
-    bindDataSetCommandSubmit(this.view,{resource:{resourceType:'file',resourceId:`page-tool-files:${appId}`},guard:assertCurrent,
+    bindDataSetCommandSubmit(this.view,{resource:{resourceType:'file',resourceId:`page-tool-files:${appId}`},guard:()=>this.assertCurrent(),
       inputFields:['commandId','action','pageId','parentId','customPath','fileName','text','snapshotVersion','versionedFileName'],createKey:()=>crypto.randomUUID(),
       submit:row=>this.submit(row),verify:row=>this.verify(row),isUnconfirmed:error=>this.isUnknown(error)})
     const saveTable=dataSet.getTable(SAVE_TABLE)??dataSet.addTable(SAVE_TABLE,[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},{name:'text',type:'string'},{name:'revision',type:'string'}])
@@ -102,6 +110,18 @@ export class PageToolFilesDataView {
       return makeResult(view,[{fileKey:JSON.stringify([this.appId,pageId,fileName]),pageId,fileName,text,revision:'0'}])},save:command=>this.saveFileChanges(command,contexts,makeResult),
       hasUnconfirmedSave:context=>[...this.#fileSavePending.values()].some(item=>item.context===context),abandonUnconfirmedSave:context=>{for(const [key,item] of this.#fileSavePending)if(item.context===context)this.#fileSavePending.delete(key)}}
     saveView.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:`page-tool-files-save:${appId}`}})
+  }
+  /** Rebind a parked command owner to a newly acquired same-project DevSystem scope. */
+  public rebindScope(input:Readonly<{assertCurrent:()=>void;assertPendingFileSavePage?:(page:PageTool,fileName:PageToolFileName,requireActive:boolean)=>void}>):void{
+    this.assertCurrent=input.assertCurrent
+    for(const [key,pending] of this.#fileSavePending){
+      const guard=()=>{this.assertCurrent();input.assertPendingFileSavePage?.(pending.page,pending.fileName,pending.requireActive===true)}
+      this.#fileSavePending.set(key,{...pending,guard})
+    }
+    for(const [key,attempt] of this.#fileSaveAttempts){
+      const assertCurrent=()=>{this.assertCurrent();input.assertPendingFileSavePage?.(attempt.page,attempt.fileName,attempt.requireActive===true)}
+      this.#fileSaveAttempts.set(key,{...attempt,assertCurrent})
+    }
   }
   public async savePageFile(input:PageToolFileSaveInput):Promise<void>{
     if(this.#savingFileView)throw new Error('PAGE_TOOL_FILE_SAVE_PENDING: 当前文件DataView正在处理另一目标')
@@ -155,12 +175,12 @@ export class PageToolFilesDataView {
         const attempt=this.#fileSaveAttempts.get(key)
         if(attempt?.page.pageId!==pageId||attempt.revision!==revision||attempt.text!==text)throw new Error('PAGE_TOOL_FILE_SAVE_ATTEMPT: 缺少同一活跃PageTool及revision提交上下文')
         try{await this.io.upload({appId:this.appId,pageId,fileName:name,text})}
-        catch(error){if(this.isUnknown(error))this.#fileSavePending.set(key,{page:attempt.page,fileName:name,text,baseline,revision,context:change.context,guard:attempt.assertCurrent});throw error}
+        catch(error){if(this.isUnknown(error)){const settledAttempt=this.#fileSaveAttempts.get(key)??attempt;this.#fileSavePending.set(key,{page:settledAttempt.page,fileName:name,text,baseline,revision,requireActive:settledAttempt.requireActive,context:change.context,guard:settledAttempt.assertCurrent})}throw error}
         try{
           check()
           const readback=await this.io.read(this.appId,pageId,name);check()
           if(readback!==text)throw new Error('PAGE_TOOL_FILE_READBACK: 文件保存回读不一致')
-        }catch(error){this.#fileSavePending.set(key,{page:attempt.page,fileName:name,text,baseline,revision,context:change.context,guard:attempt.assertCurrent});throw error}
+        }catch(error){const settledAttempt=this.#fileSaveAttempts.get(key)??attempt;this.#fileSavePending.set(key,{page:settledAttempt.page,fileName:name,text,baseline,revision,requireActive:settledAttempt.requireActive,context:change.context,guard:settledAttempt.assertCurrent});throw error}
         attempt.page.markFileSaved(name,text)
       }
       const saved={...submitted}

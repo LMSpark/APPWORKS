@@ -306,6 +306,17 @@
           },
           "additionalProperties": false
         },
+        "method.rebindScope.params": {
+          "type": "object",
+          "properties": {
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebindScope.return": true,
         "method.load.params": {
           "type": "object",
           "properties": {
@@ -705,7 +716,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T10:02:25.930Z",
+  "generatedAt": "2026-10-27T10:18:40.857Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1072,6 +1083,33 @@
             }
           ],
           "methods": [
+            {
+              "name": "rebindScope",
+              "jsdoc": "Rebind the parked owner to a newly acquired same-project DevSystem scope.",
+              "parameters": [
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "load",
               "parameters": [

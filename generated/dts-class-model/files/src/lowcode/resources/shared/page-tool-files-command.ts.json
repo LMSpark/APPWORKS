@@ -337,6 +337,9 @@
         },
         "revision": {
           "type": "number"
+        },
+        "requireActive": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -402,6 +405,30 @@
           },
           "additionalProperties": false
         },
+        "method.rebindScope.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "assertPendingFileSavePage": {
+                  "type": "object",
+                  "title": "(page: PageTool, fileName: PageToolFileName, requireActive: boolean) => void"
+                }
+              },
+              "required": [
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rebindScope.return": true,
         "method.savePageFile.params": {
           "type": "object",
           "properties": {
@@ -553,7 +580,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T05:26:22.524Z",
+  "generatedAt": "2026-10-27T10:36:20.397Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -1092,11 +1119,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    /** Whether this save requires the original page to remain the active page. */\n    requireActive?: boolean;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    /** Whether this save requires the original page to remain the active page. */\n    requireActive?: boolean;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1119,6 +1146,12 @@
             },
             {
               "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requireActive",
+              "jsdoc": "Whether this save requires the original page to remain the active page.",
               "readable": true,
               "writable": false
             }
@@ -1229,6 +1262,29 @@
             }
           ],
           "methods": [
+            {
+              "name": "rebindScope",
+              "jsdoc": "Rebind a parked command owner to a newly acquired same-project DevSystem scope.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        assertCurrent: () => void;\n        assertPendingFileSavePage?: (page: PageTool, fileName: PageToolFileName, requireActive: boolean) => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "savePageFile",
               "parameters": [

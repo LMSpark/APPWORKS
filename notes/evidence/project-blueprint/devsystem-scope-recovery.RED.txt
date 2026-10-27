@@ -1,0 +1,5 @@
+RED — DevSystem scope recovery
+Command: pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts -t "effectScope teardown 后同项目重新 acquire"
+Result: exit 1; 1 focused test failed.
+Observed: an unknown Base_NavigationInfo leaf-delete receipt remains pending, then effectScope.stop() disposes the original PageRuntime/DataViews. `runtime.destroyed` was true; same-project re-acquire cannot preserve the original runtime/DataSet/DataView owner or resume its original command.
+Failure: tests/app/dev/dev-state-page-file-closed-loop.test.ts:1274 expected runtime.destroyed=false, received true.

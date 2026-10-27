@@ -25,6 +25,7 @@ const httpFns = vi.hoisted(() => ({
   delete: vi.fn(),
   blueprintDeleteNode: vi.fn(),
   clearCache: vi.fn(),
+  scopeToken: 'fixture-token',
   interceptors: {
     request: { use: vi.fn() },
     response: { use: vi.fn() },
@@ -94,7 +95,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => null,
   lowcodeApi: {
-    readRequestScope: () => ({token:'fixture-token',headers:{'X-AppId':'APP-A'}}),
+    readRequestScope: () => ({token:httpFns.scopeToken,headers:{'X-AppId':'APP-A'}}),
     platform: {
       listApplications: async () => httpFns.get('application-catalog:tenant-b'),
     },
@@ -301,6 +302,7 @@ describe('DevState 页面文件闭环', () => {
   beforeEach(() => {
     isolateAppProjectWorkspaceForTest()
     vi.clearAllMocks()
+    httpFns.scopeToken='fixture-token'
     pageFiles.files.clear()
     httpFns.requestFull.mockImplementation(requestFullFromGet)
     httpFns.clearCache.mockImplementation(() => undefined)
@@ -1077,6 +1079,39 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('unknown 文件创建跨 scope teardown 保留 page-binding saga 与原 command ID',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const node=first.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
+    await first.selectNode(node)
+    pageFiles.upload.mockImplementationOnce(async(command)=>{
+      pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+      const error=Object.assign(new Error('timeout after accept'),{name:'RequestError',config:{url:'/file-upload'}})
+      throw error
+    })
+    await expect(first.createPageForSelectedNode({pageId:'scope-create-page',title:'Scope create',icon:'Document'})).resolves.toBe(false)
+    const fileView=fixture.dataSet.getView('PageToolFilesCommand'),commandId=fileView?.rows.find(row=>row['action']==='create')?.['commandId']
+    const originalOwner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
+    firstScope.stop()
+
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try{
+      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      const recovered=await second.loadBlueprintWorkspaceDataView()
+      expect(recovered).toBe(originalOwner)
+      expect(second.blueprintPageRuntime.value).toBe(runtime)
+      expect(fileView?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
+      await second.saveAll()
+      await second.saveAll()
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(fileView?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
+      expect(pageFiles.upload).toHaveBeenCalledTimes(4)
+      expect([...pageFiles.files.keys()].filter(key=>key.startsWith('scope-create-page/'))).toHaveLength(3)
+    }finally{secondScope.stop()}
+  })
+
   it('节点字段代理不暴露无读取权限值，也拒绝只读字段setter',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{hiddenFields:['name'],readonlyFields:['memo']})
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -1257,6 +1292,132 @@ describe('DevState 页面文件闭环', () => {
     } finally {ownerScope.stop()}
   })
 
+  it('effectScope teardown 后同项目重新 acquire 复用未知 Base_NavigationInfo owner 并沿原命令完成读回', async () => {
+    const leaf={...node('LEAF-SCOPE-RECOVERY','作用域恢复叶子','','APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const firstOwner=await first.loadBlueprintWorkspaceDataView()
+    const runtime=first.blueprintPageRuntime.value
+    await firstOwner.loadProjectTree()
+    await expect(firstOwner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)).rejects.toThrow('transport timeout')
+    expect(firstOwner.hasUnconfirmedSave).toBe(true)
+    firstScope.stop()
+
+    expect(runtime?.destroyed).toBe(false)
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try {
+      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      httpFns.scopeToken='different-auth-context'
+      expect((await import('@/lowcode/lowcode-runtime')).lowcodeApi.readRequestScope().token).toBe('different-auth-context')
+      await expect(second.loadBlueprintWorkspaceDataView()).rejects.toThrow('认证请求作用域已变化')
+      httpFns.scopeToken='fixture-token'
+      const recoveredOwner=await second.loadBlueprintWorkspaceDataView()
+      expect(recoveredOwner).toBe(firstOwner)
+      expect(second.blueprintPageRuntime.value).toBe(runtime)
+      expect(recoveredOwner.dataSet).toBe(fixture.dataSet)
+      expect(recoveredOwner.hasUnconfirmedSave).toBe(true)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      await recoveredOwner.save()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(recoveredOwner.hasUnconfirmedSave).toBe(false)
+      expect((await recoveredOwner.loadProjectTree()).children?.some(item=>item.nodeId===leaf.nodeId)).toBe(false)
+    } finally {secondScope.stop()}
+  })
+
+  it('删除请求未 settle 时 teardown 保留 owner，回执未知后新 scope 只核验原命令',async()=>{
+    const leaf={...node('LEAF-INFLIGHT-SCOPE','in-flight 删除叶子','','APP-A'),kind:'module' as const}
+    const root=blueprintRoot([leaf],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const nativeSave=fixture.save.getMockImplementation()!
+    let accepted!:()=>void,settle!:()=>void
+    const acceptedPromise=new Promise<void>(resolve=>{accepted=resolve})
+    const settlePromise=new Promise<void>(resolve=>{settle=resolve})
+    fixture.save.mockImplementation(async command=>{
+      try{return await nativeSave(command)}catch(error){accepted();await settlePromise;throw error}
+    })
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
+    await owner.loadProjectTree()
+    const deletion=owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
+    await acceptedPromise
+    expect(owner.isBusy).toBe(true)
+    // Model the narrow acceptance window where mutation state is active before
+    // pending/dirty receipt bookkeeping becomes visible to the shell.
+    vi.spyOn(owner,'dirty','get').mockReturnValue(false)
+    vi.spyOn(owner,'hasPendingBlueprintCommand','get').mockReturnValue(false)
+    firstScope.stop()
+    expect(runtime?.destroyed).toBe(false)
+
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try{
+      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const recovered=await second.loadBlueprintWorkspaceDataView()
+      expect(recovered).toBe(owner)
+      expect(second.blueprintPageRuntime.value).toBe(runtime)
+      expect(recovered.isBusy).toBe(true)
+      expect(fixture.save).toHaveBeenCalledOnce()
+      settle()
+      await expect(deletion).rejects.toThrow('transport timeout')
+      expect(recovered.hasUnconfirmedSave).toBe(true)
+      await recovered.save()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls.map(call=>call[0].changes[0]?.changes.deleted?.map(row=>row['rowid']))).toEqual([
+        ['LEAF-INFLIGHT-SCOPE'],['LEAF-INFLIGHT-SCOPE'],
+      ])
+      expect(recovered.hasUnconfirmedSave).toBe(false)
+      expect((await recovered.loadProjectTree()).children?.some(item=>item.nodeId===leaf.nodeId)).toBe(false)
+    }finally{settle();secondScope.stop()}
+  })
+
+  it('clean scope teardown 释放 owner，且不同项目 acquire 不串用 DataSet',async()=>{
+    const opened:DataSet[]=[]
+    blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>{
+      if(scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID)return createDataSpaceCatalogRuntimeDataSet()
+      const next=createBlueprintRuntimeDataSet(projectId).dataSet;opened.push(next);return next
+    })
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const firstOwner=await first.loadBlueprintWorkspaceDataView(),firstRuntime=first.blueprintPageRuntime.value
+    firstScope.stop()
+    expect(firstRuntime?.destroyed).toBe(true)
+
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try{
+      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const sameProjectOwner=await second.loadBlueprintWorkspaceDataView()
+      expect(sameProjectOwner).not.toBe(firstOwner)
+      expect(second.blueprintPageRuntime.value).not.toBe(firstRuntime)
+      expect(sameProjectOwner.dataSet).not.toBe(opened[0])
+      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-B'},{force:true})).resolves.toBe(true)
+      const otherProjectOwner=await second.loadBlueprintWorkspaceDataView()
+      expect(otherProjectOwner.projectId).toBe('APP-B')
+      expect(otherProjectOwner).not.toBe(sameProjectOwner)
+      expect(otherProjectOwner.dataSet).not.toBe(sameProjectOwner.dataSet)
+    }finally{secondScope.stop()}
+  })
+
+  it('同项目 SPA scope 重叠时拒绝第二个活动 owner lease，旧 scope 清理后可重新 acquire',async()=>{
+    const ownerScope=effectScope(),ownerState=ownerScope.run(()=>useDevState())!
+    await ownerState.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const original=await ownerState.loadBlueprintWorkspaceDataView()
+    const overlappingScope=effectScope(),overlapping=overlappingScope.run(()=>useDevState())!
+    try{
+      await overlapping.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await expect(overlapping.loadBlueprintWorkspaceDataView()).rejects.toThrow('DEV_SYSTEM_OWNER_LEASE_ACTIVE')
+    }finally{overlappingScope.stop()}
+    ownerScope.stop()
+    const nextScope=effectScope(),next=nextScope.run(()=>useDevState())!
+    try{
+      await next.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const acquired=await next.loadBlueprintWorkspaceDataView()
+      expect(acquired).not.toBe(original)
+    }finally{nextScope.stop()}
+  })
+
   it('普通叶子删除明确保存失败时保留 pending-delete 并可沿同一 DataSet 重试', async () => {
     const leaf={...node('LEAF-FAIL','保存失败叶子','','APP-A'),kind:'module' as const}
     const root=blueprintRoot([leaf],'APP-A')
@@ -1389,6 +1550,38 @@ describe('DevState 页面文件闭环', () => {
       expect(pageFiles.remove).toHaveBeenCalledTimes(1)
       expect([...pageFiles.files.keys()].some(key=>key.startsWith('unknown-page/'))).toBe(false)
     }finally{ownerScope.stop()}
+  })
+
+  it('挂载删除跨 scope teardown 保留原双阶段 saga 与文件命令 owner',async()=>{
+    const mounted=node('MOUNTED-SCOPE-RECOVERY','待恢复挂载页','cfg:scope-delete-page','APP-A')
+    const root=blueprintRoot([mounted],'APP-A'),fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    pageFiles.files.set('scope-delete-page/rule.json','{}')
+    pageFiles.remove.mockRejectedValueOnce(Error('temporary file delete failure'))
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
+    await owner.loadProjectTree()
+    first.removeNodeFromTree({parent:{data:root}},{...mounted})
+    await vi.waitFor(()=>expect(first.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true))
+    const fileView=fixture.dataSet.getView('PageToolFilesCommand')
+    const commandId=fileView?.rows.find(row=>row['action']==='delete')?.['commandId']
+    expect(typeof commandId).toBe('string')
+    firstScope.stop()
+    expect(runtime?.destroyed).toBe(false)
+
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try{
+      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const recovered=await second.loadBlueprintWorkspaceDataView()
+      expect(recovered).toBe(owner)
+      expect(second.blueprintPageRuntime.value).toBe(runtime)
+      expect(fixture.dataSet.getView('PageToolFilesCommand')).toBe(fileView)
+      await second.saveAll()
+      expect(fileView?.rows.find(row=>row['action']==='delete')?.['commandId']).toBe(commandId)
+      expect(pageFiles.remove).toHaveBeenCalledTimes(2)
+      expect([...pageFiles.files.keys()].some(key=>key.startsWith('scope-delete-page/'))).toBe(false)
+    }finally{secondScope.stop()}
   })
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {

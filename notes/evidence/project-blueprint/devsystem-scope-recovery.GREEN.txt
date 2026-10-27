@@ -1,0 +1,5 @@
+GREEN — DevSystem SPA scope recovery
+Focused lifecycle tests: pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts tests/app/dev/page-tool-files-command.test.ts
+Result: exit 0; 2 files passed, 87/87 tests passed.
+Coverage added: unknown Base_NavigationInfo delete reuses original PageRuntime/DataSet/BlueprintWorkspaceDataView after effectScope.stop and completes original command readback; page-tool create saga and mounted-delete two-stage saga survive teardown with original command IDs; auth-token changes fail closed; overlapping same-project owner leases are rejected; clean owner teardown releases runtime and project instances remain isolated; PageToolFileSave pending and in-flight attempts rebind the same PageTool identity and verify the accepted text without replaying upload.
+No backend Java or real SPA writes were used. No token value is recorded in this evidence.

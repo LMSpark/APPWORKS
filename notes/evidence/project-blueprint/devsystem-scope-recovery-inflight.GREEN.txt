@@ -1,0 +1,5 @@
+GREEN — in-flight Base_NavigationInfo scope teardown
+Command: pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts tests/app/dev/page-tool-files-command.test.ts
+Result: exit 0; 2 files passed, 88/88 tests passed.
+The new race test holds an accepted delete request before its unknown response settles, verifies the owner stays mounted from `BlueprintWorkspaceDataView.isBusy` even when dirty/pending projections are not yet available, re-acquires the same owner in a new scope, then settles the unknown response and completes exact-ID verification. The initial request count remains one until settlement; verification uses the original deleted row ID and formal readback confirms deletion without blind replay.
+Also passed: typecheck, targeted ESLint, official ClassModel generation, and verify:class-model (4 files / 49 tests). Generated `requireActive` declaration includes its JSDoc; no semantic gap references this member.

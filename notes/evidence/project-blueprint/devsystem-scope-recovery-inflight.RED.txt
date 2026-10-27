@@ -1,0 +1,5 @@
+RED — in-flight Base_NavigationInfo scope teardown
+Command: pnpm exec vitest run tests/app/dev/dev-state-page-file-closed-loop.test.ts -t "删除请求未 settle 时 teardown"
+Result: exit 1; 1 focused test failed.
+Scenario: server-side delete had been accepted, while the DataSet save Promise was held before returning its unknown receipt. The test hid dirty/command-pending projections to reproduce the bookkeeping window and verified `BlueprintWorkspaceDataView.isBusy` remained true. Teardown disposed the PageRuntime/DataViews because release did not consider an active owner mutation.
+Failure: runtime.destroyed was true at tests/app/dev/dev-state-page-file-closed-loop.test.ts:1353.

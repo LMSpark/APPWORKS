@@ -112,7 +112,7 @@ export class BlueprintWorkspaceDataView {
   public constructor(
     public readonly dataSet: DataSet,
     projectId: string,
-    private readonly assertCurrent: () => void,
+    private assertCurrent: () => void,
   ) {
     this.#projectId = projectId.trim()
     if (!this.#projectId) throw new Error('蓝图 DataView 缺少项目身份')
@@ -135,6 +135,11 @@ export class BlueprintWorkspaceDataView {
   }
 
   public get projectId(): string {return this.#projectId}
+  /** Rebind the parked owner to a newly acquired same-project DevSystem scope. */
+  public rebindScope(assertCurrent: () => void): void {
+    if (this.#disposed) throw new Error('蓝图 DataView owner 已释放，不能重新绑定作用域')
+    this.assertCurrent = assertCurrent
+  }
   public get nodeId(): string {return this.#nodeId}
   public get row(): DataRow | undefined {return this.#row}
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}

@@ -48,6 +48,49 @@ describe('PageToolFilesDataView',()=>{
     expect(upload).toHaveBeenCalledTimes(1);expect(page.getSavedFileText('script.js')).toBe('submitted')
   })
 
+  it('rebinds a pending PageToolFileSave receipt to a same-page lease without replay',async()=>{
+    const files=new Map([['script.js','before']]),upload=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const owner=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,remove:async()=>{}},()=>{})
+    const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before')
+    let oldLeaseActive=true
+    const oldGuard=()=>{if(!oldLeaseActive)throw Error('old scope closed')}
+    page.setFileText('script.js','submitted')
+    await expect(owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:7,assertCurrent:oldGuard})).rejects.toThrow('timeout after accept')
+    oldLeaseActive=false
+    let newLeaseActive=true
+    const newGuard=()=>{if(!newLeaseActive)throw Error('new scope closed')}
+    owner.rebindScope({assertCurrent:newGuard,assertPendingFileSavePage:(target,name)=>{if(target!==page||name!=='script.js')throw Error('pending file identity changed')}})
+    const save=vi.spyOn(dataSet,'saveChanges')
+    await expect(owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:7,assertCurrent:newGuard})).resolves.toBeUndefined()
+    expect(upload).toHaveBeenCalledOnce()
+    expect(save).toHaveBeenCalledOnce()
+    expect(page.getSavedFileText('script.js')).toBe('submitted')
+    newLeaseActive=false
+  })
+
+  it('rebinds an in-flight PageToolFileSave attempt before a late unknown receipt settles',async()=>{
+    const files=new Map([['script.js','before']]);let finish!:()=>void
+    const upload=vi.fn(async(command:{fileName:string;text:string})=>{await new Promise<void>(resolve=>{finish=resolve});files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const owner=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,remove:async()=>{}},()=>{})
+    const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
+    let oldLeaseActive=true,newLeaseActive=true
+    const oldGuard=()=>{if(!oldLeaseActive)throw Error('old scope closed')},newGuard=()=>{if(!newLeaseActive)throw Error('new scope closed')}
+    const inflight=owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:9,assertCurrent:oldGuard})
+    await vi.waitFor(()=>expect(finish).toBeTypeOf('function'))
+    oldLeaseActive=false
+    owner.rebindScope({assertCurrent:newGuard,assertPendingFileSavePage:target=>{if(target!==page)throw Error('page identity changed')}})
+    finish()
+    await expect(inflight).rejects.toThrow('timeout after accept')
+    const save=vi.spyOn(dataSet,'saveChanges')
+    await expect(owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:9,assertCurrent:newGuard})).resolves.toBeUndefined()
+    expect(upload).toHaveBeenCalledOnce()
+    expect(save).toHaveBeenCalledOnce()
+    expect(page.getSavedFileText('script.js')).toBe('submitted')
+    newLeaseActive=false
+  })
+
   it('marks only the captured file text saved when an edit arrives during upload',async()=>{
     const files=new Map([['script.js','before']]);let finish!:()=>void
     const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{

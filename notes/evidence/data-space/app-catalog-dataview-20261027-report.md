@@ -14,7 +14,7 @@
 ## 正式合同核验
 
 - `config/pages/data-platform/data-space-catalog/pagedata.json` 有 `Base_AppSystemList` 的 `modelBinding.modelId=acb04903-043f-4c99-9a57-a8e9bc95ce72`、`modelName=Base_AppSystemList`，视图 `default` 与 `catalogApps`。这是数据空间目录场景自己的 pagedata 绑定；文件没有证明它属于 `/app-list` 等平台应用目录执行路由，也没有给出可直接复用的正式目录 DataView owner。
-- `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 在 `packages/spark-lowcode-api/src/platform/lowcode-application.ts` 中是目录 API 使用的固定 FormKey。它自身并不证明等于某个 `Base_DataSet.rowid`，也不证明正式模型身份或 `scenarioId`。应用目录 pagedata 的可见绑定位于另一个场景；禁止由 FormKey、模型名或页面路径推导/拼造二者关系。
+- `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 在 `packages/spark-lowcode-api/src/platform/lowcode-application.ts` 中用于目录 API。留存 `live-navigation.json` 与 `project-blueprint/pagedata.json` 证明 `7AB874097A1E8711A42FD845939A6E05` 是项目蓝图导航/页面场景，并绑定导航模型；它不含 `Base_AppSystemList`。因此即使该 FormKey 对应一个正式场景，也不能据此推断该 direct 请求已经按 `Base_AppSystemList` 的正式 DataView 合同执行，或把它当作 `/app-list`、`/apps` 的路由 owner。禁止从 FormKey、模型名或页面路径猜造此绑定。
 - SPARK DataView 与标准组件确有正式合同：`PageRuntime` 通过显式 `scenarioIds`/`loadScenario` 加载 DataSet；标准组件按 `dataViewKey` 消费运行时视图。但基础设施存在不能替代本业务所缺的正式身份、scope 和权限合同。
 - 本轮未找到该平台目录 DataView 的正式行/字段权限投影、租户/项目过滤配置、绑定读取回执或 owner 生命周期证明。`normalizeApplications()` 与调用方映射只证明原 API 结果规范化，不证明可移植为 DataView 查询。
 
@@ -35,3 +35,10 @@
 ## 解锁条件
 
 取得并核验平台目录路由的正式 DataSet 场景身份与 pagedata（模型 ID、模型名、DataView ID），明确该目录对各消费者的租户/认证/项目范围及变更时 owner/请求失效规则，并取得正式查询返回的行/字段权限与读回证据。之后才能选择单个消费者，按标准组件绑定 `scenarioId@modelName@viewId`，先添加 RED 测试再实现最小切片；项目切换/激活命令保持独立语义。
+
+## 补充核验（2026-10-27）
+
+- `notes/evidence/sparkproject-appworks-integration/live-navigation.json` 将 `7AB874097A1E8711A42FD845939A6E05` 标为“项目蓝图”导航与页面场景；`config/pages/application/project-blueprint/pagedata.json` 绑定 `Base_NavigationInfo` 等导航模型，不含 `Base_AppSystemList`。平台 API 复用该 FormKey 发出 direct GetData，不因此形成该模型的 DataView 绑定。
+- 当前 `Base_AppSystemList` 正式绑定只在 `config/pages/data-platform/data-space-catalog/pagedata.json` 可见，场景 ID 为 `90A82E287930A234FEC3E687C94A93EA`，modelId 为 `acb04903-043f-4c99-9a57-a8e9bc95ce72`。留存 `d1a/lookup-feasibility.json` 的该场景只读查询返回total=1；历史 `live-catalog-read.json` 的全局目录 direct API 返回80行。旧结果只说明所见查询范围曾不同，不能外推当前服务，但不支持把数据空间目录 view 直接借给 `/app-list` 或 `/apps`。
+- 留存的 `notes/evidence/sparkproject-appworks-integration/live-catalog-read.json` 记录 2026-10-06 direct catalog API 返回 80 行、0 业务写入。它是历史 API 可读证据，不能证明现行 DataView 身份、租户/项目 scope 或权限等价。
+- 复核只读本地源文件和留存证据；未发网络请求、未做业务写入、未读取凭据。迁移仍等待各租户路由正式场景身份及 owner 合同。

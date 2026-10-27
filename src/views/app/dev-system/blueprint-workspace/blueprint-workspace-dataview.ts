@@ -45,9 +45,11 @@ export type BlueprintNodeDataBatchItem=Readonly<{nodeId:string;key:string|number
 
 type PendingChildCreateBatch=Readonly<{
   children:readonly BlueprintChildNodeCreateAtParent[]
+  updates:ReadonlyArray<Readonly<{nodeId:string;parentNodeId:string;patch:Readonly<Record<string,unknown>>}>>
   ids:ReadonlyArray<string|number>
   expected:ReadonlyMap<string|number,Readonly<Record<string,unknown>>>
   state:'unknown'|'accepted'|'not-applied'|'blocked'
+  submitted:boolean
 }>
 
 function sameWireValue(left:unknown,right:unknown):boolean{
@@ -447,8 +449,8 @@ export class BlueprintWorkspaceDataView {
         }
       }catch(cause){rollbackError=cause}
       if(rollbackError!==undefined){
-        this.#pendingChildBatch=Object.freeze({children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
-          ids:Object.freeze(ids),expected,state:'blocked'})
+        this.#pendingChildBatch=Object.freeze({children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),updates:Object.freeze([]),
+          ids:Object.freeze(ids),expected,state:'blocked',submitted:false})
         throw new Error(`蓝图批量新增暂存失败且草稿回滚未确认；原命令已锁定：${String(rollbackError)}`)
       }
       throw error
@@ -456,7 +458,8 @@ export class BlueprintWorkspaceDataView {
 
     this.#pendingChildBatch=Object.freeze({
       children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
-      ids:Object.freeze(ids),expected,state:'unknown'})
+      updates:Object.freeze([]),
+      ids:Object.freeze(ids),expected,state:'unknown',submitted:true})
     try{
       const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...ids]}]})
       this.assertBatchSaveCounts(result,ids.length)
@@ -470,16 +473,100 @@ export class BlueprintWorkspaceDataView {
     return ids
   }
 
-  private assertBatchSaveCounts(result:Awaited<ReturnType<DataSet['saveChanges']>>,expectedCount:number):void{
+  /** Preflight, stage, and save creates plus existing leaf updates as one DataSet view batch. */
+  public async addAndUpdateChildNodes(children:readonly BlueprintChildNodeCreateAtParent[],updates:readonly BlueprintNodeFormData[],beforeStage?:()=>boolean):Promise<ReadonlyArray<string|number>>{
+    this.assertUsable()
+    if(children.length===0||updates.length===0)throw new Error('蓝图 DataView 混合命令必须同时包含新增和更新')
+    if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)throw new Error('蓝图 DataView 正在保存或存在原子节点命令待核验')
+    if(this.dirty||!this.#treeQueryLoaded)throw new Error('蓝图 DataView 混合命令要求干净且已完整加载的项目树')
+    const createIds=new Set<string>(), existingIds=new Set(this.view.rows.filter(row=>row['SysId']===this.#projectId).map(row=>String(row['rowid']??'').trim()))
+    const createExpected=new Map<string,Record<string,unknown>>()
+    for(const child of children){
+      const id=child.nodeId.trim(),parentId=child.parentNodeId.trim()
+      if(!id||id!==child.nodeId||existingIds.has(id)||createIds.has(id))throw new Error(`蓝图 DataView 混合新增稳定 rowid 缺失或重复：${child.nodeId}`)
+      if(!parentId||parentId!==child.parentNodeId)throw new Error('蓝图 DataView 混合新增父节点身份无效')
+      const parent=this.requireCurrentParent(parentId)
+      if(parent['SysId']!==this.#projectId||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible'
+        ||this.view.createChildActionState(parent)!=='enabled')throw new Error(`蓝图 DataView 当前查询不允许在父节点 ${parentId} 下新增子节点`)
+      const fields=this.preflightChildNode(parentId,{...child.fields})
+      if(!this.hasOutput('rowid'))throw new Error('蓝图 DataView 未正式输出可读的稳定 rowid')
+      createIds.add(id);createExpected.set(id,{...fields,rowid:id})
+    }
+    const prepared=updates.length>1?[...await this.preflightNodeDataBatch(updates)]:await (async()=>{
+      const node=updates.at(0)
+      if(node===undefined)throw new Error('蓝图 DataView 混合命令更新目标缺失')
+      await this.load(node.nodeId)
+      const patch=this.preflightNodeData(node),row=this.currentRow(),key=this.requireRowKey(row)
+      return [{nodeId:node.nodeId,key,patch,node}]
+    })()
+    const updateIds=new Set(prepared.map(item=>item.nodeId))
+    if(prepared.some(item=>createIds.has(item.nodeId))||[...createIds].some(id=>updateIds.has(id)))throw new Error('蓝图 DataView 混合命令新增和更新身份重复')
+    if(children.some(child=>updateIds.has(child.parentNodeId)))throw new Error('蓝图 DataView 混合命令禁止新增父节点同时作为更新目标')
+    for(const item of prepared){
+      const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===item.key)
+      if(row?.['SysId']!==this.#projectId||row['rowid']!==item.nodeId||this.view.rows.some(candidate=>candidate['SysId']===this.#projectId&&candidate['prowid']===item.nodeId))throw new Error(`蓝图 DataView 混合更新仅允许原树现存叶节点 ${item.nodeId}`)
+      if(Object.keys(item.patch).length===0||Object.keys(item.patch).some(field=>field!=='name'&&field!=='memo'))throw new Error(`蓝图 DataView 混合更新只允许非空 name/memo：${item.nodeId}`)
+      createExpected.set(item.nodeId,{...item.patch})
+    }
+    if(beforeStage&&!beforeStage())throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected before staging')
+    const ids=[...children.map(child=>child.nodeId),...prepared.map(item=>item.key)]
+    const pendingChildren=children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))
+    const pendingUpdates=prepared.map(item=>Object.freeze({nodeId:item.nodeId,parentNodeId:String(this.view.rows.find(row=>this.view.getPkKey(row)===item.key)?.['prowid']??''),patch:Object.freeze({...item.patch})}))
+    const pending:PendingChildCreateBatch=Object.freeze({children:Object.freeze(pendingChildren),updates:Object.freeze(pendingUpdates),ids:Object.freeze(ids),expected:createExpected,state:'blocked',submitted:false})
+    const singlePrepared=prepared.at(0)
+    const created:string[]=[]
+    try{
+      if(prepared.length>1)this.updateNodeDataBatch(prepared)
+      else if(singlePrepared)for(const [field,value] of Object.entries(singlePrepared.patch))this.view.updateEditingValue(singlePrepared.key,field,value)
+      else throw new Error('蓝图 DataView 混合命令更新目标缺失')
+      for(const child of children){
+        const parent=this.requireCurrentParent(child.parentNodeId),expected=createExpected.get(child.nodeId)
+        if(expected===undefined)throw new Error(`蓝图 DataView 混合命令新增字段快照缺失 ${child.nodeId}`)
+        const row=await this.view.addChildRow({parentRow:parent,parentField:'rowid',childForeignKey:'prowid',identity:{field:'rowid',value:child.nodeId},
+          data:Object.fromEntries(Object.entries(expected).filter(([field])=>field!=='prowid'&&field!=='rowid'))})
+        if('success' in row)throw new Error(`蓝图 DataView 未准备混合新增行 ${child.nodeId}`)
+        if(this.view.dirtyTracking.hasPendingChanges(child.nodeId))created.push(child.nodeId)
+        if(this.view.getPkKey(row)!==child.nodeId||row['rowid']!==child.nodeId||row['SysId']!==this.#projectId||row['prowid']!==child.parentNodeId)throw new Error(`蓝图 DataView 混合新增身份不匹配 ${child.nodeId}`)
+      }
+    }catch(error){
+      const rollbackErrors:string[]=[]
+      const stagedCreateIds=[...new Set([...created,...children.map(child=>child.nodeId)])].reverse()
+      for(const id of stagedCreateIds)try{
+        if(!this.view.rows.some(row=>this.view.getPkKey(row)===id)&&!this.view.dirtyTracking.hasPendingChanges(id))continue
+        const result=await this.view.removeRow(id)
+        const succeeded=typeof result==='boolean'?result:result.success&&result.data!==false
+        if(!succeeded||this.view.rows.some(row=>this.view.getPkKey(row)===id)||this.view.dirtyTracking.hasPendingChanges(id))rollbackErrors.push(`新增 ${id} 未确认移除`)
+      }catch(cause){rollbackErrors.push(`新增 ${id} 移除失败：${cause instanceof Error?cause.message:String(cause)}`)}
+      try{this.view.discardPendingChanges(prepared.map(item=>item.key))}catch(cause){rollbackErrors.push(`更新 overlay 清理失败：${cause instanceof Error?cause.message:String(cause)}`)}
+      const unclearedUpdates=prepared.filter(item=>this.view.getEditingPatch(item.key)!==undefined||this.view.dirtyTracking.hasPendingChanges(item.key))
+      if(unclearedUpdates.length)rollbackErrors.push(`更新 ${unclearedUpdates.map(item=>item.nodeId).join(',')} 仍有 overlay/pending`)
+      if(rollbackErrors.length){this.#pendingChildBatch=pending;this.#batchStageBlocked=true}
+      if(rollbackErrors.length)throw new Error(`蓝图混合暂存失败且清理未确认；原 IDs/patch 已锁定：${rollbackErrors.join('；')}`)
+      throw error
+    }
+    this.#pendingChildBatch=Object.freeze({...pending,state:'unknown',submitted:true})
+    try{
+      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...ids]}]})
+      this.assertBatchSaveCounts(result,children.length,prepared.length)
+      this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:'accepted'})
+    }catch(error){
+      this.#pendingChildBatch=Object.freeze({...this.#pendingChildBatch,state:this.view.hasUnconfirmedSave?'unknown':'blocked',submitted:true})
+      throw error
+    }
+    await this.verifyPendingChildBatch()
+    return children.map(child=>child.nodeId)
+  }
+
+  private assertBatchSaveCounts(result:Awaited<ReturnType<DataSet['saveChanges']>>,expectedCreated:number,expectedSaved=0):void{
     const data=result.data
-    if(!result.success||!data)throw new Error(`蓝图 DataView 批量新增回执计数不完整：期望 ${expectedCount} 个新增且无其他动作`)
+    if(!result.success||!data)throw new Error(`蓝图 DataView 批次回执计数不完整：期望新增 ${expectedCreated}、更新 ${expectedSaved} 且无其他动作`)
     const viewResult=data.viewResults[0]
-    if(data.viewCount!==1||data.viewResults.length!==1||!viewResult||data.createdCount!==expectedCount
-      ||data.savedCount!==0||data.deletedCount!==0||data.failedCount!==0||data.failedEditingRows!==0
-      ||data.appliedEditingRows!==0||viewResult.tableName!==this.view.tableName||viewResult.viewId!==this.view.viewId
-      ||viewResult.createdCount!==expectedCount||viewResult.savedCount!==0||viewResult.deletedCount!==0
+    if(data.viewCount!==1||data.viewResults.length!==1||!viewResult||data.createdCount!==expectedCreated
+      ||data.savedCount!==expectedSaved||data.deletedCount!==0||data.failedCount!==0||data.failedEditingRows!==0
+      ||viewResult.tableName!==this.view.tableName||viewResult.viewId!==this.view.viewId
+      ||viewResult.createdCount!==expectedCreated||viewResult.savedCount!==expectedSaved||viewResult.deletedCount!==0
       ||viewResult.failedCount!==0||viewResult.failedEditingRows!==0){
-      throw new Error(`蓝图 DataView 批量新增回执计数不完整：期望 ${expectedCount} 个新增且无其他动作`)
+      throw new Error(`蓝图 DataView 批次回执计数不完整：期望新增 ${expectedCreated}、更新 ${expectedSaved} 且无其他动作`)
     }
   }
 
@@ -491,25 +578,41 @@ export class BlueprintWorkspaceDataView {
       this.#pendingChildBatch=Object.freeze({...pending,state:'unknown'})
       try{
         const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...pending.ids]}]})
-        this.assertBatchSaveCounts(result,pending.ids.length)
+        this.assertBatchSaveCounts(result,pending.children.length,pending.updates.length)
         this.#pendingChildBatch=Object.freeze({...pending,state:'accepted'})
       }catch(error){
         if(error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED'))this.#pendingChildBatch=Object.freeze({...pending,state:'not-applied'})
-        else this.#pendingChildBatch=Object.freeze({...pending,state:'blocked'})
+        else this.#pendingChildBatch=Object.freeze({...pending,state:this.view.hasUnconfirmedSave?'unknown':'blocked'})
         throw error
       }
       return this.verifyPendingChildBatch()
     }
-    if(pending.state==='blocked')throw new Error('蓝图 DataView 批量新增原批次无法安全重放；请保留原ID和字段并重新读取实际结果')
+    if(pending.state==='blocked'){
+      if(!pending.submitted||this.view.hasUnconfirmedSave)throw new Error('蓝图 DataView 原批次已阻断；保留原 IDs/patch，未解决的请求不得重放')
+      const revision=this.#revision,selectedNodeId=this.#nodeId
+      await this.queryProjectRows(revision,selectedNodeId);this.#treeQueryLoaded=true;this.treeProjection()
+      let complete=true
+      for(const id of pending.ids){
+        const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id&&candidate['SysId']===this.#projectId)
+        const update=pending.updates.find(item=>item.nodeId===String(id)),create=pending.children.find(item=>item.nodeId===String(id))
+        const expected=pending.expected.get(id)
+        if(!row||!expected||(create&&row['prowid']!==create.parentNodeId)||(update&&row['prowid']!==update.parentNodeId)
+          ||Object.entries(expected).some(([field,value])=>!Object.hasOwn(row,field)||!sameWireValue(row[field],value)))complete=false
+      }
+      if(!complete)throw new Error('蓝图 DataView 原批次刷新回读仍为部分或不可判明；owner 保持 blocked')
+      this.#pendingChildBatch=undefined
+      this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#batchStageBlocked=false
+      return
+    }
     if(pending.state==='unknown'){
       if(!this.view.hasUnconfirmedSave)throw new Error('蓝图 DataView 批量新增未知回执已失去原查询捕获；拒绝重放')
       try{
         const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[...pending.ids]}]})
-        this.assertBatchSaveCounts(result,pending.ids.length)
+        this.assertBatchSaveCounts(result,pending.children.length,pending.updates.length)
         this.#pendingChildBatch=Object.freeze({...pending,state:'accepted'})
       }catch(error){
         if(error instanceof Error&&error.message.includes('SPARK_SAVE_NOT_APPLIED'))this.#pendingChildBatch=Object.freeze({...pending,state:'not-applied'})
-        else this.#pendingChildBatch=Object.freeze({...pending,state:'blocked'})
+        else this.#pendingChildBatch=Object.freeze({...pending,state:error instanceof Error&&error.message.startsWith('蓝图 DataView 批次回执计数不完整')?'blocked':'unknown'})
         throw error
       }
     }
@@ -523,7 +626,8 @@ export class BlueprintWorkspaceDataView {
       const row=matches.at(0)
       if(matches.length!==1||!patch||!row)throw new Error(`蓝图 DataView 批量新增回读缺少唯一目标 ${String(id)}`)
       const command=pending.children.find(child=>child.nodeId===String(id))
-      if(!command||row['prowid']!==command.parentNodeId){
+      const update=pending.updates.find(item=>item.nodeId===String(id))
+      if(command&&row['prowid']!==command.parentNodeId||update&&row['prowid']!==update.parentNodeId||!command&&!update){
         this.#pendingChildBatch=Object.freeze({...pending,state:'blocked'})
         throw new Error(`蓝图 DataView 批量新增正式回读父身份不一致：${String(id)}`)
       }
@@ -554,18 +658,23 @@ export class BlueprintWorkspaceDataView {
     }
     for(const id of pending.ids){
       const command=pending.children.find(child=>child.nodeId===String(id))
+      const update=pending.updates.find(item=>item.nodeId===String(id))
       const parent=command===undefined?undefined:parents.get(command.parentNodeId)
       const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
       const expected=pending.expected.get(id)
-      if(!row||!command||!parent||!expected||!this.view.dirtyTracking.hasPendingChanges(id)
+      if(!row)throw new Error(`蓝图 DataView 原批次重试的稳定ID不存在：${String(id)}`)
+      if(command&&!parent)throw new Error(`蓝图 DataView 原批次新增父节点缺失：${String(id)}`)
+      if((!command&&!update)||(command&&!parent)||!expected||!this.view.dirtyTracking.hasPendingChanges(id)
+        ||(update&&row['prowid']!==update.parentNodeId)
         ||Object.entries(expected).some(([field,value])=>!Object.hasOwn(row,field)||!sameWireValue(row[field],value))){
         throw new Error(`蓝图 DataView 原批次重试的稳定ID或字段快照已变化：${String(id)}`)
       }
       const validation=this.view.validator?.validateColumns(row,new Set(Object.keys(expected)))
       if(validation&&!validation.valid)throw new Error(validation.errors[0]?.message??`蓝图 DataView 原批次字段校验失败：${String(id)}`)
-      for(const field of Object.keys(expected))if(field!=='rowid'&&this.view.fieldAccess(parent,field).write!=='allowed'){
+      if(command&&parent)for(const field of Object.keys(expected))if(field!=='rowid'&&this.view.fieldAccess(parent,field).write!=='allowed'){
         throw new Error(`蓝图 DataView 原批次重试权限已失效：${field}`)
       }
+      if(update&&Object.keys(expected).some(field=>!this.hasOutput(field)||this.view.fieldAccess(row,field).read!=='visible'||this.view.fieldAccess(row,field).write!=='allowed'))throw new Error(`蓝图 DataView 原批次更新权限已失效：${String(id)}`)
     }
   }
 

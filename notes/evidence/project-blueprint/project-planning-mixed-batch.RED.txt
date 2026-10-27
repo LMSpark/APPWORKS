@@ -1,0 +1,32 @@
+ProjectPlanning mixed create/update regression — RED
+Date: 2026-10-27
+Command: pnpm exec vitest run tests/app/services/project-planning/grouped-planning-contract.test.ts -t "submits independent creates"
+Provenance: transcribed from the implementing agent's retained tool output after the run. The output had not been persisted to an evidence file at execution time; this file makes that provenance explicit.
+Runner wrapper exit_code: 0 (the Vitest output itself reports the expected 1 failed feature test and 17 skipped tests).
+
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts (18 tests | 1 failed | 17 skipped) 21ms
+     × submits independent creates and existing leaf name/memo updates through one owner command 19ms
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests  ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning/grouped-planning-contract.test.ts > projectPlanning formal node input > submits independent creates and existing leaf name/memo updates through one owner command
+Error: 当前 DataView 仅支持单批多个独立叶子新增，或单批多个原树现存叶节点 name/memo 更新；移动、删除和混合计划保持拒绝
+ ❯ Proxy.addPlannedChildren src/services/project-planning/project-planning-agent-workflow-binding.ts:401:13
+    399|     }
+    400|     if (plan.commands.length === 0 || plan.commands.some(command => co…
+    401|       throw new Error('当前 DataView 仅支持单批多个独立叶子新增，或单批多个原树现存叶节点 name/mem…
+       |             ^
+    402|     }
+    403|     const creates = plan.commands
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts:27:47
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+    Tests  1 failed | 17 skipped (18)
+   Start at  16:58:21
+   Duration  19.45s (transform 12.04s, setup 239ms, import 16.88s, tests 15ms, environment 1.81s)
+
+exit_code=0

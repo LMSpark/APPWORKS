@@ -37248,7 +37248,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.assertCanAddChild 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 73,
+      "declarationLine": 75,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37260,7 +37260,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.preflightChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 75,
+      "declarationLine": 77,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37272,7 +37272,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.addChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 76,
+      "declarationLine": 78,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37284,7 +37284,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 92,
+      "declarationLine": 94,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37296,7 +37296,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canRead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 93,
+      "declarationLine": 95,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37308,7 +37308,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWrite 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 94,
+      "declarationLine": 96,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37320,7 +37320,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWriteFields 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 95,
+      "declarationLine": 97,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37332,7 +37332,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.value 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 96,
+      "declarationLine": 98,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37344,7 +37344,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.update 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 97,
+      "declarationLine": 99,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37356,7 +37356,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 100,
+      "declarationLine": 102,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37368,7 +37368,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 104,
+      "declarationLine": 106,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },

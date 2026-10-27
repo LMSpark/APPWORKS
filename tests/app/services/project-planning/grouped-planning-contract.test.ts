@@ -4,9 +4,37 @@ import { createAppAgentWorkflowRuntimeBindings } from '@/services/ai/agent-workf
 import { createAgentWorkflowDefinitionFromDesign } from '@/services/workflow-designs'
 import { evaluateProjectPlanningToolGate, resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 
 describe('projectPlanning formal node input', () => {
+  it('submits independent creates and existing leaf name/memo updates through one owner command', async () => {
+    const projectId='APP-A'
+    const existing={nodeId:'existing',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'Existing'},navigation:{order:0,title:'Existing',publishInMenu:false,showChildren:false,beginGroup:false},source:{rowid:'existing',SysId:projectId,prowid:'root',name:'Existing',memo:'',conType:'Navitem',FunOrderValue:'0'}}
+    const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[existing]}
+    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>root}})
+    editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
+    let readback:ProjectBlueprintTreeData=root
+    const saveMixedNodes=vi.fn(async(creates:readonly {nodeId:string;parentNodeId:string;fields:Record<string,unknown>}[],_updates:readonly {nodeId:string;capability:{name:string;description?:string};source:Record<string,unknown>}[])=>{
+      const create=creates[0]!
+      readback={...root,children:[{...existing,capability:{name:'Existing revised',description:'Updated memo'},source:{...existing.source,name:'Existing revised',memo:'Updated memo'}},
+        {nodeId:create.nodeId,parentNodeId:create.parentNodeId,projectId,kind:'page',capability:{name:'Created'},navigation:{order:1,title:'Created',publishInMenu:false,showChildren:false,beginGroup:false},source:{...create.fields,rowid:create.nodeId,SysId:projectId,prowid:create.parentNodeId}}]}
+    })
+    const owner={projectId,hasTreeProjection:true,dirty:false,hasPendingChildCreate:false,hasUnconfirmedSave:false,hasPendingBlueprintCommand:false,
+      treeProjection:()=>readback,hasOutput:()=>true,addAndUpdateChildNodes:saveMixedNodes}
+    const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner as never},{moduleInstanceId:projectId} as never)
+    const updated={...existing,capability:{name:'Existing revised',description:'Updated memo'}}
+    const created={nodeId:'created',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'Created'},navigation:{order:1,title:'Created',publishInMenu:false,showChildren:false,beginGroup:false},source:{}}
+
+    const result=await Promise.resolve(facade.replaceBlueprintChildren({children:[updated,created]}))
+
+    expect(saveMixedNodes).toHaveBeenCalledOnce()
+    expect(saveMixedNodes.mock.calls[0]?.[0]).toMatchObject([{nodeId:'created',parentNodeId:'root'}])
+    expect(saveMixedNodes.mock.calls[0]?.[1]).toHaveLength(1)
+    expect(result.children.map(node=>node.nodeId)).toEqual(['existing','created'])
+    expect(result.children[0]?.source).toMatchObject({name:'Existing revised',memo:'Updated memo'})
+  })
+
   it('commits two existing leaf name and memo updates as one DataView batch and verifies both readbacks', async () => {
     const projectId='APP-A'
     const first={nodeId:'first',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'First'},source:{rowid:'first',SysId:projectId,prowid:'root',name:'First',memo:'',conType:'Navitem'}}
@@ -135,7 +163,7 @@ describe('projectPlanning formal node input', () => {
     expect(saveSelectedNode).toHaveBeenCalledOnce()
   })
 
-  it('rejects non-leaf updates, parent changes, and mixed commands before calling the DataView owner', async()=>{
+  it('rejects non-leaf updates and parent changes before calling the DataView owner', async()=>{
     const projectId='APP-A'
     const leaf={nodeId:'leaf',parentNodeId:'parent-a',projectId,kind:'page' as const,capability:{name:'Leaf'},source:{}}
     const parentA={nodeId:'parent-a',parentNodeId:'root',projectId,kind:'module' as const,capability:{name:'A'},source:{},children:[leaf]}
@@ -152,8 +180,6 @@ describe('projectPlanning formal node input', () => {
     await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[{...leaf,projectId:'APP-B'}]},parentB]})).rejects.toThrow(/其他项目/iu)
     const moved={...leaf,parentNodeId:'parent-b'}
     await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[]},{...parentB,children:[moved]}]})).rejects.toThrow(/移动、删除/iu)
-    const added={nodeId:'added',parentNodeId:'parent-a',projectId,kind:'page' as const,capability:{name:'Added'},navigation:{title:'Added',order:1,publishInMenu:false,showChildren:false,beginGroup:false},source:{}}
-    await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[{...leaf,capability:{name:'Leaf updated'}},added]},parentB]})).rejects.toThrow(/移动、删除/iu)
     expect(load).not.toHaveBeenCalled();expect(updateNodeData).not.toHaveBeenCalled();expect(saveSelectedNode).not.toHaveBeenCalled()
     expect(editor.project.blueprintTree).toEqual(originalProjectTree)
   })
@@ -320,8 +346,8 @@ describe('projectPlanning formal node input', () => {
     expect(prompt).toContain('orders (page) 订单')
     expect(prompt).toContain('capability: { name:')
     expect(prompt).toContain('每次 AI run 最多发起一个 Base_NavigationInfo DataView/DataSet 保存批次')
-    expect(prompt).toContain('批量更新多个原树现存叶节点的正式 name/memo')
-    expect(prompt).toContain('父子节点不得同批')
+    expect(prompt).toContain('混合新增多个彼此独立的叶子并更新多个原树现存叶节点的正式 name/memo')
+    expect(prompt).toContain('父子同批')
     expect(prompt).toContain('parentNodeId,')
     expect(prompt).not.toContain('nodeId: "core-service"')
     expect(prompt).not.toContain('blueprintKind')

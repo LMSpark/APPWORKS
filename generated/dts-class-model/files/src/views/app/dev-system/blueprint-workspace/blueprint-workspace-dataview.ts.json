@@ -342,6 +342,32 @@
           "type": "object",
           "title": "Promise<ReadonlyArray<string | number>>"
         },
+        "method.addAndUpdateChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreateAtParent"
+              }
+            },
+            "updates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintNodeFormData"
+              }
+            },
+            "beforeStage": {
+              "type": "object",
+              "title": "() => boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addAndUpdateChildNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
+        },
         "method.assertCanAddChild.params": {
           "type": "object",
           "properties": {
@@ -583,7 +609,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T08:34:51.105Z",
+  "generatedAt": "2026-10-27T09:05:28.351Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1044,6 +1070,68 @@
                   "type": {
                     "type": "unknown",
                     "name": "readonly BlueprintChildNodeCreateAtParent[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addAndUpdateChildNodes",
+              "jsdoc": "Preflight, stage, and save creates plus existing leaf updates as one DataSet view batch.",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreateAtParent[]"
+                  }
+                },
+                {
+                  "name": "updates",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintNodeFormData[]"
+                  }
+                },
+                {
+                  "name": "beforeStage",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

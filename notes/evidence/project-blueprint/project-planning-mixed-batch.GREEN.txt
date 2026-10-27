@@ -1,0 +1,13 @@
+ProjectPlanning mixed create/update regression — GREEN (root independent run)
+Date: 2026-10-27
+Command: pnpm exec vitest run tests/app/services/project-planning/grouped-planning-contract.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts
+Exit code: 0
+
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ Test Files  2 passed (2)
+      Tests  77 passed (77)
+   Start at  17:22:03
+   Duration  28.68s (transform 23.60s, setup 587ms, import 33.76s, tests 1.91s, environment 4.99s)

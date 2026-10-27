@@ -466,6 +466,94 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('mixed create and leaf name/memo update use one DataSet request and read back both rows',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const formalRoot=owner.treeProjection(),leaf=formalRoot.children[0]!
+      const updated={...leaf,capability:{...leaf.capability,name:'Child revised',description:'Updated memo'}}
+      await owner.addAndUpdateChildNodes([{nodeId:'MIXED-CREATE',parentNodeId:formalRoot.nodeId,fields:{name:'Mixed created',FunName:'Mixed created',funCode:'MIXED-CREATE',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:mixed-create'}}],[updated])
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      const sent=fixture.save.mock.calls[0]?.[0].changes
+      expect(sent).toHaveLength(1)
+      expect(sent?.[0]?.changes.added?.map(row=>row['rowid'])).toEqual(['MIXED-CREATE'])
+      expect(sent?.[0]?.changes.changed?.map(row=>row['rowid'])).toEqual([leaf.nodeId])
+      expect(owner.view.rows).toEqual(expect.arrayContaining([
+        expect.objectContaining({rowid:'MIXED-CREATE',SysId:'APP-A',prowid:formalRoot.nodeId,name:'Mixed created'}),
+        expect.objectContaining({rowid:leaf.nodeId,SysId:'APP-A',prowid:leaf.parentNodeId,name:'Child revised',memo:'Updated memo'}),
+      ]))
+      expect(owner.hasPendingBlueprintCommand).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('mixed unknown receipt resolves only the DataSet captured IDs and keeps partial results blocked',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,0,1)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
+      const root=owner.treeProjection(),leaf=root.children[0]!,updated={...leaf,capability:{...leaf.capability,name:'Partial revised',description:'Partial memo'}}
+      const creates=[
+        {nodeId:'MIXED-UNKNOWN-A',parentNodeId:root.nodeId,fields:{name:'Mixed unknown A',FunName:'Mixed unknown A',funCode:'MIXED-UNKNOWN-A',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:mixed-unknown-a'}},
+        {nodeId:'MIXED-UNKNOWN-B',parentNodeId:root.nodeId,fields:{name:'Mixed unknown B',FunName:'Mixed unknown B',funCode:'MIXED-UNKNOWN-B',conType:'Navitem',FunOrderValue:'2',NavigationUrl:'cfg:mixed-unknown-b'}},
+      ]
+      await expect(owner.addAndUpdateChildNodes(creates,[updated])).rejects.toThrow('transport timeout')
+      const first=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])
+      expect(owner.hasPendingBlueprintCommand).toBe(true)
+      await expect(owner.save()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE|partial|unknown/iu)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])).toEqual(first)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.changed?.map(row=>row['rowid'])).toEqual([leaf.nodeId])
+      expect(owner.hasPendingBlueprintCommand).toBe(true)
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      expect(owner.view.dirtyTracking.pendingCreateIds).toEqual(new Set(['MIXED-UNKNOWN-A','MIXED-UNKNOWN-B']))
+    }finally{ownerScope.stop()}
+  })
+
+  it('mixed update validator failure leaves no create or update overlay and does not save',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
+      const root=owner.treeProjection(),leaf=root.children[0]!
+      vi.spyOn(owner.view.validator!,'validateColumns').mockImplementation(row=>row['memo']==='REJECT-MIXED'?{valid:false,errors:[{message:'validator rejects mixed memo'}]} as never:{valid:true,errors:[]} as never)
+      const updated={...leaf,capability:{...leaf.capability,description:'REJECT-MIXED'}}
+      await expect(owner.addAndUpdateChildNodes([{nodeId:'MIXED-REJECT',parentNodeId:root.nodeId,fields:{name:'Mixed reject',FunName:'Mixed reject',funCode:'MIXED-REJECT',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:mixed-reject'}}],[updated])).rejects.toThrow('validator rejects mixed memo')
+      expect(owner.view.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(owner.view.hasEditingChanges()).toBe(false)
+      expect(owner.hasPendingBlueprintCommand).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('mixed unknown receipt confirms through the original captured DataSet request',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
+      const root=owner.treeProjection(),leaf=root.children[0]!,updated={...leaf,capability:{...leaf.capability,name:'Confirmed revised',description:'Confirmed memo'}}
+      await expect(owner.addAndUpdateChildNodes([{nodeId:'MIXED-CONFIRMED',parentNodeId:root.nodeId,fields:{name:'Mixed confirmed',FunName:'Mixed confirmed',funCode:'MIXED-CONFIRMED',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:mixed-confirmed'}}],[updated])).rejects.toThrow('transport timeout')
+      const firstAdded=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])
+      await owner.save()
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])).toEqual(firstAdded)
+      expect(owner.hasPendingBlueprintCommand).toBe(false)
+      expect(owner.view.rows).toEqual(expect.arrayContaining([
+        expect.objectContaining({rowid:'MIXED-CONFIRMED',name:'Mixed confirmed'}),
+        expect.objectContaining({rowid:leaf.nodeId,name:'Confirmed revised',memo:'Confirmed memo'}),
+      ]))
+    }finally{ownerScope.stop()}
+  })
+
   it('策划多父叶子由 Base_NavigationInfo DataView 一次提交并逐行回读稳定身份与父映射',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
       node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),

@@ -34,7 +34,7 @@ import {
 import { activateProjectPlanningAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createHeadlessProjectPlanningEditor } from '@/services/project-planning/project-planning-headless'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {
   attachAiDeliveryResult,
   createAiDeliveryFailureError,

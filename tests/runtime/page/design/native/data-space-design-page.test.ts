@@ -39,7 +39,7 @@ vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
     readRequestScope: () => ({token:'PAGE-TEST',headers:{'X-AppId':'APP'}}),
   })}
 })
-vi.mock('@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+vi.mock('@/services/project/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
   view: DataView
   constructor(dataSet: DataSet) {this.view = dataSet.getView('Base_NavigationInfo', 'default')!}
   async loadProjectTree() {return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}}

@@ -19,7 +19,7 @@ import type {
   ProjectBlueprintTreeNodeData,
 } from '@spark-appworks/spark-project-model'
 import { lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
-import type { BlueprintLeafMoveBatchCommand, BlueprintNodeFormData, BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import type { BlueprintLeafMoveBatchCommand, BlueprintNodeFormData, BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import { planProjectBlueprintReplacement, type ProjectBlueprintReplacementCommand } from './project-planning-blueprint-diff'
 
 export const PROJECT_PLANNING_MODULE_ID = 'projectPlanning'

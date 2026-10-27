@@ -1,0 +1,29 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts (34 tests | 1 failed | 33 skipped) 24ms
+     × reads explicit target navigation through a scoped DataView and keeps authorization independent 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reads explicit target navigation through a scoped DataView and keeps authorization independent
+AssertionError: expected "vi.fn()" to be called with arguments: [ { projectId: 'APP-A', …(1) } ]
+
+Number of calls: 0
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:238:40
+    236|     await readLowcodeRuntimeNavigation('APP-B')
+    237|
+    238|     expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId…
+       |                                        ^
+    239|     expect(receivedFilter).toMatchObject({field: 'SysId', operator: 'e…
+    240|     expect(records).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 33 skipped (34)
+   Start at  22:50:22
+   Duration  17.43s (transform 11.46s, setup 167ms, import 15.57s, tests 24ms, environment 1.29s)

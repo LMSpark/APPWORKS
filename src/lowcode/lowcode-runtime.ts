@@ -10,20 +10,14 @@ import type {
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
-import type {
-  PageFileReadCommand,
-  ProjectBlueprintGateway,
-  ProjectPageFileGateway,
-  ProjectReferenceGateway,
-  ProjectBlueprintTreeData,
-  ProjectBlueprintTreeNodeData,
-  ProjectWorkspaceOptions,
-} from '@spark-appworks/spark-project-model'
-import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import * as ProjectModel from '@spark-appworks/spark-project-model'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -92,7 +86,7 @@ export function lowcodeRequestHeaders(): Record<string, string> {
   return session === null ? {} : { Authorization: `Bearer ${session.accessToken}` }
 }
 
-export async function readLowcodePageFile(command: PageFileReadCommand): Promise<string> {
+export async function readLowcodePageFile(command: ProjectModel.PageFileReadCommand): Promise<string> {
   const versions = command.versionId === undefined ? undefined : LowcodePlatform.parseLowcodeBlueprintFileVersions(command.versionId)
   const key = command.fileName === 'rule.json' ? 'rule' : command.fileName === 'script.js' ? 'script' : 'style'
   const version = versions?.[key]
@@ -324,7 +318,10 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   const explicitProjectId = projectId?.trim()
   const activeContext = lowcodeApi.application.get()
   if (!explicitProjectId && activeContext === null) return lowcodeApplicationCatalogNavigation()
-  const executionScopeToken = lowcodeApi.readRequestScope().token
+  const executionScope = lowcodeApi.readRequestScope()
+  const executionScopeToken = executionScope.token
+  const executionProjectId = executionScope.headers['X-AppId']
+  if (!executionProjectId) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: lowcode 启动导航缺少请求应用身份')
   const assertExecutionScope = (): void => {
     let currentScopeToken: string
     try {
@@ -334,6 +331,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
     }
     if (!lowcodeApi.session.isAuthenticated()
       || currentScopeToken !== executionScopeToken
+      || lowcodeApi.readRequestScope().headers['X-AppId'] !== executionProjectId
       || lowcodeApi.application.get()?.navigationRootId !== activeContext?.navigationRootId) {
       throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化')
     }
@@ -365,18 +363,37 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
     } else {
       throw new Error('缺少 lowcode 应用上下文')
     }
-    const [records, authorization] = await Promise.all([
-      readWithinExecutionScope(lowcodeApi.blueprint.readRecords(application.id)),
-      readWithinExecutionScope(lowcodeApi.blueprint.readNavigationAuthorization(application.id, navigationRootId)),
-    ])
-    assertExecutionScope()
-    return assembleLowcodeRuntimeNavigation({
-      applicationName: application.name,
-      projectId: application.id,
-      navigationRootId,
-      records,
-      authorization,
-    })
+    const runtime = new ProjectModel.PageRuntime({pageId: 'lowcode-runtime-navigation',
+      scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], mainScenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+      loadScenario: scenarioId => {
+        assertExecutionScope()
+        return loadLowcodeRuntimeScenario({projectId: executionProjectId, scenarioId})
+      }})
+    let owner: BlueprintWorkspaceDataView | undefined
+    try {
+      await readWithinExecutionScope(runtime.load())
+      assertExecutionScope()
+      const dataSet = runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+      if (!dataSet) throw new Error('启动导航运行时缺少正式蓝图 DataSet')
+      owner = new BlueprintWorkspaceDataView(dataSet, application.id, assertExecutionScope)
+      const [recordsResult, authorizationResult] = await Promise.allSettled([
+        readWithinExecutionScope(owner.loadProjectRecords()),
+        readWithinExecutionScope(lowcodeApi.blueprint.readNavigationAuthorization(application.id, navigationRootId)),
+      ])
+      assertExecutionScope()
+      if (recordsResult.status === 'rejected') throw recordsResult.reason
+      if (authorizationResult.status === 'rejected') throw authorizationResult.reason
+      return assembleLowcodeRuntimeNavigation({
+        applicationName: application.name,
+        projectId: application.id,
+        navigationRootId,
+        records: recordsResult.value,
+        authorization: authorizationResult.value,
+      })
+    } finally {
+      owner?.dispose()
+      runtime.dispose()
+    }
   } catch (error) {
     assertExecutionScope()
     throw error
@@ -386,7 +403,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
 function projectBlueprintRecordNode(
   record: LowcodePlatform.LowcodeProjectBlueprintRecord,
   childrenByParent: ReadonlyMap<string, readonly LowcodePlatform.LowcodeProjectBlueprintRecord[]>,
-): ProjectBlueprintTreeNodeData {
+): ProjectModel.ProjectBlueprintTreeNodeData {
   const children = sortBlueprintRecords(childrenByParent.get(record.nodeId) ?? [])
     .map(child => projectBlueprintRecordNode(child, childrenByParent))
   return {
@@ -403,7 +420,7 @@ function projectBlueprintRecordNode(
   }
 }
 
-async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectBlueprintTreeData> {
+async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectModel.ProjectBlueprintTreeData> {
   const records = await lowcodeApi.blueprint.readRecords(projectId)
   const recordIds = new Set(records.map(record => record.nodeId))
   const childrenByParent = new Map<string, LowcodePlatform.LowcodeProjectBlueprintRecord[]>()
@@ -437,10 +454,10 @@ async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise
 
 /** 固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。 */
 export type LowcodeProjectGateways = Readonly<{
-  pageFiles: ProjectPageFileGateway
-  blueprint: ProjectBlueprintGateway
-  projectReferences: ProjectReferenceGateway
-  scenarioViews: NonNullable<ProjectWorkspaceOptions['scenarioViews']>
+  pageFiles: ProjectModel.ProjectPageFileGateway
+  blueprint: ProjectModel.ProjectBlueprintGateway
+  projectReferences: ProjectModel.ProjectReferenceGateway
+  scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>
 }>
 
 function scenarioViewPath(applicationId: string, scenarioId: string): string {
@@ -557,7 +574,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
       },
       createVersion: async (scenarioId, text, assertCurrent) => {
         assertCurrent?.()
-        new ScenarioViewConfig(scenarioId, text)
+        new ProjectModel.ScenarioViewConfig(scenarioId, text)
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
         const scope = lowcodeApi.readRequestScope().token
         const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName: 'pagedata.json' })

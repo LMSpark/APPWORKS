@@ -1,5 +1,5 @@
 import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -10,6 +10,13 @@ import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { DataSet, type DataRow } from '@spark-appworks/spark-data'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import { PageRuntime } from '@spark-appworks/spark-project-model'
+
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
 
 import {
   assembleLowcodeRuntimeNavigation,
@@ -59,6 +66,52 @@ afterEach(() => {
   vi.restoreAllMocks()
   lowcodeApi.application.clear()
   lowcodeApi.session.clear()
+})
+
+type NavigationDataSetFixture = {dataSet: DataSet; filters: unknown[]}
+let lastNavigationDataSet: NavigationDataSetFixture | undefined
+function createNavigationDataSet(options: {rows?: DataRow[]; beforeQuery?: () => Promise<void>} = {}): NavigationDataSetFixture {
+  const scenarioId = LOWCODE_APPLICATION_CATALOG_FORM_KEY
+  const fields = ['rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'FunName', 'conType', 'NavigationUrl', 'IsShowAtNav']
+  const dataSet = DataSet.fromJson({scenarioId, tables: {Base_NavigationInfo: {
+    modelBinding: {modelId: `${scenarioId}p000`, modelName: 'Base_NavigationInfo'},
+    columns: fields.map(name => ({name, type: name === 'FunOrderValue' || name === 'IsShowAtNav' ? 'number' : 'string', isPrimaryKey: name === 'rowid'})),
+    views: {default: {autoLoad: false}},
+  }}})
+  const filters: unknown[] = []
+  const view = dataSet.getView('Base_NavigationInfo', 'default')!
+  view.bindQueryExecutor({executeQuery: async (_target, params) => {
+    filters.push(params.filter)
+    await options.beforeQuery?.()
+    const findProject = (filter: unknown): string | undefined => {
+      if (filter === null || typeof filter !== 'object') return undefined
+      const item = filter as Record<string, unknown>
+      if (item['field'] === 'SysId' && typeof item['value'] === 'string') return item['value']
+      if (Array.isArray(item['filters'])) return item['filters'].map(findProject).find(value => value !== undefined)
+      return undefined
+    }
+    const projectId = findProject(params.filter) ?? 'APP-B'
+    const selected = options.rows ?? [{rowid: `ROOT-${projectId}`, SysId: projectId, prowid: '000000', FunOrderValue: 0,
+      name: projectId, FunName: projectId, conType: 'Model', NavigationUrl: '', IsShowAtNav: 0}]
+    const rows = selected.filter(row => row['SysId'] === projectId)
+    return {rows, total: rows.length, countReported: true, resultPrimaryKey: 'rowid',
+      assertIdentity: actual => {if (actual.scenarioId !== scenarioId || actual.metaName !== 'Base_NavigationInfo') throw new Error('identity mismatch')},
+      rowKey: row => row['rowid'],
+      fieldAccess: (key, field) => rows.some(row => row['rowid'] === key && Object.hasOwn(row, field))
+        ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
+        : {read: 'invisible', write: 'denied', component: 'hidden', required: false, writeMode: 'readonly'},
+      readFieldAccess: (row, field) => Object.hasOwn(row, field) ? 'visible' : 'invisible',
+      addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+      createChildActionState: () => 'hidden', viewActionState: () => 'hidden'}
+  }})
+  const fixture = {dataSet, filters}
+  lastNavigationDataSet = fixture
+  return fixture
+}
+
+beforeEach(() => {
+  lastNavigationDataSet = undefined
+  vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet().dataSet)
 })
 
 type BlueprintFixtureInput = Readonly<{
@@ -150,12 +203,11 @@ describe('lowcode project navigation projection', () => {
 
   it('rejects navigation when the execution application changes during authorization read', async () => {
     saveExecutionScope('APP-A')
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
     const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
-    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const authorizationRead = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
 
     const navigation = readLowcodeRuntimeNavigation()
-    await vi.waitFor(() => expect(records).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(authorizationRead).toHaveBeenCalledOnce())
     saveExecutionScope('APP-B')
     authorization.resolve({ items: [], contexts: [] })
 
@@ -190,17 +242,66 @@ describe('lowcode project navigation projection', () => {
     saveExecutionScope('APP-A')
     const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
     const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
-    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
     const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({ items: [], contexts: [] })
 
     const navigation = await readLowcodeRuntimeNavigation('APP-B')
 
     expect(listApplications).toHaveBeenCalledOnce()
     expect(resolveRoot).toHaveBeenCalledWith('APP-B')
-    expect(records).toHaveBeenCalledWith('APP-B')
+    expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId: 'APP-A', scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+    expect(lastNavigationDataSet?.filters[0]).toMatchObject({field: 'SysId', operator: 'eq', value: 'APP-B'})
     expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
     expect(navigation.projectId).toBe('APP-B')
     expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+  })
+
+  it('reads explicit target navigation through a scoped DataView and keeps authorization independent', async () => {
+    saveExecutionScope('APP-A')
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    const row: DataRow = {rowid: 'NODE-B', SysId: 'APP-B', prowid: '000000', FunOrderValue: 1, name: 'Page B', FunName: 'Page B',
+      conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}
+    vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet({rows: [row]}).dataSet)
+    const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
+    const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [{id: 'NODE-B', target: 'vue:dashboard', targetKind: 'vue', formKey: null, children: []}], contexts: []})
+
+    const navigation = await readLowcodeRuntimeNavigation('APP-B')
+
+    expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId: 'APP-A', scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
+    expect(lastNavigationDataSet?.filters[0]).toMatchObject({field: 'SysId', operator: 'eq', value: 'APP-B'})
+    expect(JSON.stringify(lastNavigationDataSet?.filters[0])).toContain('APP-B')
+    expect(lowcodeApi.readRequestScope().headers['X-AppId']).toBe('APP-A')
+    expect(records).not.toHaveBeenCalled()
+    expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+    expect(navigation.items.some(item => item.id === 'NODE-B')).toBe(true)
+  })
+
+  it('waits for the DataView read before disposal when authorization fails and execution scope changes', async () => {
+    saveExecutionScope('APP-A')
+    const queryGate = deferred<void>()
+    let startQuery!: () => void
+    const queryStarted = new Promise<void>(resolve => {startQuery = resolve})
+    const fixture = createNavigationDataSet({beforeQuery: async () => {startQuery(); await queryGate.promise}})
+    vi.mocked(loadLowcodeRuntimeScenario).mockResolvedValue(fixture.dataSet)
+    const authorization = deferred<Awaited<ReturnType<typeof lowcodeApi.blueprint.readNavigationAuthorization>>>()
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockReturnValue(authorization.promise)
+    const runtimeDispose = vi.spyOn(PageRuntime.prototype, 'dispose')
+    const ownerDispose = vi.spyOn(BlueprintWorkspaceDataView.prototype, 'dispose')
+
+    const navigation = readLowcodeRuntimeNavigation()
+    await queryStarted
+    authorization.reject(new Error('authorization read failed'))
+    await Promise.resolve()
+    expect(runtimeDispose).not.toHaveBeenCalled()
+    expect(ownerDispose).not.toHaveBeenCalled()
+    saveExecutionScope('APP-B')
+    queryGate.resolve()
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(runtimeDispose).toHaveBeenCalledOnce()
+    expect(ownerDispose).toHaveBeenCalledOnce()
+    expect(fixture.dataSet.destroyed).toBe(true)
   })
 
   it('does not let a late application catalog overwrite a newer activation intent', async () => {

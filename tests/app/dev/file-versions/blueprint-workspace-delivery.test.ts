@@ -5,7 +5,7 @@ import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
-import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'

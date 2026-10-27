@@ -54,9 +54,6 @@
   "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts": {
     "static-copy": 1
   },
-  "src/lowcode/resources/structured-config/structured-config-catalog.ts": {
-    "static-copy": 1
-  },
   "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
     "command-status": 1,
     "static-copy": 3

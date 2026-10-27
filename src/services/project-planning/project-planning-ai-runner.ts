@@ -20,7 +20,7 @@ import type {
 import type { AiAgentHost, AiAgentToolCallRecord } from '@spark-appworks/spark-ai/agent'
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import type { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import type { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {
   buildProjectPlanningAgentInput,
   PROJECT_PLANNING_MODULE_ID,

@@ -1,5 +1,5 @@
 /**
- * @module app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview
+ * @module app:services/project/blueprint-workspace-dataview
  * 职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。
  * 边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。
  */
@@ -219,6 +219,18 @@ export class BlueprintWorkspaceDataView {
       this.view.setCurrentRow(this.#row??null)
       return this.treeProjection()
     }catch(error){this.#treeQueryLoaded=false;throw error}
+  }
+
+  /** Load the same permission-filtered records for consumers that need rows instead of a tree. */
+  public async loadProjectRecords(): Promise<readonly LowcodeProjectBlueprintRecord[]> {
+    this.assertUsable()
+    if (this.isBusy || this.hasUnconfirmedSave) throw new Error('蓝图 DataView 正在保存或回执待核验，不能加载项目记录')
+    if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    for (const field of ['rowid', 'SysId', 'prowid', 'FunOrderValue']) if (!this.hasOutput(field)) throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+    const revision = ++this.#revision, selectedNodeId = this.#nodeId
+    await this.queryProjectRows(revision, selectedNodeId)
+    this.#treeQueryLoaded = true
+    return this.projectedRecords()
   }
 
   /** Delete one ordinary leaf through the current project tree DataView and confirm it by readback. */
@@ -1032,6 +1044,27 @@ export class BlueprintWorkspaceDataView {
   public treeProjection(): ProjectBlueprintTreeData {
     this.assertUsable()
     if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载完整项目树行')
+    const records=this.projectedRecords()
+    const byParent=new Map<string,Array<typeof records[number]>>()
+    for(const record of records){const siblings=byParent.get(record.parentNodeId)??[];siblings.push(record);byParent.set(record.parentNodeId,siblings)}
+    const toNode=(record:typeof records[number]):ProjectBlueprintTreeNodeData=>({
+      nodeId:record.nodeId,parentNodeId:record.parentNodeId,projectId:record.projectId,kind:record.kind,
+      capability:{...record.capability},...(record.navigation===undefined?{}:{navigation:{...record.navigation}}),
+      ...(record.dataSpace===undefined?{}:{dataSpace:{...record.dataSpace,models:record.dataSpace.models.map(model=>({...model}))}}),
+      ...(record.prototype===undefined?{}:{prototype:{...record.prototype}}),source:{...record.source},
+      children:(byParent.get(record.nodeId)??[]).sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode),
+    })
+    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0')
+      .sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode)
+    const root=roots[0]
+    if(!root)throw new Error('蓝图 DataView 没有可展示的正式根节点')
+    if(roots.length===1)return {...root,children:root.children??[]}
+    return {nodeId:`project-blueprint:${this.#projectId}`,parentNodeId:'',projectId:this.#projectId,kind:'module',capability:{name:this.#projectId},source:{},children:roots}
+  }
+
+  private projectedRecords(): readonly LowcodeProjectBlueprintRecord[] {
+    this.assertUsable()
+    if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载完整项目树行')
     for(const field of ['rowid','SysId','prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未输出树投影字段 ${field}`)
     if(!this.hasOutput('name')&&!this.hasOutput('FunName'))throw new Error('蓝图 DataView 未输出树节点名称')
     const fields=['rowid','SysId','prowid','FunOrderValue','name','funCode','FunName','conType','memo','personCharge','status',
@@ -1053,22 +1086,7 @@ export class BlueprintWorkspaceDataView {
       if(!id)throw new Error('蓝图 DataView 返回了缺少 rowid 的树行')
       if(parent!=='000000'&&parent!=='0'&&!ids.has(parent))throw new Error(`蓝图 DataView 父节点闭包缺失：${id} -> ${parent}`)
     }
-    const records=validateLowcodeProjectBlueprintRecords(this.#projectId,normalizeLowcodeProjectBlueprintRecords(rows))
-    const byParent=new Map<string,Array<typeof records[number]>>()
-    for(const record of records){const siblings=byParent.get(record.parentNodeId)??[];siblings.push(record);byParent.set(record.parentNodeId,siblings)}
-    const toNode=(record:typeof records[number]):ProjectBlueprintTreeNodeData=>({
-      nodeId:record.nodeId,parentNodeId:record.parentNodeId,projectId:record.projectId,kind:record.kind,
-      capability:{...record.capability},...(record.navigation===undefined?{}:{navigation:{...record.navigation}}),
-      ...(record.dataSpace===undefined?{}:{dataSpace:{...record.dataSpace,models:record.dataSpace.models.map(model=>({...model}))}}),
-      ...(record.prototype===undefined?{}:{prototype:{...record.prototype}}),source:{...record.source},
-      children:(byParent.get(record.nodeId)??[]).sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode),
-    })
-    const roots=records.filter(record=>record.parentNodeId===''||record.parentNodeId==='000000'||record.parentNodeId==='0')
-      .sort((a,b)=>(a.navigation?.order??0)-(b.navigation?.order??0)||a.nodeId.localeCompare(b.nodeId)).map(toNode)
-    const root=roots[0]
-    if(!root)throw new Error('蓝图 DataView 没有可展示的正式根节点')
-    if(roots.length===1)return {...root,children:root.children??[]}
-    return {nodeId:`project-blueprint:${this.#projectId}`,parentNodeId:'',projectId:this.#projectId,kind:'module',capability:{name:this.#projectId},source:{},children:roots}
+    return validateLowcodeProjectBlueprintRecords(this.#projectId,normalizeLowcodeProjectBlueprintRecords(rows))
   }
 
   public childCreateActionState(parentNodeId:string):'enabled'|'hidden'|'disabled'|'unknown'{

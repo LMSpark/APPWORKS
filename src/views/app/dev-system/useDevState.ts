@@ -43,7 +43,7 @@ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-sp
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
-import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from './blueprint-workspace/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 import type {PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
 

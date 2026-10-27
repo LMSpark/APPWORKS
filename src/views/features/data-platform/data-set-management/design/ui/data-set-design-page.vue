@@ -307,7 +307,7 @@ import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataVie
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {BlueprintWorkspaceDataView} from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import DataSpaceParametersEditor from '../parameters/DataSpaceParametersEditor.vue'
 import DataSpaceViewEditor from '../views/DataSpaceViewEditor.vue'

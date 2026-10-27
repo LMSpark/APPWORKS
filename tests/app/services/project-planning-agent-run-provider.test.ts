@@ -39,7 +39,7 @@ vi.mock('@spark-appworks/spark-project-model', async importOriginal => {
   return { ...actual, PageRuntime: class { constructor(options: never) { mocks.setRuntimeOptions(options as never); return mocks.runtime as never } } }
 })
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: mocks.loadScenario }))
-vi.mock('@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview', () => ({
+vi.mock('@/services/project/blueprint-workspace-dataview', () => ({
   BlueprintWorkspaceDataView: class { projectId = 'hr-enterprise-planning-smoke'; hasTreeProjection = true; dirty = false; hasPendingChildCreate = false; hasUnconfirmedSave = false; loadProjectTree = mocks.loadProjectTree; treeProjection = () => mocks.blueprintTree; dispose = mocks.ownerDispose },
 }))
 vi.mock('@/services/project-planning/project-planning-agent-workflow-binding', async importOriginal => {

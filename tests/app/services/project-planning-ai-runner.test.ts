@@ -16,7 +16,7 @@ import type {
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import { runProjectPlanningAiSession } from '@/services/project-planning/project-planning-ai-runner'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
-import { BLUEPRINT_WORKSPACE_FIELD_NAMES } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import { BLUEPRINT_WORKSPACE_FIELD_NAMES } from '@/services/project/blueprint-workspace-dataview'
 
 const mocks = vi.hoisted(() => {
   const projectPlanningRun = vi.fn()

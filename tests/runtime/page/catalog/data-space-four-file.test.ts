@@ -14,7 +14,7 @@ import { createPageComponentRegistry } from '../../../../packages/spark-componen
 import { buildPageContext } from '../../../../packages/spark-component/src/page/context/buildPageContext'
 import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
 import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import { BlueprintWorkspaceDataView } from '../../../../src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import { BlueprintWorkspaceDataView } from '../../../../src/services/project/blueprint-workspace-dataview'
 
 const pageId = 'data-space-catalog'
 const scenarioId = '90A82E287930A234FEC3E687C94A93EA'

@@ -91,14 +91,15 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             </div>
             <div class="vs-file">{{ resolvedActiveFile }}</div>
             <div v-loading="remoteVersionLoading" class="vs-list">
-              <div v-if="remotePageVersions.length === 0 && !remoteVersionLoading" class="vs-empty">暂无版本</div>
-              <div v-for="v in remotePageVersions" :key="v.fileName" class="vs-row">
-                <span class="version-badge">v{{ v.version }}</span>
-                <span class="vs-time">{{ formatVersionTime(v.lastModified) }}</span>
-                <span class="vs-spacer" />
-                <el-button size="small" type="primary" text :disabled="versionBusy || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value" :loading="restoringVersion === v.version" @click="restoreVersion(v.version)">恢复</el-button>
-                <el-button size="small" type="danger" text :disabled="versionBusy" @click="confirmDeleteVersion(v)"><NavIcon name="Delete" :size="12" /></el-button>
-              </div>
+              <p v-if="remoteVersionLoading" role="status">正在读取版本…</p>
+              <p v-else-if="versionQueryError" role="alert">读取版本失败：{{ versionQueryError }}</p>
+              <RendererTable v-else-if="versionQueryLoaded && versionRowCount > 0" :data-view-key="versionViewKey" :auto-columns="false"
+                :show-data-view-meta="false" :show-selection-summary="false" :show-aggregate-summary="false"
+                :show-pagination="false" :actions="versionActions">
+                <FieldText :data-view-key="versionViewKey" field="version" label="版本" readonly />
+                <FieldText :data-view-key="versionViewKey" field="lastModified" label="更新时间" readonly :display-formatter="formatVersionTime" />
+              </RendererTable>
+              <div v-else-if="versionQueryLoaded" class="vs-empty">暂无版本</div>
             </div>
           </div>
         </transition>
@@ -110,16 +111,19 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { SparkCodeEditor, JsonTreeEditor } from '@spark-appworks/spark-component'
+import { SparkCodeEditor, JsonTreeEditor, FieldText, PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps } from '@spark-appworks/spark-component'
+import { buildDataViewKey } from '@spark-appworks/spark-data'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { createRuleJsonSchema, createRuleTreePolicy } from '@/services/project-model-artifacts'
-import { ElMessageBox } from 'element-plus'
 import { useDevFileEditor } from './composables/useDevFileEditor'
 import type { DevState } from './useDevState'
-import type { PageToolFileName, PageToolFileVersionSummary } from '@spark-appworks/spark-project-model'
+import type { DataRow } from '@spark-appworks/spark-data'
+import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import NavIcon from '@/components/NavIcon.vue'
 
 const rulePolicy = createRuleTreePolicy()
 const RULE_JSON_SCHEMA = createRuleJsonSchema()
+const {sparkProvide, sparkRemove} = useSparkComponent({type: 'dev-file-editor'})
 
 const props = withDefaults(defineProps<{
   state: DevState
@@ -136,19 +140,30 @@ const emit = defineEmits<{
 const localActiveFile = ref<PageToolFileName>('rule.json')
 const showVersionPanel = ref(false)
 const remoteVersionLoading = ref(false)
+const versionQueryError = ref('')
+const versionQueryLoaded = ref(false)
+const versionRowCount = ref(0)
 const restoringVersion = ref<number | null>(null)
 const creatingVersion = ref(false)
-const deletingVersion = ref(false)
-const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || deletingVersion.value || props.state.pageIoBusy.value)
+const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || props.state.pageIoBusy.value)
 let versionRevision = 0
 let disposed = false
-onBeforeUnmount(() => { disposed = true; versionRevision++ })
-const remotePageVersions = ref<PageToolFileVersionSummary[]>([])
+onBeforeUnmount(() => { disposed = true; versionRevision++; sparkRemove(PAGE_RUNTIME) })
 const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
 const host = computed(() => props.state.editor)
 const project = computed(() => props.state.project)
+const versionViewKey = buildDataViewKey('ProjectToolVersion', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+const versionActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
+  label: '恢复', disabled: versionBusy.value || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value,
+  onClick: (row: DataRow) => restoreVersion(Number(row['version'])),
+}}]}))
+
+watch(() => props.state.blueprintPageRuntime.value, runtime => {
+  if (runtime?.isLoaded) sparkProvide(PAGE_RUNTIME, runtime)
+  else sparkRemove(PAGE_RUNTIME)
+}, {immediate: true})
 
 function alignActivePage(): boolean {
   const pageId = props.state.activePageId.value.trim()
@@ -172,8 +187,10 @@ watch(resolvedActiveFile, (nextFile) => {
 watch([resolvedActiveFile, () => props.state.activePageId.value], () => {
   versionRevision++
   remoteVersionLoading.value = false
+  versionQueryError.value = ''
+  versionQueryLoaded.value = false
+  versionRowCount.value = 0
   showVersionPanel.value = false
-  remotePageVersions.value = []
 })
 
 function isCodeFile(name: string): boolean {
@@ -202,15 +219,30 @@ function refreshFile() {
 async function loadVersions() {
   if (!alignActivePage()) return
   const revision = ++versionRevision
+  const pageId = props.state.activePageId.value
   const fileName = resolvedActiveFile.value
   remoteVersionLoading.value = true
+  versionQueryError.value = ''
+  versionQueryLoaded.value = false
+  versionRowCount.value = 0
   try {
-    const versions = await host.value.listRemotePageVersions(fileName)
-    if (!disposed && revision === versionRevision && showVersionPanel.value) remotePageVersions.value = versions
+    await props.state.loadBlueprintWorkspaceDataView()
+    const runtime = props.state.blueprintPageRuntime.value
+    const dataSet = runtime?.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    const view = dataSet?.getView('ProjectToolVersion', 'default')
+    if (!runtime?.isLoaded || runtime !== props.state.blueprintPageRuntime.value || !dataSet || !view
+      || dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY) throw new Error('正式工具版本 DataView 未装载')
+    view.queryContext = {pageId, fileName}
+    await view.refresh()
+    if (view.loadingError) throw view.loadingError
+    if (disposed || revision !== versionRevision || !showVersionPanel.value || pageId !== props.state.activePageId.value
+      || fileName !== resolvedActiveFile.value || runtime !== props.state.blueprintPageRuntime.value) return
+    sparkProvide(PAGE_RUNTIME, runtime)
+    versionRowCount.value = view.rows.length
+    versionQueryLoaded.value = true
   } catch (e) {
     if (disposed || revision !== versionRevision) return
-    props.state.addStatus(`读取后端版本失败: ${String(e)}`, 'error')
-    remotePageVersions.value = []
+    versionQueryError.value = e instanceof Error ? e.message : String(e)
   } finally {
     if (!disposed && revision === versionRevision) remoteVersionLoading.value = false
   }
@@ -220,6 +252,9 @@ function toggleVersionPanel() {
   showVersionPanel.value = !showVersionPanel.value
   versionRevision++
   remoteVersionLoading.value = false
+  versionQueryError.value = ''
+  versionQueryLoaded.value = false
+  versionRowCount.value = 0
   if (showVersionPanel.value) {
     void loadVersions()
   }
@@ -262,41 +297,18 @@ async function createVersion() {
   }
 }
 
-async function confirmDeleteVersion(row: PageToolFileVersionSummary) {
-  if (versionBusy.value) return
-  const pageId = props.state.activePageId.value
-  const fileName = resolvedActiveFile.value
+function formatVersionTime(value: unknown): string {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-'
   try {
-    await ElMessageBox.confirm(
-      `确定删除版本 v${row.version} 吗？此操作不可撤销。`,
-      '删除版本',
-      { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' },
-    )
-  } catch {
-    return
-  }
-  if (disposed || pageId !== props.state.activePageId.value || fileName !== resolvedActiveFile.value || !showVersionPanel.value || versionBusy.value || !alignActivePage()) return
-  deletingVersion.value = true
-  try {
-    await host.value.deleteRemotePageVersion(row.version, fileName)
-    props.state.addStatus(`${fileName} 版本 v${row.version} 已删除`, 'success')
-    if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
-  } catch (e) {
-    props.state.addStatus(`删除版本失败: ${String(e)}`, 'error')
-  } finally { deletingVersion.value = false }
-}
-
-function formatVersionTime(raw: number | null): string {
-  if (raw === null) return '-'
-  try {
-    const d = new Date(raw)
-    if (!Number.isFinite(d.getTime())) return '-'
-    const pad = (n: number) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    const date = new Date(value)
+    if (!Number.isFinite(date.getTime())) return '-'
+    const pad = (part: number) => String(part).padStart(2, '0')
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
   } catch {
     return '-'
   }
 }
+
 </script>
 
 <style scoped>

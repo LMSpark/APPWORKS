@@ -18,6 +18,7 @@ function fixture(blueprintTreeProjection: (() => ProjectBlueprintTreeData | Prom
     readPageFile: async input => {await block; const value = files.get(`${input.pageId}/${input.versionId ?? ''}/${input.fileName}`); if (value === undefined) throw new Error('file missing'); return value},
     saveFileContent: async (id, name, text) => {writes.push(text); files.set(`${id}//${name}`, text); if (lose) {lose = false; throw new Error('reply lost')}},
   }})
+  workspace.project.openPageDesign('ONE')
   const dataSet = DataSet.fromJson({scenarioId: 'META', dataSetName: 'tools', tables: {ProjectToolCatalog: config.tables.ProjectToolCatalog, ProjectToolFile: config.tables.ProjectToolFile}})
   instances.push(dataSet)
   const resource = new ProjectToolResource({workspace, metadataScenarioId: 'META', assertCurrent: () => {if (!current) throw new Error('scope expired')}, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})

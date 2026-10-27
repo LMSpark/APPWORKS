@@ -2641,6 +2641,14 @@ flowchart TD
 - **下一候选旁路审计（只读）：**应用目录的 `AppList.vue`、`PlatformApps.vue`、project settings 和 runtime 仍调用 `listApplications()` 的 direct GetData；现有 `Base_AppSystemList@catalogApps` 绑定不能证明等价租户/全局目录范围及服务端行字段权限。物理表/视图预览也仍直调 GetData，并将结果投影为本地只读权限；正式 SPARK data 身份尚不能表达物理 `Type/DbId/DbName/name` 与授权回执。`createLowcodeProjectGateways` 的若干 raw 方法当前仅见定义/装配，生产业务 CRUD 调用者未确认。因此本轮没有可直接安全迁移并删除旧入口的下一业务切片；禁止在这些路径上只包一层 DataView/伪造权限。
 - **解锁条件与执行状态：**Workflow 目录需补齐/核实三项正式事实：File/list 对不存在路径的行为与目录创建责任；现存设计文件的正式 `appType/customPath`；若目录应存在，服务端对当前应用路径的目录/授权诊断。应用目录与物理预览则先取得正式数据范围、模型/资源身份及权限投影合同。两份低价模型审计及主控源码复核均为只读，没有改 Java、产品代码或正式业务数据。下一切片按取得合同后选择真实生产消费者；整体目标保持 active，不因本轮阻塞将范围缩小。
 
+### 2026-10-28 DevSystem 版本目录接入 DataSpace 设计
+
+- **用户确认的路线：**可通过数据空间设计补齐正式数据空间定义。按此路线新增只读 `ProjectToolVersion` 文件资源合同：稳定资源身份 `project:tool-version`、版本行字段及 `default` DataView 查询参数 `pageId/fileName`，executor 查询限定当前应用与页面文件。资源在正式设计器中通过 `DataTableBindingDefinition`、`DataViewDefinition` 两个定义视图登记并由原 DataSet 保存；没有创建数据库 `modelBinding`，也没有页面直调查询通道。
+- **DevSystem 接线：**版本列表改由现有 `LOWCODE_APPLICATION_CATALOG_FORM_KEY`（7AB）PageRuntime 中的完整键 `7AB@ProjectToolVersion@default` 查询；标准 `RendererTable` 和字段子组件绑定同一 DataView，目标变化、关闭与卸载会使旧异步结果失效。版本恢复、创建快照仍沿现有命令 API；版本删除入口保持禁用，因为正式版本查询无行删除授权，不能在前端补造权限。
+- **代码验收：**低价实施代码经主控复核；正式 ClassModel 生成器已刷新，`verify:class-model` 4 files / 49 tests、版本资源/设计器/DevFileEditor 定向用例 4 files / 33 passed、`typecheck`、改动源文件 ESLint `--max-warnings=0`、全量 `verify:rules`、production build、`verify:docs` 和 `git diff --check` 均通过。DataSpace Design 大测试文件曾运行超过 6 分钟后由主控中止；仅将专项筛选结果计入通过，不将整文件报告为通过。生成器刷新包含当前源码对应的仓级陈旧 ClassModel 漂移；产物来自正式生成器，未手改。
+- **真实 SPA 状态与剩余缺口：**本批没有在真实 SPA 中将 `ProjectToolVersion` 保存到正式 7AB 空间，也未关闭重开并从服务端读回；没有真实版本列表查询/操作烟测。因此不能声称 DevSystem 正式配置已完成或版本列表真实读回通过。后续通过 SPA 数据空间设计将资源登记到 7AB，保存并重开核对，再打开 DevSystem 验证标准 DataView 的实际查询与切换隔离。真实写入前不删除或改动已有模型。其他数据旁路继续按真实消费者和正式身份逐项收敛，整体 SPARK data 目标保持 active。
+- **本批数据与交付边界：**没有创建、删除或修改正式 SPA 数据，没有真实远端快照写入；不改 Java、不启动或部署后端。本地代码与本台账待收口提交/推送；版本删除权限及未知删除回执合同未具备，继续 fail closed。
+
 ### 2026-10-28 按数据空间设计补齐删除资源的 DataView 路线
 
 - **架构裁定（用户本轮确认）：**可以、并应通过数据空间设计补齐正式数据资源定义。先按真实业务身份补 DataTable、columns、DataView、查询参数和 executor 绑定，再让业务组件通过绑定视图消费查询与权限、调用 `DataView.removeRow()`，并由原 DataSet 提交和核验回执。清理的是页面/领域层第二套查询、编辑、取消、暂存或保存入口；owner 若只负责 DataView executor 内部的存储适配、范围校验或服务端回读，仍是 SPARK data 的内部实现，不能仅按类名删除。

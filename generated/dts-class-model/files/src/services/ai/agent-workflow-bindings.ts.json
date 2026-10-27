@@ -49,7 +49,7 @@
         },
         "blueprintDataView": {
           "type": "object",
-          "title": "import(\"../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView"
+          "title": "import(\"../project/blueprint-workspace-dataview\").BlueprintWorkspaceDataView"
         },
         "getDataViewCompletionResult": {
           "type": "object",

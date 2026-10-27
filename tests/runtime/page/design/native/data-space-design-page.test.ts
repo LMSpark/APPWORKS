@@ -7900,6 +7900,24 @@ describe('metadata invalidation ownership', () => {
     expect(saved.tables['AgentWorkflowFiles']).not.toHaveProperty('modelBinding')
   })
 
+  it('registers ProjectToolVersion into the explicit 7AB target through formal definition DataViews', async () => {
+    const f = fixture(), {wrapper} = await page(`?scenarioId=${LOWCODE_APPLICATION_CATALOG_FORM_KEY}`)
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const action = 'add-file-resource-project:tool-version'
+    expect(sourceButton(wrapper, action).attributes('disabled')).toBeUndefined()
+    await sourceButton(wrapper, action).trigger('click'); await flushPromises()
+
+    expect(f.fileWrites, wrapper.text()).toHaveLength(1)
+    const saved = JSON.parse(f.stored.get(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!) as {scenarioId: string; tables: Record<string, {
+      resourceType?: string; resourceId?: string; columns?: Array<{name: string}>; views?: Record<string, unknown>}>}
+    expect(saved.scenarioId).toBe(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    expect(saved.tables['ProjectToolVersion']).toMatchObject({resourceType: 'file', resourceId: 'project:tool-version',
+      columns: [{name: 'versionKey'}, {name: 'pageId'}, {name: 'fileName'}, {name: 'version'}, {name: 'snapshotFileName'}, {name: 'lastModified'}],
+      views: {default: {queryContext: {pageId: '', fileName: 'rule.json'}}},
+    })
+    expect(saved.tables['ProjectToolVersion']).not.toHaveProperty('modelBinding')
+  })
+
   it('rolls back the binding draft when adding a registered resource view fails', async () => {
     const f = fixture(), {wrapper} = await page()
     await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()

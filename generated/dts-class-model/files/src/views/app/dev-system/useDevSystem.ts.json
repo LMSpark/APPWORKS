@@ -590,7 +590,7 @@
             },
             "blueprintWorkspaceDataView": {
               "type": "object",
-              "title": "import(\"vue\").ShallowRef<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined, import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined>"
+              "title": "import(\"vue\").ShallowRef<import(\"../../../services/project/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined, import(\"../../../services/project/blueprint-workspace-dataview\").BlueprintWorkspaceDataView | undefined>"
             },
             "blueprintPageRuntime": {
               "type": "object",
@@ -598,7 +598,7 @@
             },
             "loadBlueprintWorkspaceDataView": {
               "type": "object",
-              "title": "() => Promise<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView>"
+              "title": "() => Promise<import(\"../../../services/project/blueprint-workspace-dataview\").BlueprintWorkspaceDataView>"
             },
             "savePageToolFile": {
               "type": "object",

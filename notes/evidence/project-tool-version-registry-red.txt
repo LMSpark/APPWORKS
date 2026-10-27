@@ -1,0 +1,40 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-version-resource.test.ts (2 tests | 2 failed) 11ms
+     × is offered by the formal file resource registry with a complete readonly view contract 7ms
+     × binds and queries the formally declared view under the exact 7AB target identity 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/view-design/project-tool-version-resource.test.ts > registered ProjectToolVersion resource > is offered by the formal file resource registry with a complete readonly view contract
+AssertionError: expected undefined to be defined
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-version-resource.test.ts:9:24
+      7|   it('is offered by the formal file resource registry with a complete …
+      8|     const definition = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => ite…
+      9|     expect(definition).toBeDefined()
+       |                        ^
+     10|     expect(definition).toMatchObject({
+     11|       resourceId: 'project:tool-version',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/view-design/project-tool-version-resource.test.ts > registered ProjectToolVersion resource > binds and queries the formally declared view under the exact 7AB target identity
+AssertionError: expected undefined to be defined
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-version-resource.test.ts:25:24
+     23|   it('binds and queries the formally declared view under the exact 7AB…
+     24|     const definition = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => ite…
+     25|     expect(definition).toBeDefined()
+       |                        ^
+     26|     const api = {listFileVersions: vi.fn().mockResolvedValue([
+     27|       {version: 8, fileName: '8__script.js', lastModified: 123},
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  04:27:29
+   Duration  4.71s (transform 2.22s, setup 170ms, import 2.72s, tests 11ms, environment 1.34s)
+

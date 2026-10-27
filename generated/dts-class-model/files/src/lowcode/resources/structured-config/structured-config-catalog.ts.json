@@ -75,17 +75,11 @@
         "catalogMetaName": {
           "type": "string"
         },
-        "scopeInputTable": {
-          "type": "string"
-        },
         "models": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/StructuredCatalogModelOptions"
           }
-        },
-        "applicationId": {
-          "type": "string"
         }
       },
       "additionalProperties": false,
@@ -161,7 +155,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T06:52:17.026Z",
+  "generatedAt": "2026-10-27T12:44:28.664Z",
   "models": {
     "StructuredCatalogModelOptions": {
       "name": "StructuredCatalogModelOptions",
@@ -207,11 +201,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    catalogMetaName: string;\n    scopeInputTable: string;\n    models: readonly StructuredCatalogModelOptions[];\n    applicationId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    catalogMetaName: string;\n    models: readonly StructuredCatalogModelOptions[];\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    catalogMetaName: string;\n    scopeInputTable: string;\n    models: readonly StructuredCatalogModelOptions[];\n    applicationId: string;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    catalogMetaName: string;\n    models: readonly StructuredCatalogModelOptions[];\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -228,17 +222,7 @@
               "writable": false
             },
             {
-              "name": "scopeInputTable",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "models",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "applicationId",
               "readable": true,
               "writable": false
             }

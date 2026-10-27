@@ -1,5 +1,7 @@
-import {RequestState, type DataRow, type DataView} from '@spark-appworks/spark-data'
-import type {LowcodeFileDirectory, LowcodeFileEntry, LowcodeFileLocator} from '@spark-appworks/spark-lowcode-api'
+import {RequestState, type DataColumn, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import type {LowcodeDesignApi, LowcodeFileDirectory, LowcodeFileEntry, LowcodeFileLocator} from '@spark-appworks/spark-lowcode-api'
+import {PROJECT_TOOL_VERSION_COLUMNS, PROJECT_TOOL_VERSION_QUERY_PARAMETERS, PROJECT_TOOL_VERSION_RESOURCE_ID, PROJECT_TOOL_VERSION_TABLE,
+  PROJECT_TOOL_VERSION_VIEWS, ProjectToolVersionResource} from './project-tool-version-resource'
 
 export const AGENT_WORKFLOW_FILE_TABLE = 'AgentWorkflowFiles'
 export const AGENT_WORKFLOW_FILE_RESOURCE_ID = 'agent-workflow-files'
@@ -12,15 +14,16 @@ export const AGENT_WORKFLOW_FILE_COLUMNS = Object.freeze([
 ])
 
 export const AGENT_WORKFLOW_DATA_SPACE_NAME = 'Agent工作流文件资源'
+type LowcodeFileResourceApi = Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'listFileVersions'>
 
 export type LowcodeFileResourceDefinition = Readonly<{
   tableName: string
   resourceId: string
   label: string
-  columns: typeof AGENT_WORKFLOW_FILE_COLUMNS
+  columns: readonly DataColumn[]
   views: Readonly<Record<string, Readonly<Record<string, unknown>>>>
   queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{name: string; type: string; label?: string; required?: boolean}>>>>
-  createExecutor(input: Readonly<{applicationId: string; api: WorkflowFileApi; assertCurrent: () => void}>): AgentWorkflowFileResource
+  createExecutor(input: Readonly<{applicationId: string; api: LowcodeFileResourceApi; assertCurrent: () => void}>): Parameters<DataView['bindQueryExecutor']>[0]
 }>
 
 /** Only file resources with a concrete query executor are offered by the data-space designer. */
@@ -42,7 +45,17 @@ export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinit
       design: Object.freeze([{name: 'workflowId', type: 'string', label: '工作流 ID', required: true}]),
       definition: Object.freeze([{name: 'workflowId', type: 'string', label: '工作流 ID', required: true}]),
     }),
-    createExecutor: (input: Readonly<{applicationId: string; api: WorkflowFileApi; assertCurrent: () => void}>) => new AgentWorkflowFileResource(input),
+    createExecutor: (input: Readonly<{applicationId: string; api: LowcodeFileResourceApi; assertCurrent: () => void}>) => new AgentWorkflowFileResource(input),
+  }),
+  Object.freeze({
+    tableName: PROJECT_TOOL_VERSION_TABLE,
+    resourceId: PROJECT_TOOL_VERSION_RESOURCE_ID,
+    label: '工具文件版本目录',
+    columns: PROJECT_TOOL_VERSION_COLUMNS,
+    views: PROJECT_TOOL_VERSION_VIEWS,
+    queryParameters: PROJECT_TOOL_VERSION_QUERY_PARAMETERS,
+    createExecutor: (input: Readonly<{applicationId: string; api: LowcodeFileResourceApi; assertCurrent: () => void}>) =>
+      new ProjectToolVersionResource({applicationId: input.applicationId, api: input.api, assertCurrent: input.assertCurrent}),
   }),
 ])
 

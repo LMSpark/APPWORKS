@@ -47,7 +47,7 @@
           ]
         },
         "blueprintDataView": {
-          "$ref": "../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
+          "$ref": "../project/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
         }
       },
       "additionalProperties": false
@@ -99,7 +99,7 @@
           ]
         },
         "blueprintDataView": {
-          "$ref": "../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
+          "$ref": "../project/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
         },
         "editor": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
@@ -169,7 +169,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T01:28:02.467Z",
+  "generatedAt": "2026-10-27T15:22:51.936Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",

@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/agent-workflow-file-resource",
+    "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+    "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/agent-workflow-file-resource",
+    "jsdoc": "app 的 lowcode/resources/shared/agent-workflow-file-resource 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileResourceDefinition, AgentWorkflowFileResource（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeFileResourceDefinition",
+      "AgentWorkflowFileResource"
+    ]
+  },
+  "$defs": {
+    "LowcodeFileResourceApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceApi",
+      "properties": {
+        "listFiles": {
+          "type": "object",
+          "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
+        },
+        "readTextFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<string>"
+        },
+        "listFileVersions": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<readonly LowcodeFileVersionSummary[]>"
+        }
+      },
+      "required": [
+        "listFiles",
+        "readTextFile",
+        "listFileVersions"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileResourceDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceDefinition",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "views": {
+          "type": "object",
+          "title": "Record<string, Readonly<Record<string, unknown>>>"
+        },
+        "queryParameters": {
+          "type": "object",
+          "title": "Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.createExecutor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "applicationId": {
+                  "type": "string"
+                },
+                "api": {
+                  "$ref": "#/$defs/LowcodeFileResourceApi"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "applicationId",
+                "api",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createExecutor.return": true
+      }
+    },
+    "WorkflowFileApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFileApi",
+      "$defs": {
+        "method.listFiles.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../../../packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json#/$defs/LowcodeFileDirectory"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listFiles.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeFileEntry[]>"
+        },
+        "method.readTextFile.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../../../../packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json#/$defs/LowcodeFileLocator"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTextFile.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    },
+    "AgentWorkflowFileResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowFileResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "applicationId": {
+                  "type": "string"
+                },
+                "api": {
+                  "$ref": "#/$defs/WorkflowFileApi"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "applicationId",
+                "api",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<ReturnType<typeof queryResult>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-27T20:31:17.394Z",
+  "models": {
+    "LowcodeFileResourceApi": {
+      "name": "LowcodeFileResourceApi",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'listFileVersions'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'listFileVersions'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeFileResourceDefinition": {
+      "name": "LowcodeFileResourceDefinition",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryParameters",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "createExecutor",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "Parameters<DataView['bindQueryExecutor']>[0]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowFileApi": {
+      "name": "WorkflowFileApi",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    listFiles(input: LowcodeFileDirectory): Promise<readonly LowcodeFileEntry[]>;\n    readTextFile(input: LowcodeFileLocator): Promise<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    listFiles(input: LowcodeFileDirectory): Promise<readonly LowcodeFileEntry[]>;\n    readTextFile(input: LowcodeFileLocator): Promise<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "listFiles",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileDirectory"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeFileEntry[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readTextFile",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileLocator"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowFileResource": {
+      "name": "AgentWorkflowFileResource",
+      "jsdoc": "Read-only file resource. A grant is attached only to fields returned by this query.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Readonly<{\n        applicationId: string;\n        api: WorkflowFileApi;\n        assertCurrent: () => void;\n    }>)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        applicationId: string;\n        api: WorkflowFileApi;\n        assertCurrent: () => void;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "executeQuery",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ReturnType",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "typeof queryResult"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

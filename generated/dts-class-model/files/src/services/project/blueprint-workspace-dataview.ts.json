@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
-    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-    "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+    "name": "app:services/project/blueprint-workspace-dataview",
+    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts",
+    "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
     "packageName": "app",
-    "modulePath": "views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview",
-    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview\n职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。\n边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。",
+    "modulePath": "services/project/blueprint-workspace-dataview",
+    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。\n边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNodeFormData",
@@ -52,7 +52,7 @@
         "children": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
           }
         },
         "nodeId": {
@@ -220,7 +220,7 @@
       "title": "BlueprintLeafMoveBatchOptions",
       "properties": {
         "beforeTree": {
-          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
         },
         "commands": {
           "type": "array",
@@ -229,7 +229,7 @@
           }
         },
         "expectedTree": {
-          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
         }
       },
       "additionalProperties": false,
@@ -254,7 +254,7 @@
           "title": "DataSet"
         },
         "view": {
-          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "projectId": {
           "type": "string"
@@ -263,7 +263,7 @@
           "type": "string"
         },
         "row": {
-          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
         },
         "hasTreeProjection": {
           "type": "boolean"
@@ -338,6 +338,15 @@
         "method.loadProjectTree.return": {
           "type": "object",
           "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.loadProjectRecords.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadProjectRecords.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeProjectBlueprintRecord[]>"
         },
         "method.removeLeafNode.params": {
           "type": "object",
@@ -604,7 +613,7 @@
           "additionalProperties": false
         },
         "method.treeProjection.return": {
-          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
         },
         "method.childCreateActionState.params": {
           "type": "object",
@@ -716,7 +725,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T10:18:40.857Z",
+  "generatedAt": "2026-10-27T17:07:04.985Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1148,6 +1157,21 @@
               }
             },
             {
+              "name": "loadProjectRecords",
+              "jsdoc": "Load the same permission-filtered records for consumers that need rows instead of a tree.",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeProjectBlueprintRecord[]"
+                  }
+                ]
+              }
+            },
+            {
               "name": "removeLeafNode",
               "jsdoc": "Delete one ordinary leaf through the current project tree DataView and confirm it by readback.",
               "parameters": [
@@ -1239,7 +1263,7 @@
                   "type": {
                     "type": "reference",
                     "name": "BlueprintLeafMoveBatchOptions",
-                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
                   }
                 }
               ],
@@ -1548,7 +1572,7 @@
               "type": {
                 "type": "reference",
                 "name": "BlueprintNodeFormData",
-                "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
               }
             },
             {
@@ -1560,7 +1584,7 @@
                   "type": {
                     "type": "reference",
                     "name": "BlueprintNodeFormData",
-                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
                   }
                 }
               ],
@@ -1588,7 +1612,7 @@
                   "type": {
                     "type": "reference",
                     "name": "BlueprintNodeFormData",
-                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
+                    "sourcePath": "src/services/project/blueprint-workspace-dataview.ts"
                   }
                 }
               ],

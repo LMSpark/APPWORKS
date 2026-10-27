@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/project-tool-version-resource",
+    "sourcePath": "src/lowcode/resources/shared/project-tool-version-resource.ts",
+    "sourceFile": "src/lowcode/resources/shared/project-tool-version-resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/project-tool-version-resource",
+    "jsdoc": "app 的 lowcode/resources/shared/project-tool-version-resource 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectToolVersionResource（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectToolVersionResource"
+    ]
+  },
+  "$defs": {
+    "Result": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Result",
+      "properties": {
+        "undefinedChanges": {
+          "const": "clear"
+        },
+        "countReported": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "assertIdentity": {
+          "type": "object",
+          "title": "(identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>) => void"
+        },
+        "rowKey": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => unknown"
+        },
+        "prepareNewRow": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "prepareNewRowWithIdentity": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, identity: DataViewNewRowIdentity) => Record<string, unknown>"
+        },
+        "isFieldReadOnly": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        },
+        "fieldAccess": {
+          "type": "object",
+          "title": "(rowKey: unknown, field: string) => Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>"
+        },
+        "readFieldAccess": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, field: string) => \"masked\" | \"invisible\" | \"visible\""
+        },
+        "addActionState": {
+          "type": "object",
+          "title": "(available?: boolean) => DataViewActionState"
+        },
+        "editActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "deleteActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "createChildActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "viewActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        }
+      },
+      "required": [
+        "rows",
+        "total",
+        "assertIdentity",
+        "rowKey",
+        "fieldAccess",
+        "readFieldAccess",
+        "addActionState",
+        "editActionState",
+        "deleteActionState",
+        "createChildActionState",
+        "viewActionState"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectToolVersionResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectToolVersionResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "applicationId": {
+                  "type": "string"
+                },
+                "api": {
+                  "type": "object",
+                  "title": "Pick<LowcodeDesignApi, 'listFileVersions'>"
+                }
+              },
+              "required": [
+                "applicationId",
+                "api"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<Result>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-27T20:28:16.162Z",
+  "models": {
+    "Result": {
+      "name": "Result",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectToolVersionResource": {
+      "name": "ProjectToolVersionResource",
+      "jsdoc": "Read-only remote version catalog. The registry binds it only when the formal file resource exists.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: Readonly<{\n        applicationId: string;\n        api: Pick<LowcodeDesignApi, 'listFileVersions'>;\n        assertCurrent(): void;\n    }>)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        applicationId: string;\n        api: Pick<LowcodeDesignApi, 'listFileVersions'>;\n        assertCurrent(): void;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "executeQuery",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Result",
+                    "sourcePath": "src/lowcode/resources/shared/project-tool-version-resource.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

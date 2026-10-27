@@ -2308,3 +2308,10 @@ flowchart TD
 - **未知/恢复与 SPA 生命周期：**原 owner 保留未确认的 rowid/patch。unknown 时保留待核验状态且同一 Agent Run 不得重放。正式回执已接受但 refresh 失败时，重试路径只 refresh 并比较原 patch，不再次 save；`#unconfirmedIds` 纳入 `dirty` 与 `hasPendingBlueprintCommand`，让当前 DevSystem 路由离开守卫与项目切换保护继续持有原 owner，核验完成后清除。
 - **TDD和主控验收：**RED/GREEN 及类型检查记录见 `notes/evidence/project-blueprint/planning-single-update*`。主控在冻结代码上独立重跑完整 `grouped-planning-contract.test.ts` 与 `blueprint-workspace-delivery.test.ts`：**2 files / 56 tests passed**；全仓 `pnpm run typecheck`、四个改动 TS 文件 ESLint、完整 `pnpm run verify:rules`、`git diff --check` 通过。规则扫描保持既有 AI model spec **2 warnings / 1 info**，本次无 ClassModel/Java 修改。
 - **SPA烟测与状态：**当前 in-app browser 被路由至 `127.0.0.1:5273/` 平台首页，未保留登录态；未发起 AI、未写线上蓝图。真实服务更新/回执/读回仍未验证。电脑操作规范禁止自动化认证对话框；真实写烟测还需登录后的专用测试项目和目标叶节点。此前 DevSystem `appworks-tool-dev` NavHost 关系仍查得 0 行，真实项目切换也未验收。代码先提交并推送供审阅；开发工作台按参考仓项目蓝图整合目标继续 active。
+
+### 2026-10-27 DevSystem 项目选择动作与真实烟测状态
+
+- **用户确认的交互语义：**选择 NavHost 项目候选后，切换 DevSystem 当前正在编辑的项目。现有 `NavHostProjectPicker` 通过 `RendererTree` / `RendererTable` 绑定候选 `DataView`，以正式主键复核选中行后调用 `DevState.openEditingProject({tenantId, projectId})`；由既有编辑工作区承接切换与未保存/未知回执保护，不改全局应用项目。
+- **自动化复核：**新增渲染焦点断言后，完整选择器合同/渲染测试及 DevState 切换保护目标共 **3 files / 12 passed**（原 DevState 文件另有 50 项按名称过滤跳过）。新断言模拟绑定 DataView 中选中的正式行，并确认“打开所选项目”调用 `openEditingProject` 传入其 `projectId`；未向 RendererTree 传候选数组。RED/GREEN 原始输出见 `notes/evidence/project-blueprint/nav-host-project-picker-render-{red,green}.txt`。
+- **真实 SPA：**用户确认开发阶段可选任意开发项目，无需固定专用项目或叶节点 ID。当前尝试打开 DevSystem 后浏览器落在 `http://127.0.0.1:5273/` 平台首页，没有已认证会话；未查询候选、未切换项目、未写入蓝图。电脑操作规范禁止自动化认证表单。现场证据见 `notes/evidence/project-blueprint/devsystem-project-switch-live-smoke-20261027.txt`。待用户手动登录后，从正式 NavHost/DataView 候选中选择开发项目完成只读切换烟测。
+- **状态：**选择并切换当前编辑项目的产品路径已落地；真实正式候选、读回项目身份与切换后旧运行时释放仍待在线验收。没有 Java 修改或在线业务写入；DevSystem / 参考仓蓝图整合总体目标继续 active。

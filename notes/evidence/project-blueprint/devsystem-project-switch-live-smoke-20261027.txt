@@ -1,0 +1,14 @@
+DevSystem project switch live-smoke attempt
+Date: 2026-10-27 (Asia/Shanghai)
+
+Intent confirmed by user: choosing a NavHost project candidate switches the project currently being edited in DevSystem.
+
+Attempt:
+- Opened the local SPA route `/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/dev` in a visible in-app browser tab.
+- The browser landed at `http://127.0.0.1:5273/` (platform home), so the DevSystem route and authenticated session were unavailable.
+- No DataView query, project switch, blueprint write, or other business mutation was performed in this attempt.
+
+Current limits:
+- The user confirmed any development project is acceptable, so no fixed project or leaf ID is required for the requested read-only switch smoke.
+- A real smoke still needs a manually authenticated SPA session and a valid NavHost/DataView candidate; a write smoke would require a separately scoped target node.
+- Computer-use guidance disallows automating authentication dialogs; no credentials were entered.

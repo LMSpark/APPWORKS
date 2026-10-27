@@ -31,9 +31,12 @@ vi.mock('@spark-appworks/spark-data', () => ({
 }))
 vi.mock('@spark-appworks/spark-component', async () => {
   const vue = await import('vue')
-  const stub = (name: string, props: string[]) => vue.defineComponent({name, props, setup: (componentProps, {slots}) => () => {
+  const stub = (name: string, props: string[]) => vue.defineComponent({name, props, emits: ['click'], setup: (componentProps, {slots, emit}) => () => {
     const values = componentProps as Record<string, unknown>
-    return vue.h('div', {'data-stub': name, 'data-view-key': values['dataViewKey'], 'data-node-key': values['nodeKey']}, slots['default']?.())
+    return vue.h('div', {'data-stub': name, 'data-view-key': values['dataViewKey'], 'data-node-key': values['nodeKey'], onClick: () => {
+      if (typeof values['onNodeClick'] === 'function') (values['onNodeClick'] as () => void)()
+      emit('click')
+    }}, slots['default']?.())
   }})
   return {
     PAGE_RUNTIME: runtimeState.token,
@@ -52,7 +55,7 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
     dataSet: {scenarioId: fields['scenarioId'] ?? 'projects'},
     dataTable: {modelBinding: {modelName: fields['modelName'] ?? 'Project'}},
     viewId: 'default',
-    currentRow: null,
+    currentRow: fields['currentRow'] ?? null,
     queryConfig: {},
     fieldAccess: () => ({read: 'visible'}),
     getPkKey: (row: Record<string, unknown>) => row['rowid'] as string,
@@ -77,7 +80,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     const wrapper = mount(NavHostProjectPicker, {
       props: {state: {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn()} as never},
       global: {stubs: {
-        'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', slots['default']?.())}),
+        'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}),
         'el-button': true,
       }},
     })
@@ -89,6 +92,15 @@ describe('NavHost project picker hierarchy rendering', () => {
     expect(runtimeState.projectView.setTreeConfig).toHaveBeenCalledWith({idField: 'code', parentIdField: 'parent', textField: 'name', treeMode: 'flat'})
     const candidateRuntime = runtimeState.runtimes.find(item => item.scenarioIds[0] === 'projects')
     expect(runtimeState.provided).toContainEqual({key: runtimeState.token, value: candidateRuntime})
+    expect(tree.attributes('data-candidates')).toBeUndefined()
+    const state = wrapper.props('state') as {openEditingProject: ReturnType<typeof vi.fn>}
+    runtimeState.projectView.currentRow = runtimeState.projectView.rows[1]
+    await tree.trigger('click')
+    const openButton = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '打开所选项目')
+    expect(openButton, wrapper.html()).toBeTruthy()
+    await openButton!.trigger('click')
+    await flushPromises()
+    expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'C'})
     wrapper.unmount()
     expect(candidateRuntime?.disposed).toBe(true)
   })

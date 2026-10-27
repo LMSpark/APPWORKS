@@ -114,7 +114,16 @@ export class AgentWorkflowFileResource {
   }
 
   private async readDirectory(): Promise<WorkflowFileQuery> {
-    const entries = await this.#api.listFiles({appType: 'designfile', folderPath: this.#directory})
+    let entries: readonly LowcodeFileEntry[]
+    try {
+      entries = await this.#api.listFiles({appType: 'designfile', folderPath: this.#directory})
+    } catch (error) {
+      this.#assertCurrent()
+      if (error instanceof Error && 'code' in error && error.code === 1003 && error.message === '文件夹路径不存在') {
+        return {rows: [], total: 0}
+      }
+      throw error
+    }
     this.#assertCurrent()
     const rows = entries.map(entry => ({workflowId: entry.name, fileName: 'design.json',
       timestamp: entry.lastModified === null ? '' : String(entry.lastModified)}))

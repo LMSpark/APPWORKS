@@ -1,4 +1,5 @@
 import {DataSet, RequestState} from '@spark-appworks/spark-data'
+import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
 const columns = [
@@ -44,6 +45,49 @@ describe('Agent Workflow file DataView resource', () => {
       expect(view.fieldAccess(view.rows[0]!, 'workflowId')).toMatchObject({read: 'visible', write: 'denied'})
       expect(api.listFiles).toHaveBeenCalledOnce()
       expect(api.readTextFile).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
+
+  it('treats only the explicit missing workflow directory response as an empty loaded directory', async () => {
+    const {api, dataSet} = fixture()
+    vi.mocked(api.listFiles).mockRejectedValueOnce(new LowcodeApiError(1003, '文件夹路径不存在'))
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
+    try {
+      const result = await view.requestRefresh()
+      expect(result.success).toBe(true)
+      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(view.rows).toEqual([])
+      expect(view.total).toBe(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('recognizes the missing-directory error contract across LowcodeApiError module instances', async () => {
+    const {api, dataSet} = fixture()
+    const foreignModuleError = Object.assign(new Error('文件夹路径不存在'), {code: 1003})
+    vi.mocked(api.listFiles).mockRejectedValueOnce(foreignModuleError)
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
+    try {
+      const result = await view.requestRefresh()
+      expect(result.success).toBe(true)
+      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(view.rows).toEqual([])
+      expect(view.total).toBe(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it.each([
+    ['different message', new LowcodeApiError(1003, '其他数据错误')],
+    ['authorization denial', new LowcodeApiError(403, '文件夹路径不存在')],
+  ])('keeps a missing-directory-like response as an error for %s', async (_label, error) => {
+    const {api, dataSet} = fixture()
+    vi.mocked(api.listFiles).mockRejectedValueOnce(error)
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
+    try {
+      const result = await view.requestRefresh()
+      expect(result.success).toBe(false)
+      expect(view.requestState).not.toBe(RequestState.Loaded)
+      expect(view.rows).toEqual([])
+      expect(view.loadingError).toBe(error)
     } finally {dataSet.destroy()}
   })
 

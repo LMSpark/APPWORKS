@@ -2214,3 +2214,10 @@ flowchart TD
 - **回归依据：**`data-space-runtime-api.test.ts` 的“filters on a non-output model field without requesting it as output”验证过滤字段可用、结果字段仍只含已输出列及主键；`data-space-model-alias.test.ts` 的动态完整模式用例验证非输出字段不能被选作输出或保存。只证明本仓源码与模拟服务夹具合同，不证明实际后端对投影的行为。
 - **对桌面关联的影响：**上一条正式 SPA 只读观察中，`Base_Desktop_System` 仅 `rowid` 输出，且没有已配置视图。新增 pagedata 视图投影不能绕过模型输出配置；当前也没有经正式 DataView 查询读取 AppName、AppUrl、AppType 等字段的依据。不得改用参考仓直连 API、临时查询器或共享模型猜测性配置。桌面关联保持未实施；解锁需正式模型输出字段及其影响范围经核，或已有服务/DataView 合同支持不改变共享模型的合法读取。
 - **绑定与权限边界：**`buildDataViewKey` / `resolveDataViewKey` 可按完整 `scenarioId@modelName@viewId` 定位本次 DataView；`modelId + modelName` 仍必须来自正式 DataTable.modelBinding。视图投影只决定列，不授读写权限；字段权限继续来自当次正式查询结果。本次仅源码审计，未浏览器写入、未改 Java、未改线上配置或业务数据。
+
+### 2026-10-27 开发工作台蓝图 gateway 消费者复核
+
+- **工作台当前状态：**低价只读审计并由主控复核 `useDevState.ensureCurrentProjectBlueprintLoaded()` → `loadBlueprintTreeFromDataView()`；主树首载没有 ProjectWorkspace gateway 读取 fallback，失败会保留 unavailable 状态并报错。移动、普通叶节点删除及策划文档导入也使用同一工作台 Base_NavigationInfo DataView 链；挂载页创建/删除仍是 DataView 与 PageToolFiles owner 的分步补偿流程，不能伪称跨来源原子事务。
+- **仍存的 gateway 消费者：**ProjectPlanning Agent Run (`prepareProjectPlanningAgentRun`)、PageDesign Agent Run (`preparePageDesignAgentRun`) 与 `project-tool-resource.ts` 的正式树输入仍经 headless `ProjectWorkspace.loadBlueprint()/previewBlueprintRemote()` 调用 `blueprintGateway.loadRoot()`；ProjectWorkspace 内更新/移动/删除后的读取回执也与 gateway 绑在一起。不可只删除 `loadRoot` 或以直连 API 包装替换。
+- **候选下一切片：**评估将 ProjectPlanning Agent 的只读树输入改为正式 `Base_NavigationInfo` DataView 投影。现有工作台树列明确包含能力、导航、空间引用和原始 source 字段，DataView 默认查询最多 50,000 行；切换前仍须逐字段比较策划输入所需字段、身份映射、根/父子闭包、权限过滤及完整性限制，并明确该 Agent Run 如何复用本次 PageRuntime owner。若不能证明与现有输入等价，保留当前路径并登记缺口；本次尚未实施或测试该迁移。
+- **状态：**桌面关联因正式字段输出不足继续未实施；开发工作台主树 DataView 首载已成立，但 Agent/工具资源仍有蓝图 gateway 旁路，完整唯一 SPARK data 目标未完成。代码未改、Java 未改、本次未发起线上请求或写入。投影合同记录提交并推送于 `05b0d75ed`。

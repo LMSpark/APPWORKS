@@ -20,6 +20,7 @@
 - **低价模型源码复核：**静态租户页由 `config/navigation/vue-pages.json` 注册；导航 host 给的是 path/title，不带 `blueprintScenarioId`。`AppList.vue` 仅在动态节点注入 `route.meta.blueprintScenarioId` 时启动 DataView；根租户页回退 `lowcodeApi.platform.listApplications()`。该 API 固定 `Base_AppSystemList`/`LOWCODE_APPLICATION_CATALOG_FORM_KEY`，`Filter:null`、无租户输入，返回结果不含 DataView 权限上下文。数据空间目录 `catalogApps` 及隐藏 0C70 节点都是不同 scenario/owner，不能挪用。
 - **真实 SPA 只读烟测：**复用当前认证标签。先访问 D99 下 `/app-list`，路由回落到 D99“服务器管理”；再访问正式工场 scope `/t/NewApp/homepage/app-list`，应用卡片正常显示。AX 树解析到 61 个应用标题和 61 个删除按钮，无 alert/error 文本；没有点击创建、设置、切换或删除。应用列表页仍有操作入口，但源码中 create/delete handler fail closed，设置提示未接入治理写合同；这不证明后台权限或按钮操作效果。
 - **执行裁定：**用户允许以数据空间设计补齐资源定义，但须先确立静态根路由正式 DataSpace owner 身份合同；推荐 route registry 显式引用经正式目录创建的 DataSpace ID，由 SPA PageRuntime 消费 `scenarioId@Base_AppSystemList@default`，而非借用固定 FormKey 或别的页面场景。未来烟测需在 `homepage` scope 真实读回行范围/字段权限，逐项比对现 61 个卡片、排序及切换行为，确认数据一致再删除 fallback。该路线仍需一个短设计与 RED 测试合同；本轮无代码改动或数据空间配置写入。
+- **用户补充方向（本轮）：**同意通过“数据空间设计”补齐游离在 DataSet 之外的数据资源。执行方式定为：逐消费者确定正式 owner 与请求/权限范围后，在该 owner 的设计器中绑定正式 DataTable 并配置所需 DataView；运行页面仍只走 `PageRuntime → DataSet → DataView`。设计器只补元数据定义，不创建服务端尚不存在的 owner、不授予范围、不把根路径或租户名猜成 `X-AppId`。因此全局 `/app-list` 当前仍先保留旧读路径，待平台目录 owner/scope 合同成立后，才能在正确 DataSpace 设计并读回对应视图。
 
 ## 2026-10-28 删除链源码复核
 

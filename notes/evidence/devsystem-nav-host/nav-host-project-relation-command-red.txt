@@ -1,0 +1,32 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/dev-system/nav-host-project-relation-command.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/dev-system/nav-host-project-relation-command.test.ts [ tests/dev-system/nav-host-project-relation-command.test.ts ]
+Error: Failed to resolve import "../../src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command" from "tests/dev-system/nav-host-project-relation-command.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/dev-system/nav-host-project-relation-command.test.ts:3:46
+  1  |  import { describe, expect, it, vi } from "vitest";
+  2  |  import { configureNavHostProjectRelation } from "../../src/views/app/dev-system/nav-host-project-picker/nav-host-proj...
+     |                                                   ^
+  3  |  describe("configureNavHostProjectRelation", () => {
+  4  |  	it("stages one project-switch relation on the supplied DataView without saving it", async () => {
+ ❯ TransformPluginContext._formatLog node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30602:39
+ ❯ TransformPluginContext.error node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30599:14
+ ❯ normalizeUrl node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27842:18
+ ❯ node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27905:30
+ ❯ TransformPluginContext.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:27873:4
+ ❯ EnvironmentPluginContainer.transform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:30387:14
+ ❯ loadAndTransform node_modules/.pnpm/vite@8.0.16_@types+node@26._e6fcae6bc0192df5dad5aaa8ac13a1d4/node_modules/vite/dist/node/chunks/node.js:24646:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:27:50
+   Duration  2.65s (transform 45ms, setup 208ms, import 0ms, tests 0ms, environment 1.83s)

@@ -685,14 +685,6 @@ async createRemotePageVersion(filename: PageToolFileName): Promise<void> {
     if (this.project.getActivePage() !== page) throw new Error('PAGE_TOOL_IDENTITY_CHANGED: 创建版本期间活动工具已改变')
   }
 
-    /** 删除 Remote Page Version。 */
-async deleteRemotePageVersion(version: number, filename: PageToolFileName): Promise<void> {
-    const page = this.project.getActivePage()
-    if (!page) return
-    await this.fileApi.deleteVersion(page.pageId, filename, version)
-    if (this.project.getActivePage() !== page) throw new Error('PAGE_TOOL_IDENTITY_CHANGED: 删除版本期间活动工具已改变')
-  }
-
 notifyPageFileChanged(
     pageId: string,
     filename: PageToolFileName | '__created' | '__deleted' | '__bulk',

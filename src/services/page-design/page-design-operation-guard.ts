@@ -32,7 +32,7 @@ const RAW_BLUEPRINT_READ_METHODS=new Set(['loadBlueprint','previewBlueprintRemot
 const DELIVERY_WRITE_METHODS = new Set([
   'addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode',
   'saveBlueprintFromSession', 'saveBlueprintNodes', 'savePageFileChange', 'savePageFile', 'saveDirtyPageFiles',
-  'restoreRemotePageVersion', 'createRemotePageVersion', 'deleteRemotePageVersion',
+  'restoreRemotePageVersion', 'createRemotePageVersion',
 ])
 
 const FILE_METHODS = new Set(['setFileText', 'getFileText', 'writePageFile'])

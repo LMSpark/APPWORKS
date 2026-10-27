@@ -93,13 +93,13 @@ describe('guardPageDesignEditor', () => {
       saveFileContent: vi.fn(async () => undefined),
       createVersion: vi.fn(async () => undefined),
       restoreVersion: vi.fn(async () => undefined),
-      deleteVersion: vi.fn(async () => undefined),
     }
-    const guarded = guardPageDesignEditor(new ProjectWorkspace({
+    const editor = new ProjectWorkspace({
       projectId: 'demo',
       pageFiles: { readPageFile: async () => '', ...fileApi },
       blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
-    }), { script: true, style: true, nodeTree: true })
+    })
+    const guarded = guardPageDesignEditor(editor, { script: true, style: true, nodeTree: true })
     const page = guarded.project.openPageDesign('orders')
     guarded.project.setActivePage('orders')
     expect(() => page.setFileText('script.js', 'draft')).not.toThrow()
@@ -108,11 +108,10 @@ describe('guardPageDesignEditor', () => {
     expect(() => guarded.savePageFileChange({ pageId: 'orders', fileName: 'script.js', expectedText: '', text: 'x' })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
     expect(() => guarded.createRemotePageVersion('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
     expect(() => guarded.restoreRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.deleteRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect('deleteRemotePageVersion' in editor).toBe(false)
     expect(fileApi.saveFileContent).not.toHaveBeenCalled()
     expect(fileApi.createVersion).not.toHaveBeenCalled()
     expect(fileApi.restoreVersion).not.toHaveBeenCalled()
-    expect(fileApi.deleteVersion).not.toHaveBeenCalled()
     expect(page.getFileText('script.js')).toBe('draft')
   })
 })

@@ -872,22 +872,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.deleteRemotePageVersion.params": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "number"
-            },
-            "filename": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.deleteRemotePageVersion.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.notifyPageFileChanged.params": {
           "type": "object",
           "properties": {
@@ -952,7 +936,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T20:28:04.698Z",
+  "generatedAt": "2026-10-27T21:04:08.828Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -2436,37 +2420,6 @@
               "name": "createRemotePageVersion",
               "jsdoc": "创建 Remote Page Version。",
               "parameters": [
-                {
-                  "name": "filename",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "deleteRemotePageVersion",
-              "jsdoc": "删除 Remote Page Version。",
-              "parameters": [
-                {
-                  "name": "version",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "number"
-                  }
-                },
                 {
                   "name": "filename",
                   "type": {

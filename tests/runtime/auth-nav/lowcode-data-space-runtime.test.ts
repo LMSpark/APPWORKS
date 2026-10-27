@@ -77,6 +77,12 @@ describe('host scenario file request wiring', () => {
     expect(transport.request).not.toHaveBeenCalled()
   })
 
+  it('does not expose an ungoverned page-file version delete gateway', () => {
+    sceneWorkspace()
+    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
+    expect('deleteVersion' in gateway).toBe(false)
+  })
+
   it('rejects scene reads and writes from a workspace belonging to another application', async () => {
     sceneWorkspace('APP-2')
     const gateway = runtime.createLowcodeProjectGateways('APP-1').scenarioViews
@@ -394,19 +400,15 @@ describe('host scenario file request wiring', () => {
     expect(transport.request.mock.calls.some(([config])=>config.url === '/api/File/UploadFile')).toBe(false)
   })
 
-  it('uses actual filename history for creation and confirms snapshot deletion without publishing', async () => {
+  it('uses actual filename history for creation without exposing snapshot deletion', async () => {
     sceneWorkspace()
     const files = new Map([['script.js', 'working'], ['2__script.js', 'previous'], ['9__style.css', 'other']])
     const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.listVersions || !gateway.createVersion || !gateway.deleteVersion) throw new Error('missing version gateway')
+    if (!gateway.listVersions || !gateway.createVersion) throw new Error('missing version gateway')
     transport.request.mockImplementation(async (config: RequestConfig) => {
       let data: unknown
       if (config.url === '/api/File/list') {
         data = { Code: 200, Result: [...files.keys()].map(name => ({ name, lastModified: 100 })) }
-      } else if (config.url === '/api/File/RemoveFile') {
-        expect(config.params).toMatchObject({ customPath: 'APP-1/orders', fileName: '3__script.js' })
-        files.delete('3__script.js')
-        data = { Code: 200 }
       } else if (config.data instanceof FormData) {
         const name = config.data.get('newName')
         const file = config.data.get('file')
@@ -431,8 +433,8 @@ describe('host scenario file request wiring', () => {
     await gateway.createVersion('orders', 'script.js')
     expect(files.get('3__script.js')).toBe('working')
     expect(files.get('script.js')).toBe('working')
-    await gateway.deleteVersion('orders', 'script.js', 3)
-    expect(files.has('3__script.js')).toBe(false)
+    expect('deleteVersion' in gateway).toBe(false)
+    expect(transport.request.mock.calls.some(([config]) => config.url === '/api/File/RemoveFile')).toBe(false)
     expect(transport.request.mock.calls.every(([config]) => config.url.startsWith('/api/File/'))).toBe(true)
   })
 

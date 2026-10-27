@@ -1,5 +1,5 @@
 {
-  "gapCount": 3281,
+  "gapCount": 3279,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -18705,25 +18705,13 @@
     },
     {
       "kind": "method",
-      "className": "ProjectPageFileGateway",
-      "memberName": "deleteVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectPageFileGateway.deleteVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 17,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
       "className": "PageFileApi",
       "memberName": "saveFileContent",
       "reason": "missing-jsdoc",
       "chainBreak": "PageFileApi.saveFileContent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 24,
+      "declarationLine": 23,
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "declarationKind": "class"
     },
@@ -18735,7 +18723,7 @@
       "chainBreak": "PageFileApi.listVersions 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 25,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "declarationKind": "class"
     },
@@ -18747,7 +18735,7 @@
       "chainBreak": "PageFileApi.restoreVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 26,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "declarationKind": "class"
     },
@@ -18759,19 +18747,7 @@
       "chainBreak": "PageFileApi.createVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 27,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PageFileApi",
-      "memberName": "deleteVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageFileApi.deleteVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 28,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "declarationKind": "class"
     },
@@ -21718,7 +21694,7 @@
       "chainBreak": "ProjectWorkspace.notifyPageFileChanged 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 204,
+      "declarationLine": 202,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21730,7 +21706,7 @@
       "chainBreak": "ProjectWorkspace.probeLink 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 205,
+      "declarationLine": 203,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21742,7 +21718,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjects 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 209,
+      "declarationLine": 207,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21754,7 +21730,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjectPages 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 210,
+      "declarationLine": 208,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },

@@ -3294,7 +3294,7 @@
     "packages/spark-project-model/src/io/page-file-api.ts": {
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "shardFile": "files/packages/spark-project-model/src/io/page-file-api.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:11:07.970Z"
+      "sourceModifiedAt": "2026-10-27T21:17:33.275Z"
     },
     "packages/spark-project-model/src/io/project-blueprint-client.ts": {
       "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
@@ -3369,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-27T20:28:04.698Z"
+      "sourceModifiedAt": "2026-10-27T21:04:08.828Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-27T15:22:51.932Z"
+      "sourceModifiedAt": "2026-10-27T21:04:08.830Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4124,7 +4124,7 @@
     "src/services/page-design/page-design-operation-guard.ts": {
       "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
       "shardFile": "files/src/services/page-design/page-design-operation-guard.ts.json",
-      "sourceModifiedAt": "2026-10-27T19:07:33.538Z"
+      "sourceModifiedAt": "2026-10-27T21:04:08.832Z"
     },
     "src/services/project-model-artifacts/index.ts": {
       "sourceFile": "src/services/project-model-artifacts/index.ts",

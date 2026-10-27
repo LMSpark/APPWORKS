@@ -525,11 +525,6 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建版本所属应用已失效')
         await scenarioFileUpload.uploadTextVersion({ customPath, fileName: `${version}__${fileName}`, text })
       },
-      deleteVersion: async (pageId, fileName, version) => {
-        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
-        await lowcodeApi.design.removeFile({ appType: 'designfile', customPath: toolFilePath(normalizedProjectId, pageId),
-          fileName: `${version}__${fileName}` })
-      },
       restoreVersion: async (pageId, fileName, version) => {
         if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
           throw new Error('pagedata.json 不属于工具文件版本')

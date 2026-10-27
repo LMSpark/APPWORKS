@@ -1,8 +1,8 @@
 /**
  * @module @spark-appworks/spark-project-model:io/page-file-api
- * 职责：三文件保存与编号快照语义网关。
+ * 职责：三文件保存与编号快照读取、创建和恢复语义网关。
  * 边界：能力由宿主注入，缺失即明确拒绝。
- * AI用途：通过Workspace保存三文件或管理N__filename快照。
+ * AI用途：通过Workspace保存三文件或查看、创建、恢复编号快照。
  */
 /** 页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。 */
 
@@ -20,7 +20,6 @@ export type ProjectPageFileGateway = Readonly<{
   listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>
   restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>
   createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>
-  deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>
 }>
 
 function unavailable(capability: string): never {
@@ -55,11 +54,5 @@ export class PageFileApi {
   public async createVersion(pageId: string, filename: PageToolFileName): Promise<void> {
     const operation = this.gateway.createVersion ?? unavailable('版本创建')
     await operation(assertNonEmptyPageId(pageId), filename)
-  }
-
-  public async deleteVersion(pageId: string, filename: PageToolFileName, version: number): Promise<void> {
-    assertFileVersion(version)
-    const operation = this.gateway.deleteVersion ?? unavailable('版本删除')
-    await operation(assertNonEmptyPageId(pageId), filename, version)
   }
 }

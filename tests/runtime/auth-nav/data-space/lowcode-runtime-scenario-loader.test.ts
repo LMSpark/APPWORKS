@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => ({
   readSpaceDefinition: vi.fn(),
   readModelBatch: vi.fn(),
   readRelations: vi.fn(),
+  listFiles: vi.fn(),
+  readTextFile: vi.fn(),
   request: vi.fn(),
 }))
 
@@ -28,6 +30,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
     dataSpace: { design: { readSpaceDefinition: mocks.readSpaceDefinition,
       readModelBatch: mocks.readModelBatch, readRelations: mocks.readRelations },
       runtime: new DataSpaceRuntimeApi({http, readScope: mocks.readRequestScope}) },
+    design: {listFiles: mocks.listFiles, readTextFile: mocks.readTextFile},
   },
   lowcodeHttp: http,
   createLowcodeProjectGateways: () => ({ scenarioViews: { readText: mocks.readText } }),
@@ -151,6 +154,34 @@ describe('loadLowcodeRuntimeScenario', () => {
     await expect(loadScenarioDataSet({scenarioId: 'SCENE', config})).rejects.toThrow('SCENARIO_FILE_OWNER')
     expect(mocks.readSpaceDefinition).not.toHaveBeenCalled(); expect(mocks.readModelBatch).not.toHaveBeenCalled()
     expect(mocks.readRelations).not.toHaveBeenCalled()
+  })
+
+  it('injects the registered Workflow file executor through formal runtime loading', async () => {
+    mocks.readRequestScope.mockReturnValue(scope('workflow-loader', 'APP'))
+    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId: 'SCENE', schemaVersion: 2, resourceRelations: [], tables: {
+      AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns: [
+        {name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
+        {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'},
+      ], views: {default: {}, directory: {queryConfig: {allPages: true}}, design: {autoLoad: false,
+        queryContext: {workflowId: ''}}, definition: {autoLoad: false, queryContext: {workflowId: ''}}}},
+    }}))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: '正式空间'})
+    mocks.readModelBatch.mockResolvedValue([])
+    mocks.listFiles.mockResolvedValue([{name: 'agent.workflow.alpha', lastModified: 1730000000000}])
+    mocks.readTextFile.mockResolvedValue('{"kind":"agent.workflow.definition"}')
+    const dataSet = await loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE'})
+    try {
+      const directory = dataSet.getView('AgentWorkflowFiles', 'directory')!
+      expect((await directory.requestRefresh()).success).toBe(true)
+      expect(directory.rows).toMatchObject([{workflowId: 'agent.workflow.alpha', fileName: 'design.json'}])
+      expect(mocks.listFiles).toHaveBeenCalledExactlyOnceWith({appType: 'designfile', folderPath: 'APP/workflow-designs'})
+      const definition = dataSet.getView('AgentWorkflowFiles', 'definition')!
+      definition.queryContext = {...definition.queryContext, workflowId: 'agent.workflow.alpha'}
+      expect((await definition.requestRefresh()).success).toBe(true)
+      expect(definition.currentRow).toMatchObject({content: '{"kind":"agent.workflow.definition"}'})
+      expect(mocks.readTextFile).toHaveBeenCalledExactlyOnceWith({appType: 'designfile',
+        customPath: 'APP/workflow-designs/agent.workflow.alpha', fileName: 'definition.json'})
+    } finally {dataSet.destroy()}
   })
 
   it.each([false, true])('consumes saved native relationships without reading legacy records (empty: %s)', async empty => {

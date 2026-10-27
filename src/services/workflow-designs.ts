@@ -9,7 +9,7 @@ import {
   createAgentWorkflowDefinitionValidation,
 } from '@spark-appworks/spark-ai/agent'
 import type * as SparkAgent from '@spark-appworks/spark-ai/agent'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/workflow/agent-workflow-file-owner'
 
 export type JsonRecord = Record<string, unknown>
 
@@ -330,15 +330,15 @@ const WORKFLOW_AUTO_LAYOUT_STEP_X = 340
 const WORKFLOW_AUTO_LAYOUT_STEP_Y = 210
 
 export async function listWorkflowDesigns(): Promise<WorkflowDesignSummary[]> {
-  const entries = await lowcodeApi.design.listFiles({
-    appType: 'designfile',
-    folderPath: workflowDesignRoot(),
-  })
-  return entries.map((entry) => ({
-    workflowId: entry.name,
+  const owner = await createAgentWorkflowFileDataViewOwner()
+  try {
+    const entries = await owner.listWorkflowEntries()
+    return entries.map((entry) => ({
+    workflowId: entry.workflowId,
     filename: 'design.json',
-    timestamp: entry.lastModified === null ? '' : String(entry.lastModified),
-  }))
+    timestamp: entry.timestamp,
+    }))
+  } finally {owner.dispose()}
 }
 
 export function createWorkflowDesign(input: {
@@ -354,13 +354,11 @@ export async function readWorkflowDesign(
   timestamp?: string,
 ): Promise<WorkflowDesignReadResult> {
   void timestamp
-  const content = await readWorkflowText(workflowId, 'design.json')
-  return {
-    workflowId,
-    filename: 'design.json',
-    timestamp: '',
-    document: parseWorkflowDesignJson(content),
-  }
+  const owner = await createAgentWorkflowFileDataViewOwner()
+  try {
+    const content = await owner.readDocument(workflowId, 'design.json')
+    return {workflowId, filename: 'design.json', timestamp: '', document: parseWorkflowDesignJson(content)}
+  } finally {owner.dispose()}
 }
 
 export function saveWorkflowDesign(
@@ -377,15 +375,13 @@ export async function readWorkflowDefinition(
   timestamp?: string,
 ): Promise<WorkflowDefinitionReadResult> {
   void timestamp
-  const content = await readWorkflowText(workflowId, 'definition.json')
-  const definition: unknown = JSON.parse(content)
-  assertAgentWorkflowDefinition(definition)
-  return {
-    workflowId,
-    filename: 'definition.json',
-    timestamp: '',
-    definition,
-  }
+  const owner = await createAgentWorkflowFileDataViewOwner()
+  try {
+    const content = await owner.readDocument(workflowId, 'definition.json')
+    const definition: unknown = JSON.parse(content)
+    assertAgentWorkflowDefinition(definition)
+    return {workflowId, filename: 'definition.json', timestamp: '', definition}
+  } finally {owner.dispose()}
 }
 
 export function saveWorkflowDefinition(
@@ -650,22 +646,6 @@ export function normalizeWorkflowDesignLineState(document: WorkflowDesignDocumen
 
 export function formatJson(value: unknown): string {
   return JSON.stringify(value ?? {}, null, 2)
-}
-
-function workflowDesignRoot(): string {
-  const applicationId = lowcodeApi.application.get()?.application.id
-  if (applicationId === undefined) throw new Error('缺少 lowcode 应用上下文，无法读取工作流设计')
-  return `${applicationId}/workflow-designs`
-}
-
-async function readWorkflowText(workflowId: string, fileName: string): Promise<string> {
-  const normalizedWorkflowId = workflowId.trim()
-  if (!normalizedWorkflowId) throw new Error('workflowId 不能为空')
-  return lowcodeApi.design.readTextFile({
-    appType: 'designfile',
-    customPath: `${workflowDesignRoot()}/${normalizedWorkflowId}`,
-    fileName,
-  })
 }
 
 function workflowMutationUnavailable(): Error {

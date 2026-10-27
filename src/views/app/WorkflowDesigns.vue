@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 @module app:views/app/WorkflowDesigns
 职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。
 边界：只处理设计态 JSON，不执行 Agent workflow 运行时。
@@ -16,53 +16,20 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
           @click="leftPanelCollapsed = false"
         >
           <span>设计</span>
-          <strong>{{ designs.length }}</strong>
+              <strong>{{ workflowDirectoryCount }}</strong>
         </button>
         <template v-else>
           <div class="panel-heading workflow-list-heading">
             <span>工作流设计</span>
             <span class="workflow-list-heading-actions">
-              <el-tag size="small" type="info">{{ designs.length }}</el-tag>
+              <el-tag size="small" type="info">{{ workflowDirectoryCount }}</el-tag>
               <el-button link size="small" @click="leftPanelCollapsed = true">收起</el-button>
             </span>
           </div>
-          <el-skeleton v-if="loadingList && designs.length === 0" :rows="6" animated />
-          <el-empty v-else-if="designs.length === 0" description="暂无工作流设计" />
-          <div v-else class="workflow-list">
-            <div
-              v-for="item in designs"
-              :key="item.workflowId"
-              class="workflow-list-item"
-              :class="{
-                'is-active': item.workflowId === currentWorkflowId,
-                'is-unreadable': isUnreadableDesign(item),
-              }"
-              :title="workflowDesignListItemTitle(item)"
-              role="button"
-              tabindex="0"
-              @click="openDesign(item.workflowId)"
-              @keydown.enter.prevent="openDesign(item.workflowId)"
-            >
-              <div class="workflow-list-main">
-                <strong>{{ item.title || item.workflowId }}</strong>
-                <span>{{ item.workflowId }}</span>
-              </div>
-              <div class="workflow-list-meta">
-                <el-tag size="small" :type="isUnreadableDesign(item) ? 'danger' : 'success'">
-                  {{ item.status || 'draft' }}
-                </el-tag>
-                <span>{{ item.version ? `v${item.version}` : 'v1' }}</span>
-              </div>
-              <div class="workflow-list-actions">
-                <el-button link size="small" :icon="FolderOpened" @click.stop="openDesign(item.workflowId)">
-                  打开
-                </el-button>
-                <el-button link size="small" type="danger" :icon="Delete" @click.stop="deleteDesign(item.workflowId)">
-                  删除
-                </el-button>
-              </div>
-            </div>
-          </div>
+          <el-skeleton v-if="loadingList && workflowDirectoryCount === 0" :rows="6" animated />
+          <el-empty v-else-if="workflowDirectoryCount === 0" description="暂无工作流设计" />
+          <RendererTable v-else :data-view-key="workflowDirectoryKey" :children="workflowDirectoryFields"
+            :highlight-current-row="true" :show-data-view-meta="false" :on-row-click="openDirectoryRow" />
         </template>
       </aside>
 
@@ -1733,6 +1700,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  shallowRef,
   watch,
   type CSSProperties,
 } from 'vue'
@@ -1756,6 +1724,9 @@ import { MiniMap } from '@vue-flow/minimap'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
+import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/workflow/agent-workflow-file-owner'
 import '@vue-flow/minimap/dist/style.css'
 import {
   ArrowDown,
@@ -1764,7 +1735,6 @@ import {
   Delete,
   DocumentAdd,
   DocumentCopy,
-  FolderOpened,
   QuestionFilled,
   Refresh,
   RefreshLeft,
@@ -1779,17 +1749,14 @@ import {
   createWorkflowDesign,
   createAgentWorkflowDefinitionFromDesign,
   createWorkflowDesignNode,
-  deleteWorkflowDesign,
   formatJson,
   isWorkflowDefinitionNotFoundError,
-  listWorkflowDesigns,
   markWorkflowDesignDirty,
   markWorkflowDesignSaved,
   normalizeWorkflowDesignLineState,
   parseAgentWorkflowDefinitionJson,
   publishWorkflowDefinition,
-  readWorkflowDefinition,
-  readWorkflowDesign,
+  parseWorkflowDesignJson,
   removeWorkflowDesignLine,
   removeWorkflowDesignNode,
   saveWorkflowDefinition,
@@ -1803,7 +1770,6 @@ import {
   type WorkflowDesignGraphView,
   type WorkflowDesignNodeView,
   type WorkflowDesignNodeCreateKind,
-  type WorkflowDesignSummary,
   type WorkflowDesignVariable,
 } from '@/services/workflow-designs'
 import type {
@@ -1896,9 +1862,6 @@ import {
   GRAPH_SPLIT_MIN_RATIO,
   GRAPH_SPLIT_MAX_RATIO,
   GRAPH_SPLIT_SNAP_RATIO,
-  isUnreadableDesign,
-  workflowDesignErrorMessage,
-  workflowDesignListItemTitle,
   defaultCreateNodeId,
   defaultCreateNodeTitle,
   graphPanelTitle,
@@ -1908,7 +1871,19 @@ import {
 
 let structuredEditorId = 0
 
-const designs = ref<WorkflowDesignSummary[]>([])
+const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-designs-page'})
+const dataOwner = shallowRef<AgentWorkflowFileDataViewOwner>()
+const directoryRevision = ref(0)
+const directoryView = computed<DataView | undefined>(() => {directoryRevision.value; return dataOwner.value?.directoryView})
+const workflowDirectoryKey = computed(() => {
+  const view = directoryView.value
+  return view ? buildDataViewKey(view.tableName, view.viewId, dataOwner.value?.dataSet.scenarioId ?? '') : ''
+})
+const workflowDirectoryCount = computed(() => {directoryRevision.value; return directoryView.value?.rows.length ?? 0})
+const workflowDirectoryFields: SparkNode[] = [
+  {type: 'r-text', props: {field: 'workflowId', label: 'Workflow ID', width: 280}},
+  {type: 'r-text', props: {field: 'timestamp', label: '更新时间', width: 180}},
+]
 const currentWorkflowId = ref('')
 const currentTimestamp = ref('')
 const currentFilename = ref('')
@@ -1932,6 +1907,7 @@ const graphSplitRatio = ref(48)
 const graphSplitCollapsed = ref<GraphSplitCollapse>(null)
 
 const loadingList = ref(false)
+const ready = ref(false)
 const opening = ref(false)
 const saving = ref(false)
 const autoLayoutSaving = ref(false)
@@ -2091,7 +2067,6 @@ const activeClassModelDrawerActionOption = computed(() => {
     ? workflowAgentCompleteMethodOption.value
     : selectedValidationActionOption.value
 })
-const currentDesignSummary = computed(() => findWorkflowDesignSummary(currentWorkflowId.value))
 const propertiesDrawerTitle = computed(() => {
   if (propertiesDrawerTarget.value === 'workflow') return `流程属性 / ${currentDocument.value?.workflow.id ?? 'Workflow'}`
   if (selectedLine.value !== null) return `连线属性 / ${selectedLine.value.id}`
@@ -2102,13 +2077,13 @@ const workflowPrimaryMetadataRows = computed<WorkflowMetadataRow[]>(() => {
   const document = currentDocument.value
   if (document === null) return []
   return [
-    { label: '文件名', value: currentFilename.value || currentDesignSummary.value?.filename || 'design.json' },
+    { label: '文件名', value: currentFilename.value || 'design.json' },
     { label: '时间戳', value: currentTimestamp.value || '-' },
     { label: '创建人', value: readWorkflowMetadataText(['createdBy', 'creator', 'author', 'owner', 'createdUser']) || '-' },
     { label: '创建时间', value: readWorkflowMetadataText(['createdAt', 'createdTime', 'createTime']) || '-' },
     { label: '更新人', value: readWorkflowMetadataText(['updatedBy', 'modifier', 'modifiedBy', 'updatedUser']) || '-' },
     { label: '更新时间', value: readWorkflowMetadataText(['updatedAt', 'modifiedAt', 'updatedTime', 'modifyTime']) || '-' },
-    { label: '状态', value: readTextField(document.x_spark.draft, 'status') || currentDesignSummary.value?.status || 'draft' },
+    { label: '状态', value: readTextField(document.x_spark.draft, 'status') || 'draft' },
     { label: 'Schema', value: readTextField(document.x_spark, 'schema') || '-' },
   ]
 })
@@ -2117,9 +2092,9 @@ const workflowFullMetadataRows = computed<WorkflowMetadataRow[]>(() => {
   if (document === null) return []
   const rows: WorkflowMetadataRow[] = []
   collectWorkflowMetadataRows({
-    filename: currentFilename.value || currentDesignSummary.value?.filename || 'design.json',
+    filename: currentFilename.value || 'design.json',
     timestamp: currentTimestamp.value,
-    summaryStatus: currentDesignSummary.value?.status ?? '',
+    summaryStatus: '',
     document: {
       kind: document.kind,
       version: document.version,
@@ -2304,83 +2279,109 @@ watch(
 onMounted(async () => {
   window.document.addEventListener('keydown', handleNodeKeyboardMove)
   window.document.addEventListener('keydown', handleControlPointDeleteKey)
-  await loadDesigns()
-  await openInitialDesign()
+  loadingList.value = true
+  try {
+    const owner = await createAgentWorkflowFileDataViewOwner()
+    if (!componentActive) {owner.dispose(); return}
+    dataOwner.value = owner
+    sparkProvide(PAGE_RUNTIME, owner.runtime)
+    owner.dataSet.onAnyViewChange({rowsChanged: () => directoryRevision.value++, requestStateChanged: () => directoryRevision.value++})
+    await owner.refreshDirectory()
+    if (!componentActive || dataOwner.value !== owner) return
+    ready.value = true
+    await openInitialDesign()
+  } catch (error: unknown) {
+    if (componentActive) ElMessage.error(`加载工作流设计稿失败: ${errorMessage(error)}`)
+  } finally {
+    if (componentActive) loadingList.value = false
+  }
 })
 
+let componentActive = true
 onBeforeUnmount(() => {
+  componentActive = false
   window.document.removeEventListener('keydown', handleNodeKeyboardMove)
   window.document.removeEventListener('keydown', handleControlPointDeleteKey)
   stopControlPointDrag()
   stopLayoutResize()
   stopGraphSplitResize()
+  sparkRemove(PAGE_RUNTIME)
+  dataOwner.value?.dispose()
+  dataOwner.value = undefined
 })
 
-async function loadDesigns(): Promise<void> {
-  loadingList.value = true
-  try {
-    designs.value = await listWorkflowDesigns()
-  } catch (error: unknown) {
-    ElMessage.error(`加载工作流设计稿失败: ${errorMessage(error)}`)
-  } finally {
-    loadingList.value = false
-  }
-}
-
 async function openInitialDesign(): Promise<void> {
-  if (designs.value.length === 0 || currentWorkflowId.value.length > 0) return
-  const firstReadableDesign = designs.value.find(item => !isUnreadableDesign(item))
-  if (firstReadableDesign !== undefined) {
-    await openDesign(firstReadableDesign.workflowId)
-    return
+  if (workflowDirectoryCount.value === 0 || currentWorkflowId.value.length > 0) return
+  const view = directoryView.value
+  for (const row of view?.rows ?? []) {
+    if (view?.fieldAccess(row, 'workflowId').read !== 'visible' || typeof row['workflowId'] !== 'string' || !row['workflowId']) continue
+    view.setCurrentRow(row)
+    if (await openDesign(row['workflowId'], false)) return
   }
   ElMessage.warning('当前设计稿均不可打开，请新建工作流或删除旧设计稿')
 }
 
-async function openDesign(workflowId: string): Promise<void> {
+async function loadDesigns(): Promise<void> {
+  const owner = dataOwner.value
+  if (!owner || loadingList.value) return
+  loadingList.value = true
+  try {await owner.refreshDirectory(); directoryRevision.value++}
+  catch (error: unknown) {ElMessage.error(`加载工作流目录失败: ${errorMessage(error)}`)}
+  finally {loadingList.value = false}
+}
+
+function openDirectoryRow(row: DataRow): void {
+  const view = directoryView.value
+  if (!view || view.fieldAccess(row, 'workflowId').read !== 'visible' || typeof row['workflowId'] !== 'string') return
+  view.setCurrentRow(row)
+  void openDesign(row['workflowId'])
+}
+
+async function openDesign(workflowId: string, notifyError = true): Promise<boolean> {
   const normalizedWorkflowId = workflowId.trim()
-  if (normalizedWorkflowId.length === 0) return
-  const summary = findWorkflowDesignSummary(normalizedWorkflowId)
-  if (isUnreadableDesign(summary)) {
-    ElMessage.error(`设计稿不可打开: ${workflowDesignErrorMessage(summary)}`)
-    return
+  if (normalizedWorkflowId.length === 0) return false
+  const owner = dataOwner.value
+  if (!owner || !directoryView.value?.rows.some(row => row['workflowId'] === normalizedWorkflowId
+    && directoryView.value?.fieldAccess(row, 'workflowId').read === 'visible')) {
+    if (notifyError) ElMessage.error('设计稿不在当前已读工作流目录中')
+    return false
   }
   if (normalizedWorkflowId !== currentWorkflowId.value) {
-    if (!await confirmDiscardEditorDraft()) return
-    if (!await confirmDiscardDefinitionDraft()) return
+    if (!await confirmDiscardEditorDraft()) return false
+    if (!await confirmDiscardDefinitionDraft()) return false
   }
 
   opening.value = true
   try {
-    const result = await readWorkflowDesign(normalizedWorkflowId)
-    if (result.document === undefined) {
-      ElMessage.info('设计稿未变化')
-      return
+    await owner.loadDocument(normalizedWorkflowId, 'design.json')
+    if (!componentActive || dataOwner.value !== owner) return false
+    const row = owner.designView.currentRow
+    if (!row || owner.designView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
+      throw new Error('design.json DataView 当前行不可读')
     }
-    normalizeWorkflowDesignLineState(result.document)
+    const document = parseWorkflowDesignJson(row['content'])
+    normalizeWorkflowDesignLineState(document)
     currentWorkflowId.value = normalizedWorkflowId
-    currentFilename.value = result.filename
-    currentTimestamp.value = result.timestamp
-    currentDocument.value = result.document
+    currentFilename.value = String(row['fileName'] ?? 'design.json')
+    currentTimestamp.value = String(row['timestamp'] ?? '')
+    currentDocument.value = document
     syncWorkflowEditorFromDocument()
     resetDefinitionEditor()
     selectedLineKey.value = ''
     currentMainGraphKey.value = 'workflow.graph'
     currentChildGraphKey.value = ''
     loadGraphSplitState(normalizedWorkflowId)
-    const nodes = collectWorkflowDesignNodes(result.document)
+    const nodes = collectWorkflowDesignNodes(document)
     selectedNodeKey.value = nodes.find(node => node.isBusinessNode)?.key
       ?? nodes[0]?.key
       ?? ''
+    return true
   } catch (error: unknown) {
-    ElMessage.error(`打开失败: ${errorMessage(error)}`)
+    if (notifyError) ElMessage.error(`打开失败: ${errorMessage(error)}`)
+    return false
   } finally {
     opening.value = false
   }
-}
-
-function findWorkflowDesignSummary(workflowId: string): WorkflowDesignSummary | undefined {
-  return designs.value.find(item => item.workflowId === workflowId)
 }
 
 function openCreateDialog(): void {
@@ -2410,32 +2411,6 @@ async function createDesign(): Promise<void> {
     ElMessage.error(`创建失败: ${errorMessage(error)}`)
   } finally {
     creating.value = false
-  }
-}
-
-async function deleteDesign(workflowId: string): Promise<void> {
-  const normalizedWorkflowId = workflowId.trim()
-  if (normalizedWorkflowId.length === 0) return
-  try {
-    await ElMessageBox.confirm(`确定删除工作流设计稿 ${normalizedWorkflowId}？`, '删除设计稿', {
-      type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-    })
-    await deleteWorkflowDesign(normalizedWorkflowId)
-    if (currentWorkflowId.value === normalizedWorkflowId) {
-      currentWorkflowId.value = ''
-      currentFilename.value = ''
-      currentTimestamp.value = ''
-      currentDocument.value = null
-      selectedNodeKey.value = ''
-      selectedLineKey.value = ''
-      resetDefinitionEditor()
-    }
-    await loadDesigns()
-    ElMessage.success('设计稿已删除')
-  } catch (error: unknown) {
-    if (error !== 'cancel') ElMessage.error(`删除失败: ${errorMessage(error)}`)
   }
 }
 
@@ -2725,7 +2700,6 @@ function readWorkflowMetadataText(keys: readonly string[]): string {
     document.x_spark.draft,
     document.x_spark.history,
     document.x_spark.validation,
-    currentDesignSummary.value,
   ]
   for (const candidate of candidates) {
     if (!isJsonRecord(candidate)) continue
@@ -3623,7 +3597,6 @@ function syncWorkflowEditorFromDocument(): void {
   const resolveInstance = recordOrEmpty(binding['resolveInstance'])
 
   workflowDesignerTitleText.value = readTextField(document.x_spark.designer, 'title')
-    || currentDesignSummary.value?.title
     || workflow.id
   workflowVersionValue.value = typeof workflow.version === 'number' && Number.isFinite(workflow.version) ? workflow.version : 1
   workflowVariableRows.value = workflowVariableRowsFromData(workflow.variables)
@@ -4232,14 +4205,17 @@ async function openDefinitionEditor(): Promise<void> {
 
   openingDefinition.value = true
   try {
-    const result = await readWorkflowDefinition(workflowId, definitionTimestamp.value)
-    if (result.definition !== undefined) {
-      definitionTimestamp.value = result.timestamp
-      definitionJsonText.value = formatJson(result.definition)
-      definitionDirty.value = false
-    } else {
-      ElMessage.info('definition.json 未变化')
+    const owner = dataOwner.value
+    if (!owner) throw new Error('Workflow DataView 尚未就绪')
+    await owner.loadDocument(workflowId, 'definition.json')
+    if (!componentActive || dataOwner.value !== owner) return
+    const row = owner.definitionView.currentRow
+    if (!row || owner.definitionView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
+      throw new Error('definition.json DataView 当前行不可读')
     }
+    definitionTimestamp.value = String(row['timestamp'] ?? '')
+    definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(row['content']))
+    definitionDirty.value = false
     definitionDialogVisible.value = true
   } catch (error: unknown) {
     if (!isWorkflowDefinitionNotFoundError(error) || currentDocument.value === null) {
@@ -4271,12 +4247,18 @@ async function readFreshDesignForDefinitionDraft(workflowId: string): Promise<Wo
     return openedDocument
   }
   try {
-    const result = await readWorkflowDesign(workflowId)
-    if (result.document !== undefined) {
-      currentTimestamp.value = result.timestamp
-      currentDocument.value = result.document
-      return result.document
+    const owner = dataOwner.value
+    if (!owner) throw new Error('Workflow DataView 尚未就绪')
+    await owner.loadDocument(workflowId, 'design.json')
+    if (!componentActive || dataOwner.value !== owner) throw new Error('Workflow 页面请求作用域已失效')
+    const row = owner.designView.currentRow
+    if (!row || owner.designView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
+      throw new Error('design.json DataView 当前行不可读')
     }
+    const document = parseWorkflowDesignJson(row['content'])
+    currentTimestamp.value = String(row['timestamp'] ?? '')
+    currentDocument.value = document
+    return document
   } catch {
     // Best-effort refresh only; keep the already-open design if the API is unavailable.
   }

@@ -11,6 +11,7 @@ import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/workflow/agent-workflow-file-resource'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -117,7 +118,9 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  const toolTables = isRecord(tables) ? Object.entries(ProjectToolResource.resources).filter(([name, id]) => {
   const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
  }) : []
- if (!declared.length && !hasReference && !toolTables.length) return {}
+ const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
+  definition.createExecutor({applicationId: projectId, api: lowcodeApi.design, assertCurrent})]))
+ if (!declared.length && !hasReference && !toolTables.length) return registeredFileExecutors
  const workspace = owner ?? new ProjectWorkspace({projectId, ...createLowcodeProjectGateways(projectId)})
  const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: scenarioId, assertCurrent,
   validate: async (next, previous, resources) => {
@@ -127,7 +130,7 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
    try {if (result.diagnostics.length) throw new Error(`SCENARIO_DEFINITION_INCOMPLETE: ${result.diagnostics.join('；')}`)}
    finally {result.dataSet.destroy()}
   }})
- const executors = Object.fromEntries(declared.map(([name]) => [name, executor]))
+ const executors = {...registeredFileExecutors, ...Object.fromEntries(declared.map(([name]) => [name, executor]))}
  if (hasReference) executors[DataSpaceReferenceLayoutResource.tableName] = new DataSpaceReferenceLayoutResource({metadataScenarioId: scenarioId,
   assertCurrent, read: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout})
  const tools = new ProjectToolResource({workspace, metadataScenarioId: scenarioId, assertCurrent, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})

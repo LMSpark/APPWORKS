@@ -7,6 +7,7 @@ import {LowcodeModelRelationAdapter} from '@/lowcode/data-space/lowcode-model-re
 import {LowcodeDataSpaceViewDesign, type LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/workflow/agent-workflow-file-resource'
 import metadataConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 import type {DataViewFilterTree} from '@spark-appworks/spark-data'
 import {defineComponent, h, type Component} from 'vue'
@@ -446,7 +447,10 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
           if (loseFileResponse) {loseFileResponse = false; throw new Error('file response lost after write')}
         },
       }})
-    const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, readLegacyLayout: options.readLegacyLayout ?? (async () => null), ...(options.modelSources ? {modelSources: options.modelSources} : {}),
+    const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, readLegacyLayout: options.readLegacyLayout ?? (async () => null),
+      fileResourceExecutors: Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
+        definition.createExecutor({applicationId: 'APP', api: {listFiles: async () => [], readTextFile: async () => ''}, assertCurrent: assertScope})])),
+      ...(options.modelSources ? {modelSources: options.modelSources} : {}),
       readModel: async input => {
         modelReads.push({...input})
         await definitionResponse

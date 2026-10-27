@@ -1382,3 +1382,31 @@ describe('ProjectWorkspace shared scenario versions', () => {
     expect(readVersion).not.toHaveBeenCalled(); expect(writeText).not.toHaveBeenCalled()
   })
 })
+
+describe('registered file resource binding persistence', () => {
+  it('adds a file DataTableBindingDefinition and its views without inventing a database model identity', () => {
+    const before = new ScenarioViewConfig('S', JSON.stringify({scenarioId: 'S', tables: {
+      Parent: {modelBinding: {modelId: 'P', modelName: 'Parent'}, views: {default: {}}},
+    }}))
+    const bindingRows = ScenarioDefinitionRecords.read(before, ScenarioDefinitionRecords.resources.DataTableBindingDefinition)
+    bindingRows.push({dataSetId: 'S', tableName: 'AgentWorkflowFiles', resourceType: 'file',
+      configuration: {resourceType: 'file', resourceId: 'agent-workflow-files', columns: [
+        {name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'content', type: 'string'},
+      ]}})
+    const withBinding = ScenarioDefinitionRecords.write({config: before,
+      resource: ScenarioDefinitionRecords.resources.DataTableBindingDefinition, rows: bindingRows})
+    const viewRows = ScenarioDefinitionRecords.read(withBinding, ScenarioDefinitionRecords.resources.DataViewDefinition)
+    viewRows.push({dataSetId: 'S', tableName: 'AgentWorkflowFiles', viewId: 'directory', pageSize: 100})
+    viewRows.push({dataSetId: 'S', tableName: 'AgentWorkflowFiles', viewId: 'definition', queryContext: {workflowId: 'x'}})
+
+    const result = ScenarioDefinitionRecords.write({config: withBinding,
+      resource: ScenarioDefinitionRecords.resources.DataViewDefinition, rows: viewRows})
+
+    expect(result.toJSON()['tables']).toMatchObject({AgentWorkflowFiles: {
+      resourceType: 'file', resourceId: 'agent-workflow-files',
+      columns: [{name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'content', type: 'string'}],
+      views: {default: {}, directory: {pageSize: 100}, definition: {queryContext: {workflowId: 'x'}}},
+    }})
+    expect((result.toJSON()['tables'] as Record<string, Record<string, unknown>>)['AgentWorkflowFiles']).not.toHaveProperty('modelBinding')
+  })
+})

@@ -1,11 +1,14 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
+import {DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type { WorkflowDesignDocument } from '@/services/workflow-designs'
 
 const mocks = vi.hoisted(() => ({
   listWorkflowDesigns: vi.fn(),
+  createOwner: vi.fn(),
   readWorkflowDesign: vi.fn(),
   saveWorkflowDesign: vi.fn(),
   createAgentWorkflowDefinitionFromDesign: vi.fn(),
@@ -52,6 +55,10 @@ vi.mock('@/services/workflow-designs', async (importOriginal) => {
     deleteWorkflowDesign: mocks.deleteWorkflowDesign,
   }
 })
+
+vi.mock('@/lowcode/resources/workflow/agent-workflow-file-owner', () => ({
+  createAgentWorkflowFileDataViewOwner: mocks.createOwner,
+}))
 
 vi.mock('@spark-appworks/spark-ai/class-model', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-ai/class-model')>()
@@ -157,6 +164,16 @@ const HandleStub = defineComponent({
       'data-handle-type': props.type,
       'data-handle-position': props.position,
     }, slots['default']?.())
+  },
+})
+
+const workflowTableRows: DataRow[] = []
+const RendererTableStub = defineComponent({
+  props: {dataViewKey: String, children: Array, onRowClick: Function},
+  setup(props) {
+    return () => h('div', {'data-bound-view-key': props.dataViewKey, class: 'renderer-workflow-table'}, workflowTableRows.map(row => h('button', {
+      class: 'workflow-list-item', type: 'button', onClick: () => props.onRowClick?.(row),
+    }, String(row['workflowId'] ?? ''))))
   },
 })
 
@@ -510,6 +527,7 @@ function mountWorkflowDesigns() {
         Handle: HandleStub,
         MiniMap: true,
         VueFlow: VueFlowStub,
+        RendererTable: RendererTableStub,
       },
     },
   })
@@ -576,6 +594,57 @@ describe('WorkflowDesigns visual editor', () => {
         status: 'draft',
       },
     ])
+    mocks.createOwner.mockImplementation(async () => {
+      const summaries = await mocks.listWorkflowDesigns()
+      const replies = new Map<string, string>()
+      const table = {
+        resourceType: 'file', resourceId: 'agent-workflow-files',
+        columns: [{name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
+          {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'}],
+        views: {default: {}, directory: {}, design: {}, definition: {}},
+      }
+      const dataSet = DataSet.fromJson({scenarioId: 'TEST-SPACE', tables: {AgentWorkflowFiles: table}})
+      const runtime = new PageRuntime({pageId: 'workflow-test', scenarioIds: ['TEST-SPACE'], loadScenario: async () => dataSet})
+      await runtime.load()
+      const directoryView = dataSet.getView('AgentWorkflowFiles', 'directory')!
+      const designView = dataSet.getView('AgentWorkflowFiles', 'design')!
+      const definitionView = dataSet.getView('AgentWorkflowFiles', 'definition')!
+      const makeResult = (rows: DataRow[]) => ({rows, total: rows.length, rowKey: (row: DataRow) => row['workflowId'],
+        assertIdentity: () => undefined, fieldAccess: (key: unknown, field: string) => ({read: rows.some(row => row['workflowId'] === key && Object.hasOwn(row, field)) ? 'visible' as const : 'invisible' as const,
+          write: 'denied' as const, component: 'readonly' as const, required: false, writeMode: 'readonly' as const}),
+        readFieldAccess: (row: DataRow, field: string) => Object.hasOwn(row, field) ? 'visible' : 'invisible',
+        addActionState: () => 'disabled' as const, editActionState: () => 'disabled' as const, deleteActionState: () => 'disabled' as const,
+        createChildActionState: () => 'disabled' as const, viewActionState: () => 'enabled' as const})
+      const resourceIdentity = {resource: {resourceType: 'file' as const, resourceId: 'agent-workflow-files'}}
+      directoryView.bindQueryExecutor({executeQuery: async () => makeResult(summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})))}, resourceIdentity)
+      const bindDocument = (view: typeof designView, fileName: string) => view.bindQueryExecutor({executeQuery: async () => {
+        const workflowId = String(view.queryContext['workflowId'] ?? '')
+        return makeResult([{workflowId, fileName, timestamp: '', content: replies.get(`${workflowId}/${fileName}`) ?? ''}])
+      }}, resourceIdentity)
+      bindDocument(designView, 'design.json')
+      bindDocument(definitionView, 'definition.json')
+      workflowTableRows.splice(0, workflowTableRows.length, ...summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})))
+      const refreshDirectory = async () => {await directoryView.requestRefresh()}
+      const loadDocument = async (workflowId: string, fileName: 'design.json' | 'definition.json') => {
+        const view = fileName === 'design.json' ? designView : definitionView
+        if (fileName === 'design.json') {
+          const loaded = await mocks.readWorkflowDesign(workflowId)
+          replies.set(`${workflowId}/${fileName}`, JSON.stringify(loaded.document))
+        } else {
+          const loaded = await mocks.readWorkflowDefinition(workflowId, '')
+          replies.set(`${workflowId}/${fileName}`, JSON.stringify(loaded.definition))
+        }
+        view.queryContext = {...view.queryContext, workflowId}
+        const result = await view.requestRefresh()
+        if (!result.success) throw result.error ?? new Error(result.message)
+        view.setCurrentRow(view.rows[0] ?? null)
+      }
+      return {runtime, dataSet, directoryView, designView, definitionView, documentView: definitionView,
+        refreshDirectory, loadDocument,
+        listWorkflowEntries: async () => summaries,
+        listWorkflowIds: async () => summaries.map((item: any) => item.workflowId),
+        readDocument: async () => '', dispose: () => runtime.dispose()}
+    })
     mocks.readWorkflowDesign.mockResolvedValue({
       workflowId: 'agent.workflow.demo',
       filename: 'design.json',
@@ -630,23 +699,25 @@ describe('WorkflowDesigns visual editor', () => {
         status: 'draft',
       },
     ])
-    mocks.readWorkflowDesign.mockResolvedValueOnce({
-      workflowId: 'agent.workflow.next',
-      filename: 'design.json',
-      timestamp: '2',
-      document: createWorkflowDesignDocument('agent.workflow.next'),
+    mocks.readWorkflowDesign.mockImplementation(async workflowId => {
+      if (workflowId === 'agent.workflow.legacy') throw new Error('forbidden field: app')
+      return {workflowId, filename: 'design.json', timestamp: '2', document: createWorkflowDesignDocument(workflowId)}
     })
 
     const wrapper = mountWorkflowDesigns()
     await flushPromises()
 
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledOnce()
+    expect(mocks.createOwner, wrapper.text()).toHaveBeenCalledOnce()
+    expect(wrapper.find('.renderer-workflow-table').exists(), wrapper.text()).toBe(true)
+    expect(wrapper.get('.renderer-workflow-table').attributes('data-bound-view-key')).toBe('TEST-SPACE@AgentWorkflowFiles@directory')
+    expect(mocks.readWorkflowDesign).toHaveBeenCalledTimes(2)
+    expect(mocks.readWorkflowDesign).toHaveBeenNthCalledWith(1, 'agent.workflow.legacy')
     expect(mocks.readWorkflowDesign).toHaveBeenCalledWith('agent.workflow.next')
     expect(wrapper.text()).toContain('agent.workflow.next')
     expect(mocks.message.warning).not.toHaveBeenCalled()
   })
 
-  it('blocks opening an unreadable design without requesting design.json', async () => {
+  it('reads the selected design through its DataView and reports a file read failure', async () => {
     mocks.listWorkflowDesigns.mockResolvedValueOnce([
       {
         workflowId: 'agent.workflow.legacy',
@@ -666,19 +737,23 @@ describe('WorkflowDesigns visual editor', () => {
         status: 'draft',
       },
     ])
+    mocks.readWorkflowDesign.mockImplementation(async workflowId => {
+      if (workflowId === 'agent.workflow.legacy') throw new Error('forbidden field: app')
+      return {workflowId, filename: 'design.json', timestamp: '2', document: createWorkflowDesignDocument(workflowId)}
+    })
 
     const wrapper = mountWorkflowDesigns()
     await flushPromises()
 
     const legacyItem = wrapper.findAll('.workflow-list-item')
-      .find(item => item.text().includes('Legacy Workflow'))
+      .find(item => item.text().includes('agent.workflow.legacy'))
     if (legacyItem === undefined) throw new Error('missing legacy workflow item')
     await legacyItem.trigger('click')
     await flushPromises()
 
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledOnce()
+    expect(mocks.readWorkflowDesign).toHaveBeenCalledTimes(3)
     expect(mocks.readWorkflowDesign).toHaveBeenCalledWith('agent.workflow.demo')
-    expect(mocks.message.error).toHaveBeenCalledWith('设计稿不可打开: forbidden field: app')
+    expect(mocks.message.error).toHaveBeenCalledWith('打开失败: forbidden field: app')
   })
 
   it('keeps the empty state and warns when every design is unreadable', async () => {
@@ -694,10 +769,11 @@ describe('WorkflowDesigns visual editor', () => {
       },
     ])
 
+    mocks.readWorkflowDesign.mockRejectedValue(new Error('forbidden field: app'))
     mountWorkflowDesigns()
     await flushPromises()
 
-    expect(mocks.readWorkflowDesign).not.toHaveBeenCalled()
+    expect(mocks.readWorkflowDesign).toHaveBeenCalledOnce()
     expect(mocks.message.warning).toHaveBeenCalledWith('当前设计稿均不可打开，请新建工作流或删除旧设计稿')
     expect(mocks.message.error).not.toHaveBeenCalled()
   })

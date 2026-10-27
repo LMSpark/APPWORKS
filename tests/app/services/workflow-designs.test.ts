@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const lowcodeRuntimeMock = vi.hoisted(() => ({
   applicationGet: vi.fn(),
   readTextFile: vi.fn(),
+  fileOwner: {listWorkflowEntries: vi.fn(), listWorkflowIds: vi.fn(), readDocument: vi.fn(), dispose: vi.fn()},
+  createFileOwner: vi.fn(),
 }))
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -10,6 +12,9 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     application: { get: lowcodeRuntimeMock.applicationGet },
     design: { readTextFile: lowcodeRuntimeMock.readTextFile },
   },
+}))
+vi.mock('@/lowcode/resources/workflow/agent-workflow-file-owner', () => ({
+  createAgentWorkflowFileDataViewOwner: lowcodeRuntimeMock.createFileOwner,
 }))
 
 import {
@@ -234,6 +239,7 @@ describe('workflow design helpers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     lowcodeRuntimeMock.applicationGet.mockReturnValue({ application: { id: 'project-a' } })
+    lowcodeRuntimeMock.createFileOwner.mockResolvedValue(lowcodeRuntimeMock.fileOwner)
   })
 
   it('collects business nodes from the workflow graph', () => {
@@ -799,18 +805,16 @@ describe('workflow design helpers', () => {
     )
   })
 
-  it('reads definition.json through the lowcode design API and rejects ungoverned saves', async () => {
+  it('reads definition.json through the registered DataView owner and rejects ungoverned saves', async () => {
     const definition = createAgentWorkflowDefinitionFromDesign(createDesign())
-    lowcodeRuntimeMock.readTextFile.mockResolvedValue(JSON.stringify(definition))
+    lowcodeRuntimeMock.fileOwner.readDocument.mockResolvedValue(JSON.stringify(definition))
 
     const readResult = await readWorkflowDefinition('agent.workflow.test', '1')
 
     expect(readResult.definition).toStrictEqual(definition)
-    expect(lowcodeRuntimeMock.readTextFile).toHaveBeenCalledWith({
-      appType: 'designfile',
-      customPath: 'project-a/workflow-designs/agent.workflow.test',
-      fileName: 'definition.json',
-    })
+    expect(lowcodeRuntimeMock.createFileOwner).toHaveBeenCalledOnce()
+    expect(lowcodeRuntimeMock.fileOwner.readDocument).toHaveBeenCalledWith('agent.workflow.test', 'definition.json')
+    expect(lowcodeRuntimeMock.fileOwner.dispose).toHaveBeenCalledOnce()
     await expect(saveWorkflowDefinition('agent.workflow.test', definition)).rejects.toThrow(
       'lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁',
     )

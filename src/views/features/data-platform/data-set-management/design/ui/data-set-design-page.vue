@@ -158,6 +158,10 @@
           <template v-else-if="selectedId === 'models'">
             <RendererButton v-if="modelViewKey" :data-view-key="modelViewKey" data-action="add-directory-model" label="新增模型"
               :disabled="definitionPending || parameterOpen || !layoutState?.editable" @click="addModelNode" />
+            <RendererButton v-for="resource in availableFileResources" :key="resource.resourceId" v-if="fileBindingKey"
+              :data-view-key="fileBindingKey" :data-action="`add-file-resource-${resource.resourceId}`"
+              :label="`新增 ${resource.label}`" :disabled="busy || hasPending || definitionPending || parameterOpen || !layoutState?.editable"
+              @click="addFileResourceBinding(resource)" />
           </template>
           <template v-else>
             <p v-if="selected?.description">{{ selected.description }}</p>
@@ -328,6 +332,7 @@ import DataSpaceModelRemoval from '../model/removal/DataSpaceModelRemoval.vue'
 import DataSpaceRelationEditor from './edge-panel/data-set-design-edge-panel.vue'
 import DataSpaceCascadeEditor from './cascades/DataSpaceCascadeEditor.vue'
 import {DataSpaceLayoutEdit} from '../graph/data-space-layout-edit'
+import {LOWCODE_FILE_RESOURCE_REGISTRY, type LowcodeFileResourceDefinition} from '@/lowcode/resources/workflow/agent-workflow-file-resource'
 
 type RGraphProps = SparkComponent.RGraphProps
 /** 一个设计记录字段的读取位置；source 省略时使用 table 的默认视图。 */
@@ -688,6 +693,83 @@ function addModelNode(): void {
   if (definitionPending.value || parameterOpen.value || detailOpen.value && selectedId.value !== 'models') return
   try {const id = layoutEdit.value?.addNode(); if (id) {selectedId.value = `unbound:${id}`; error.value = ''; changed()}}
   catch (cause) {error.value = readError(cause)}
+}
+let fileBindingSubmissionUnconfirmed = false
+async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): Promise<void> {
+  if (fileBindingSubmissionUnconfirmed) {
+    error.value = '文件资源提交结果尚未确认；为避免重复提交，请重新打开设计页核验正式记录'
+    return
+  }
+  const current = session.value
+  const dataSet = current?.metadataDataSet
+  const bindings = dataSet?.getView('DataTableBindingDefinition', 'default')
+  const definitions = dataSet?.getView('DataViewDefinition', 'default')
+  if (!current || !dataSet || !bindings || !definitions || busy.value || hasPending.value
+    || bindings.requestState !== RequestState.Loaded || definitions.requestState !== RequestState.Loaded
+    || bindings.queryContext['dataSpaceId'] !== current.targetId || definitions.queryContext['dataSpaceId'] !== current.targetId) {
+    error.value = '正式文件资源定义视图尚未完整读取或当前空间已有未处理修改'
+    return
+  }
+  const registered = bindings.rows.filter(row => row['dataSetId'] === current.targetId && row['tableName'] === resource.tableName)
+  if (registered.length) {
+    const row = registered[0]!
+    if (registered.length !== 1 || row['resourceType'] !== 'file' || !isRecord(row['configuration'])
+      || row['configuration']['resourceId'] !== resource.resourceId) {
+      error.value = `${resource.label}绑定已存在但身份冲突，保留原记录并停止新增`
+      return
+    }
+    const key = bindings.getPkKey(row)
+    if (key !== undefined) {selectedId.value = JSON.stringify(['DataTableBindingDefinition', key]); changed()}
+    return
+  }
+  if (bindings.rows.some(row => row['dataSetId'] === current.targetId && row['tableName'] === resource.tableName)) {
+    error.value = `${resource.label}表名已占用`
+    return
+  }
+  if (bindings.addActionState() !== 'enabled' || definitions.addActionState() !== 'enabled') {
+    error.value = '正式绑定或数据视图定义查询未授权新增'
+    return
+  }
+  busy.value = true
+  error.value = ''
+  let saveStarted = false
+  try {
+    await bindings.addRow({dataSetId: current.targetId, tableName: resource.tableName, resourceType: 'file',
+      configuration: {resourceType: 'file', resourceId: resource.resourceId, columns: structuredClone(resource.columns)}})
+    for (const [viewId, viewConfig] of Object.entries(resource.views)) {
+      await definitions.addRow({dataSetId: current.targetId, tableName: resource.tableName, viewId, ...structuredClone(viewConfig)})
+    }
+    saveStarted = true
+    fileBindingSubmissionUnconfirmed = true
+    const saved = await dataSet.saveChanges({views: [
+      {tableName: 'DataTableBindingDefinition', viewId: 'default'}, {tableName: 'DataViewDefinition', viewId: 'default'},
+    ]})
+    if (!saved.success) throw saved.error ?? new Error(saved.message ?? '文件资源绑定保存未确认')
+    fileBindingSubmissionUnconfirmed = false
+    const bindingReadback = await bindings.requestRefresh()
+    if (!bindingReadback.success) throw bindingReadback.error ?? new Error(bindingReadback.message ?? '文件资源绑定回读失败')
+    const definitionReadback = await definitions.requestRefresh()
+    if (!definitionReadback.success) throw definitionReadback.error ?? new Error(definitionReadback.message ?? '文件资源视图回读失败')
+    const rows = bindings.rows.filter(row => row['dataSetId'] === current.targetId && row['tableName'] === resource.tableName)
+    const bindingRow = rows[0]
+    const bindingReadable = bindingRow && ['dataSetId', 'tableName', 'resourceType', 'configuration'].every(field =>
+      bindings.fieldAccess(bindingRow, field).read === 'visible')
+    if (rows.length !== 1 || !bindingReadable || bindingRow?.['resourceType'] !== 'file' || !isRecord(bindingRow?.['configuration'])
+      || bindingRow['configuration']['resourceId'] !== resource.resourceId
+      || JSON.stringify(bindingRow['configuration']['columns']) !== JSON.stringify(resource.columns)
+      || Object.keys(resource.views).some(viewId => !definitions.rows.some(row => row['dataSetId'] === current.targetId
+        && row['tableName'] === resource.tableName && row['viewId'] === viewId))) {
+      throw new Error('文件资源绑定已提交但 DataView 回读未确认完整资源声明、列与视图')
+    }
+    const key = bindings.getPkKey(bindingRow!)
+    if (key === undefined) throw new Error('文件资源绑定回读缺少正式 DataView 行身份')
+    selectedId.value = JSON.stringify(['DataTableBindingDefinition', key])
+    changed()
+  } catch (cause) {
+    if (!saveStarted) {bindings.discardPendingChanges(); definitions.discardPendingChanges()}
+    error.value = readError(cause)
+  }
+  finally {busy.value = false; changed()}
 }
 function removeUnboundNode(): void {
   if (definitionPending.value || parameterOpen.value || !unboundSelectedId.value) return
@@ -1053,6 +1135,13 @@ watch(fileContext, (current, previous) => {
   if (!current && previous && !fileBindingDirty.value) {detailOpen.value = false; selectedId.value = 'space'}
 })
 const fileBindingKey = computed(() => session.value ? buildDataViewKey('DataTableBindingDefinition', 'default', session.value.metadataDataSet.scenarioId) : undefined)
+const availableFileResources = computed(() => {
+  const current = session.value
+  const bindings = current?.metadataDataSet.getView('DataTableBindingDefinition', 'default')
+  if (!current || !bindings || bindings.requestState !== RequestState.Loaded) return []
+  return LOWCODE_FILE_RESOURCE_REGISTRY.filter(resource => !bindings.rows.some(row => row['dataSetId'] === current.targetId
+    && row['tableName'] === resource.tableName))
+})
 const fileBindingDirty = computed(() => {revision.value; const bindings = view('DataTableBindingDefinition'); return bindings?.hasEditingChanges() === true || bindings?.dirtyTracking.hasPendingChanges() === true})
 const fileDefinitionStatus = computed(() => {revision.value; try {return session.value?.viewState?.saveStatus ?? 'idle'} catch {return 'pending'}})
 const activeFileSection = ref<string | number>('source')

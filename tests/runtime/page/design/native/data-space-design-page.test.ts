@@ -90,7 +90,7 @@ describe('native DataTable data processing', () => {
     expect(editor.get('[data-legacy-aggregates]').text()).toContain('旧本地汇总')
     await editor.get('[data-clear-property="aggregates"]').trigger('click'); await flushPromises()
     await editor.get('[data-action="save-views"]').trigger('click'); await flushPromises()
-    expect(f.fileWrites).toHaveLength(1)
+    expect(f.fileWrites, wrapper.text()).toHaveLength(1)
     const reopened = await f.open('A')
     expect(reopened.definitionDataSet!.getView('OrdersAlias', 'shared')!.aggregates).toEqual({})
     expect(reopened.definitionDataSet!.getView('OrdersAlias', 'shared')!.aggregateError).toBeNull()
@@ -7883,3 +7883,50 @@ describe('metadata invalidation ownership', () => {
     expect(writes(f)).toEqual([]); expect(f.fileWrites).toEqual([])
   })
 })
+  it('registers the Agent Workflow file resource through the definition DataViews and DataSet save', async () => {
+    const f = fixture()
+    const {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    expect(sourceButton(wrapper, 'add-file-resource-agent-workflow-files').attributes('disabled')).toBeUndefined()
+    await sourceButton(wrapper, 'add-file-resource-agent-workflow-files').trigger('click'); await flushPromises()
+
+    expect(f.fileWrites, wrapper.text()).toHaveLength(1)
+    const saved = JSON.parse(f.stored.get('A')!) as {tables: Record<string, {resourceType?: string; resourceId?: string; columns?: unknown[]; views?: Record<string, unknown>}>}
+    expect(saved.tables['AgentWorkflowFiles']).toMatchObject({resourceType: 'file', resourceId: 'agent-workflow-files',
+      columns: [{name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
+        {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'}],
+      views: {default: {}, directory: {}, design: {}, definition: {}},
+    })
+    expect(saved.tables['AgentWorkflowFiles']).not.toHaveProperty('modelBinding')
+  })
+
+  it('rolls back the binding draft when adding a registered resource view fails', async () => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const dataSet = f.sessions[0]!.metadataDataSet
+    const bindings = dataSet.getView('DataTableBindingDefinition', 'default')!
+    const definitions = dataSet.getView('DataViewDefinition', 'default')!
+    const add = vi.spyOn(definitions, 'addRow')
+    const originalAdd = definitions.addRow.bind(definitions)
+    add.mockImplementationOnce((...args: Parameters<typeof definitions.addRow>) => originalAdd(...args))
+      .mockImplementationOnce(async () => {throw new Error('view permission denied')})
+    await sourceButton(wrapper, 'add-file-resource-agent-workflow-files').trigger('click'); await flushPromises()
+    expect(bindings.hasEditingChanges()).toBe(false)
+    expect(definitions.hasEditingChanges()).toBe(false)
+    expect(f.fileWrites).toHaveLength(0)
+    expect(wrapper.text()).toContain('view permission denied')
+  })
+
+  it('does not replay a file-resource save whose result was not confirmed', async () => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const dataSet = f.sessions[0]!.metadataDataSet
+    const save = vi.spyOn(dataSet, 'saveChanges').mockResolvedValue({success: false, message: 'receipt missing'} as never)
+    const action = () => sourceButton(wrapper, 'add-file-resource-agent-workflow-files')
+    await action().trigger('click'); await flushPromises()
+    expect(action().attributes('disabled')).toBeDefined()
+    await action().trigger('click'); await flushPromises()
+    expect(save).toHaveBeenCalledOnce()
+    expect(f.fileWrites).toHaveLength(0)
+    expect(wrapper.text()).toContain('receipt missing')
+  })

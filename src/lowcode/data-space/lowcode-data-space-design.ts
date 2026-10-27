@@ -4,6 +4,7 @@ import { LowcodeDataSpaceModelSourceReader } from './model-source/lowcode-data-s
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { LowcodeDataSpaceViewDesign, type SessionLoadOptions } from './view-design/lowcode-data-space-view-design'
 import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from './lowcode-data-space-runtime'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/workflow/agent-workflow-file-resource'
 import { lowcodeDataSpaceLayout } from './lowcode-data-space-layout'
 
 function staleScope(): Error {
@@ -32,6 +33,8 @@ function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>)
   }
   return new LowcodeDataSpaceViewDesign({
     workspace: getAppProjectBlueprintWorkspace(applicationId), assertScope,
+    fileResourceExecutors: Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
+      definition.createExecutor({applicationId, api: lowcodeApi.design, assertCurrent: assertScope})])),
     readModel: (input, metadata) => lowcodeApi.dataSpace.design.readModel({
       designScenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: input.scenarioId,
       metaName: input.modelName, assertCurrent: assertScope,

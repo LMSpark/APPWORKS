@@ -69,6 +69,8 @@ export type ViewDesignAssembleInput = Readonly<{
 
 type ViewDesignOptions = Readonly<{
   workspace: ProjectWorkspace
+  /** 已注册并提供 executor 的 file resource；新绑定校验/预览与正式运行共用同一适配器。 */
+  fileResourceExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
   readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>
   /**
    * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。
@@ -2576,7 +2578,8 @@ export class LowcodeDataSpaceViewDesign {
         return resource.save(command)
       },
     }
-    const fileExecutors = Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor]))
+    const fileExecutors = {...Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor])),
+      ...(this.options.fileResourceExecutors ?? {})}
     const toolExecutor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
       executeQuery: (view, params) => {
         const metadataScenarioId = view.dataSet?.scenarioId
@@ -2682,7 +2685,8 @@ export class LowcodeDataSpaceViewDesign {
     const executor = ScenarioDefinitionResource.forQueries({workspace: this.options.workspace, metadataScenarioId: input.scenarioId,
       assertCurrent: () => {this.options.assertScope(); assertCurrent?.()},
       validate: () => Promise.reject(new Error('SCENARIO_VIEW_PREVIEW_READ_ONLY: 预览不提交定义'))})
-    const fileExecutors = Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor]))
+    const fileExecutors = {...Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor])),
+      ...(this.options.fileResourceExecutors ?? {})}
     fileExecutors[DataSpaceReferenceLayoutResource.tableName] = this.referenceLayoutResource(input.scenarioId)
     const toolResource = new ProjectToolResource({workspace: this.options.workspace, metadataScenarioId: input.scenarioId,
       assertCurrent: () => {this.options.assertScope(); assertCurrent?.()}, ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})})

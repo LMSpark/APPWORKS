@@ -18,9 +18,7 @@ export type StructuredCatalogModelOptions = Readonly<{
 export type LoadStructuredCatalogInput = Readonly<{
   scenarioId: string
   catalogMetaName: string
-  scopeInputTable: string
   models: readonly StructuredCatalogModelOptions[]
-  applicationId: string
   assertCurrent: () => void
 }>
 
@@ -57,14 +55,6 @@ export async function loadStructuredConfigCatalog(input: LoadStructuredCatalogIn
   }))
   const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: formalModels, relations: []})
   try {
-    const scopeTable = dataSet.addTable(input.scopeInputTable, [{name: 'AppId', type: 'string', isPrimaryKey: true}])
-    scopeTable.resourceType = 'static-data'
-    scopeTable.addRows([{AppId: input.applicationId}])
-    const scopeView = scopeTable.getView('default')
-    if (!scopeView) throw new Error('目录范围输入视图缺失')
-    scopeView.setCurrentRowById(input.applicationId)
-    dataSet.addCascade({parentTable: input.scopeInputTable, parentViewId: 'default', childTable: input.catalogMetaName, childViewId: 'default',
-      filterBindings: [{sourceField: 'AppId', targetField: 'AppId'}], autoLoad: false})
     const results = await Promise.allSettled(formalModels.map(async model => {
       const target = dataSet.getView(model.metaName, 'default')
       if (!target) throw new Error(`目录视图缺失: ${model.metaName}`)
@@ -77,11 +67,11 @@ export async function loadStructuredConfigCatalog(input: LoadStructuredCatalogIn
   } catch (error) {dataSet.destroy(); throw error}
 }
 
-export function readStructuredConfigScope(errorLabel: string): Readonly<{applicationId: string; assertCurrent: () => void}> {
+export function readStructuredConfigScope(errorLabel: string): Readonly<{assertCurrent: () => void}> {
   const scope = lowcodeApi.readRequestScope()
   const applicationId = scope.headers['X-AppId']
   if (!applicationId) throw new Error('请先选择应用')
-  return {applicationId, assertCurrent: () => {
+  return {assertCurrent: () => {
     if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error(`${errorLabel}请求所属应用或登录身份已变化`)
   }}
 }

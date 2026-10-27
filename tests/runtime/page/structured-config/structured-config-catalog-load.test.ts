@@ -3,6 +3,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
 import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
+import {LowcodeJsonData} from '@/lowcode/resources/json-data/lowcode-json-data'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
@@ -45,16 +46,35 @@ describe('structured-config catalog loaders', () => {
     ds.destroy()
   })
 
-  it('LowcodeLogicView.loadCatalog scopes by AppId', async () => {
+  it('LowcodeLogicView.loadCatalog loads through the formal DataView owner', async () => {
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeLogicView.navigationScenarioId, name: 'lv', raw: {}})
     const ds = await LowcodeLogicView.loadCatalog(LowcodeLogicView.navigationScenarioId)
     expect(ds.getView(LowcodeLogicView.catalogMetaName, 'default')?.rows[0]).toMatchObject({name: 'A'})
     ds.destroy()
   })
-  it('LowcodeWorkflowDefinition.loadCatalog scopes by AppId', async () => {
+  it('LowcodeWorkflowDefinition.loadCatalog loads through the formal DataView owner', async () => {
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeWorkflowDefinition.navigationScenarioId, name: 'wf', raw: {}})
     const ds = await LowcodeWorkflowDefinition.loadCatalog(LowcodeWorkflowDefinition.navigationScenarioId)
     expect(ds.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')?.rows[0]).toMatchObject({FlowName: 'B'})
     ds.destroy()
+  })
+
+  it('loads JSON catalog models without an AppId output field and keeps X-AppId on the SPARK data request', async () => {
+    const navigationScenarioId = 'FFDEF2AED3E19A38C0FCDDC748CF939B'
+    http.rowsByTable['Base_JsonData'] = [{rowid: 'J1', name: '样例JSON', updater: 'U-ROW', path: '/sample.json', createuser: 'U-ROW'}]
+    service.readSpaceDefinition.mockResolvedValue({dataSpaceId: navigationScenarioId, name: 'json', raw: {}})
+    service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
+      buildFormalModels({
+        Base_JsonData: ['rowid', 'name', 'updater', 'path', 'createuser'],
+        Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+      }).find(model => model.metaName === metaName),
+    ))
+
+    const dataSet = await LowcodeJsonData.loadCatalog(navigationScenarioId)
+    const catalog = dataSet.getView(LowcodeJsonData.catalogMetaName, 'default')!
+    expect(catalog.rows[0]).toMatchObject({rowid: 'J1', name: '样例JSON', path: '/sample.json'})
+    expect(http.requests.some(request => request.headers?.['X-AppId'] === 'APP')).toBe(true)
+    expect(http.requests.some(request => JSON.stringify(request.data).includes('AppId'))).toBe(false)
+    dataSet.destroy()
   })
 })

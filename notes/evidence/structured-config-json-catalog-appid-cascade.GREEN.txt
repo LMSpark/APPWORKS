@@ -1,0 +1,13 @@
+$ pnpm exec vitest run tests/runtime/page/structured-config/structured-config-catalog-load.test.ts tests/runtime/page/semi-structured/json-data-page.test.ts tests/runtime/page/semi-structured/excel-import-list.test.ts tests/runtime/page/semi-structured/pdf-inspect-list.test.ts
+
+ Test Files  4 passed (4)
+      Tests  7 passed (7)
+
+$ pnpm run typecheck
+Exit code: 0
+
+$ pnpm exec eslint <9 changed source/test files>
+Exit code: 0
+
+$ git diff --check
+No output; exit code 0.

@@ -11,11 +11,10 @@ export class LowcodeExcelImport {
   static readonly catalogMetaName = '_Base_ImportConfig'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('Excel 导入')
+    const {assertCurrent} = readStructuredConfigScope('Excel 导入')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'ExcelImportCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'crttime', direction: 'desc'}]},
         {metaName: 'Base_UserInfo'},

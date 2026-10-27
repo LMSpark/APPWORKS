@@ -6,15 +6,15 @@ import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
 import {defineComponent, h} from 'vue'
 import JsonDataPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
-import {LowcodeJsonData} from '@/lowcode/resources/json-data/lowcode-json-data'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels, StructuredCatalogHttp} from '../structured-config/structured-config-catalog.fixture'
 import {SemiStructuredHttp} from './semi-structured-http.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: SemiStructuredHttp, runtime: DataSpaceRuntimeApi
+const navigationScenarioId = 'FFDEF2AED3E19A38C0FCDDC748CF939B'
 const models = buildFormalModels({
-  Base_JsonData: ['rowid', 'AppId', 'name', 'description', 'createuser', 'crttime'],
+  Base_JsonData: ['rowid', 'name', 'updater', 'path', 'createuser'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
 })
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -24,11 +24,11 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 const originalStubs = {...config.global.stubs}
 beforeEach(() => {
   http = new SemiStructuredHttp({
-    Base_JsonData: [{rowid: 'J1', AppId: 'APP', name: '样例JSON', createuser: 'U-ROW'}],
+    Base_JsonData: [{rowid: 'J1', name: '样例JSON', updater: 'U-ROW', path: '/sample.json', createuser: 'U-ROW'}],
     Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
   })
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
-  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeJsonData.navigationScenarioId, name: 'json', raw: {}})
+  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: navigationScenarioId, name: 'json', raw: {}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
   registerAllRenderers()
@@ -45,7 +45,7 @@ async function openPage() {
   const router = createRouter({history: createMemoryHistory(), routes: []})
   await createDynamicRouter({router, pageComponent: JsonDataPage, componentMap: {'/json': JsonDataPage},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
-      {id: 'json', title: 'JSON', path: '/json', itemKind: 'system-page', blueprintScenarioId: LowcodeJsonData.navigationScenarioId},
+      {id: 'json', title: 'JSON', path: '/json', itemKind: 'system-page', blueprintScenarioId: navigationScenarioId},
     ]})}).registerRoutes()
   await router.push('/json'); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body,

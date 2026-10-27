@@ -11,11 +11,10 @@ export class LowcodeLogicView {
   static readonly catalogMetaName = 'Base_DataViewList'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('逻辑视图')
+    const {assertCurrent} = readStructuredConfigScope('逻辑视图')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'LogicViewCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'rowid', direction: 'asc'}]},
         {metaName: 'Base_UserInfo'},

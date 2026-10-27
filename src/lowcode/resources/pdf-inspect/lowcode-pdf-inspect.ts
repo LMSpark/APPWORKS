@@ -11,11 +11,10 @@ export class LowcodePdfInspect {
   static readonly catalogMetaName = '_Base_PdfInspectRule'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('PDF 识别')
+    const {assertCurrent} = readStructuredConfigScope('PDF 识别')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'PdfInspectCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'rowid', direction: 'asc'}]},
         {metaName: 'Base_UserInfo'},

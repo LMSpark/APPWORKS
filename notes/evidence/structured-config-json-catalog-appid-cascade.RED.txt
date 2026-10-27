@@ -1,0 +1,20 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/page/structured-config/structured-config-catalog-load.test.ts (4 tests | 1 failed) 65ms
+     × loads JSON catalog models without an AppId output field and keeps X-AppId on the SPARK data request 12ms
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/structured-config/structured-config-catalog-load.test.ts > structured-config catalog loaders > loads JSON catalog models without an AppId output field and keeps X-AppId on the SPARK data request
+Error: Target field "AppId" not found in view "Base_JsonData:default"
+ ❯ DataSet._assertCascadeShape packages/spark-data/src/dataset.ts:1269:15
+ ❯ DataSet.addCascade packages/spark-data/src/dataset.ts:1287:10
+ ❯ loadStructuredConfigCatalog src/lowcode/resources/structured-config/structured-config-catalog.ts:66:13
+ ❯ tests/runtime/page/structured-config/structured-config-catalog-load.test.ts:72:21
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+ Start at  20:44:08
+ Duration 6.26s (transform 2.85s, setup 242ms, import 3.59s, tests 65ms, environment 1.77s)

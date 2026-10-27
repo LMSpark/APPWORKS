@@ -11,11 +11,10 @@ export class LowcodeDataCode {
   static readonly catalogMetaName = '_Base_CodeDesign'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('编码')
+    const {assertCurrent} = readStructuredConfigScope('编码')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'DataCodeCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'crttime', direction: 'desc'}, {field: 'rowid', direction: 'asc'}]},
         {metaName: 'Base_UserInfo'},

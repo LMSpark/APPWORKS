@@ -11,11 +11,10 @@ export class LowcodeWorkflowDefinition {
   static readonly catalogMetaName = '_Base_DataWorkFlow'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('数据工作流')
+    const {assertCurrent} = readStructuredConfigScope('数据工作流')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'WorkflowDefinitionCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'crttime', direction: 'desc'}, {field: 'rowid', direction: 'asc'}]},
         {metaName: 'Base_UserInfo'},

@@ -11,11 +11,10 @@ export class LowcodeJsonData {
   static readonly catalogMetaName = 'Base_JsonData'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {applicationId, assertCurrent} = readStructuredConfigScope('JSON 数据')
+    const {assertCurrent} = readStructuredConfigScope('JSON 数据')
     return loadStructuredConfigCatalog({
-      scenarioId, applicationId, assertCurrent,
+      scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
-      scopeInputTable: 'JsonDataCatalogInput',
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'name', direction: 'asc'}]},
         {metaName: 'Base_UserInfo'},

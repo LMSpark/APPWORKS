@@ -2406,3 +2406,7 @@ flowchart TD
 - **当前数据链盘点：**活动旁路按责任分类更新到上表：平台目录 `listApplications()` 多调用者 direct GetData；物理表/视图预览由资源层 direct GetData 并本地合成只读权限；WorkflowDesigns 通过 design file API 读取配置；ProjectWorkspace/`createLowcodeProjectGateways()` 仍有 DataSpaceRuntime query/save 但缺少共享 DataView 编辑/取消/提交生命周期的调用链。布局文件读取则由正式只读 DataView resource owner 发起，属于内部适配，不算页面第二入口。`readRelationDependencyOptions()` 目前只有测试调用，列为潜在未接线能力，不算活动逃逸。
 - **真实 SPA 状态：**认证后的 D99 蓝图树仍为 41 个页面；`appworks-tool-dev` 正式 NavHost 查询 0 行，未选项目、未切换和未写入。应用目录在 SPA 中能显示项目，但点击首个项目后旧应用列表路由报“无法确定系统页面”，经 SPA 导航重新打开后恢复；这说明还需单独核路由/项目切换后 owner 身份，不证明目录 DataView 已打通。证据为 `notes/evidence/project-blueprint/devsystem-project-switch-live-smoke-20261027.txt`。
 - **动态重排后的下一步：**(1) 先从正式元数据/查询回执确认 `Base_AppSystemList` 的模型 ID、场景绑定、当前目录查询范围与权限投影，再决定平台目录是否能建立路由拥有的 DataView；(2) 分别核物理资源正式查询合同与工作流文件资源 DataView 身份，缺少服务合同就登记底座缺口，不造 adapter 假权限；(3) 按生产调用者清点 ProjectWorkspace gateway 是否仍承担业务读写，优先消除页面级重复状态和 raw gateway 写入口；(4) NavHost 关系编辑只有在正式写权限及真实读回合同已证实后才实施。每个切片仍需标准组件绑定 DataView、SPA 内关闭/重开或切换验收；不改 Java、不以自动化夹具替代服务结果。
+
+### 2026-10-27 平台应用目录 DataView 切片审计
+
+- 审计报告：`notes/evidence/data-space/app-catalog-dataview-20261027-report.md`。复核 `Base_AppSystemList` pagedata 绑定仅属于数据空间目录场景；平台路由的 direct GetData 仍无可证明等价的正式路由场景身份、租户/项目/认证 scope 与权限投影。`LOWCODE_APPLICATION_CATALOG_FORM_KEY` 不证明等于该模型所在 DataSet 的 scenarioId。`listApplications()` 仍为多调用者读取路径。`PageRuntime` 和组件 `dataViewKey` 能力存在，但不能补足该业务合同。结论：不可安全实施小切片，未改产品代码、未写测试、未运行验证；不以包装旧 API 伪装 DataView。解锁前置条件见报告。

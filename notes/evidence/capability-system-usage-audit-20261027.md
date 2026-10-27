@@ -40,3 +40,34 @@
 现有 DI 继续服务真实运行实例和 DataView 上下文传递，沿用 `PAGE_RUNTIME → RendererTable/dataViewKey → DATA_SOURCE/DataRow → usePermission/DataView.fieldAccess`；权限依据仍是正式查询及 DataView，不把 ProjectBlueprint capability 元数据当授权键，也不在 CapabilityContext 上再造业务数据网关或权限算法。已批准的 44 项业务能力目录只证明目标范围已策划；逐项实现状态以当前源码和唯一台账为准。下一步核对蓝图的类型化命令方案与各能力 SPA 消费者，按能力身份、输入输出、数据绑定、授权、调用、结果和失败状态查清已实现、半接通与缺口，再动态选择最小切片。不能先把 DI 机制或设计文档当成业务能力实现。
 
 本次为只读源码审计：未改产品代码、未运行测试、未访问线上业务写接口。
+
+## 2026-10-27 目录到当前实现的补充核对
+
+### 原子清单追溯缺口
+
+`notes/design-appworks-semantic-integration.md` §2 标题称“96 页 → 44 个能力”，但摘要表将 G3/G5、S1/S6/S7 合并，也将 D2、B2 的多个子能力放在同一行；该表不能直接作为 44 个原子能力逐项验收清单。文中称 96 页逐行映射到摘要 ID，但本次在 `notes/` 下未找到对应矩阵文件。因此下表是按现有摘要项和源码做的范围性分组，不宣称完成 44 项原子能力核销。
+
+### 代表性实现状态与旁路
+
+目标数据链为：`SPA 标准组件 → PageRuntime 完整身份解析 DataView → DataSet/DataView 命令 → spark-lowcode-api 资源 owner → 实际服务 → DataView 权限/回执/读回`。参考 UI 的专用 API 不能直接搬进页面。
+
+| 摘要项/分组 | 当前源码状态 | 证据与边界 |
+| --- | --- | --- |
+| S1/S6/S7 平台壳 | 已接通基础运行能力 | 登录、会话与 SSE 是平台服务，不是业务 CRUD；不能据此证明业务能力执行器存在。 |
+| D1/D2 数据空间 | 部分接通 | 目录和设计工作区存在；目录删除未闭环，设计页仍有页面专用状态/逻辑。 |
+| B1/B2 数据库目录 | 部分接通 | 页面绑定 DataView，注册、连接、同步走命令资源；真实服务能力和成功回执未全部验收，B2 连接烟测失败。见 `service-management-page.vue`、`table-and-view-page.vue`。 |
+| C1 字典 | 部分接通 | 设计、维护使用 DataView；排序及部分 AI 录入已有 SPA 证据，引用完整性和下游消费仍开放。 |
+| C2 编码 | 未形成可用目录闭环 | 正式 `_Base_CodeDesign` 模型无法解析，页面加载失败；不可将测试通过当作实服闭环。 |
+| C3/C4 逻辑视图/数据工作流 | 部分接通 | 页面与 DataView/保存骨架存在；正式服务与保存回执仍需核实。C4 不等于 Agent `WorkflowDesigns`。 |
+| H1/H2/H3 Excel/PDF/JSON | 部分接通 | 页面和 DataView/文件资源骨架存在；JSON 目录有只读 SPA 证据，其余正式服务读写闭环未全部核验。 |
+| A1 应用目录 | 存在数据通道旁路 | `src/views/tenant/AppList.vue` 仍调用 `lowcodeApi.platform.listApplications()`，未消费路由绑定 DataView。 |
+| A2 蓝图 | 部分接通 | 节点 capability 名称/描述经 `Base_NavigationInfo` DataView 编辑/保存；它们是业务元数据，不是受限命令。未发现按节点 kind 派发的统一业务 mutation executor。 |
+| A5 租户管理 | 存在数据通道旁路 | `src/views/platform/PlatformTenantManagement.vue` 仍直接调用 `lowcodeApi.platform`，正式审核/授权链整合未完整。 |
+| G2 权限设计 | 部分接通 | PermissionDesign API/变更合同存在；完整 SPA 页面及配置回执闭环缺失。 |
+| I1 外部接口 | 部分接通 | 配置页使用 DataView 和 `DataSet.saveChanges`；业务等价与真实回执仍需逐项验收。 |
+| I3 AI 会话 | 部分接通 | AI 回合/SSE 传输资源存在；参考能力边界和业务回执未完整核定。 |
+| O4 人员/部门选择 | 未证实完整标准闭环 | 预设存在，尚未证明标准组件和 DataView 选项绑定已形成完整闭环。 |
+| A3/A4、G1、I2、O1/O2/O3/O5、W1-W5、S2-S5 | 缺失或未接入 | 按设计摘要未找到对应完整 SPA 能力闭环；Agent 工作流不能替代 BPM。 |
+| G3/G5 角色及用户关系、G6 用户应用权限 | 按批准范围不迁/后置 | 不是实现遗漏；不得引入前端角色判断。 |
+
+以上状态来自源码和既有 SPA 证据，非本轮线上全量验收。所有业务读写仍须绑定正式 DataView 并经 SPARK data；A1/A5 direct API 属待清理旁路，不能因 API 内部最终调用 GetData 就视为满足唯一通道。下一步先补齐 96 页→原子能力的可追溯矩阵来源或从参考页面重建，再逐项记录输入输出、模型/视图、权限、owner、回执和异常，选定最小 SPA 切片实施。此次补充只读；无产品代码、后端 Java、线上数据变更或测试。

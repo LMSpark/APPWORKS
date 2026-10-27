@@ -2293,3 +2293,10 @@ flowchart TD
 - **ClassModel 与证据：**新 DataView 方法已通过正式 ClassModel 生成链刷新。RED/GREEN、SPARK DataSpace runtime 与主控复核记录见 `notes/evidence/project-blueprint/project-planning-batch/`。主控独立跑 ProjectPlanning/DevState 焦点 **3 files / 76 tests**、SPARK runtime **128 tests**、改动文件 ESLint、全仓 typecheck、完整 `verify:rules`、build 与 `git diff --check`，均通过。spark-lowcode-api 单包 typecheck 的 5 条诊断都在未改的 `dictionary-workspace.test.ts`（TS6133/TS4111/TS2412）；本次代码无对应诊断。模型扫描保留既有 2 warnings / 1 info，构建保留既有 dynamic-import/chunk-size 告警。
 - **SPA 烟测：**真实 DevSystem SPA 仍在 NewApp/D99A 的应用壳中运行。当前导航 `appworks-tool-dev` 的正式 `Base_Navigation_DataRelation` 查询为 0 行，项目切换入口按设计隐藏，因此本轮无法真实切换；没有猜测关系、没有写线上蓝图或业务数据。该配置缺口也阻止真实多行保存烟测；夹具不替代服务端多行回执验证。
 - **状态与下一步：**本批实现与自动化验收完成，真实在线多行保存及有效 NavHost 项目切换仍未验收。代码与本台账状态已推送：`2dc78e05e`（`feat(dev-system): batch planning leaves through DataView`）及其后续台账提交。接下来只在正式 NavHost 有有效项目关系且可安全使用的测试目标时做只读/授权烟测；继续按当前唯一台账推进工作台蓝图余项。无 Java 修改，整体 DevSystem / 参考仓蓝图整合目标继续 active。
+
+### 2026-10-27 AI批量录入字段配置运行时链复核
+
+- **结论：**未复现“是否 AI 生成未传到运行时 DataView”。正式模型字段经 `DataSpaceDesignApi.formalField/resolveFields` 规范化，`LowcodeDataSpaceViewFields.columns` 将正式 `allowAIAdd` 写入同一个 DataTable 列定义；`LowcodeDataSpaceAssembler` 再以这些列装配同一 DataSet，原生 DataView 继承其列。场景文件列定义不能覆盖该字段，视图投影也不能注入该字段，因此不存在第二份配置真源。
+- **运行消费：**`deriveAiDataEntryFields(targetView)` 只纳入正式输出且 `allowAIAdd === true` 的列，排除主键/计算/自增列，并按当前新增和字段写权限进一步收窄。`AiDataEntrySession` 从该目标 DataView 派生候选 schema；标准 `SparkAiDataEntry` 通过完整 `dataViewKey` 解析当前 PageRuntime 目标，附着该 DataSet 的 host/session，并将业务提示、候选和状态交给标准 RendererForm/RendererTable。用户只编辑 `businessPrompt`；组件不暴露系统提示词字段，执行沿租户配置的正式 Agent。
+- **主控验证：**`tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts -t 'keeps allowAIAdd'` **1 passed / 47 skipped**，覆盖正式 1/0 规范化、正式列定义、两个 DataView、DataSet 序列化重开、拒绝 pagedata/视图投影覆盖、业务行不混入配置及最终 `deriveAiDataEntryFields` 白名单；`spark-ai-data-entry.test.ts` **15/15**；`spark-lowcode-api` AI fields/session **32/32**。无源代码或 ClassModel 变更。
+- **状态边界：**这组证据验证本仓运行时装配与组件合同，不等同于当前正式服务每个模型的 `allowAIAdd` 实际值或线上 AI Agent 成功运行；本轮未触发 SPA AI 请求、未写业务数据，也未改 Java。此前 DevSystem NavHost 的正式切换关系仍查询 0 行，成功切换与后端持久化未验收；开发工作台/参考仓项目蓝图整合总体目标继续 active。

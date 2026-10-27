@@ -2618,3 +2618,11 @@ flowchart TD
 - **追加复核：**主控独立复跑 guard、PageDesign provider 与 editor provider 测试合计 **33/33** 通过；typecheck、四个改动 TS 文件 ESLint `--max-warnings=0`、完整 `verify:rules`、production `pnpm run build` 与 `git diff --check` 均退出 0。构建有既存的第三方纯注解、动态导入和大 chunk 警告。限制仍为本切片不迁移或封闭其他通用 gateway 消费者的原始 read/CRUD 调用；仅确认 PageDesign AI facade 两个入口不可再触发 raw reader。不改 Java。
 - **真实 SPA 状态：**当前 IAB 标签只读确认位于 `http://127.0.0.1:5273/login`，企业为“领码科技”，没有登录会话。认证表单不由自动化填写；本批没有正式服务查询、保存或重开读回，真实 SPA 烟测未完成。
 - **剩余差距：**本次仅迁移 PageDesign headless 的初始只读 planning blueprint 消费。`createLowcodeProjectGateways()` 其余蓝图 CRUD/move 及其它生产消费者仍需按真实消费者分别核对 DataView 提交、权限、回执/回读与生命周期，不因本次读取迁移宣称 gateway 已统一或全仓已统一；不覆盖启动导航、DevSystem、DataSpace 设计持久化及其它资源旁路。总体整合保持 active。
+
+### 2026-10-28 Agent Workflow DataSpace 正式绑定复开与预览缺口
+
+- **正式设计结果：**在已授权 SPA 的 D99「数据空间管理」中，通过数据空间设计的标准登记/保存流程补齐正式空间“Agent工作流文件资源”（ID `01000B6C7F84B4F1A85C91C4FC28E875`）：模型 `AgentWorkflowFiles`、4 个字段（workflowId/fileName/timestamp/content）及 default、directory、design、definition 四视图。关闭并重新打开设计器后，正式目录行、模型、字段、视图与 view 配置均重新读回；没有手改 pagedata 或直接调用后端 API。此举完成的是正式 DataSpace/DataTable/DataView 身份和配置绑定，不代表文件目录数据可读。
+- **预览参数修复：**真实设计预览暴露参数目录解析缺陷：非 ReferenceLayout/ProjectTool 的已登记文件资源被误送至 `ScenarioDefinitionResource.queryParameters`，导致资源视图身份拒绝；同时 design/definition 的 workflowId 不在参数目录。修复将查询参数声明并入文件资源注册定义，同一 resolver 供视图编辑器和预览器使用；AgentWorkflow 的 default/directory 声明空参数、design/definition 声明必填 workflowId，未注册资源/视图 fail closed。新增测试覆盖资源/视图身份和 queryContext 参数一致性。没有新增第二查询/保存通道。
+- **真实 SPA 查询结果与边界：**在重新打开的正式配置中执行 `AgentWorkflowFiles@directory` DataView 只读预览，实际 SPARK 服务返回 `[1003] 文件夹路径不存在`。因此正式绑定与配置复开通过，但该应用下 `${applicationId}/workflow-designs` 目录当前不可读；这不是空目录成功，也未证明业务数据迁移完成。本轮没有创建/写入/删除 Workflow 文件，没有用夹具替代真实回执，没有改 Java。下一步须查明当前应用正式文件目录/服务端 list 合同；若目录不存在应由正式资源生命周期建立，不能在前端把错误折算成空集合或绕过 DataView 直读。
+- **代码验证：**主控独立验证查询参数 resolver、Workflow 文件资源与 loader/UI 回归 **4 files / 60 passed**；DataSpace Design 正式登记专项 **1 passed**（同文件其余 369 项过滤跳过）；`pnpm run typecheck`、5 个变更文件 ESLint `--max-warnings=0`、`pnpm run verify:rules`、`pnpm run build`、`git diff --check` 均通过。规则扫描有既有 AI model spec 2 warnings / 1 info；build 保留依赖纯注解、动态导入及大 chunk 警告。没有 ClassModel 公开合同变更，无需刷新生成物。
+- **交付与状态：**此条后续连同参数目录代码修复提交并推送。上一条“需用户登录后再登记”的历史状态已由本条正式保存及复开证据取代；目录查询错误是新的实际阻塞。Agent Workflow 编辑页与 AI activation 的生产消费、文件目录读取、文档读取仍须以正式服务成功查询验收；其它应用目录、物理预览、蓝图 gateway 等旁路继续按矩阵独立处理。总体 SPARK data 整合保持 active。

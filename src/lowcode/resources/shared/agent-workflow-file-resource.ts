@@ -19,6 +19,7 @@ export type LowcodeFileResourceDefinition = Readonly<{
   label: string
   columns: typeof AGENT_WORKFLOW_FILE_COLUMNS
   views: Readonly<Record<string, Readonly<Record<string, unknown>>>>
+  queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{name: string; type: string; label?: string; required?: boolean}>>>>
   createExecutor(input: Readonly<{applicationId: string; api: WorkflowFileApi; assertCurrent: () => void}>): AgentWorkflowFileResource
 }>
 
@@ -34,6 +35,12 @@ export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinit
       directory: Object.freeze({queryConfig: Object.freeze({allPages: true, maxRows: 50000})}),
       design: Object.freeze({autoLoad: false, queryContext: Object.freeze({workflowId: ''})}),
       definition: Object.freeze({autoLoad: false, queryContext: Object.freeze({workflowId: ''})}),
+    }),
+    queryParameters: Object.freeze({
+      default: Object.freeze([]),
+      directory: Object.freeze([]),
+      design: Object.freeze([{name: 'workflowId', type: 'string', label: '工作流 ID', required: true}]),
+      definition: Object.freeze([{name: 'workflowId', type: 'string', label: '工作流 ID', required: true}]),
     }),
     createExecutor: (input: Readonly<{applicationId: string; api: WorkflowFileApi; assertCurrent: () => void}>) => new AgentWorkflowFileResource(input),
   }),

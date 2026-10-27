@@ -228,12 +228,13 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataViewFieldCascadeState, type DataViewFilterFunctionContext, type SparkNodeChildren} from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import {ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
+import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryAggregation} from '@spark-appworks/spark-lowcode-api'
 import type {DataSpaceViewEditorProps} from './DataSpaceViewEditor.props'
 import DataSpaceQueryPreview from './preview/DataSpaceQueryPreview.vue'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/lowcode/resources/shared/file-resource-query-parameters'
 
 const {FieldJson, FieldNumber, FieldSelect, FieldCheckbox, FieldText, RendererButton, RendererDialog, RendererForm, RendererFilterExpression, RendererSection, RendererTabs, RendererTabPane} = SparkComponent
 const props = defineProps<DataSpaceViewEditorProps>()
@@ -296,9 +297,7 @@ const sourceInputMode = computed(() => {
 const parameterCatalog = computed(() => {
   props.revision; tick.value
   if (props.fileResource) {
-    const parameters = props.fileResource.resourceId === DataSpaceReferenceLayoutResource.resourceId
-      ? DataSpaceReferenceLayoutResource.queryParameters() : Object.values(ProjectToolResource.resources).some(id => id === props.fileResource?.resourceId)
-        ? ProjectToolResource.queryParameters(props.fileResource.resourceId) : ScenarioDefinitionResource.queryParameters(props.fileResource.resourceId)
+    const parameters = fileResourceQueryParameters(props.fileResource.resourceId, String(row.value?.['viewId'] ?? ''))
     const schema: JsonSchemaObject = {type: 'object', properties: Object.fromEntries(parameters.map(parameter =>
       [parameter.name, {description: parameter.label ?? parameter.name, 'x-typeLabel': parameter.type}])),
     required: parameters.filter(parameter => parameter.required).map(parameter => parameter.name)}

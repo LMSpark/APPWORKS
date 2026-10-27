@@ -77,10 +77,10 @@ import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataView, type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import {ScenarioDefinitionResource, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
 import type {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview'
 import type {DataSpaceQueryPreviewProps} from './DataSpaceQueryPreview.props'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/lowcode/resources/shared/file-resource-query-parameters'
 
 const {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDetail, RendererFilter, RendererForm, RendererSection, RendererTable, useSparkComponent} = SparkComponent
 const props = defineProps<DataSpaceQueryPreviewProps>()
@@ -140,9 +140,7 @@ async function open(): Promise<void> {
       ? new LowcodeDataSpaceFieldValue({dataSet: props.session.metadataDataSet, targetId: props.session.targetId, modelId: props.modelId}).readQueryParameters(directInputs.value ? 'direct' : 'mapped')
       : {schema: {type: 'object', properties: {}}, warning: ''}
     if (props.fileResourceId) {
-      const fields = props.fileResourceId === DataSpaceReferenceLayoutResource.resourceId
-        ? DataSpaceReferenceLayoutResource.queryParameters() : Object.values(ProjectToolResource.resources).some(id => id === props.fileResourceId)
-          ? ProjectToolResource.queryParameters(props.fileResourceId) : ScenarioDefinitionResource.queryParameters(props.fileResourceId)
+      const fields = fileResourceQueryParameters(props.fileResourceId, props.viewId ?? 'default')
       parameters.schema = {type: 'object', properties: Object.fromEntries(fields.map(field =>
         [field.name, {description: field.label ?? field.name, 'x-typeLabel': field.type}])),
       required: fields.filter(field => field.required).map(field => field.name)}

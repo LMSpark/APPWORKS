@@ -2200,3 +2200,10 @@ flowchart TD
 - **SPA 只读烟测：**同一 NewApp/D99A 开发工作台 `/dev` SPA 已重新核对；会话仍为王涛，蓝图树显示 **41 页面**、七个信息页签，当前节点 `DataBaseManage`，状态“蓝图已就绪”。未刷新整页、未保存/创建/删除/发起 AI，**0 线上业务写入**。因此仅验证工作台显示与本批代码构建，不证明线上 AI command、正式权限、身份回执或持久化行为。
 - **范围状态：**全树规划已实现，整树增改删移动仍被拒绝；真实服务的多行权限预检、部分成功/未知回执恢复及跨 `PageRuntime` 生命周期合同仍未解决，完整蓝图整合不能关闭。桌面显示、AI填表、原型预览、SRS 完成回执及文件 owner 生命周期继续开放；无 Java 修改、无线上写入。实施状态更新为“规划层完成，DataView 全树提交未完成”；实现已由 `1d4647248` 提交并推送。
 - **未关闭范围：**完整多节点/混合更改写入、身份冲突/权限逐项预检、部分成功续做、真实服务保存及跨 PageRuntime 原命令恢复仍需单独证明。桌面显示关联、AI填表、原型预览、SRS 完成回执及文件 owner 生命周期仍未完成；线上业务数据只读，无 Java 改动。规划器实施状态：完成；整体工作台蓝图整合：继续进行。
+
+### 2026-10-27 开发工作台桌面显示关联只读诊断
+
+- **参考仓语义：**`E:\r\sparkproject\packages\ui\domain\metadata\src\features\application\application-function-management\ui\use-application-function-page.ts` 按当前节点 `rowid` 查询 `Base_Desktop_System`；没有记录时打开新增弹窗，默认 AppName 取节点导航标题/能力名称、AppUrl 按当前导航 URL 生成、图标取节点图标、IsDesktopShow=1、IsReqLogin=0。用户需填写 AppName、非空排序及 AppUrl；AppType 从 `Dict_Desktop_AppType` 加载。已有记录时操作是确认后删除该桌面记录，并非编辑已有记录。参考 API 在 `ApplicationFunMan.ts` 直接 query/create/remove 元数据客户端，迁入本仓时该直连必须淘汰，改为标准 DataView 绑定和 DataSet 保存。
+- **本次正式 SPA 观察：**同一登录 SPA 只读进入“元数据管理 / 功能管理”数据空间设计，界面显示共 23 个模型；目录按需读取确认 `Base_Desktop_System` 存在，含 24 个字段，物理来源展示为 `QYVirtualPlat.Base_Desktop_System`，并可见 AppName、ShortCNName、AppOrdidx、AppUrl、MobileUrl、AppPopupMode、AppType、IsDesktopShow、IsReqLogin、AppSmallIconUrl、BgColor、FontColor、IconStyle 等语义字段。当前模型目录显示“数据视图（0）”；字段配置中仅 rowid 为输出，其余字段输出复选框当前均未启用。`Dict_Desktop_AppType` 同在该模型目录。整个检查未编辑或保存数据空间/模型，也未读写桌面业务记录；随后返回原 `/dev` 开发工作台 SPA。
+- **本仓差距与实施边界：**本仓 `config/pages/application/project-blueprint/pagedata.json` 仅绑定 `Base_NavigationInfo`、`Base_Navigation_Desc_Version`、`Base_Navigation_DataRelation`，没有 `Base_Desktop_System`/`Dict_Desktop_AppType` 的 PageRuntime DataView，也没有桌面记录消费组件。当前目标模型只有 rowid 输出且目录没有视图；因此不能仅新增控件或猜 modelId/视图合同，更不能手动拼 API、以参考旧客户端 CRUD 旁路写入，或为了某个工作台修改共享模型输出字段。下一步先从现有正式模型绑定/数据空间合同确认稳定 modelId、可用字段输出及当次行/字段权限，再评估以独立视图配置新增只读加载和 DataView 新增/删除；字段输出若需改共享定义，先核下游影响并遵循正式数据空间编辑合同。本条仅为只读诊断，SPARK data 唯一通道目标保持不变。
+- **工作台状态：**`/dev` SPA 仍显示王涛会话、41 页面、七个信息域及当前节点 `DataBaseManage`，未触发业务写入；桌面显示关联仍未接入，不能列为完成。未改 Java、未更改线上元数据或桌面数据。

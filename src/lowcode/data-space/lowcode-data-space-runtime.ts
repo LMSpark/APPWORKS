@@ -30,6 +30,7 @@ type DefinitionExecutorsInput = Readonly<{
   config: ScenarioViewConfig
   assertCurrent: () => void
   owner?: ProjectWorkspace
+  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>
 }>
 
 /** 场景视图文件与正式模型的唯一运行装配入口；请求 owner 提供应用及租户身份。 */
@@ -107,7 +108,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
 
 /** 文件资源由已声明的语义身份接线，目标ID仍由DataView输入提供，不从当前空间猜测。 */
 function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadScenarioDataSetInput['fileExecutors']> {
- const {projectId, scenarioId, config, assertCurrent, owner} = input
+ const {projectId, scenarioId, config, assertCurrent, owner, blueprintTreeProjection} = input
  const tables = config.toJSON()['tables']
  const declared = isRecord(tables) ? Object.entries(tables).filter(([name, table]) => isRecord(table) && table['resourceType'] === 'file'
   && Object.entries(ScenarioDefinitionRecords.resources).some(([key, resource]) => key === name && resource === table['resourceId'])) : []
@@ -129,14 +130,15 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  const executors = Object.fromEntries(declared.map(([name]) => [name, executor]))
  if (hasReference) executors[DataSpaceReferenceLayoutResource.tableName] = new DataSpaceReferenceLayoutResource({metadataScenarioId: scenarioId,
   assertCurrent, read: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout})
- const tools = new ProjectToolResource({workspace, metadataScenarioId: scenarioId, assertCurrent})
+ const tools = new ProjectToolResource({workspace, metadataScenarioId: scenarioId, assertCurrent, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})
  for (const [name] of toolTables) executors[name] = tools
  return executors
 }
 
 /** 装配元数据空间并读取首屏空间与模型；字段和来源关系由工作区按需加载。 */
 export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
- fileExecutors?: LoadScenarioDataSetInput['fileExecutors'], workspace?: ProjectWorkspace): Promise<DataSet> {
+ fileExecutors?: LoadScenarioDataSetInput['fileExecutors'], options: Readonly<{workspace?: ProjectWorkspace;
+  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>}> = {}): Promise<DataSet> {
  if (typeof dataSpaceId !== 'string' || !dataSpaceId.trim() || dataSpaceId.trim() !== dataSpaceId
    || dataSpaceId === '.' || dataSpaceId === '..' || /[\\/%\u0000-\u001f\u007f]/.test(dataSpaceId)) {
   throw new Error('DATA_SPACE_METADATA_TARGET: 数据空间 ID 无效')
@@ -157,7 +159,8 @@ export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
  if (text === null) throw new Error('DATA_SPACE_METADATA_CONFIG: 数据空间设计器尚未建立正式视图配置')
  const config = new ScenarioViewConfig(DATA_SPACE_DESIGN_FORM_KEY, text)
  const assembly = await loadScenarioDataSet({scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
-  fileExecutors: fileExecutors ?? definitionExecutors({projectId, scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent, ...(workspace ? {owner: workspace} : {})})})
+  fileExecutors: fileExecutors ?? definitionExecutors({projectId, scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
+   ...(options.workspace ? {owner: options.workspace} : {}), ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})})})
  const dataSet = assembly.dataSet
  try {
   assertCurrent()
@@ -185,6 +188,6 @@ export async function loadLowcodeScenarioDefinitions(workspace: ProjectWorkspace
  if (workspace.project.projectId !== lowcodeApi.readRequestScope().headers['X-AppId']) {
   throw new Error('SPARK_EXECUTION_SCOPE_STALE: 定义工作区不属于当前应用')
  }
- const dataSet = await loadLowcodeDataSpaceMetadata(scenarioId, undefined, workspace)
+ const dataSet = await loadLowcodeDataSpaceMetadata(scenarioId, undefined, {workspace})
  try {assertCurrent(); return dataSet} catch (error) {dataSet.destroy(); throw error}
 }

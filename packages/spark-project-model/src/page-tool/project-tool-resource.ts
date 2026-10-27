@@ -26,7 +26,8 @@ export class ProjectToolResource {
   #saving = false
 
   /** 每次异步边界核对宿主作用域；元数据空间身份与工具所属应用分别校验。 */
-  constructor(private readonly options: Readonly<{workspace: ProjectWorkspace; metadataScenarioId: string; assertCurrent(): void}>) {
+  constructor(private readonly options: Readonly<{workspace: ProjectWorkspace; metadataScenarioId: string; assertCurrent(): void;
+    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>}>) {
     this.#projectId = options.workspace.project.projectId
   }
 
@@ -60,7 +61,9 @@ export class ProjectToolResource {
   }
 
   private async catalog(): Promise<DataRow[]> {
-    const root = await this.options.workspace.previewBlueprintRemote()
+    const projectTree = this.options.blueprintTreeProjection
+    if (!projectTree) throw new Error('PROJECT_TOOL_CATALOG_OWNER: 缺少正式导航 DataView 树投影 owner')
+    const root = await projectTree()
     this.options.assertCurrent()
     const ids = new Map<string, Set<string>>()
     const visit = (node: (typeof root.children)[number]): void => {

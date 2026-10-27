@@ -2,7 +2,7 @@ import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { LowcodeDataSpaceModelSourceReader } from './model-source/lowcode-data-space-model-source-reader'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
-import { LowcodeDataSpaceViewDesign } from './view-design/lowcode-data-space-view-design'
+import { LowcodeDataSpaceViewDesign, type SessionLoadOptions } from './view-design/lowcode-data-space-view-design'
 import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from './lowcode-data-space-runtime'
 import { lowcodeDataSpaceLayout } from './lowcode-data-space-layout'
 
@@ -46,6 +46,6 @@ function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>)
 }
 
 /** 先交付概览及文件；画布由loadGraphRelations读取端点，完整编辑工作区再经loadDefinition装配目标结构。 */
-export function openLowcodeDataSpaceDesignSession(targetId: string) {
-  return createViewDesign(lowcodeApi.readRequestScope()).openDesignSession(targetId, {deferDefinition: true})
+export function openLowcodeDataSpaceDesignSession(targetId: string, options: SessionLoadOptions = {}) {
+  return createViewDesign(lowcodeApi.readRequestScope()).openDesignSession(targetId, {deferDefinition: true, ...options})
 }

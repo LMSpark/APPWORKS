@@ -508,7 +508,8 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
         return assembler.assemble({config, space: {dataSpaceId: id, name: `空间 ${id}`}, models: [...targetModels, ...createdModels(id)], relations, ...(fileExecutors ? {fileExecutors} : {})})
       },
     })
-    const session = await service.openDesignSession(targetId, {deferDefinition: loading.deferDefinition ?? options.deferDefinition ?? false})
+    const session = await service.openDesignSession(targetId, {deferDefinition: loading.deferDefinition ?? options.deferDefinition ?? false,
+      ...(loading.blueprintTreeProjection ? {blueprintTreeProjection: loading.blueprintTreeProjection} : {})})
     sessions.push(session)
     workspaces.push(workspace)
     return session

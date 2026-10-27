@@ -8,10 +8,13 @@ import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/
 import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
+import {DataSet, DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
 import {FilterExpressionEditor, RendererFilterExpression, SparkJsonEditor} from '@spark-appworks/spark-component'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PageRuntime, type ProjectBlueprintTreeData} from '@spark-appworks/spark-project-model'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import blueprintConfig from '../../../../../config/pages/application/project-blueprint/pagedata.json'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import DataSpaceQueryPreview from '@/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue'
 import DataSpaceModelEditor from '@/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue'
@@ -29,6 +32,20 @@ import {DataSpaceLayoutEdit} from '@/views/features/data-platform/data-set-manag
 import definitionConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
+vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
+  return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {
+    readRequestScope: () => ({token:'PAGE-TEST',headers:{'X-AppId':'APP'}}),
+  })}
+})
+vi.mock('@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+  view: DataView
+  constructor(dataSet: DataSet) {this.view = dataSet.getView('Base_NavigationInfo', 'default')!}
+  async loadProjectTree() {return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}}
+  treeProjection() {return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}}
+  dispose() {}
+}}))
 const wrappers: ReturnType<typeof mount>[] = []
 
 describe('native DataTable data processing', () => {
@@ -1569,6 +1586,10 @@ const sourceRuntimes: PageRuntime[] = []
 beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')?.load()}, 30000)
 beforeEach(() => {
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
+  vi.mocked(loadLowcodeRuntimeScenario).mockReset().mockImplementation(async () => DataSet.fromJson({
+    scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    tables: {Base_NavigationInfo: {...blueprintConfig.tables.Base_NavigationInfo, columns: [], views: {default: {}}}},
+  }))
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
 afterEach(() => {
@@ -2627,6 +2648,26 @@ async function boundNumber(wrapper: Pick<VueWrapper, 'findAllComponents'>, field
 }
 
 describe('native data-space design entry', () => {
+  it('reuses the session navigation projection owner for a ProjectToolCatalog preview', async () => {
+    const f = fixture()
+    f.stored.set('A', JSON.stringify({scenarioId:'A',tables:{ProjectToolCatalog:{resourceType:'file',resourceId:'project:tool-catalog',
+      columns:[{name:'pageId',type:'string',isPrimaryKey:true},{name:'versions',type:'json'}],views:{default:{autoLoad:false}}}},viewCascades:[]}))
+    const tree: ProjectBlueprintTreeData = {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}
+    const projection = vi.fn(() => tree)
+    const session = await f.open('A',{deferDefinition:true,blueprintTreeProjection:projection})
+    try {
+      const preview = await session.openPreview({tableName:'ProjectToolCatalog',viewId:'default',fileResourceId:'project:tool-catalog'})
+      try {await preview.view.loadFromServer(); expect(projection).toHaveBeenCalledOnce(); expect(preview.view.rows).toEqual([])}
+      finally {preview.dispose()}
+    } finally {session.dispose()}
+  })
+  it('injects the formal navigation projection only after the page runtime adopts its exact DataView', async () => {
+    fixture({overviewOnly:true})
+    await page('?scenarioId=A')
+    const call = vi.mocked(openLowcodeDataSpaceDesignSession).mock.calls[0]
+    expect(call?.[0]).toBe('A')
+    expect(call?.[1]?.blueprintTreeProjection?.()).toMatchObject({projectId:'APP',kind:'module'})
+  })
   it('edits selected view sorting with standard child fields and priority, saves and reopens without changing sibling views', async () => {
     const f=fixture({overviewOnly:true})
     const {wrapper,instance}=await page('?scenarioId=A',true);await select(wrapper,'shared')

@@ -93,9 +93,11 @@ type SessionAdopt = Readonly<{
   discardViews?: ReadonlyArray<Pick<SparkData.DataView, 'tableName' | 'viewId'>>
 }>
 /** 当前会话的加载阶段；省略时完成目标定义装配后交付。 */
-type SessionLoadOptions = Readonly<{
+export type SessionLoadOptions = Readonly<{
   /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */
   deferDefinition?: boolean
+  /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */
+  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>
 }>
 
 /** 当前定义操作实际依赖的读取范围和预览快照。 */
@@ -123,6 +125,7 @@ type DesignSessionConstruction = Readonly<{
   design: LowcodeDataSpaceViewDesign
   options: ViewDesignOptions
   definitionResource: ScenarioDefinitionResource
+  blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']
 }>
 type PrepareModelConfigurationChangeInput = Readonly<{
   modelId: string
@@ -162,6 +165,7 @@ export class LowcodeDataSpaceDesignSession {
   readonly #viewMetadata: LowcodeDataSpaceViewMetadata
   readonly #relationMetadata: LowcodeDataSpaceRelationMetadata
   readonly #cascadeMetadata: LowcodeDataSpaceCascadeMetadata
+  readonly #blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']
   #inputParameterHost: InputParameterEditHost | null = null
   readonly #sourceInputs = new Map<string, SourceInputHandle>()
   readonly #modelEdits = new Map<string, ModelEditSession>()
@@ -181,12 +185,13 @@ export class LowcodeDataSpaceDesignSession {
   private readonly definitionResource: ScenarioDefinitionResource
 
   constructor(input: DesignSessionConstruction) {
-    const {targetId, metadataDataSet, design, options, definitionResource} = input
+    const {targetId, metadataDataSet, design, options, definitionResource, blueprintTreeProjection} = input
     this.targetId = targetId
     this.metadataDataSet = metadataDataSet
     this.design = design
     this.options = options
     this.definitionResource = definitionResource
+    this.#blueprintTreeProjection = blueprintTreeProjection
     this.#metadata = new LowcodeDataSpaceMetadata(metadataDataSet, targetId, () => this.assertLive())
     this.#viewMetadata = new LowcodeDataSpaceViewMetadata(metadataDataSet)
     this.#relationMetadata = new LowcodeDataSpaceRelationMetadata(metadataDataSet, definitionResource)
@@ -2224,7 +2229,7 @@ export class LowcodeDataSpaceDesignSession {
   async openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview> {
     const assertCurrent = this.definitionReadGuard({allowMissingDefinition: true, metadataNames: ['Base_DataSet', 'Base_DataModel']})
     return this.design.openPreview({...input, scenarioId: this.targetId}, assertCurrent,
-      listener => this.subscribePreviewGuard(assertCurrent, listener))
+      {subscribe: listener => this.subscribePreviewGuard(assertCurrent, listener), blueprintTreeProjection: this.#blueprintTreeProjection})
   }
 
   private subscribePreviewGuard(assertCurrent: () => void, listener: () => void): () => void {
@@ -2576,7 +2581,8 @@ export class LowcodeDataSpaceViewDesign {
       executeQuery: (view, params) => {
         const metadataScenarioId = view.dataSet?.scenarioId
         if (!metadataScenarioId) throw new Error('PROJECT_TOOL_IDENTITY: 元空间身份缺失')
-        toolResource ??= new ProjectToolResource({workspace: this.options.workspace, metadataScenarioId, assertCurrent: this.options.assertScope})
+        toolResource ??= new ProjectToolResource({workspace: this.options.workspace, metadataScenarioId, assertCurrent: this.options.assertScope,
+          ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})})
         return toolResource.executeQuery(view, params)
       },
       save: command => {
@@ -2632,6 +2638,7 @@ export class LowcodeDataSpaceViewDesign {
       }
       session = new LowcodeDataSpaceDesignSession({
         targetId: id, metadataDataSet: metadata, design: this, options: {...this.options, assemble}, definitionResource: resource,
+        ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {}),
       })
       try { await session.refresh(options) } catch (error) {
         if (session.metadataDataSet.destroyed || session.definitionError !== error) throw error
@@ -2656,7 +2663,8 @@ export class LowcodeDataSpaceViewDesign {
    * @param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的SparkData.DataView，预览关闭时解除。
    */
   async openPreview(input: NativeViewSelection & {scenarioId: string}, assertCurrent?: () => void,
-    subscribe?: (listener: () => void) => () => void): Promise<LowcodeDataSpaceQueryPreview> {
+    options: Readonly<{subscribe?: (listener: () => void) => () => void;
+      blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']}> = {}): Promise<LowcodeDataSpaceQueryPreview> {
     const file = this.currentFile(input.scenarioId)
     const text = file.getText()
     const revision = file.revision
@@ -2677,7 +2685,7 @@ export class LowcodeDataSpaceViewDesign {
     const fileExecutors = Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor]))
     fileExecutors[DataSpaceReferenceLayoutResource.tableName] = this.referenceLayoutResource(input.scenarioId)
     const toolResource = new ProjectToolResource({workspace: this.options.workspace, metadataScenarioId: input.scenarioId,
-      assertCurrent: () => {this.options.assertScope(); assertCurrent?.()}})
+      assertCurrent: () => {this.options.assertScope(); assertCurrent?.()}, ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})})
     for (const name of Object.keys(ProjectToolResource.resources)) fileExecutors[name] = {
       executeQuery: (view, params) => toolResource.executeQuery(view, params),
       save: () => Promise.reject(new Error('SCENARIO_VIEW_PREVIEW_READ_ONLY: 预览不提交工具文件')),
@@ -2693,7 +2701,7 @@ export class LowcodeDataSpaceViewDesign {
       if (assembled.diagnostics.length) throw new Error(`SCENARIO_ASSEMBLY_INCOMPLETE: ${assembled.diagnostics.join('；')}`)
       preview = new LowcodeDataSpaceQueryPreview(assembled.dataSet, 'fileResourceId' in input ? tableName : input.modelName, viewId,
         {assertCurrent: validate, subscribe: listener => {
-          const fileStop = file.subscribe(listener), metadataStop = subscribe?.(listener)
+          const fileStop = file.subscribe(listener), metadataStop = options.subscribe?.(listener)
           return () => {fileStop(); metadataStop?.()}
         }})
       await preview.runtime.load()

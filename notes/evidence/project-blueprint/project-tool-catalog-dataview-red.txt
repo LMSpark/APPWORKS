@@ -1,0 +1,72 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts > project tool resources on native data views > projects the catalog only from an injected formal navigation DataView tree owner
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts > project tool resources on native data views > fails closed when the formal navigation tree owner is not injected
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts (12 tests | 2 failed) 83ms
+     × projects the catalog only from an injected formal navigation DataView tree owner 13ms
+     × fails closed when the formal navigation tree owner is not injected 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts > project tool resources on native data views > projects the catalog only from an injected formal navigation DataView tree owner
+AssertionError: expected [ { pageId: 'ONE', …(2) } ] to match object [ { pageId: 'ONE', …(1) } ]
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  [
+    {
+      "pageId": "ONE",
+      "versions": [
+        "v1",
++       "v2",
+      ],
+    },
+  ]
+
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts:44:23
+     42|     const f = fixture(projection), view = f.dataSet.getView('ProjectTo…
+     43|     await view.refresh()
+     44|     expect(view.rows).toMatchObject([{pageId:'ONE',versions:['v1']}])
+       |                       ^
+     45|     expect(projection).toHaveBeenCalledOnce()
+     46|     expect(vi.spyOn(f.workspace, 'previewBlueprintRemote')).not.toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts > project tool resources on native data views > fails closed when the formal navigation tree owner is not injected
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts:51:32
+     49|   it('fails closed when the formal navigation tree owner is not inject…
+     50|     const f = fixture(), view = f.dataSet.getView('ProjectToolCatalog'…
+     51|     await expect(view.refresh()).rejects.toThrow('PROJECT_TOOL_CATALOG…
+       |                                ^
+     52|   })
+     53|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  10:29:57
+   Duration  4.31s (transform 1.78s, setup 189ms, import 2.22s, tests 83ms, environment 1.36s)
+

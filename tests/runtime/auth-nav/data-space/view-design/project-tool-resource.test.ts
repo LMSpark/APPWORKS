@@ -1,11 +1,13 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
-import {ProjectToolResource, ProjectWorkspace} from '@spark-appworks/spark-project-model'
+import {ProjectToolResource, ProjectWorkspace, type ProjectBlueprintTreeData} from '@spark-appworks/spark-project-model'
 import config from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 
 const instances: DataSet[] = []
 afterEach(() => instances.splice(0).forEach(item => item.destroy()))
-function fixture() {
+function fixture(blueprintTreeProjection: (() => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>) | null = () => ({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:['v1','v2'].map((version,index) => ({
+  nodeId:String(index),parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:'One'},source:{VersionId:version},navigation:{target:'cfg:ONE',title:'One',order:index,publishInMenu:true,showChildren:true,beginGroup:false},
+}))})) {
   const files = new Map([['ONE//rule.json', '{"type":"r-text"}'], ['ONE/v1/rule.json', '{"type":"r-button"}']])
   const writes: string[] = []
   let current = true, lose = false, block: Promise<void> | undefined
@@ -18,7 +20,7 @@ function fixture() {
   }})
   const dataSet = DataSet.fromJson({scenarioId: 'META', dataSetName: 'tools', tables: {ProjectToolCatalog: config.tables.ProjectToolCatalog, ProjectToolFile: config.tables.ProjectToolFile}})
   instances.push(dataSet)
-  const resource = new ProjectToolResource({workspace, metadataScenarioId: 'META', assertCurrent: () => {if (!current) throw new Error('scope expired')}})
+  const resource = new ProjectToolResource({workspace, metadataScenarioId: 'META', assertCurrent: () => {if (!current) throw new Error('scope expired')}, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})
   for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: table.resourceId!}})
   const view = dataSet.getView('ProjectToolFile')!
   view.queryContext = {pageId: 'ONE', fileName: 'rule.json', versionId: ''}
@@ -32,6 +34,37 @@ describe('project tool resources on native data views', () => {
     expect(view.rows).toMatchObject([{pageId: 'ONE', versions: ['v1', 'v2']}]); expect(view.total).toBe(1)
     expect(view.editActionState(view.rows[0]!)).toBe('disabled'); expect(view.addActionState()).toBe('disabled')
     expect(f.workspace.getActivePageTool()).toBeNull(); expect(f.writes).toEqual([])
+  })
+
+  it('projects the catalog only from an injected formal navigation DataView tree owner', async () => {
+    const tree: ProjectBlueprintTreeData = {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[
+      {nodeId:'ONE',parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:'One'},source:{VersionId:'v1'},navigation:{target:'cfg:ONE',title:'One',order:0,publishInMenu:true,showChildren:true,beginGroup:false},children:[]},
+    ]}
+    const projection = vi.fn(() => tree)
+    const f = fixture(projection), view = f.dataSet.getView('ProjectToolCatalog')!
+    const gateway = vi.spyOn(f.workspace, 'previewBlueprintRemote')
+    await view.refresh()
+    expect(view.rows).toMatchObject([{pageId:'ONE',versions:['v1']}])
+    expect(projection).toHaveBeenCalledOnce()
+    expect(gateway).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the formal navigation tree owner is not injected', async () => {
+    const f = fixture(null), view = f.dataSet.getView('ProjectToolCatalog')!
+    await expect(view.loadFromServer()).rejects.toThrow('PROJECT_TOOL_CATALOG_OWNER')
+  })
+
+  it('rejects a tree projection completed after the host generation expires', async () => {
+    let release!: (tree: ProjectBlueprintTreeData) => void
+    const pending = new Promise<ProjectBlueprintTreeData>(resolve => {release = resolve})
+    const projection = vi.fn(() => pending)
+    const f = fixture(projection), view = f.dataSet.getView('ProjectToolCatalog')!
+    const query = view.loadFromServer({singleFlight:false})
+    f.expire()
+    release({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]})
+    await expect(query).rejects.toThrow('scope expired')
+    expect(projection).toHaveBeenCalledOnce()
+    expect(view.rows).toEqual([])
   })
 
   it('cancels and saves through the same view, preserving the other files and reopening persisted content', async () => {

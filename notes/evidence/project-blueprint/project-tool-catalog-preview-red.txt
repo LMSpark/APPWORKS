@@ -1,0 +1,76 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/page/design/native/data-space-design-page.test.ts > native data-space design entry > reuses the session navigation projection owner for a ProjectToolCatalog preview
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/page/design/native/data-space-design-page.test.ts > native data-space design entry > reuses the session navigation projection owner for a ProjectToolCatalog preview
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+ ❯ tests/runtime/page/design/native/data-space-design-page.test.ts (367 tests | 1 failed | 366 skipped) 2694ms
+     × reuses the session navigation projection owner for a ProjectToolCatalog preview 123ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/design/native/data-space-design-page.test.ts > native data-space design entry > reuses the session navigation projection owner for a ProjectToolCatalog preview
+Error: PROJECT_TOOL_CATALOG_OWNER: 缺少正式导航 DataView 树投影 owner
+ ❯ ProjectToolResource.catalog packages/spark-project-model/src/page-tool/project-tool-resource.ts:65:29
+     63|   private async catalog(): Promise<DataRow[]> {
+     64|     const projectTree = this.options.blueprintTreeProjection
+     65|     if (!projectTree) throw new Error('PROJECT_TOOL_CATALOG_OWNER: 缺少正…
+       |                             ^
+     66|     const root = await projectTree()
+     67|     this.options.assertCurrent()
+ ❯ ProjectToolResource.executeQuery packages/spark-project-model/src/page-tool/project-tool-resource.ts:88:90
+ ❯ Object.executeQuery src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:2690:52
+ ❯ DataView.loadFromServer packages/spark-data/src/data-view.ts:1916:49
+ ❯ tests/runtime/page/design/native/data-space-design-page.test.ts:2660:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 366 skipped (367)
+   Start at  10:58:58
+   Duration  26.60s (transform 18.95s, setup 193ms, import 21.88s, tests 2.69s, environment 1.42s)
+

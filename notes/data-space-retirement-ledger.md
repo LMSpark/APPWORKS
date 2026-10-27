@@ -2461,3 +2461,10 @@ flowchart TD
 - **自动化复核：**实施者先以不含 AppId 的 JSON 正式模型投影得到 RED：`DataSet._assertCascadeShape → DataSet.addCascade → loadStructuredConfigCatalog` 抛出同一错误。主控独立复跑目录、JSON 页面、Excel 列表、PDF 列表测试 **4 files / 7 passed**，`pnpm run typecheck`、9 个改动文件 ESLint 和 `git diff --check` 通过。夹具断言 DataView 正常读出目录、请求头保留 X-AppId、查询描述不再附加 AppId 过滤。
 - **真实 SPA 烟测：**修复热更新后，同一已认证 NewApp 会话的 JSON 数据页表格显示 `Total 11`；选择 `Base_DepartInfo.json` 后内容 DataView 读出 `$` 根对象及 5 个子字段。控制台无 error；只读查询与行选择，无保存/编辑。测试证明客户端请求保留应用 scope，不单独证明服务端跨应用隔离或完整权限结果；其他五个目录本批未做线上 smoke。
 - **计划状态：**本缺陷切片完成；整体目标仍 active。通用结构配置 DataView 仍在 TS 动态装配、未归正式 pagedata，继续作为四文件配置驱动差距；所有数据游离 DataSet 的全量旁路清单、目录服务端权限/范围等价性以及物理预览、工作流文件、NavHost 关系等已登记缺口仍开放。下一步先扩大到其余五个目录的只读 SPA 核验，再按活动调用者和正式 scope 合同继续挑选切片；不以本次 JSON 成功宣称全局整合完成。
+
+### 2026-10-27 Capability 能力体系生产使用核对
+
+- **概念区分：**本仓 `spark-utils` 的 `CapabilityContext` / `sparkProvide` / `sparkConsume` 是活跃的运行时依赖传递机制；`ProjectBlueprint.capability.name/description` 是蓝图业务名称与策划需求元数据；导航 `/capability-demo` 才是一个固定数据和模拟 API 的演示页。后者不代表前两者均未使用。
+- **生产消费者证据：**`App.vue` 提供 `PAGE_RUNTIME_SERVICES`、`MODULE_CONTEXT`；`SparkPageRenderer` 和应用系统页提供 `PAGE_RUNTIME` 等运行对象；标准 `RendererTable` 通过 `dataViewKey` 消费 PAGE_RUNTIME 并把 DataView/row 经 `DATA_SOURCE/DATA_ROW` 向字段组件传递；`usePermission` 消费权限呈现上下文并读取 DataView `fieldAccess`/行操作状态。DevSystem、数据空间页、字典 AI 录入等也使用这些能力键。CapabilityContext 负责传引用，不负责读写、鉴权或计算权限。
+- **演示页差距：**`src/views/app/CapabilityDemo.vue` 不调用 `sparkProvide/sparkConsume`，计数写死、数据保存在本地数组，API 成功由 timeout 模拟、导航只改提示文字；它不能作为真实 capability 生产闭环验收。详细路径与调用点见 `notes/evidence/capability-system-usage-audit-20261027.md`。
+- **计划裁定：**当前整合继续复用 `PageRuntime → dataViewKey → DataSource/DataRow → DataView.fieldAccess`；蓝图 capability 元数据不作授权键；不在 DI 能力容器上另造数据网关/权限算法。后续遇到业务页绕开标准绑定时，按具体消费者修复。此次只读，无产品代码变更、测试或线上业务写入。整体整合继续 active。

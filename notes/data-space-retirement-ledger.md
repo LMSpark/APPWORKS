@@ -2,7 +2,7 @@
 
 > **当前入口（2026-10-28；已提交产品代码基线 `5d0bce744`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `ffce6c4c148a9f0b3d637a523cd6266784b537ee`）
+## 当前源码状态（2026-10-28，产品代码基线 `5d0bce744`）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -934,13 +934,13 @@ flowchart TD
 
 证据统一包含：源码HEAD/相关哈希、用例ID、当前目标及脱敏身份、操作、预期、实际回执摘要、回读、重开、下游、截图/日志位置和未通过原因。不留token/密码/权限凭据。历史证据只能说明其原时间/部署/目标；本轮本地结果不能覆盖线上验收列。
 
-### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `ffce6c4c1` 及当前认证现场动态复核）
+### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `5d0bce744` 及当前认证现场动态复核）
 
-**基线与总状态。** 本轮复核的产品代码提交为 `ffce6c4c148a9f0b3d637a523cd6266784b537ee`；本轮台账修改作为后续文档提交单独交付。最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法；Workflow 文件 DataView 运行代码也已落地。全仓唯一数据通道、正式 DataSpace 登记、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 最新已推送提交为 `0defe518adf2e0ab09720801967871b501e085fa`；其父提交 `5d0bce744` 增加了 Workflow 文件缺失目录的精确空结果处理。最近产品切片已将 PageDesign headless 蓝图读取迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法；Workflow 文件 DataView 运行代码也已落地。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
-1. **优先完成已获准的 Workflow 文件资源正式登记。** 用户已同意通过数据空间设计补齐正式定义；DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已存在，且设计页已有 `LOWCODE_FILE_RESOURCE_REGISTRY` 添加入口，新增语义绑定和 `directory`/`design`/`definition` 正式视图经两个元数据 DataView 的一次 `DataSet.saveChanges({views})` 提交并读回核对。该空间实际仍无模型/视图。须在有效认证 SPA 中对目标空间执行这条既有路径，独立重开并查询读回；不得手改 pagedata、伪造数据库 `modelBinding` 或写 Workflow 文件。当前 SPA 在登录页，本轮没有执行保存；认证前继续做不依赖现场的源码审计。
+1. **完成 Workflow 文件资源的同 SPA 查询验收。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图；本轮认证 SPA 实际打开设计器并读到模型/视图，证明配置已存在。`directory` 的正式只读 DataView 预览返回 `[1003] 文件夹路径不存在`。代码现有精确结构守卫和自动化回归已通过，但浏览器控制中断前未能用最新代码复测，也未观察现场错误对象。恢复可控 SPA 后先重载最新版本，再执行同一只读预览；只有成功 Loaded 空集合才关闭该烟测。不得手改 pagedata、伪造数据库 `modelBinding` 或写 Workflow 文件。
 2. **继续核平台应用目录正式 DataView 身份。** `listApplications()` 多个生产消费者仍 direct GetData。现存 `Base_AppSystemList@catalogApps` 绑定属于数据空间目录页，当前 SPA 仅有历史局部应用观察；`/app-list`、`/apps` 等消费者仍缺正式全局目录场景身份、查询范围/租户过滤与等价授权投影。待正式合同成立后，以标准组件/DataView 迁一个真实消费者，并同批删除该消费者旧 GetData；合同未证实时不建包装 DataView 或猜绑定。
 3. **核物理表/视图预览正式查询合同。** 页面虽经命令 DataView 触发，executor 仍直调 GetData 并本地合成权限；先确认物理资源身份、服务端授权、主键和分页/回执合同。现有 `{scenarioId, metaName}` 不能表达 `Type/DbId/DbName/name`，未有服务证据前不造模型身份、不合成权限。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。

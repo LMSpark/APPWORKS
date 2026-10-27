@@ -2189,3 +2189,10 @@ flowchart TD
 - **门禁：**主控独立回归 **4 文件/60 tests 通过**；`pnpm run typecheck`、改动文件 ESLint、`pnpm run verify:ai-codegen`、`pnpm run verify:class-model`（49 tests）、`pnpm run verify:rules`、`pnpm run build` 与 `git diff --check` 通过。正式 `pnpm run generate:class-model-surface` 产出 970 个 DTS，semantic gaps **3191**。单独 semantic-gaps 门禁仍失败：module/model/constructor 为 **535**；开始基线 HEAD `7d623561d5dd5108e4a237e89bd8d1cfa8c99f92` 同为 **535**，属既有缺口。规则检查保留 AI model spec 2 warnings/1 info；build 保留 Rolldown pure annotation、CodeMirror ineffective dynamic import 与 chunk size 告警。
 - **SPA 烟测：**通过现有应用壳切回 NewApp/D99A `/dev` SPA，无整页刷新；可见工作台用户、蓝图树 **41 页面**、七个信息页签、当前 `DataBaseManage` 节点与“蓝图已就绪”。全程只读，**0 线上业务写入**。因此仅证明工作台当前可呈现，不证明 AI 在线新增、正式服务接受 rowid、实际 c/E 权限或线上 receipt/readback。
 - **剩余缺口与状态：**AI 策划完整多节点树通常超出本批一次单叶节点命令范围；更新/移动/删除/多节点及同批父子仍整体拒绝。提交后跨 PageRuntime 的未知命令日志、部分完成后的多轮补齐/补偿、服务端真实身份/回执烟测未闭合。桌面显示、AI填表、原型预览、SRS可靠导出、原型/NavHost正式写入和工作文件 owner 生命周期仍按前述缺口追踪。无 Java 修改；整合目标继续 active。实现及证据已提交 `858cd1a5d` 并推送至 `origin/codex/ai-data-entry`；本台账本次推送状态随后由单独记录提交更新。
+
+### 2026-10-27 项目蓝图 AI 全树差异计划与预检
+
+- **复核现状：**低价模型只读审计确认 `replaceBlueprintChildren` 目前仅提交单叶新增；DataView owner 保存逐行写入上下文和未知回执状态，随 `PageRuntime` scope dispose 释放。正式 `Base_NavigationInfo` 场景未配置事务，实际服务原子性/幂等回执未知，不能据夹具推断整树保存安全。审计报告由 `blueprint_recovery_audit` 提供，源码路径和缺口已经主控按当前工作树复查。
+- **Ruling：**先实施可重用的全树 diff 命令计划与结构/正式 wire 表达预检，再研究统一 DataView 批量暂存/保存；因为整树语义不能由单叶 append 代替，而真实事务、混合权限及跨 PageRuntime 回执尚无合同；本阶段代价是仍拒绝非单叶落库，待实际 receipt/权限合同满足后再启用，不将计划层误报为整树提交完成。
+- **本轮实施目标：**纯规划器识别新增、字段更新、移动、排序、删除和无变化；拒绝重复身份、项目错配、根节点变更、断链/环与不可正式 wire 表达字段。AI facade 使用该规划结果做全树预检，任何非单叶计划在触碰 DataView 前整体拒绝；已确认的单叶路径仍走当前 `BlueprintWorkspaceDataView → DataView → DataSet`，不拆批、不 fallback、不承诺事务或跨 scope 恢复。低价实施者先 RED 后 GREEN，主控独立复核、跑门禁并更新最终交付状态。
+- **未关闭范围：**完整多节点/混合更改写入、身份冲突/权限逐项预检、部分成功续做、真实服务保存及跨 PageRuntime 原命令恢复仍需单独证明。桌面显示关联、AI填表、原型预览、SRS 完成回执及文件 owner 生命周期仍未完成；线上业务数据只读，无 Java 改动。实施状态：进行中。

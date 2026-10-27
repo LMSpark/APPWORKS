@@ -2517,3 +2517,10 @@ flowchart TD
 - **烟测边界：**本地 SPA 当前仍在未认证首页。用户已提供授权测试账号，但 computer-use 技能禁止自动化填写认证表单，当前没有用户已认证会话可复用；本批未保存或改动正式业务数据，也未声明真实 SPA 烟测通过。无需改 Java；不触及应用目录全局读取或蓝图 headless 写命令旁路。
 - **门禁复跑补充：**最终 owner 位于 `src/services/project/blueprint-workspace-dataview.ts`，没有新增 `src/lowcode/resources` 目录或 page-thin 违规。旧 `structured-config-catalog.ts static-copy` 基线已由正式 `node tools/verify-page-thin.mjs --update` 只收紧；最终 `pnpm run verify:rules` 全项通过，包括 AI 代码规则 1400 文件、低代码契约 611 endpoints/210 consumers、Spark AI 49 tests、目录限制和 page-thin。此前已完成 `typecheck` 与 `build`。
 - **状态与下一步：**启动导航业务行现在有正式 DataView 读取路径；A2 的 DevSystem 写命令与 headless gateway 仍需判断并收敛到同一 DataView 提交生命周期，A1/A5 及其它资源旁路仍按能力矩阵分片。先处理/确认上述工作区红测，再在已认证 SPA 核对启动导航及应用切换的请求身份、目标过滤与无整页刷新；总体整合继续 active。本切片已提交并推送：`b07265d8a`（`origin/codex/ai-data-entry`）。
+
+### 2026-10-27 A2 工作区宿主红测复核
+
+- **失败根因与修正：**`blueprint-workspace-delivery.test.ts` 中取消按钮未生效不是生产路径缺陷：测试 fake 的 `markBlueprintDirty` 未递增 dirty 状态依赖的 revision，导致保存/取消控件保持 disabled。夹具现按 DevState 语义递增 revision，并恢复严格 enabled 断言；取消后 DataView overlay 确认清空。
+- **测试宿主合同：**`NodeBasicInfo` 相关夹具现通过 `useSparkComponent().sparkProvide(PAGE_RUNTIME, runtime)` 提供已加载 PageRuntime，符合标准组件上下文消费；每个临时 runtime 在 `finally` 清理。选择清空/恢复用例改为 `nextTick` 驱动 Vue watcher，不再依赖固定 `setTimeout(0)`。
+- **验证状态：**定向取消与 selection reset 用例通过；`tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts` **45/45** 通过，ESLint 与 `pnpm run typecheck` 均退出 0。改动仅为测试夹具；没有生产代码、Java、正式服务查询或写入。独立低价只读复核确认 revision 与 PAGE_RUNTIME 修复的因果关系，并提出的 runtime 泄漏与计时器风险已修正。
+- **当前阻塞/队列：**本地 SPA 标签仍无已认证会话，未执行真实导航/项目切换烟测。下一源码切片仍以 A2 `createLowcodeProjectGateways()` 的 raw DataSpaceRuntime 查询/写命令为候选；实施前必须逐消费者核清 PageRuntime/DataSet owner、DataView 权限/取消/未知回执/读回及生命周期，不用 DevSystem 页面 owner 覆盖 headless 调用，也不把直接 API 包装成 DataView。总体整合继续 active。

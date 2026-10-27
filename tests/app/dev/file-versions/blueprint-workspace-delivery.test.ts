@@ -1,9 +1,9 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, h, nextTick, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
-import type { PageRuntime } from '@spark-appworks/spark-project-model'
-import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
@@ -93,11 +93,13 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     hasAnyDirty: computed(() => {void accessRevision.value;return owner?.dirty ?? false}),
     blueprintNodeFieldAccess: (field:string) => {void accessRevision.value;return {read:owner?.canRead(field)??false,write:owner?.canWrite(field)??false}},
     blueprintNodeSectionWritable: () => false,
-    markBlueprintDirty: vi.fn(),
+    markBlueprintDirty: vi.fn(() => { accessRevision.value++ }),
     project: { readPageFileText: vi.fn((name: string) => name === 'script.js' ? '' : `text:${name}`) },
   }
-  const wrapper = mount({ ...BlueprintWorkspace, props: ['state'] }, {
-    props: { state }, global: {
+  const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-workspace-test-host'}).sparkProvide(PAGE_RUNTIME,pageRuntime)
+    return ()=>h(BlueprintWorkspace,{state:state as never})}})
+  const wrapper = mount(Host, {
+    global: {
       directives: { loading: () => {} }, stubs: {
         ElTabs: Slot, ElTabPane: TabPane, ElEmpty: TestEmpty, ElAlert: TestAlert, PlanningPane: Planning, PrototypePane: true,
         EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
@@ -108,6 +110,12 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     },
   })
   return { state, wrapper, dataSet }
+}
+async function blueprintTestRuntime() {
+  const dataSet=createDataSet()
+  const runtime=new PageRuntime({pageId:'blueprint-node-basic-info-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+  await runtime.load()
+  return runtime
 }
 
 describe('BlueprintWorkspace file delivery', () => {
@@ -245,13 +253,14 @@ describe('BlueprintWorkspace file delivery', () => {
   it('reuses the DevState-owned DataView when selection clears and is restored', async () => {
     const {wrapper, state} = setup(); await flushPromises()
     state.selectedNode.value = null
-    await flushPromises()
+    await nextTick(); await flushPromises()
     state.selectedNode.value = {nodeId: 'node-A'}
-    await flushPromises()
+    await nextTick(); await flushPromises()
     expect(state.loadBlueprintWorkspaceDataView).toHaveBeenCalledTimes(2)
     expect(state.registerExternalDataViewSession).toHaveBeenCalledTimes(1)
     expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('DataView 未初始化'), 'error')
     expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('DataView 加载失败'), 'error')
+    await flushPromises()
     wrapper.unmount()
   })
 })
@@ -843,7 +852,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     }finally{f.destroy()}
   })
 
-  it('hides unreadable and disables non-writable fields across all NodeBasicInfo panels',()=>{
+  it('hides unreadable and disables non-writable fields across all NodeBasicInfo panels',async()=>{
     const access=vi.fn((field:string)=>({read:field!=='memo',write:false}))
     const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'secret'},
       navigation:{title:'Node',icon:'Document',target:'cfg:tool',mobileTarget:'',openMode:'current',placement:'left',order:1,publishInMenu:true,showChildren:true,beginGroup:false},
@@ -853,42 +862,49 @@ describe('BlueprintWorkspace DataView ownership', () => {
       linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
     const Control=defineComponent({name:'FieldControl',props:{disabled:Boolean,readonly:Boolean,modelValue:null},template:'<input :disabled="disabled" :readonly="readonly" />'})
     const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
-    const Panels=defineComponent({components:{NodeBasicInfo,NodeTargetConfig,NodeStateConfig,NodeLayoutConfig},props:{state:Object},
-      template:'<div><NodeBasicInfo :state="state"/><NodeTargetConfig :state="state"/><NodeStateConfig :state="state"/><NodeLayoutConfig :state="state"/></div>'})
-    const wrapper=mount(Panels,{props:{state},global:{stubs:{FieldSelect:Control,RendererButton:StandardRenderer,RendererDialog:StandardRenderer,RendererFilter:StandardRenderer,RendererTable:StandardRenderer,ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
-      ElInputNumber:Control,ElRadioGroup:Control,ElRadioButton:true,ElOption:true,IconPicker:true}}})
-    expect(wrapper.text()).not.toContain('功能描述')
-    expect(wrapper.findAllComponents(Control).length).toBeGreaterThan(0)
-    expect(wrapper.findAllComponents(Control).every(control=>control.props('disabled')===true||control.props('readonly')===true)).toBe(true)
-    expect(access).toHaveBeenCalledWith('name')
-    expect(access).toHaveBeenCalledWith('FunName')
-    expect(access).toHaveBeenCalledWith('MobileUrl')
-    expect(access).toHaveBeenCalledWith('IsShowAtNav')
-    expect(access).toHaveBeenCalledWith('ChildItemLocation')
-    wrapper.unmount()
+    const runtime=await blueprintTestRuntime()
+    const Panels=defineComponent({setup(){useSparkComponent({type:'blueprint-panels-test'}).sparkProvide(PAGE_RUNTIME,runtime);
+      return ()=>h('div',[h(NodeBasicInfo,{state:state as never}),h(NodeTargetConfig,{state:state as never}),h(NodeStateConfig,{state:state as never}),h(NodeLayoutConfig,{state:state as never})])}})
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper=mount(Panels,{global:{stubs:{FieldSelect:Control,RendererButton:StandardRenderer,RendererDialog:StandardRenderer,RendererFilter:StandardRenderer,RendererTable:StandardRenderer,ElDivider:true,ElFormItem:FormItem,ElInput:Control,ElSelect:Control,ElSwitch:Control,
+        ElInputNumber:Control,ElRadioGroup:Control,ElRadioButton:true,ElOption:true,IconPicker:true}}})
+      expect(wrapper.text()).not.toContain('功能描述')
+      expect(wrapper.findAllComponents(Control).length).toBeGreaterThan(0)
+      expect(wrapper.findAllComponents(Control).every(control=>control.props('disabled')===true||control.props('readonly')===true)).toBe(true)
+      expect(access).toHaveBeenCalledWith('name')
+      expect(access).toHaveBeenCalledWith('FunName')
+      expect(access).toHaveBeenCalledWith('MobileUrl')
+      expect(access).toHaveBeenCalledWith('IsShowAtNav')
+      expect(access).toHaveBeenCalledWith('ChildItemLocation')
+    } finally {wrapper?.unmount();runtime.dispose()}
   })
 
-  it('filters NodeBasicInfo to capability fields while retaining the default full view',()=>{
+  it('filters NodeBasicInfo to capability fields while retaining the default full view',async()=>{
     const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'memo'},navigation:{title:'Node',icon:'Document',target:'cfg:tool',order:1,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintPageRuntime:ref(undefined),pageDataDirty:ref(false),
       blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:false})),blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
     const FormItem=defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
-    const Basic=defineComponent({components:{NodeBasicInfo},props:{state:Object,sections:Array},template:'<NodeBasicInfo :state="state" :sections="sections" />'})
+    const runtime=await blueprintTestRuntime()
+    const Basic=defineComponent({props:{state:Object,sections:Array},setup(props){useSparkComponent({type:'blueprint-basic-info-test'}).sparkProvide(PAGE_RUNTIME,runtime)
+      return ()=>h(NodeBasicInfo,{state:props.state as never,sections:props.sections as never})}})
     const global={stubs:{FieldSelect:StandardField,RendererButton:StandardRenderer,RendererDialog:StandardRenderer,RendererFilter:StandardRenderer,RendererTable:StandardRenderer,ElAlert:true,ElDivider:true,ElFormItem:FormItem,ElInput:true,ElSelect:true,ElSwitch:true,ElOption:true,IconPicker:true}}
-    const filtered=mount(Basic,{props:{state,sections:['capability']},global})
-    expect(filtered.text()).toContain('能力名称')
-    expect(filtered.text()).not.toContain('提供导航')
-    expect(filtered.text()).not.toContain('绑定数据空间')
-    expect(filtered.text()).not.toContain('提供原型')
-    filtered.unmount()
-    const compatible=mount(Basic,{props:{state},global})
-    expect(compatible.text()).toContain('提供导航')
-    expect(compatible.text()).toContain('绑定场景')
-    expect(compatible.text()).toContain('提供原型')
-    compatible.unmount()
-    const navigation=mount(Basic,{props:{state,sections:['navigation']},global})
-    expect(navigation.text()).toContain('菜单标题')
-    expect(navigation.text()).toContain('图标')
-    expect(navigation.text()).not.toContain('工具或页面目标')
-    navigation.unmount()
+    let mounted: ReturnType<typeof mount>[] = []
+    try {
+      const filtered=mount(Basic,{props:{state,sections:['capability']},global}); mounted.push(filtered)
+      expect(filtered.text()).toContain('能力名称')
+      expect(filtered.text()).not.toContain('提供导航')
+      expect(filtered.text()).not.toContain('绑定数据空间')
+      expect(filtered.text()).not.toContain('提供原型')
+      filtered.unmount(); mounted=mounted.filter(item=>item!==filtered)
+      const compatible=mount(Basic,{props:{state},global}); mounted.push(compatible)
+      expect(compatible.text()).toContain('提供导航')
+      expect(compatible.text()).toContain('绑定场景')
+      expect(compatible.text()).toContain('提供原型')
+      compatible.unmount(); mounted=mounted.filter(item=>item!==compatible)
+      const navigation=mount(Basic,{props:{state,sections:['navigation']},global}); mounted.push(navigation)
+      expect(navigation.text()).toContain('菜单标题')
+      expect(navigation.text()).toContain('图标')
+      expect(navigation.text()).not.toContain('工具或页面目标')
+    } finally {mounted.forEach(item=>item.unmount());runtime.dispose()}
   })
 })

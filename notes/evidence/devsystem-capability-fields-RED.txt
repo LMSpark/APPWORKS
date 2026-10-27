@@ -1,0 +1,28 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/ui/renderer/renderer-form-detail.test.ts (25 tests | 1 failed | 24 skipped) 191ms
+     × renders blueprint capability name and description as complete-key standard field bindings 188ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/renderer/renderer-form-detail.test.ts > RendererForm and RendererDetail toolbar integration > renders blueprint capability name and description as complete-key standard field bindings
+Error: Cannot call props on an empty VueWrapper.
+ ❯ Object.get node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1488:27
+ ❯ tests/ui/renderer/renderer-form-detail.test.ts:286:48
+    284|     const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark…
+    285|     try {
+    286|       expect(wrapper.findComponent(RendererForm).props('dataViewKey'))…
+       |                                                ^
+    287|       expect(wrapper.findAllComponents(FieldText).some(field => field.…
+    288|       expect(wrapper.findAllComponents(FieldTextarea).some(field => fi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 skipped (25)
+   Start at  22:00:07
+   Duration  17.48s (transform 10.51s, setup 297ms, import 14.75s, tests 191ms, environment 1.72s)
+

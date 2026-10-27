@@ -9,9 +9,13 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
     <template v-if="includes('capability')">
     <el-divider content-position="left">能力信息</el-divider>
     <el-form-item label="节点 ID"><el-input :model-value="state.blueprintDraft.nodeId" disabled /></el-form-item>
-    <el-form-item v-if="access('name').read" label="能力名称"><el-input v-model="state.blueprintDraft.capability.name" :disabled="!access('name').write" @change="state.markBlueprintDirty" /></el-form-item>
+    <RendererForm v-if="access('name').read || access('memo').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" :context-data-member="'currentRow'">
+      <template #default>
+        <el-form-item v-if="access('name').read" label="能力名称"><FieldText :data-view-key="blueprintViewKey" data-member="currentRow" data-field="name" :readonly="!access('name').write" @update:model-value="state.markBlueprintDirty" /></el-form-item>
+        <el-form-item v-if="access('memo').read" label="功能描述"><FieldTextarea :data-view-key="blueprintViewKey" data-member="currentRow" data-field="memo" :autosize="{minRows:4,maxRows:12}" :readonly="!access('memo').write" @update:model-value="state.markBlueprintDirty" /></el-form-item>
+      </template>
+    </RendererForm>
     <el-form-item v-if="access('conType').read" label="业务种类"><el-select v-model="state.blueprintDraft.kind" :disabled="!access('conType').write" @change="state.markBlueprintDirty"><el-option v-for="option in kindOptions" :key="option.value" :label="option.label" :value="option.value" /></el-select></el-form-item>
-    <el-form-item v-if="access('memo').read" label="功能描述"><el-input v-model="state.blueprintDraft.capability.description" :disabled="!access('memo').write" type="textarea" :autosize="{minRows:4,maxRows:12}" @change="state.markBlueprintDirty" /></el-form-item>
     </template>
     <template v-if="includes('navigation')">
     <el-form-item v-if="state.blueprintNodeFieldAccess('FunName').read" label="提供导航"><el-switch v-model="hasNavigation" :disabled="!state.blueprintNodeSectionWritable('navigation')" /></el-form-item>
@@ -67,7 +71,7 @@ import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcod
 import type { DevState } from '../useDevState'
 import IconPicker from '@/components/IconPicker.vue'
 import catalogPageData from '../../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
-const {FieldSelect, RendererButton, RendererDialog, RendererFilter, RendererTable} = SparkComponent
+const {FieldSelect, FieldText, FieldTextarea, RendererForm, RendererButton, RendererDialog, RendererFilter, RendererTable} = SparkComponent
 const CATALOG_SCENARIO_ID = catalogPageData.scenarioId
 const catalogViewKey = buildDataViewKey('Base_DataSet', 'catalog', CATALOG_SCENARIO_ID)
 const blueprintViewKey = buildDataViewKey('Base_NavigationInfo', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)

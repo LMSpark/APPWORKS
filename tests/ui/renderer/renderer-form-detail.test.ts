@@ -1,19 +1,21 @@
 import { afterEach, describe, it, expect } from 'vitest'
 import { config, flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import { defineComponent, h, nextTick, onBeforeUnmount, shallowRef } from 'vue'
-import { RendererToolbar, RendererForm, RendererDetail, FieldText, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
+import { defineComponent, h, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
+import { RendererToolbar, RendererForm, RendererDetail, FieldText, FieldTextarea, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import RendererFieldScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
 import type { DataView, SparkNode } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import NodeBasicInfo from '../../../src/views/app/dev-system/components/NodeBasicInfo.vue'
 import { getMountedComponentApi, mountWithPageDataSet } from '../../support/helpers/mount-with-page-dataset'
 import { requireRecord, requireString } from '../../support/helpers/runtime-guards'
 
-async function loadFieldQuery(view: DataView): Promise<void> {
-  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+async function loadFieldQuery(view: DataView, metaName = 'Users'): Promise<void> {
+  const table = new DataSpaceQueryTable({ scenarioId: view.dataSet?.scenarioId ?? 'SCENE', metaName })
   const context = new DataSpaceQueryContext({ identity: table.identity, scope: 'form', readScope: () => 'form',
     snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: view.rows, Count: view.rows.length } } }),
   })
@@ -271,6 +273,57 @@ describe('automatic field children use the parent container', () => {
 })
 
 describe('RendererForm and RendererDetail toolbar integration', () => {
+  it('renders blueprint capability name and description as complete-key standard field bindings', async () => {
+    const ds = SparkData.createDataSet({scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, dataSetName: 'BlueprintCapability', tables: {Base_NavigationInfo: {
+      tableName: 'Base_NavigationInfo', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'memo', type: 'string'}],
+      views: {default: {rows: [{id: 'node-1', name: '能力', memo: '描述', lingma_sys_params: {r: [], e: ['name', 'memo'], h: [], m: [], d: false}}]}},
+    }}})
+    const runtime = new PageRuntime({pageId: 'blueprint-capability-fields', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], loadScenario: async () => ds})
+    await runtime.load()
+    const state = {projectId: 'project-1', selectedNode: ref(undefined), blueprintPageRuntime: ref(runtime),
+      blueprintDraft: {nodeId: 'node-1', kind: 'page', capability: {name: '能力', description: '描述'}},
+      blueprintNodeFieldAccess: () => ({read: true, write: true}), markBlueprintDirty: () => undefined}
+    const Host = defineComponent({setup() {useSparkComponent({type: 'blueprint-capability-host'}).sparkProvide(PAGE_RUNTIME, runtime)
+      return () => h(NodeBasicInfo, {state: state as never, sections: ['capability']})}})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    try {
+      expect(wrapper.findComponent(RendererForm).props('dataViewKey')).toBe(`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`)
+      expect(wrapper.findAllComponents(FieldText).some(field => field.props('dataField') === 'name')).toBe(true)
+      expect(wrapper.findAllComponents(FieldTextarea).some(field => field.props('dataField') === 'memo')).toBe(true)
+    } finally {wrapper.unmount(); runtime.dispose(); ds.destroy()}
+  })
+
+  it('binds capability text fields to the selected DataView row and honors its write permission', async () => {
+    const ds = SparkData.createDataSet({scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, dataSetName: 'CapabilityForm', tables: {Base_NavigationInfo: {
+      tableName: 'Base_NavigationInfo', modelBinding: {modelId: 'MODEL', modelName: 'Base_NavigationInfo'},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'memo', type: 'string'}],
+      views: {default: {rows: [{id: 'node-1', name: '能力', memo: '描述', lingma_sys_params: {r: [], e: ['name'], h: [], m: [], d: false}}]}},
+    }}})
+    const view = ds.getView('Base_NavigationInfo', 'default')!
+    await loadFieldQuery(view, 'Base_NavigationInfo'); view.setCurrentRowById('node-1')
+    const runtime = new PageRuntime({pageId: 'capability-fields', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], loadScenario: async () => ds})
+    await runtime.load()
+    const Host = defineComponent({setup() {useSparkComponent({type: 'capability-fields-host'}).sparkProvide(PAGE_RUNTIME, runtime)
+      return () => h(RendererForm, {dataViewKey: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`, autoColumns: false, showDataViewMeta: false}, {
+        default: () => [h(FieldText, {dataViewKey: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`, dataMember: 'currentRow', dataField: 'name', label: '能力名称'}),
+          h(FieldTextarea, {dataViewKey: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`, dataMember: 'currentRow', dataField: 'memo', label: '功能描述'})],
+      })}})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {'el-form': ElFormStub, 'el-form-item': ElFormItemStub, 'el-input': ElInputStub}}})
+    try {
+      const textField = wrapper.getComponent(FieldText)
+      const memoField = wrapper.getComponent(FieldTextarea)
+      expect(textField.getComponent(ElInputStub).props('modelValue')).toBe('能力')
+      expect(memoField.getComponent(ElInputStub).props('modelValue')).toBe('描述')
+      expect(textField.getComponent(ElInputStub).props('disabled')).toBe(false)
+      expect(memoField.getComponent(ElInputStub).props('disabled')).toBe(true)
+      textField.getComponent(ElInputStub).vm.$emit('update:modelValue', '新能力')
+      memoField.getComponent(ElInputStub).vm.$emit('update:modelValue', '越权描述')
+      await flushPromises()
+      expect(view.getEditingRow('node-1')?.['name']).toBe('新能力')
+      expect(view.getEditingRow('node-1')?.['memo']).toBe('描述')
+    } finally {wrapper.unmount(); runtime.dispose(); ds.destroy()}
+  })
+
   it.each(['dataSource', 'dataViewKey'])('tracks pointer changes and row permissions through %s', async (binding) => {
     const ds = SparkData.createDataSet({dataSetName: 'PointerDS', scenarioId: 'SCENE', tables: {Users: {
       tableName: 'Users', modelBinding: {modelId: 'MODEL', modelName: 'Users'},

@@ -1,0 +1,28 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts (14 tests | 1 failed) 88ms
+     × commits one existing leaf description update through the original DataView owner 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning/grouped-planning-contract.test.ts > projectPlanning formal node input > commits one existing leaf description update through the original DataView owner
+Error: 当前 DataView 仅支持一个批次新增多个独立叶子；更新、移动、删除或父子同批计划保持拒绝
+ ❯ Proxy.addPlannedChildren src/services/project-planning/project-planning-agent-workflow-binding.ts:346:13
+    344|     }
+    345|     if (plan.commands.length === 0 || plan.commands.some(command => co…
+    346|       throw new Error('当前 DataView 仅支持一个批次新增多个独立叶子；更新、移动、删除或父子同批计划保持拒绝…
+       |             ^
+    347|     }
+    348|     const creates = plan.commands
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts:86:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  15:03:10
+   Duration  25.65s (transform 17.11s, setup 223ms, import 23.41s, tests 88ms, environment 1.48s)
+

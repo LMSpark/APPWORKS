@@ -3,6 +3,8 @@ import { computed, defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
+import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
@@ -263,13 +265,14 @@ const blueprintRow = () => ({rowid: 'NODE-1', SysId: 'APP-1', prowid:'000000', F
   IsShowAtNav:1,IsShowChildItem:1,BeginGroup:0,DifficultyFactor: 1, Manhour: 2, Number: 3, Sum: 6, Total: 6,
   personCharge: 'U1', status: 'ready', VersionId: 'rule=1;script=1;style=1'})
 
-function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'; addEnabled?:boolean} = {}) {
+function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?: string[]; writable?: string[]; unknownSave?: boolean; refreshFailureAfterSave?:boolean; rows?:DataRow[]; childActionState?:'enabled'|'hidden'|'disabled'; addEnabled?:boolean} = {}) {
   const outputs = options.outputs ?? blueprintFields
   const readable = new Set(options.readable ?? outputs)
   const writable = new Set(options.writable ?? outputs.filter(field => field !== 'rowid'))
   let stored: DataRow[] = options.rows??[blueprintRow()]
   const rows = () => structuredClone(stored)
   let unknownReceipt = false
+  let failNextRefresh = false
   const result = (view: DataView, resultRows: DataRow[]) => ({
     rows: resultRows, total: resultRows.length, countReported: true, resultPrimaryKey:'rowid',
     assertIdentity(actual: {scenarioId: string; metaName: string}) {
@@ -303,6 +306,7 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
         changedFields: changed.map(item => Object.keys(item)), context: nextContext}
     })
     unknownReceipt=false
+    failNextRefresh=options.refreshFailureAfterSave===true
     return receipts
   })
   const dataSet = DataSet.fromJson({scenarioId: blueprintIdentity.scenarioId, dataSetName: 'Blueprint fixture', tables: {
@@ -315,6 +319,7 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
   const view = dataSet.getView('Base_NavigationInfo')!
   view.bindQueryExecutor({queryColumns: target => target.columns.filter(column => outputs.includes(column.name)),
     executeQuery: async (target,params) => {
+      if(failNextRefresh){failNextRefresh=false;throw new Error('refresh failed after accepted receipt')}
       const filter=params.filter
       const matches=(row:DataRow,value:unknown):boolean=>{
         if(value===null||typeof value!=='object')return true
@@ -329,6 +334,134 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('ProjectPlanning updates one existing leaf through the real DataView owner and confirms formal readback', async () => {
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await owner.loadProjectTree()
+      const validateColumns=vi.spyOn(owner.view.validator!,'validateColumns')
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection()
+      const changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'AI updated description'}}
+
+      const result=await Promise.resolve(facade.replaceBlueprintChildren({children:[changed]}))
+
+      expect(f.save).toHaveBeenCalledOnce()
+      const submitted=f.save.mock.calls[0]?.[0].changes[0]?.changes.changed
+      expect(submitted).toHaveLength(1)
+      expect(submitted?.[0]).toMatchObject({rowid:'NODE-1',memo:'AI updated description'})
+      const changedFields=Object.keys(submitted?.[0]??{}).filter(field=>!Object.is(submitted?.[0]?.[field],(child as DataRow)[field]))
+      expect(changedFields).toEqual(['memo'])
+      expect(validateColumns).toHaveBeenCalledWith(expect.objectContaining({memo:'AI updated description'}),new Set(['memo']))
+      expect(f.rows().find(row=>row['rowid']==='NODE-1')?.['memo']).toBe('AI updated description')
+      expect(result.children[0]?.capability.description).toBe('AI updated description')
+      expect(facade.completeProjectPlanning()).toMatchObject({ok:true,completed:true})
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('ProjectPlanning keeps an unknown update on the same owner without replaying another command', async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child],unknownSave:true})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await owner.loadProjectTree()
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection(), changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'unknown update'}}
+      const original=editor.project.blueprintTree
+
+      await expect(facade.replaceBlueprintChildren({children:[changed]})).rejects.toThrow(/未确认.*保留原 DataView command/iu)
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      expect(owner.dirty).toBe(true)
+      expect(editor.project.blueprintTree).toEqual(original)
+      await expect(facade.replaceBlueprintChildren({children:[changed]})).rejects.toThrow(/one DataView command per AI run/iu)
+      expect(f.save).toHaveBeenCalledOnce()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('recovers an accepted receipt after refresh failure by refreshing and comparing without a second save',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child],refreshFailureAfterSave:true})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree();await owner.load('NODE-1')
+      const node=owner.nodeData();owner.updateNodeData({...node,capability:{...node.capability,description:'accepted update'}})
+      await expect(owner.saveSelectedNode()).rejects.toThrow('refresh failed after accepted receipt')
+      expect(owner.hasUnconfirmedSave).toBe(false)
+      expect(owner.dirty).toBe(true)
+      expect(owner.hasPendingBlueprintCommand).toBe(true)
+      expect(f.save).toHaveBeenCalledOnce()
+
+      await owner.saveSelectedNode()
+
+      expect(f.save).toHaveBeenCalledOnce()
+      expect(owner.dirty).toBe(false)
+      expect(owner.hasPendingBlueprintCommand).toBe(false)
+      expect(owner.treeProjection().children[0]?.capability.description).toBe('accepted update')
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('ProjectPlanning does not stage an update when the real DataView already has dirty rows',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree();await owner.load('NODE-1')
+      owner.update('memo','pre-existing edit')
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      expect(()=>resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)).toThrow(/无待保存修改/iu)
+      expect(owner.view.getEditingPatch('NODE-1')).toEqual({memo:'pre-existing edit'})
+      expect(f.save).not.toHaveBeenCalled()
+      owner.cancel();owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it.each([
+    ['write denied', {writable:blueprintFields.filter(field=>field!=='memo')}],
+    ['not output', {outputs:blueprintFields.filter(field=>field!=='memo')}],
+  ])('ProjectPlanning refuses a description update when memo is %s',async(_label,options)=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child],...options})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await owner.loadProjectTree()
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection(), changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'denied update'}}
+
+      await expect(facade.replaceBlueprintChildren({children:[changed]})).rejects.toThrow(/memo|permission|权限|字段|输出/iu)
+      expect(f.save).not.toHaveBeenCalled()
+      expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('ProjectPlanning leaves no edit overlay when the formal DataView validator rejects memo',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}
+    const f=createBlueprintDataViewFixture({rows:[root,child]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
+      vi.spyOn(owner.view.validator!,'validateColumns').mockReturnValue({valid:false,errors:[{message:'validator rejects memo'}]} as never)
+      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>owner.treeProjection()}})
+      const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
+      const before=owner.treeProjection(),changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'invalid'}}
+
+      await expect(facade.replaceBlueprintChildren({children:[changed]})).rejects.toThrow('validator rejects memo')
+      expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined()
+      expect(f.save).not.toHaveBeenCalled()
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
   it('saves and formally reads back an explicit rowid while omitted IDs retain owner generation', async () => {
     const f=createBlueprintDataViewFixture({childActionState:'enabled'})
     try {

@@ -99,6 +99,7 @@ export class BlueprintWorkspaceDataView {
   public get row(): DataRow | undefined {return this.#row}
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}
   public get dirty(): boolean {
+    if(this.#unconfirmedIds.length>0)return true
     if(this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)return true
     if(this.#unconfirmedDeleteId!==undefined)return true
     if (this.hasUnconfirmedSave) return true
@@ -108,7 +109,7 @@ export class BlueprintWorkspaceDataView {
   /** Keep the owner mounted while a write receipt or its required readback is unresolved. */
   public get hasPendingBlueprintCommand(): boolean {
     return this.hasUnconfirmedSave || this.#unconfirmedRootId !== undefined || this.#unconfirmedChildId !== undefined
-      || this.#pendingChildBatch !== undefined || this.#unconfirmedDeleteId !== undefined
+      || this.#pendingChildBatch !== undefined || this.#unconfirmedDeleteId !== undefined || this.#unconfirmedIds.length > 0
   }
   public get isBusy(): boolean {return this.view.mutating || this.view.requestState === RequestState.Loading}
 
@@ -821,7 +822,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Save only the selected node; any staged changes on other rows remain untouched. */
   public async saveSelectedNode():Promise<void>{
-    if(this.hasUnconfirmedSave){
+    if(this.hasUnconfirmedSave||this.#unconfirmedIds.length>0){
       if(this.#unconfirmedIds.length!==1||this.#unconfirmedIds[0]!==this.#nodeId)throw new Error('蓝图 DataView 核验须包含原提交全部节点')
       await this.saveIds([this.#nodeId])
       return
@@ -837,11 +838,13 @@ export class BlueprintWorkspaceDataView {
     this.assertUsable()
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     const targetNodeId=this.#nodeId, revision=this.#revision
-    if (this.hasUnconfirmedSave) {
+    if (this.hasUnconfirmedSave || this.#unconfirmedIds.length>0) {
       if(targetIds&&this.#unconfirmedIds.some(id=>!targetIds.includes(id)))throw new Error('蓝图 DataView 核验须包含原提交全部节点')
-      const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
-      this.assertTarget(revision, targetNodeId)
-      if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
+      if (this.hasUnconfirmedSave) {
+        const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
+        this.assertTarget(revision, targetNodeId)
+        if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
+      }
       await this.view.refresh()
       this.assertTarget(revision, targetNodeId)
       if (this.view.loadingError) throw this.view.loadingError

@@ -19,7 +19,7 @@ import type {
   ProjectBlueprintTreeNodeData,
 } from '@spark-appworks/spark-project-model'
 import { lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
-import type { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import type { BlueprintNodeFormData, BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 import { planProjectBlueprintReplacement } from './project-planning-blueprint-diff'
 
 export const PROJECT_PLANNING_MODULE_ID = 'projectPlanning'
@@ -329,7 +329,7 @@ function guardProjectPlanningBlueprint(
       options.onRepeatedDataViewBlueprintWrite?.(project.projectId)
       throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected after the first DataView command started')
     }
-    if (project.blueprintDirty || owner.dirty || owner.hasPendingChildCreate || owner.hasUnconfirmedSave || !owner.hasTreeProjection) {
+    if (project.blueprintDirty || owner.dirty || owner.hasPendingChildCreate || owner.hasUnconfirmedSave || owner.hasPendingBlueprintCommand || !owner.hasTreeProjection) {
       throw new Error('项目策划 DataView 命令要求干净且已完整加载的当前蓝图行集')
     }
     const requestedChildren = Array.isArray(input) ? input : input.children
@@ -342,8 +342,52 @@ function guardProjectPlanningBlueprint(
         throw new Error(`项目策划完整 DataView 计划字段未正式输出：${missingFields.map(([field]) => field).join(', ')}`)
       }
     }
+    if (plan.commands.length === 1 && plan.commands[0]?.kind === 'update') {
+      const update = plan.commands[0]
+      const allowedFields = new Set(['name', 'memo'])
+      const previous = flatten(before).find(node => node.nodeId === update.nodeId)
+      const requested = flatten(plan.expectedTree).find(node => node.nodeId === update.nodeId)
+      if (!previous || !requested || (previous.children?.length ?? 0) !== 0
+        || previous.parentNodeId !== update.parentNodeId || requested.parentNodeId !== previous.parentNodeId
+        || Object.keys(update.fields).length === 0 || Object.keys(update.fields).some(field => !allowedFields.has(field))) {
+        throw new Error('当前 DataView 仅允许一次对既有叶节点同父更新正式 name/memo 字段')
+      }
+      if (options.tryBeginDataViewBlueprintWrite !== undefined && !options.tryBeginDataViewBlueprintWrite(project.projectId)) {
+        options.onRepeatedDataViewBlueprintWrite?.(project.projectId)
+        throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected after the first DataView command started')
+      }
+      dataViewCommandStarted = true
+      const node = requested satisfies BlueprintNodeFormData
+      await owner.load(update.nodeId)
+      owner.updateNodeData(node)
+      try {
+        await owner.saveSelectedNode()
+      } catch (error: unknown) {
+        const pendingError = error instanceof Error ? error.message : String(error)
+        const ownerState = owner
+        if (Boolean(ownerState.hasUnconfirmedSave) || Boolean(ownerState.hasPendingBlueprintCommand) || Boolean(ownerState.dirty)) {
+          throw new Error(`项目策划 DataView 更新未确认；保留原 DataView command 并沿当前 owner 核验：${pendingError}`)
+        }
+        throw error
+      }
+      const confirmed = owner.treeProjection()
+      const confirmedNode = flatten(confirmed).find(candidate => candidate.nodeId === update.nodeId)
+      if (confirmedNode?.parentNodeId !== previous.parentNodeId || (confirmedNode.children?.length ?? 0) !== 0) {
+        throw new Error(`项目策划 DataView 更新后正式树回读身份不一致 ${update.nodeId}`)
+      }
+      const confirmedRecord = normalizeLowcodeProjectBlueprintRecords([confirmedNode.source])[0]
+      if (!confirmedRecord) throw new Error(`项目策划更新回读不能还原为正式 Base_NavigationInfo 记录 ${update.nodeId}`)
+      const confirmedWire = lowcodeProjectBlueprintFields(confirmedRecord)
+      const mismatches = Object.entries(update.fields).filter(([field, value]) => String(confirmedWire[field]) !== String(value))
+      if (mismatches.length > 0) throw new Error(`项目策划 DataView 正式回读与更新字段不一致 ${update.nodeId}：${mismatches.map(([field]) => field).join(', ')}`)
+      project.replaceBlueprintChildren(confirmed.children)
+      confirmedDataViewCompletion = project.completeProjectPlanning()
+      options.onDataViewCompletionConfirmed?.(project.projectId, confirmedDataViewCompletion)
+      project.markBlueprintClean('root')
+      return snapshot(project.blueprintTree)
+    }
     if (plan.commands.length === 0 || plan.commands.some(command => command.kind !== 'create')) {
-      throw new Error('当前 DataView 仅支持一个批次新增多个独立叶子；更新、移动、删除或父子同批计划保持拒绝')
+      throw new Error('当前 DataView 仅支持一个批次新增多个独立叶子或一次既有叶节点 name/memo 更新；移动、删除和父子同批计划保持拒绝')
     }
     const creates = plan.commands
     const parentNodeId = creates[0]?.parentNodeId

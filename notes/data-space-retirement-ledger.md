@@ -2300,3 +2300,11 @@ flowchart TD
 - **运行消费：**`deriveAiDataEntryFields(targetView)` 只纳入正式输出且 `allowAIAdd === true` 的列，排除主键/计算/自增列，并按当前新增和字段写权限进一步收窄。`AiDataEntrySession` 从该目标 DataView 派生候选 schema；标准 `SparkAiDataEntry` 通过完整 `dataViewKey` 解析当前 PageRuntime 目标，附着该 DataSet 的 host/session，并将业务提示、候选和状态交给标准 RendererForm/RendererTable。用户只编辑 `businessPrompt`；组件不暴露系统提示词字段，执行沿租户配置的正式 Agent。
 - **主控验证：**`tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts -t 'keeps allowAIAdd'` **1 passed / 47 skipped**，覆盖正式 1/0 规范化、正式列定义、两个 DataView、DataSet 序列化重开、拒绝 pagedata/视图投影覆盖、业务行不混入配置及最终 `deriveAiDataEntryFields` 白名单；`spark-ai-data-entry.test.ts` **15/15**；`spark-lowcode-api` AI fields/session **32/32**。无源代码或 ClassModel 变更。
 - **状态边界：**这组证据验证本仓运行时装配与组件合同，不等同于当前正式服务每个模型的 `allowAIAdd` 实际值或线上 AI Agent 成功运行；本轮未触发 SPA AI 请求、未写业务数据，也未改 Java。此前 DevSystem NavHost 的正式切换关系仍查询 0 行，成功切换与后端持久化未验收；开发工作台/参考仓项目蓝图整合总体目标继续 active。
+
+### 2026-10-27 ProjectPlanning 既有叶节点受限更新沿 DataView 保存
+
+- **实施范围与裁决：**在已有 `ProjectPlanning.replaceBlueprintChildren` DataView 命令链中，新增仅支持一次对一个现存叶节点、父节点不变的字段更新；字段限正式 wire `name`、`memo`。全树 planner 仍负责身份、父子关系、项目、叶子状态和改动类别；任何非叶更新、移动、删除、增改混合或其他字段计划在触碰目标 owner 前整体拒绝。此限制保持服务端未证明的多行回执/原子性风险不扩散；完整树 mixed diff 仍开放。
+- **数据命令：**复用当前 `BlueprintWorkspaceDataView` owner 定位稳定 nodeId，调用既有 `updateNodeData` 完成逐字段输出、行读写权限与 validator 预检并写入 DataView 编辑覆盖，再由 `saveSelectedNode` 仅提交原 `rowid` 经 `DataSet.saveChanges` 保存。对回读树逐项核身份、父关系、叶子形态及提交字段，全部匹配后才同步 ProjectBlueprint 完成状态；不增加 gateway、数组草稿或第二保存器。
+- **未知/恢复与 SPA 生命周期：**原 owner 保留未确认的 rowid/patch。unknown 时保留待核验状态且同一 Agent Run 不得重放。正式回执已接受但 refresh 失败时，重试路径只 refresh 并比较原 patch，不再次 save；`#unconfirmedIds` 纳入 `dirty` 与 `hasPendingBlueprintCommand`，让当前 DevSystem 路由离开守卫与项目切换保护继续持有原 owner，核验完成后清除。
+- **TDD和主控验收：**RED/GREEN 及类型检查记录见 `notes/evidence/project-blueprint/planning-single-update*`。主控在冻结代码上独立重跑完整 `grouped-planning-contract.test.ts` 与 `blueprint-workspace-delivery.test.ts`：**2 files / 56 tests passed**；全仓 `pnpm run typecheck`、四个改动 TS 文件 ESLint、完整 `pnpm run verify:rules`、`git diff --check` 通过。规则扫描保持既有 AI model spec **2 warnings / 1 info**，本次无 ClassModel/Java 修改。
+- **SPA烟测与状态：**当前 in-app browser 被路由至 `127.0.0.1:5273/` 平台首页，未保留登录态；未发起 AI、未写线上蓝图。真实服务更新/回执/读回仍未验证。电脑操作规范禁止自动化认证对话框；真实写烟测还需登录后的专用测试项目和目标叶节点。此前 DevSystem `appworks-tool-dev` NavHost 关系仍查得 0 行，真实项目切换也未验收。代码先提交并推送供审阅；开发工作台按参考仓项目蓝图整合目标继续 active。

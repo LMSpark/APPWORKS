@@ -1,0 +1,47 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts > BlueprintWorkspace DataView ownership > recovers an accepted receipt after refresh failure by refreshing and comparing without a second save
+❌ [DataView] requestData 失败 [Base_NavigationInfo@default]: refresh failed after accepted receipt Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at BlueprintWorkspaceDataView.saveIds (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts:876:5)
+at BlueprintWorkspaceDataView.saveSelectedNode (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts:834:5)
+stdout | tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts > BlueprintWorkspace DataView ownership > recovers an accepted receipt after refresh failure by refreshing and comparing without a second save
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts:395:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ❯ tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts (40 tests | 1 failed | 39 skipped) 71ms
+     × recovers an accepted receipt after refresh failure by refreshing and comparing without a second save 69ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts > BlueprintWorkspace DataView ownership > recovers an accepted receipt after refresh failure by refreshing and comparing without a second save
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts:398:48
+    396|       expect(owner.hasUnconfirmedSave).toBe(false)
+
+    397|       expect(owner.dirty).toBe(true)
+    398|       expect(owner.hasPendingBlueprintCommand).toBe(true)
+       |                                                ^
+    399|       expect(f.save).toHaveBeenCalledOnce()
+    400|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 skipped (40)
+   Start at  15:26:43
+   Duration  23.22s (transform 15.11s, setup 188ms, import 20.67s, tests 71ms, environment 1.81s)
+

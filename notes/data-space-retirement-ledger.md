@@ -2555,3 +2555,10 @@ flowchart TD
 - **语义隔离：**此 Agent Workflow JSON 与 `/features/data-platform/structured-config/workflow-definition` 下 `_Base_DataWorkFlow` 数据工作流不是同一种资源，不能借用其目录或编辑 DataView 代替。旧页创建、保存、删除接口目前 fail closed；本次只记录读取旁路，不扩展写入。
 - **迁移前置与下一步：**`vue-pages.json` 只声明 `/workflow-designs` 组件，不直接声明场景 ID；动态系统页路由会从唯一匹配的导航节点注入 `blueprintScenarioId`（`SystemPageIdentityResolver`）。因此须核实该路径实际导航节点是否存在、是否唯一并绑定正式场景，不能按应用 ID 或 URL 猜 DataSet 身份。还需确认按当前应用隔离的文件资源标识、目录及内容读取权限、DataView 查询上下文和运行时 AI 激活如何复用正式 DataSet；随后迁移编辑页与 AI 激活读取并删除旧直读入口。未证明这些合同前不加 DataView 包装层、不移除现有读取功能。
 - **本轮状态：**低价模型只读交叉审计、主控核对路由注册/服务调用一致；无代码、Java、SPA 或线上数据改动。总体整合保持 active。
+
+### 2026-10-28 DataSet 唯一业务入口续审
+
+- **架构边界确认：**目标是业务页面、领域调用方都只通过绑定的 `DataSet/DataTable/DataView` 查询和提交；owner 不再承载第二套业务查询、编辑、取消、暂存或保存生命周期。存储适配仍须在 DataView 的资源执行器内部完成，不能按类名物理删除底层文件/数据库 IO，否则会破坏正式资源持久化。把旧 API 原样包一层 DataView 也不算迁移。
+- **Agent Workflow 文件候选：**`workflow-designs.ts` 的目录与文档读取仍直调 `listFiles/readTextFile`，AI 激活也调用同一服务读取 definition。`spark-data` 支持 `resourceType: file` 及 DataView executor 注入，现有 staged file view 与命令 view 可作能力参考；但本资源尚无正式 file owner、应用+workflow+文档类型的稳定资源身份、正式 route/PageRuntime 场景绑定和可核验授权合同。现有 workflow 写接口 fail closed；只读迁移不能假称已形成写入闭环。下一步须先确立资源/场景身份和授权合同，再将页面与 AI activation 都改由同一正式 DataView 消费，并删除 `workflow-designs.ts` 中直接文件读取入口；不借用 `_Base_DataWorkFlow`。
+- **平台应用目录候选：**低价模型独立复核并由主控核对了 `listApplications()` 的 5 个生产调用点。现有 `Base_AppSystemList@catalogApps` 属于数据空间目录场景，不是 `/app-list`、`/apps` 或项目运行时目录 owner；固定蓝图 FormKey 也不是该目录 DataView 身份。各消费者的租户/项目过滤与正式查询权限投影没有等价证据，当前无安全切片可迁移并同批删除直调。
+- **本轮状态：**工作树起始时干净，HEAD 与 `origin/codex/ai-data-entry` 同为 `9e350efad40e237cdefdde00753bdea9ae83f7c4`。本轮只读复核，没有改产品代码、Java、浏览器/正式数据或运行测试；不报告 SPA 烟测通过。总体整合仍 active。下一工作项是为 Agent Workflow 语义资源取得正式场景/资源身份与权限证据；若无合同，继续找其它实际消费者和可闭环数据旁路，不伪造 DataView 包装。

@@ -1,0 +1,10 @@
+$ node scripts/verify-project-planning-offline.mjs
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  18:10:11
+   Duration  14.72s (transform 16.81s, setup 387ms, import 24.95s, tests 75ms, environment 2.82s)

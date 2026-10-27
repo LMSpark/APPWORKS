@@ -4,7 +4,7 @@ import { createAppAgentWorkflowRuntimeBindings } from '@/services/ai/agent-workf
 import { createAgentWorkflowDefinitionFromDesign } from '@/services/workflow-designs'
 import { evaluateProjectPlanningToolGate, resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import type { ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 
 describe('projectPlanning formal node input', () => {
@@ -33,6 +33,48 @@ describe('projectPlanning formal node input', () => {
     expect(saveMixedNodes.mock.calls[0]?.[1]).toHaveLength(1)
     expect(result.children.map(node=>node.nodeId)).toEqual(['existing','created'])
     expect(result.children[0]?.source).toMatchObject({name:'Existing revised',memo:'Updated memo'})
+  })
+
+  it('submits a leaf reparent and its explicit sibling order changes in one DataView batch', async () => {
+    const projectId='APP-A'
+    const node=(nodeId:string,parentNodeId:string,kind:'module'|'page',order:number,children?:ProjectBlueprintTreeData['children'])=>({
+      nodeId,parentNodeId,projectId,kind,capability:{name:nodeId},navigation:{title:nodeId,order,publishInMenu:false,showChildren:false,beginGroup:false},
+      source:{rowid:nodeId,SysId:projectId,prowid:parentNodeId,FunOrderValue:String(order),name:nodeId,FunName:nodeId,conType:kind},...(children===undefined?{}:{children}),
+    })
+    const moving=node('moving','parent-a','page',0),sourceSibling=node('source-sibling','parent-a','page',1)
+    const destinationSibling=node('destination-sibling','parent-b','page',0)
+    const parentA=node('parent-a','root','module',0,[moving,sourceSibling]),parentB=node('parent-b','root','module',1,[destinationSibling])
+    const root=node('root','','module',0,[parentA,parentB]) as ProjectBlueprintTreeData
+    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>root}})
+    editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
+    const expectedMoving={...moving,parentNodeId:'parent-b',navigation:{...moving.navigation,order:0}}
+    const expectedSourceSibling={...sourceSibling,navigation:{...sourceSibling.navigation,order:0}}
+    const expectedDestinationSibling={...destinationSibling,navigation:{...destinationSibling.navigation,order:1}}
+    const expectedTree={...root,children:[{...parentA,children:[expectedSourceSibling]},{...parentB,children:[expectedMoving,expectedDestinationSibling]}]}
+    let readback=root as ProjectBlueprintTreeData
+    const applyLeafMoveBatch=vi.fn(async(options:{beforeTree:ProjectBlueprintTreeData;commands:readonly {nodeId:string;parentNodeId:string;previousParentNodeId?:string;kind:string;siblingIndex:number;fields:Readonly<Record<string,unknown>>}[];expectedTree:ProjectBlueprintTreeData;beforeStage?:()=>boolean})=>{
+      const {commands,expectedTree,beforeStage}=options
+      if(beforeStage&&!beforeStage())throw new Error('write quota denied')
+      const byId=new Map(commands.map(command=>[command.nodeId,command.fields]))
+      const apply=(current:ProjectBlueprintTreeNodeData):ProjectBlueprintTreeNodeData=>({...current,...(current.children===undefined?{}:{children:current.children.map(apply)}),...(byId.get(current.nodeId)===undefined?{}:{source:{...current.source,...byId.get(current.nodeId)}})})
+      const applyRoot=(current:ProjectBlueprintTreeData):ProjectBlueprintTreeData=>apply(current) as ProjectBlueprintTreeData
+      readback=applyRoot(expectedTree)
+    })
+    const owner={projectId,hasTreeProjection:true,dirty:false,hasPendingChildCreate:false,hasUnconfirmedSave:false,hasPendingBlueprintCommand:false,
+      treeProjection:()=>readback,hasOutput:()=>true,applyLeafMoveBatch}
+    const quota=vi.fn(()=>true)
+    const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner as never,tryBeginDataViewBlueprintWrite:quota},{moduleInstanceId:projectId} as never)
+
+    const result=await Promise.resolve(facade.replaceBlueprintChildren({children:expectedTree.children}))
+
+    expect(applyLeafMoveBatch).toHaveBeenCalledOnce()
+    const commands=applyLeafMoveBatch.mock.calls[0]?.[0].commands
+    expect(commands?.map(command=>[command.kind,command.nodeId,Object.keys(command.fields)])).toEqual([
+      ['reorder','source-sibling',['FunOrderValue']],['move','moving',['prowid']],['reorder','destination-sibling',['FunOrderValue']],
+    ])
+    expect(quota).toHaveBeenCalledOnce()
+    expect(result.children[1]?.children?.map(child=>child.nodeId)).toEqual(['moving','destination-sibling'])
+    expect(result.children[0]?.children?.[0]?.source['FunOrderValue']).toBe(0)
   })
 
   it('commits two existing leaf name and memo updates as one DataView batch and verifies both readbacks', async () => {
@@ -163,7 +205,7 @@ describe('projectPlanning formal node input', () => {
     expect(saveSelectedNode).toHaveBeenCalledOnce()
   })
 
-  it('rejects non-leaf updates and parent changes before calling the DataView owner', async()=>{
+  it('rejects non-leaf updates and mixed move/create plans before calling the DataView owner', async()=>{
     const projectId='APP-A'
     const leaf={nodeId:'leaf',parentNodeId:'parent-a',projectId,kind:'page' as const,capability:{name:'Leaf'},source:{}}
     const parentA={nodeId:'parent-a',parentNodeId:'root',projectId,kind:'module' as const,capability:{name:'A'},source:{},children:[leaf]}
@@ -171,16 +213,18 @@ describe('projectPlanning formal node input', () => {
     const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[parentA,parentB]}
     const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{loadRoot:async()=>root}})
     editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
-    const load=vi.fn(),updateNodeData=vi.fn(),saveSelectedNode=vi.fn()
-    const owner={projectId,hasTreeProjection:true,dirty:false,treeProjection:()=>root,load,updateNodeData,saveSelectedNode,view:{queryColumns:[]},hasOutput:()=>true}
+    const load=vi.fn(),updateNodeData=vi.fn(),saveSelectedNode=vi.fn(),applyLeafMoveBatch=vi.fn()
+    const owner={projectId,hasTreeProjection:true,dirty:false,treeProjection:()=>root,load,updateNodeData,saveSelectedNode,applyLeafMoveBatch,view:{queryColumns:[]},hasOutput:()=>true}
     const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner as never},{moduleInstanceId:projectId} as never)
     const originalProjectTree=editor.project.blueprintTree
 
     await expect(facade.replaceBlueprintChildren({children:[{...parentA,capability:{name:'A updated'}} ,parentB]})).rejects.toThrow(/既有叶节点同父/iu)
     await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[{...leaf,projectId:'APP-B'}]},parentB]})).rejects.toThrow(/其他项目/iu)
     const moved={...leaf,parentNodeId:'parent-b'}
-    await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[]},{...parentB,children:[moved]}]})).rejects.toThrow(/移动、删除/iu)
+    const added={nodeId:'added',parentNodeId:'parent-b',projectId,kind:'page' as const,capability:{name:'Added'},navigation:{title:'Added',order:1,publishInMenu:false,showChildren:false,beginGroup:false},source:{}}
+    await expect(facade.replaceBlueprintChildren({children:[{...parentA,children:[]},{...parentB,children:[moved,added]}]})).rejects.toThrow(/混合命令/iu)
     expect(load).not.toHaveBeenCalled();expect(updateNodeData).not.toHaveBeenCalled();expect(saveSelectedNode).not.toHaveBeenCalled()
+    expect(applyLeafMoveBatch).not.toHaveBeenCalled()
     expect(editor.project.blueprintTree).toEqual(originalProjectTree)
   })
 

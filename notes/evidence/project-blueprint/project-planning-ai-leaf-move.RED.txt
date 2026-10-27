@@ -1,0 +1,29 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts (19 tests | 1 failed | 18 skipped) 20ms
+     × submits a leaf reparent and its explicit sibling order changes in one DataView batch 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning/grouped-planning-contract.test.ts > projectPlanning formal node input > submits a leaf reparent and its explicit sibling order changes in one DataView batch
+Error: 当前 DataView 仅支持独立叶子新增与原树现存叶节点 name/memo 更新；移动、删除、父子同批及其他更新字段保持拒绝
+ ❯ Proxy.addPlannedChildren src/services/project-planning/project-planning-agent-workflow-binding.ts:454:13
+    452|     }
+    453|     if (plan.commands.length === 0 || plan.commands.some(command => co…
+    454|       throw new Error('当前 DataView 仅支持独立叶子新增与原树现存叶节点 name/memo 更新；移动、删…
+       |             ^
+    455|     }
+    456|     const creates = plan.commands
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts:69:47
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 18 skipped (19)
+   Start at  17:32:28
+   Duration  17.66s (transform 11.31s, setup 251ms, import 15.30s, tests 20ms, environment 1.50s)
+
+exit_code=1

@@ -43,6 +43,35 @@ export type BlueprintChildNodeCreateAtParent=BlueprintChildNodeCreate&Readonly<{
 /** Fully preflighted target identity and patch, ready for synchronous overlay staging. */
 export type BlueprintNodeDataBatchItem=Readonly<{nodeId:string;key:string|number;patch:Readonly<Record<string,unknown>>;node:BlueprintNodeFormData}>
 
+/** Explicit pure move/reorder command emitted by the project-planning diff. */
+export type BlueprintLeafMoveBatchCommand=Readonly<{
+  /** `move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order. */
+  kind:'move'|'reorder'
+  /** Existing rowid from the complete original project tree. */
+  nodeId:string
+  /** Parent identity in the target tree; must also exist in the original same-project tree. */
+  parentNodeId:string
+  /** Original parent identity captured by the replacement plan. */
+  previousParentNodeId?:string
+  /** Target depth and sibling position from the explicit replacement plan. */
+  depth:number
+  siblingIndex:number
+  /** Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted. */
+  fields:Readonly<Record<string,string|number>>
+}>
+
+/** Named inputs for one preflighted AI move/reorder batch. */
+export type BlueprintLeafMoveBatchOptions=Readonly<{
+  /** Complete original tree used by the planner. */
+  beforeTree:ProjectBlueprintTreeData
+  /** Explicit wire move/reorder commands from the plan. */
+  commands:readonly BlueprintLeafMoveBatchCommand[]
+  /** Complete target tree represented by those commands. */
+  expectedTree:ProjectBlueprintTreeData
+  /** Called after owner preflight and immediately before staging. */
+  beforeStage?:()=>boolean
+}>
+
 type PendingChildCreateBatch=Readonly<{
   children:readonly BlueprintChildNodeCreateAtParent[]
   updates:ReadonlyArray<Readonly<{nodeId:string;parentNodeId:string;patch:Readonly<Record<string,unknown>>}>>
@@ -70,6 +99,7 @@ export class BlueprintWorkspaceDataView {
   #loadInFlight: Promise<unknown> | undefined
   #unconfirmedIds: Array<string | number> = []
   #unconfirmedPatches = new Map<string | number, Record<string, unknown>>()
+  #acceptedReceiptPending = false
   #unconfirmedRootId: string | number | undefined
   #unconfirmedDeleteId: string | number | undefined
   #unconfirmedDeleteParentId: string | undefined
@@ -301,6 +331,101 @@ export class BlueprintWorkspaceDataView {
     // Moving a non-selected tree row must never retarget the detail editor.
     this.#row=rows.find(row=>row['rowid']===selectedNodeId)
     this.view.setCurrentRow(this.#row??null)
+  }
+
+  /** Preflight, stage and save one AI pure leaf-move/reorder command through this DataView. */
+  public async applyLeafMoveBatch(options:BlueprintLeafMoveBatchOptions):Promise<void>{
+    const {beforeTree,commands,expectedTree,beforeStage}=options
+    this.assertUsable()
+    if(commands.length===0||!commands.some(command=>command.kind==='move'))throw new Error('蓝图 DataView 仅接受含移动命令的纯 move/reorder 批次')
+    if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedIds.length>0||this.#pendingChildBatch!==undefined||this.#unconfirmedDeleteId!==undefined)throw new Error('蓝图 DataView 正在保存或原命令待核验')
+    if(this.dirty||!this.#treeQueryLoaded)throw new Error('蓝图 DataView 移动批次要求干净且已完整加载的项目树')
+    for(const field of ['rowid','SysId','prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+    const revision=++this.#revision,selectedNodeId=this.#nodeId
+    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    this.#treeQueryLoaded=true
+    this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
+    this.view.setCurrentRow(this.#row??null)
+    const current=this.treeProjection()
+    const flatten=(root:ProjectBlueprintTreeNodeData):ProjectBlueprintTreeNodeData[]=>[root,...(root.children??[]).flatMap(flatten)]
+    const beforeNodes=flatten(beforeTree),currentNodes=flatten(current),targetNodes=flatten(expectedTree)
+    const index=(nodes:readonly ProjectBlueprintTreeNodeData[])=>new Map(nodes.map(node=>[node.nodeId,node]))
+    const wireFields=(node:ProjectBlueprintTreeNodeData):Record<string,string|number>=>{
+      const record=normalizeLowcodeProjectBlueprintRecords([node.source])[0]
+      if(!record)throw new Error(`蓝图 DataView 移动节点缺少正式 wire 投影：${node.nodeId}`)
+      return lowcodeProjectBlueprintFields({...record,parentNodeId:node.parentNodeId,...(node.navigation===undefined?{}:{navigation:node.navigation})})
+    }
+    const stableValue=(value:unknown):string=>{
+      if(Array.isArray(value))return `[${value.map(stableValue).join(',')}]`
+      if(value!==null&&typeof value==='object')return `{${Object.entries(value).filter(([,entry])=>entry!==undefined).sort(([left],[right])=>left.localeCompare(right)
+        ).map(([key,entry])=>`${JSON.stringify(key)}:${stableValue(entry)}`).join(',')}}`
+      return String(JSON.stringify(value))
+    }
+    const beforeById=index(beforeNodes),currentById=index(currentNodes),targetById=index(targetNodes)
+    if(beforeTree.projectId!==this.#projectId||expectedTree.projectId!==this.#projectId||beforeTree.nodeId!==current.nodeId||expectedTree.nodeId!==current.nodeId
+      ||beforeById.size!==currentById.size||currentById.size!==targetById.size
+      ||[...currentById.keys()].some(id=>!beforeById.has(id)||!targetById.has(id)))throw new Error('蓝图 DataView 移动批次项目或原树身份不匹配')
+    const nodeFields=(node:ProjectBlueprintTreeNodeData)=>({nodeId:node.nodeId,projectId:node.projectId,kind:node.kind,capability:node.capability,
+      navigation:node.navigation?{...node.navigation,order:0}:undefined,dataSpace:node.dataSpace,prototype:node.prototype,
+      source:{...node.source,prowid:'',FunOrderValue:''}})
+    for(const [id,currentNode] of currentById){const before=beforeById.get(id);if(before?.projectId!==this.#projectId||before.parentNodeId!==currentNode.parentNodeId
+      ||String(wireFields(before)['FunOrderValue'])!==String(wireFields(currentNode)['FunOrderValue'])||stableValue(nodeFields(before))!==stableValue(nodeFields(currentNode))
+      ||String(before.source['rowid'])!==id||String(before.source['SysId'])!==this.#projectId)throw new Error(`蓝图 DataView 移动批次原树已变化或身份无效：${id}`)}
+    const commandById=new Map<string,BlueprintLeafMoveBatchCommand>()
+    for(const command of commands){
+      if(!command.nodeId||commandById.has(command.nodeId))throw new Error(`蓝图 DataView 移动批次目标重复或无效：${command.nodeId}`)
+      commandById.set(command.nodeId,command)
+    }
+    const movingIds=new Set(commands.filter(command=>command.kind==='move').map(command=>command.nodeId))
+    if(commands.some(command=>command.kind==='move'&&movingIds.has(command.parentNodeId)))throw new Error('蓝图 DataView 移动批次禁止目标父节点与移动叶节点同批')
+    const changedIds=new Set<string>()
+    for(const [id,before] of beforeById){
+      const target=targetById.get(id);if(!target)throw new Error(`蓝图 DataView 移动批次目标树缺少原节点 ${id}`)
+      if(before.parentNodeId!==target.parentNodeId||String(wireFields(before)['FunOrderValue'])!==String(wireFields(target)['FunOrderValue']))changedIds.add(id)
+      const beforeRest=nodeFields(before),targetRest=nodeFields(target)
+      if(stableValue(beforeRest)!==stableValue(targetRest))throw new Error(`蓝图 DataView 纯移动批次包含非位置字段修改：${id}`)
+    }
+    if(changedIds.size!==commandById.size||[...changedIds].some(id=>!commandById.has(id)))throw new Error('蓝图 DataView move/reorder 命令未精确覆盖目标父关系与排序变化')
+    const patches:Array<{id:string;key:string|number;row:DataRow;patch:Record<string,unknown>}>=[]
+    for(const [id,command] of commandById){
+      const original=beforeById.get(id),target=targetById.get(id),row=rows.find(candidate=>candidate['rowid']===id&&candidate['SysId']===this.#projectId)
+      if(!original||!target||!row||String(this.view.getPkKey(row))!==id||this.view.fieldAccess(row,'rowid').read!=='visible'||this.view.fieldAccess(row,'SysId').read!=='visible')throw new Error(`蓝图 DataView 移动目标身份无效：${id}`)
+      const patch={...command.fields}
+      const keys=Object.keys(patch)
+      if(command.kind==='move'){
+        if((original.children?.length??0)>0||command.previousParentNodeId!==original.parentNodeId||command.parentNodeId!==target.parentNodeId||command.parentNodeId===id
+          ||!beforeById.has(command.parentNodeId)||!Object.hasOwn(patch,'prowid')||String(patch['prowid'])!==target.parentNodeId||keys.some(field=>field!=='prowid'&&field!=='FunOrderValue'))throw new Error(`蓝图 DataView 仅允许重挂原树叶节点到原树父节点：${id}`)
+      }else if(command.previousParentNodeId!==original.parentNodeId||command.parentNodeId!==original.parentNodeId||target.parentNodeId!==original.parentNodeId
+        ||keys.length!==1||keys[0]!=='FunOrderValue')throw new Error(`蓝图 DataView reorder 仅允许同父显式排序字段：${id}`)
+      const depth=(nodeId:string):number|undefined=>{let cursor=targetById.get(nodeId),value=0;const visited=new Set<string>();while(cursor){if(visited.has(cursor.nodeId))return undefined;visited.add(cursor.nodeId);if(cursor.nodeId===expectedTree.nodeId)return value;value++;cursor=targetById.get(cursor.parentNodeId)}return undefined}
+      const targetDepth=depth(id)
+      const targetSiblings=targetNodes.filter(node=>node.parentNodeId===target.parentNodeId)
+        .sort((a,b)=>Number(wireFields(a)['FunOrderValue']??0)-Number(wireFields(b)['FunOrderValue']??0)||a.nodeId.localeCompare(b.nodeId))
+      if(command.depth!==targetDepth||command.siblingIndex!==targetSiblings.findIndex(node=>node.nodeId===id)||command.parentNodeId!==target.parentNodeId)throw new Error(`蓝图 DataView move/reorder 计划位置与正式目标树不一致：${id}`)
+      const expectedFields:Record<string,unknown>={}
+      if(original.parentNodeId!==target.parentNodeId)expectedFields['prowid']=target.parentNodeId
+      if(String(wireFields(original)['FunOrderValue'])!==String(wireFields(target)['FunOrderValue']))expectedFields['FunOrderValue']=wireFields(target)['FunOrderValue']
+      if(keys.length!==Object.keys(expectedFields).length||keys.some(field=>!Object.hasOwn(expectedFields,field)||!Object.is(patch[field],expectedFields[field])))throw new Error(`蓝图 DataView 命令字段与正式目标位置不一致：${id}`)
+      const key=this.view.getPkKey(row)
+      if((typeof key!=='string'&&typeof key!=='number')||String(key)!==id||this.view.editActionState(row)!=='enabled'||keys.some(field=>!this.hasOutput(field)||this.view.fieldAccess(row,field).read!=='visible'||this.view.fieldAccess(row,field).write!=='allowed'))throw new Error(`蓝图 DataView 权限拒绝移动行 ${id}`)
+      const validation=this.view.validator?.validateColumns({...row,...patch},new Set(keys))
+      if(validation&&!validation.valid)throw new Error(validation.errors[0]?.message??`蓝图 DataView 移动字段校验失败：${id}`)
+      patches.push({id,key,row,patch})
+    }
+    // Verify that moves target only same-project original rows and the planned full tree is acyclic.
+    for(const [id,node] of targetById){if(id===expectedTree.nodeId)continue;let cursor=node.parentNodeId;const visited=new Set([id]);while(cursor!==expectedTree.nodeId){if(visited.has(cursor))throw new Error(`蓝图 DataView 移动目标存在循环：${id}`);visited.add(cursor);const parent=targetById.get(cursor);if(parent?.projectId!==this.#projectId)throw new Error(`蓝图 DataView 移动目标父闭包无效：${id}`);cursor=parent.parentNodeId}}
+    if(beforeStage&&!beforeStage())throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected before staging')
+    const ids=patches.map(item=>item.key)
+    try{for(const item of patches)for(const [field,value] of Object.entries(item.patch))this.view.updateEditingValue(item.key,field,value)}catch(error){
+      try{this.view.discardPendingChanges(ids);if(ids.some(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('批量暂存回滚后仍有编辑覆盖');}
+      catch(rollbackError){this.#batchStageBlocked=true;throw new Error(`蓝图移动批次暂存失败且回滚未确认，保存已阻断：${String(rollbackError)}`)}
+      throw error
+    }
+    await this.saveIds(ids,ids.length)
+    const confirmed=this.treeProjection()
+    const confirmedById=index(flatten(confirmed))
+    for(const [id,node] of targetById){const actual=confirmedById.get(id);if(actual?.parentNodeId!==node.parentNodeId
+      ||String(wireFields(actual)['FunOrderValue'])!==String(wireFields(node)['FunOrderValue']))throw new Error(`蓝图 DataView 移动批次正式树回读不一致：${id}`)}
   }
 
   /** Create an unmounted root module through the current formal Base_NavigationInfo query owner. */
@@ -561,11 +686,13 @@ export class BlueprintWorkspaceDataView {
     const data=result.data
     if(!result.success||!data)throw new Error(`蓝图 DataView 批次回执计数不完整：期望新增 ${expectedCreated}、更新 ${expectedSaved} 且无其他动作`)
     const viewResult=data.viewResults[0]
-    if(data.viewCount!==1||data.viewResults.length!==1||!viewResult||data.createdCount!==expectedCreated
+    if(data.viewCount!==1||data.viewResults.length!==1||!viewResult||data.appliedEditingRows<0||data.appliedEditingRows>expectedCreated+expectedSaved||data.createdCount!==expectedCreated
       ||data.savedCount!==expectedSaved||data.deletedCount!==0||data.failedCount!==0||data.failedEditingRows!==0
+      ||data.failedViews.length!==0
       ||viewResult.tableName!==this.view.tableName||viewResult.viewId!==this.view.viewId
+      ||viewResult.appliedEditingRows<0||viewResult.appliedEditingRows>expectedCreated+expectedSaved
       ||viewResult.createdCount!==expectedCreated||viewResult.savedCount!==expectedSaved||viewResult.deletedCount!==0
-      ||viewResult.failedCount!==0||viewResult.failedEditingRows!==0){
+      ||viewResult.failedCount!==0||viewResult.failedEditingRows!==0||viewResult.failedIds.length!==0||Object.keys(viewResult.failedErrors).length!==0){
       throw new Error(`蓝图 DataView 批次回执计数不完整：期望新增 ${expectedCreated}、更新 ${expectedSaved} 且无其他动作`)
     }
   }
@@ -984,11 +1111,14 @@ export class BlueprintWorkspaceDataView {
     this.assertUsable()
     if (this.isBusy) throw new Error('保存或查询期间不能取消蓝图修改')
     if (this.hasUnconfirmedSave) throw new Error('保存结果未确认，不能取消；请先沿原 DataSet 保存入口核验')
+    if(this.#acceptedReceiptPending)throw new Error('蓝图 DataView 已收到保存回执但正式回读未完成，不能取消；请沿原 DataSet 查询与保存入口核验')
     if(this.#unconfirmedDeleteId!==undefined)throw new Error('蓝图 DataView 删除结果待核验，不能取消')
     if (!this.dirty) return
     const ids=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       .filter(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id))
     this.view.discardPendingChanges(ids)
+    if(ids.some(id=>this.view.hasEditingChanges(id)||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('蓝图 DataView 取消后仍有待提交修改')
+    this.#unconfirmedIds=[];this.#unconfirmedPatches.clear()
     if(this.#batchStageBlocked){
       const blockedIds=this.view.rows.map(row=>this.view.getPkKey(row)).filter((id):id is string|number=>id!==undefined)
       if(blockedIds.some(id=>this.view.getEditingPatch(id)!==undefined||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('蓝图 DataView 批量失败状态仍有未清理目标')
@@ -1049,6 +1179,7 @@ export class BlueprintWorkspaceDataView {
         const recovered = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: this.#unconfirmedIds}]})
         this.assertTarget(revision, targetNodeId)
         if (!recovered.success) throw recovered.error ?? new Error(recovered.message ?? '蓝图 DataView 未确认保存仍无法核验')
+        this.#acceptedReceiptPending=true
       }
       await this.view.refresh()
       this.assertTarget(revision, targetNodeId)
@@ -1059,6 +1190,7 @@ export class BlueprintWorkspaceDataView {
       for(const [key,patch] of this.#unconfirmedPatches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 核验后未读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 核验回读不一致`)}
       this.#row = targetNodeId?recoveredRow:undefined
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear()
+      this.#acceptedReceiptPending=false
       this.#unconfirmedRootId=undefined
       return
     }
@@ -1077,9 +1209,9 @@ export class BlueprintWorkspaceDataView {
     this.#unconfirmedPatches=new Map([...patches].filter(([key])=>changedIds.includes(key)))
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: changedIds}]})
     this.assertTarget(revision, targetNodeId)
+    if(result.success||(result.data?.createdCount??0)>0||(result.data?.savedCount??0)>0||(result.data?.deletedCount??0)>0)this.#acceptedReceiptPending=true
     if (!result.success) throw result.error ?? new Error(result.message ?? '蓝图 DataView 保存失败')
-    const saveData=result.data
-    if(expectedSavedCount!==undefined&&(saveData?.savedCount!==expectedSavedCount||saveData.failedCount!==0))throw new Error(`蓝图 DataView 批量保存回执计数不匹配：expected=${expectedSavedCount} saved=${saveData?.savedCount??'unknown'} failed=${saveData?.failedCount??'unknown'}`)
+    if(expectedSavedCount!==undefined)this.assertBatchSaveCounts(result,0,expectedSavedCount)
     await this.view.refresh()
     this.assertTarget(revision, targetNodeId)
     if (this.view.loadingError) throw this.view.loadingError
@@ -1089,6 +1221,7 @@ export class BlueprintWorkspaceDataView {
     this.#row = targetNodeId?saved:undefined
     for(const [key,patch] of patches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 保存后无法读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 保存后读回不一致`)}
     this.#unconfirmedIds=[]
+    this.#acceptedReceiptPending=false
   }
 
   public dispose(): void {

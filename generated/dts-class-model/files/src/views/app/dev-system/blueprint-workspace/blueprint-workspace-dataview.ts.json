@@ -14,6 +14,8 @@
       "BlueprintChildNodeCreate",
       "BlueprintChildNodeCreateAtParent",
       "BlueprintNodeDataBatchItem",
+      "BlueprintLeafMoveBatchCommand",
+      "BlueprintLeafMoveBatchOptions",
       "BlueprintWorkspaceDataView"
     ]
   },
@@ -161,6 +163,87 @@
       ],
       "additionalProperties": false
     },
+    "BlueprintLeafMoveBatchCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintLeafMoveBatchCommand",
+      "properties": {
+        "kind": {
+          "enum": [
+            "move",
+            "reorder"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "previousParentNodeId": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "siblingIndex": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "nodeId",
+        "parentNodeId",
+        "depth",
+        "siblingIndex",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintLeafMoveBatchOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintLeafMoveBatchOptions",
+      "properties": {
+        "beforeTree": {
+          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintLeafMoveBatchCommand"
+          }
+        },
+        "expectedTree": {
+          "$ref": "../../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.beforeStage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeStage.return": {
+          "type": "boolean"
+        }
+      }
+    },
     "BlueprintWorkspaceDataView": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -283,6 +366,19 @@
           "additionalProperties": false
         },
         "method.moveNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.applyLeafMoveBatch.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/BlueprintLeafMoveBatchOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyLeafMoveBatch.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -609,7 +705,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T09:05:28.351Z",
+  "generatedAt": "2026-10-27T10:02:25.930Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -757,6 +853,114 @@
               "name": "node",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintLeafMoveBatchCommand": {
+      "name": "BlueprintLeafMoveBatchCommand",
+      "jsdoc": "Explicit pure move/reorder command emitted by the project-planning diff.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** `move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order. */\n    kind: 'move' | 'reorder';\n    /** Existing rowid from the complete original project tree. */\n    nodeId: string;\n    /** Parent identity in the target tree; must also exist in the original same-project tree. */\n    parentNodeId: string;\n    /** Original parent identity captured by the replacement plan. */\n    previousParentNodeId?: string;\n    /** Target depth and sibling position from the explicit replacement plan. */\n    depth: number;\n    siblingIndex: number;\n    /** Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted. */\n    fields: Readonly<Record<string, string | number>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** `move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order. */\n    kind: 'move' | 'reorder';\n    /** Existing rowid from the complete original project tree. */\n    nodeId: string;\n    /** Parent identity in the target tree; must also exist in the original same-project tree. */\n    parentNodeId: string;\n    /** Original parent identity captured by the replacement plan. */\n    previousParentNodeId?: string;\n    /** Target depth and sibling position from the explicit replacement plan. */\n    depth: number;\n    siblingIndex: number;\n    /** Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted. */\n    fields: Readonly<Record<string, string | number>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "`move` reparents an existing leaf; `reorder` changes only an existing sibling's formal order.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "Existing rowid from the complete original project tree.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "jsdoc": "Parent identity in the target tree; must also exist in the original same-project tree.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousParentNodeId",
+              "jsdoc": "Original parent identity captured by the replacement plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "depth",
+              "jsdoc": "Target depth and sibling position from the explicit replacement plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "siblingIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "Exact formal wire fields for this command; only `prowid` and `FunOrderValue` are accepted.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintLeafMoveBatchOptions": {
+      "name": "BlueprintLeafMoveBatchOptions",
+      "jsdoc": "Named inputs for one preflighted AI move/reorder batch.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Complete original tree used by the planner. */\n    beforeTree: ProjectBlueprintTreeData;\n    /** Explicit wire move/reorder commands from the plan. */\n    commands: readonly BlueprintLeafMoveBatchCommand[];\n    /** Complete target tree represented by those commands. */\n    expectedTree: ProjectBlueprintTreeData;\n    /** Called after owner preflight and immediately before staging. */\n    beforeStage?: () => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Complete original tree used by the planner. */\n    beforeTree: ProjectBlueprintTreeData;\n    /** Explicit wire move/reorder commands from the plan. */\n    commands: readonly BlueprintLeafMoveBatchCommand[];\n    /** Complete target tree represented by those commands. */\n    expectedTree: ProjectBlueprintTreeData;\n    /** Called after owner preflight and immediately before staging. */\n    beforeStage?: () => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "beforeTree",
+              "jsdoc": "Complete original tree used by the planner.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commands",
+              "jsdoc": "Explicit wire move/reorder commands from the plan.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedTree",
+              "jsdoc": "Complete target tree represented by those commands.",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "beforeStage",
+              "jsdoc": "Called after owner preflight and immediately before staging.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
             }
           ]
         }
@@ -974,6 +1178,30 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applyLeafMoveBatch",
+              "jsdoc": "Preflight, stage and save one AI pure leaf-move/reorder command through this DataView.",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintLeafMoveBatchOptions",
+                    "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts"
                   }
                 }
               ],

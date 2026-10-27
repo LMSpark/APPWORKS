@@ -1,0 +1,35 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/page/catalog/data-space-four-file.test.ts (80 tests | 1 failed | 79 skipped) 141ms
+     × keeps partial move receipts pending through Save All readback and refuses cancel 139ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/catalog/data-space-four-file.test.ts > blueprint tree DataView move draft > keeps partial move receipts pending through Save All readback and refuses cancel
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/runtime/page/catalog/data-space-four-file.test.ts:722:62
+    720|     expect(session.hasPendingBlueprintCommand).toBe(true)
+    721|     const retainedPatch=session.view.getEditingPatch('NAV-BOUND')
+    722|     await expect(Promise.resolve().then(()=>session.cancel())).rejects…
+       |                                                              ^
+    723|     expect(session.view.getEditingPatch('NAV-BOUND')).toEqual(retained…
+    724|     expect(session.dirty).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 79 skipped (80)
+   Start at  17:56:05
+   Duration  13.77s (transform 8.54s, setup 162ms, import 11.61s, tests 141ms, environment 1.40s)

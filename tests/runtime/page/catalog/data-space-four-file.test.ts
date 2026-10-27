@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 import { registerAllRenderers, Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
 import { RequestState } from '@spark-appworks/spark-data'
 import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
-import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType, type ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
+import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType, type ProjectBlueprintTreeData, type ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
 import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
 import { createPageComponentRegistry } from '../../../../packages/spark-component/src/page/context/page-component-registry'
@@ -85,6 +85,7 @@ function formalModels(): FormalModel[] {
       { id: 'nav-funname', name: 'FunName', type: 'varchar', primaryKey: false },
       { id: 'nav-funcode', name: 'funCode', type: 'varchar', primaryKey: false },
       { id: 'nav-name', name: 'name', type: 'varchar', primaryKey: false },
+      { id: 'nav-contype', name: 'conType', type: 'varchar', primaryKey: false },
       { id: 'nav-url', name: 'NavigationUrl', type: 'varchar', primaryKey: false },
       { id: 'nav-show-type', name: 'NavigationShowType', type: 'varchar', primaryKey: false },
       { id: 'nav-horizontal-alignment', name: 'HorizontalAlignment', type: 'varchar', primaryKey: false },
@@ -108,6 +109,16 @@ function formalModels(): FormalModel[] {
       { id: '24459754EAAE44C6B42C241E57F947CA', name: 'ID', type: 'varchar', primaryKey: true },
       { id: '60A746A09D8043C8B6ABD05C422914F8', name: 'UserName', type: 'varchar', primaryKey: false },
     ] }),
+    formalModel({ id: `${blueprintScenarioId}p007`, metaName: 'Base_Navigation_Desc_Version', primaryKey: 'rowid', fields: [
+      {id:'nav-desc-rowid',name:'rowid',type:'varchar',primaryKey:true},{id:'nav-desc-parent',name:'prowid',type:'varchar',primaryKey:false},
+      {id:'nav-desc-text',name:'desc',type:'varchar',primaryKey:false},{id:'nav-desc-versionid',name:'versionId',type:'varchar',primaryKey:false},
+      {id:'nav-desc-versionname',name:'VersionName',type:'varchar',primaryKey:false},{id:'nav-desc-version',name:'version',type:'varchar',primaryKey:false},
+    ] }),
+    formalModel({ id:'6ab982ff-afa3-4d06-99ef-1c500b7587c6',metaName:'Base_Navigation_DataRelation',primaryKey:'rowid',fields:[
+      {id:'nav-relation-rowid',name:'rowid',type:'varchar',primaryKey:true},{id:'nav-relation-parent',name:'parentModId',type:'varchar',primaryKey:false},
+      {id:'nav-relation-child',name:'childModId',type:'varchar',primaryKey:false},{id:'nav-relation-filter',name:'filter',type:'varchar',primaryKey:false},
+      {id:'nav-relation-type',name:'depType',type:'varchar',primaryKey:false},{id:'nav-relation-cascade',name:'cascadeDel',type:'boolean',primaryKey:false},
+    ]}),
   ]
 }
 
@@ -599,6 +610,118 @@ describe('blueprint tree DataView move draft', () => {
     expect(fixture.http.navigationRows.find(row => row['rowid'] === 'NAV-BOUND')).toMatchObject({prowid: 'NAV-ROOT'})
     expect(session.treeProjection().children.map(node=>node.nodeId)).toContain('NAV-BOUND')
     expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('applies multiple AI leaf moves and the explicit sibling reorder as one exact DataView save',async()=>{
+    const fixture=await createCatalogScriptFixture({},http=>{
+      http.navigationEditableFields=['prowid','FunOrderValue']
+      http.projectNavigationOutputFields=true
+      for(const row of http.navigationRows){row['FunOrderValue']=row['rowid']==='NAV-OTHER'?2:row['rowid']==='NAV-BOUND-2'?1:0;row['conType']=row['rowid']==='NAV-ROOT'||row['rowid']==='NAV-GROUP'?'Model':'Navitem'}
+    })
+    const session=new BlueprintWorkspaceDataView(fixture.blueprintDataSet,'APP-1',()=>{})
+    const before=await session.loadProjectTree()
+    const group=before.children.find(node=>node.nodeId==='NAV-GROUP')
+    const bound=group?.children?.find(node=>node.nodeId==='NAV-BOUND')
+    const bound2=before.children.find(node=>node.nodeId==='NAV-BOUND-2')
+    const other=before.children.find(node=>node.nodeId==='NAV-OTHER')
+    if(!group||!bound||!bound2||!other)throw new Error('move batch fixture is incomplete')
+    const withParentAndOrder=(node:ProjectBlueprintTreeNodeData,parentNodeId:string,order:number):ProjectBlueprintTreeNodeData=>({...node,parentNodeId,
+      navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}})
+    const expected={...before,children:[
+      {...group,children:[withParentAndOrder(bound2,'NAV-GROUP',0)]},
+      withParentAndOrder(other,'NAV-ROOT',1),
+      withParentAndOrder(bound,'NAV-ROOT',2),
+    ]}
+    const reorderSourceKeys=(node:ProjectBlueprintTreeNodeData):ProjectBlueprintTreeNodeData=>({...node,source:Object.fromEntries(Object.entries(node.source).reverse()),
+      ...(node.children===undefined?{}:{children:node.children.map(reorderSourceKeys)})})
+    const beforeWithDifferentPropertyOrder=reorderSourceKeys(before) as ProjectBlueprintTreeData
+    const commands=[
+      {kind:'move' as const,nodeId:'NAV-BOUND',previousParentNodeId:'NAV-GROUP',parentNodeId:'NAV-ROOT',depth:1,siblingIndex:2,fields:{prowid:'NAV-ROOT',FunOrderValue:2}},
+      {kind:'move' as const,nodeId:'NAV-BOUND-2',previousParentNodeId:'NAV-ROOT',parentNodeId:'NAV-GROUP',depth:2,siblingIndex:0,fields:{prowid:'NAV-GROUP',FunOrderValue:0}},
+      {kind:'reorder' as const,nodeId:'NAV-OTHER',previousParentNodeId:'NAV-ROOT',parentNodeId:'NAV-ROOT',depth:1,siblingIndex:1,fields:{FunOrderValue:1}},
+    ]
+    let quota=0
+    const validator=session.view.validator
+    if(!validator)throw new Error('move batch DataView validator fixture is missing')
+    const validate=vi.spyOn(validator,'validateColumns').mockReturnValue({valid:false,errors:[{message:'validator rejects move'}]} as never)
+    await expect(session.applyLeafMoveBatch({beforeTree:beforeWithDifferentPropertyOrder,commands,expectedTree:expected,beforeStage:()=>{quota++;return true}})).rejects.toThrow('validator rejects move')
+    expect(quota).toBe(0);expect(session.dirty).toBe(false);expect(fixture.http.saveRequests).toHaveLength(0)
+    validate.mockRestore()
+    fixture.http.navigationEditableFieldsByRow={'NAV-OTHER':[]}
+    await expect(session.applyLeafMoveBatch({beforeTree:beforeWithDifferentPropertyOrder,commands,expectedTree:expected,beforeStage:()=>{quota++;return true}})).rejects.toThrow('权限拒绝')
+    expect(quota).toBe(0);expect(session.dirty).toBe(false);expect(fixture.http.saveRequests).toHaveLength(0)
+    delete fixture.http.navigationEditableFieldsByRow['NAV-OTHER']
+    const updateOriginal=session.view.updateEditingValue.bind(session.view)
+    let stagedWrites=0
+    const stage=vi.spyOn(session.view,'updateEditingValue').mockImplementation(((...args:Parameters<typeof session.view.updateEditingValue>)=>{
+      stagedWrites++;if(stagedWrites===3)throw new Error('fixture staging failure');return updateOriginal(...args)
+    }) as typeof session.view.updateEditingValue)
+    await expect(session.applyLeafMoveBatch({beforeTree:beforeWithDifferentPropertyOrder,commands,expectedTree:expected,beforeStage:()=>{quota++;return true}})).rejects.toThrow('fixture staging failure')
+    expect(session.dirty).toBe(false);expect(fixture.http.saveRequests).toHaveLength(0)
+    stage.mockRestore();quota=0
+    fixture.http.failSave=true
+    await expect(session.applyLeafMoveBatch({beforeTree:beforeWithDifferentPropertyOrder,commands,expectedTree:expected,beforeStage:()=>{quota++;return true}})).rejects.toThrow('fixture connection lost')
+    expect(session.hasUnconfirmedSave).toBe(true)
+    await expect(session.applyLeafMoveBatch({beforeTree:beforeWithDifferentPropertyOrder,commands,expectedTree:expected,beforeStage:()=>{quota++;return true}})).rejects.toThrow('原命令待核验')
+    await expect(session.load('NAV-OTHER')).rejects.toThrow('未保存修改')
+    expect(quota).toBe(1)
+    fixture.http.failSave=false
+    await session.save()
+    expect(quota).toBe(1)
+    expect(fixture.http.saveRequests).toHaveLength(1)
+    expect(fixture.http.changedRows.map(row=>row['rowid']).sort()).toEqual(['NAV-BOUND','NAV-BOUND-2','NAV-OTHER'])
+    expect(session.treeProjection().children.find(node=>node.nodeId==='NAV-GROUP')?.children?.map(node=>node.nodeId)).toEqual(['NAV-BOUND-2'])
+    expect(session.treeProjection().children.map(node=>node.nodeId)).toEqual(['NAV-GROUP','NAV-OTHER','NAV-BOUND'])
+    expect(session.dirty).toBe(false)
+    const confirmed=await session.loadProjectTree(),confirmedGroup=confirmed.children.find(node=>node.nodeId==='NAV-GROUP')!,confirmedBound=confirmed.children.find(node=>node.nodeId==='NAV-BOUND')!
+    const rollbackTarget={...confirmed,children:[{...confirmedGroup,children:[...(confirmedGroup.children??[]),withParentAndOrder(confirmedBound,'NAV-GROUP',1)]},
+      ...confirmed.children.filter(node=>node.nodeId!=='NAV-GROUP'&&node.nodeId!=='NAV-BOUND')]}
+    const rollbackUpdateOriginal=session.view.updateEditingValue.bind(session.view)
+    let rollbackStagedWrites=0
+    const rollbackStage=vi.spyOn(session.view,'updateEditingValue').mockImplementation(((...args:Parameters<typeof session.view.updateEditingValue>)=>{
+      rollbackStagedWrites++;if(rollbackStagedWrites===2)throw new Error('fixture staging failure');return rollbackUpdateOriginal(...args)
+    }) as typeof session.view.updateEditingValue)
+    const discard=vi.spyOn(session.view,'discardPendingChanges').mockImplementation(()=>{throw new Error('fixture rollback failure')})
+    await expect(session.applyLeafMoveBatch({beforeTree:confirmed,commands:[{kind:'move',nodeId:'NAV-BOUND',previousParentNodeId:'NAV-ROOT',parentNodeId:'NAV-GROUP',depth:2,siblingIndex:1,
+      fields:{prowid:'NAV-GROUP',FunOrderValue:1}}],expectedTree:rollbackTarget,beforeStage:()=>true})).rejects.toThrow('回滚未确认')
+    expect(session.hasPendingBlueprintCommand).toBe(true)
+    await expect(session.save()).rejects.toThrow('批量暂存回滚未确认')
+    rollbackStage.mockRestore();discard.mockRestore();session.cancel()
+    expect(session.dirty).toBe(false)
+    fixture.pageRuntime.dispose()
+  })
+
+  it('keeps partial move receipts pending through Save All readback and refuses cancel',async()=>{
+    const fixture=await createCatalogScriptFixture({},http=>{
+      http.navigationEditableFields=['prowid','FunOrderValue'];http.projectNavigationOutputFields=true
+      for(const row of http.navigationRows){row['FunOrderValue']=row['rowid']==='NAV-OTHER'?2:row['rowid']==='NAV-BOUND-2'?1:0;row['conType']=row['rowid']==='NAV-ROOT'||row['rowid']==='NAV-GROUP'?'Model':'Navitem'}
+    })
+    const session=new BlueprintWorkspaceDataView(fixture.blueprintDataSet,'APP-1',()=>{})
+    const before=await session.loadProjectTree(),group=before.children.find(node=>node.nodeId==='NAV-GROUP')
+    const moving=group?.children?.find(node=>node.nodeId==='NAV-BOUND'),next=before.children.find(node=>node.nodeId==='NAV-BOUND-2'),last=before.children.find(node=>node.nodeId==='NAV-OTHER')
+    if(!group||!moving||!next||!last)throw new Error('partial move receipt fixture is incomplete')
+    const withOrder=(node:ProjectBlueprintTreeNodeData,parentNodeId:string,order:number):ProjectBlueprintTreeNodeData=>({...node,parentNodeId,
+      navigation:{...(node.navigation??{title:node.capability.name,order,publishInMenu:false,showChildren:false,beginGroup:false}),order}})
+    const expected={...before,children:[{...group,children:[]},withOrder(moving,'NAV-ROOT',1),withOrder(next,'NAV-ROOT',2),withOrder(last,'NAV-ROOT',3)]}
+    const commands=[
+      {kind:'move' as const,nodeId:'NAV-BOUND',previousParentNodeId:'NAV-GROUP',parentNodeId:'NAV-ROOT',depth:1,siblingIndex:1,fields:{prowid:'NAV-ROOT',FunOrderValue:1}},
+      {kind:'reorder' as const,nodeId:'NAV-BOUND-2',previousParentNodeId:'NAV-ROOT',parentNodeId:'NAV-ROOT',depth:1,siblingIndex:2,fields:{FunOrderValue:2}},
+      {kind:'reorder' as const,nodeId:'NAV-OTHER',previousParentNodeId:'NAV-ROOT',parentNodeId:'NAV-ROOT',depth:1,siblingIndex:3,fields:{FunOrderValue:3}},
+    ]
+    const partialReceipt={success:true,data:{viewCount:1,appliedEditingRows:0,failedEditingRows:0,createdCount:0,savedCount:2,deletedCount:0,failedCount:0,
+      failedViews:[],viewResults:[{tableName:session.view.tableName,viewId:session.view.viewId,appliedEditingRows:0,failedEditingRows:0,createdCount:0,savedCount:2,
+        deletedCount:0,failedCount:0,failedIds:[],failedErrors:{}}]}}
+    const saveChanges=vi.spyOn(session.dataSet,'saveChanges').mockResolvedValue(partialReceipt as never)
+    await expect(session.applyLeafMoveBatch({beforeTree:before,commands,expectedTree:expected,beforeStage:()=>true})).rejects.toThrow('回执计数不完整')
+    expect(saveChanges).toHaveBeenCalledOnce()
+    expect(session.hasPendingBlueprintCommand).toBe(true)
+    await expect(session.save()).rejects.toThrow('DATA_VIEW_UNSAVED_CHANGES')
+    expect(session.hasPendingBlueprintCommand).toBe(true)
+    const retainedPatch=session.view.getEditingPatch('NAV-BOUND')
+    await expect(Promise.resolve().then(()=>session.cancel())).rejects.toThrow('不能取消')
+    expect(session.view.getEditingPatch('NAV-BOUND')).toEqual(retainedPatch)
+    expect(session.dirty).toBe(true)
     fixture.pageRuntime.dispose()
   })
 

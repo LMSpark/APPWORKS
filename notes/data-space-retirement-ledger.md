@@ -2487,3 +2487,10 @@ flowchart TD
 - **TDD 与自动复核：**原始 RED 保存在 `notes/evidence/devsystem-capability-fields-RED.txt`；失败点为改前页面没有渲染标准 RendererForm。主控复跑 `pnpm exec vitest run tests/ui/renderer/renderer-form-detail.test.ts`：25/25 通过；`pnpm exec eslint src/views/app/dev-system/components/NodeBasicInfo.vue tests/ui/renderer/renderer-form-detail.test.ts`、`pnpm run typecheck`、`pnpm run build` 均退出 0。完整 `pnpm run verify:rules` 的架构、依赖、页面配置、AI 代码、文档、ClassModel、工作流、lowcode contract、类型 parity 和目录检查通过；末尾 `verify:page-thin` 因既有 `src/lowcode/resources/structured-config/structured-config-catalog.ts` 静态复制逻辑减少、要求收紧 `tools/page-thin-baseline.json` 而失败。该无关基线没有混入本批。
 - **真实 SPA 烟测状态：**当前 IAB 只显示未认证的本地平台首页；按 computer-use 禁止自动化认证的约束，本轮未进入工作台，也未改正式业务行。因此本批只证明自动化 DataView/权限夹具及工程构建，不声明线上字段渲染、权限响应或保存回读已通过。后续应在用户已认证会话中只读确认字段出现及绑定；要验证正式保存/回读须另选安全测试节点并保留真实回执。
 - **后续队列与状态：**A2 元数据字段的标准 DataView 组件接线已实现并通过自动化/构建；A2 受限业务命令执行器、业务能力目录到 SPA/DataView/授权/owner/回执的逐项映射，以及 96 页至能力 ID 的交叉索引（含 44 声称与 41 可辨识 ID 的差额）仍未完成。动态下一步仍是补齐现有矩阵映射与差额来源，再按合同选最小闭环；A1/A5 direct API 等旁路继续登记并逐项取证。总体整合继续 active，无 Java 或线上业务数据写入。
+
+### 2026-10-27 业务能力目录到页面矩阵交叉映射
+
+- **矩阵更新：**在现有 `notes/plan-appworks-integration.md` 96 页矩阵新增“能力归属（审核候选）”列，按冻结参考提交 `09937a5d6` 的页面/消费者语义映射已列 ID；96/96 行有映射或明确未决。复核脚本对照 HEAD 确认原10列逐行逐字不变、96行不增不减、新增列均非空且共11列。`verify:docs` 与 `git diff --check` 通过。
+- **明确未决：**第151行 `data-set-auth-page.vue` 是独立数据空间权限域，已批准能力目录没有明确 ID，故标未映射；第211行角色授权页为 G2 主域并嵌入第151行。O4人员/部门选择器标为跨页候选，S6/S7标平台壳能力，不强行分派到单页。目录表只有38行，拆开显式合并 ID 后辨识41项；缺少的3项仍无来源，不补造ID。该列只表示语义归属，不代表本仓实现完成。
+- **A2 字段动态选片：**审计确认五字段 wire 映射为 `name→name`、`description→memo`、`code→funCode`、`ownerId→personCharge`、`deliveryStatus→status`。name/memo已接入标准字段；personCharge/status已有估算/交付面板消费，不重复搬动。funCode尚无DevSystem手工入口，但历史保存证据中该正式字段 `output=false`；当前未认证 SPA 无法确认其现行视图投影和字段权限，因此本轮不添加只会空值/拒绝保存的控件。下一安全步骤是在已认证 SPA 经正式 DataView只读核该列输出/读写权和实际值，再决定是否以FieldText接同一 owner。
+- **状态：**此次仅修改计划矩阵与唯一台账，无产品代码、线上业务数据或Java变更。96→能力映射候选已补；3项目录差额、数据空间权限能力身份、跨页能力消费者精确归属、A2 `funCode` 当前正式输出/授权仍待核。整体目标继续 active。

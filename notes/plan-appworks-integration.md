@@ -145,104 +145,106 @@
 
 状态列：语义 / 合同 / 页面 / 删除 / 实页，未开始记“—”。v3 新增：调用分类（原页调用是否全部归类并有落点）、流程（本页发现已回写流程改进记录，或注明无新发现）。
 
-| 阶段 | 参考页面（features/ 下） | 本仓现状 | 语义 | 合同 | 页面 | 删除 | 实页 | 调用分类 | 流程 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | data-platform/data-set-management/design/ui/data-set-design-page.vue | 已同路径；I3 五页签+请求方案；I4 §4.3 11 类命令已删（`*-session.ts`+Handle，view-design Map 保留） | 部分 | 部分 | 部分 | 部分 | — | — | — |
-| 1 | data-platform/data-set-management/ui/data-set-auth-page.vue | 缺 | — | — | — | — | — | — | — |
-| 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径；对话框设计入口+删除+去短路径（工作区） | 通过 | 通过 | 通过 | 通过 | — | — | — |
-| 2 | data-platform/database-management/table-and-view/ui/add-table-dialog.vue | 目录插表 + 未登记表名只读命令；字段在表设计 | 部分 | 通过 | 部分 | — | — | 部分（#2 与参考 saveAddTable 字段批差距） | — |
-| 2 | data-platform/database-management/table-and-view/ui/register-dialog.vue | 未登记表/视图多选 + registerTable/registerView；默认字段选项 | 部分 | 通过 | 部分 | — | — | 通过 | 回写 1 条 |
-| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | tiered hub；子对话框同 DataSet（见 hub-v3 research） | 部分 | 部分 | 部分 | 通过 | 阻塞（正式模型未登记，见 live-pilot-formal-model-gap.json） | 通过（子页分 research；add-table 字段批差距） | 回写 5 条 |
-| 2 | data-platform/database-management/table-and-view/ui/table-design-dialog.vue | 表头+字段+关系+预览+数据流（筛选）；Base_TblRln 增删改；同步元数据写命令 | 部分 | 通过 | 部分 | 通过（关系 tab 删除 vitest） | — | 通过（#9 缺口已登记） | 回写 2 条 |
-| 2 | data-platform/database-management/table-and-view/ui/view-design-dialog.vue | 三页签（设计/输出/数据）；GetData 数据库视图预览；应用选择；输出字段 save | 部分 | 通过 | 部分 | — | — | 通过（#8 AI 缺口已登记） | 回写 2 条 |
-| 2 | data-platform/database-management/ui/service-management-page.vue | 列表/刷新/编辑；registerServer + 页面注册/删除 vitest；列表 7 列 children | 部分 | 通过 | 部分 | 通过 | 部分（tier JSON serverPageCycle + serverRegisterCommand） | 通过（模型查询/保存、只读命令测连、写命令注册/删除） | 回写 12 条 |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue | 已同路径；layout/rules→designJson staged save | 部分 | 部分 | 部分 | — | 阻塞 | 部分（Read/WriteDesign 待实服） | — |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue | 已同路径；catalog DataView | 部分 | 通过 | 部分 | — | — | 通过 | — |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue | 已同路径；占位对话框 | 部分 | — | 部分 | — | — | 部分 | — |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue | 已同路径；editor 子面板 | 部分 | — | 部分 | — | — | — | — |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue | 已同路径；占位 | 部分 | — | 部分 | — | — | 部分 | — |
-| 2 | data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue | 已同路径；editor 子面板 | 部分 | — | 部分 | — | — | — | — |
-| 2 | data-platform/semi-structured/json-data/ui/json-data-page.vue | 已同路径；目录+JsonContentEdit refresh/save | 部分 | 部分 | 部分 | — | 阻塞 | 通过（GetJson/SaveJsonData 在 lowcode ops） | — |
-| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue | 已同路径；规则 JSON staged save | 部分 | 部分 | 部分 | — | 阻塞 | 部分（reference 未进 inventory） | — |
-| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | — |
-| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue | 已同路径；editor 子表单 | 部分 | — | 部分 | — | — | — | — |
-| 2 | data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue | 已同路径；stub 对话框 | 部分 | 部分 | 部分 | — | — | 部分（SaveCodeDesign/分配 API 见 api-gaps） | — |
-| 2 | data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 2 | data-platform/structured-config/data-code/ui/code-init-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 2 | data-platform/structured-config/data-code/ui/data-code-editor-page.vue | 已同路径；CodeName save MVP | 部分 | 部分 | 部分 | — | — | 部分（#1 目录查询 #2 Get/SaveCodeDesign） | — |
-| 2 | data-platform/structured-config/data-code/ui/data-code-list-page.vue | 已同路径；catalog 装配 | 部分 | 通过 | 部分 | — | — | 通过（catalog DataView） | — |
-| 2 | data-platform/structured-config/data-code/ui/parent-code-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 2 | data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 2 | data-platform/structured-config/data-code/ui/time-string-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 2 | data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue | 已同路径；catalog + 设计对话框 | 通过 | 通过 | 部分 | — | 阻塞（live-pilot-dictionary.json） | 通过 | — |
-| 2 | data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue | 独立数据维护；heading vitest | 通过 | 通过 | 部分 | — | 阻塞（同上） | 通过 | — |
-| 2 | data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue | 设计/workspace；workflow vitest | 通过 | 通过 | 部分 | — | 阻塞（同上） | 通过 | — |
-| 2 | data-platform/structured-config/logic-view/ui/logic-view-design-page.vue | ViewData JSON MVP | 部分 | 通过 | 部分 | — | — | 通过（GetView/SaveView） | — |
-| 2 | data-platform/structured-config/logic-view/ui/logic-view-list-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | — |
-| 2 | data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue | JSON 节点/边 MVP | 部分 | 部分 | 部分 | — | — | 部分（read/write 未实服核） | — |
-| 2 | data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | — |
-| 2 | data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue | 已同路径；触发表 stub | 部分 | 部分 | 部分 | — | — | 部分 | — |
-| 3 | application/application-context/ui/application-database-relations-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-context/ui/application-function-route.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-function-management/ui/application-function-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-manager/ui/application-database-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-manager/ui/application-manager-form-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-manager/ui/application-manager-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/application-manager/ui/application-manager-page.vue | 换路径→tenant/AppList.vue | — | — | — | — | — | — | — |
-| 3 | application/application-manager/ui/application-relation-dialogs.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/data-menu/ui/data-menu-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/data-menu/ui/data-menu-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/data-menu/ui/data-menu-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/apply-app-auth-content.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/apply-app-auth-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-config-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-password-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/desensitization-rule/ui/desensitization-rule-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/navigation-permission/ui/navigation-permission-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/role-management/ui/role-auth-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/role-management/ui/role-management-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/role-management/ui/role-user-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | governance/user-app-authorization/ui/user-app-authorization-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | integration/api-management/ui/api-config-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | — |
-| 3 | integration/api-management/ui/api-interface-list-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | — |
-| 3 | integration/api-management/ui/api-management-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | — |
-| 3 | integration/report/ui/report-form-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | integration/report/ui/report-management-list.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | integration/report/ui/report-management-page.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | integration/report/ui/report-model-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 3 | integration/report/ui/report-version-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/job-management/ui/job-management-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/leave-management/ui/leave-form-aside.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/leave-management/ui/leave-form-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/leave-management/ui/leave-management-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/organization-structure/ui/organization-structure-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/user-management/ui/user-form-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/user-management/ui/user-management-list.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/user-management/ui/user-management-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | organization/user-management/ui/user-permission-dialog.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | system/bug-manage/ui/bug-manage-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | system/cache-management/ui/cache-management-page.vue | 换路径→tenant/CacheManager.vue | — | — | — | — | — | — | — |
-| 4 | system/data-recovery/ui/data-recovery-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | system/flow-monitor/ui/flow-monitor-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | system/login/ui/login-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-append-user/ui/flow-append-user.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-model/design/ui/flow-design-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-model/ui/flow-model-list-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-runtime/detail/ui/flow-run-detail-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-runtime/run-page/ui/flow-run-page.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue | 缺 | — | — | — | — | — | — | — |
-| 4 | workflow/flow-workbench/ui/flow-workbench-todo-panel.vue | 缺 | — | — | — | — | — | — | — |
+能力归属列只表示参考语义映射到已列目录ID，不代表本仓实现或验收通过。O4人员/部门选择器是跨页面能力，在组织及选人消费者处为候选；S6会话、S7全局消息属于平台壳能力，当前不分配具体矩阵页。设计书称44项，但按其显式合并ID拆分当前只能辨识41项；差额3项保持未定义，不补造ID。
+
+| 阶段 | 参考页面（features/ 下） | 本仓现状 | 语义 | 合同 | 页面 | 删除 | 实页 | 调用分类 | 流程  | 能力归属（审核候选） |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | ---  | --- |
+| 1 | data-platform/data-set-management/design/ui/data-set-design-page.vue | 已同路径；I3 五页签+请求方案；I4 §4.3 11 类命令已删（`*-session.ts`+Handle，view-design Map 保留） | 部分 | 部分 | 部分 | 部分 | — | — | —  | D2 |
+| 1 | data-platform/data-set-management/ui/data-set-auth-page.vue | 缺 | — | — | — | — | — | — | —  | 未映射：数据空间权限 |
+| 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径；对话框设计入口+删除+去短路径（工作区） | 通过 | 通过 | 通过 | 通过 | — | — | —  | D1 |
+| 2 | data-platform/database-management/table-and-view/ui/add-table-dialog.vue | 目录插表 + 未登记表名只读命令；字段在表设计 | 部分 | 通过 | 部分 | — | — | 部分（#2 与参考 saveAddTable 字段批差距） | —  | B2 |
+| 2 | data-platform/database-management/table-and-view/ui/register-dialog.vue | 未登记表/视图多选 + registerTable/registerView；默认字段选项 | 部分 | 通过 | 部分 | — | — | 通过 | 回写 1 条  | B2 |
+| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | tiered hub；子对话框同 DataSet（见 hub-v3 research） | 部分 | 部分 | 部分 | 通过 | 阻塞（正式模型未登记，见 live-pilot-formal-model-gap.json） | 通过（子页分 research；add-table 字段批差距） | 回写 5 条  | B2 |
+| 2 | data-platform/database-management/table-and-view/ui/table-design-dialog.vue | 表头+字段+关系+预览+数据流（筛选）；Base_TblRln 增删改；同步元数据写命令 | 部分 | 通过 | 部分 | 通过（关系 tab 删除 vitest） | — | 通过（#9 缺口已登记） | 回写 2 条  | B2 |
+| 2 | data-platform/database-management/table-and-view/ui/view-design-dialog.vue | 三页签（设计/输出/数据）；GetData 数据库视图预览；应用选择；输出字段 save | 部分 | 通过 | 部分 | — | — | 通过（#8 AI 缺口已登记） | 回写 2 条  | B2 |
+| 2 | data-platform/database-management/ui/service-management-page.vue | 列表/刷新/编辑；registerServer + 页面注册/删除 vitest；列表 7 列 children | 部分 | 通过 | 部分 | 通过 | 部分（tier JSON serverPageCycle + serverRegisterCommand） | 通过（模型查询/保存、只读命令测连、写命令注册/删除） | 回写 12 条  | B1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue | 已同路径；layout/rules→designJson staged save | 部分 | 部分 | 部分 | — | 阻塞 | 部分（Read/WriteDesign 待实服） | —  | H1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue | 已同路径；catalog DataView | 部分 | 通过 | 部分 | — | — | 通过 | —  | H1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue | 已同路径；占位对话框 | 部分 | — | 部分 | — | — | 部分 | —  | H1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue | 已同路径；editor 子面板 | 部分 | — | 部分 | — | — | — | —  | H1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue | 已同路径；占位 | 部分 | — | 部分 | — | — | 部分 | —  | H1 |
+| 2 | data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue | 已同路径；editor 子面板 | 部分 | — | 部分 | — | — | — | —  | H1 |
+| 2 | data-platform/semi-structured/json-data/ui/json-data-page.vue | 已同路径；目录+JsonContentEdit refresh/save | 部分 | 部分 | 部分 | — | 阻塞 | 通过（GetJson/SaveJsonData 在 lowcode ops） | —  | H3 |
+| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue | 已同路径；规则 JSON staged save | 部分 | 部分 | 部分 | — | 阻塞 | 部分（reference 未进 inventory） | —  | H2 |
+| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | —  | H2 |
+| 2 | data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue | 已同路径；editor 子表单 | 部分 | — | 部分 | — | — | — | —  | H2 |
+| 2 | data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue | 已同路径；stub 对话框 | 部分 | 部分 | 部分 | — | — | 部分（SaveCodeDesign/分配 API 见 api-gaps） | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/code-init-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/data-code-editor-page.vue | 已同路径；CodeName save MVP | 部分 | 部分 | 部分 | — | — | 部分（#1 目录查询 #2 Get/SaveCodeDesign） | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/data-code-list-page.vue | 已同路径；catalog 装配 | 部分 | 通过 | 部分 | — | — | 通过（catalog DataView） | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/parent-code-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | —  | C2 |
+| 2 | data-platform/structured-config/data-code/ui/time-string-dialog.vue | 已同路径 | 部分 | 部分 | 部分 | — | — | 部分 | —  | C2 |
+| 2 | data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue | 已同路径；catalog + 设计对话框 | 通过 | 通过 | 部分 | — | 阻塞（live-pilot-dictionary.json） | 通过 | —  | C1 |
+| 2 | data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue | 独立数据维护；heading vitest | 通过 | 通过 | 部分 | — | 阻塞（同上） | 通过 | —  | C1 |
+| 2 | data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue | 设计/workspace；workflow vitest | 通过 | 通过 | 部分 | — | 阻塞（同上） | 通过 | —  | C1 |
+| 2 | data-platform/structured-config/logic-view/ui/logic-view-design-page.vue | ViewData JSON MVP | 部分 | 通过 | 部分 | — | — | 通过（GetView/SaveView） | —  | C3 |
+| 2 | data-platform/structured-config/logic-view/ui/logic-view-list-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | —  | C3 |
+| 2 | data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue | JSON 节点/边 MVP | 部分 | 部分 | 部分 | — | — | 部分（read/write 未实服核） | —  | C4 |
+| 2 | data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue | 已同路径；catalog | 部分 | 通过 | 部分 | — | — | 通过 | —  | C4 |
+| 2 | data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue | 已同路径；触发表 stub | 部分 | 部分 | 部分 | — | — | 部分 | —  | C4 |
+| 3 | application/application-context/ui/application-database-relations-page.vue | 缺 | — | — | — | — | — | — | —  | A1 |
+| 3 | application/application-context/ui/application-function-route.vue | 缺 | — | — | — | — | — | — | —  | A2 |
+| 3 | application/application-function-management/ui/application-function-page.vue | 缺 | — | — | — | — | — | — | —  | A2 |
+| 3 | application/application-manager/ui/application-database-dialog.vue | 缺 | — | — | — | — | — | — | —  | A1 |
+| 3 | application/application-manager/ui/application-manager-form-dialog.vue | 缺 | — | — | — | — | — | — | —  | A1 |
+| 3 | application/application-manager/ui/application-manager-list.vue | 缺 | — | — | — | — | — | — | —  | A1 |
+| 3 | application/application-manager/ui/application-manager-page.vue | 换路径→tenant/AppList.vue | — | — | — | — | — | — | —  | A1 |
+| 3 | application/application-manager/ui/application-relation-dialogs.vue | 缺 | — | — | — | — | — | — | —  | A1 |
+| 3 | application/data-menu/ui/data-menu-dialog.vue | 缺 | — | — | — | — | — | — | —  | A3 |
+| 3 | application/data-menu/ui/data-menu-list.vue | 缺 | — | — | — | — | — | — | —  | A3 |
+| 3 | application/data-menu/ui/data-menu-page.vue | 缺 | — | — | — | — | — | — | —  | A3 |
+| 3 | application/enterprise-app-auth-application/ui/apply-app-auth-content.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/apply-app-auth-page.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue | 缺 | — | — | — | — | — | — | —  | A4 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-config-dialog.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-password-dialog.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue | 缺 | — | — | — | — | — | — | —  | A5 |
+| 3 | governance/desensitization-rule/ui/desensitization-rule-page.vue | 缺 | — | — | — | — | — | — | —  | G1 |
+| 3 | governance/navigation-permission/ui/navigation-permission-page.vue | 缺 | — | — | — | — | — | — | —  | G2 |
+| 3 | governance/role-management/ui/role-auth-page.vue | 缺 | — | — | — | — | — | — | —  | G2；嵌入数据空间权限（见151，未映射） |
+| 3 | governance/role-management/ui/role-management-page.vue | 缺 | — | — | — | — | — | — | —  | G3（不迁） |
+| 3 | governance/role-management/ui/role-user-page.vue | 缺 | — | — | — | — | — | — | —  | G5（不迁） |
+| 3 | governance/user-app-authorization/ui/user-app-authorization-page.vue | 缺 | — | — | — | — | — | — | —  | G6（后置） |
+| 3 | integration/api-management/ui/api-config-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | —  | I1 |
+| 3 | integration/api-management/ui/api-interface-list-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | —  | I1 |
+| 3 | integration/api-management/ui/api-management-page.vue | 已同路径(待按语义验收) | — | — | — | — | — | — | —  | I1 |
+| 3 | integration/report/ui/report-form-dialog.vue | 缺 | — | — | — | — | — | — | —  | I2 |
+| 3 | integration/report/ui/report-management-list.vue | 缺 | — | — | — | — | — | — | —  | I2 |
+| 3 | integration/report/ui/report-management-page.vue | 缺 | — | — | — | — | — | — | —  | I2 |
+| 3 | integration/report/ui/report-model-dialog.vue | 缺 | — | — | — | — | — | — | —  | I2 |
+| 3 | integration/report/ui/report-version-dialog.vue | 缺 | — | — | — | — | — | — | —  | I2 |
+| 4 | organization/job-management/ui/job-management-page.vue | 缺 | — | — | — | — | — | — | —  | O2 |
+| 4 | organization/leave-management/ui/leave-form-aside.vue | 缺 | — | — | — | — | — | — | —  | O5 |
+| 4 | organization/leave-management/ui/leave-form-page.vue | 缺 | — | — | — | — | — | — | —  | O5 |
+| 4 | organization/leave-management/ui/leave-management-page.vue | 缺 | — | — | — | — | — | — | —  | O5 |
+| 4 | organization/organization-structure/ui/organization-structure-page.vue | 缺 | — | — | — | — | — | — | —  | O1 |
+| 4 | organization/user-management/ui/user-form-dialog.vue | 缺 | — | — | — | — | — | — | —  | O3 |
+| 4 | organization/user-management/ui/user-management-list.vue | 缺 | — | — | — | — | — | — | —  | O3 |
+| 4 | organization/user-management/ui/user-management-page.vue | 缺 | — | — | — | — | — | — | —  | O3 |
+| 4 | organization/user-management/ui/user-permission-dialog.vue | 缺 | — | — | — | — | — | — | —  | G6（子页消费） |
+| 4 | system/bug-manage/ui/bug-manage-page.vue | 缺 | — | — | — | — | — | — | —  | S5 |
+| 4 | system/cache-management/ui/cache-management-page.vue | 换路径→tenant/CacheManager.vue | — | — | — | — | — | — | —  | S2 |
+| 4 | system/data-recovery/ui/data-recovery-page.vue | 缺 | — | — | — | — | — | — | —  | S3 |
+| 4 | system/flow-monitor/ui/flow-monitor-page.vue | 缺 | — | — | — | — | — | — | —  | S4 |
+| 4 | system/login/ui/login-page.vue | 缺 | — | — | — | — | — | — | —  | S1 |
+| 4 | workflow/flow-append-user/ui/flow-append-user.vue | 缺 | — | — | — | — | — | — | —  | W5 |
+| 4 | workflow/flow-model/design/ui/flow-design-page.vue | 缺 | — | — | — | — | — | — | —  | W2 |
+| 4 | workflow/flow-model/ui/flow-model-list-page.vue | 缺 | — | — | — | — | — | — | —  | W1 |
+| 4 | workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue | 缺 | — | — | — | — | — | — | —  | W3 |
+| 4 | workflow/flow-runtime/detail/ui/flow-run-detail-page.vue | 缺 | — | — | — | — | — | — | —  | W3 |
+| 4 | workflow/flow-runtime/run-page/ui/flow-run-page.vue | 缺 | — | — | — | — | — | — | —  | W3 |
+| 4 | workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue | 缺 | — | — | — | — | — | — | —  | W3 |
+| 4 | workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue | 缺 | — | — | — | — | — | — | —  | W4 |
+| 4 | workflow/flow-workbench/ui/flow-workbench-todo-panel.vue | 缺 | — | — | — | — | — | — | —  | W4 |
 
 ## 迭代记录
 

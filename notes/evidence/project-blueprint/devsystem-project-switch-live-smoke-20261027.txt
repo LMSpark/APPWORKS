@@ -12,3 +12,14 @@ Current limits:
 - The user confirmed any development project is acceptable, so no fixed project or leaf ID is required for the requested read-only switch smoke.
 - A real smoke still needs a manually authenticated SPA session and a valid NavHost/DataView candidate; a write smoke would require a separately scoped target node.
 - Computer-use guidance disallows automating authentication dialogs; no credentials were entered.
+
+Follow-up attempt (authenticated SPA, same date):
+- Using the test account already supplied and authorized by the user, signed in through the visible local SPA login form; no credential value is recorded here.
+- The application list loaded from the platform and showed development applications. Opening its first card switched context but left the old `homepage/app-list` route identity stale (`无法确定系统页面`); reopening 应用列表 from the SPA navigation restored that route. No application create/delete/settings action was invoked.
+- Reopened the previously established DevSystem route `/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/dev?__sparkNavigationId=appworks-tool-dev`. DevSystem loaded the D99 project blueprint and rendered 41 pages. The project-picker area displayed `当前导航未配置项目切换关系`.
+- Source path `NavHostProjectPicker.vue` loads `LOWCODE_APPLICATION_CATALOG_FORM_KEY`, resolves `Base_Navigation_DataRelation@default`, filters by `prowid = appworks-tool-dev`, and displays this exact message only when the DataView returns `total === 0`. Thus the live read confirmed there is no formal relation row for this host; no candidate DataView was loaded.
+- No project candidate was selected, no project switch completed, and no blueprint or other business record was written. The DevSystem tree read is live SPA evidence; it does not prove the switch-success path.
+
+Current result:
+- Authentication is now confirmed for this browser session. The prior unauthenticated attempt above is historical and superseded for session availability.
+- The blocking condition is the missing formal NavHost relation for `appworks-tool-dev`, not an unknown candidate project ID. Do not create or infer that persistent configuration as part of this read-only smoke. Continue only after the relation is supplied/configured through the authorized DataView workflow; then validate candidate fields and complete the requested read-only switch.

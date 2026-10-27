@@ -6,6 +6,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 -->
 <template>
   <div class="app-list-page">
+    <p v-if="runtimeError" role="alert">{{ runtimeError }}</p>
     <el-page-header content="应用管理" @back="$router.go(-1)">
       <template #icon>
         <span style="font-size: 20px">📱</span>
@@ -95,7 +96,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；属于租户路由页，不允许作为 SparkNode 组件配置生成。
  */
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
@@ -103,6 +104,9 @@ import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import NavIcon from '@/components/NavIcon.vue'
 import { getNavHomePath } from '@spark-appworks/spark-app'
+import { PageRuntime } from '@spark-appworks/spark-project-model'
+import type { DataView } from '@spark-appworks/spark-data'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
 
 type ProjectItem = {
@@ -123,6 +127,11 @@ const showCreateDialog = ref(false)
 const creating = ref(false)
 const settingsVisible = ref(false)
 const settingsTarget = ref<ProjectItem | null>(null)
+const runtimeError = ref('')
+let runtime: PageRuntime | undefined
+let active = true
+let generation = 0
+let unsubscribe: (() => void) | undefined
 
 const tenantId = computed(() => {
   const fromRoute = parseTenantScope(route.path)?.tenantId
@@ -139,7 +148,16 @@ const createForm = ref({
 })
 
 async function loadProjects() {
+  const scenarioId = typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : ''
+  if (scenarioId) {
+    runtimeError.value = ''
+    return loadScenarioProjects(scenarioId)
+  }
+  const own = ++generation
+  projects.value = []
+  runtimeError.value = ''
   const data = await lowcodeApi.platform.listApplications()
+  if (!active || own !== generation) return
   projects.value = data.map((application, order) => ({
     projectId: application.id,
     name: application.name,
@@ -148,6 +166,51 @@ async function loadProjects() {
     description: application.description,
     order,
   }))
+}
+
+function projectRows(view: DataView): ProjectItem[] {
+  const required = ['rowid', 'AppName', 'AppDesc', 'IsSys']
+  if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
+    throw new Error('应用目录 DataView 模型或主键身份不匹配')
+  }
+  return view.rows.map((row, order) => {
+    if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) {
+      throw new Error('应用目录 DataView 缺少可读的应用身份或展示字段')
+    }
+    const id = row['rowid']
+    if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
+    const code = String(row['AppName'] ?? '')
+    const description = String(row['AppDesc'] ?? '')
+    return {projectId: id, name: description || code || id, description, projectType: Number(row['IsSys'] ?? 0) === 1 ? 'homepage' : 'application', icon: 'Box', order}
+  })
+}
+
+async function loadScenarioProjects(scenarioId: string): Promise<void> {
+  const own = ++generation
+  projects.value = []
+  runtimeError.value = ''
+  runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
+  const projectId = parseTenantScope(route.path)?.projectId ?? ''
+  if (!projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
+  try {
+    const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
+      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
+    runtime = current
+    await current.load()
+    if (!active || own !== generation || current.destroyed) { current.dispose(); return }
+    const loaded = current.getDataSet(scenarioId)
+    const view = loaded?.getView('Base_AppSystemList', 'default')
+    if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
+    if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
+    const update = () => { if (active && own === generation) projects.value = projectRows(view) }
+    unsubscribe = loaded.onAnyViewChange({rowsChanged: update, requestStateChanged: update})
+    const result = await view.requestRefresh()
+    if (!active || own !== generation || current.destroyed) return
+    if (!result.success) throw new Error(result.message ?? '应用目录 DataView 查询未成功')
+    projects.value = projectRows(view)
+  } catch (cause) {
+    if (active && own === generation) runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+  }
 }
 
 function getProjectSwitch() {
@@ -210,6 +273,16 @@ async function handleDelete(project: ProjectItem) {
 onMounted(async () => {
   await loadProjects()
 })
+watch(() => route.meta['blueprintScenarioId'], value => {
+  if (typeof value === 'string' && value.trim()) {
+    void loadScenarioProjects(value.trim())
+    return
+  }
+  generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined
+  runtimeError.value = ''
+  void loadProjects()
+}, {flush: 'sync'})
+onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); runtime?.dispose(); runtime = undefined })
 </script>
 
 <style scoped>

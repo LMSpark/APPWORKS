@@ -2763,3 +2763,10 @@ flowchart TD
 - **应用目录模型反例：**同一正式空间 `Base_AppSystemList@catalogApps` 查询返回 `行数 1、总数 1、状态 Loaded`；唯一结果为企业简称 `NewApp`、系统中文名“元数据管理”、应用代码 `DataSchemaManage`。该正式应用级 DataView 没有全局项目范围，不能用作 DevSystem 项目候选源。
 - **当前判断：**使用数据空间设计补足已识别元数据 owner 的模型视图是可行且已获得正式分页查询证据；但当前 90A8 DataSet 的 `Base_AppSystemList` 数据权限范围只有本应用，`Base_DataSet` 完整集合又返回 502。因此尚无一个已验证可完整读取的、服务端认可的全局项目候选 DataView。不得把分页 20/1335 的当前元数据行或单行 `catalogApps` 冒充项目清单；继续查找平台根目录的正式 DataSet owner/scope，再决定是否能在正确空间补定义。
 - **证据与状态：**补充查询回执已写入 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。全程只读查询，无业务行新增/修改、无 Java 修改。DevSystem UI/DataSet 保存入口与真实项目切换烟测尚未完成。
+
+### 2026-10-28 根应用目录正式 DataSet owner 查询
+
+- **只读 SPA 证据：**在 90A8 的正式 `Base_DataSet@navHostDataSpaceOptions` 预览筛选 `sysid = homepage`，SPARK DataView 返回 `行数 0、总数 0、状态 Loaded`。当前正式元数据目录没有已登记给平台根路由 `homepage` 的 DataSet。筛选只存在于预览调用，没有保存到 DataView。
+- **建空间权限边界：**从认证 SPA 返回正式数据空间目录后，`新增`、`编辑`、`删除`均为 disabled；没有尝试绕过按钮或通过脚本/API 写入。用户授权通过数据空间设计补定义，但此处尚无 root DataSet owner，且当前目录 UI 未授予创建入口。故不创建猜测性 DataSet 或给根目录绑定 D99 的 90A8 / 7AB / 0C70。
+- **产品影响：**root `/app-list` 仍是一个脱离 SPARK DataSet 的 direct GetData 消费者；它的实际 61 项显示是比较基线，不足以证明可用任何现成项目 DataView 等价替换。正式迁移须先解决受服务端认可的 root owner 与创建/维护权限，再用其 DataView 对照真实行范围和字段权限，之后删除 Vue `listApplications()` 旧路径。当前源码基线未变，未改业务代码和 Java。
+- **当前交付：**正式预览查询、根 owner 缺项和目录按钮状态见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。唯一主线仍 active，转而继续盘点其它业务层 owner 绕行及可先迁移的闭环。

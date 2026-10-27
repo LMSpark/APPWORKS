@@ -24,6 +24,13 @@
 - `Base_AppSystemList@catalogApps` 预览返回 1 行、总数 1、状态 `Loaded`，唯一行显示 `NewApp`、系统名“元数据管理”、应用代码 `DataSchemaManage`。此响应证明该 view 在本应用的实际范围只有一项。
 - 结果只支持候选视图的分页查询可运行；不支持全量候选、权限完整性或跨 DataSet 绑定。没有继续创建 `Base_DataModel`、`Base_DataModel_Field` 视图，没有添加级联或修改 `Base_Navigation_DataRelation` / 业务行。
 
+## root `homepage` owner 检查
+
+- 在同一 `Base_DataSet@navHostDataSpaceOptions` 预览中，以正式字段“所属系统 ID”（`sysid`）等于 `homepage` 查询，DataView 返回 0 行、总数 0、状态 `Loaded`。此预览条件未保存到设计定义。
+- 关闭设计器返回 D99 正式数据空间目录时，页面的 `新增`、`编辑`、`删除`按钮均 disabled。没有尝试从 UI 之外写入。
+- 因此目前没有证据证明 `homepage` 有正式 DataSet，也没有本账号当前页面可用的 DataSpace 创建入口。90A8 的 Base_AppSystemList 只能读到 D99 当前应用的一行，不能替代 root `/app-list`。
+- root `/app-list` 的正式 DataSet owner/创建权限继续作为迁移阻断条件；本记录不授权扩大权限、冒用其他应用的 DataSet 或绕过 DataView。
+
 ## 后续验证门槛
 
 查询完成并取得真实 DataView 回执后，才补齐模型与字段选项视图、过滤级联和 DevSystem 标准绑定消费。`90A82...` 是元数据平台设计空间，不是静态 root `/app-list` 的正式 owner，也不能证明它的服务端 scope 可用于其他应用。

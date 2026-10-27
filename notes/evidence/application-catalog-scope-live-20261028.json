@@ -1,0 +1,58 @@
+{
+  "observedAt": "2026-10-28",
+  "environment": "authenticated local SPA, NewApp tenant; no business writes",
+  "legacyRootCatalog": {
+    "route": "/t/NewApp/homepage/app-list",
+    "uiCardCount": 61,
+    "request": {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "formKey": "7AB874097A1E8711A42FD845939A6E05",
+      "appIdHeader": null,
+      "tenantHeader": null,
+      "table": "Base_AppSystemList",
+      "filter": null,
+      "pageParam": null
+    },
+    "response": {
+      "httpStatus": 200,
+      "envelopeCode": 200,
+      "rowCount": 61,
+      "rowFieldCount": 12,
+      "permissionOrAccessFields": []
+    }
+  },
+  "formalDataView": {
+    "route": "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/application/application-manager/ui/application-manager-page?__sparkNavigationId=0C70F74793F9E858B71E0DBDEC784D57",
+    "uiCardCount": 1,
+    "request": {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "formKey": "0C70F74793F9E858B71E0DBDEC784D57",
+      "appIdHeader": "D99A1DCE9894698799101EFD70F8FC76",
+      "tenantHeader": "NewApp",
+      "table": "Base_AppSystemList",
+      "filter": null,
+      "pageParam": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    "response": {
+      "httpStatus": 200,
+      "envelopeCode": 200,
+      "rowCount": 1,
+      "rowFieldCount": 26,
+      "permissionOrAccessFields": []
+    }
+  },
+  "assessment": [
+    "The DataView request ran under the D99 application scope and returned one row; it is not scope-equivalent to the root catalog's 61 rows.",
+    "Neither response row contained explicit permission/access fields. This does not establish the complete authorization contract or prove that DataView.fieldAccess is server-derived.",
+    "The root request's unscoped tenant/app headers and fixed FormKey behavior need a formally supported platform/tenant DataSet owner before the route can migrate."
+  ],
+  "limitations": [
+    "Only sanitized request and response summaries are retained; no authorization header, row values, or credentials are included.",
+    "The observations compare two different formal scopes and do not prove that the current DataView is safe or equivalent for root-catalog use."
+  ]
+}

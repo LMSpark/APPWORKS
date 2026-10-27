@@ -18,6 +18,18 @@ function createEditor(): ProjectWorkspace {
 }
 
 describe('guardPageDesignEditor', () => {
+  it('fails closed for gateway-backed loadBlueprint reads',()=>{
+    const editor=createEditor()
+    const guarded=guardPageDesignEditor(editor,{blueprint:true})
+    expect(()=>guarded.loadBlueprint()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
+  })
+
+  it('fails closed for gateway-backed previewBlueprintRemote reads',()=>{
+    const editor=createEditor()
+    const guarded=guardPageDesignEditor(editor,{blueprint:true})
+    expect(()=>guarded.previewBlueprintRemote()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
+  })
+
   it('always denies raw scenario storage even without an operation restriction', () => {
     const editor = createEditor()
     const guarded = guardPageDesignEditor(editor, undefined)
@@ -71,8 +83,9 @@ describe('guardPageDesignEditor', () => {
     expect(gateway.updateNode).not.toHaveBeenCalled()
     expect(gateway.deleteNode).not.toHaveBeenCalled()
     expect(gateway.moveNode).not.toHaveBeenCalled()
-    await expect(guarded.previewBlueprintRemote()).resolves.toMatchObject({ nodeId: 'root' })
-    expect(gateway.loadRoot).toHaveBeenCalledTimes(1)
+    expect(() => guarded.loadBlueprint()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
+    expect(() => guarded.previewBlueprintRemote()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
+    expect(gateway.loadRoot).not.toHaveBeenCalled()
   })
 
   it('denies remote PageTool file and version writes while preserving local draft edits and reads', async () => {

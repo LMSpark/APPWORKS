@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProjectWorkspace, ScenarioDefinitionResource, type PageToolFileName } from '@spark-appworks/spark-project-model'
+import { PageRuntime, ProjectWorkspace, ScenarioDefinitionResource, type PageToolFileName } from '@spark-appworks/spark-project-model'
 import {DataSet} from '@spark-appworks/spark-data'
 import definitionConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import { AiAgentRegistration, createAiAgentHost, createSimpleInputContract, DefaultAiAgentSessionStore, AiAgentToolResult } from '@spark-appworks/spark-ai/agent'
@@ -16,6 +16,11 @@ import { readAiDeliveryErrorExtras } from '@/services/ai/ai-delivery-port'
 import { resolvePageDesignProject } from '@/services/page-design/page-design-agent-workflow-binding'
 import { readPageDesignRunContext } from '@/services/page-design/page-design-gates'
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
+import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:vi.fn()}))
 
 type PageDesignTestActivationOptions = Pick<ActivatePageDesignAgentWorkflowOptions, 'host' | 'getPageDesignEditor'>
 type PageDesignTestActivation = (options: PageDesignTestActivationOptions) => Promise<AiAgentRunTarget>
@@ -30,6 +35,20 @@ async function loadDefinitions(workspace: ProjectWorkspace, scenarioId: string, 
     view.queryContext = {...view.queryContext, dataSpaceId: scenarioId}
     view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: table.resourceId!}})
   }
+  return dataSet
+}
+
+function createBlueprintRuntimeDataSet(options:{fail?:boolean}={}):DataSet{
+  const scenarioId='7AB874097A1E8711A42FD845939A6E05'
+  const fields=['rowid','SysId','prowid','FunOrderValue','name','memo','FunName','NavigationUrl','IsShowAtNav','NavigationType']
+  const dataSet=DataSet.fromJson({scenarioId,tables:{Base_NavigationInfo:{modelBinding:{modelId:'formal-model',modelName:'Base_NavigationInfo'},columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}}}}})
+  dataSet.getView('Base_NavigationInfo','default')!.bindQueryExecutor({executeQuery:async()=>{
+    if(options.fail)throw new Error('formal view query failed')
+    return {rows:[{rowid:'ROOT',SysId:'demo',prowid:'000000',FunOrderValue:0,name:'Root',memo:'Root description',FunName:'Root',NavigationUrl:'',IsShowAtNav:0,NavigationType:'Model'},
+      {rowid:'orders',SysId:'demo',prowid:'ROOT',FunOrderValue:1,name:'Orders',memo:'Orders description',FunName:'Orders',NavigationUrl:'cfg:orders',IsShowAtNav:1,NavigationType:'Page'}],total:2,countReported:true,resultPrimaryKey:'rowid',
+      assertIdentity:actual=>{if(actual.scenarioId!==scenarioId||actual.metaName!=='Base_NavigationInfo')throw new Error('formal query identity mismatch')},rowKey:row=>row['rowid'],
+      fieldAccess:()=>({read:'visible',write:'denied',component:'readonly',required:false,writeMode:'readonly'}),readFieldAccess:()=> 'visible',addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> 'hidden',createChildActionState:()=> 'hidden',viewActionState:()=> 'hidden'}
+  }})
   return dataSet
 }
 
@@ -183,6 +202,28 @@ describe('pageDesign actual working-file delivery', () => {
 })
 
 describe('preparePageDesignAgentRun', () => {
+  it('loads planning blueprint from the formal DataView before planning and releases runtime on success and query failure', async()=>{
+    const dataSet=createBlueprintRuntimeDataSet(); vi.mocked(loadLowcodeRuntimeScenario).mockResolvedValue(dataSet)
+    const editor=createEditor(); mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
+    const dispose=vi.spyOn(BlueprintWorkspaceDataView.prototype,'dispose')
+    const runtimeDispose=vi.spyOn(PageRuntime.prototype,'dispose')
+    const read=vi.spyOn(lowcodeApi.blueprint,'readRecords')
+    mocks.activatePageDesignAgentWorkflow.mockImplementationOnce(async options=>{expect(editor.project.blueprintTree.children[0]?.nodeId).toBe('orders');return mocks.delegateHost})
+    await preparePageDesignAgentRun({requestId:'dv-success',alias:'pageDesign',args:{pageId:'orders'}},{} as AiAgentHost)
+    expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId:'demo',scenarioId:'7AB874097A1E8711A42FD845939A6E05'})
+    expect(read).not.toHaveBeenCalled(); expect(dispose).toHaveBeenCalledTimes(1)
+    expect(runtimeDispose).toHaveBeenCalledTimes(1)
+    await expect(dataSet.getView('Base_NavigationInfo','default')!.refresh()).rejects.toThrow('destroyed')
+  })
+  it('releases the formal owner and PageRuntime after DataView query failure',async()=>{
+    vi.mocked(loadLowcodeRuntimeScenario).mockResolvedValue(createBlueprintRuntimeDataSet({fail:true}))
+    const editor=createEditor();mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
+    const ownerDispose=vi.spyOn(BlueprintWorkspaceDataView.prototype,'dispose')
+    const runtimeDispose=vi.spyOn(PageRuntime.prototype,'dispose')
+    await expect(preparePageDesignAgentRun({requestId:'dv-failure',alias:'pageDesign',args:{pageId:'orders'}},{} as AiAgentHost)).rejects.toThrow('formal view query failed')
+    expect(ownerDispose).toHaveBeenCalledTimes(1)
+    expect(runtimeDispose).toHaveBeenCalledTimes(1)
+  })
   it('reports a recovered scene as still dirty until later edits are explicitly delivered', async () => {
     let remote = JSON.stringify({scenarioId:'SCENE-A',tables:{}}), writes = 0
     const editor = new ProjectWorkspace({projectId:'demo',pageFiles:{readPageFile:async()=>''},
@@ -206,6 +247,8 @@ describe('preparePageDesignAgentRun', () => {
   })
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async()=>createBlueprintRuntimeDataSet())
+    vi.spyOn(lowcodeApi,'readRequestScope').mockReturnValue({token:'test-scope',headers:{'X-AppId':'demo'}} as ReturnType<typeof lowcodeApi.readRequestScope>)
     mocks.delegateHost.has.mockReturnValue(true)
     mocks.delegateHost.dryRun.mockReturnValue(createDryRunResult())
     mocks.delegateHost.run.mockResolvedValue(createRunResult())

@@ -2599,3 +2599,13 @@ flowchart TD
 - **工程门禁复验：**Workflow UI、服务/资源和正式 loader 合并测试 `76/76`；DataSpace Design 登记、预检失败回滚、未知回执防重放 `3/3`；typecheck、全变更 ESLint `--max-warnings=0`、生产 build、完整 `verify:rules` 与 `git diff --check` 均退出 0。Build 有现存依赖的动态导入/纯注解警告，不影响退出结果。
 - **下一数据游离点只读审计：**低价模型复核并由主控检查：应用目录 direct `listApplications()` 虽指向正式 `Base_AppSystemList`，当前绑定只属于数据空间目录页，`AppList`/`PlatformApps`/project settings/runtime 导航缺各自正式目录 DataSet 身份、明确租户范围与等价服务端授权投影；物理预览已有 DataView 外壳但执行器仍直调 GetData、本地合成字段权限，SPARK data 当前查询身份不能表示物理 `Type/DbId/DbName/name`。两者都不满足同批删旁路的条件；先取正式服务/场景范围与权限证据，不能用包装测试替代。
 - **真实 SPA 与交付：**真实 SPA 登录仍未完成；一次登录尝试被拒绝，未继续重试或写入正式 DataSpace 资源绑定。本轮只读审计没有改正式业务数据。此次目录移动与引用修正待与本条台账一并提交/推送；总体目标继续 active。用户手动登录后继续设计登记和 SPA 查询读回烟测。
+
+### 2026-10-28 PageDesign headless 蓝图读取迁移
+
+- **生产消费者与变更：**`preparePageDesignAgentRun` 是已确认生产调用者。其初始 planning blueprint 已从 `editor.loadBlueprint()` / `ProjectWorkspace.blueprint.loadRoot` 改由正式 `PageRuntime` 加载 `LOWCODE_APPLICATION_CATALOG_FORM_KEY`，从该运行实例取得 DataSet，并经 `BlueprintWorkspaceDataView` 的 `Base_NavigationInfo.default` 查询完整项目树。正式树仅投影为现有 editor 的 planning 上下文快照；未增加保存/草稿入口。owner 仅负责 DataView 查询/树语义，`finally` 释放 owner 和 PageRuntime；不会对运行时所拥有的 DataSet 重复销毁。
+- **身份与失效：**固定场景 ID；校验 DataSet 场景身份、同一 PageRuntime 实例、runtime 活跃态、请求 scope token、`X-AppId` 与 editor.project.projectId。树查询发生在 planning context 解析之前；查询失败、身份过期或 editor 后续加载失败均清理运行 owner。PageDesign 现有蓝图操作 fail-closed 守卫保持不变。
+- **TDD 与验证：**新增针对用例先运行，原始 RED 为 `loadLowcodeRuntimeScenario` 调用次数为 0（仅 raw gateway 读取）；实现后 PageDesign provider 与 editor provider 测试 **25/25** 通过，覆盖真实 DataSet/DataView executor 查询、planning 前投影、raw reader 不调用以及成功/查询失败释放；`pnpm run typecheck` 和变更文件 ESLint `--max-warnings=0` 通过。未跑 build、SPA 烟测或线上数据读写；未修改 Java。
+- **残留读取入口封闭：**主控复核发现 PageDesign guard 虽封闭写入，仍向 AI facade 暴露 `loadBlueprint()` 与 `previewBlueprintRemote()` 两个 gateway 读取入口。两项分别新增 fail-closed 用例后先观察 RED（调用未被阻止），随后在 PageDesign 专用 guard 中拒绝调用并要求通过正式 `Base_NavigationInfo` DataView 查询；通用 ProjectWorkspace、DevSystem 与其它消费者不修改。原 direct gateway writer 方法仍由既有 guard 封闭。
+- **追加复核：**主控独立复跑 guard、PageDesign provider 与 editor provider 测试合计 **33/33** 通过；typecheck、四个改动 TS 文件 ESLint `--max-warnings=0`、完整 `verify:rules`、production `pnpm run build` 与 `git diff --check` 均退出 0。构建有既存的第三方纯注解、动态导入和大 chunk 警告。限制仍为本切片不迁移或封闭其他通用 gateway 消费者的原始 read/CRUD 调用；仅确认 PageDesign AI facade 两个入口不可再触发 raw reader。不改 Java。
+- **真实 SPA 状态：**当前 IAB 标签只读确认位于 `http://127.0.0.1:5273/login`，企业为“领码科技”，没有登录会话。认证表单不由自动化填写；本批没有正式服务查询、保存或重开读回，真实 SPA 烟测未完成。
+- **剩余差距：**本次仅迁移 PageDesign headless 的初始只读 planning blueprint 消费。`createLowcodeProjectGateways()` 其余蓝图 CRUD/move 及其它生产消费者仍需按真实消费者分别核对 DataView 提交、权限、回执/回读与生命周期，不因本次读取迁移宣称 gateway 已统一或全仓已统一；不覆盖启动导航、DevSystem、DataSpace 设计持久化及其它资源旁路。总体整合保持 active。

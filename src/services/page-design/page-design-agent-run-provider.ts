@@ -45,6 +45,11 @@ import {
   clearPageDesignRunContext,
   readPageDesignRunContext,
 } from '@/services/page-design/page-design-gates'
+import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 
 // --- delivery ---
 
@@ -226,9 +231,35 @@ export const preparePageDesignAgentRun: AiAgentRunPrepare<AiAgentHost> = async (
   const pageId = readPageDesignPageId(event.args)
   if (!requestId || pageId === null) throw new Error('pageDesign requires requestId and pageId')
   const editor = createHeadlessPageDesignEditor()
-  await editor.loadBlueprint()
-  await editor.selectPage(pageId, { forceReload: true })
-  const planning = resolvePageDesignPlanningContext(editor.project, pageId)
+  const projectId=editor.project.projectId
+  const scope=lowcodeApi.readRequestScope()
+  const runtime=new PageRuntime({pageId:'page-design-agent-run',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    loadScenario:scenarioId=>{
+      if(scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY)throw new Error(`pageDesign 未声明场景 ${scenarioId}`)
+      return loadLowcodeRuntimeScenario({projectId,scenarioId})
+    }})
+  let blueprintOwner:BlueprintWorkspaceDataView|undefined
+  let planning:JsonParams
+  try{
+    await runtime.load()
+    const dataSet=runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    if(!dataSet)throw new Error('PAGE_DESIGN_BLUEPRINT_DATASET_MISSING')
+    const assertCurrent=():void=>{
+      const current=lowcodeApi.readRequestScope()
+      if(runtime.destroyed||!runtime.isLoaded||runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!==dataSet||dataSet.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY
+        ||current.token!==scope.token||scope.headers['X-AppId']!==projectId||current.headers['X-AppId']!==projectId)throw new Error('PAGE_DESIGN_BLUEPRINT_RUNTIME_STALE')
+    }
+    assertCurrent()
+    blueprintOwner=new BlueprintWorkspaceDataView(dataSet,projectId,assertCurrent)
+    const tree=await blueprintOwner.loadProjectTree()
+    if(tree.projectId!==projectId||!tree.nodeId||!Array.isArray(tree.children))throw new Error('PAGE_DESIGN_BLUEPRINT_TREE_INCOMPLETE')
+    editor.project.replaceBlueprintTree(tree)
+    await editor.selectPage(pageId, { forceReload: true })
+    planning = resolvePageDesignPlanningContext(editor.project, pageId)
+  }finally{
+    blueprintOwner?.dispose()
+    runtime.dispose()
+  }
   const scenarioId = typeof event.args['scenarioId'] === 'string' ? event.args['scenarioId'].trim() : undefined
   if (scenarioId !== undefined) {
     if (!scenarioId) throw new Error('pageDesign scenarioId 不能为空')

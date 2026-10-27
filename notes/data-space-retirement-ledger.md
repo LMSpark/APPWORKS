@@ -2548,3 +2548,10 @@ flowchart TD
 - **owner 删除边界落地：**`ProjectWorkspace` / `ScenarioViewFile` 内仍有 pagedata 文本基线、冲突、持久化及读回逻辑，但源码调用链表明它们服务文件资源适配与 DataSet 运行时装配；按类名删除会丢失资源存储和装配能力。仍可继续审查并收窄其公共暴露，前提是先核定 PageDesign/headless 消费者；不得破坏性删除。
 - **当前实施候选与合同缺口：**活动 `listApplications()` 调用仍是确定的业务数据旁路。已有数据空间目录 `Base_AppSystemList@catalogApps` 的正式绑定不能证明等价全局/租户应用目录：真实 SPA 只读该视图曾仅返回“元数据管理”，并且全局目录调用缺专属场景身份、租户范围查询条件及可对照的服务端行/字段授权投影。当前不得包装直调 API 或借用该目录视图。下一切片先确认/形成正式目录 DataSet 资源合同，再选真实消费者迁移并同批删除旧入口。
 - **本轮状态：**低价模型只读交叉复核与主控源码复查一致；无产品代码、Java、测试数据或服务写入。本轮工作树此前干净；总体整合保持 active，未宣称全仓统一完成。
+
+### 2026-10-28 Agent Workflow 文件数据游离复核
+
+- **活动生产调用：**`config/navigation/vue-pages.json` 注册静态 `/workflow-designs` Agent Workflow 设计页。`src/views/app/WorkflowDesigns.vue` 在进入时调用 `listWorkflowDesigns()` 并按 ID 读取 `design.json` / `definition.json`；`src/services/ai/agent-workflow-bindings.ts` 还调用 `readWorkflowDefinition()` 加载 PageDesign 与 ProjectPlanning 的 AI workflow definition。服务 `src/services/workflow-designs.ts` 经 `lowcodeApi.design.listFiles/readTextFile` 直接访问 `${currentApplicationId}/workflow-designs/<workflowId>/...`，当前没有 DataSet/DataView。
+- **语义隔离：**此 Agent Workflow JSON 与 `/features/data-platform/structured-config/workflow-definition` 下 `_Base_DataWorkFlow` 数据工作流不是同一种资源，不能借用其目录或编辑 DataView 代替。旧页创建、保存、删除接口目前 fail closed；本次只记录读取旁路，不扩展写入。
+- **迁移前置与下一步：**`/workflow-designs` 静态页声明没有 `blueprintScenarioId`；动态系统页身份解析只会从唯一导航节点注入该场景 ID，不能按应用 ID 或 URL 猜 DataSet 身份。还需确认该页正式数据空间身份、按当前应用隔离的文件资源标识、目录及内容读取权限、DataView 查询上下文和运行时 AI 激活如何复用同一 DataSet；随后迁移编辑页与 AI 激活读取并删除旧直读入口。未证明这些合同前不加 DataView 包装层、不移除现有读取功能。
+- **本轮状态：**低价模型只读交叉审计、主控核对路由注册/服务调用一致；无代码、Java、SPA 或线上数据改动。总体整合保持 active。

@@ -63,8 +63,21 @@ describe('Agent Workflow file DataView resource', () => {
 
   it('recognizes the missing-directory error contract across LowcodeApiError module instances', async () => {
     const {api, dataSet} = fixture()
-    const foreignModuleError = Object.assign(new Error('文件夹路径不存在'), {code: 1003})
+    const foreignModuleError = Object.assign(new Error('文件夹路径不存在'), {name: 'LowcodeApiError', code: 1003})
     vi.mocked(api.listFiles).mockRejectedValueOnce(foreignModuleError)
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
+    try {
+      const result = await view.requestRefresh()
+      expect(result.success).toBe(true)
+      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(view.rows).toEqual([])
+      expect(view.total).toBe(0)
+    } finally {dataSet.destroy()}
+  })
+
+  it('recognizes the backend-prefixed missing-directory LowcodeApiError message', async () => {
+    const {api, dataSet} = fixture()
+    vi.mocked(api.listFiles).mockRejectedValueOnce(new LowcodeApiError(1003, '[1003] 文件夹路径不存在'))
     const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
     try {
       const result = await view.requestRefresh()

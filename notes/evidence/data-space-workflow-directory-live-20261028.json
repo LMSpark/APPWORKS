@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-28",
+  "environment": "local authenticated SPA, NewApp / D99A1DCE9894698799101EFD70F8FC76",
+  "route": "/features/data-platform/data-set-management/ui/data-set-list-page",
+  "dataSpaceId": "01000B6C7F84B4F1A85C91C4FC28E875",
+  "binding": "01000B6C7F84B4F1A85C91C4FC28E875@AgentWorkflowFiles@directory",
+  "steps": [
+    "Opened the saved data space from the catalog using its Design action.",
+    "Read back AgentWorkflowFiles and its four named views in the design workspace.",
+    "Opened the directory named-view preview and ran its read-only DataView query.",
+    "Captured the rejection at AgentWorkflowFileResource.readDirectory: Error name LowcodeApiError, code 1003, message [1003] 文件夹路径不存在.",
+    "After the exact prefixed-message handling was hot-loaded, reopened the design workspace and reran the same preview query."
+  ],
+  "result": {
+    "requestState": "Loaded",
+    "rows": 0,
+    "total": 0,
+    "visibleColumns": ["workflowId", "fileName", "timestamp", "content"],
+    "emptyState": "No Data"
+  },
+  "writesPerformed": false,
+  "verificationSurface": "SPARK DataSpace Design preview bound to the formal AgentWorkflowFiles@directory DataView",
+  "evidenceLimit": "Confirms empty-directory query handling in this authenticated SPA and active deployment. Does not verify design.json or definition.json reads, workflow file writes, downstream Agent consumption, or persistence after browser/process restart."
+}

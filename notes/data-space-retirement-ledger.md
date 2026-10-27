@@ -7,9 +7,9 @@
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
 | PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；本轮 SPA 已认证但只打开数据空间设计器，PageDesign 真实 Agent 运行/消费烟测未做。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
-| Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读，文件 API 仅留在 DataView executor 内作资源适配。 | 本轮同一 SPA 打开正式设计器并读到上述模型与视图；对 `directory` 执行真实只读预览，服务返回 `[1003] 文件夹路径不存在`。候选修复只将 `Error` 且 `code===1003`、完整消息精确匹配的缺失目录映射为空目录，先校验 scope；其他错误保持失败。测试 60/60、typecheck、目标 ESLint、`verify:rules`、build 通过。结构 RED 证明跨模块 Error 可绕过 `instanceof`，但未证明它就是现场形态；浏览器控制被接管，最新代码未完成 SPA 复测。空目录语义真实烟测仍未通过/确认，不宣称完成；未写 Workflow 文件或业务记录。 |
+| Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读，文件 API 仅留在 DataView executor 内作资源适配。 | 同一 SPA 从正式目录重开设计器并读到模型与视图。`directory` 真实只读 DataView 查询先返回 `LowcodeApiError(name=LowcodeApiError, code=1003, message='[1003] 文件夹路径不存在')`；最终实现精确接受此运行时消息及原始裸消息，拒绝其它错误。最新代码下查询显示 `Loaded`、行数 0、总数 0。Workflow 资源/装配/UI 测试 61/61，typecheck、目标 ESLint、`verify:rules`、build 通过。详细 SPA 读回和错误对象证据见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。本轮只读，未写 workflow 文件；不证明非空文件读取、Agent 下游消费或跨浏览器/进程恢复。 |
 | 其余已知旁路 | `listApplications()` 多个调用者仍 direct GetData，缺全局目录场景、范围与权限投影；物理表/视图预览 executor 仍 direct GetData 并本地合成只读权限。普通 ProjectWorkspace blueprint gateway 的生产 CRUD 调用者尚未确认，DevSystem/ProjectPlanning/PageDesign 活跃读取各有正式 DataView 路径。 | 应用目录和物理预览不能只包 DataView 外观；先取得正式身份、查询范围、权限与回执证据，再选真实消费者实施。NavHost 关系仍只读且当前正式查询为 0 行。 |
-| SPA 状态 | 当前 IAB 标签已登录为“王”，通过正式导航打开 D99A 数据空间目录及 `Agent工作流文件资源` 设计器；`AgentWorkflowFiles@directory` 预览对话框已打开。 | 真实目录预览返回 `[1003] 文件夹路径不存在`；本轮未执行正式服务写入。目录空结果烟测仍未完成。 |
+| SPA 状态 | 当前 IAB 标签已登录为“王”，通过正式导航打开 D99A 数据空间目录及 `Agent工作流文件资源` 设计器；`AgentWorkflowFiles@directory` 查询结果已显示。 | 正式查询结果状态 `Loaded`、行数 0、总数 0；本轮未执行正式服务写入。 |
 
 ## 2026-10-28 删除链源码复核
 
@@ -940,7 +940,7 @@ flowchart TD
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
-1. **完成 Workflow 文件资源的同 SPA 查询验收。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图；本轮认证 SPA 实际打开设计器并读到模型/视图，证明配置已存在。`directory` 的正式只读 DataView 预览返回 `[1003] 文件夹路径不存在`。代码现有精确结构守卫和自动化回归已通过，但浏览器控制中断前未能用最新代码复测，也未观察现场错误对象。恢复可控 SPA 后先重载最新版本，再执行同一只读预览；只有成功 Loaded 空集合才关闭该烟测。不得手改 pagedata、伪造数据库 `modelBinding` 或写 Workflow 文件。
+1. **Workflow 文件资源目录 DataView 空集合路径已验收；继续验证真实文件读取消费者。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图，同一 SPA 重开后确认模型/视图并查询 `directory`：精确处理运行时 `[1003] 文件夹路径不存在` 后，DataView 显示 `Loaded`、0 行/0 总数。错误对象与界面结果见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。当前目录为空，没有可合法用于 `design`/`definition` 读取的 workflowId；不得猜造文件身份或写测试文件。下一步查找本仓已有真实 WorkflowDesigns 文件及正式消费者；若无可读目标，记录真实读取消费仍待有效资源身份/文件。
 2. **继续核平台应用目录正式 DataView 身份。** `listApplications()` 多个生产消费者仍 direct GetData。现存 `Base_AppSystemList@catalogApps` 绑定属于数据空间目录页，当前 SPA 仅有历史局部应用观察；`/app-list`、`/apps` 等消费者仍缺正式全局目录场景身份、查询范围/租户过滤与等价授权投影。待正式合同成立后，以标准组件/DataView 迁一个真实消费者，并同批删除该消费者旧 GetData；合同未证实时不建包装 DataView 或猜绑定。
 3. **核物理表/视图预览正式查询合同。** 页面虽经命令 DataView 触发，executor 仍直调 GetData 并本地合成权限；先确认物理资源身份、服务端授权、主键和分页/回执合同。现有 `{scenarioId, metaName}` 不能表达 `Type/DbId/DbName/name`，未有服务证据前不造模型身份、不合成权限。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。
@@ -948,13 +948,13 @@ flowchart TD
 
 **每次重排都须留下可复核理由。** 先从当前源码追踪入口→消费者→DataView/资源 owner→保存/查询→释放；再分开记录原实现事实、目标、缺陷、待证合同。不得把“未找到生产调用者”写成旁路仍活动，也不得把“底层最终用了 DataSet”写成页面链已统一。若真实 SPA 未登录或缺少正式目标，仅可做源码与自动化审查，并把在线验收列为未完成；登录、页面显示或请求 200 不单独证明保存和消费。每轮结束更新本表及本节，保留日期化历史证据，不新增并行总计划。
 
-**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow 正式 DataSpace 绑定已在 SPA 可见，缺失目录的真实 DataView 查询尚未按最新代码确认成功。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因为一个浏览器控制中断就停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
+**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow DataSpace 绑定及目录视图的精确空结果路径已通过同一 SPA 的 DataView 查询。尚无真实 workflowId 可供设计正文读取及 AI 下游消费验收。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因单一资源无数据而停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
 
 **2026-10-27 物理表/视图预览旁路审计（源码基线 `7d34c11e5`）。** `table-and-view-page.vue` 确实先把目录选择与分页参数写入 DataSet 输入行，再触发绑定预览 DataView 的 `refresh()`；因此“页面没有直调 HTTP”只证明 UI 经 DataView 入口，不证明数据查询全程由 SPARK data 的正式查询执行器和权限投影承接。`database-catalog-preview-view-ops.ts` 的 executor 仍直接 `POST /api/DataOperation/GetData`，自行解析 `Items/Count`、按返回行动态加列并本地投影；`readonlyQueryResult` 依据返回键和本地输出字段合成字段可读状态、禁止写入。请求身份被局部检查（数据库/对象名、DataSet 场景及应用/认证 scope），但查询没有正式模型的 `{scenarioId, metaName}` 身份、查询权限投影或目标返回身份核对；现有命令视图 helper 测试不覆盖此 executor。结果：确认该功能是活动的资源 executor 旁路，不能宣称已统一；没有证据允许用正式 DataView 权限合同替换，也没有执行线上请求或业务写入。报告证据为本轮只读源码审计结论；服务身份、权限与分页/读回合同仍是阻断。没有新增实现、测试、Java修改或 SPA 烟测。此审计不会改变第 1 项仍排首位的目录身份合同阻断，也不会把物理预览升级成可立即实施切片。
 
 **2026-10-27 WorkflowDesigns 与 gateway 候选复核（源码基线 `7d34c11e5`）。** 低价模型只读筛查并由主控复核：`src/services/workflow-designs.ts` 的生产目录读取经 `lowcodeApi.design.listFiles({appType:'designfile', folderPath: applicationId + '/workflow-designs'})`，正文读取按 workflowId 拼路径调用 `readTextFile`；当前没有正式 pagedata file resource 声明、绑定 DataView owner 或与现路径访问范围等价的查询权限证据。不能把同为文件的 `ProjectToolResource` 套给工作流，因为它只接受蓝图 pageId 与 `rule.json/script.js/style.css`。工作流保存函数目前明确拒绝，缺前镜像/journal/readback/补偿合同；本轮只核读取候选，不解锁写入。`createLowcodeProjectGateways()` 的直接蓝图 gateway 未发现当前生产消费者；DevSystem 使用专门的 `PageRuntime → BlueprintWorkspaceDataView`，headless provider 无已确认生产接线，不能把未调用定义列作活动生产旁路。结论：未找到可安全实施的新代码切片，等待正式工作流文件资源身份/owner/权限范围或其它已接线消费者合同。仅源码筛查，没有服务请求或写入。
 
-本轮 SPA 观察：本地 `http://127.0.0.1:5273/` 当前打开平台首页，页面显示“登录”入口；本地页面服务可达，但没有已认证会话。没有提交认证或业务请求，因此本轮没有 SPA/服务烟测结论。
+**2026-10-27 SPA 观察（历史）**：当时本地 `http://127.0.0.1:5273/` 打开平台首页，页面显示“登录”入口；没有已认证会话，也未提交认证或业务请求。该记录不表示 2026-10-28 当前 SPA 状态。
 
 ## 2026-10-24 低价模型实施与主控验收
 

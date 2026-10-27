@@ -119,7 +119,8 @@ export class AgentWorkflowFileResource {
       entries = await this.#api.listFiles({appType: 'designfile', folderPath: this.#directory})
     } catch (error) {
       this.#assertCurrent()
-      if (error instanceof Error && 'code' in error && error.code === 1003 && error.message === '文件夹路径不存在') {
+      if (error instanceof Error && error.name === 'LowcodeApiError' && 'code' in error && error.code === 1003
+        && (error.message === '文件夹路径不存在' || error.message === '[1003] 文件夹路径不存在')) {
         return {rows: [], total: 0}
       }
       throw error

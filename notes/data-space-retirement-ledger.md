@@ -2410,3 +2410,9 @@ flowchart TD
 ### 2026-10-27 平台应用目录 DataView 切片审计
 
 - 审计报告：`notes/evidence/data-space/app-catalog-dataview-20261027-report.md`。复核 `Base_AppSystemList` pagedata 绑定仅属于数据空间目录场景；平台路由的 direct GetData 仍无可证明等价的正式路由场景身份、租户/项目/认证 scope 与权限投影。`LOWCODE_APPLICATION_CATALOG_FORM_KEY` 不证明等于该模型所在 DataSet 的 scenarioId。`listApplications()` 仍为多调用者读取路径。`PageRuntime` 和组件 `dataViewKey` 能力存在，但不能补足该业务合同。结论：不可安全实施小切片，未改产品代码、未写测试、未运行验证；不以包装旧 API 伪装 DataView。解锁前置条件见报告。
+
+### 2026-10-27 DevSystem/SPARK data 活动切片筛选
+
+- **基线与范围：**从 clean HEAD `00cb3a116a5de4c0897015e1c90c2e1d5a43db5f`，按仍开放事项筛选有实际消费者、正式 DataSet/DataView 身份和权限/owner 合同的安全 TDD 切片。报告：`notes/evidence/project-blueprint/active-slice-20261027-report.md`。
+- **筛选结果：**无新切片满足条件。NavHost 关系编辑仍缺正式行/字段权限、CRUD owner 与读回合同；平台目录、物理预览、工作流文件资源身份与权限未证实，按既定范围排除。通用蓝图 gateway 虽仍有 raw mutation 方法，但源码未发现生产调用者直接调用；DevSystem 当前正式写入 owner 是 `BlueprintWorkspaceDataView` 外部 session。headless PageDesign/ProjectPlanning 没有已确认生产执行入口，已有 fail-closed/不经 `ProjectWorkspace.saveAll` 测试覆盖边界。对这些项添拒绝包装或重复测试既无 RED，也不构成活跃链迁移。
+- **改动与验收：**本轮只新增筛选报告和本台账记录；未改产品代码、未添加测试、未运行验证、未访问真实业务写接口；无密码读取或记录。后续待正式资源/权限/owner 合同或真实 gateway 生产调用链出现后再选择实现切片。

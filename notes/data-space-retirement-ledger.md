@@ -7,7 +7,7 @@
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
 | PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；当前 SPA 未认证，真实运行烟测未完成。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
-| Workflow 文件资源 | 已有 `AgentWorkflowFiles` 语义资源注册表、DataView executor、正式 loader 注入和 WorkflowDesigns/AI activation 只读消费链；文件 API 只留在 executor 内部作为资源适配。创建的 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 当前仍是模型 0、无视图配置。 | 用户已确认可通过数据空间设计补齐正式定义；尚未经设计页/DataView 保存正式表、列、视图绑定，也未在同一 SPA 重开和查询读回。下一步优先走该正式配置闭环，不手改 pagedata、不写 Workflow 文件。 |
+| Workflow 文件资源 | 已有 `AgentWorkflowFiles` 注册表（正式列和 `directory`、`design`、`definition` 视图）、DataView executor、正式 loader 注入及 WorkflowDesigns/AI activation 只读消费链；数据空间设计页已通过 `LOWCODE_FILE_RESOURCE_REGISTRY` 暴露可添加资源，并将绑定/视图定义放入 `DataTableBindingDefinition`、`DataViewDefinition`，用 `DataSet.saveChanges({views})` 保存及 DataView 回读。文件 API 只留在 executor 内部作为资源适配。目标 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 当前仍是模型 0、无视图配置。 | 用户已确认通过数据空间设计补齐正式定义；源码路径已存在，不先重复开发。尚未在该目标空间正式保存、同一 SPA 重开及读回。下一步直接验收既有设计页/DataView闭环；不手改 pagedata、不写 Workflow 文件。 |
 | 其余已知旁路 | `listApplications()` 多个调用者仍 direct GetData，缺全局目录场景、范围与权限投影；物理表/视图预览 executor 仍 direct GetData 并本地合成只读权限。普通 ProjectWorkspace blueprint gateway 的生产 CRUD 调用者尚未确认，DevSystem/ProjectPlanning/PageDesign 活跃读取各有正式 DataView 路径。 | 应用目录和物理预览不能只包 DataView 外观；先取得正式身份、查询范围、权限与回执证据，再选真实消费者实施。NavHost 关系仍只读且当前正式查询为 0 行。 |
 | SPA 状态 | 当前 IAB 标签为 `http://127.0.0.1:5273/login`，企业选择“领码科技”，没有认证会话。 | 本轮未自动填写认证表单，未发起正式服务读写或重开读回；真实 SPA 烟测仍未完成。 |
 
@@ -933,7 +933,7 @@ flowchart TD
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
-1. **优先完成已获准的 Workflow 文件资源正式登记。** 用户已同意通过数据空间设计补齐正式定义；DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已存在，代码注册表、资源 executor、正式 DataView/DataSet 保存与读回链已有自动化覆盖，但该空间实际仍无模型/视图。须在有效认证 SPA 中通过设计页添加正式 `AgentWorkflowFiles` 表、列和 `directory`/文档视图绑定，明确身份后保存、重开并查询读回；不得手改 pagedata、伪造数据库 modelBinding 或写 Workflow 文件。当前 SPA 在登录页，认证步骤须由用户在页面完成；认证前继续处理不依赖现场的源码切片。
+1. **优先完成已获准的 Workflow 文件资源正式登记。** 用户已同意通过数据空间设计补齐正式定义；DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已存在，且设计页已有 `LOWCODE_FILE_RESOURCE_REGISTRY` 添加入口，新增语义绑定和 `directory`/`design`/`definition` 正式视图经两个元数据 DataView 的一次 `DataSet.saveChanges({views})` 提交并读回核对。该空间实际仍无模型/视图。须在有效认证 SPA 中对目标空间执行这条既有路径，独立重开并查询读回；不得手改 pagedata、伪造数据库 `modelBinding` 或写 Workflow 文件。当前 SPA 在登录页，本轮没有执行保存；认证前继续做不依赖现场的源码审计。
 2. **继续核平台应用目录正式 DataView 身份。** `listApplications()` 多个生产消费者仍 direct GetData。现存 `Base_AppSystemList@catalogApps` 绑定属于数据空间目录页，当前 SPA 仅有历史局部应用观察；`/app-list`、`/apps` 等消费者仍缺正式全局目录场景身份、查询范围/租户过滤与等价授权投影。待正式合同成立后，以标准组件/DataView 迁一个真实消费者，并同批删除该消费者旧 GetData；合同未证实时不建包装 DataView 或猜绑定。
 3. **核物理表/视图预览正式查询合同。** 页面虽经命令 DataView 触发，executor 仍直调 GetData 并本地合成权限；先确认物理资源身份、服务端授权、主键和分页/回执合同。现有 `{scenarioId, metaName}` 不能表达 `Type/DbId/DbName/name`，未有服务证据前不造模型身份、不合成权限。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。

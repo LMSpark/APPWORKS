@@ -2541,3 +2541,10 @@ flowchart TD
 - **本批代码切片：**修复 DevSystem 蓝图字段组件过早挂载的生命周期缺口：每次节点加载先撤销旧 `PAGE_RUNTIME`（包括清空选择），当前 revision 的 DataView 加载失败也撤销运行时；只有同一项目/节点的 PageRuntime 与 Blueprint DataView 行加载完成、完整场景 DataSet 和 `currentRow(rowid, SysId)` 身份一致，再挂载标准字段/视图子树。旧异步 revision 不得清理新 runtime。删除 `BlueprintWorkspaceDataView` 私有 `#row` 镜像，让 `DataView.currentRow` 成为唯一选中行真源；`#nodeId` 只保留为领域命令的当前目标身份。该切片不新增查询或保存通道，不放宽字段权限守卫。
 - **复核结果与现场边界：**主控独立运行 `blueprint-workspace-delivery.test.ts` **49/49**、`renderer-form-detail.test.ts` **25/25**、`pnpm run typecheck`、改动文件 ESLint、`pnpm run verify:rules`、`pnpm run build` 与 `git diff --check` 均通过；规则扫描保留既有 AI model spec 2 warnings / 1 info。定向用例覆盖延迟挂载、节点切换、清空选择、当前节点加载失败、回读后 `owner.row === view.currentRow` 身份。早期 gate 测试曾因 Vue 合法重复挂载断言失败、typecheck 曾报模板可空类型错误，现已修正并复跑通过。当前新开的 `127.0.0.1:5273` 标签重定向到公开首页并显示“登录”；本轮未能复用已认证 SPA，因此字段控件现场恢复、实际编辑/取消/保存读回仍未验收；没有线上业务写入、Java 改动或部署。
 - **交付与后续队列：**本切片与台账已提交并推送：`a98ee2440cdb6eeea59f8d48d5330c67db7de2a4`。将“薄领域编排 vs 重复数据生命周期”作为全仓 owner 审计口径，按资源×生产消费者×操作×DataSet/DataView身份×权限×提交/回读建立迁移矩阵。优先只迁移存在真实消费者且合同完整的第二条业务数据通道，并在同切片删除旧入口；缺合同资源只登记差距。真实 DevSystem SPA 字段显示、编辑与保存读回尚未验收；总体整合继续 active。
+
+### 2026-10-28 SPARK data 唯一通道续审
+
+- **pagedata 链路复核：**`ScenarioDefinitionResource.executeQuery(view, params)` 将 pagedata 定义投影进正式 DataView 查询结果；其保存适配接收 DataSet 捕获的新增/修改/删除，执行原查询上下文、基线、字段授权及定义校验，再写回场景文件并返回原 DataView receipts。`LowcodeDataSpaceViewDesign` 对 `ScenarioViewFile` 的引用用于读取投影和订阅变化，没有直接 `setText()` 写入。当前生产定义编辑不是页面直调文件 owner 的第二保存链。
+- **owner 删除边界落地：**`ProjectWorkspace` / `ScenarioViewFile` 内仍有 pagedata 文本基线、冲突、持久化及读回逻辑，但源码调用链表明它们服务文件资源适配与 DataSet 运行时装配；按类名删除会丢失资源存储和装配能力。仍可继续审查并收窄其公共暴露，前提是先核定 PageDesign/headless 消费者；不得破坏性删除。
+- **当前实施候选与合同缺口：**活动 `listApplications()` 调用仍是确定的业务数据旁路。已有数据空间目录 `Base_AppSystemList@catalogApps` 的正式绑定不能证明等价全局/租户应用目录：真实 SPA 只读该视图曾仅返回“元数据管理”，并且全局目录调用缺专属场景身份、租户范围查询条件及可对照的服务端行/字段授权投影。当前不得包装直调 API 或借用该目录视图。下一切片先确认/形成正式目录 DataSet 资源合同，再选真实消费者迁移并同批删除旧入口。
+- **本轮状态：**低价模型只读交叉复核与主控源码复查一致；无产品代码、Java、测试数据或服务写入。本轮工作树此前干净；总体整合保持 active，未宣称全仓统一完成。

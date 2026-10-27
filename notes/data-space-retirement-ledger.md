@@ -2476,7 +2476,7 @@ flowchart TD
 
 ### 2026-10-27 Capability 能力体系生产使用核对
 
-- **目录实施状态补充复核：**设计书 §2 的 44 项是合并摘要，不是可逐项验收的 44 个原子清单；它称存在的 96 页映射矩阵本次未在仓内找到。现有分组状态为：D1/D2、B1/B2、C1-C4、H1-H3、A2、G2、I1/I3 等部分接通；A3/A4、G1、I2、O1/O2/O3/O5、W1-W5、S2-S5 缺失或未形成完整 SPA 闭环；G3/G5 及 G6 按批准范围不迁/后置。A1 应用目录和 A5 租户管理仍直调 `lowcodeApi.platform`，是必须纳入唯一 SPARK data 通道清理的明确旁路。细项与源码路径见 `notes/evidence/capability-system-usage-audit-20261027.md`。此分组不是线上全量验收，也不声称完成 44 个原子能力核销。后续先恢复可追溯的原子清单，再按能力身份、输入输出、DataView、权限、owner、回执和异常选最小切片；无产品变更、测试或线上业务写入。
+- **目录实施状态补充复核（更正）：**96 页页面级矩阵已存在于 `notes/plan-appworks-integration.md` 的“整页验收矩阵”，按阶段行核得 96 行；前一版证据误报“矩阵未找到”。矩阵含页面路径与阶段状态，但没有到 `notes/design-appworks-semantic-integration.md` §2 能力归组的 ID 列，当前仍需逐页补齐/复核可追溯映射。现有分组状态为：D1/D2、B1/B2、C1-C4、H1-H3、A2、G2、I1/I3 等部分接通；A3/A4、G1、I2、O1/O2/O3/O5、W1-W5、S2-S5 缺失或未形成完整 SPA 闭环；G3/G5 及 G6 按批准范围不迁/后置。A1 应用目录和 A5 租户管理仍直调 `lowcodeApi.platform`，是必须纳入唯一 SPARK data 通道清理的明确旁路。细项与源码路径见 `notes/evidence/capability-system-usage-audit-20261027.md`。此分组不是线上全量验收，也不声称已完成逐页能力归属或 44 项业务能力全量核验。后续在现有矩阵上补齐 96→能力归组映射，再按能力身份、输入输出、DataView、权限、owner、回执和异常选最小切片；无产品变更、测试或线上业务写入。
 
 - **概念区分：**本仓 `spark-utils` 的 `CapabilityContext` / `sparkProvide` / `sparkConsume` 是活跃的运行时依赖传递机制；`ProjectBlueprint.capability.name/description` 是蓝图业务名称与策划需求元数据；导航 `/capability-demo` 才是一个固定数据和模拟 API 的演示页。后者不代表前两者均未使用。
 - **生产消费者证据：**`App.vue` 提供 `PAGE_RUNTIME_SERVICES`、`MODULE_CONTEXT`；`SparkPageRenderer` 和应用系统页提供 `PAGE_RUNTIME` 等运行对象；标准 `RendererTable` 通过 `dataViewKey` 消费 PAGE_RUNTIME 并把 DataView/row 经 `DATA_SOURCE/DATA_ROW` 向字段组件传递；`usePermission` 消费权限呈现上下文并读取 DataView `fieldAccess`/行操作状态。DevSystem、数据空间页、字典 AI 录入等也使用这些能力键。CapabilityContext 负责传引用，不负责读写、鉴权或计算权限。

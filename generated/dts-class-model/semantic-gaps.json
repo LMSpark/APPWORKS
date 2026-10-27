@@ -1,5 +1,5 @@
 {
-  "gapCount": 3191,
+  "gapCount": 3234,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -30142,7 +30142,7 @@
       "chainBreak": "DesignSessionConstruction 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 89,
+      "declarationLine": 91,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "typeAlias"
     },
@@ -30154,7 +30154,7 @@
       "chainBreak": "DesignSessionConstruction.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 90,
+      "declarationLine": 92,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "interface"
     },
@@ -30166,7 +30166,7 @@
       "chainBreak": "DesignSessionConstruction.metadataDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 91,
+      "declarationLine": 93,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "interface"
     },
@@ -30178,7 +30178,7 @@
       "chainBreak": "DesignSessionConstruction.design 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 92,
+      "declarationLine": 94,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "interface"
     },
@@ -30190,7 +30190,7 @@
       "chainBreak": "DesignSessionConstruction.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 93,
+      "declarationLine": 95,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "interface"
     },
@@ -30202,7 +30202,19 @@
       "chainBreak": "DesignSessionConstruction.definitionResource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 94,
+      "declarationLine": 96,
+      "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DesignSessionConstruction",
+      "memberName": "blueprintTreeProjection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DesignSessionConstruction.blueprintTreeProjection 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+      "declarationLine": 97,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "interface"
     },
@@ -30214,7 +30226,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 99,
+      "declarationLine": 102,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30226,7 +30238,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.metadataDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 100,
+      "declarationLine": 103,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30238,7 +30250,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 104,
+      "declarationLine": 107,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30250,7 +30262,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.viewState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 114,
+      "declarationLine": 117,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30262,7 +30274,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.stageInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 191,
+      "declarationLine": 194,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30274,7 +30286,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.saveInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 202,
+      "declarationLine": 205,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30286,7 +30298,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.reloadInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 206,
+      "declarationLine": 209,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30298,7 +30310,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.definitionDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 298,
+      "declarationLine": 301,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30310,7 +30322,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.previewRemoteViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 322,
+      "declarationLine": 325,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30322,7 +30334,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 328,
+      "declarationLine": 331,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30333,7 +30345,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 330,
+      "declarationLine": 333,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30345,7 +30357,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 332,
+      "declarationLine": 335,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -30357,7 +30369,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.preview 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 346,
+      "declarationLine": 352,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -33152,6 +33164,77 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "model",
+      "className": "PageToolFileSaveInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 59,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFileSaveInput",
+      "memberName": "page",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput.page 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 60,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFileSaveInput",
+      "memberName": "fileName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 61,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFileSaveInput",
+      "memberName": "text",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput.text 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 62,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFileSaveInput",
+      "memberName": "revision",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput.revision 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 63,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "PageToolFileSaveInput",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFileSaveInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 64,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "attribute",
       "className": "PageToolFilesDataView",
       "memberName": "view",
@@ -33159,7 +33242,7 @@
       "chainBreak": "PageToolFilesDataView.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 80,
+      "declarationLine": 87,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33171,7 +33254,19 @@
       "chainBreak": "PageToolFilesDataView.ownerDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 81,
+      "declarationLine": 88,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFilesDataView",
+      "memberName": "saveView",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.saveView 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 89,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33183,7 +33278,19 @@
       "chainBreak": "PageToolFilesDataView.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 82,
+      "declarationLine": 90,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "PageToolFilesDataView",
+      "memberName": "savePageFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.savePageFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 91,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33195,7 +33302,7 @@
       "chainBreak": "PageToolFilesDataView.create 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 83,
+      "declarationLine": 94,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33207,7 +33314,7 @@
       "chainBreak": "PageToolFilesDataView.compensateCreate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 84,
+      "declarationLine": 95,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33219,7 +33326,7 @@
       "chainBreak": "PageToolFilesDataView.hasPendingCommandForParent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 94,
+      "declarationLine": 105,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33231,7 +33338,7 @@
       "chainBreak": "PageToolFilesDataView.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 95,
+      "declarationLine": 106,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33243,7 +33350,19 @@
       "chainBreak": "PageToolFilesDataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 96,
+      "declarationLine": 107,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFilesDataView",
+      "memberName": "hasPendingFileSave",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.hasPendingFileSave 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 108,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33255,7 +33374,7 @@
       "chainBreak": "PageToolFilesDataView.hasPendingPageDelete 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 97,
+      "declarationLine": 109,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33267,7 +33386,7 @@
       "chainBreak": "PageToolFilesDataView.hasPendingNonDeleteCommand 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 98,
+      "declarationLine": 110,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33279,7 +33398,7 @@
       "chainBreak": "PageToolFilesDataView.pendingCommandForParent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 99,
+      "declarationLine": 111,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33291,7 +33410,19 @@
       "chainBreak": "PageToolFilesDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 103,
+      "declarationLine": 115,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "PageToolFilesDataView",
+      "memberName": "savePageFiles",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.savePageFiles 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 116,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -34117,6 +34248,18 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "method",
+      "className": "PageDesignDeliveryContext",
+      "memberName": "savePageFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageDesignDeliveryContext.savePageFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/page-design/page-design-agent-run-provider.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "attribute",
       "className": "CreatePageDesignDeliveryPortOptions",
       "memberName": "allowedOperations",
@@ -34124,9 +34267,21 @@
       "chainBreak": "CreatePageDesignDeliveryPortOptions.allowedOperations 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/page-design/page-design-agent-run-provider.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/page-design/page-design-agent-run-provider.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
       "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "CreatePageDesignDeliveryPortOptions",
+      "memberName": "savePageFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "CreatePageDesignDeliveryPortOptions.savePageFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/page-design/page-design-agent-run-provider.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationLine": 31,
+      "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -34136,9 +34291,21 @@
       "chainBreak": "PageDesignInlineDeliveryOptions.autoSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/page-design/page-design-agent-run-provider.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/page-design/page-design-agent-run-provider.ts",
-      "declarationLine": 35,
+      "declarationLine": 37,
       "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "PageDesignInlineDeliveryOptions",
+      "memberName": "savePageFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageDesignInlineDeliveryOptions.savePageFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/services/page-design/page-design-agent-run-provider.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -34196,7 +34363,7 @@
       "chainBreak": "PageDesignAiRunResult.requestId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/page-design/page-design-ai-runner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/page-design/page-design-ai-runner.ts",
-      "declarationLine": 51,
+      "declarationLine": 53,
       "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
       "declarationKind": "interface"
     },
@@ -34208,7 +34375,7 @@
       "chainBreak": "PageDesignAiRunResult.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/page-design/page-design-ai-runner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/page-design/page-design-ai-runner.ts",
-      "declarationLine": 52,
+      "declarationLine": 54,
       "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
       "declarationKind": "interface"
     },
@@ -34220,7 +34387,7 @@
       "chainBreak": "PageDesignAiRunResult.delivery 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/page-design/page-design-ai-runner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/page-design/page-design-ai-runner.ts",
-      "declarationLine": 53,
+      "declarationLine": 55,
       "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
       "declarationKind": "interface"
     },
@@ -34497,6 +34664,205 @@
       "declarationFile": "src/services/project-planning/project-planning-attachments.ts",
       "declarationLine": 18,
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/project-planning/project-planning-blueprint-diff",
+      "moduleName": "app:services/project-planning/project-planning-blueprint-diff",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:services/project-planning/project-planning-blueprint-diff 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts"
+    },
+    {
+      "kind": "model",
+      "className": "WireFields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WireFields 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 2,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "ProjectBlueprintReplacementCommand",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "kind",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "parentNodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.parentNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "previousParentNodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.previousParentNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "depth",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.depth 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "siblingIndex",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.siblingIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementCommand",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementCommand.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "ProjectBlueprintReplacementPlan",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementPlan 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementPlan",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementPlan.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementPlan",
+      "memberName": "rootNodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementPlan.rootNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementPlan",
+      "memberName": "commands",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementPlan.commands 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ProjectBlueprintReplacementPlan",
+      "memberName": "expectedTree",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ProjectBlueprintReplacementPlan.expectedTree 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 16,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "PlanOptions",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlanOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 18,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PlanOptions",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PlanOptions.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/project-planning/project-planning-blueprint-diff.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "declarationLine": 19,
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
       "declarationKind": "interface"
     },
     {
@@ -36654,7 +37020,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 22,
+      "declarationLine": 29,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36666,7 +37032,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 24,
+      "declarationLine": 31,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36678,7 +37044,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 25,
+      "declarationLine": 32,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36690,7 +37056,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 26,
+      "declarationLine": 33,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36702,7 +37068,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 27,
+      "declarationLine": 34,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36714,7 +37080,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.row 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 28,
+      "declarationLine": 35,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36726,7 +37092,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasTreeProjection 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 29,
+      "declarationLine": 36,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36738,7 +37104,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 30,
+      "declarationLine": 37,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36750,7 +37116,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 31,
+      "declarationLine": 38,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36762,7 +37128,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.isBusy 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 32,
+      "declarationLine": 41,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36774,7 +37140,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.load 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 33,
+      "declarationLine": 42,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36786,7 +37152,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasOutput 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 43,
+      "declarationLine": 52,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36798,7 +37164,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingRootCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 44,
+      "declarationLine": 53,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36810,7 +37176,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingChildCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 45,
+      "declarationLine": 54,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36822,7 +37188,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.assertCanAddChild 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 46,
+      "declarationLine": 60,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36834,7 +37200,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.preflightChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 48,
+      "declarationLine": 62,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36846,7 +37212,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.addChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 49,
+      "declarationLine": 63,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36858,7 +37224,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 59,
+      "declarationLine": 73,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36870,7 +37236,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canRead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 60,
+      "declarationLine": 74,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36882,7 +37248,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWrite 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 61,
+      "declarationLine": 75,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36894,7 +37260,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWriteFields 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 62,
+      "declarationLine": 76,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36906,7 +37272,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.value 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 63,
+      "declarationLine": 77,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36918,7 +37284,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.update 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 64,
+      "declarationLine": 78,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36930,7 +37296,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 67,
+      "declarationLine": 81,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36942,7 +37308,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 71,
+      "declarationLine": 85,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37088,6 +37454,146 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "module",
+      "className": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
+      "moduleName": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts"
+    },
+    {
+      "kind": "model",
+      "className": "NavHostProjectBinding",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 2,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectBinding",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectBinding",
+      "memberName": "modelName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding.modelName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectBinding",
+      "memberName": "valueField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding.valueField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectBinding",
+      "memberName": "labelField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding.labelField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectBinding",
+      "memberName": "parentField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectBinding.parentField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "NavHostProjectCandidateFields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectCandidateFields 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectCandidateFields",
+      "memberName": "valueField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectCandidateFields.valueField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectCandidateFields",
+      "memberName": "labelField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectCandidateFields.labelField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NavHostProjectCandidateFields",
+      "memberName": "parentField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NavHostProjectCandidateFields.parentField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
+      "moduleName": "app:views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/app/dev-system/nav-host-project-picker/NavHostProjectPicker 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue"
+    },
+    {
       "kind": "method",
       "className": "ExternalDataViewSession",
       "memberName": "isDirty",
@@ -37095,7 +37601,7 @@
       "chainBreak": "ExternalDataViewSession.isDirty 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 34,
+      "declarationLine": 29,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37107,7 +37613,7 @@
       "chainBreak": "ExternalDataViewSession.hasUnconfirmedSave 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 35,
+      "declarationLine": 30,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37119,7 +37625,7 @@
       "chainBreak": "ExternalDataViewSession.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 36,
+      "declarationLine": 31,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37131,7 +37637,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 37,
+      "declarationLine": 32,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37143,7 +37649,7 @@
       "chainBreak": "ExternalDataViewSession.treeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 38,
+      "declarationLine": 33,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37155,7 +37661,7 @@
       "chainBreak": "ExternalDataViewSession.hasTreeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 39,
+      "declarationLine": 34,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -37167,7 +37673,7 @@
       "chainBreak": "ExternalDataViewSession.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 40,
+      "declarationLine": 35,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },

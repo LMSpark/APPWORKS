@@ -1,0 +1,460 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stderr | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSpace runtime save owner > confirms a write lost in transport by primary-key readback and publishes the read rows as the receipt
+❌ [Http] HTTP 请求失败 {
+  method: 'POST',
+  url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+  status: 0,
+  code: 'ERR_NETWORK',
+  message: 'socket closed',
+  attempt: 1,
+  maxRetries: 0,
+  responsePreview: undefined
+} Error:
+at DataSpaceFixtureHttpClient.requestWithRetry (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:193:23)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataSpaceFixtureHttpClient.request (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:130:17)
+at DataSpaceRequest.save (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts:167:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:391:23
+
+stderr | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSpace runtime save owner > confirms a root create lost in transport by its owner-prepared primary key without replay
+❌ [Http] HTTP 请求失败 {
+  method: 'POST',
+  url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+  status: 0,
+  code: 'ERR_NETWORK',
+  message: 'socket closed after create',
+  attempt: 1,
+  maxRetries: 0,
+  responsePreview: undefined
+} Error:
+at DataSpaceFixtureHttpClient.requestWithRetry (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:193:23)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataSpaceFixtureHttpClient.request (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:130:17)
+at DataSpaceRequest.save (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts:167:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:391:23
+
+stderr | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSpace runtime save owner > refuses to mix another change into an unconfirmed batch
+❌ [Http] HTTP 请求失败 {
+  method: 'POST',
+  url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+  status: 0,
+  code: 'ERR_NETWORK',
+  message: 'timeout',
+  attempt: 1,
+  maxRetries: 0,
+  responsePreview: undefined
+} Error:
+at DataSpaceFixtureHttpClient.requestWithRetry (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:193:23)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataSpaceFixtureHttpClient.request (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:130:17)
+at DataSpaceRequest.save (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts:167:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:391:23
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > reuses page results by complete input and keeps explicit refresh fresh
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > reuses browser results by complete input and keeps explicit refresh fresh
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > isolates page instances and reuses only browser mode: page
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > isolates page instances and reuses only browser mode: page
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > isolates page instances and reuses only browser mode: browser
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > isolates page instances and reuses only browser mode: browser
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > invalidates before and after writes and never resurrects a submitted permission baseline
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > does not refill an invalidated cache with an old in-flight response
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > clears browser results on logout and identity changes, including when returning to the same identity
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > does not reuse a result after a failed or unknown write
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView session result cache > does not retain a rejected response and keeps cached views independently editable
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > sends two model views once and accepts both actual baselines
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > preserves both models when the batch fails without clearing pending changes
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > applies both models drafts before issuing one batch
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > accepts different actions and totals in their respective models from one batch
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > requires every selected model baseline before sending any model
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > saves independently owned models in separate batches and retains their own receipts (second fails=false)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > saves independently owned models in separate batches and retains their own receipts (second fails=true)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > keeps edits made in both models during the batch and saves them against the successors
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > applies selected drafts before the single request and respects empty row selectors
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > omits a reverted model from the batch without requiring a spurious receipt
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > does not apply disabled drafts or send their model
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Bonus:default
+🐛 [DataView] 销毁 DataView: Bonus:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > keeps original query identity over local key overrides and rejects same-record drafts before applying
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataSet actual SPARK batch save > rejects same-record views and a transaction requirement before applying drafts
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an old formal-model original view after an application round trip, while a fresh table can query
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an old formal-model derived view after an application round trip, while a fresh table can query
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Payroll:derived-after-switch
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an old formal-model sibling view after an application round trip, while a fresh table can query
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Payroll:sibling-after-switch
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > maps equivalent repeated output fields to one formal request field
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > parses ValueFun only for requested projection fields
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > filters on a non-output model field without requesting it as output
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps update pending instead of using a legacy CRUD endpoint
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps delete pending instead of using a legacy CRUD endpoint
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > saves through the original owner without legacy dirty execution
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > retains new edits during a save and uses the accepted baseline for the next save
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > confirms only returned fields when normalized to the original: false
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > confirms only returned fields when normalized to the original: true
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > preserves editing patches entered while the pending business row is saved
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > confirms a returned deletion without invoking a separate CRUD route
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > retains generated identities for ordinary creates while explicit IDs use the separate identity API
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > saves multiple explicit row IDs through one formal DataView/DataSet batch and accepts the exact row count
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps a partially accepted multi-add command unknown and never dispatches a second request
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stderr | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps an explicit identity unchanged while an unknown add receipt is verified through the original context
+❌ [Http] HTTP 请求失败 {
+  method: 'POST',
+  url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+  status: 0,
+  code: 'ERR_NETWORK',
+  message: 'socket closed',
+  attempt: 1,
+  maxRetries: 0,
+  responsePreview: undefined
+} Error:
+at DataSpaceFixtureHttpClient.requestWithRetry (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:193:23)
+at DataSpaceFixtureHttpClient.request (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:130:17)
+at DataSpaceRequest.save (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts:167:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:391:23
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps an explicit identity unchanged while an unknown add receipt is verified through the original context
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an explicit identity changed by a save receipt and keeps the same draft recoverable
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stderr | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps an unknown explicit-identity receipt unresolved when verification returns a different identity
+❌ [Http] HTTP 请求失败 {
+  method: 'POST',
+  url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
+  status: 0,
+  code: 'ERR_NETWORK',
+  message: 'socket closed',
+  attempt: 1,
+  maxRetries: 0,
+  responsePreview: undefined
+} Error:
+at DataSpaceFixtureHttpClient.requestWithRetry (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:193:23)
+at DataSpaceFixtureHttpClient.request (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-utils/src/http/HttpClientBase.ts:130:17)
+at DataSpaceRequest.save (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts:167:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:391:23
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps an unknown explicit-identity receipt unresolved when verification returns a different identity
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > preserves pending changes and releases mutation state after a rejected save
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > blocks refresh while a save result is unconfirmed and resolves it only through the original save entry
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > refuses pending discard while an owner query or save is active
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > discards only selected pending IDs and preserves remaining rows, selection, and permissions
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > validates every selected baseline before changing any pending row
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > synchronizes the configured tree cache after locally discarding an edited parent link
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects a pending delete when the same ID has reappeared in current rows
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > clears an overlay left on a removed pending create without touching another pending row
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps a later edit of a created row after its server identity arrives
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps a later remove of a created row after its server identity arrives
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > saves only selected dirty rows and retains unselected changes
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > clears a selected reverted row from the strong baseline without corrupting other save receipts
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > requires reconstruction when a legacy query has already run
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > loads through the injected owner and projects private original permissions
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > uses requestData to send current filters and sorting to the owner without a CRUD endpoint
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"page":0}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"pageSize":0}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"fields":[]}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"fields":["missing"]}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"sort":"missing:asc"}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"sort":"salary:ascending"}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"sort":"salary:asc,salary:desc"}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"search":"ignored"}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects invalid view query parameters before transport: {"parentId":"guessed-node"}
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > keeps edits and the old permission baseline when edits arrive during a query
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > maps projected aliases to model field Names and retains complete value-function payloads
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > reads SelfRef undefined as one complete collection without paging or a reported count
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > reads SelfRef child as one complete collection without paging or a reported count
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > reads SelfRef parent as one complete collection without paging or a reported count
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an oversized SelfRef collection without publishing partial rows (node query: true)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects an oversized SelfRef collection without publishing partial rows (node query: false)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > accepts an empty SelfRef collection and restores strict pagination when switching to Table
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects a reported partial SelfRef collection instead of publishing it as complete (node query: true)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects a reported partial SelfRef collection instead of publishing it as complete (node query: false)
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > retains old data after an error and pauses writes until successful recovery
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects stale permissions and local writes after application identity changes
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > ignores a pending result after destruction without exposing its context
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > ignores a pending result after destruction without exposing its context
+🐛 [DataView] loadFromServer 请求 1 被更新的请求 3 替代，忽略响应
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > does not release a shared original context when another view is destroyed
+🐛 [DataView] 销毁 DataView: Payroll:list
+🐛 [DataView] 销毁 DataView: Payroll:default
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > rejects a result from another scenario before replacing data or permissions
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > prepares missing new-row identity from the original query key without component guesses
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+ ✓ src/platform/data-space/runtime/data-space-runtime-api.test.ts (128 tests) 419ms
+
+ Test Files  1 passed (1)
+      Tests  128 passed (128)
+   Start at  14:11:14
+   Duration  3.21s (transform 1.79s, setup 0ms, import 2.32s, tests 419ms, environment 0ms)

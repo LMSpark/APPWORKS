@@ -162,7 +162,7 @@ function pageFileResponse(url: string): Record<string, unknown> {
 
 function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTreeData={...blueprintRoot([
   {...node('CHILD-A','Child','',projectId),capability:{name:'Child',code:'CHILD-CODE'}},
-],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false,additionalUnknownReceipts=0,applyUnknownReceipt=true){
+],projectId),nodeId:'ROOT-A'},access:{hiddenFields?:string[];readonlyFields?:string[];requiredFields?:string[];addAllowed?:boolean;childAllowed?:boolean;deleteAllowed?:boolean}={},unknownSave=false,knownSaveFailure=false,additionalUnknownReceipts=0,applyUnknownReceipt:boolean|number=true){
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
     'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
     'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
@@ -187,10 +187,11 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
   const view=dataSet.getView('Base_NavigationInfo')!
   const result=(selected:Record<string,unknown>[])=>({
-    rows:selected,total:selected.length,
+    rows:selected,total:selected.length,resultPrimaryKey:'rowid',
     assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')},
     rowKey:(row:Readonly<Record<string,unknown>>)=>row['rowid'],
     prepareNewRow:(row:Readonly<Record<string,unknown>>)=>({...row,rowid:crypto.randomUUID()}),
+    prepareNewRowWithIdentity:(row:Readonly<Record<string,unknown>>,identity:{field:string;value:string|number})=>({...row,[identity.field]:identity.value}),
     isFieldReadOnly:(field:string)=>readonlyFields.has(field),
     fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))&&!hiddenFields.has(field)
       ? {read:'visible' as const,write:readonlyFields.has(field)?'denied' as const:'allowed' as const,component:readonlyFields.has(field)?'readonly' as const:'editable' as const,required:false,writeMode:readonlyFields.has(field)?'readonly' as const:'editable' as const}
@@ -204,6 +205,22 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   let unknownReceiptsRemaining=(unknownSave?1:0)+additionalUnknownReceipts
   let knownFailurePending=knownSaveFailure
   const save=vi.fn(async(command:SaveCommand)=>{
+    if(unknownReceipt){
+      const requested=command.changes.flatMap(change=>[
+        ...(change.changes.added??[]).map(row=>({kind:'added' as const,row})),
+        ...(change.changes.changed??[]).map(row=>({kind:'changed' as const,row})),
+        ...(change.changes.deleted??[]).map(row=>({kind:'deleted' as const,row})),
+      ])
+      const outcomes=requested.map(item=>{
+        const existing=rows.find(row=>row['rowid']===item.row['rowid']&&row['SysId']===projectId)
+        if(item.kind==='deleted')return existing===undefined?'applied':'absent'
+        if(existing===undefined)return 'absent'
+        return Object.entries(item.row).every(([field,value])=>existing[field]===value)?'applied':'unknown'
+      })
+      if(outcomes.every(outcome=>outcome==='applied'))unknownReceipt=false
+      else if(outcomes.every(outcome=>outcome==='absent')){unknownReceipt=false;throw new Error('SPARK_SAVE_NOT_APPLIED: verified absent')}
+      else throw new Error('SPARK_SAVE_UNVERIFIABLE: partial save remains unknown')
+    }
     if(knownFailurePending){knownFailurePending=false;throw new Error('explicit save rejection')}
     const loseReceipt=unknownReceiptsRemaining>0
     if(loseReceipt)unknownReceiptsRemaining--
@@ -212,7 +229,8 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     const changed=[...(change.changes.changed??[])]
     const deleted=[...(change.changes.deleted??[])]
     if(!loseReceipt||applyUnknownReceipt){
-      for(const row of added)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
+      const acceptedAdds=loseReceipt&&typeof applyUnknownReceipt==='number'?added.slice(0,applyUnknownReceipt):added
+      for(const row of acceptedAdds)if(!rows.some(existing=>existing['rowid']===row['rowid']))rows.push({...row})
       for(const patch of changed){const current=rows.find(row=>row['rowid']===patch['rowid']);if(current)Object.assign(current,patch)}
       for(const removed of deleted){const index=rows.findIndex(row=>row['rowid']===removed['rowid']&&row['SysId']===projectId);if(index>=0)rows.splice(index,1)}
     }
@@ -231,7 +249,10 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
         const condition=filter as Record<string,unknown>
         if(Array.isArray(condition['filters']))return condition['filters'].every(item=>matches(row,item))
         const field=condition['field'],value=condition['value']
-        return typeof field!=='string'||condition['operator']!=='eq'||String(row[field]??'')===String(value??'')
+        if(typeof field!=='string')return true
+        if(condition['operator']==='eq')return String(row[field]??'')===String(value??'')
+        if(condition['operator']==='in')return Array.isArray(value)&&value.some(item=>String(item??'')===String(row[field]??''))
+        return true
       }
       const selected=rows.filter(row=>row['SysId']===projectId&&matches(row,params.filter))
       return result(selected)
@@ -418,6 +439,147 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('策划同父叶子由 Base_NavigationInfo DataView 一次提交并逐行回读 wire 身份和字段',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const fields=(title:string,order:string,id:string)=>({name:title,FunName:title,funCode:id,conType:'Navitem',conid:'',
+        NavigationUrl:`cfg:${id.toLowerCase()}`,FunOrderValue:order,IsShowAtNav:'1',IsShowChildItem:'1',BeginGroup:'0'})
+      const ids=await owner.addChildNodes(root.nodeId,[
+        {nodeId:'PLAN-A',fields:fields('Planned A','1','PLAN-A')},
+        {nodeId:'PLAN-B',fields:fields('Planned B','2','PLAN-B')},
+      ])
+
+      expect(ids).toEqual(['PLAN-A','PLAN-B'])
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(fixture.save.mock.calls[0]?.[0].changes).toHaveLength(1)
+      expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added).toHaveLength(2)
+      expect(owner.view.rows.filter(row=>row['rowid']==='PLAN-A'||row['rowid']==='PLAN-B')).toEqual(expect.arrayContaining([
+        expect.objectContaining({rowid:'PLAN-A',SysId:'APP-A',prowid:root.nodeId,name:'Planned A',NavigationUrl:'cfg:plan-a'}),
+        expect.objectContaining({rowid:'PLAN-B',SysId:'APP-A',prowid:root.nodeId,name:'Planned B',NavigationUrl:'cfg:plan-b'}),
+      ]))
+      expect(owner.hasPendingChildCreate).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('批次已受理但正式回读失败时仍阻止 DevSystem 项目切换',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const refresh=owner.view.refresh.bind(owner.view)
+      vi.spyOn(owner.view,'refresh').mockRejectedValueOnce(Error('batch readback unavailable')).mockImplementation(refresh)
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+
+      await expect(owner.addChildNodes(root.nodeId,[
+        {nodeId:'READBACK-A',fields:fields('READBACK-A')},{nodeId:'READBACK-B',fields:fields('READBACK-B')},
+      ])).rejects.toThrow('batch readback unavailable')
+
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasUnconfirmedSave).toBe(false)
+      expect(owner.hasPendingBlueprintCommand).toBe(true)
+      expect(state.hasPendingDevSystemWrite()).toBe(true)
+      expect(await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-B'},{force:true})).toBe(false)
+      expect(state.blueprintWorkspaceDataView.value?.projectId).toBe('APP-A')
+    }finally{ownerScope.stop()}
+  })
+
+  it('同父叶子批次完整预检失败时不暂存任何新增行',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const fields={name:'New',FunName:'New',funCode:'NEW',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:new'}
+      await expect(owner.addChildNodes(root.nodeId,[
+        {nodeId:'PLAN-DUP',fields},{nodeId:'PLAN-DUP',fields},
+      ])).rejects.toThrow(/rowid 缺失或重复/iu)
+      expect(owner.view.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('批次中途发现 DataView 新增行身份错配时回滚包括当前行在内的全部本地草稿',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const add=owner.view.addChildRow.bind(owner.view)
+      let calls=0
+      vi.spyOn(owner.view,'addChildRow').mockImplementation(async input=>{
+        const row=await add(input)
+        calls++
+        if(calls===2&&row!==null&&typeof row==='object'&&!('success' in row))row['SysId']='OTHER-APP'
+        return row
+      })
+      const fields=(name:string,order:string)=>({name,FunName:name,funCode:name,conType:'Navitem',FunOrderValue:order,NavigationUrl:`cfg:${name.toLowerCase()}`})
+      await expect(owner.addChildNodes(root.nodeId,[
+        {nodeId:'ROLL-A',fields:fields('Rollback A','1')},{nodeId:'ROLL-B',fields:fields('Rollback B','2')},
+      ])).rejects.toThrow(/身份匹配|IDENTITY_MISMATCH/iu)
+      expect(owner.view.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(owner.view.rows.some(row=>row['rowid']==='ROLL-A'||row['rowid']==='ROLL-B')).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('批量未知回执核验部分写入时保留原ID集合并拒绝第二批重放',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,0,1)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+      const commands=[{nodeId:'PART-A',fields:fields('PART-A')},{nodeId:'PART-B',fields:fields('PART-B')}]
+      await expect(owner.addChildNodes(root.nodeId,commands)).rejects.toThrow('transport timeout')
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      await expect(owner.save()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE|partial|unknown/iu)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      expect(owner.view.dirtyTracking.pendingCreateIds).toEqual(new Set(['PART-A','PART-B']))
+    }finally{ownerScope.stop()}
+  })
+
+  it('未知批次经同 owner 核验为全未应用后只允许重试原 ID 和原 patch',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,0,false)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
+      await owner.loadProjectTree()
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+      const commands=[{nodeId:'ABSENT-A',fields:fields('ABSENT-A')},{nodeId:'ABSENT-B',fields:fields('ABSENT-B')}]
+      await expect(owner.addChildNodes(root.nodeId,commands)).rejects.toThrow('transport timeout')
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      await expect(owner.save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
+      expect(owner.hasUnconfirmedSave).toBe(false)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      const firstIds=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])
+      const firstPatches=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added
+      await expect(owner.save()).resolves.toBeUndefined()
+      expect(fixture.save.mock.calls.at(-1)?.[0].changes[0]?.changes.added?.map(row=>row['rowid'])).toEqual(firstIds)
+      expect(fixture.save.mock.calls.at(-1)?.[0].changes[0]?.changes.added).toEqual(firstPatches)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(owner.view.rows.filter(row=>row['rowid']==='ABSENT-A'||row['rowid']==='ABSENT-B')).toHaveLength(2)
+    }finally{ownerScope.stop()}
+  })
+
   it('导航子行回执未知时只恢复专属 child ID，不重建文件或重复新增行',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -468,8 +630,8 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
-  it('子行回执持续未知且尚未应用时 Save All 保留原ID后可继续核验',async()=>{
-    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,1,false)
+  it('子行回执核验为全未应用后 Save All 保留原ID并安全重试同一批',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true},true,false,0,false)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{

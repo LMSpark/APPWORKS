@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project-planning/project-planning-blueprint-diff",
+    "sourcePath": "src/services/project-planning/project-planning-blueprint-diff.ts",
+    "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+    "packageName": "app",
+    "modulePath": "services/project-planning/project-planning-blueprint-diff",
+    "jsdoc": "app 的 services/project-planning/project-planning-blueprint-diff 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectBlueprintReplacementCommand, ProjectBlueprintReplacementPlan（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectBlueprintReplacementCommand",
+      "ProjectBlueprintReplacementPlan"
+    ]
+  },
+  "$defs": {
+    "WireFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WireFields",
+      "properties": {},
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    "ProjectBlueprintReplacementCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintReplacementCommand",
+      "properties": {
+        "kind": {
+          "enum": [
+            "delete",
+            "create",
+            "update",
+            "move",
+            "reorder"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "previousParentNodeId": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "siblingIndex": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "nodeId",
+        "parentNodeId",
+        "depth",
+        "siblingIndex",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintReplacementPlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintReplacementPlan",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "rootNodeId": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectBlueprintReplacementCommand"
+          }
+        },
+        "expectedTree": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        }
+      },
+      "required": [
+        "projectId",
+        "rootNodeId",
+        "commands",
+        "expectedTree"
+      ],
+      "additionalProperties": false
+    },
+    "PlanOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PlanOptions",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "availableFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-27T02:02:14.173Z",
+  "models": {
+    "WireFields": {
+      "name": "WireFields",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, string | number>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, string | number>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintReplacementCommand": {
+      "name": "ProjectBlueprintReplacementCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'create' | 'update' | 'move' | 'reorder' | 'delete';\n    nodeId: string;\n    parentNodeId: string;\n    previousParentNodeId?: string;\n    depth: number;\n    siblingIndex: number;\n    fields: Readonly<WireFields>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'create' | 'update' | 'move' | 'reorder' | 'delete';\n    nodeId: string;\n    parentNodeId: string;\n    previousParentNodeId?: string;\n    depth: number;\n    siblingIndex: number;\n    fields: Readonly<WireFields>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousParentNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "depth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "siblingIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintReplacementPlan": {
+      "name": "ProjectBlueprintReplacementPlan",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    rootNodeId: string;\n    commands: readonly ProjectBlueprintReplacementCommand[];\n    expectedTree: ProjectBlueprintTreeData;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    rootNodeId: string;\n    commands: readonly ProjectBlueprintReplacementCommand[];\n    expectedTree: ProjectBlueprintTreeData;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commands",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedTree",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PlanOptions": {
+      "name": "PlanOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    /** Fields output by the current formal DataView query; omit for structural-only planning. */\n    availableFields?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    /** Fields output by the current formal DataView query; omit for structural-only planning. */\n    availableFields?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "availableFields",
+              "jsdoc": "Fields output by the current formal DataView query; omit for structural-only planning.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

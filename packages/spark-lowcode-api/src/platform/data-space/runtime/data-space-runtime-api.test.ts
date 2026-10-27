@@ -1246,6 +1246,49 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
+  it('saves multiple explicit row IDs through one formal DataView/DataSet batch and accepts the exact row count', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'BATCH-A'}, {salary: 101})
+    await view.addRowWithIdentity({field: 'rowid', value: 'BATCH-B'}, {salary: 102})
+    http.saveResult = {maplistadd: [{physical: [
+      {rowid: 'BATCH-A', salary: 101}, {rowid: 'BATCH-B', salary: 102},
+    ]}]}
+
+    await expect(ds.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: ['BATCH-A', 'BATCH-B']}]}))
+      .resolves.toMatchObject({success: true, data: {viewCount: 1, createdCount: 2, savedCount: 0, deletedCount: 0}})
+
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.rows.filter(row => String(row['rowid']).startsWith('BATCH-'))).toEqual(expect.arrayContaining([
+      expect.objectContaining({rowid: 'BATCH-A', salary: 101}), expect.objectContaining({rowid: 'BATCH-B', salary: 102}),
+    ]))
+    ds.destroy()
+  })
+
+  it('keeps a partially accepted multi-add command unknown and never dispatches a second request', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const {ds, view} = connectedView(http)
+    await view.loadFromServer()
+    await view.addRowWithIdentity({field: 'rowid', value: 'PARTIAL-A'}, {salary: 111})
+    await view.addRowWithIdentity({field: 'rowid', value: 'PARTIAL-B'}, {salary: 112})
+    http.saveResult = {maplistadd: [{physical: [{rowid: 'PARTIAL-A', salary: 111}]}]}
+    const save = () => ds.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: ['PARTIAL-A', 'PARTIAL-B']}]})
+
+    await expect(save()).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    http.queryResults.push({...http.result as Record<string, unknown>, data: {Items: [
+      {rowid: 'PARTIAL-A', salary: 111, lingma_sys_key: 'PARTIAL-A-KEY', lingma_sys_params: {r: [], e: ['salary'], h: [], m: [], d: true}},
+    ], Count: 1}})
+    await expect(save()).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('PARTIAL-A')).toBe(true)
+    expect(view.dirtyTracking.pendingCreateIds.has('PARTIAL-B')).toBe(true)
+    ds.destroy()
+  })
+
   it('keeps an explicit identity unchanged while an unknown add receipt is verified through the original context', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const {ds, view} = connectedView(http)

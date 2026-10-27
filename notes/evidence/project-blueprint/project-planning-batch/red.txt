@@ -1,0 +1,42 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning-ai-runner.test.ts (11 tests | 1 failed | 10 skipped) 25ms
+     ↓ runs headless projectPlanning through host.run with scoped navigation input
+     ↓ wires trace and tool call callbacks through the headless adapter
+     ↓ accepts injected adapter without rebinding business registration hooks
+     ↓ can inject host directly without capability lookup
+     ↓ does not submit a dirty blueprint through ProjectWorkspace delivery
+     ↓ reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll
+     × submits several independent leaves under one existing parent as one DataView batch 23ms
+     ↓ builds planning inputs from the complete DataView tree rather than stale workspace rows
+     ↓ keeps DataView receipt pending even when dirtyTracking is clear
+     ↓ fails closed before blueprint mutation and delivery can call the legacy save path
+     ↓ creates an isolated host per run when none is injected
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning-ai-runner.test.ts > runProjectPlanningAiSession > submits several independent leaves under one existing parent as one DataView batch
+AssertionError: promise rejected "Error: 当前 DataView 仅支持一个完整预检后的单叶新增命令；更新、移…" instead of resolving
+ ❯ tests/app/services/project-planning-ai-runner.test.ts:316:121
+    314|     })
+    315|
+    316|     await expect(runProjectPlanningAiSession({ editor, blueprintDataVi…
+       |                                                                                                                         ^
+    317|
+    318|     expect(owner.addChildNodes).toHaveBeenCalledOnce()
+
+Caused by: Error: 当前 DataView 仅支持一个完整预检后的单叶新增命令；更新、移动、删除、多节点或父子同批计划保持拒绝
+ ❯ Proxy.addSingleChild src/services/project-planning/project-planning-agent-workflow-binding.ts:346:13
+ ❯ Object.<anonymous> tests/app/services/project-planning-ai-runner.test.ts:308:34
+ ❯ Object.run packages/spark-app/src/ai/ai-run-adapter.ts:262:26
+ ❯ Module.runProjectPlanningAiSession src/services/project-planning/project-planning-ai-runner.ts:149:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 skipped (11)
+   Start at  13:57:09
+   Duration  17.14s (transform 11.36s, setup 190ms, import 15.05s, tests 25ms, environment 1.44s)

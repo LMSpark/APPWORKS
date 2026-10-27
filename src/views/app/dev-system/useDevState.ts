@@ -195,7 +195,7 @@ export function useDevState() {
       }catch(error){runtime.dispose();throw error}
       const fileOwner=pageToolFilesDataView
       blueprintPageRuntime.value=runtime;blueprintWorkspaceDataView.value=session
-      const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasUnconfirmedSave||fileOwner.hasUnconfirmedSave,save:async()=>{
+      const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||fileOwner.hasUnconfirmedSave||fileOwner.hasPendingFileSave,save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
         if(fileOwner.hasPendingFileSave){await fileOwner.savePageFiles();refreshBlueprintTreeProjection();return}
@@ -695,8 +695,9 @@ export function useDevState() {
     return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || editor.unconfirmedPageFiles.length > 0
       || hasExternalDataViewChanges()
   })
-  function hasPendingPageFileSave(): boolean {
-    return pageToolFilesDataView?.hasPendingFileSave === true
+  function hasPendingDevSystemWrite(): boolean {
+    return pageToolFilesDataView?.hasPendingFileSave === true || pageToolFilesDataView?.hasUnconfirmedSave === true
+      || blueprintWorkspaceDataView.value?.hasPendingBlueprintCommand === true
   }
 
   const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
@@ -1633,7 +1634,7 @@ export function useDevState() {
     // 计算属性
     hasAnyFileDirty,
     hasAnyDirty,
-    hasPendingPageFileSave,
+    hasPendingDevSystemWrite,
     registerExternalDataViewSession,
     notifyExternalDataViewChanged,
     moveBlueprintNodeInDataView,

@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
+    "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+    "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract",
+    "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract 模块。\n导出 DtsTypeDeclarationModel symbol: NavHostProjectBinding, NavHostProjectCandidateFields（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "NavHostProjectBinding",
+      "NavHostProjectCandidateFields"
+    ]
+  },
+  "$defs": {
+    "NavHostProjectBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavHostProjectBinding",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "modelName",
+        "valueField",
+        "labelField"
+      ],
+      "additionalProperties": false
+    },
+    "NavHostProjectCandidateFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavHostProjectCandidateFields",
+      "properties": {
+        "valueField": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "valueField",
+        "labelField"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-27T04:56:13.667Z",
+  "models": {
+    "NavHostProjectBinding": {
+      "name": "NavHostProjectBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelName: string;\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NavHostProjectCandidateFields": {
+      "name": "NavHostProjectCandidateFields",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    valueField: string;\n    labelField: string;\n    parentField?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "valueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

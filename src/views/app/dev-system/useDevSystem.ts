@@ -26,8 +26,8 @@ export function useDevSystem() {
   const { router } = useTenantRouter()
   const state = useDevState()
   onBeforeRouteLeave(() => {
-    if (canLeaveDevSystem(state.hasPendingPageFileSave())) return true
-    state.addStatus('存在待核验的文件保存结果；请留在当前页面完成原命令核验后再离开', 'warning')
+    if (canLeaveDevSystem(state.hasPendingDevSystemWrite())) return true
+    state.addStatus('存在待核验的 DevSystem 数据写入；请留在当前页面完成原命令核验后再离开', 'warning')
     return false
   })
   const isPageFileName = (value: string): value is PageToolFileName =>

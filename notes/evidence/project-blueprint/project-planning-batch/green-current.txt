@@ -1,0 +1,357 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 节点基本信息通过共享 Base_NavigationInfo DataView 保存而不调用 ProjectWorkspace gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 设计器目标只来自正式读回 conid，待保存改绑时拒绝加载新目标
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 新增根模块通过共享 Base_NavigationInfo DataView 按正式创建权限保存
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 新增根模块任一必需字段没有 DataView 新行写权限时不提交
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子节点父级 c 权限拒绝时在文件或蓝图写入前失败
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子节点候选字段写权限拒绝时不创建页面文件或导航行
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子节点候选 DataTable validator 拒绝时不创建页面文件或导航行
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 获准的子节点经同一文件命令 DataView 与导航 DataView 保存，不调用 mounted-page gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 策划同父叶子由 Base_NavigationInfo DataView 一次提交并逐行回读 wire 身份和字段
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 同父叶子批次完整预检失败时不暂存任何新增行
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 批次中途发现 DataView 新增行身份错配时回滚包括当前行在内的全部本地草稿
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 批量未知回执核验部分写入时保留原ID集合并拒绝第二批重放
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 未知批次经同 owner 核验为全未应用后只允许重试原 ID 和原 patch
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 导航子行回执未知时只恢复专属 child ID，不重建文件或重复新增行
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 工作台 Save All 在同一 owner 内恢复未知子行命令并清除专属待处理状态
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子行回执核验为全未应用后 Save All 保留原ID并安全重试同一批
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子行待核验父身份不可读或不匹配时 Save All 拒绝并保留原命令
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 子行已确认保存但刷新回读失败后只刷新原ID，不再次保存
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 导航写入明确拒绝后清理子行与文件，重试重新创建完整资源链
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 根模块新增回执未知时沿原新增 ID 核验，不创建第二根行
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 创建工具在 DataView 列权限预检失败时不创建任何页面文件
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 蓝图绑定明确失败时经原文件 command owner 补偿默认文件，不调用旧删除 gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 工具绑定保存回执未知时保留文件与原命令并等待 DataView 核验
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 文件创建回执未知时 Save All 先核验原创建命令，再保存蓝图绑定
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 节点字段代理不暴露无读取权限值，也拒绝只读字段setter
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 首载项目树由共享 Base_NavigationInfo DataView allPages 查询投影提供
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 首载 DataView 失败时隐藏缓存树且不回退 ProjectWorkspace gateway
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 首载 DataView 失败时隐藏缓存树且不回退 ProjectWorkspace gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > DataView dirty/unknown 回执阻断旧树写入口并保护 NodeBasicInfo 草稿
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通叶子蓝图节点删除经完整项目树 DataView 保存并正式回读
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通节点删除权限不足时拒绝且不调用任何保存入口
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] loadFromServer 请求 6 被更新的请求 8 替代，忽略响应
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通节点删除拒绝非叶子目标且不部分提交
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] loadFromServer 请求 6 被更新的请求 8 替代，忽略响应
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通节点删除拒绝目标项目身份错配且不部分提交
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通叶子删除保存失败或结果未知时保留待核验状态且不回退旧 gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 普通叶子删除明确保存失败时保留 pending-delete 并可沿同一 DataSet 重试
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载页面删除经蓝图与文件 DataView 保存，不调用旧组合删除 gateway
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载页面删除在权限不足时拒绝且不删除文件
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] loadFromServer 请求 6 被更新的请求 8 替代，忽略响应
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载页面删除在目标有子节点时拒绝且不删除文件
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] loadFromServer 请求 6 被更新的请求 8 替代，忽略响应
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载页面删除在项目身份错配时拒绝且不删除文件
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载页面蓝图行保存失败时不启动文件删除命令
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载蓝图删除成功但文件删除失败时报告部分成功，工作台 Save 沿原文件命令恢复
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+stdout | tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 挂载蓝图删除回执未知后 Save All 核验原节点并接续目录文件删除
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: PageToolFilesCommand:default
+🐛 [DataView] 销毁 DataView: PageToolFileSave:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+
+ ✓ tests/app/dev/dev-state-page-file-closed-loop.test.ts (50 tests) 1289ms
+ ✓ tests/app/services/project-planning/grouped-planning-contract.test.ts (14 tests) 44ms
+ ✓ tests/app/services/project-planning-ai-runner.test.ts (11 tests) 48ms
+
+ Test Files  3 passed (3)
+      Tests  75 passed (75)
+   Start at  14:10:54
+   Duration  17.47s (transform 22.68s, setup 667ms, import 34.65s, tests 1.38s, environment 5.50s)

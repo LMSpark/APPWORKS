@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
+    "sourcePath": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+    "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/nav-host-project-picker/NavHostProjectPicker",
+    "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/NavHostProjectPicker 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-27T04:51:21.675Z",
+  "models": {}
+}

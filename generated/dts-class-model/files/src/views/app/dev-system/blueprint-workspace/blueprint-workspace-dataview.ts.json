@@ -11,6 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNodeFormData",
+      "BlueprintChildNodeCreate",
       "BlueprintWorkspaceDataView"
     ]
   },
@@ -79,6 +80,26 @@
       ],
       "additionalProperties": false
     },
+    "BlueprintChildNodeCreate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintChildNodeCreate",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "nodeId",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
     "BlueprintWorkspaceDataView": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -107,6 +128,9 @@
           "type": "boolean"
         },
         "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "hasPendingBlueprintCommand": {
           "type": "boolean"
         },
         "isBusy": {
@@ -221,6 +245,25 @@
         },
         "method.hasOutput.return": {
           "type": "boolean"
+        },
+        "method.addChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "parentNodeId": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreate"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
         },
         "method.assertCanAddChild.params": {
           "type": "object",
@@ -418,7 +461,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T00:16:58.421Z",
+  "generatedAt": "2026-10-27T06:27:15.211Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -465,6 +508,37 @@
             },
             {
               "name": "prototype",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintChildNodeCreate": {
+      "name": "BlueprintChildNodeCreate",
+      "jsdoc": "Stable row identity and wire fields for one preflighted leaf in a same-parent batch.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Stable explicit row identity, unique within the current project and this command. */\n    nodeId: string;\n    /** Candidate formal wire fields; the current DataView validates every field before staging. */\n    fields: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Stable explicit row identity, unique within the current project and this command. */\n    nodeId: string;\n    /** Candidate formal wire fields; the current DataView validates every field before staging. */\n    fields: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "Stable explicit row identity, unique within the current project and this command.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "Candidate formal wire fields; the current DataView validates every field before staging.",
               "readable": true,
               "writable": false
             }
@@ -552,6 +626,12 @@
             },
             {
               "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingBlueprintCommand",
+              "jsdoc": "Keep the owner mounted while a write receipt or its required readback is unresolved.",
               "readable": true,
               "writable": false
             },
@@ -721,6 +801,48 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "addChildNodes",
+              "jsdoc": "Preflight and submit several stable leaf IDs under one existing parent in one DataSet batch.",
+              "parameters": [
+                {
+                  "name": "parentNodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreate[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             },
             {

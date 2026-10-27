@@ -10,7 +10,6 @@
     "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 EditableProjectOption 等公开契约支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "EditableProjectOption",
       "StatusMessage",
       "DevContextConfig",
       "DevWorkspaceTab",
@@ -19,36 +18,6 @@
     ]
   },
   "$defs": {
-    "EditableProjectOption": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "EditableProjectOption",
-      "properties": {
-        "projectId": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "icon": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "tenantId": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "projectId",
-        "name",
-        "icon",
-        "description",
-        "tenantId"
-      ],
-      "additionalProperties": false
-    },
     "StatusMessage": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -222,14 +191,6 @@
             "projectId"
           ],
           "additionalProperties": false
-        },
-        "editableProjects": {
-          "type": "object",
-          "title": "import(\"vue\").Ref<{ readonly projectId: string; readonly name: string; readonly icon: string; readonly description: string; tenantId: string; }[], EditableProjectOption[] | { readonly projectId: string; readonly name: string; readonly icon: string; readonly description: string; tenantId: string; }[]>"
-        },
-        "projectOptionsLoading": {
-          "type": "object",
-          "title": "import(\"vue\").Ref<boolean, boolean>"
         },
         "treeData": {
           "type": "object",
@@ -751,6 +712,10 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<boolean>"
         },
+        "hasPendingDevSystemWrite": {
+          "type": "object",
+          "title": "() => boolean"
+        },
         "registerExternalDataViewSession": {
           "type": "object",
           "title": "(session: ExternalDataViewSession) => () => void"
@@ -783,6 +748,10 @@
           "type": "object",
           "title": "() => Promise<BlueprintWorkspaceDataView>"
         },
+        "savePageToolFile": {
+          "type": "object",
+          "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
+        },
         "loadNavigationDictionaryOptions": {
           "type": "object",
           "title": "() => Promise<void>"
@@ -800,10 +769,6 @@
         "addStatus": {
           "type": "object",
           "title": "(text: string, type?: StatusMessage[\"type\"]) => void"
-        },
-        "loadEditableProjects": {
-          "type": "object",
-          "title": "(targetTenantId?: string) => Promise<void>"
         },
         "openEditingProject": {
           "type": "object",
@@ -926,8 +891,6 @@
         "tenantId",
         "projectId",
         "projectPicker",
-        "editableProjects",
-        "projectOptionsLoading",
         "treeData",
         "childCreateActionState",
         "blueprintLoading",
@@ -973,6 +936,7 @@
         "projectPlanningAiTimeline",
         "hasAnyFileDirty",
         "hasAnyDirty",
+        "hasPendingDevSystemWrite",
         "registerExternalDataViewSession",
         "notifyExternalDataViewChanged",
         "moveBlueprintNodeInDataView",
@@ -981,12 +945,12 @@
         "blueprintWorkspaceDataView",
         "blueprintPageRuntime",
         "loadBlueprintWorkspaceDataView",
+        "savePageToolFile",
         "loadNavigationDictionaryOptions",
         "createPageToolSnapshot",
         "editor",
         "project",
         "addStatus",
-        "loadEditableProjects",
         "openEditingProject",
         "openProjectPickerScope",
         "loadBlueprint",
@@ -1020,37 +984,8 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T00:33:32.579Z",
+  "generatedAt": "2026-10-27T06:38:16.580Z",
   "models": {
-    "EditableProjectOption": {
-      "name": "EditableProjectOption",
-      "jsdoc": "Editable Project Option 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ProjectBlueprintDomain.ProjectSummary & {\n    /** tenant Id 标识。 */\n    tenantId: string;\n}",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "ProjectBlueprintDomain.ProjectSummary",
-            "targetName": "ProjectBlueprintDomain.ProjectSummary"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "{\n    /** tenant Id 标识。 */\n    tenantId: string;\n}"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "tenant Id 标识。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
     "StatusMessage": {
       "name": "StatusMessage",
       "jsdoc": "Status Message 的语义模型。",

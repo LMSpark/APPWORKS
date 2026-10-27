@@ -80,7 +80,7 @@ describe('projectPlanning formal node input', () => {
     const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
     const changed = { ...current.children[0]!, capability: { name: 'changed' } }
 
-    await expect(planningRoot.replaceBlueprintChildren({ children: [changed] })).rejects.toThrow(/单叶新增命令.*更新、移动、删除/iu)
+    await expect(planningRoot.replaceBlueprintChildren({ children: [changed] })).rejects.toThrow(/仅支持一个批次.*更新、移动、删除/iu)
     expect(addChildNode).not.toHaveBeenCalled()
     expect(editor.project.blueprintDirty).toBe(false)
   })
@@ -237,7 +237,7 @@ describe('projectPlanning formal node input', () => {
     expect(editor.project.blueprintDirty).toBe(false)
   })
 
-  it('interpolates the formal kind and teaches the bounded single-leaf write contract', () => {
+  it('interpolates the formal kind and teaches the bounded single-batch sibling write contract', () => {
     const prompt = createAppAgentWorkflowRuntimeBindings({}).systemPromptInterpolator({
       editorSource: 'projectPlanning', template: '', hints: [], input: {
         projectScopeKey: 'APP-A', projectId: 'APP-A', requirement: '订单与库存管理',
@@ -246,7 +246,9 @@ describe('projectPlanning formal node input', () => {
     })
     expect(prompt).toContain('orders (page) 订单')
     expect(prompt).toContain('capability: { name:')
-    expect(prompt).toContain('每次 AI run 最多提交一个新增叶子')
+    expect(prompt).toContain('每次 AI run 最多发起一个 Base_NavigationInfo DataView/DataSet 保存批次')
+    expect(prompt).toContain('同一个原树现存父节点')
+    expect(prompt).toContain('父子节点不得同批')
     expect(prompt).toContain('parentNodeId,')
     expect(prompt).not.toContain('nodeId: "core-service"')
     expect(prompt).not.toContain('blueprintKind')

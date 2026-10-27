@@ -284,6 +284,44 @@ describe('runProjectPlanningAiSession', () => {
     expect(saveAll).not.toHaveBeenCalled()
   })
 
+  it('submits several independent leaves under one existing parent as one DataView batch', async () => {
+    const editor = createEditor('demo')
+    editor.project.markBlueprintClean('root')
+    let current = editor.project.blueprintTree
+    const owner = {
+      projectId: 'demo', hasTreeProjection: true, dirty: false,
+      treeProjection: () => current,
+      view: { queryColumns: BLUEPRINT_WORKSPACE_FIELD_NAMES.map(name => ({ name })) },
+      hasOutput: (field: string) => BLUEPRINT_WORKSPACE_FIELD_NAMES.includes(field as never),
+      addChildNodes: vi.fn(async (parentId: string, additions: readonly { nodeId: string; fields: Record<string, unknown> }[]) => {
+        current = { ...current, children: [...current.children, ...additions.map(({nodeId, fields}) => ({
+          nodeId, parentNodeId: parentId, projectId: 'demo', kind: 'page' as const,
+          capability: { name: String(fields['name'] ?? '') }, source: {...fields, rowid: nodeId, SysId: 'demo', prowid: parentId},
+        }))] }
+        return additions.map(item => item.nodeId)
+      }),
+    }
+    mocks.projectPlanningRun.mockImplementationOnce(async () => {
+      const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as Parameters<typeof resolveProjectPlanningDomainRoot>[0]
+      const root = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      const existing = current.children[0]!
+      await Promise.resolve(root.replaceBlueprintChildren({ children: [existing,
+        {nodeId: 'planned-a', parentNodeId: current.nodeId, projectId: 'demo', kind: 'page', capability: {name: 'A'}, navigation: {title: 'A', order: 1, publishInMenu: true, showChildren: true, beginGroup: false}, source: {}},
+        {nodeId: 'planned-b', parentNodeId: current.nodeId, projectId: 'demo', kind: 'page', capability: {name: 'B'}, navigation: {title: 'B', order: 2, publishInMenu: true, showChildren: true, beginGroup: false}, source: {}},
+      ]}))
+      expect(root.completeProjectPlanning()).toMatchObject({ok: true, completed: true})
+      return createRunResult()
+    })
+
+    await expect(runProjectPlanningAiSession({ editor, blueprintDataView: owner as never, saveBlueprintAfterRun: true })).resolves.toBeDefined()
+
+    expect(owner.addChildNodes).toHaveBeenCalledOnce()
+    expect(owner.addChildNodes).toHaveBeenCalledWith(current.nodeId, expect.arrayContaining([
+      expect.objectContaining({nodeId: 'planned-a'}), expect.objectContaining({nodeId: 'planned-b'}),
+    ]))
+    expect(current.children.map(node => node.nodeId)).toEqual(['orders', 'planned-a', 'planned-b'])
+  })
+
   it('builds planning inputs from the complete DataView tree rather than stale workspace rows', async () => {
     const editor = createEditor('demo')
     editor.project.markBlueprintClean('root')

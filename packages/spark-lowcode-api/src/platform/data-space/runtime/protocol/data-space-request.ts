@@ -172,16 +172,16 @@ export class DataSpaceRequest {
         })
         this.assertCurrent(captured)
       } catch (cause) {throw new DataSpaceSaveUnconfirmedError('保存请求已发出但未取得可确认的响应', cause)}
-      const decoded = decodeEnvelope(response, '保存')
-      assertDataSpaceSaveSuccess(decoded)
       try {
+        const decoded = decodeEnvelope(response, '保存')
+        assertDataSpaceSaveSuccess(decoded)
         const receipts = readDataSpaceSaveReceipt(decoded, groups)
         return prepared.map((target, index) => {
           const receipt = receipts[index]
           if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
           return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
         })
-      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('服务端已受理但回执无法确认', cause)}
+      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('服务端已返回但保存结果无法确认', cause)}
     } finally {
       this.assertCurrent(captured)
       targets.forEach(target => target.context.assertIdentity(target.identity))

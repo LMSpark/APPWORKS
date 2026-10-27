@@ -44,14 +44,6 @@
               ],
               "additionalProperties": false
             },
-            "editableProjects": {
-              "type": "object",
-              "title": "import(\"vue\").Ref<{ readonly projectId: string; readonly name: string; readonly icon: string; readonly description: string; tenantId: string; }[], import(\"./useDevState\").EditableProjectOption[] | { readonly projectId: string; readonly name: string; readonly icon: string; readonly description: string; tenantId: string; }[]>"
-            },
-            "projectOptionsLoading": {
-              "type": "object",
-              "title": "import(\"vue\").Ref<boolean, boolean>"
-            },
             "treeData": {
               "type": "object",
               "title": "import(\"vue\").ComputedRef<never[] | import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData[]>"
@@ -572,6 +564,10 @@
               "type": "object",
               "title": "import(\"vue\").ComputedRef<boolean>"
             },
+            "hasPendingDevSystemWrite": {
+              "type": "object",
+              "title": "() => boolean"
+            },
             "registerExternalDataViewSession": {
               "type": "object",
               "title": "(session: import(\"./useDevState\").ExternalDataViewSession) => () => void"
@@ -604,6 +600,10 @@
               "type": "object",
               "title": "() => Promise<import(\"./blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView>"
             },
+            "savePageToolFile": {
+              "type": "object",
+              "title": "(input: { pageId: string; fileName: PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
+            },
             "loadNavigationDictionaryOptions": {
               "type": "object",
               "title": "() => Promise<void>"
@@ -623,10 +623,6 @@
             "addStatus": {
               "type": "object",
               "title": "(text: string, type?: import(\"./useDevState\").StatusMessage[\"type\"]) => void"
-            },
-            "loadEditableProjects": {
-              "type": "object",
-              "title": "(targetTenantId?: string) => Promise<void>"
             },
             "openEditingProject": {
               "type": "object",
@@ -749,8 +745,6 @@
             "tenantId",
             "projectId",
             "projectPicker",
-            "editableProjects",
-            "projectOptionsLoading",
             "treeData",
             "childCreateActionState",
             "blueprintLoading",
@@ -796,6 +790,7 @@
             "projectPlanningAiTimeline",
             "hasAnyFileDirty",
             "hasAnyDirty",
+            "hasPendingDevSystemWrite",
             "registerExternalDataViewSession",
             "notifyExternalDataViewChanged",
             "moveBlueprintNodeInDataView",
@@ -804,12 +799,12 @@
             "blueprintWorkspaceDataView",
             "blueprintPageRuntime",
             "loadBlueprintWorkspaceDataView",
+            "savePageToolFile",
             "loadNavigationDictionaryOptions",
             "createPageToolSnapshot",
             "editor",
             "project",
             "addStatus",
-            "loadEditableProjects",
             "openEditingProject",
             "openProjectPickerScope",
             "loadBlueprint",
@@ -914,7 +909,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:41:26.766Z",
+  "generatedAt": "2026-10-27T06:38:25.146Z",
   "models": {
     "DevSystemCtx": {
       "name": "DevSystemCtx",

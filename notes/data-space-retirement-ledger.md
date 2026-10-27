@@ -2270,3 +2270,10 @@ flowchart TD
 - **自动化证据：**原始 RED `notes/evidence/project-blueprint/navhost-project-hierarchy.RED.txt`；原始 GREEN `notes/evidence/project-blueprint/navhost-project-hierarchy.GREEN.txt`；typecheck 命令记录 `notes/evidence/project-blueprint/navhost-project-hierarchy.typecheck.txt`。主控独立复跑目标测试 **2 files / 11 passed**、改动文件 ESLint、`pnpm run typecheck`、`pnpm run build`、全量 `pnpm run verify:rules` 与 `git diff --check` 均通过。AI model spec 保留既有 **2 warnings / 1 info**；build 保留仓内 CodeMirror 动态导入与 chunk-size 告警。未改公开 ClassModel 合同，无需刷新生成物。
 - **真实 SPA 限制：**最近一次 `appworks-tool-dev` 正式 NavHost DataView 查询仍为 0 行，已有 SPA 烟测仅证实缺映射时 fail-closed；本切片未改任何远端数据，也没有新的真实层级候选或切换成功读回。因此 `selectPid` 实际生产配置、候选树服务权限与切换后 ProjectWorkspace 装载/旧 owner 释放仍待有效关系可读后烟测，夹具结果不替代线上成功验收。
 - **交付状态：**主控复核确认树投影键与 DataView 主键分离正确，并修正/覆盖 treeMode 服务端依赖和空白规范化反例。代码及本台账纳入本次提交推送；无 Java 修改和业务数据写入。开发工作台蓝图整合总体目标继续 active。
+
+### 2026-10-27 ProjectWorkspace gateway 读回调用者校正
+
+- **审计纠正：**低价只读审计原建议以普通叶删除切入替换 ProjectWorkspace gateway 回读；主控核对 `src/views/app/dev-system/useDevState.ts` 后确认，此建议路径已经由当前工作台 `removeNodeFromTree()` 委托 `BlueprintWorkspaceDataView.removeLeafNode()`，在同 DataView/DataSet owner 内保存并读回，不应重复实施。
+- **生命周期边界：**`ProjectWorkspace` 通用 add/update/delete/move 后读回仍绑定其 `blueprintGateway`；但本次审计未证明这些通用入口都由当前 DevSystem UI 实际调用。ProjectPlanning Agent Run 的 DataView owner 在准备完成后 `finally` 释放，不能把该 owner 传给隔离的 `ProjectWorkspace` 保存入口或跨 PageRuntime 复用。
+- **后续步骤：**继续先核 `ProjectWorkspace` 各 CRUD/gateway 方法的生产调用点及其当前 DataView 命令归属，只对仍真实可达且有活跃 owner 的路径设计最窄替换；确认读取身份、权限、完整性、回执/未知结果后再实施。禁止加无调用适配层、以 gateway/直接 API 作 fallback，或为复用而把 DataView owner 延长到另一生命周期。
+- **状态：**本条为源码调用链审计，没有代码、SPA、Java 或业务数据变更。NavHost 层级候选门禁、提交和推送状态不受影响；工作台蓝图整合总体目标继续 active。

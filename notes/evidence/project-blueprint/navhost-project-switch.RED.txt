@@ -1,0 +1,35 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/dev/dev-system-header-save.test.ts (3 tests | 1 failed) 119ms
+     × does not allow free-text project ids in the header picker 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/dev-system-header-save.test.ts > DevSystem header save action > does not allow free-text project ids in the header picker
+AssertionError: expected '' to be undefined
+
+- Expected:
+undefined
+
++ Received:
+""
+
+ ❯ tests/app/dev/dev-system-header-save.test.ts:183:54
+    181|     const projectPicker = wrapper.find('.dev-project-picker__project')
+    182|
+    183|     expect(projectPicker.attributes('allow-create')).toBeUndefined()
+       |                                                      ^
+    184|     expect(projectPicker.attributes('default-first-option')).toBeUndef…
+    185|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+   at tests/app/dev/dev-system-header-save.test.ts:183:54
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  12:04:40
+   Duration  20.14s (transform 12.90s, setup 284ms, import 17.55s, tests 119ms, environment 1.66s)
+
+EXIT_CODE=1

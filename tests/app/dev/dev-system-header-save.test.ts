@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ToolApprovalDisplayItem } from '@spark-appworks/spark-component'
 import DevSystem from '@/views/app/dev-system/DevSystem.vue'
 
+vi.mock('vue-router', () => ({ useRoute: () => ({query: {__sparkNavigationId: 'dev-system'}}) }))
+
 let devSystemCtx: ReturnType<typeof createDevSystemCtx>
 
 vi.mock('@/views/app/dev-system/useDevSystem', () => ({
@@ -17,6 +19,7 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
     pageIoBusy: ref(false),
     allSaving: ref(false),
     blueprintLoading: ref(false),
+    blueprintPageRuntime: ref(undefined),
     blueprintEmpty: ref(true),
     treeData: ref([]),
     selectedNode: ref({nodeId:'dbms',parentNodeId:'root',projectId:'homepage',kind:'page',capability:{name:'数据库管理'},source:{}}),
@@ -32,12 +35,8 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
     tenantId: 'tenant-a',
     projectId: 'homepage',
     projectPicker: { tenantId: 'tenant-a', projectId: 'homepage' },
-    editableProjects: ref([
-      { tenantId: 'tenant-a', projectId: 'homepage', name: 'Homepage', icon: 'Box', description: '' },
-    ]),
-    projectOptionsLoading: ref(false),
     initialize: vi.fn().mockResolvedValue(undefined),
-    loadEditableProjects: vi.fn().mockResolvedValue(undefined),
+    loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
     openProjectPickerScope: vi.fn().mockResolvedValue(true),
     approveAiTool: vi.fn(),
     rejectAiTool: vi.fn(),
@@ -174,5 +173,11 @@ describe('DevSystem header save action', () => {
     expect(devSystemCtx.state.approveAiTool).toHaveBeenCalledWith('approval-1')
     expect(devSystemCtx.state.rejectAiTool).toHaveBeenCalledWith('approval-1', 'no')
     expect(devSystemCtx.state.abortAiTool).toHaveBeenCalledWith('approval-1', 'stop')
+  })
+
+  it('does not allow free-text project ids in the header picker', () => {
+    const wrapper = mountDevSystem()
+    expect(wrapper.find('.dev-project-picker__project').exists()).toBe(false)
+    expect(wrapper.findComponent({name: 'NavHostProjectPicker'}).exists()).toBe(true)
   })
 })

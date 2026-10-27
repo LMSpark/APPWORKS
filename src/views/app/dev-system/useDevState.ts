@@ -59,12 +59,6 @@ const {
 } = ProjectBlueprintDomain
 const DATA_SPACE_CATALOG_SCENARIO_ID = catalogPageData.scenarioId
 
-/** Editable Project Option 的语义模型。 */
-export type EditableProjectOption = ProjectBlueprintDomain.ProjectSummary & {
-    /** tenant Id 标识。 */
-tenantId: string
-}
-
 function createLiveTargetProxy<T extends object>(readTarget: () => T): T {
   const initial = readTarget()
   return new Proxy(initial, {
@@ -374,8 +368,6 @@ export function useDevState() {
     if(!owner?.childCreateActionState)return 'unknown'
     try{return owner.childCreateActionState(parentNodeId)}catch{return 'unknown'}
   }
-  const editableProjects = ref<EditableProjectOption[]>([])
-  const projectOptionsLoading = ref(false)
   const pageFileNames = PAGE_TOOL_FILE_NAMES
 
   // ── 项目蓝图树（ProjectBlueprint 投影，非独立真源）──
@@ -464,38 +456,6 @@ export function useDevState() {
 
   function sameEditScope(scope: ProjectWorkspaceScope): boolean {
     return tenantId.value === scope.tenantId && projectId.value === scope.projectId
-  }
-
-  async function loadEditableProjects(targetTenantId = projectPicker.tenantId): Promise<void> {
-    const normalizedTenantId = targetTenantId.trim()
-    if (!normalizedTenantId) {
-      addStatus('tenantId 不能为空，无法加载项目列表', 'warning')
-      return
-    }
-
-    projectOptionsLoading.value = true
-    try {
-      const rows: ProjectBlueprintDomain.ProjectSummary[] = (await lowcodeApi.platform.listApplications()).map((application) => ({
-        projectId: application.id,
-        name: application.name,
-        icon: '',
-        description: application.description,
-      }))
-      editableProjects.value = rows
-        .filter(row => row.projectId.trim() !== '')
-        .map(row => ({
-          ...row,
-          tenantId: normalizedTenantId,
-        }))
-      if (!editableProjects.value.some(row => row.projectId === projectPicker.projectId)) {
-        projectPicker.projectId = editableProjects.value[0]?.projectId ?? projectPicker.projectId
-      }
-    } catch (error) {
-      editableProjects.value = []
-      addStatus(`加载租户 ${normalizedTenantId} 项目列表失败: ${String(error)}`, 'error')
-    } finally {
-      projectOptionsLoading.value = false
-    }
   }
 
   async function openEditingProject(
@@ -1587,7 +1547,6 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function initialize(): Promise<void> {
-    await loadEditableProjects(projectPicker.tenantId)
     const persistedActivePageId = readPersistedActivePageId()
     await loadBlueprint({ preserveActivePageId: persistedActivePageId })
   }
@@ -1597,8 +1556,6 @@ export function useDevState() {
     get tenantId(): string { return tenantId.value },
     get projectId(): string { return projectId.value },
     projectPicker,
-    editableProjects,
-    projectOptionsLoading,
     treeData,
     childCreateActionState,
     blueprintLoading,
@@ -1674,7 +1631,6 @@ export function useDevState() {
 
     // 方法
     addStatus,
-    loadEditableProjects,
     openEditingProject,
     openProjectPickerScope,
     loadBlueprint,

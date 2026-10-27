@@ -12,33 +12,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         <span class="dev-header__logo"><NavIcon name="Lightning" :size="20" /></span>
         <span class="dev-header__title">SPARK 开发系统</span>
         <div class="dev-project-picker">
-          <el-input
-            v-model="state.projectPicker.tenantId"
-            class="dev-project-picker__tenant"
-            size="small"
-            placeholder="tenantId"
-            @change="() => state.loadEditableProjects(state.projectPicker.tenantId)"
-          />
-          <el-select
-            v-model="state.projectPicker.projectId"
-            class="dev-project-picker__project"
-            size="small"
-            filterable
-            allow-create
-            default-first-option
-            :loading="state.projectOptionsLoading.value"
-            @visible-change="(visible: boolean) => { if (visible) void state.loadEditableProjects(state.projectPicker.tenantId) }"
-          >
-            <el-option
-              v-for="project in state.editableProjects.value"
-              :key="`${project.tenantId}:${project.projectId}`"
-              :label="project.name || project.projectId"
-              :value="project.projectId"
-            />
-          </el-select>
-          <el-button size="small" :loading="state.blueprintLoading.value" @click="() => state.openProjectPickerScope()">
-            <NavIcon name="FolderOpen" :size="14" /> 打开
-          </el-button>
+          <NavHostProjectPicker :state="state" />
         </div>
         <el-tag size="small" type="info" effect="plain">{{ state.tenantId }}/{{ state.projectId }}</el-tag>
         <el-tag v-if="state.hasAnyDirty.value" type="warning" size="small" effect="dark">未保存</el-tag>
@@ -165,6 +139,7 @@ import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
 import BlueprintWorkspace from './blueprint-workspace/BlueprintWorkspace.vue'
 import ProjectPlanningDocumentImportDialog from './ProjectPlanningDocumentImportDialog.vue'
 import NavIcon from '@/components/NavIcon.vue'
+import NavHostProjectPicker from './nav-host-project-picker/NavHostProjectPicker.vue'
 
 const {
   state,

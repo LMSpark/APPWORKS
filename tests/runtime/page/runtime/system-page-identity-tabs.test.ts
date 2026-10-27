@@ -3,6 +3,7 @@ import { defineComponent, h, inject, nextTick, onUnmounted, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, useRoute, useRouter } from 'vue-router'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
+import { useSystemPageDirtySource } from '@spark-appworks/spark-app'
 import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { SystemPageIdentityResolver } from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-resolver'
@@ -20,7 +21,17 @@ const ThemeConfiguratorModeProbe = defineComponent({
     ])
   },
 })
+const ThemeConfiguratorBothModesProbe = defineComponent({
+  emits: ['update:mode'],
+  setup(_, { emit }) {
+    return () => h('div', [
+      h('button', { 'data-mode-switch': 'single', onClick: () => emit('update:mode', 'single') }, 'single'),
+      h('button', { 'data-mode-switch': 'multi', onClick: () => emit('update:mode', 'multi') }, 'multi'),
+    ])
+  },
+})
 const mountedWrappers: Array<{ exists: () => boolean; unmount: () => void }> = []
+const devSystemLifecycle = { mounted: 0, unmounted: 0 }
 
 function deferred<T>(): Readonly<{
   promise: Promise<T>
@@ -124,6 +135,78 @@ async function setupIdentity(component = page) {
 }
 
 describe('system page identity pool', () => {
+  it.each([
+    ['single', 'dirty'], ['single', 'unknown'], ['multi', 'dirty'], ['multi', 'unknown'],
+  ] as const)(
+    'preserves a %s-mode DevSystem with a %s owner and applies that mode\'s navigation guard', async (mode, ownerState) => {
+      devSystemLifecycle.mounted = 0
+      devSystemLifecycle.unmounted = 0
+      const ownerFlags = ref({ dirty: ownerState === 'dirty', unknown: ownerState === 'unknown' })
+      const devSystemPage = defineComponent({
+        name: 'DevSystem',
+        setup() {
+          const count = ref(0)
+          devSystemLifecycle.mounted += 1
+          useSystemPageDirtySource({ get isDirty() { return ownerFlags.value.dirty || ownerFlags.value.unknown } })
+          onUnmounted(() => { devSystemLifecycle.unmounted += 1 })
+          return () => h('button', { 'data-dev-state': true, onClick: () => { count.value += 1 } }, `DevSystem:${count.value}`)
+        },
+      })
+      const router = createRouter({ history: createMemoryHistory(), routes: [] })
+      const dynamic = createDynamicRouter({
+        router,
+        pageComponent: page,
+        tenantPathPrefix: '/t/:tenantId/:projectId',
+        loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'project', items: [
+          { id: 'dev-system', title: 'Developer Workbench', path: '/dev' },
+          { id: 'reports', title: 'Reports', path: '/reports' },
+        ] }),
+        componentMap: { '/dev': devSystemPage, '/reports': page },
+      })
+      await dynamic.registerRoutes()
+      setDynamicRouter(dynamic)
+      const devPath = '/t/acme/project/dev?__sparkNavigationId=dev-system'
+      await router.push(devPath)
+      const originalInstance = dynamic.getSystemPageInstance(router.currentRoute.value)
+      if (!originalInstance) throw new Error('DevSystem system-page instance missing')
+      const wrapper = mountApp({ global: {
+        plugins: [router],
+        stubs: {
+          AppLayout: AppLayoutProbe, AppHeader: AppHeaderProbe, AppBreadcrumb: true, AppFooter: true,
+          AppSidebar: true, NavHeaderBar: true, NavContextSelector: true, AppPageUiHost: true,
+          ThemeConfigurator: ThemeConfiguratorBothModesProbe,
+        },
+      } })
+      await flushPromises()
+      await wrapper.get(`[data-mode-switch="${mode}"]`).trigger('click')
+      await flushPromises()
+      await wrapper.get('[data-dev-state]').trigger('click')
+      expect(wrapper.get('[data-dev-state]').text()).toBe('DevSystem:1')
+      expect(originalInstance.isDirty).toBe(true)
+      if (ownerState === 'dirty') ownerFlags.value = { dirty: false, unknown: true }
+
+      if (mode === 'single') {
+        await expect(router.push('/t/acme/project/reports?__sparkNavigationId=reports')).rejects.toThrow(/系统页面有未保存修改/)
+        expect(router.currentRoute.value.fullPath).toBe(devPath)
+      } else {
+        await router.push('/t/acme/project/reports?__sparkNavigationId=reports')
+        await flushPromises()
+        expect(wrapper.text()).toContain('Reports')
+        expect(dynamic.getSystemPageInstanceById(originalInstance.instanceId)?.instanceId).toBe(originalInstance.instanceId)
+        expect(() => dynamic.closeSystemPageInstance(originalInstance.instanceId)).toThrow(/系统页面有未保存修改/)
+        await router.push(devPath)
+        await flushPromises()
+      }
+      expect(wrapper.get('[data-dev-state]').text()).toBe('DevSystem:1')
+      expect(devSystemLifecycle.mounted).toBe(1)
+      expect(devSystemLifecycle.unmounted).toBe(0)
+      expect(dynamic.getSystemPageInstanceById(originalInstance.instanceId)?.instanceId).toBe(originalInstance.instanceId)
+      ownerFlags.value = { dirty: false, unknown: false }
+      expect(() => dynamic.closeSystemPageInstance(originalInstance.instanceId)).not.toThrow()
+      expect(dynamic.getSystemPageInstanceById(originalInstance.instanceId)).toBeUndefined()
+    },
+  )
+
   it.each(['old-success', 'old-failure'] as const)(
     'does not let a pre-reset %s navigation refresh unlock native owner registration', async (outcome) => {
       const router = createRouter({ history: createMemoryHistory(), routes: [] })

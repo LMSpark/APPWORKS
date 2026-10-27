@@ -1214,7 +1214,6 @@ describe('DevState 页面文件闭环', () => {
     const fixture=createBlueprintRuntimeDataSet('delegated-app',delegatedRoot)
     mockBlueprintScenarioFixture(fixture.dataSet)
 
-    await state.loadEditableProjects('tenant-b')
     state.projectPicker.tenantId = 'tenant-b'
     state.projectPicker.projectId = 'delegated-app'
 

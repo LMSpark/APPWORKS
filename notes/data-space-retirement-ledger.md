@@ -1,8 +1,8 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-28；本轮基线 `235efe74b`；当前修改待提交）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；这只解决模型/字段/视图/参数/executor 注册，不自动证明服务端权限、范围、真实数据与结果回执。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；已推送 HEAD `62a87e2a7`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；这只解决模型/字段/视图/参数/executor 注册，不自动证明服务端权限、范围、真实数据与结果回执。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `235efe74b`；本轮 owner 收窄尚未提交）
+## 当前源码状态（2026-10-28，产品代码基线 `62a87e2a7`，代码/派生产物/台账已推送）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -936,9 +936,9 @@ flowchart TD
 
 证据统一包含：源码HEAD/相关哈希、用例ID、当前目标及脱敏身份、操作、预期、实际回执摘要、回读、重开、下游、截图/日志位置和未通过原因。不留token/密码/权限凭据。历史证据只能说明其原时间/部署/目标；本轮本地结果不能覆盖线上验收列。
 
-### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `38fe86313` 动态复核）
+### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `62a87e2a7` 动态复核）
 
-**基线与总状态。** 当前产品代码基线为 `38fe86313`；最近产品切片移除了无生产消费者且绕过 DataSet 的页面版本删除 gateway/API，版本列表仍只读，删除授权未建立。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件缺失目录精确空结果处理与同 SPA 只读查询已有历史证据；消费者审计确认 WorkflowDesigns 与 AI activation 经同一文件 DataView owner，非空文件与下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 当前产品代码基线为 `62a87e2a7`，工作树干净且与远程一致。最近切片移除了未调用的页面版本删除 API 和 ProjectWorkspace 蓝图/文件第二写入口；其 DataView executor 内部文件存储适配仍保留。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件空目录精确处理已有同 SPA 只读查询证据；非空文件与 Agent 下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
@@ -2540,7 +2540,7 @@ flowchart TD
 - **源码审计与删减范围：**低价模型先按仓内调用点检索，主控复核确认 `ProjectWorkspace` 的蓝图新增/删除/移动/保存、`saveAll` 及旧 `savePageFile`/批量文件写入包装没有被生产调用；当前 DevSystem 蓝图修改由 `BlueprintWorkspaceDataView` 负责，页面工具文件由 `PageToolFiles` DataView 提交。删除旧 gateway 写方法和 `ProjectWorkspace` 写逻辑/guard 暴露，防止未来把未治理 owner 当成第二数据通道。保留 `savePageFileChange`，因为它只由 `ProjectToolResource` executor 在 `DataSet.saveChanges` 内部调用，属于资源存储适配；保留文件版本列表、创建、恢复现有能力，不新增版本删除。
 - **读取边界：**本批没有移除 `ProjectWorkspace.loadBlueprint`/`loadRoot`，也没有移除 `ProjectReferenceClient.loadProjectBlueprint` 的跨项目页面引用投影读取；它们仍能到 raw blueprint read。其真实 production consumer、DataSpace/PageRuntime 身份及 scope/权限投影需要独立核实，列为开放旁路；不能因为已删未调用写方法就称蓝图读取全域已统一。SPA 只读的应用目录画面不构成本批真实蓝图/权限烟测。
 - **TDD、派生产物与验证：**先运行并保存 RED 证据 [`project-workspace-blueprint-owner-red.txt`](evidence/project-workspace-blueprint-owner-red.txt) 和 [`project-workspace-page-file-owner-red.txt`](evidence/project-workspace-page-file-owner-red.txt)，随后删除目标入口并调整历史测试，使其断言不再暴露未治理写 API，同时保留 DataView 保存行为。正式 `generate:class-model-surface` 与 `generate:lowcode-contracts` 刷新派生产物；12 个受影响测试文件合计 444/444 通过。typecheck、目标 ESLint、完整 `verify:rules`、production build、`verify:docs` 与 `git diff --check` 通过。完整规则扫描的既存 AI model spec 提示为 2 warnings / 1 info；build 有现存 CodeMirror dynamic-import 警告。
-- **正式数据与下一步：**没有修改 Java，没有通过设计器写数据空间，没有对正式业务模型/记录执行读写；用户允许经数据空间设计补齐定义，待选定具体消费者并确认资源身份、scope、权限和 executor 合同后使用该设计链补齐，再迁移查询/写入并核对实际回执。本次代码实现、生成物和台账尚待提交/推送；整体 SPARK data 唯一通道整合保持 active。
+- **正式数据与下一步：**没有修改 Java，没有通过设计器写数据空间，没有对正式业务模型/记录执行读写；用户允许经数据空间设计补齐定义，待选定具体消费者并确认资源身份、scope、权限和 executor 合同后使用该设计链补齐，再迁移查询/写入并核对实际回执。代码、正式生成物、RED 证据和台账已提交并推送 `62a87e2a7`；整体 SPARK data 唯一通道整合保持 active。
 
 ### 2026-10-27 A2 启动导航业务行接入 SPARK DataView
 

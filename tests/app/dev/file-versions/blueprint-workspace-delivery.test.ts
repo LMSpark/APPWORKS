@@ -1,9 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, defineComponent, h, nextTick, ref } from 'vue'
+import { computed, defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
@@ -111,6 +112,93 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   })
   return { state, wrapper, dataSet }
 }
+
+describe('BlueprintWorkspace runtime mount lifecycle', () => {
+  it('waits for the target PAGE_RUNTIME to be provided before mounting the DataView form subtree',async()=>{
+    const dataSet=createDataSet()
+    const runtime=new PageRuntime({pageId:'blueprint-runtime-gate-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    const owner=new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
+    let releaseOwner:(owner:BlueprintWorkspaceDataView)=>void=()=>{}
+    const initialLoad=new Promise<BlueprintWorkspaceDataView>(resolve=>{releaseOwner=resolve})
+    let releaseReload:()=>void=()=>{}
+    const pendingReload=new Promise<BlueprintWorkspaceDataView>(resolve=>{releaseReload=()=>resolve(owner)})
+    const state={selectedNode:ref<{nodeId:string}|null>({nodeId:'node-A'}),projectId:'APP-A',blueprintPageRuntime:shallowRef(runtime),
+      loadBlueprintWorkspaceDataView:vi.fn().mockReturnValueOnce(initialLoad).mockReturnValueOnce(pendingReload),
+      hasAnyDirty:ref(false),notifyExternalDataViewChanged:vi.fn(),addStatus:vi.fn(),activePageId:ref(''),
+      blueprintDraft:{nodeId:'node-A'},refreshBlueprintTreeProjection:vi.fn()}
+    const observedRuntimes:Array<PageRuntime|null>=[]
+    const RuntimeProbe=defineComponent({name:'NodeBasicInfo',setup(){
+      const {sparkConsume}=useSparkComponent({type:'blueprint-runtime-probe'})
+      observedRuntimes.push(sparkConsume(PAGE_RUNTIME))
+      return ()=>h('div',{'data-testid':'runtime-probe'})
+    }})
+    const EmptyProbe=defineComponent({props:{description:String},setup(props){
+      const {sparkConsume}=useSparkComponent({type:'blueprint-runtime-empty-probe'})
+      if(props.description==='在左侧 WBS 中选择节点')observedRuntimes.push(sparkConsume(PAGE_RUNTIME))
+      return ()=>h('div',{'data-testid':'empty-runtime-probe'})
+    }})
+    const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-runtime-gate-host'});return ()=>h(BlueprintWorkspace,{state:state as never})}})
+    const wrapper=mount(Host,{global:{directives:{loading:()=>{}},stubs:{
+      ElTabs:Slot,ElTabPane:TabPane,ElEmpty:EmptyProbe,PrototypePane:true,BlueprintReadonlyInfo:true,DataPlanningPane:true,
+      NodeBasicInfo:RuntimeProbe,NodeTargetConfig:true,NodeLayoutConfig:true,NodeStateConfig:true,EstimatePane:true,DeliveryPane:true,ReleasePane:true,
+    }}})
+    try{
+      await nextTick()
+      expect(wrapper.find('[data-testid="runtime-probe"]').exists()).toBe(false)
+      expect(observedRuntimes).toEqual([])
+
+      releaseOwner(owner)
+      await flushPromises()
+      expect(owner.nodeId).toBe('node-A')
+      expect(wrapper.find('[data-testid="runtime-probe"]').exists()).toBe(true)
+      expect(observedRuntimes.length).toBeGreaterThanOrEqual(1)
+      expect(observedRuntimes.every(observed => observed === runtime)).toBe(true)
+
+      state.selectedNode.value={nodeId:'node-B'}
+      await nextTick()
+      expect(wrapper.find('[data-testid="runtime-probe"]').exists()).toBe(false)
+
+      releaseReload()
+      await flushPromises()
+      expect(wrapper.find('[data-testid="runtime-probe"]').exists()).toBe(false)
+
+      state.selectedNode.value=null
+      await nextTick()
+      expect(wrapper.find('[data-testid="empty-runtime-probe"]').exists()).toBe(true)
+      expect(observedRuntimes.at(-1)).toBeNull()
+    }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
+  })
+
+  it('removes PAGE_RUNTIME when the current node DataView load rejects',async()=>{
+    const dataSet=createDataSet()
+    const runtime=new PageRuntime({pageId:'blueprint-runtime-reject-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    const owner=new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
+    owner.load=vi.fn().mockRejectedValue(new Error('node query failed'))
+    const state={selectedNode:ref<{nodeId:string}|null>({nodeId:'node-A'}),projectId:'APP-A',blueprintPageRuntime:shallowRef(runtime),
+      loadBlueprintWorkspaceDataView:vi.fn().mockResolvedValue(owner),hasAnyDirty:ref(false),notifyExternalDataViewChanged:vi.fn(),
+      addStatus:vi.fn(),activePageId:ref(''),blueprintDraft:{nodeId:'node-A'},refreshBlueprintTreeProjection:vi.fn()}
+    const removedValues: Array<PageRuntime|null> = []
+    const originalUse=SparkComponent.useSparkComponent
+    const useSpy=vi.spyOn(SparkComponent,'useSparkComponent').mockImplementation((...args:Parameters<typeof useSparkComponent>)=>{
+      const component=originalUse(...args)
+      if(args[0].type!=='dev-system-blueprint-workspace')return component
+      return {...component,sparkRemove:((key:typeof PAGE_RUNTIME)=>{component.sparkRemove(key);if(key===PAGE_RUNTIME)removedValues.push(component.sparkConsume(PAGE_RUNTIME))}) as typeof component.sparkRemove}
+    })
+    const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-runtime-reject-host'});return ()=>h(BlueprintWorkspace,{state:state as never})}})
+    const wrapper=mount(Host,{global:{directives:{loading:()=>{}},stubs:{ElTabs:Slot,ElTabPane:TabPane,ElEmpty:TestEmpty,
+      PrototypePane:true,BlueprintReadonlyInfo:true,DataPlanningPane:true,NodeBasicInfo:true,NodeTargetConfig:true,NodeLayoutConfig:true,
+      NodeStateConfig:true,EstimatePane:true,DeliveryPane:true,ReleasePane:true}}})
+    try{
+      await flushPromises()
+      expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('node query failed'),'error')
+      expect(wrapper.find('[data-testid="runtime-probe"]').exists()).toBe(false)
+      expect(removedValues).toEqual([null,null])
+    }finally{useSpy.mockRestore();wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
+  })
+})
+
 async function blueprintTestRuntime() {
   const dataSet=createDataSet()
   const runtime=new PageRuntime({pageId:'blueprint-node-basic-info-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
@@ -343,6 +431,50 @@ function createBlueprintDataViewFixture(options: {outputs?: string[]; readable?:
 }
 
 describe('BlueprintWorkspace DataView ownership', () => {
+  it('keeps DataView currentRow on the selected project row after loading project records',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Child',FunName:'Child'}
+    const f=createBlueprintDataViewFixture({rows:[root,child]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await owner.loadProjectTree()
+      await owner.load('NODE-2')
+      expect(owner.canRead('memo')).toBe(true)
+      expect(owner.view.currentRow?.['rowid']).toBe('NODE-2')
+      expect(owner.row).toBe(owner.view.currentRow)
+
+      await owner.loadProjectTree()
+      expect(owner.row).toBe(owner.view.currentRow)
+      expect(owner.row?.['rowid']).toBe('NODE-2')
+
+      await owner.loadProjectRecords()
+
+      expect(owner.view.currentRow?.['rowid']).toBe('NODE-2')
+      expect(owner.row).toBe(owner.view.currentRow)
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
+  it('keeps DataView currentRow on the selected project row after save and readback',async()=>{
+    const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
+    const child={...blueprintRow(),rowid:'NODE-2',prowid:'NODE-ROOT',name:'Child',FunName:'Child'}
+    const f=createBlueprintDataViewFixture({rows:[root,child]})
+    try{
+      const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
+      await owner.loadProjectTree()
+      await owner.load('NODE-2')
+      owner.update('memo','after')
+
+      await owner.saveSelectedNode()
+
+      expect(owner.canRead('memo')).toBe(true)
+      expect(owner.row?.['rowid']).toBe('NODE-2')
+      expect(owner.row).toBe(owner.view.currentRow)
+      expect(owner.view.currentRow?.['rowid']).toBe('NODE-2')
+      owner.dispose()
+    }finally{f.destroy()}
+  })
+
   it('saves two existing leaf updates in one DataSet batch and reads back each formal memo',async()=>{
     const root={...blueprintRow(),rowid:'NODE-ROOT',prowid:'000000',name:'Root',FunName:'Root',conType:'Model'}
     const first={...blueprintRow(),rowid:'NODE-1',prowid:'NODE-ROOT',name:'Node one',FunName:'Node one',conType:'Navitem'}

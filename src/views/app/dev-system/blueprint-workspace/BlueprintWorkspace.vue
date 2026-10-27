@@ -10,11 +10,11 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <el-button size="small" :disabled="!sessionDirty || saving || loading" @click="cancelEdits">取消节点修改</el-button>
       <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
     </template>
-    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo :state="state" :sections="['capability']" /></el-tab-pane>
-    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-history-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
-    <el-tab-pane label="数据空间" name="data"><NodeBasicInfo :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data'" :state="state" :field-access="access('conid')" /></el-tab-pane>
-    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="activeStage==='navigation' && session && state.blueprintPageRuntime.value?.isLoaded"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="state.blueprintPageRuntime.value.instanceId" :state="state" /></template></el-tab-pane>
-    <el-tab-pane label="导航宿主" name="nav-host"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && state.blueprintPageRuntime.value?.isLoaded" :key="`${state.blueprintPageRuntime.value.instanceId}-nav-host-${state.selectedNode.value.nodeId}`" :runtime="state.blueprintPageRuntime.value" :node-id="state.selectedNode.value.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
+    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></el-tab-pane>
+    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
+    <el-tab-pane label="数据空间" name="data"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data' && readyWorkspaceForView" :state="state" :field-access="access('conid')" /></el-tab-pane>
+    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="activeStage==='navigation' && readyWorkspaceForView"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="readyWorkspaceForView.runtime.instanceId" :state="state" /></template></el-tab-pane>
+    <el-tab-pane label="导航宿主" name="nav-host"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-nav-host-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
     <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
     <el-tab-pane label="本仓扩展" name="extensions"><el-tabs v-model="activeExtension" class="extension-tabs"><el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane><el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane><el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane></el-tabs></el-tab-pane>
   </el-tabs>
@@ -93,6 +93,19 @@ const draft = {
   set navigationType(value: number) {this.write('NavigationType', value)},
 }
 type FieldAccess = Readonly<{read: boolean; write: boolean}>
+type ReadyWorkspace = Readonly<{nodeId:string;projectId:string;runtime:PageRuntime;session:BlueprintWorkspaceDataView}>
+const readyWorkspace = shallowRef<ReadyWorkspace>()
+const readyWorkspaceForView = computed<ReadyWorkspace | undefined>(() => {
+  const ready=readyWorkspace.value
+  return ready!==undefined && session.value===ready.session
+    && props.state.projectId===ready.projectId && props.state.selectedNode.value?.nodeId===ready.nodeId
+    && props.state.blueprintPageRuntime.value===ready.runtime && ready.runtime.isLoaded
+    && ready.runtime.getDataSet(BLUEPRINT_SCENARIO_ID)===ready.session.dataSet
+    && ready.session.projectId===ready.projectId && ready.session.nodeId===ready.nodeId
+    && ready.session.view.currentRow?.['rowid']===ready.nodeId
+    && ready.session.view.currentRow?.['SysId']===ready.projectId
+    ? ready : undefined
+})
 const access = (field: string): FieldAccess => ({read: session.value?.canRead(field) ?? false, write: session.value?.canWrite(field) ?? false})
 const estimateAccess = computed(() => {void dataViewRevision.value; return ({
   DifficultyFactor: access('DifficultyFactor'), Manhour: access('Manhour'), Number: access('Number'),
@@ -105,10 +118,11 @@ onBeforeUnmount(() => { disposed = true; loadRevision++; sparkRemove(PAGE_RUNTIM
 async function load(): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
   const projectId = props.state.projectId
-  if (!nodeId) {session.value=undefined; return}
   const revision = ++loadRevision
+  readyWorkspace.value=undefined
   sparkRemove(PAGE_RUNTIME)
   session.value = undefined
+  if (!nodeId) {loading.value=false; return}
   loading.value = true
   try {
     const current=await props.state.loadBlueprintWorkspaceDataView()
@@ -119,10 +133,16 @@ async function load(): Promise<void> {
     session.value=current
     await current.load(nodeId)
     if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId){session.value=undefined;return}
+    readyWorkspace.value={nodeId,projectId,runtime,session:current}
     dataViewRevision.value++
     props.state.notifyExternalDataViewChanged()
   } catch (error) {
-    if (!disposed && revision === loadRevision) props.state.addStatus(`六阶段 DataView 加载失败: ${String(error)}`, 'error')
+    if (!disposed && revision === loadRevision) {
+      readyWorkspace.value=undefined
+      session.value=undefined
+      sparkRemove(PAGE_RUNTIME)
+      props.state.addStatus(`六阶段 DataView 加载失败: ${String(error)}`, 'error')
+    }
   } finally { if (!disposed && revision === loadRevision) loading.value = false }
 }
 

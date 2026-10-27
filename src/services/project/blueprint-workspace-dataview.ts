@@ -92,7 +92,6 @@ export class BlueprintWorkspaceDataView {
   readonly view: DataView
   #projectId: string
   #nodeId = ''
-  #row: DataRow | undefined
   #revision = 0
   #disposed = false
   #treeQueryLoaded = false
@@ -141,7 +140,10 @@ export class BlueprintWorkspaceDataView {
     this.assertCurrent = assertCurrent
   }
   public get nodeId(): string {return this.#nodeId}
-  public get row(): DataRow | undefined {return this.#row}
+  public get row(): DataRow | undefined {
+    const row=this.view.currentRow
+    return row?.['rowid']===this.#nodeId&&row['SysId']===this.#projectId?row:undefined
+  }
   public get hasTreeProjection(): boolean {return this.#treeQueryLoaded}
   public get dirty(): boolean {
     if(this.#unconfirmedIds.length>0)return true
@@ -168,13 +170,11 @@ export class BlueprintWorkspaceDataView {
     const revision = ++this.#revision
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     this.#nodeId = targetNodeId
-    this.#row = undefined
     this.view.setCurrentRow(null)
     if(this.#treeQueryLoaded){
       const row=this.view.rows.find(candidate=>candidate['rowid']===targetNodeId&&candidate['SysId']===this.#projectId)
       if(!row)throw new Error(`蓝图 DataView 项目树未返回目标行 ${targetNodeId}`)
       if(this.view.fieldAccess(row,'rowid').read!=='visible'||this.view.fieldAccess(row,'SysId').read!=='visible')throw new Error('蓝图 DataView 当前行身份不可读')
-      this.#row=row
       this.view.setCurrentRow(row)
       return
     }
@@ -201,7 +201,6 @@ export class BlueprintWorkspaceDataView {
       || this.view.fieldAccess(row, 'rowid').read !== 'visible' || this.view.fieldAccess(row, 'SysId').read !== 'visible') {
       throw new Error('蓝图 DataView 返回了身份不匹配或不可读的目标行')
     }
-    this.#row = row
     this.view.setCurrentRow(row)
   }
 
@@ -215,8 +214,7 @@ export class BlueprintWorkspaceDataView {
     try{
       await this.queryProjectRows(revision,selectedNodeId)
       this.#treeQueryLoaded=true
-      this.#row=this.view.rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
-      this.view.setCurrentRow(this.#row??null)
+      this.synchronizeCurrentRow()
       return this.treeProjection()
     }catch(error){this.#treeQueryLoaded=false;throw error}
   }
@@ -254,8 +252,7 @@ export class BlueprintWorkspaceDataView {
       this.#unconfirmedDeleteId=undefined
       this.#unconfirmedDeleteParentId=undefined
       if(this.#nodeId===targetId)this.#nodeId=''
-      this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
-      this.view.setCurrentRow(this.#row??null)
+      this.synchronizeCurrentRow()
       return this.treeProjection()
     }
     if(this.hasUnconfirmedSave)throw new Error('蓝图 DataView 存在其他未确认保存')
@@ -265,8 +262,7 @@ export class BlueprintWorkspaceDataView {
     const revision=++this.#revision,selectedNodeId=this.#nodeId
     const rows=await this.queryProjectRows(revision,selectedNodeId)
     this.#treeQueryLoaded=true
-    this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
-    this.view.setCurrentRow(this.#row??null)
+    this.synchronizeCurrentRow()
     this.treeProjection()
 
     const target=rows.find(row=>row['rowid']===targetId&&row['SysId']===this.#projectId)
@@ -292,9 +288,8 @@ export class BlueprintWorkspaceDataView {
     if(confirmedRows.some(row=>row['rowid']===targetId&&row['SysId']===this.#projectId))throw new Error('蓝图 DataView 删除保存后目标仍存在')
     this.#unconfirmedDeleteId=undefined
     this.#unconfirmedDeleteParentId=undefined
-    if(this.#nodeId===targetId){this.#nodeId='';this.#row=undefined}
-    else this.#row=confirmedRows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
-    this.view.setCurrentRow(this.#row??null)
+    if(this.#nodeId===targetId)this.#nodeId=''
+    this.synchronizeCurrentRow()
     return this.treeProjection()
   }
 
@@ -308,8 +303,7 @@ export class BlueprintWorkspaceDataView {
     const nodeKey=nodeId.trim(), revision=++this.#revision, projectId=this.#projectId, selectedNodeId=this.#nodeId
     const rows=await this.queryProjectRows(revision,selectedNodeId)
     this.#treeQueryLoaded=true
-    this.#row=rows.find(row=>row['rowid']===selectedNodeId)
-    this.view.setCurrentRow(this.#row??null)
+    this.synchronizeCurrentRow()
     try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
     const byId=new Map(rows.map(row=>[String(row['rowid']),row]))
     const moving=byId.get(nodeKey);if(!moving)throw new Error(`蓝图 DataView 未返回待移动节点 ${nodeKey}`)
@@ -346,8 +340,7 @@ export class BlueprintWorkspaceDataView {
     }
     for(const [row,patch] of patches){const id=this.view.getPkKey(row);if(id===undefined)throw new Error('蓝图 DataView 行缺少正式主键');for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(id,field,value)}
     // Moving a non-selected tree row must never retarget the detail editor.
-    this.#row=rows.find(row=>row['rowid']===selectedNodeId)
-    this.view.setCurrentRow(this.#row??null)
+    this.synchronizeCurrentRow()
   }
 
   /** Preflight, stage and save one AI pure leaf-move/reorder command through this DataView. */
@@ -361,8 +354,7 @@ export class BlueprintWorkspaceDataView {
     const revision=++this.#revision,selectedNodeId=this.#nodeId
     const rows=await this.queryProjectRows(revision,selectedNodeId)
     this.#treeQueryLoaded=true
-    this.#row=rows.find(row=>row['rowid']===selectedNodeId&&row['SysId']===this.#projectId)
-    this.view.setCurrentRow(this.#row??null)
+    this.synchronizeCurrentRow()
     const current=this.treeProjection()
     const flatten=(root:ProjectBlueprintTreeNodeData):ProjectBlueprintTreeNodeData[]=>[root,...(root.children??[]).flatMap(flatten)]
     const beforeNodes=flatten(beforeTree),currentNodes=flatten(current),targetNodes=flatten(expectedTree)
@@ -454,6 +446,7 @@ export class BlueprintWorkspaceDataView {
       await this.saveIds([this.#unconfirmedRootId])
       await this.view.refresh()
       if (this.view.loadingError) throw this.view.loadingError
+      this.synchronizeCurrentRow()
       this.treeProjection()
       return
     }
@@ -512,7 +505,7 @@ export class BlueprintWorkspaceDataView {
     if (!confirmed || Object.entries(expected).some(([field, value]) => !sameWireValue(confirmed[field], value))) {
       throw new Error('蓝图根模块保存后未通过 DataView 正式回读')
     }
-    this.#row = this.view.rows.find(candidate => candidate['rowid'] === this.#nodeId && candidate['SysId'] === this.#projectId)
+    this.synchronizeCurrentRow()
     this.#unconfirmedIds = []
     this.#unconfirmedPatches.clear()
     this.#unconfirmedRootId = undefined
@@ -865,6 +858,7 @@ export class BlueprintWorkspaceDataView {
         }catch(error){if(this.view.hasUnconfirmedSave)this.#childReceiptState='unknown';else if(this.#childReceiptState==='pending')await this.clearPendingChildCreate(id);throw error}
       }
       await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+      this.synchronizeCurrentRow()
       const row=this.view.rows.find(item=>this.view.getPkKey(item)===id&&item['SysId']===this.#projectId&&item['prowid']===parentNodeId)
       if(!row||Object.entries(patch).some(([field,value])=>!sameWireValue(row[field],value)))throw new Error('蓝图子节点未知回执核验回读不一致')
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined;return id
@@ -891,6 +885,7 @@ export class BlueprintWorkspaceDataView {
     if(!saved.success){await this.clearPendingChildCreate(id);throw saved.error??new Error(saved.message??'蓝图子节点保存失败')}
     this.#childReceiptState='accepted'
     await this.view.refresh();if(this.view.loadingError)throw this.view.loadingError
+    this.synchronizeCurrentRow()
     const confirmed=this.view.rows.find(row=>this.view.getPkKey(row)===id&&row['SysId']===this.#projectId&&row['prowid']===parentNodeId)
     if(!confirmed||Object.entries(expected).some(([field,value])=>!sameWireValue(confirmed[field],value)))throw new Error('蓝图子节点保存后未通过 DataView 正式回读')
     this.#unconfirmedIds=[];this.#unconfirmedPatches.clear();this.#unconfirmedChildId=undefined;this.#childReceiptState=undefined
@@ -1099,14 +1094,14 @@ export class BlueprintWorkspaceDataView {
 
   public canRead(field: string): boolean {
     this.assertUsable()
-    const row = this.#row
+    const row = this.row
     if (!row || !this.view.rows.includes(row) || row['rowid'] !== this.#nodeId || row['SysId'] !== this.#projectId) return false
     return this.hasOutput(field) && Object.hasOwn(row, field) && this.view.fieldAccess(row, field).read === 'visible'
   }
 
   public canWrite(field: string): boolean {
     if (!this.canRead(field)) return false
-    const row = this.#row
+    const row = this.row
     if (!row) return false
     const column = this.view.dataTable?.columns.find(candidate => candidate.name === field)
     return column !== undefined && !column.isComputed && !column.computeExpression
@@ -1116,7 +1111,7 @@ export class BlueprintWorkspaceDataView {
   public canWriteFields(fields:readonly string[]):boolean{return fields.length>0&&fields.every(field=>this.canWrite(field))}
 
   public value(field: string): unknown {
-    const row = this.#row
+    const row = this.row
     if (!row || !this.canRead(field)) return undefined
     return this.canRead(field) ? this.view.getEditingRow(this.requireRowKey(row))?.[field] : undefined
   }
@@ -1147,8 +1142,7 @@ export class BlueprintWorkspaceDataView {
       if(blockedIds.some(id=>this.view.getEditingPatch(id)!==undefined||this.view.dirtyTracking.hasPendingChanges(id)))throw new Error('蓝图 DataView 批量失败状态仍有未清理目标')
       this.#batchStageBlocked=false
     }
-    this.#row=this.view.rows.find(candidate=>candidate['rowid']===this.#nodeId&&candidate['SysId']===this.#projectId)
-    this.view.setCurrentRow(this.#row??null)
+    this.synchronizeCurrentRow()
   }
 
   public async save(): Promise<void> {
@@ -1207,11 +1201,11 @@ export class BlueprintWorkspaceDataView {
       await this.view.refresh()
       this.assertTarget(revision, targetNodeId)
       if (this.view.loadingError) throw this.view.loadingError
+      this.synchronizeCurrentRow()
       const recoveryTargetId=targetNodeId||String(this.#unconfirmedIds[0]??'')
       const recoveredRow = this.view.rows.find(candidate => candidate['rowid'] === recoveryTargetId && candidate['SysId'] === this.#projectId)
       if (!recoveredRow) throw new Error('蓝图 DataView 核验后未读回目标行')
       for(const [key,patch] of this.#unconfirmedPatches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 核验后未读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 核验回读不一致`)}
-      this.#row = targetNodeId?recoveredRow:undefined
       this.#unconfirmedIds=[];this.#unconfirmedPatches.clear()
       this.#acceptedReceiptPending=false
       this.#unconfirmedRootId=undefined
@@ -1238,10 +1232,10 @@ export class BlueprintWorkspaceDataView {
     await this.view.refresh()
     this.assertTarget(revision, targetNodeId)
     if (this.view.loadingError) throw this.view.loadingError
+    this.synchronizeCurrentRow()
     const verificationId=targetNodeId||String(changedIds[0])
     const saved = this.view.rows.find(candidate => candidate['rowid'] === verificationId && candidate['SysId'] === this.#projectId)
     if (!saved) throw new Error('蓝图 DataView 保存后未读回目标行')
-    this.#row = targetNodeId?saved:undefined
     for(const [key,patch] of patches){const confirmed=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===key);if(!confirmed)throw new Error(`蓝图行 ${String(key)} 保存后无法读回`);for(const [field,value] of Object.entries(patch))if(!Object.is(confirmed[field],value))throw new Error(`蓝图字段 ${field} 保存后读回不一致`)}
     this.#unconfirmedIds=[]
     this.#acceptedReceiptPending=false
@@ -1250,13 +1244,13 @@ export class BlueprintWorkspaceDataView {
   public dispose(): void {
     this.#disposed = true
     this.#revision++
-    this.#row = undefined
     this.#nodeId = ''
+    this.view.setCurrentRow(null)
   }
 
   private currentRow(): DataRow {
     this.assertUsable()
-    const row = this.#row
+    const row = this.view.currentRow
     if (!row || !this.view.rows.includes(row) || row['rowid'] !== this.#nodeId || row['SysId'] !== this.#projectId) {
       throw new Error('蓝图 DataView 当前目标已失效')
     }
@@ -1277,7 +1271,22 @@ export class BlueprintWorkspaceDataView {
       throw new Error('蓝图 DataView 不可读取完整树结构或排序字段，拒绝使用项目树')
     }
     for(const row of rows){const parent=String(row['prowid']??'000000').trim()||'000000';if(parent!=='000000'&&parent!=='0'&&!ids.has(parent))throw new Error(`蓝图 DataView 父节点闭包缺失：${String(row['rowid'])} -> ${parent}`)}
+    this.synchronizeCurrentRow()
     return [...rows]
+  }
+
+  /** Align the selected project node with the DataView currentRow consumed by standard fields. */
+  private synchronizeCurrentRow(): void {
+    this.assertUsable()
+    const targetNodeId=this.#nodeId
+    if(!targetNodeId){this.view.setCurrentRow(null);return}
+    const row=this.view.rows.find(candidate=>candidate['rowid']===targetNodeId&&candidate['SysId']===this.#projectId)
+    if(row&&String(this.view.getPkKey(row))!==targetNodeId)throw new Error('蓝图 DataView 当前行主键与目标节点身份不匹配')
+    this.view.setCurrentRow(row??null)
+    const current=this.view.currentRow
+    if(row
+      ? current?.['rowid']!==targetNodeId||current['SysId']!==this.#projectId
+      : current!==null)throw new Error('蓝图 DataView 当前行未同步到同一目标')
   }
 
   private requireRowKey(row: DataRow): string | number {

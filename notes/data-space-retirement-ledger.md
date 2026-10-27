@@ -2509,6 +2509,14 @@ flowchart TD
 - **新增证据：**`ProjectBlueprint.requiredCapabilities` 有真实 AI 消费者：策划失败反馈携带缺失动作名，`class-model-agent-adapter` 将其映射为 ClassModel `api.actions` 的 `model_action_guide({ kind, actionName })` 知识检索建议。此机制帮助模型读取动作契约，止于知识恢复；它不执行命令、不授予数据权限，也不代替 DataView 提交。
 - **范围裁定：**蓝图 `capability` 是节点需求/交付元数据；AI `requiredCapabilities` 是动作契约恢复标签；Spark `CapabilityContext` 是运行时依赖注入。三者不能互相替代或被统一包装成业务能力执行器。详见 `notes/evidence/capability-system-usage-audit-20261027.md`。后续仍按能力身份、输入输出、正式 DataView、权限、owner、回执和失败状态逐项检查，并优先修复确有业务入口的 SPA 数据旁路。此次为源码只读和文档更新，无产品代码、Java、SPA 登录写入或测试。
 
+### 2026-10-28 DevSystem 能力字段真实 SPA 复核
+
+- **SPA 目标与范围：**在本地 `127.0.0.1:5273` 以用户授权的测试会话进入 `NewApp/D99A1DCE9894698799101EFD70F8FC76` 的 DevSystem，选中当前导航节点 `78C58A7FE34F2987267A1E8AF10B2990`（服务器管理），再切换到另一个节点交叉观察。只切换工作台标签和所选行；没有编辑、保存或发起业务写入。
+- **运行表现：**“基本信息”面板显示节点 ID、能力名称、功能描述、业务种类标签，但能力名称与功能描述没有输入框或文本区。只读 DOM 计数确认 `#pane-basic` 有 2 个 input（仅节点 ID 和业务种类）、0 个 textarea；字段能力权限读取已通过 `state.blueprintNodeFieldAccess(name/memo).read` 条件，否则外层字段标签不会出现。切到“导航属性”后，菜单标题等标准编辑控件正常显示，说明问题集中在标准 `RendererForm + FieldText/FieldTextarea` 绑定路径。当前不能据此推断正式数据没有 `name/memo`，也没有保存变更验证其持久化。
+- **源码与自动化复核：**`NodeBasicInfo.vue` 已用 `buildDataViewKey(Base_NavigationInfo, default, LOWCODE_APPLICATION_CATALOG_FORM_KEY)`，外层 `RendererForm` 和字段组件均传完整键及 `currentRow`/字段身份；`BlueprintWorkspace.vue` 向该工作区提供正式蓝图 `PageRuntime`，`BlueprintWorkspaceDataView` 查询时设置 DataView 当前行，并基于正式 `fieldAccess` 做字段读写预检。补强 `tests/ui/renderer/renderer-form-detail.test.ts` 的绑定夹具，使它具有正式 `modelBinding`、同一完整键、已查询行和 currentRow，并断言真实文本控件的值；这验证了完整标准绑定在该夹具下正常，但**没有复现现场缺控件**，不得当作现场根因已解释。主控复跑测试 **25/25**、该文件 ESLint、`pnpm run typecheck`、`git diff --check` 均通过。因此先前“已映射 DataView”只证明源码接线，不足以证明现场标准字段组件消费到了同一实例的当前行/权限/值；此项 SPA 验收仍为**未通过，根因待定位**。
+- **能力体系裁定补充：**`CapabilityContext` 底层 DI 不是闲置，但业务能力目标清单也不等同于现成执行器。A2 的能力名称/描述属于蓝图需求元数据，不是命令能力；其绑定故障不应以添加 CapabilityContext 服务或第二份草稿/保存逻辑绕过。优先在现有标准组件绑定链内查明字段上下文为何未渲染，并以失败用例、同一 `PageRuntime/DataView` 读值与字段权限、编辑 overlay 写回、取消/保存回读和真实 SPA 重开验收闭环。
+- **门禁/状态：**本次无产品代码、Java 或正式业务数据改动；加强了组件测试夹具。目标 SPA 字段控件未验收，实际编辑/取消/保存读回未做。总体整合继续 active；A2 能力字段运行验收未完成。下一步需要从该真实 DevSystem 页面继续定位 `RendererForm` 当前行或权限上下文丢失的触发条件，再进入针对性修复和正式读回。
+
 ### 2026-10-27 A2 启动导航业务行接入 SPARK DataView
 
 - **实施范围：**将 `BlueprintWorkspaceDataView` 从 DevSystem 页面目录迁至现有 `src/services/project/` 项目服务目录；更新其生产代码与测试导入。`readLowcodeRuntimeNavigation` 不再直接调用 `lowcodeApi.blueprint.readRecords`：它在当前认证执行应用 `X-AppId` 下加载正式应用目录场景 `PageRuntime/DataSet`，通过同一 `Base_NavigationInfo.default` DataView owner 按目标应用 `SysId` 查询并投影记录。跨应用切换仍只改变该 DataView 的目标行过滤，不伪造请求应用身份；授权导航结果仍独立调用 `readNavigationAuthorization`，不把授权接口伪装成普通数据查询。

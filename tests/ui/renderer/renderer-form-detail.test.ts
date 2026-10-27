@@ -275,9 +275,12 @@ describe('automatic field children use the parent container', () => {
 describe('RendererForm and RendererDetail toolbar integration', () => {
   it('renders blueprint capability name and description as complete-key standard field bindings', async () => {
     const ds = SparkData.createDataSet({scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, dataSetName: 'BlueprintCapability', tables: {Base_NavigationInfo: {
-      tableName: 'Base_NavigationInfo', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'memo', type: 'string'}],
+      tableName: 'Base_NavigationInfo', modelBinding: {modelId: 'MODEL', modelName: 'Base_NavigationInfo'}, columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'memo', type: 'string'}],
       views: {default: {rows: [{id: 'node-1', name: '能力', memo: '描述', lingma_sys_params: {r: [], e: ['name', 'memo'], h: [], m: [], d: false}}]}},
     }}})
+    const view = ds.getView('Base_NavigationInfo', 'default')!
+    await loadFieldQuery(view, 'Base_NavigationInfo')
+    view.setCurrentRowById('node-1')
     const runtime = new PageRuntime({pageId: 'blueprint-capability-fields', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], loadScenario: async () => ds})
     await runtime.load()
     const state = {projectId: 'project-1', selectedNode: ref(undefined), blueprintPageRuntime: ref(runtime),
@@ -285,11 +288,13 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
       blueprintNodeFieldAccess: () => ({read: true, write: true}), markBlueprintDirty: () => undefined}
     const Host = defineComponent({setup() {useSparkComponent({type: 'blueprint-capability-host'}).sparkProvide(PAGE_RUNTIME, runtime)
       return () => h(NodeBasicInfo, {state: state as never, sections: ['capability']})}})
-    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {'el-form': ElFormStub, 'el-form-item': ElFormItemStub, 'el-input': ElInputStub}}})
     try {
       expect(wrapper.findComponent(RendererForm).props('dataViewKey')).toBe(`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`)
       expect(wrapper.findAllComponents(FieldText).some(field => field.props('dataField') === 'name')).toBe(true)
       expect(wrapper.findAllComponents(FieldTextarea).some(field => field.props('dataField') === 'memo')).toBe(true)
+      expect(wrapper.findAll('.el-input-stub').map(input => input.attributes('value'))).toContain('能力')
+      expect(wrapper.findAll('.el-input-stub').map(input => input.attributes('value'))).toContain('描述')
     } finally {wrapper.unmount(); runtime.dispose(); ds.destroy()}
   })
 

@@ -2468,6 +2468,13 @@ flowchart TD
 - **SPA 与只读边界：**所有页面经同一 SPA 内应用菜单导航，无整页刷新；没有选行、编辑、保存或删除。当前浏览器控制台 `error` 日志为 0。证据快照见 `notes/evidence/structured-config-catalog-live-spa-20261027.md`。已完成此前待办的五目录烟测；数据编码已知缺口复现，另外三项正式模型身份/归属仍待逐项数据装配诊断。客户端 smoke 不证明服务端权限或跨应用隔离。
 - **状态与后续：**结构化目录这批 UI 核验已收束，但四个模型加载失败不能以页面测试通过代替真实结果；下一步按各 Loader → `loadStructuredConfigCatalog` → DataSet 正式模型绑定/查询投影逐一查模型归属、名称唯一性与视图字段，并只经 SPARK data 验证。JSON/逻辑视图通过只表示目录读取成功，不代表设计读写或其它目录闭环完成。无产品/Java 改动、无业务数据写入，整体整合继续 active。
 
+### 2026-10-27 结构化目录正式模型身份只读根因复核
+
+- **取证方法：**用户授权的 NewApp/D99A 登录会话中，继续在同一个 SPA 标签通过已打开的目录工作区切换。只读取浏览器正式 DataView 请求/响应；全部请求为 `POST /api/DataOperation/GetData`，模型查询在 `Base_DataModel` 上按 `dataSetId = 当前页面 route 的正式场景 ID AND Name = loader 要求的模型名` 精确过滤，服务端包络 `Code=200, Message=操作成功`。未发送手工请求、未改变过滤或保存数据。
+- **逐项结果：**四个数据空间 `Base_DataSet` 按当前场景 ID 的正式读回均为 1 条，名称与导航目录一致。数据编码 `A133D679691178F192D7E9DA06829506`：`_Base_CodeDesign` 为 0 条；`Base_UserInfo` 为 1 条（rowid `…p003`、MetaName 正确）；`Base_StructureType` 为 1 条（rowid `…p001`、MetaName 正确）。数据工作流 `5E9676B1E38860B023921F48FB4370DE`：`_Base_DataWorkFlow` 为 0 条，`Base_UserInfo` 为 0 条。Excel 导入 `36B01771C627B9BF5CD493DC75B996A1`：`_Base_ImportConfig` 为 0 条，`Base_UserInfo` 为 1 条（MetaName 正确）。PDF 识别 `A2D63AB2AAEF156E7727094A23AEA433`：`_Base_PdfInspectRule` 为 0 条，`Base_UserInfo` 为 0 条。
+- **根因边界：**错误文案笼统，但正式回包已把此次四条目录故障收窄为“loader 需要的模型在该目录 DataSet 下不存在匹配记录”，而非该 DataSet 的主键缺失、查询未加载、字段投影/MetaName 校验失败或同一 DataSet 下重复。此证据不排除同名模型存在于其它 DataSet，也不证明那些目录的配置场景 ID 与产品目标相符。参考页目录、批准映射及正式模型来源仍须核对；在目标与模型合同未确认前不自动补模型、不改蓝图绑定、不放宽 loader 校验。
+- **更新与下一步：**详细请求过滤、回包计数及调用源码链见 `notes/evidence/structured-config-catalog-live-spa-20261027.md`。四目录 smoke 已完成；下一步只读比较原生页面/蓝图数据空间绑定、被批准的参考语义映射与现有模型目录，确认应修正入口场景还是补建正式 DataTable 模型，再单独按确认后的正式设计入口实施。无前端/Java/线上数据变更、无写操作；整体整合继续 active。
+
 ### 2026-10-27 Capability 能力体系生产使用核对
 
 - **概念区分：**本仓 `spark-utils` 的 `CapabilityContext` / `sparkProvide` / `sparkConsume` 是活跃的运行时依赖传递机制；`ProjectBlueprint.capability.name/description` 是蓝图业务名称与策划需求元数据；导航 `/capability-demo` 才是一个固定数据和模拟 API 的演示页。后者不代表前两者均未使用。

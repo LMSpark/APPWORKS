@@ -1,15 +1,22 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-28；产品代码基线 `ffce6c4c148a9f0b3d637a523cd6266784b537ee`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。`7d34c11e5` 之后已有产品提交，最新包含 Workflow 文件只读 DataView 接线与 PageDesign headless 蓝图读取迁移。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；已提交产品代码基线 `2d6160cc9e769dd907827445af3edd70b66272f2`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
 ## 当前源码状态（2026-10-28，产品代码基线 `ffce6c4c148a9f0b3d637a523cd6266784b537ee`）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
 | PageDesign 蓝图读取 | `preparePageDesignAgentRun` 通过固定 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 的 `PageRuntime → DataSet → BlueprintWorkspaceDataView(Base_NavigationInfo.default)` 读取规划树；PageDesign AI facade 的 `loadBlueprint()`、`previewBlueprintRemote()` 已 fail closed，避免回到原始 ProjectWorkspace gateway。页面工具/场景配置另有各自既有 DataView 交付链。 | 定向 guard/provider/editor 测试 33/33、typecheck、ESLint、`verify:rules`、production build 通过；当前 SPA 未认证，真实运行烟测未完成。蓝图 gateway CRUD 定义保留，按实际调用者再审，不声明全仓已统一。 |
-| Workflow 文件资源 | 已有 `AgentWorkflowFiles` 注册表（正式列和 `directory`、`design`、`definition` 视图）、DataView executor、正式 loader 注入及 WorkflowDesigns/AI activation 只读消费链；数据空间设计页已通过 `LOWCODE_FILE_RESOURCE_REGISTRY` 暴露可添加资源，并将绑定/视图定义放入 `DataTableBindingDefinition`、`DataViewDefinition`，用 `DataSet.saveChanges({views})` 保存及 DataView 回读。文件 API 只留在 executor 内部作为资源适配。目标 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 当前仍是模型 0、无视图配置。 | 用户已确认通过数据空间设计补齐正式定义；源码路径已存在，不先重复开发。尚未在该目标空间正式保存、同一 SPA 重开及读回。下一步直接验收既有设计页/DataView闭环；不手改 pagedata、不写 Workflow 文件。 |
+| Workflow 文件资源 | 正式 DataSpace `01000B6C7F84B4F1A85C91C4FC28E875` 已通过数据空间设计绑定文件模型 `AgentWorkflowFiles`，含 4 字段及 `default`、`directory`、`design`、`definition` 视图；配置沿 `DataTableBindingDefinition`、`DataViewDefinition` 和 `DataSet.saveChanges({views})` 保存/回读，文件 API 仅留在 DataView executor 内作资源适配。 | 本轮同一 SPA 打开正式设计器并读到上述模型与视图；对 `directory` 执行真实只读预览，服务返回 `[1003] 文件夹路径不存在`。本地精确错误归一化单测通过，但 SPA 仍报原错；RED 已证明跨模块 Error 形态会漏过 `instanceof`，尚未证明它就是现场原因。正式目录空结果语义烟测未通过，不提交为完成；继续查运行时错误对象和实际执行代码。未写 Workflow 文件或业务记录。 |
 | 其余已知旁路 | `listApplications()` 多个调用者仍 direct GetData，缺全局目录场景、范围与权限投影；物理表/视图预览 executor 仍 direct GetData 并本地合成只读权限。普通 ProjectWorkspace blueprint gateway 的生产 CRUD 调用者尚未确认，DevSystem/ProjectPlanning/PageDesign 活跃读取各有正式 DataView 路径。 | 应用目录和物理预览不能只包 DataView 外观；先取得正式身份、查询范围、权限与回执证据，再选真实消费者实施。NavHost 关系仍只读且当前正式查询为 0 行。 |
-| SPA 状态 | 当前 IAB 标签为 `http://127.0.0.1:5273/login`，企业选择“领码科技”，没有认证会话。 | 本轮未自动填写认证表单，未发起正式服务读写或重开读回；真实 SPA 烟测仍未完成。 |
+| SPA 状态 | 当前 IAB 标签已登录为“王”，通过正式导航打开 D99A 数据空间目录及 `Agent工作流文件资源` 设计器；`AgentWorkflowFiles@directory` 预览对话框已打开。 | 真实目录预览返回 `[1003] 文件夹路径不存在`；本轮未执行正式服务写入。目录空结果烟测仍未完成。 |
+
+## 2026-10-28 删除链源码复核
+
+- 当前基线提交 `2d6160cc9e769dd907827445af3edd70b66272f2`。源码复核确认，数据空间目录、数据库目录及对象、蓝图普通叶节点、挂载页面文件命令等已核实活动入口，均通过 DataView `removeRow()` / 删除命令行暂存，并由对应 DataSet `saveChanges()` 提交；底层资源 executor/owner 仍可执行存储适配，不构成业务页的第二条删除通道。
+- 删除 owner 可承接领域校验、引用检查和多资源编排，但不得另建业务草稿/提交器或直接绕过 DataView/DataSet。SPARK data 的 `DataView.removeRow` 与 `DataSet.saveChanges` 是业务删除的统一入口；不同来源的资源适配及存储提交仍分别确认结果，不承诺跨来源事务。
+- `lowcode-runtime.ts::createLowcodeProjectGateways().blueprint.deleteNode` 等兼容 gateway 删除方法仍有定义，但本次非测试调用者检索未找到确认的生产页面调用链：登记为保留兼容面，既不计作当前活动旁路，也不据此宣称全仓已清零。挂载页面删除由蓝图 DataView 与 PageToolFiles DataView 分两来源提交，可能部分成功。
+- 数据库对象/API 头、字典定义及数据空间模型/字段等其他删除链，本次源码检查不足以证明正式服务回执、引用完整性、孤儿清理或级联结果；真实服务与逐资源语义仍待验收。不得把存在 DataSet 或源码路径当作生产删除闭环证据。
 
 ## 2026-10-27 源码复核快照（历史，按当时产品代码提交 `7d34c11e5`）
 

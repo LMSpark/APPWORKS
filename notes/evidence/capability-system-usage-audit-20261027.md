@@ -15,6 +15,8 @@
 - `notes/design-appworks-semantic-integration.md` 是已批准的整合设计书，其 §2 将参考仓 96 个页面语义归并成 44 项业务能力，包含 A2 蓝图、D1/D2 数据空间、C1-C4 结构化资源等；§3 列出应放在 `spark-data`、`spark-component`、`spark-lowcode-api` 的公共能力。它是实施蓝图，不是当前代码完成证据。
 - `notes/research-project-blueprint-semantics.md` §167-178 提出“蓝图节点按种类暴露受限修改命令、由统一执行器负责治理”；当前代码定义了 `ProjectBlueprint.capability` 的元数据与 `ProjectBlueprintImplGate` 规划门禁，但本次搜索未发现按节点 kind 派发这些业务 mutation 的统一执行器。该部分仍属设计目标。
 - `ProjectBlueprint.requiredCapabilities` 用于策划完成检查/Agent 规划工具的所需动作名称；它与可发现的业务能力目录、节点业务 mutation、CapabilityContext DI 键是不同概念。
+- 参考仓 A2 的 `ApplicationFunMan` 以 `SparkBlueprintCapability { name, description, code, ownerId, deliveryStatus }` 表达蓝图节点业务能力，并分离导航、数据空间及原型；其参考页面 `use-application-function-page.ts` 通过 `saveApplicationFunProjectBlueprintNodeBasicInfo` 等业务 API 保存，不绑定本仓标准 DataView。当前 DevSystem 已将相关正式字段投影到 `BlueprintWorkspaceDataView`，由 `NodeBasicInfo.vue` 消费其 DataView 编辑覆盖并经 `saveSelectedNode()` 提交。这说明蓝图 capability 元数据已经部分整合到当前工作台，而非完全未使用；参考页面的逐页 API 写法不应原样迁入。
+- 尚未证明的是：参考仓/已批准目录中的各业务能力是否都映射到当前 SPA 页面、标准组件/DataView 和正式命令 owner。已批准设计把按节点 kind 的受限命令与治理执行器作为目标；当前代码搜索未发现该统一业务 mutation executor。这个差距与 capability 元数据字段的 DataView 保存是两件事。
 - 因而更精确的状态是：**已有批准的业务能力目录和蓝图设计目标；底层运行时 DI 与部分策划动作有生产消费者；业务能力命令、目录到 SPA 消费者的逐项落实仍需以当前源码和唯一台账逐项核对**。不能把“44 项已纳入设计书”表述成 44 项已实现，也不能把该现状压缩成“本仓完全没有能力体系”。
 
 ## 运行时 DI 的实际生产调用

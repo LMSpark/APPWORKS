@@ -2221,3 +2221,9 @@ flowchart TD
 - **仍存的 gateway 消费者：**ProjectPlanning Agent Run (`prepareProjectPlanningAgentRun`)、PageDesign Agent Run (`preparePageDesignAgentRun`) 与 `project-tool-resource.ts` 的正式树输入仍经 headless `ProjectWorkspace.loadBlueprint()/previewBlueprintRemote()` 调用 `blueprintGateway.loadRoot()`；ProjectWorkspace 内更新/移动/删除后的读取回执也与 gateway 绑在一起。不可只删除 `loadRoot` 或以直连 API 包装替换。
 - **候选下一切片：**评估将 ProjectPlanning Agent 的只读树输入改为正式 `Base_NavigationInfo` DataView 投影。现有工作台树列明确包含能力、导航、空间引用和原始 source 字段，DataView 默认查询最多 50,000 行；切换前仍须逐字段比较策划输入所需字段、身份映射、根/父子闭包、权限过滤及完整性限制，并明确该 Agent Run 如何复用本次 PageRuntime owner。若不能证明与现有输入等价，保留当前路径并登记缺口；本次尚未实施或测试该迁移。
 - **状态：**桌面关联因正式字段输出不足继续未实施；开发工作台主树 DataView 首载已成立，但 Agent/工具资源仍有蓝图 gateway 旁路，完整唯一 SPARK data 目标未完成。代码未改、Java 未改、本次未发起线上请求或写入。投影合同记录提交并推送于 `05b0d75ed`。
+
+### 2026-10-27 开发工作台 SPA 只读烟测与工具目录读链复核
+
+- **当前 SPA 烟测：**复用已登录 `127.0.0.1:5273` 当前 SPA tab，无整页刷新，读取 `/dev` 可访问性树：显示开发工作台、应用 `NewApp/D99A1DCE9894698799101EFD70F8FC76`、`41 页面`，当前选中 `DataBaseManage`；工作区显示基本信息、原型描述、数据空间、导航属性、导航宿主、任务信息和本仓扩展七个域。只读，无蓝图或业务数据写入；此观察只证明当次 SPA 显示，不证明操作持久结果。
+- **额外发现：**`ProjectToolResource.catalog()` 仍调用 `ProjectWorkspace.previewBlueprintRemote()` 读取工具目录，最终落到 `blueprintGateway.loadRoot()`。正式数据空间设计页 `openLowcodeDataSpaceDesignSession()` 提供的 `loadMetadata` 回调没有把已有工作区/蓝图 DataView owner 传入，`loadLowcodeDataSpaceMetadata()` 因而在 `definitionExecutors()` 创建新的 ProjectWorkspace/gateway；直接改成读取其内存树会因该 workspace 未装载而失效。另有 `loadLowcodeScenarioDefinitions(workspace, ...)` 路径会透传 ProjectWorkspace，但未证明其数据空间树来自同一活跃 Base_NavigationInfo DataView，不能当作已统一。
+- **实施边界及下一步：**必须先设计并落实正式 Base_NavigationInfo DataView 到 ProjectToolCatalog owner 的身份/生命周期接线，再删除 `previewBlueprintRemote()` 读取；核完整树闭包、权限、重复页ID、工具版本映射和查询失效。不能仅换一行内存读取、共享一个可能未加载的 ProjectWorkspace，或以旧 gateway 作为 fallback。低价模型只读审计未改文件；本轮没有代码实施、自动化测试或 Java 改动，烟测与 source/diff 核验通过后状态仍是“蓝图整合继续进行”。

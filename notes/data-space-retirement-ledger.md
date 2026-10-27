@@ -1,8 +1,8 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-28；代码与台账基线 `33928b5c6`，与上游同步）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；这可补模型/字段/视图/参数/executor 注册，但不能自行补造 DataSet 的正式归属身份，也不自动证明服务端权限、范围、真实数据与结果回执。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；产品代码基线 `9bf025b68`，台账/证据 HEAD `b06df2bc9`，均与上游同步）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；这可补模型/字段/视图/参数/executor 注册，但不能自行补造 DataSet 的正式归属身份，也不自动证明服务端权限、范围、真实数据与结果回执。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `33928b5c6`，实现/派生产物已推送，台账本轮更新中）
+## 当前源码状态（2026-10-28，产品代码基线 `9bf025b68`，实现/派生产物已推送；台账/证据以当前 HEAD 为准）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -2739,3 +2739,10 @@ flowchart TD
 - **权限响应边界：**两份响应的行对象均未包含 permission/access 类字段；这只描述响应行结构，不证明没有其他授权机制，也不证明 `DataView.fieldAccess` 已由服务端结果驱动。根路由和 D99 节点场景范围不同，1 行对 61 行已足以否定当前节点 DataView 与根目录旧请求的范围等价；旧请求 200/61 行也不构成权限正确性证据。脱敏摘要保存在 [`application-catalog-scope-live-20261028.json`](evidence/application-catalog-scope-live-20261028.json)，不保留 token 或应用行值。
 - **设计器补全裁定：**可以先通过正式 `Base_DataSet@catalog` DataView 创建 DataSpace，再用其正式 `rowid` 进入设计器补模型、字段和视图；但新增记录的 `sysid`、页数据文件 owner 与 `/app-list` 的 `homepage` 路由身份必须属于服务端认可的同一 scope。仅有路由常量 `homepage` 或静态 `dataSpaceId` 投影不证明这一点。当前没有允许 `homepage` 的目录选项/正式 owner 证据；不能以 D99 代替，也不执行猜测性的 DataSpace 创建。
 - **后续解锁条件：**确认平台目录 DataSet owner、`homepage` 是否可用作服务端 X-AppId/设计文件 owner、根目录查询的租户边界及同 scope DataView 的行/字段授权回包。满足后，才在正确 owner 经数据空间设计增加 `Base_AppSystemList` DataView，完成 61 行及字段权限对照，并从页面删除 `listApplications()` fallback。此次只导航和读取，无写操作、无 Java 修改。
+
+### 2026-10-28 DevSystem 导航宿主现场复核
+
+- **正式 SPA 状态：**在认证态 D99 SPA 以正式系统导航身份 `appworks-tool-dev` 打开 DevSystem；当前项目蓝图成功读取 41 个页面/节点。顶部项目切换区域返回“当前导航未配置项目切换关系”。不是缺 `__sparkNavigationId`：带上该正式身份后仍出现此结果。
+- **源码原因：**`NavHostProjectPicker.vue` 已按 `PageRuntime → 7AB DataSet → Base_Navigation_DataRelation@default` 查询，并以 `prowid=appworks-tool-dev` 精确过滤；当前没有匹配宿主关系行，故无法装载候选 DataView。`BlueprintWorkspace.vue` 的“导航宿主”页签目前是只读展示，没有维护宿主关系的编辑入口。参考仓将数据空间、资源及值/文案/父字段映射存为正式导航宿主关系；本仓不能改成 local state 或直调接口补关系。
+- **当前实施切片：**低价实施者先为 DevSystem 增加正式关系配置入口的最小失败用例；主控复核合同后再让其补实现。入口须编辑同一 DataView/DataSet 中的关系记录、使用标准绑定组件，并按已确认字段配置候选 `DataView`，不写业务页面第二套草稿/保存器。真实 SPA 未保存任何关系或 DataSpace 定义。
+- **交付边界与阻塞：**本次 SPA 只读；关闭/切换项目均未触发；未更改后端 Java。根 `/app-list` 平台级 owner/scope 缺口独立保留，不能拿 DevSystem 关系配置掩盖。正式切换 smoke 需在关系配置保存读回后，验证候选权限/完整性、选择项目后活动编辑目标确实切换，且旧运行时与草稿释放隔离。

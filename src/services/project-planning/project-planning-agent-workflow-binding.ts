@@ -18,8 +18,9 @@ import type {
   ProjectWorkspace,
   ProjectBlueprintTreeNodeData,
 } from '@spark-appworks/spark-project-model'
-import { createLowcodeProjectBlueprintRecord, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
+import { lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 import type { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
+import { planProjectBlueprintReplacement } from './project-planning-blueprint-diff'
 
 export const PROJECT_PLANNING_MODULE_ID = 'projectPlanning'
 
@@ -333,49 +334,25 @@ function guardProjectPlanningBlueprint(
     }
     const requestedChildren = Array.isArray(input) ? input : input.children
     const before = owner.treeProjection()
-    const beforeRows = flatten(before)
-    const nextTree = { ...before, children: requestedChildren }
-    const nextRows = flatten(nextTree)
-    if (nextRows.length !== beforeRows.length + 1) throw new Error('当前 DataView 单节点规划命令只接受新增一个叶子节点；更新、移动、删除或多节点计划保持拒绝')
-    const beforeById = new Map(beforeRows.map(node => [node.nodeId, node]))
-    const nextById = new Map<string, ProjectBlueprintTreeNodeData>()
-    let added: ProjectBlueprintTreeNodeData | undefined
-    for (const node of nextRows) {
-      if (nextById.has(node.nodeId)) throw new Error(`项目策划单节点命令包含重复 nodeId：${node.nodeId}`)
-      nextById.set(node.nodeId, node)
-      const current = beforeById.get(node.nodeId)
-      if (!current) {
-        if (added) throw new Error('当前 DataView 单节点规划命令检测到多个新增节点')
-        added = node
-      } else if (!samePlanningNode(current, node)) {
-        throw new Error(`当前 DataView 单节点规划命令检测到已有节点计划变化 ${node.nodeId}`)
+    const plan = planProjectBlueprintReplacement(before, requestedChildren, { projectId: owner.projectId })
+    for (const planned of plan.commands) {
+      const missingFields = Object.entries(planned.fields).filter(([field, value]) => !owner.hasOutput(field)
+        && !(planned.kind === 'create' && (value === '' || value === 0)))
+      if (missingFields.length > 0) {
+        throw new Error(`项目策划完整 DataView 计划字段未正式输出：${missingFields.map(([field]) => field).join(', ')}`)
       }
     }
-    if (beforeRows.some((node, index) => nextRows[index]?.nodeId !== node.nodeId)
-      || nextRows[nextRows.length - 1]?.nodeId !== added?.nodeId) {
-      throw new Error('当前 DataView 单节点规划命令必须原样保留完整蓝图顺序与拓扑，并将新叶子追加到根节点末尾')
+    if (plan.commands.length !== 1 || plan.commands[0]?.kind !== 'create') {
+      throw new Error('当前 DataView 仅支持一个完整预检后的单叶新增命令；更新、移动、删除、多节点或父子同批计划保持拒绝')
     }
-    if (!added || (added.children !== undefined && added.children.length > 0) || added.parentNodeId !== before.nodeId || added.projectId !== owner.projectId) {
-      throw new Error('当前 DataView 单节点规划命令只允许在现存项目根下新增一个同项目叶子节点')
+    const createCommand = plan.commands[0]
+    const added = plan.expectedTree.children.find(node => node.nodeId === createCommand.nodeId)
+    if (!added || (added.children !== undefined && added.children.length > 0) || added.parentNodeId !== before.nodeId
+      || createCommand.siblingIndex !== before.children.length || added.projectId !== owner.projectId) {
+      throw new Error('当前 DataView 单节点规划命令只允许在现存项目根末尾新增一个同项目叶子节点')
     }
-    if ((added.dataSpace?.models.length ?? 0) > 0) {
-      throw new Error('当前 Base_NavigationInfo DataView wire 不承接 dataSpace.models；保留该计划，不得报告已保存')
-    }
-    if (Object.keys(added.source).length > 0) {
-      throw new Error('当前 Base_NavigationInfo DataView wire 不承接新增节点 source 字段；保留该计划，不得报告已保存')
-    }
-    const record = createLowcodeProjectBlueprintRecord({
-      nodeId: added.nodeId, parentNodeId: added.parentNodeId, projectId: added.projectId, kind: added.kind,
-      capability: added.capability, ...(added.navigation === undefined ? {} : { navigation: added.navigation }),
-      ...(added.dataSpace === undefined ? {} : { dataSpace: added.dataSpace }),
-      ...(added.prototype === undefined ? {} : { prototype: added.prototype }), source: added.source,
-    })
-    const wire = lowcodeProjectBlueprintFields(record)
-    const unavailable = Object.entries(wire).filter(([field, value]) => !owner.hasOutput(field)
-      && !(value === '' || value === 0))
-    if (unavailable.length) throw new Error(`项目策划新增字段未由当前 DataView 正式输出：${unavailable.map(([field]) => field).join(', ')}`)
-    const fields = Object.fromEntries(Object.entries(wire).filter(([field]) => owner.hasOutput(field)))
-    delete fields['rowid']
+    const fields = Object.fromEntries(Object.entries(createCommand.fields)
+      .filter(([field]) => field !== 'prowid' && owner.hasOutput(field)))
     if (options.tryBeginDataViewBlueprintWrite !== undefined && !options.tryBeginDataViewBlueprintWrite(project.projectId)) {
       options.onRepeatedDataViewBlueprintWrite?.(project.projectId)
       throw new Error('one DataView command per AI run is allowed; the additional blueprint plan change was rejected after the first DataView command started')
@@ -459,25 +436,6 @@ function guardProjectPlanningBlueprint(
 
 function cloneFrozenPlanningValue<T>(value: T): T {
   return freezePlanningValue(deepClone(value))
-}
-
-function stablePlanningValue(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(stablePlanningValue).join(',')}]`
-  if (value !== null && typeof value === 'object') {
-    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stablePlanningValue(Reflect.get(value, key))}`).join(',')}}`
-  }
-  if (value === undefined) return 'undefined'
-  if (value === null) return 'null'
-  return typeof value === 'string' ? JSON.stringify(value) : String(value)
-}
-
-function samePlanningNode(left: ProjectBlueprintTreeNodeData, right: ProjectBlueprintTreeNodeData): boolean {
-  return left.nodeId === right.nodeId && left.parentNodeId === right.parentNodeId && left.projectId === right.projectId
-    && left.kind === right.kind && stablePlanningValue(left.capability) === stablePlanningValue(right.capability)
-    && stablePlanningValue(left.navigation) === stablePlanningValue(right.navigation)
-    && stablePlanningValue(left.dataSpace) === stablePlanningValue(right.dataSpace)
-    && stablePlanningValue(left.prototype) === stablePlanningValue(right.prototype)
-    && stablePlanningValue(left.source) === stablePlanningValue(right.source)
 }
 
 function freezePlanningValue<T>(value: T, seen = new WeakSet<object>()): T {

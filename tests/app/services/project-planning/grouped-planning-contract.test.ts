@@ -40,7 +40,7 @@ describe('projectPlanning formal node input', () => {
       treeProjection: () => readback,
       addChildNode,
       view: { queryColumns: [{ name: 'name' }, { name: 'conType' }, { name: 'FunName' }, { name: 'FunOrderValue' }] },
-      hasOutput: (field: string) => ['name', 'conType', 'FunName', 'FunOrderValue'].includes(field),
+      hasOutput: (field: string) => ['name', 'conType', 'FunName', 'FunOrderValue', 'prowid'].includes(field),
     }
     let completionSnapshot: { projectId: string; result: ReturnType<NonNullable<Parameters<typeof resolveProjectPlanningDomainRoot>[0]['getDataViewCompletionResult']>> } | undefined
     const getCompletion = (id: string) => completionSnapshot?.projectId === id ? completionSnapshot.result : undefined
@@ -80,9 +80,69 @@ describe('projectPlanning formal node input', () => {
     const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
     const changed = { ...current.children[0]!, capability: { name: 'changed' } }
 
-    await expect(planningRoot.replaceBlueprintChildren({ children: [changed] })).rejects.toThrow(/更新、移动、删除或多节点计划保持拒绝|已有节点计划变化/iu)
+    await expect(planningRoot.replaceBlueprintChildren({ children: [changed] })).rejects.toThrow(/单叶新增命令.*更新、移动、删除/iu)
     expect(addChildNode).not.toHaveBeenCalled()
     expect(editor.project.blueprintDirty).toBe(false)
+  })
+
+  it('preflights every command in a mixed tree plan before the first DataView write', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }] })
+    editor.project.markBlueprintClean('root')
+    const current = editor.project.blueprintTree
+    const addChildNode = vi.fn()
+    const owner = { projectId, hasTreeProjection: true, dirty: false, treeProjection: () => current, addChildNode,
+      view: { queryColumns: [] }, hasOutput: (field: string) => field !== 'memo' }
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
+    const updated = { ...current.children[0]!, capability: { name: 'Existing', description: 'new description' } }
+    const created = { nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page' as const, capability: { name: 'Planned' }, source: {} }
+
+    await expect(planningRoot.replaceBlueprintChildren({ children: [updated, created] })).rejects.toThrow(/未正式输出.*memo/iu)
+    expect(addChildNode).not.toHaveBeenCalled()
+    expect(editor.project.blueprintDirty).toBe(false)
+  })
+
+  it('marks the AI run partial when a later plan is rejected after the first DataView command', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
+    editor.project.markBlueprintClean('root')
+    let readback = editor.project.blueprintTree
+    let completion: { projectId: string; result: { ok: boolean; completed?: boolean; code?: string } } | undefined
+    const owner = {
+      projectId, hasTreeProjection: true, dirty: false, treeProjection: () => readback,
+      hasOutput: () => true,
+      addChildNode: vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
+        const record = normalizeLowcodeProjectBlueprintRecords([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
+        readback = { ...readback, children: [...readback.children, {
+          nodeId: record.nodeId, parentNodeId: record.parentNodeId, projectId: record.projectId, kind: record.kind,
+          capability: record.capability, ...(record.navigation === undefined ? {} : { navigation: record.navigation }),
+          ...(record.dataSpace === undefined ? {} : { dataSpace: record.dataSpace }),
+          ...(record.prototype === undefined ? {} : { prototype: record.prototype }), source: record.source,
+        }] }
+        return id ?? ''
+      }),
+    }
+    const planningRoot = resolveProjectPlanningDomainRoot({
+      getProjectPlanningEditor: () => editor,
+      blueprintDataView: owner as never,
+      getDataViewCompletionResult: (id) => completion?.projectId === id ? completion.result as never : undefined,
+      onDataViewCompletionConfirmed: (id, result) => { completion = { projectId: id, result } },
+      onRepeatedDataViewBlueprintWrite: (id) => {
+        completion = { projectId: id, result: { ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_PARTIAL' } }
+      },
+    }, { moduleInstanceId: projectId } as never)
+
+    await Promise.resolve(planningRoot.replaceBlueprintChildren({ children: [{
+      nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Planned' }, source: {},
+    }] }))
+    await expect(planningRoot.replaceBlueprintChildren({ children: [{
+      nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Renamed' }, source: {},
+    }] })).rejects.toThrow(/one DataView command per AI run/iu)
+
+    expect(owner.addChildNode).toHaveBeenCalledOnce()
+    expect(planningRoot.completeProjectPlanning()).toMatchObject({ ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_PARTIAL' })
   })
 
   it('rejects blueprint payloads that the formal NavigationInfo wire cannot preserve', async () => {

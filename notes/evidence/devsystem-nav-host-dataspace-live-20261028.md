@@ -19,10 +19,10 @@
 
 ## 查询验证与限制
 
-- 同一预览器点击“查询”后，SPA 状态持续显示“正在查询…”；结果区仍显示“尚未取得有效查询结果”和“暂无数据”。
-- 关闭预览后，`Base_DataModel@default` 面板仍显示“正在读取当前模型字段…”。浏览器控制台 error/warn 列表为空。
-- 因此此证据只支持“正式视图定义已保存并由设计器回读”；不支持查询成功、完整集合实际读取、结果权限、候选项可用或跨 DataSet 绑定可用。
-- 未继续创建 `Base_DataModel`、`Base_DataModel_Field` 视图，未添加级联，未修改 `Base_Navigation_DataRelation` 或任何业务行。
+- `Base_DataModel@default` 预览正式查询返回 20 行、总数 7672、状态 `Loaded`。
+- `Base_DataSet@navHostDataSpaceOptions` 配置为完整集合时，预览显示 `Request failed with status code 502`。仅在本次预览参数里关闭完整集合后，正式查询返回 20 行、总数 1335、第 1 页、状态 `Loaded`；结果 JSON 展示 `Type`、`sysid`、`rowid`、`Name` 四个投影字段。未保存预览开关，因此正式视图定义仍配置全量读取。
+- `Base_AppSystemList@catalogApps` 预览返回 1 行、总数 1、状态 `Loaded`，唯一行显示 `NewApp`、系统名“元数据管理”、应用代码 `DataSchemaManage`。此响应证明该 view 在本应用的实际范围只有一项。
+- 结果只支持候选视图的分页查询可运行；不支持全量候选、权限完整性或跨 DataSet 绑定。没有继续创建 `Base_DataModel`、`Base_DataModel_Field` 视图，没有添加级联或修改 `Base_Navigation_DataRelation` / 业务行。
 
 ## 后续验证门槛
 

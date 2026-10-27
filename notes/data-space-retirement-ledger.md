@@ -2755,3 +2755,11 @@ flowchart TD
 - **正式预览验证：**之后通过同一 DataView 的“查询预览”发起正式查询，SPA 一直显示“正在查询…”，结果区仍为“尚未取得有效查询结果 / 暂无数据”；关闭预览后，`Base_DataModel@default` 详情面板也显示“正在读取当前模型字段…”。当前浏览器控制台无 error/warn 日志。故本次只确认设计配置保存与回读，不确认 `navHostDataSpaceOptions` 的实际数据行、服务端完整集合、查询回执或字段授权。没有基于挂起预览继续新增 `Base_DataModel` / `Base_DataModel_Field` 视图，也没有建立级联。
 - **与项目切换的关系：**这一数据空间设计身份可承载元数据平台目录模型的正式视图定义；要供 DevSystem 作为选项 DataView 使用，仍需实现组件绑定与跨 DataSet 查询消费合同，并经 DataView 正式查询验证行/字段权限、候选范围及实例释放。不能把已保存 view 定义描述成已运行接入。DevSystem 的 `Base_Navigation_DataRelation` 关系草稿/保存入口、权限合同和项目切换真实烟测仍未完成。根 `/app-list` 的平台级 owner/scope 缺口仍独立存在；90A8 不能替代其正式 owner。
 - **继续条件与证据：**先恢复/确认元数据设计 DataView 查询可完成并取得正式回执，再按已核实的字段定义补 `Base_DataModel@navHostDataModelOptions` 和 `Base_DataModel_Field@navHostDataModelFieldOptions`，明确查询过滤/级联后保存并回读；随后接入 DevSystem 标准视图绑定组件。脱敏状态记录见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。本轮工作树代码 HEAD 为 `5ea0e4a94`，没有代码文件改动。
+
+### 2026-10-28 DevSystem 候选元数据视图正式查询复核
+
+- **预览器对照查询：**同一 D99 认证 SPA 中 `Base_DataModel@default` 预览返回 `行数 20、总数 7672、状态 Loaded`。证明预览器/DataView 至少一条正式查询链成功；低价只读审查所猜的预览 UI 卡死没有证据支持，未改组件代码。
+- **已保存候选视图的分页查询：**`Base_DataSet@navHostDataSpaceOptions` 配置仍为完整集合读取、上限 5000、输出 `Type/sysid/rowid/Name`。带完整集合选项的预览请求显示 `Request failed with status code 502`；只在预览参数里关闭“读取过滤条件下的完整集合”（不保存配置）后，正式 DataView 返回 `行数 20、总数 1335、第 1 页 / 20 条、状态 Loaded`，结果 JSON 展示四个投影字段。由此证实该命名视图可分页读取元数据 DataSet 行；完整集合消费在当前服务上返回 502，不能供要求全量校验的项目选择器直接使用。正式配置未改为分页模式，避免把不完整候选伪装成完整清单。
+- **应用目录模型反例：**同一正式空间 `Base_AppSystemList@catalogApps` 查询返回 `行数 1、总数 1、状态 Loaded`；唯一结果为企业简称 `NewApp`、系统中文名“元数据管理”、应用代码 `DataSchemaManage`。该正式应用级 DataView 没有全局项目范围，不能用作 DevSystem 项目候选源。
+- **当前判断：**使用数据空间设计补足已识别元数据 owner 的模型视图是可行且已获得正式分页查询证据；但当前 90A8 DataSet 的 `Base_AppSystemList` 数据权限范围只有本应用，`Base_DataSet` 完整集合又返回 502。因此尚无一个已验证可完整读取的、服务端认可的全局项目候选 DataView。不得把分页 20/1335 的当前元数据行或单行 `catalogApps` 冒充项目清单；继续查找平台根目录的正式 DataSet owner/scope，再决定是否能在正确空间补定义。
+- **证据与状态：**补充查询回执已写入 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。全程只读查询，无业务行新增/修改、无 Java 修改。DevSystem UI/DataSet 保存入口与真实项目切换烟测尚未完成。

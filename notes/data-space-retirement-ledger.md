@@ -1,13 +1,13 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-27；源码核对版本 `ab2f0ade6444fd2c49085b2f09972d6b1fa62bf8`；本次之后仅本台账待更新）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。
+> **当前入口（2026-10-27；源码核对版本 `244538b6d41c6cc79d5b8234ae849d154dfe85f8`；本次之后仅本台账待更新）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。
 
-## 当前源码复核（2026-10-27，按代码提交 `ab2f0ade6`）
+## 当前源码复核（2026-10-27，按代码提交 `244538b6d`）
 
 | 领域 | 当前代码状态 | 验收状态与未完成项 |
 | --- | --- | --- |
 | DevSystem 项目切换 | `NavHostProjectPicker` 按路由 `__sparkNavigationId` 查询宿主关系 DataView，再绑定其 `dataSetId + DataName` 指定的候选 DataView；支持 `selectPid` 层级树。正式行主键和值字段复核后调用 `openEditingProject()`，切换 DevSystem 当前编辑的 ProjectWorkspace；dirty、未知回执和未完成创建/删除由既有守卫阻止切换。 | 选择器合同/渲染 11 项通过；加 DevState 切换保护的定向回归 12 项通过（另 50 项按名称过滤）。最新打开 SPA 路由跳回平台首页、无登录态；最近一次已认证正式 NavHost 查询为 0 行。没有正式候选时入口按设计关闭；在线成功切换、目标工作区读回和旧 owner 释放待真实候选可读后验收。用户已确认只读烟测可选任意开发项目，不需固定项目 ID。 |
-| ProjectPlanning 蓝图树 | Agent 输入经正式 `Base_NavigationInfo` DataView 加载；`replaceBlueprintChildren` 支持一个 DataView/DataSet 批次向一个或多个原查询现存父节点追加多个独立叶子；另支持一次既有叶节点同父 `name`/`memo` 更新。每个新增父行按当次 `c` 预检，子字段按该父行 `e`、正式输出和 validator 预检；所有暂存后一次保存并逐行核 ID、项目、父键和字段回读。AI 计划中的移动、删除、父子同批和新增混合仍 fail closed；DevSystem 普通树移动/删除走另外的 DataView 命令。 | 4 个焦点测试文件 **78/78 passed**；typecheck、改动文件 ESLint、verify:rules、生产 build 均通过。正式 ClassModel 生成并通过验证。没有真实服务写入/回执/读回；服务端多行原子性仍未在线验收；强制 teardown 后跨 owner 恢复和完整 mixed diff 仍开放。 |
+| ProjectPlanning 蓝图树 | Agent 输入经正式 `Base_NavigationInfo` DataView 加载；`replaceBlueprintChildren` 支持纯多叶新增（可分属多个原查询现存父节点），或纯多叶既有叶节点 `name`/`memo` 更新，各自以一个 DataView/DataSet 批次提交。更新目标逐个核对原树身份、同项目、叶节点和不变父节点；全部字段正式输出、行/字段读取写入权限及 validator 预检后才暂存；保存仅带目标 rowid，核 DataSet `savedCount`/`failedCount` 并逐目标正式读回。unknown 沿原 owner、原 ID/patch 核验；暂存异常整批回滚，回滚不明则阻断保存和切换。AI 计划中的新增/更新混合、移动、删除及父子同批仍 fail closed；DevSystem 普通树移动/删除走另外的 DataView 命令。 | 焦点测试 **2 files / 62 passed**；`verify:project-planning` **18 passed**；全仓 typecheck、改动文件 ESLint、`verify:class-model` **49 passed**、完整 `verify:rules` 和生产 build 均通过。正式 ClassModel 已重生成；生成器同时刷新此前落后的 DTS 投影/manifest/semantic-gap 产物。没有真实服务写入/回执/读回；服务端多行原子性仍未在线验收；强制 teardown 后跨 owner 恢复和完整 mixed diff 仍开放。 |
 | 工具文件正文保存 | 手动保存、Save All 和 PageDesign AI `autoSave` 共用当前 PageRuntime 中 `PageToolFiles` DataView；资源 executor 内部调用现有 file owner 完成读写。未知回执不自动重放，普通路由离开由守卫拦截。 | 自动化门禁已通过；强制销毁/应用 teardown 后未知回执无法跨 owner 恢复。未对正式服务执行文件写入烟测。 |
 | PageDesign AI 与参考蓝图范围 | 活跃 DevSystem 内联 PageDesign 链使用当前编辑器；蓝图输入来自 DevSystem 已绑定的 DataView 树，场景定义读写经正式 metadata DataSet/DataView，页面正文交付走 `PageToolFiles` DataView。未发现活跃链的已证实 gateway 数据旁路。另一个 `preparePageDesignAgentRun` headless preparer 仍调用 `ProjectWorkspace.loadBlueprint()`，但 `src` 中无生产调用点；其无 DataView owner 的文件自动保存会 fail closed。当前 UI 不传 `allowedOperations`，AI 操作域没有由该入口显式限缩，需作为独立策略缺口跟踪。参考蓝图仍包括桌面显示关联、AI 填表、原型预览和可靠 SRS 导出。 | 活跃数据保存链有源码调用图证据，未证明线上 AI 运行；headless runner 保持未启用，不包装为活跃旁路；尚未收口的参考功能继续逐项核实际消费者与持久化 owner。完整蓝图验收仍 active。 |
 | SPA 与总计划 | SPA 当前浏览器落在 `127.0.0.1:5273/`，无认证会话；本批未对线上蓝图或业务数据执行写入。 | 电脑操作规范禁止自动化认证表单；需用户手动登录后继续只读切换烟测。B1、数据库目录、数据字典排序等历史验收仅按各自历史条目引用。旧应用 00BE target、`_Base_DictData` 动态选项消费、数据库/配置/代码消费者完整删除引用合同、AI system prompt 部署绑定、B2 登记/测试/删除回执、物理表/视图预览 direct GetData、WorkflowDesigns 文件读取、C/E pending 与 D 权限专题 deferred 仍开放。 |
@@ -2336,3 +2336,10 @@ flowchart TD
 - **规划与提示：**`ProjectPlanning.replaceBlueprintChildren` 现在允许命令计划分别向一个或多个原树现存父节点追加；每个父节点独立验证深度、项目和末尾 siblingIndex。原子命令仍限制为 all-create；单次既有叶节点 `name/memo` 更新沿原已完成窄路径；其他 diff 整体拒绝。系统提示、SOP 和 tool-loop nudge 均同步合同。
 - **TDD与主控验证：**RED/GREEN 原始记录见 `notes/evidence/project-blueprint/project-planning-multi-parent-add.{RED,GREEN}.txt`。实施者先证实旧同父守卫拒绝跨父用例；主控独立复跑 ProjectPlanning、DevState 蓝图回执和 NavHost 选择器/切换保护 **4 files / 78 tests passed**。改动文件 ESLint、全仓 `pnpm run typecheck`、`pnpm run verify:rules` 与 `pnpm run build` 通过。正式 `pnpm run generate:class-model-surface` 已刷新 `BlueprintWorkspaceDataView` 新类型/方法；`verify:class-model` 通过。全量生成同时刷新此前落后源码的派生产物；未手改生成文件。规则扫描保留既有 AI model spec **2 warnings / 1 info**；build 保留既有 Rolldown/CodeMirror/chunk-size 告警。
 - **真实 SPA 与交付：**当前 SPA 无认证态，本批未查询或写入线上蓝图，不宣称正式服务支持多父单批原子回执。代码、ClassModel 与本条台账已分段提交推送；实现提交 `ab2f0ade6`。整体参考蓝图仍 active；真实服务部分成功/多父权限回执、强制 teardown 后跨 owner 恢复及完整 mixed diff 继续开放。
+
+### 2026-10-27 ProjectPlanning AI 多个既有叶节点单批次更新
+
+- **实现合同：**在纯多叶新增与单叶更新之外，允许一次规划仅更新多个原树现存叶节点的正式 `name` / `memo`，要求项目身份、节点身份和原父节点不变；不混入新增、移动或删除。稳定 nodeId 必须解析到当前已查询的正式 DataView rowid。先对所有目标执行身份、正式输出、当次行/字段权限与 `DataView.validator` 预检；预检成功后才占用本轮 AI 写命令额度并同步暂存全部 overlay。
+- **提交与失败保护：**通过原 `BlueprintWorkspaceDataView` 只向同一 DataSet 提交目标 ids 一次，要求回执 `savedCount` 等于目标行数且 `failedCount` 为 0，并逐行、逐字段正式回读。暂存中途异常会丢弃本批全部目标并验证 pending/overlay；回滚未确认时 owner 进入 blocked 状态，禁止保存及切换。unknown 保留原 owner、提交 ids 与 patch，沿既有 `save()` / DataSet 核验，不创建第二保存器。
+- **TDD 与主控验收：**RED/GREEN 证据 `notes/evidence/project-blueprint/project-planning-multi-update.{RED,GREEN}.txt`。RED 先证明旧单叶限制、后续目标权限检查顺序和中途 overlay 异常均无法满足；主控冻结后独立复跑焦点测试 **2 files / 62 passed**、`verify:project-planning` **18 passed**、全仓 typecheck、指定 4 个文件 ESLint、`verify:class-model` **49 passed**、`verify:rules` 和生产 build，全部通过。规则扫描保持既有 AI model spec **2 warnings / 1 info**；build 保留依赖注释、CodeMirror 动态导入及 chunk-size 告警。生成器正式刷新 DTS ClassModel 及此前落后的派生产物，无手改生成文件。
+- **真实服务与交付：**电脑操作规则禁止自动化认证表单；当前提交未登录真实 SPA、未调用正式蓝图查询/保存，故 DataSet 多行服务回执和原子性仍未证明。无 Java 修改、无在线业务写入。实现提交 `244538b6d` 已推送；总体蓝图整合继续 active，新增/更新混合、AI 移动/删除、强制 teardown 后跨 owner 恢复仍开放。

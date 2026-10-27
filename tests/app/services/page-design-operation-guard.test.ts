@@ -1,5 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type {
+  ProjectBlueprintGateway,
+  ProjectBlueprintTreeData,
+  ProjectBlueprintTreeNodeData,
+} from '@spark-appworks/spark-project-model'
 import { guardPageDesignEditor } from '@/services/page-design/page-design-operation-guard'
 
 function createEditor(): ProjectWorkspace {
@@ -43,5 +48,58 @@ describe('guardPageDesignEditor', () => {
     expect(() => guarded.project.replaceBlueprintChildren([])).toThrow('PAGE_DESIGN_OPERATION_FORBIDDEN')
     expect(guarded.project.projectId).toBe('demo')
     expect(guarded.project.readPlanningProjection()).toEqual([])
+  })
+
+  it('denies direct blueprint gateway writes even when blueprint operations are allowed', async () => {
+    const root: ProjectBlueprintTreeData = { nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }
+    const gateway: ProjectBlueprintGateway = {
+      loadRoot: vi.fn(async () => root),
+      addNode: vi.fn(async ({ node }: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }) => node),
+      updateNode: vi.fn(async (id, patch) => ({ ...root, ...patch, nodeId: id })),
+      deleteNode: vi.fn(async () => null),
+      moveNode: vi.fn(async (id: string) => ({ ...root, nodeId: id })),
+    }
+    const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' }, blueprint: gateway })
+    editor.project.replaceBlueprintTree(root)
+    const guarded = guardPageDesignEditor(editor, { blueprint: true })
+    expect(() => guarded.addBlueprintNode({ node: root })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.saveProjectLayout()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.deleteNode('n')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.moveMountedPage('n', null, 0)).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.saveSelectedBlueprintNode()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(gateway.addNode).not.toHaveBeenCalled()
+    expect(gateway.updateNode).not.toHaveBeenCalled()
+    expect(gateway.deleteNode).not.toHaveBeenCalled()
+    expect(gateway.moveNode).not.toHaveBeenCalled()
+    await expect(guarded.previewBlueprintRemote()).resolves.toMatchObject({ nodeId: 'root' })
+    expect(gateway.loadRoot).toHaveBeenCalledTimes(1)
+  })
+
+  it('denies remote PageTool file and version writes while preserving local draft edits and reads', async () => {
+    const fileApi = {
+      saveFileContent: vi.fn(async () => undefined),
+      createVersion: vi.fn(async () => undefined),
+      restoreVersion: vi.fn(async () => undefined),
+      deleteVersion: vi.fn(async () => undefined),
+    }
+    const guarded = guardPageDesignEditor(new ProjectWorkspace({
+      projectId: 'demo',
+      pageFiles: { readPageFile: async () => '', ...fileApi },
+      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    }), { script: true, style: true, nodeTree: true })
+    const page = guarded.project.openPageDesign('orders')
+    guarded.project.setActivePage('orders')
+    expect(() => page.setFileText('script.js', 'draft')).not.toThrow()
+    expect(() => guarded.savePageFile('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.saveDirtyPageFiles()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.savePageFileChange({ pageId: 'orders', fileName: 'script.js', expectedText: '', text: 'x' })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.createRemotePageVersion('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.restoreRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.deleteRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(fileApi.saveFileContent).not.toHaveBeenCalled()
+    expect(fileApi.createVersion).not.toHaveBeenCalled()
+    expect(fileApi.restoreVersion).not.toHaveBeenCalled()
+    expect(fileApi.deleteVersion).not.toHaveBeenCalled()
+    expect(page.getFileText('script.js')).toBe('draft')
   })
 })

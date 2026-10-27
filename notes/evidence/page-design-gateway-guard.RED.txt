@@ -1,0 +1,62 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/page-design-operation-guard.test.ts (6 tests | 2 failed) 22ms
+     × denies direct blueprint gateway writes even when blueprint operations are allowed 8ms
+     × denies remote PageTool file and version writes while preserving local draft edits and reads 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/page-design-operation-guard.test.ts > guardPageDesignEditor > denies direct blueprint gateway writes even when blueprint operations are allowed
+AssertionError: promise resolved "{ nodeId: 'root', …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "capability": {
++     "name": "Root",
++   },
++   "children": [],
++   "kind": "module",
++   "nodeId": "root",
++   "parentNodeId": "",
++   "projectId": "demo",
++   "source": {},
+  }
+
+ ❯ tests/app/services/page-design-operation-guard.test.ts:60:58
+     58|     editor.project.replaceBlueprintTree(root)
+     59|     const guarded = guardPageDesignEditor(editor, { blueprint: true })
+     60|     await expect(guarded.addBlueprintNode({ node: root })).rejects.toT…
+       |                                                          ^
+     61|     await expect(guarded.saveProjectLayout()).rejects.toThrow('PAGE_DE…
+     62|     await expect(guarded.deleteNode('n')).rejects.toThrow('PAGE_DESIGN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/app/services/page-design-operation-guard.test.ts > guardPageDesignEditor > denies remote PageTool file and version writes while preserving local draft edits and reads
+AssertionError: expected [Function] to throw error including 'PAGE_DESIGN_STORAGE_INTERNAL' but got '无活动页面，无法保存页面文件'
+
+Expected: "PAGE_DESIGN_STORAGE_INTERNAL"
+Received: "无活动页面，无法保存页面文件"
+
+ ❯ tests/app/services/page-design-operation-guard.test.ts:85:51
+     83|     const page = guarded.project.openPageDesign('orders')
+     84|     expect(() => page.setFileText('script.js', 'draft')).not.toThrow()
+     85|     await expect(guarded.savePageFile('script.js')).rejects.toThrow('P…
+       |                                                   ^
+     86|     await expect(guarded.saveDirtyPageFiles()).rejects.toThrow('PAGE_D…
+     87|     await expect(guarded.createRemotePageVersion('script.js')).rejects…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  18:49:15
+   Duration  3.77s (transform 1.43s, setup 165ms, import 1.80s, tests 22ms, environment 1.40s)
+

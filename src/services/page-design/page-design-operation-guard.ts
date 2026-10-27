@@ -25,6 +25,14 @@ const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'ge
   'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
   'createScenarioVersion', 'restoreScenarioVersion', 'saveAll', 'saveDirtyScenarioDefinitions', 'dispose'])
 
+// PageDesign model_script may inspect/project locally, but delivery writes belong to the
+// workspace's existing DataView and unified delivery owners, never to this proxy.
+const DELIVERY_WRITE_METHODS = new Set([
+  'addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode',
+  'saveBlueprintFromSession', 'saveBlueprintNodes', 'savePageFileChange', 'savePageFile', 'saveDirtyPageFiles',
+  'restoreRemotePageVersion', 'createRemotePageVersion', 'deleteRemotePageVersion',
+])
+
 const FILE_METHODS = new Set(['setFileText', 'getFileText', 'writePageFile'])
 
 const FILE_DOMAINS: Readonly<Record<string, OperationDomain>> = {
@@ -98,6 +106,7 @@ export function guardPageDesignEditor(editor: ProjectWorkspace, allowedOperation
   const proxies = new WeakMap<object, object>()
   const assertAllowed = (name: string, args: readonly unknown[]): void => {
     if (STORAGE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供资源存储适配使用，请通过场景定义DataSet操作`)
+    if (DELIVERY_WRITE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供统一交付owner使用，请通过DataView提交`)
     const domain = resolveDomain(name, args)
     if (domain !== undefined && allowedOperations?.[domain] === false) {
       throw new Error(`PAGE_DESIGN_OPERATION_FORBIDDEN: ${name} 属于未放行的操作域 ${domain}`)

@@ -1,6 +1,18 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-10-27；本轮起始 HEAD `65534f7754b014d20089ca75992b5cb4444ad70d`，已推送 `origin/codex/ai-data-entry`）**：用户授权按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 持续实施，使用低价模型、主控派工/复核/烟测并实时提交推送；不改、启动或部署后端 Java，不走第二数据通道。当前开发工作台已在 NewApp/D99A SPA 加载 41 页，六个蓝图域的页面接线与切分有现状证据；完整参考蓝图范围还包括桌面显示、树 AI 新增、节点 AI 填表、原型预览、SRS 导出，不能以六页签覆盖代替整合验收。树/字段保存、原型历史和 NavHost、桌面资源、AI 蓝图输出等实际闭环差距见本轮新增条目。关联的页面三文件正文保存仍有 gateway 旁路；本轮试探因 PageRuntime/DataView owner 卸载后无法保留未知命令原身份而停止，未留下生产代码或失败测试，RED 原始输出归档在 `notes/evidence/project-blueprint/working-file-save-red.txt`。SPA 本轮只读检查未触发正式写入。B1、数据库目录、数据字典排序等既有真实验收证据仍按其历史条目引用；旧应用 00BE target、正式 `_Base_DictData` 动态选项消费、数据库/配置/代码消费者完整删除引用合同、AI system prompt 部署绑定、B2 登记/测试/删除回执、物理表/视图预览 direct GetData、WorkflowDesigns 文件直接读取、C/E pending 与 D 权限专题 deferred 仍开放。以下为同一唯一台账的历史与当前证据，不把代码/夹具结果冒充部署成功。
+> **当前入口（2026-10-27；源码核对版本 `200f108e3122001b56ea6ca065797459c550993e`；随后提交 `9e0292c37` 只更新本台账）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；低价模型实施、主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。
+
+## 当前源码复核（2026-10-27，按代码提交 `200f108e3`；之后无产品源码修改）
+
+| 领域 | 当前代码状态 | 验收状态与未完成项 |
+| --- | --- | --- |
+| DevSystem 项目切换 | `NavHostProjectPicker` 按路由 `__sparkNavigationId` 查询宿主关系 DataView，再绑定其 `dataSetId + DataName` 指定的候选 DataView；支持 `selectPid` 层级树。正式行主键和值字段复核后调用 `openEditingProject()`，切换 DevSystem 当前编辑的 ProjectWorkspace；dirty、未知回执和未完成创建/删除由既有守卫阻止切换。 | 选择器合同/渲染 11 项通过；加 DevState 切换保护的定向回归 12 项通过（另 50 项按名称过滤）。最新打开 SPA 路由跳回平台首页、无登录态；最近一次已认证正式 NavHost 查询为 0 行。没有正式候选时入口按设计关闭；在线成功切换、目标工作区读回和旧 owner 释放待真实候选可读后验收。用户已确认只读烟测可选任意开发项目，不需固定项目 ID。 |
+| ProjectPlanning 蓝图树 | Agent 输入已通过正式 `Base_NavigationInfo` DataView 加载树；当前命令支持同一现存父节点下多个独立叶节点一次 DataSet 保存，以及一个现存叶节点 `name`/`memo` 的单行受限更新，均正式读回后确认。移动、删除、跨父新增、父子同批、混合差异继续 fail closed。 | 自动化证据在后续 10-27 条目。没有真实服务写入/回执/读回；强制 teardown 后跨 owner 恢复、完整 mixed diff 与未验证服务端多行原子性仍开放。 |
+| 工具文件正文保存 | 手动保存、Save All 和 PageDesign AI `autoSave` 共用当前 PageRuntime 中 `PageToolFiles` DataView；资源 executor 内部调用现有 file owner 完成读写。未知回执不自动重放，普通路由离开由守卫拦截。 | 自动化门禁已通过；强制销毁/应用 teardown 后未知回执无法跨 owner 恢复。未对正式服务执行文件写入烟测。 |
+| 尚未收口的参考蓝图范围 | 参考蓝图还包括桌面显示关联、PageDesign 树输入/输出持久化、AI 填表、原型预览及可靠 SRS 导出；ProjectWorkspace 未证明有生产调用者的 gateway CRUD 不得仅为统一而加适配层。 | 逐项按实际调用点和 DataView owner 继续审计；当前 DevSystem 文件保存和 ProjectPlanning 输入已走 DataView，不再登记为 gateway 旁路。完整蓝图验收仍 active。 |
+| SPA 与总计划 | SPA 当前浏览器落在 `127.0.0.1:5273/`，无认证会话；未对线上蓝图或业务数据执行写入。 | 电脑操作规范禁止自动化认证表单；需用户手动登录后继续只读切换烟测。B1、数据库目录、数据字典排序等历史验收仅按各自历史条目引用。旧应用 00BE target、`_Base_DictData` 动态选项消费、数据库/配置/代码消费者完整删除引用合同、AI system prompt 部署绑定、B2 登记/测试/删除回执、物理表/视图预览 direct GetData、WorkflowDesigns 文件读取、C/E pending 与 D 权限专题 deferred 仍开放。 |
+
+以下历史条目保留各阶段当时状态；若与上表或较新的实施条目不一致，以最近的源码复核为当前状态。代码/夹具结果不冒充部署成功。
 
 ## 2026-10-21 一页一循环：服务器管理（service-management-page）
 
@@ -2237,13 +2249,13 @@ flowchart TD
 - **SPA烟测：**在同一登录 SPA 标签通过应用导航进入“数据空间管理”，只读打开“新增凭证”设计器，确认 6 个模型及“尚无视图配置”页面正常出现，关闭后返回 `/dev`；蓝图仍显示 41 页面及“蓝图已就绪”。未保存、创建、删除业务数据，也未触发工具目录预览查询。因此真实 SPA 验证覆盖设计会话装载/关闭，不证明服务端 ProjectToolCatalog 查询或保存回执。
 - **状态与剩余缺口：**本切片仅移除数据空间设计工具目录这一读取旁路；Planning/PageDesign Agent Run 的 gateway 树输入、ProjectWorkspace 更新后读回责任、桌面显示关联、AI填表与其它蓝图整树提交合同仍开放，整体“开发工作台按参考仓项目蓝图整合、所有数据只走 SPARK data”继续 active。未改 Java、未改 ClassModel 产物、未发生线上业务写入；代码尚待提交/推送。
 
-### 2026-10-27 ProjectPlanning Agent Run 蓝图输入改走正式 DataView
+### 2026-10-27 ProjectPlanning Agent Run 蓝图输入改走正式 DataView（输入链历史验收）
 
 - **实施：**`prepareProjectPlanningAgentRun` 不再调用 `ProjectWorkspace.loadBlueprint()` / `blueprintGateway.loadRoot()`。它为正式 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 创建独立 `PageRuntime`，通过 `loadLowcodeRuntimeScenario({projectId, scenarioId})` 装配正式 DataSet，由 `BlueprintWorkspaceDataView` 查询完整项目树，并调用既有 `synchronizeProjectPlanningTreeFromDataView` 作为本次 Agent 输入。查询失败时不激活 workflow；DataView owner 与 Runtime 均在准备阶段的 `finally` 释放。未将已释放 owner 传给写门面，蓝图保存继续由既有 DataView 命令限制 fail closed。
 - **TDD与主控验证：**RED/GREEN 原始记录为 `notes/evidence/project-blueprint/project-planning-agent-run-provider.RED.txt`、`notes/evidence/project-blueprint/project-planning-agent-run-provider.GREEN.txt`。主控独立重跑目标测试 **6/6**，改动文件 ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules` 及 `git diff --check` 通过；ClassModel 子集 **49 tests passed**。AI model spec 保留既有 **2 warnings / 1 info**，扫描通过。没有新增公开 ClassModel 合同。
-- **边界与下一步：**测试使用 DataView/Runtime 夹具，不证明实际服务上的正式查询、权限行集或 Agent Run 运行效果；本切片未在 SPA 发起 AI 运行，未写线上蓝图。ProjectPlanning 的 Agent 输出仍写入隔离 `ProjectWorkspace`，当前非单叶或无 DataView 命令 owner 的持久化继续拒绝；没有启用 headless DataView 写入。PageDesign headless Agent Run 全仓无生产调用者，仍经 gateway 读树，先登记为未启用路径，不为其创建新调用链。ProjectWorkspace 更新后读回、完整多节点保存、桌面显示关联、AI填表及其余参考蓝图闭环继续开放；总体工作台蓝图整合仍 active。无 Java 修改、无业务写入；代码已提交并推送于 `ba214d075`。
+- **当时边界与下一步（后续 ProjectPlanning 写入能力以本台账较新条目为准）：**测试使用 DataView/Runtime 夹具，不证明实际服务上的正式查询、权限行集或 Agent Run 运行效果；该切片未在 SPA 发起 AI 运行，未写线上蓝图。当时 ProjectPlanning 的 Agent 输出仍写入隔离 `ProjectWorkspace`；之后已增加有界 DataView 同父多叶新增和单叶字段更新，完整 mixed diff 仍拒绝。PageDesign headless Agent Run 全仓无生产调用者，未启用路径仍不为其创建新调用链。桌面显示关联、AI 填表及其余参考蓝图闭环继续开放；总体工作台蓝图整合仍 active。无 Java 修改、无业务写入；代码已提交并推送于 `ba214d075`。
 
-### 2026-10-27 DevSystem NavHost 项目切换实施计划
+### 2026-10-27 DevSystem NavHost 项目切换实施计划（历史计划基线，已由后续实现条目更新）
 
 - **用户确认的动作：**从 DevSystem 当前导航宿主候选中选择项目后，切换正在编辑的 ProjectWorkspace；不只是更新路由 query。
 - **参考结构复核：**参考 NavHost 是菜单模块上的动态目录上下文。关系映射使用 `dataSetId + DataName` 定位资源、`selectValParam/selectTextParam` 映射候选值/文本、`ValParamName/TextParamName` 定义输出参数，可选 `selectPid` 定义目录层级。它能提供 `projectId` 候选，但不会替代 DevSystem 的项目切换守卫。
@@ -2255,13 +2267,13 @@ flowchart TD
 - **真实 SPA 烟测：**先观察到登录错误提示，随后 SPA 异步进入已认证应用列表，登录态显示王涛。通过已知路由 `.../t/NewApp/D99A1DCE9894698799101EFD70F8FC76/dev?__sparkNavigationId=appworks-tool-dev` 打开 DevSystem；蓝图显示 41 页面。NavHost 关系 DataView 按该路由导航身份查询后返回 0 行，界面明确提示“当前导航未配置项目切换关系”，项目选择入口保持关闭。未猜测替代导航身份、未创建/修改关系、未触发候选读取或项目切换；故真实成功切换、目标 ProjectWorkspace 装载及旧 owner 释放仍未验收，没有业务数据或配置写入。需先在正式 NavHost 配置中为该导航提供有效平面项目关系。
 - **当前状态：**本切片实现和自动化门禁通过；真实 SPA 已证实“宿主关系缺失时关闭项目选择”的 fail-closed 路径，成功切换路径因无对应关系未验收。代码已提交并推送；开发工作台整体蓝图整合仍 active，Planning/PageDesign gateway 树输入、更新后读回、多节点保存、桌面显示关联及 AI 填表等既有缺口不因本切片关闭。
 
-### 2026-10-27 NavHost `selectPid` 层级候选继续实施
+### 2026-10-27 NavHost `selectPid` 层级候选继续实施（阶段记录，后续已完成）
 
 - **参考合同：**定位到参考仓 `packages/ui/domain/admin-shell/src/data-directory/catalog.ts` 与 `navigation-context-selector.vue`。`selectPid` 映射候选资源中的 parent ID 字段；配置时以 `{id, text, pid}` 建树并用树选择器呈现；所选 ID 仍是 `selectValParam` 映射值，文本来自 `selectTextParam`。本仓适配只切换当前 `ProjectWorkspace`，不照搬参考仓把 route query 当作 DevSystem 项目切换。
 - **复用/纠正：**仓内正式 `RendererTree` 绑定 DataView，使用 DataView `treeConfig` 构造/呈现树并通过标准树事件维护选中行；先按 ClassModel 与实际运行合同复核。参考 `buildCatalogTree` 对重复 ID 覆盖、孤儿提升根节点、循环链路消失，本仓实现必须检测并关闭异常层级，不能复制这类缺陷。
-- **当前工作：**低价模型实施者受托检查参考合同并 TDD 实现完整 `selectPid`；需求简报 `notes/evidence/project-blueprint/navhost-project-hierarchy-brief.md`。仅允许修改选择器子目录、对应测试与 RED/GREEN 证据，主控复核。不得写线上配置或业务数据，不改 Java。
-- **真实环境限制：**`appworks-tool-dev` 当前正式 NavHost 关系 DataView 为 0 行；实现中层级成功路径用自动化合同验证，不把它伪报为真实 SPA 成功。有效配置读回后再做成功切换烟测。
-- **状态：**层级实现进行中；按用户要求中间台账与成果分段提交推送。整体目标仍 active。
+- **当时工作：**低价模型实施者受托检查参考合同并 TDD 实现完整 `selectPid`；需求简报 `notes/evidence/project-blueprint/navhost-project-hierarchy-brief.md`。仅允许修改选择器子目录、对应测试与 RED/GREEN 证据，主控复核。不得写线上配置或业务数据，不改 Java。后续完成证据见紧邻下方的主控复核条目。
+- **当时真实环境限制：**`appworks-tool-dev` 正式 NavHost 关系 DataView 最近一次已认证查询为 0 行；实现中层级成功路径用自动化合同验证，不把它伪报为真实 SPA 成功。当前 SPA 会话状态见文首复核表。
+- **当时状态：**层级实现进行中；按用户要求中间台账与成果分段提交推送。下方主控复核条目已记录后续完成状态，整体目标仍 active。
 
 ### 2026-10-27 NavHost `selectPid` 层级候选完成主控复核
 
@@ -2307,7 +2319,7 @@ flowchart TD
 - **数据命令：**复用当前 `BlueprintWorkspaceDataView` owner 定位稳定 nodeId，调用既有 `updateNodeData` 完成逐字段输出、行读写权限与 validator 预检并写入 DataView 编辑覆盖，再由 `saveSelectedNode` 仅提交原 `rowid` 经 `DataSet.saveChanges` 保存。对回读树逐项核身份、父关系、叶子形态及提交字段，全部匹配后才同步 ProjectBlueprint 完成状态；不增加 gateway、数组草稿或第二保存器。
 - **未知/恢复与 SPA 生命周期：**原 owner 保留未确认的 rowid/patch。unknown 时保留待核验状态且同一 Agent Run 不得重放。正式回执已接受但 refresh 失败时，重试路径只 refresh 并比较原 patch，不再次 save；`#unconfirmedIds` 纳入 `dirty` 与 `hasPendingBlueprintCommand`，让当前 DevSystem 路由离开守卫与项目切换保护继续持有原 owner，核验完成后清除。
 - **TDD和主控验收：**RED/GREEN 及类型检查记录见 `notes/evidence/project-blueprint/planning-single-update*`。主控在冻结代码上独立重跑完整 `grouped-planning-contract.test.ts` 与 `blueprint-workspace-delivery.test.ts`：**2 files / 56 tests passed**；全仓 `pnpm run typecheck`、四个改动 TS 文件 ESLint、完整 `pnpm run verify:rules`、`git diff --check` 通过。规则扫描保持既有 AI model spec **2 warnings / 1 info**，本次无 ClassModel/Java 修改。
-- **SPA烟测与状态：**当前 in-app browser 被路由至 `127.0.0.1:5273/` 平台首页，未保留登录态；未发起 AI、未写线上蓝图。真实服务更新/回执/读回仍未验证。电脑操作规范禁止自动化认证对话框；真实写烟测还需登录后的专用测试项目和目标叶节点。此前 DevSystem `appworks-tool-dev` NavHost 关系仍查得 0 行，真实项目切换也未验收。代码先提交并推送供审阅；开发工作台按参考仓项目蓝图整合目标继续 active。
+- **SPA烟测与状态：**本条记录的代码与自动化验收已完成；真实服务更新/回执/读回仍未验证。电脑操作规范禁止自动化认证对话框。后来用户确认开发阶段可任选开发项目进行只读切换烟测；写入测试仍需有明确目标和回退/保留范围。DevSystem `appworks-tool-dev` NavHost 最近一次已认证查询为 0 行；当前未认证状态见本台账最新入口及 `devsystem-project-switch-live-smoke-20261027.txt`。代码先提交并推送供审阅；开发工作台按参考仓项目蓝图整合目标继续 active。
 
 ### 2026-10-27 DevSystem 项目选择动作与真实烟测状态
 

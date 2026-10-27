@@ -3014,7 +3014,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-10-26T23:46:41.878Z"
+      "sourceModifiedAt": "2026-10-27T06:53:23.786Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3044,7 +3044,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json",
-      "sourceModifiedAt": "2026-10-19T02:39:36.641Z"
+      "sourceModifiedAt": "2026-10-27T06:00:44.752Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts",
@@ -3309,7 +3309,7 @@
     "packages/spark-project-model/src/page-tool/project-tool-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
       "shardFile": "files/packages/spark-project-model/src/page-tool/project-tool-resource.ts.json",
-      "sourceModifiedAt": "2026-10-13T20:02:34.078Z"
+      "sourceModifiedAt": "2026-10-27T02:38:09.204Z"
     },
     "packages/spark-project-model/src/page/compile-files.ts": {
       "sourceFile": "packages/spark-project-model/src/page/compile-files.ts",
@@ -3639,7 +3639,7 @@
     "src/lowcode/data-space/lowcode-data-space-design.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-design.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-design.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:20.275Z"
+      "sourceModifiedAt": "2026-10-27T02:34:59.149Z"
     },
     "src/lowcode/data-space/lowcode-data-space-layout.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-layout.ts",
@@ -3654,7 +3654,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:20.319Z"
+      "sourceModifiedAt": "2026-10-27T02:57:32.671Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -3809,7 +3809,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-23T19:01:45.317Z"
+      "sourceModifiedAt": "2026-10-27T03:03:01.462Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4014,7 +4014,7 @@
     "src/lowcode/resources/shared/page-tool-files-command.ts": {
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "shardFile": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:44:42.528Z"
+      "sourceModifiedAt": "2026-10-27T05:26:22.524Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
@@ -4079,7 +4079,7 @@
     "src/services/page-design/page-design-agent-run-provider.ts": {
       "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
       "shardFile": "files/src/services/page-design/page-design-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:40:41.462Z"
+      "sourceModifiedAt": "2026-10-27T05:24:50.534Z"
     },
     "src/services/page-design/page-design-agent-workflow-binding.ts": {
       "sourceFile": "src/services/page-design/page-design-agent-workflow-binding.ts",
@@ -4089,7 +4089,7 @@
     "src/services/page-design/page-design-ai-runner.ts": {
       "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
       "shardFile": "files/src/services/page-design/page-design-ai-runner.ts.json",
-      "sourceModifiedAt": "2026-10-15T10:18:58.702Z"
+      "sourceModifiedAt": "2026-10-27T05:16:21.541Z"
     },
     "src/services/page-design/page-design-gates.ts": {
       "sourceFile": "src/services/page-design/page-design-gates.ts",
@@ -4119,22 +4119,27 @@
     "src/services/project-planning/project-planning-agent-run-provider.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-run-provider.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:56:03.048Z"
+      "sourceModifiedAt": "2026-10-27T03:16:01.399Z"
     },
     "src/services/project-planning/project-planning-agent-workflow-binding.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json",
-      "sourceModifiedAt": "2026-10-27T01:08:35.448Z"
+      "sourceModifiedAt": "2026-10-27T07:56:06.631Z"
     },
     "src/services/project-planning/project-planning-ai-runner.ts": {
       "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
       "shardFile": "files/src/services/project-planning/project-planning-ai-runner.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:56:07.815Z"
+      "sourceModifiedAt": "2026-10-27T01:28:02.467Z"
     },
     "src/services/project-planning/project-planning-attachments.ts": {
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
       "shardFile": "files/src/services/project-planning/project-planning-attachments.ts.json",
       "sourceModifiedAt": "2026-08-09T22:51:40.575Z"
+    },
+    "src/services/project-planning/project-planning-blueprint-diff.ts": {
+      "sourceFile": "src/services/project-planning/project-planning-blueprint-diff.ts",
+      "shardFile": "files/src/services/project-planning/project-planning-blueprint-diff.ts.json",
+      "sourceModifiedAt": "2026-10-27T02:02:14.173Z"
     },
     "src/services/project-planning/project-planning-headless.ts": {
       "sourceFile": "src/services/project-planning/project-planning-headless.ts",
@@ -4194,7 +4199,7 @@
     "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:16:58.421Z"
+      "sourceModifiedAt": "2026-10-27T07:54:59.712Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
@@ -4264,7 +4269,7 @@
     "src/views/app/dev-system/composables/useDevFileEditor.ts": {
       "sourceFile": "src/views/app/dev-system/composables/useDevFileEditor.ts",
       "shardFile": "files/src/views/app/dev-system/composables/useDevFileEditor.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:24:31.797Z"
+      "sourceModifiedAt": "2026-10-27T05:34:04.264Z"
     },
     "src/views/app/dev-system/composables/useNodeKindFlags.ts": {
       "sourceFile": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
@@ -4299,7 +4304,17 @@
     "src/views/app/dev-system/DevSystem.vue": {
       "sourceFile": "src/views/app/dev-system/DevSystem.vue",
       "shardFile": "files/src/views/app/dev-system/DevSystem.vue.json",
-      "sourceModifiedAt": "2026-10-15T12:14:06.435Z"
+      "sourceModifiedAt": "2026-10-27T04:30:32.501Z"
+    },
+    "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts": {
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts",
+      "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json",
+      "sourceModifiedAt": "2026-10-27T04:56:13.667Z"
+    },
+    "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+      "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
+      "sourceModifiedAt": "2026-10-27T04:51:21.675Z"
     },
     "src/views/app/dev-system/ProjectBlueprintTree.vue": {
       "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
@@ -4314,12 +4329,12 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:33:32.579Z"
+      "sourceModifiedAt": "2026-10-27T06:38:16.580Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
       "shardFile": "files/src/views/app/dev-system/useDevSystem.ts.json",
-      "sourceModifiedAt": "2026-10-06T20:41:26.766Z"
+      "sourceModifiedAt": "2026-10-27T06:38:25.146Z"
     },
     "src/views/app/RFormCompareDemo.vue": {
       "sourceFile": "src/views/app/RFormCompareDemo.vue",
@@ -4444,7 +4459,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-24T09:50:45.341Z"
+      "sourceModifiedAt": "2026-10-27T02:34:51.433Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",

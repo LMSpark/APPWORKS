@@ -27,7 +27,7 @@ export type BlueprintNodeFormData=Omit<ProjectBlueprintTreeNodeData,'capability'
   prototype?:OptionalFormFields<NonNullable<ProjectBlueprintTreeNodeData['prototype']>>|undefined
 }
 
-/** Stable row identity and wire fields for one preflighted leaf in a same-parent batch. */
+/** Stable row identity and wire fields for one preflighted leaf. */
 export type BlueprintChildNodeCreate=Readonly<{
   /** Stable explicit row identity, unique within the current project and this command. */
   nodeId:string
@@ -35,9 +35,13 @@ export type BlueprintChildNodeCreate=Readonly<{
   fields:Readonly<Record<string,unknown>>
 }>
 
-type PendingChildCreateBatch=Readonly<{
+/** A preflighted leaf row whose parent is an existing row in the current DataView. */
+export type BlueprintChildNodeCreateAtParent=BlueprintChildNodeCreate&Readonly<{
   parentNodeId:string
-  children:readonly BlueprintChildNodeCreate[]
+}>
+
+type PendingChildCreateBatch=Readonly<{
+  children:readonly BlueprintChildNodeCreateAtParent[]
   ids:ReadonlyArray<string|number>
   expected:ReadonlyMap<string|number,Readonly<Record<string,unknown>>>
   state:'unknown'|'accepted'|'not-applied'|'blocked'
@@ -374,19 +378,35 @@ export class BlueprintWorkspaceDataView {
 
   /** Preflight and submit several stable leaf IDs under one existing parent in one DataSet batch. */
   public async addChildNodes(parentNodeId:string,children:readonly BlueprintChildNodeCreate[]):Promise<ReadonlyArray<string|number>>{
-    this.assertUsable()
     const parentId=parentNodeId.trim()
-    if(!parentId||children.length<2)throw new Error('蓝图 DataView 批量新增至少需要两个同父叶节点')
+    if(!parentId||parentId!==parentNodeId)throw new Error('蓝图 DataView 批量新增父节点身份无效')
+    return this.addChildNodesAcrossParents(children.map(child=>({...child,parentNodeId:parentId})))
+  }
+
+  /** Preflight and submit stable leaf IDs under multiple existing parents in one DataSet batch. */
+  public async addChildNodesAcrossParents(children:readonly BlueprintChildNodeCreateAtParent[]):Promise<ReadonlyArray<string|number>>{
+    this.assertUsable()
+    if(children.length<2)throw new Error('蓝图 DataView 批量新增至少需要两个叶节点')
     if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)throw new Error('蓝图 DataView 正在保存或存在原子节点命令待核验')
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载完整项目树，不能批量新增')
-    const parent=this.requireCurrentParent(parentId)
-    if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error('蓝图 DataView 未返回可识别的所选父节点')
-    if(this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 当前查询不允许在所选父节点下新增子节点')
+    const parents=new Map<string,DataRow>()
+    for(const child of children){
+      const parentId=child.parentNodeId.trim()
+      if(!parentId||parentId!==child.parentNodeId)throw new Error('蓝图 DataView 批量新增父节点身份无效')
+      if(parents.has(parentId))continue
+      const parent=this.requireCurrentParent(parentId)
+      if(parent['SysId']!==this.#projectId||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible')throw new Error(`蓝图 DataView 未返回可识别的所选父节点 ${parentId}`)
+      if(this.view.createChildActionState(parent)!=='enabled')throw new Error(`蓝图 DataView 当前查询不允许在父节点 ${parentId} 下新增子节点`)
+      parents.set(parentId,parent)
+    }
 
     const existingIds=new Set(this.view.rows.filter(row=>row['SysId']===this.#projectId).map(row=>String(row['rowid']??'').trim()))
     const seen=new Set<string>()
     const expectedEntries=children.map(child=>{
+      const parentId=child.parentNodeId
+      const parent=parents.get(parentId)
+      if(!parent)throw new Error(`蓝图 DataView 批量新增父节点不在原查询行集中：${parentId}`)
       const id=child.nodeId.trim()
       if(!id||id!==child.nodeId||existingIds.has(id)||seen.has(id))throw new Error(`蓝图 DataView 批量新增稳定 rowid 缺失或重复：${child.nodeId}`)
       seen.add(id)
@@ -394,35 +414,42 @@ export class BlueprintWorkspaceDataView {
       if(!this.hasOutput('rowid')||this.view.fieldAccess(parent,'rowid').read!=='visible')throw new Error('蓝图 DataView 未正式输出可读的稳定 rowid')
       const expected:Record<string,unknown>={...checked,rowid:id}
       if(expected['rowid']!==id||expected['SysId']!==this.#projectId||expected['prowid']!==parentId)throw new Error(`蓝图 DataView 批量新增目标身份或父节点不匹配：${id}`)
-      return {id,expected}
+      return {id,parentId,parent,expected}
     })
     const ids=expectedEntries.map(item=>item.id)
     const expected=new Map(expectedEntries.map(item=>[item.id,Object.freeze({...item.expected})]))
     const added:string[]=[]
     try{
       for(const item of expectedEntries){
-        const created=await this.view.addChildRow({parentRow:parent,parentField:'rowid',childForeignKey:'prowid',
+        const created=await this.view.addChildRow({parentRow:item.parent,parentField:'rowid',childForeignKey:'prowid',
           identity:{field:'rowid',value:item.id},data:Object.fromEntries(Object.entries(item.expected).filter(([field])=>field!=='prowid'&&field!=='rowid'))})
         if('success' in created)throw new Error(`蓝图 DataView 未准备批量新增行 ${item.id}`)
         const actualId=this.view.getPkKey(created)
         if((typeof actualId==='string'||typeof actualId==='number')&&this.view.dirtyTracking.hasPendingChanges(String(actualId)))added.push(String(actualId))
-        if(actualId!==item.id||created['rowid']!==item.id||created['SysId']!==this.#projectId||created['prowid']!==parentId
+        if(actualId!==item.id||created['rowid']!==item.id||created['SysId']!==this.#projectId||created['prowid']!==item.parentId
           ||Object.entries(item.expected).some(([field,value])=>!sameWireValue(created[field],value))){
           throw new Error(`蓝图 DataView owner 未准备身份匹配的批量新增行 ${item.id}`)
         }
       }
     }catch(error){
       let rollbackError:unknown
-      for(const id of added.reverse())try{await this.view.removeRow(id)}catch(cause){rollbackError=cause}
+      for(const id of added.reverse())try{
+        const result=await this.view.removeRow(id)
+        const succeeded=typeof result==='boolean'?result:result.success&&result.data!==false
+        if(!succeeded||this.view.rows.some(row=>this.view.getPkKey(row)===id)
+          ||this.view.dirtyTracking.hasPendingChanges(String(id))){
+          rollbackError=new Error(`DataView removeRow 未确认清除新增草稿 ${id}`)
+        }
+      }catch(cause){rollbackError=cause}
       if(rollbackError!==undefined){
-        this.#pendingChildBatch=Object.freeze({parentNodeId:parentId,children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
+        this.#pendingChildBatch=Object.freeze({children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
           ids:Object.freeze(ids),expected,state:'blocked'})
         throw new Error(`蓝图批量新增暂存失败且草稿回滚未确认；原命令已锁定：${String(rollbackError)}`)
       }
       throw error
     }
 
-    this.#pendingChildBatch=Object.freeze({parentNodeId:parentId,
+    this.#pendingChildBatch=Object.freeze({
       children:Object.freeze(children.map(child=>Object.freeze({...child,fields:Object.freeze({...child.fields})}))),
       ids:Object.freeze(ids),expected,state:'unknown'})
     try{
@@ -490,6 +517,11 @@ export class BlueprintWorkspaceDataView {
       const patch=pending.expected.get(id)
       const row=matches.at(0)
       if(matches.length!==1||!patch||!row)throw new Error(`蓝图 DataView 批量新增回读缺少唯一目标 ${String(id)}`)
+      const command=pending.children.find(child=>child.nodeId===String(id))
+      if(!command||row['prowid']!==command.parentNodeId){
+        this.#pendingChildBatch=Object.freeze({...pending,state:'blocked'})
+        throw new Error(`蓝图 DataView 批量新增正式回读父身份不一致：${String(id)}`)
+      }
       if(Object.keys(patch).some(field=>this.view.fieldAccess(row,field).read!=='visible'||!Object.hasOwn(row,field)||!sameWireValue(row[field],patch[field]))){
         this.#pendingChildBatch=Object.freeze({...pending,state:'blocked'})
         throw new Error(`蓝图 DataView 批量新增逐行 wire 回读不一致：${String(id)}`)
@@ -500,9 +532,14 @@ export class BlueprintWorkspaceDataView {
 
   private assertPendingChildBatchReadyForRetry(pending:PendingChildCreateBatch):void{
     if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 原批次重试前必须先核验任何未知回执')
-    const parent=this.requireCurrentParent(pending.parentNodeId)
-    if(this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible'
-      ||this.view.createChildActionState(parent)!=='enabled')throw new Error('蓝图 DataView 原批次重试的父身份或当次新增权限不可确认')
+    const parents=new Map<string,DataRow>()
+    for(const child of pending.children){
+      if(parents.has(child.parentNodeId))continue
+      const parent=this.requireCurrentParent(child.parentNodeId)
+      if(parent['SysId']!==this.#projectId||this.view.fieldAccess(parent,'rowid').read!=='visible'||this.view.fieldAccess(parent,'SysId').read!=='visible'
+        ||this.view.createChildActionState(parent)!=='enabled')throw new Error(`蓝图 DataView 原批次重试的父身份或当次新增权限不可确认：${child.parentNodeId}`)
+      parents.set(child.parentNodeId,parent)
+    }
     const targetIds=new Set(pending.ids)
     for(const row of this.view.rows){
       const id=this.view.getPkKey(row)
@@ -511,9 +548,11 @@ export class BlueprintWorkspaceDataView {
       }
     }
     for(const id of pending.ids){
+      const command=pending.children.find(child=>child.nodeId===String(id))
+      const parent=command===undefined?undefined:parents.get(command.parentNodeId)
       const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===id)
       const expected=pending.expected.get(id)
-      if(!row||!expected||!this.view.dirtyTracking.hasPendingChanges(id)
+      if(!row||!command||!parent||!expected||!this.view.dirtyTracking.hasPendingChanges(id)
         ||Object.entries(expected).some(([field,value])=>!Object.hasOwn(row,field)||!sameWireValue(row[field],value))){
         throw new Error(`蓝图 DataView 原批次重试的稳定ID或字段快照已变化：${String(id)}`)
       }

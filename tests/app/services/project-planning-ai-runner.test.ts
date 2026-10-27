@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { ProjectBlueprint, ProjectWorkspace, type ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 import {
   createAiRunAdapter,
   type AiRunAdapterState,
@@ -320,6 +320,78 @@ describe('runProjectPlanningAiSession', () => {
       expect.objectContaining({nodeId: 'planned-a'}), expect.objectContaining({nodeId: 'planned-b'}),
     ]))
     expect(current.children.map(node => node.nodeId)).toEqual(['orders', 'planned-a', 'planned-b'])
+  })
+
+  it('submits leaves under multiple existing parents as one DataView batch', async () => {
+    const editor = createEditor('demo')
+    const existing = editor.project.blueprintTree
+    const rootChild: ProjectBlueprintTreeNodeData = {
+      nodeId: 'root-page', parentNodeId: existing.nodeId, projectId: 'demo', kind: 'page',
+      capability: { name: 'Root page' }, source: {},
+      navigation: { title: 'Root page', order: 0, publishInMenu: true, showChildren: true, beginGroup: false },
+    }
+    const branch: ProjectBlueprintTreeNodeData = {
+      nodeId: 'branch', parentNodeId: existing.nodeId, projectId: 'demo', kind: 'module',
+      capability: { name: 'Branch' }, source: {}, children: [{
+        nodeId: 'branch-page', parentNodeId: 'branch', projectId: 'demo', kind: 'page',
+        capability: { name: 'Branch page' }, source: {},
+        navigation: { title: 'Branch page', order: 0, publishInMenu: true, showChildren: true, beginGroup: false },
+      }],
+      navigation: { title: 'Branch', order: 1, publishInMenu: true, showChildren: true, beginGroup: false },
+    }
+    const current = { ...existing, children: [rootChild, branch] }
+    editor.project.replaceBlueprintTree(current)
+    editor.project.markBlueprintClean('root')
+    const additions: Array<{ nodeId: string; parentNodeId: string; fields: Record<string, unknown> }> = []
+    let confirmed = current
+    const addChildNodesAcrossParents = vi.fn(async (commands: readonly typeof additions[number][]) => {
+      additions.push(...commands)
+      const rootCommands = commands.filter(command => command.parentNodeId === 'root-page')
+      const nestedCommands = commands.filter(command => command.parentNodeId === 'branch')
+      confirmed = {
+        ...current,
+        children: [
+          {...rootChild, children: rootCommands.map(command => ({
+            nodeId: command.nodeId, parentNodeId: command.parentNodeId, projectId: 'demo', kind: 'page' as const,
+            capability: {name: String(command.fields['name']??'')}, source: {...command.fields,rowid:command.nodeId,SysId:'demo',prowid:command.parentNodeId},
+            navigation:{title:String(command.fields['FunName']??''),order:Number(command.fields['FunOrderValue']??0),publishInMenu:true,showChildren:true,beginGroup:false},
+          }))},
+          {...branch, children:[...(branch.children??[]),...nestedCommands.map(command=>({
+            nodeId: command.nodeId, parentNodeId: command.parentNodeId, projectId: 'demo', kind: 'page' as const,
+            capability: {name: String(command.fields['name']??'')}, source: {...command.fields,rowid:command.nodeId,SysId:'demo',prowid:command.parentNodeId},
+            navigation:{title:String(command.fields['FunName']??''),order:Number(command.fields['FunOrderValue']??0),publishInMenu:true,showChildren:true,beginGroup:false},
+          }))]},
+        ],
+      }
+      return commands.map(command => command.nodeId)
+    })
+    const owner = {
+      projectId: 'demo', hasTreeProjection: true, dirty: false,
+      treeProjection: () => confirmed,
+      view: { queryColumns: BLUEPRINT_WORKSPACE_FIELD_NAMES.map(name => ({ name })) },
+      hasOutput: (field: string) => BLUEPRINT_WORKSPACE_FIELD_NAMES.includes(field as never),
+      addChildNodesAcrossParents,
+    }
+    mocks.projectPlanningRun.mockImplementationOnce(async () => {
+      const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as Parameters<typeof resolveProjectPlanningDomainRoot>[0]
+      const root = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      const requested = [
+        {...rootChild, children:[{nodeId:'root-new',parentNodeId:rootChild.nodeId,projectId:'demo',kind:'page' as const,capability:{name:'Root new'},source:{},navigation:{title:'Root new',order:1,publishInMenu:true,showChildren:true,beginGroup:false}}]},
+        {...branch,children:[...(branch.children??[]),{nodeId:'branch-new',parentNodeId:branch.nodeId,projectId:'demo',kind:'page' as const,capability:{name:'Branch new'},source:{},navigation:{title:'Branch new',order:1,publishInMenu:true,showChildren:true,beginGroup:false}}]},
+      ]
+      await Promise.resolve(root.replaceBlueprintChildren({children:requested}))
+      expect(root.completeProjectPlanning()).toMatchObject({ok:true,completed:true})
+      return createRunResult()
+    })
+
+    await expect(runProjectPlanningAiSession({editor,blueprintDataView:owner as never,saveBlueprintAfterRun:true})).resolves.toBeDefined()
+
+    expect(owner.addChildNodesAcrossParents).toHaveBeenCalledOnce()
+    expect(additions.map(command=>[command.nodeId,command.parentNodeId])).toEqual([
+      ['root-new','root-page'],['branch-new','branch'],
+    ])
+    expect(confirmed.children.find(node=>node.nodeId==='root-page')?.children?.map(node=>node.nodeId)).toEqual(['root-new'])
+    expect(confirmed.children.find(node=>node.nodeId==='branch')?.children?.map(node=>node.nodeId)).toEqual(['branch-page','branch-new'])
   })
 
   it('builds planning inputs from the complete DataView tree rather than stale workspace rows', async () => {

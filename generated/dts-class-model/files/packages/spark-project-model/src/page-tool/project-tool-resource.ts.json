@@ -204,6 +204,10 @@
                 },
                 "metadataScenarioId": {
                   "type": "string"
+                },
+                "blueprintTreeProjection": {
+                  "type": "object",
+                  "title": "() => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>"
                 }
               },
               "required": [
@@ -263,7 +267,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-13T20:02:34.078Z",
+  "generatedAt": "2026-10-27T02:38:09.204Z",
   "models": {
     "Executor": {
       "name": "Executor",
@@ -306,7 +310,7 @@
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "每次异步边界核对宿主作用域；元数据空间身份与工具所属应用分别校验。",
-          "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n    }>)",
+          "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n    }>)",
           "parameters": [
             {
               "name": "options",
@@ -316,7 +320,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n    }"
+                    "name": "{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n    }"
                   }
                 ]
               }

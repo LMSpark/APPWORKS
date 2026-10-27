@@ -466,6 +466,89 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('策划多父叶子由 Base_NavigationInfo DataView 一次提交并逐行回读稳定身份与父映射',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),
+    ],'APP-A'),{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
+      await owner.loadProjectTree()
+      const fields=(title:string,id:string)=>({name:title,FunName:title,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+      const ids=await owner.addChildNodesAcrossParents([
+        {nodeId:'MULTI-ROOT',parentNodeId:parentA!.nodeId,fields:fields('Multi Root','MULTI-ROOT')},
+        {nodeId:'MULTI-CHILD',parentNodeId:parentB!.nodeId,fields:fields('Multi Child','MULTI-CHILD')},
+      ])
+
+      expect(ids).toEqual(['MULTI-ROOT','MULTI-CHILD'])
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      const saved=fixture.save.mock.calls[0]?.[0].changes
+      expect(saved).toHaveLength(1)
+      expect(saved?.[0]?.changes.added?.map(row=>[row['rowid'],row['prowid']])).toEqual([
+        ['MULTI-ROOT',parentA!.nodeId],['MULTI-CHILD',parentB!.nodeId],
+      ])
+      expect(owner.view.rows).toEqual(expect.arrayContaining([
+        expect.objectContaining({rowid:'MULTI-ROOT',SysId:'APP-A',prowid:parentA!.nodeId,name:'Multi Root'}),
+        expect.objectContaining({rowid:'MULTI-CHILD',SysId:'APP-A',prowid:parentB!.nodeId,name:'Multi Child'}),
+      ]))
+      expect(owner.hasPendingChildCreate).toBe(false)
+    }finally{ownerScope.stop()}
+  })
+
+  it('多父批次任一父行 c 权限不足时完整预检拒绝且不留下部分草稿',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),
+    ],'APP-A'),{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
+      await owner.loadProjectTree()
+      const action=owner.view.createChildActionState.bind(owner.view)
+      vi.spyOn(owner.view,'createChildActionState').mockImplementation(parent=>parent?.['rowid']===parentB!.nodeId?'disabled':action(parent))
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+
+      await expect(owner.addChildNodesAcrossParents([
+        {nodeId:'DENY-ROOT',parentNodeId:parentA!.nodeId,fields:fields('DENY-ROOT')},
+        {nodeId:'DENY-CHILD',parentNodeId:parentB!.nodeId,fields:fields('DENY-CHILD')},
+      ])).rejects.toThrow(`父节点 ${parentB!.nodeId}`)
+
+      expect(owner.view.dirtyTracking.pendingCreateIds.size).toBe(0)
+      expect(owner.hasPendingChildCreate).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('多父未知部分回执保留原 ID 与父映射并拒绝创建第二批',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),
+    ],'APP-A'),{addAllowed:true,childAllowed:true},true,false,0,1)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
+      await owner.loadProjectTree()
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+      const commands=[
+        {nodeId:'MULTI-PART-A',parentNodeId:parentA!.nodeId,fields:fields('MULTI-PART-A')},
+        {nodeId:'MULTI-PART-B',parentNodeId:parentB!.nodeId,fields:fields('MULTI-PART-B')},
+      ]
+      await expect(owner.addChildNodesAcrossParents(commands)).rejects.toThrow('transport timeout')
+      expect(fixture.save).toHaveBeenCalledTimes(1)
+      expect(owner.hasUnconfirmedSave).toBe(true)
+      await expect(owner.save()).rejects.toThrow(/SPARK_SAVE_UNVERIFIABLE|partial|unknown/iu)
+      expect(fixture.save).toHaveBeenCalledTimes(2)
+      expect(owner.hasPendingChildCreate).toBe(true)
+      expect(owner.view.dirtyTracking.pendingCreateIds).toEqual(new Set(['MULTI-PART-A','MULTI-PART-B']))
+      expect(owner.view.rows.find(row=>row['rowid']==='MULTI-PART-A')?.['prowid']).toBe(parentA!.nodeId)
+      expect(owner.view.rows.find(row=>row['rowid']==='MULTI-PART-B')?.['prowid']).toBe(parentB!.nodeId)
+    }finally{ownerScope.stop()}
+  })
+
   it('批次已受理但正式回读失败时仍阻止 DevSystem 项目切换',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,{addAllowed:true,childAllowed:true})
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -530,6 +613,39 @@ describe('DevState 页面文件闭环', () => {
       ])).rejects.toThrow(/身份匹配|IDENTITY_MISMATCH/iu)
       expect(owner.view.dirtyTracking.pendingCreateIds.size).toBe(0)
       expect(owner.view.rows.some(row=>row['rowid']==='ROLL-A'||row['rowid']==='ROLL-B')).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
+  it('多父批次 rollback 返回 false 时保留 blocked 原命令和可追踪草稿',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),
+    ],'APP-A'),{addAllowed:true,childAllowed:true})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
+      await owner.loadProjectTree()
+      const add=owner.view.addChildRow.bind(owner.view),remove=owner.view.removeRow.bind(owner.view)
+      let calls=0
+      vi.spyOn(owner.view,'addChildRow').mockImplementation(async input=>{
+        const row=await add(input)
+        calls++
+        if(calls===2&&row!==null&&typeof row==='object'&&!('success' in row))row['SysId']='OTHER-APP'
+        return row
+      })
+      vi.spyOn(owner.view,'removeRow').mockImplementation(async id=>id==='ROLLBACK-B'?false:remove(id))
+      const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
+
+      await expect(owner.addChildNodesAcrossParents([
+        {nodeId:'ROLLBACK-A',parentNodeId:parentA!.nodeId,fields:fields('ROLLBACK-A')},
+        {nodeId:'ROLLBACK-B',parentNodeId:parentB!.nodeId,fields:fields('ROLLBACK-B')},
+      ])).rejects.toThrow(/回滚未确认|原命令已锁定/iu)
+
+      expect(owner.hasPendingChildCreate).toBe(true)
+      expect(owner.view.dirtyTracking.pendingCreateIds).toEqual(new Set(['ROLLBACK-B']))
+      expect(owner.view.rows.find(row=>row['rowid']==='ROLLBACK-B')).toMatchObject({rowid:'ROLLBACK-B',prowid:parentB!.nodeId})
       expect(fixture.save).not.toHaveBeenCalled()
     }finally{ownerScope.stop()}
   })

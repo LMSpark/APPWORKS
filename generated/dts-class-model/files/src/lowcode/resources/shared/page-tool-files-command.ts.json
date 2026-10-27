@@ -321,23 +321,56 @@
         }
       }
     },
+    "PageToolFileSaveInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileSaveInput",
+      "properties": {
+        "page": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "text": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "PageToolFilesDataView": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "PageToolFilesDataView",
       "properties": {
         "view": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-data\").DataView"
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "ownerDataSet": {
           "type": "object",
           "title": "DataSet"
         },
+        "saveView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
         "dirty": {
           "type": "boolean"
         },
         "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "hasPendingFileSave": {
           "type": "boolean"
         },
         "hasPendingPageDelete": {
@@ -368,6 +401,19 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageToolFileSaveInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
         },
         "method.create.params": {
           "type": "object",
@@ -494,11 +540,20 @@
         "method.save.return": {
           "type": "object",
           "title": "Promise<void>"
+        },
+        "method.savePageFiles.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.savePageFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-26T22:44:42.528Z",
+  "generatedAt": "2026-10-27T05:26:22.524Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -1032,6 +1087,55 @@
         }
       }
     },
+    "PageToolFileSaveInput": {
+      "name": "PageToolFileSaveInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "PageToolFilesDataView": {
       "name": "PageToolFilesDataView",
       "jsdoc": "File resource command owner; page identity and request guard are captured per command.",
@@ -1094,12 +1198,22 @@
               "writable": false
             },
             {
+              "name": "saveView",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "dirty",
               "readable": true,
               "writable": false
             },
             {
               "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingFileSave",
               "readable": true,
               "writable": false
             },
@@ -1115,6 +1229,29 @@
             }
           ],
           "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileSaveInput",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
             {
               "name": "create",
               "parameters": [
@@ -1304,6 +1441,20 @@
             },
             {
               "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "savePageFiles",
               "parameters": [],
               "type": {
                 "type": "reference",

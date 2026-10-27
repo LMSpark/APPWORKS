@@ -7,10 +7,11 @@
     "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-design",
-    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-design 模块。\n导出 DtsTypeDeclarationModel symbol: ViewDesignAssembleInput, LowcodeDataSpaceDesignSession, LowcodeDataSpaceViewDesign（共 3 个 symbol）。",
+    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-design 模块。\n导出 DtsTypeDeclarationModel symbol: ViewDesignAssembleInput, SessionLoadOptions, LowcodeDataSpaceDesignSession, LowcodeDataSpaceViewDesign（共 4 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
       "ViewDesignAssembleInput",
+      "SessionLoadOptions",
       "LowcodeDataSpaceDesignSession",
       "LowcodeDataSpaceViewDesign"
     ]
@@ -400,13 +401,29 @@
       "title": "SessionLoadOptions",
       "properties": {
         "deferDefinition": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.blueprintTreeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.blueprintTreeProjection.return": {
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>"
+            },
+            {
+              "type": "object",
+              "title": "Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>"
+            }
+          ]
+        }
+      }
     },
     "SessionBindingRemoval": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -478,6 +495,10 @@
         },
         "definitionResource": {
           "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"
+        },
+        "blueprintTreeProjection": {
+          "type": "object",
+          "title": "() => Awaited<ReturnType<ProjectWorkspace[\"previewBlueprintRemote\"]>> | Promise<Awaited<ReturnType<ProjectWorkspace[\"previewBlueprintRemote\"]>>>"
         }
       },
       "required": [
@@ -1287,9 +1308,16 @@
               "type": "object",
               "title": "() => void"
             },
-            "subscribe": {
+            "options": {
               "type": "object",
-              "title": "(listener: () => void) => () => void"
+              "properties": {
+                "subscribe": {
+                  "type": "object",
+                  "title": "(listener: () => void) => () => void"
+                },
+                "blueprintTreeProjection": true
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -1335,7 +1363,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T19:01:45.317Z",
+  "generatedAt": "2026-10-27T03:03:01.462Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1781,11 +1809,11 @@
       "jsdoc": "当前会话的加载阶段；省略时完成目标定义装配后交付。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1796,6 +1824,56 @@
               "jsdoc": "先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "blueprintTreeProjection",
+              "jsdoc": "由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "Awaited",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ReturnType",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "ProjectWorkspace['previewBlueprintRemote']"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Awaited",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "ReturnType",
+                            "typeArguments": [
+                              {
+                                "type": "unknown",
+                                "name": "ProjectWorkspace['previewBlueprintRemote']"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }
@@ -1831,11 +1909,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n}>",
+        "declarationTypeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n    blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n}>",
+            "typeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n    blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1863,6 +1941,11 @@
             },
             {
               "name": "definitionResource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintTreeProjection",
               "readable": true,
               "writable": false
             }
@@ -3226,48 +3309,16 @@
                   }
                 },
                 {
-                  "name": "subscribe",
+                  "name": "options",
                   "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [
-                            {
-                              "name": "listener",
-                              "type": {
-                                "type": "reflection",
-                                "declaration": {
-                                  "signatures": [
-                                    {
-                                      "parameters": [],
-                                      "type": {
-                                        "type": "intrinsic",
-                                        "name": "void"
-                                      }
-                                    }
-                                  ]
-                                }
-                              }
-                            }
-                          ],
-                          "type": {
-                            "type": "reflection",
-                            "declaration": {
-                              "signatures": [
-                                {
-                                  "parameters": [],
-                                  "type": {
-                                    "type": "intrinsic",
-                                    "name": "void"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      ]
-                    }
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        subscribe?: (listener: () => void) => () => void;\n        blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection'];\n    }"
+                      }
+                    ]
                   },
                   "flags": {
                     "isOptional": true

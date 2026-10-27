@@ -77,8 +77,9 @@ describe('NavHost project picker hierarchy rendering', () => {
       {rowid: 'row-p', code: 'P', name: 'Parent', parent: ''},
       {rowid: 'row-c', code: 'C', name: 'Child', parent: 'P'},
     ])
+    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {
-      props: {state: {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn()} as never},
+      props: {state: state as never},
       global: {stubs: {
         'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}),
         'el-button': true,
@@ -93,7 +94,6 @@ describe('NavHost project picker hierarchy rendering', () => {
     const candidateRuntime = runtimeState.runtimes.find(item => item.scenarioIds[0] === 'projects')
     expect(runtimeState.provided).toContainEqual({key: runtimeState.token, value: candidateRuntime})
     expect(tree.attributes('data-candidates')).toBeUndefined()
-    const state = wrapper.props('state') as {openEditingProject: ReturnType<typeof vi.fn>}
     runtimeState.projectView.currentRow = runtimeState.projectView.rows[1]
     await tree.trigger('click')
     const openButton = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '打开所选项目')

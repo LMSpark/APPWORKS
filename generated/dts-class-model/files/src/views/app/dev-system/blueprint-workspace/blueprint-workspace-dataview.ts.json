@@ -12,6 +12,7 @@
     "symbols": [
       "BlueprintNodeFormData",
       "BlueprintChildNodeCreate",
+      "BlueprintChildNodeCreateAtParent",
       "BlueprintWorkspaceDataView"
     ]
   },
@@ -97,6 +98,30 @@
       "required": [
         "nodeId",
         "fields"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintChildNodeCreateAtParent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintChildNodeCreateAtParent",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "parentNodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodeId",
+        "fields",
+        "parentNodeId"
       ],
       "additionalProperties": false
     },
@@ -262,6 +287,22 @@
           "additionalProperties": false
         },
         "method.addChildNodes.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<string | number>>"
+        },
+        "method.addChildNodesAcrossParents.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BlueprintChildNodeCreateAtParent"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildNodesAcrossParents.return": {
           "type": "object",
           "title": "Promise<ReadonlyArray<string | number>>"
         },
@@ -461,7 +502,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T06:27:15.211Z",
+  "generatedAt": "2026-10-27T07:54:59.712Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -517,7 +558,7 @@
     },
     "BlueprintChildNodeCreate": {
       "name": "BlueprintChildNodeCreate",
-      "jsdoc": "Stable row identity and wire fields for one preflighted leaf in a same-parent batch.",
+      "jsdoc": "Stable row identity and wire fields for one preflighted leaf.",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** Stable explicit row identity, unique within the current project and this command. */\n    nodeId: string;\n    /** Candidate formal wire fields; the current DataView validates every field before staging. */\n    fields: Readonly<Record<string, unknown>>;\n}>",
@@ -539,6 +580,35 @@
             {
               "name": "fields",
               "jsdoc": "Candidate formal wire fields; the current DataView validates every field before staging.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintChildNodeCreateAtParent": {
+      "name": "BlueprintChildNodeCreateAtParent",
+      "jsdoc": "A preflighted leaf row whose parent is an existing row in the current DataView.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "BlueprintChildNodeCreate & Readonly<{\n    parentNodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "BlueprintChildNodeCreate",
+            "targetName": "BlueprintChildNodeCreate"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    parentNodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentNodeId",
               "readable": true,
               "writable": false
             }
@@ -819,6 +889,41 @@
                   "type": {
                     "type": "unknown",
                     "name": "readonly BlueprintChildNodeCreate[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addChildNodesAcrossParents",
+              "jsdoc": "Preflight and submit stable leaf IDs under multiple existing parents in one DataSet batch.",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly BlueprintChildNodeCreateAtParent[]"
                   }
                 }
               ],

@@ -14171,6 +14171,7 @@
         "symbols": [
           "BlueprintNodeFormData",
           "BlueprintChildNodeCreate",
+          "BlueprintChildNodeCreateAtParent",
           "BlueprintWorkspaceDataView"
         ]
       }
@@ -17122,6 +17123,10 @@
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
     "BlueprintChildNodeCreate": {
+      "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
+      "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
+    },
+    "BlueprintChildNodeCreateAtParent": {
       "sourcePath": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "file": "files/src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json"
     },

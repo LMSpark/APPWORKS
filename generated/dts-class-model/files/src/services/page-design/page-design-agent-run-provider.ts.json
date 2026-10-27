@@ -33,11 +33,28 @@
           "type": "string"
         }
       },
-      "required": [
-        "editor",
-        "pageId"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
     },
     "CreatePageDesignDeliveryPortOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -48,10 +65,7 @@
           "$ref": "../ai/ai-delivery-port.ts.json#/$defs/AiDeliveryMode"
         },
         "shouldSave": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "saveFileNames": {
           "type": "array",
@@ -63,11 +77,28 @@
           "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
         }
       },
-      "required": [
-        "mode",
-        "shouldSave"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
     },
     "PageDesignDeliverySelection": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -101,30 +132,45 @@
           "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
         },
         "autoSave": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         }
       },
-      "required": [
-        "autoSave"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-15T12:40:41.462Z",
+  "generatedAt": "2026-10-27T05:24:50.534Z",
   "models": {
     "PageDesignDeliveryContext": {
       "name": "PageDesignDeliveryContext",
       "jsdoc": "pageDesign Agent Run 落盘时携带的 editor 与 pageId 上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 页面设计工作区编辑器。 */\n    editor: ProjectWorkspace;\n    /** 当前页面节点 id。 */\n    pageId: string;\n    requestId?: string;\n    scenarioId?: string;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -152,6 +198,44 @@
               "readable": true,
               "writable": false
             }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
           ]
         }
       }
@@ -161,11 +245,11 @@
       "jsdoc": "Create Page Design Delivery Port Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n}>",
+            "typeText": "Readonly<{\n    /** 交付模式（manual 或 auto）。 */\n    mode: AiDeliveryMode;\n    /** 是否执行实际落盘保存。 */\n    shouldSave: boolean;\n    /** 限定保存的文件名列表（省略则保存全部 dirty 文件）。 */\n    saveFileNames?: readonly PageToolFileName[];\n    allowedOperations?: PageDesignAllowedOperations;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -194,6 +278,44 @@
               "readable": true,
               "writable": false
             }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
           ]
         }
       }
@@ -219,7 +341,7 @@
       "jsdoc": "内联交付设置；沿用已确定的目标范围并显式决定是否实际保存。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PageDesignDeliverySelection & Readonly<{\n    autoSave: boolean;\n}>",
+        "declarationTypeText": "PageDesignDeliverySelection & Readonly<{\n    autoSave: boolean;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -228,7 +350,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    autoSave: boolean;\n}>",
+            "typeText": "Readonly<{\n    autoSave: boolean;\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -238,6 +360,44 @@
               "name": "autoSave",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "savePageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
             }
           ]
         }

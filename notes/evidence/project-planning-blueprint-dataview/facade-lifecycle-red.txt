@@ -1,0 +1,33 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning-ai-runner.test.ts (10 tests | 1 failed) 39ms
+     × reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning-ai-runner.test.ts > runProjectPlanningAiSession > reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll
+AssertionError: expected { ok: false, …(6) } to match object { ok: true, completed: true }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "completed": true,
+-   "ok": true,
++   "ok": false,
+  }
+
+ ❯ Object.<anonymous> tests/app/services/project-planning-ai-runner.test.ts:266:54
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  08:51:49
+   Duration  15.18s (transform 10.22s, setup 148ms, import 13.46s, tests 39ms, environment 1.20s)
+

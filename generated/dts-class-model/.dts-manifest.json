@@ -4119,17 +4119,17 @@
     "src/services/project-planning/project-planning-agent-run-provider.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-run-provider.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-07T01:13:38.181Z"
+      "sourceModifiedAt": "2026-10-27T00:56:03.048Z"
     },
     "src/services/project-planning/project-planning-agent-workflow-binding.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json",
-      "sourceModifiedAt": "2026-10-26T23:11:38.623Z"
+      "sourceModifiedAt": "2026-10-27T01:08:35.448Z"
     },
     "src/services/project-planning/project-planning-ai-runner.ts": {
       "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
       "shardFile": "files/src/services/project-planning/project-planning-ai-runner.ts.json",
-      "sourceModifiedAt": "2026-10-07T01:13:38.180Z"
+      "sourceModifiedAt": "2026-10-27T00:56:07.815Z"
     },
     "src/services/project-planning/project-planning-attachments.ts": {
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
@@ -4314,7 +4314,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:17:03.899Z"
+      "sourceModifiedAt": "2026-10-27T00:33:32.579Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",

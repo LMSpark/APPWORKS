@@ -1,0 +1,34 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning-ai-runner.test.ts (10 tests | 1 failed) 40ms
+     × reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning-ai-runner.test.ts > runProjectPlanningAiSession > reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll
+AssertionError: expected [Function] to throw error matching /additional blueprint plan change wa…/iu but got 'expected undefined to be an instance …'
+
+- Expected:
+/additional blueprint plan change was rejected after the first DataView command was committed/iu
+
++ Received:
+"expected undefined to be an instance of Error"
+
+ ❯ tests/app/services/project-planning-ai-runner.test.ts:277:121
+    275|     })
+    276|
+    277|     await expect(runProjectPlanningAiSession({ editor, blueprintDataVi…
+       |                                                                                                                         ^
+    278|       .rejects.toThrow(/additional blueprint plan change was rejected …
+    279|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  08:55:30
+   Duration  15.05s (transform 10.13s, setup 154ms, import 13.34s, tests 40ms, environment 1.14s)
+

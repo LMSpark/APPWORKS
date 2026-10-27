@@ -34256,7 +34256,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 92,
+      "declarationLine": 103,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34268,7 +34268,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.blueprintTree 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 93,
+      "declarationLine": 104,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34280,7 +34280,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.flatRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 94,
+      "declarationLine": 105,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34292,7 +34292,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readProjectPlanningInput 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 95,
+      "declarationLine": 106,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34304,7 +34304,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readBlueprintPlanningInputs 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 96,
+      "declarationLine": 107,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34316,7 +34316,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readBlueprintNodePlanningInput 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 97,
+      "declarationLine": 108,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34328,7 +34328,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readPlanningProjection 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 98,
+      "declarationLine": 109,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34340,7 +34340,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.getChildNodes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 99,
+      "declarationLine": 110,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "typeAlias"
     },
@@ -34352,7 +34352,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.findNodeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 100,
+      "declarationLine": 111,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "typeAlias"
     },
@@ -34364,7 +34364,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.completeProjectPlanning 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 101,
+      "declarationLine": 112,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -34376,7 +34376,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.replaceBlueprintChildren 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 102,
+      "declarationLine": 113,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36834,7 +36834,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.preflightChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 47,
+      "declarationLine": 48,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36846,7 +36846,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.addChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 48,
+      "declarationLine": 49,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36858,7 +36858,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 58,
+      "declarationLine": 59,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36870,7 +36870,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canRead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 59,
+      "declarationLine": 60,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36882,7 +36882,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWrite 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 60,
+      "declarationLine": 61,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36894,7 +36894,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWriteFields 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 61,
+      "declarationLine": 62,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36906,7 +36906,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.value 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 62,
+      "declarationLine": 63,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36918,7 +36918,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.update 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 63,
+      "declarationLine": 64,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36930,7 +36930,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 66,
+      "declarationLine": 67,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36942,7 +36942,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
-      "declarationLine": 70,
+      "declarationLine": 71,
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },

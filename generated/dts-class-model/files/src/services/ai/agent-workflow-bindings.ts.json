@@ -47,6 +47,26 @@
           "type": "object",
           "title": "(context: { moduleInstanceId: string; }) => ProjectWorkspace"
         },
+        "blueprintDataView": {
+          "type": "object",
+          "title": "import(\"../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview\").BlueprintWorkspaceDataView"
+        },
+        "getDataViewCompletionResult": {
+          "type": "object",
+          "title": "(projectId: string) => ProjectPlanningCompletionResult | undefined"
+        },
+        "onDataViewCompletionConfirmed": {
+          "type": "object",
+          "title": "(projectId: string, result: ProjectPlanningCompletionResult) => void"
+        },
+        "tryBeginDataViewBlueprintWrite": {
+          "type": "object",
+          "title": "(projectId: string) => boolean"
+        },
+        "onRepeatedDataViewBlueprintWrite": {
+          "type": "object",
+          "title": "(projectId: string) => void"
+        },
         "knowledge": {
           "$ref": "../../../packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
         },

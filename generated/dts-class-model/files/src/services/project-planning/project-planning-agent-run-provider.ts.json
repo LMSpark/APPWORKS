@@ -27,6 +27,24 @@
             false,
             true
           ]
+        },
+        "dataViewBlueprintSaved": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewBlueprintPending": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewBlueprintRepeatRejected": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -36,18 +54,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T01:13:38.181Z",
+  "generatedAt": "2026-10-27T00:56:03.048Z",
   "models": {
     "ProjectPlanningDeliveryContext": {
       "name": "ProjectPlanningDeliveryContext",
       "jsdoc": "projectPlanning Agent Run 落盘时携带的 editor 与蓝图保存策略。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** headless ProjectWorkspace 实例，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** headless ProjectWorkspace 实例，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** headless ProjectWorkspace 实例，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** headless ProjectWorkspace 实例，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -62,6 +80,24 @@
             {
               "name": "saveBlueprintAfterRun",
               "jsdoc": "Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintSaved",
+              "jsdoc": "True only after a live DataView command returned its accepted receipt and readback.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintPending",
+              "jsdoc": "True when the original DataView command still needs explicit Save All recovery.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintRepeatRejected",
+              "jsdoc": "A later plan mutation was attempted after this run had already issued its single DataView command.",
               "readable": true,
               "writable": false
             }

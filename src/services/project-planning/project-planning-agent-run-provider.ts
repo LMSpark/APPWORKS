@@ -56,6 +56,12 @@ export type ProjectPlanningDeliveryContext = Readonly<{
   editor: ProjectWorkspace
   /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */
   saveBlueprintAfterRun: boolean
+  /** True only after a live DataView command returned its accepted receipt and readback. */
+  dataViewBlueprintSaved?: boolean
+  /** True when the original DataView command still needs explicit Save All recovery. */
+  dataViewBlueprintPending?: boolean
+  /** A later plan mutation was attempted after this run had already issued its single DataView command. */
+  dataViewBlueprintRepeatRejected?: boolean
 }>
 
 type CreateProjectPlanningDeliveryPortOptions = Readonly<{
@@ -82,30 +88,42 @@ function createProjectPlanningDeliveryPort(
 ): AiDeliveryPort<ProjectPlanningDeliveryContext> {
   return {
     mode: options.mode,
-    async save(context) {
-      const blueprintDirty = context.editor.project.blueprintDirty
-      if (!context.saveBlueprintAfterRun || !blueprintDirty) {
-        return {
-          mode: options.mode,
-          status: 'skipped',
-          artifacts: blueprintDirty ? [createBlueprintArtifact('skipped')] : [],
-        }
-      }
-      try {
-        await context.editor.saveAll()
-        return {
-          mode: options.mode,
-          status: 'saved',
-          artifacts: [createBlueprintArtifact('saved')],
-        }
-      } catch (error: unknown) {
-        return {
+    save(context) {
+      if (context.dataViewBlueprintPending === true) {
+        return Promise.resolve({
           mode: options.mode,
           status: 'failed',
           artifacts: [createBlueprintArtifact('dirty')],
-          message: error instanceof Error ? error.message : String(error),
-        }
+          message: '项目策划 DataView 命令仍待核验；原命令身份已保留，请沿工作台 Save All 完成回读。',
+        })
       }
+      if (context.dataViewBlueprintRepeatRejected === true) {
+        return Promise.resolve({
+          mode: options.mode,
+          status: 'failed',
+          artifacts: [createBlueprintArtifact(context.dataViewBlueprintSaved === true ? 'saved' : 'dirty')],
+          message: context.dataViewBlueprintSaved === true
+            ? '本次运行的首个蓝图命令已由 DataView 确认保存；后续计划变更已拒绝，因此本次规划仅部分完成。请保留未提交计划。'
+            : '本次运行已发出蓝图 DataView 命令；后续计划变更已拒绝，首个命令未确认保存，请保留计划并核验原命令。',
+        })
+      }
+      if (context.dataViewBlueprintSaved === true) {
+        return Promise.resolve({ mode: options.mode, status: 'saved', artifacts: [createBlueprintArtifact('saved')] })
+      }
+      const blueprintDirty = context.editor.project.blueprintDirty
+      if (!context.saveBlueprintAfterRun || !blueprintDirty) {
+        return Promise.resolve({
+          mode: options.mode,
+          status: 'skipped',
+          artifacts: blueprintDirty ? [createBlueprintArtifact('skipped')] : [],
+        })
+      }
+      return Promise.resolve({
+        mode: options.mode,
+        status: 'failed',
+        artifacts: [createBlueprintArtifact('dirty')],
+        message: '项目策划蓝图没有获准的 Base_NavigationInfo DataView 命令上下文，拒绝经 ProjectWorkspace.saveAll 提交。请保留策划结果并等待 DataView 命令接线。',
+      })
     },
     trace() {
       return Promise.resolve()

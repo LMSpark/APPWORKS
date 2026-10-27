@@ -19,10 +19,12 @@ import type {
 } from '@spark-appworks/spark-app'
 import type { AiAgentHost, AiAgentToolCallRecord } from '@spark-appworks/spark-ai/agent'
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
-import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import type { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 import {
   buildProjectPlanningAgentInput,
   PROJECT_PLANNING_MODULE_ID,
+  synchronizeProjectPlanningTreeFromDataView,
   type ProjectPlanningAgentInput,
   type ResolveScopedProjectPlanningRunInputOptions,
 } from '@/services/project-planning/project-planning-agent-workflow-binding'
@@ -35,6 +37,8 @@ import { createProjectPlanningInlineDeliveryPort } from '@/services/project-plan
 export type ProjectPlanningAiRunOptions = ResolveScopedProjectPlanningRunInputOptions & Readonly<{
   /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */
   saveBlueprintAfterRun?: boolean
+  /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */
+  blueprintDataView?: BlueprintWorkspaceDataView
 }>
 
 /** Project Planning Ai Run Events 的语义模型。 */
@@ -79,6 +83,7 @@ export async function runProjectPlanningAiSession(
   command: ProjectPlanningAiRunCommand,
 ): Promise<ProjectPlanningAiRunResult> {
   const editor = command.editor
+  const dataViewOwner = command.blueprintDataView
   const projectId = editor.project.projectId.trim()
   if (projectId.length === 0) {
     throw new Error('projectPlanning AI requires a projectId on editor.project.')
@@ -87,7 +92,15 @@ export async function runProjectPlanningAiSession(
   // 每次运行独立 Host：全局 Host 的 ensure 幂等会保留首次 editor 闭包，切换项目后失配。
   const aiAgentHost = command.host ?? createAiAgentHost({ turnCallbacks: createAiAgentTurnCallbacks(), maxToolRounds: 16 })
 
+  if (dataViewOwner) synchronizeProjectPlanningTreeFromDataView(editor.project, dataViewOwner)
   const input = buildProjectPlanningAgentInput(editor.project, command)
+  let dataViewBlueprintSaved: boolean | undefined
+  let dataViewCompletionSnapshot: Readonly<{
+    projectId: string
+    result: ReturnType<ProjectBlueprint['completeProjectPlanning']>
+  }> | undefined
+  let dataViewCommandStarted = false
+  let dataViewRepeatedWriteRejected = false
   const projectPlanningHost = await activateProjectPlanningAgentWorkflow({
     host: aiAgentHost,
     getProjectPlanningEditor: (context) => {
@@ -97,6 +110,37 @@ export async function runProjectPlanningAiSession(
         )
       }
       return editor
+    },
+    ...(dataViewOwner === undefined ? {} : { blueprintDataView: dataViewOwner }),
+    getDataViewCompletionResult: (completionProjectId) => dataViewCompletionSnapshot?.projectId === completionProjectId
+      ? dataViewCompletionSnapshot.result
+      : undefined,
+    onDataViewCompletionConfirmed: (completionProjectId, result) => {
+      if (completionProjectId !== projectId) throw new Error('项目策划 DataView completion snapshot 项目身份不匹配')
+      dataViewCompletionSnapshot = { projectId: completionProjectId, result }
+      dataViewBlueprintSaved = true
+    },
+    tryBeginDataViewBlueprintWrite: (writeProjectId) => {
+      if (writeProjectId !== projectId) throw new Error('项目策划 DataView 写入命令项目身份不匹配')
+      if (dataViewCommandStarted) return false
+      dataViewCommandStarted = true
+      return true
+    },
+    onRepeatedDataViewBlueprintWrite: (writeProjectId) => {
+      if (writeProjectId !== projectId) throw new Error('项目策划重复 DataView 命令项目身份不匹配')
+      dataViewRepeatedWriteRejected = true
+      dataViewCompletionSnapshot = {
+        projectId,
+        result: {
+          ok: false,
+          code: 'PROJECT_PLANNING_BLUEPRINT_PARTIAL',
+          msg: '本次 AI 运行已确认一个蓝图 DataView 命令；后续计划变更遭拒，不能将整个策划报告为完成。',
+          fix: '保留未提交计划；待支持多命令的可恢复提交合同后继续。',
+          requiredCapabilities: ['replaceBlueprintChildren'],
+          missingFacts: ['后续计划变更未提交'],
+          nextStep: '停止本次策划完成报告，保留已保存节点及剩余计划。',
+        },
+      }
     },
   })
 
@@ -124,6 +168,11 @@ export async function runProjectPlanningAiSession(
   const deliveryContext = {
     editor,
     saveBlueprintAfterRun: command.saveBlueprintAfterRun === true,
+    ...(dataViewBlueprintSaved === undefined ? {} : { dataViewBlueprintSaved }),
+    dataViewBlueprintPending: dataViewOwner !== undefined && dataViewBlueprintSaved !== true && (
+      dataViewOwner.dirty || dataViewOwner.hasPendingChildCreate || dataViewOwner.hasUnconfirmedSave
+    ),
+    dataViewBlueprintRepeatRejected: dataViewRepeatedWriteRejected,
   }
   const deliveryResult = await delivery.save(deliveryContext)
   await delivery.trace(deliveryContext, deliveryResult)

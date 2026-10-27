@@ -1,0 +1,17 @@
+2026-10-27 主控复核：ProjectPlanningBlueprintFacade action 投影回归
+
+基线：7d623561d5dd5108e4a237e89bd8d1cfa8c99f92
+
+RED 命令：
+pnpm exec vitest run tests/app/services/project-planning/grouped-planning-contract.test.ts -t "keeps replaceBlueprintChildren in the formal action guide" --reporter=dot
+
+源码将 replaceBlueprintChildren 声明为直接的 Promise 函数签名时，正式生成的 facade schema 不再包含 properties.replaceBlueprintChildren。用例失败：
+expected { projectId: { type: 'string' }, … } to have property "replaceBlueprintChildren"
+
+修复：恢复 `ProjectBlueprint['replaceBlueprintChildren']` 的正式声明，将异步 DataView 实现通过 Object.defineProperty 安装到 facade 实例；安装发生在暴露和冻结 facade 前。没有改生成产物。
+
+GREEN 命令：
+pnpm run generate:class-model-surface
+pnpm exec vitest run tests/app/services/project-planning/grouped-planning-contract.test.ts -t "keeps replaceBlueprintChildren in the formal action guide" --reporter=dot
+
+结果：正式生成器退出 0，DTS 970 个，ClassModel symbols 1987，semantic gaps 3191；目标用例 1/1 通过。RED 原始输出未导出为文件；以上失败断言为当次终端观察摘录。完整其他 RED/GREEN 命令日志见本目录 red.txt、single-child-red.txt、facade-lifecycle-red.txt、completion-red.txt、repeated-write-red.txt、green.txt。

@@ -1,0 +1,21 @@
+2026-10-27 主控修复独立复审问题
+
+复审基线：7d623561d5dd5108e4a237e89bd8d1cfa8c99f92。复审为只读，没有写线上数据。
+
+RED 观察（由当前反例测试复现）：
+1. dataSpace.models: [{metaName:'Orders'}] 经正式 NavigationInfo wire mapper + 正式记录 normalizer 后回读成为 models:[]，旧 facade 仍返回 completed=true。
+2. 首次新增成功后，通过新解析 facade 提交已有节点更新，旧逻辑在长度校验提前拒绝，repeat=false，delivery 仍报告 saved。
+3. children 原为 [a,b]，请求 [a,a,c] 旧逻辑通过数量比较并触发 addChildNode，之后才在不匹配回执失败。
+4. 非空新增 source 经 wire 不会保存；旧逻辑触发 DataView 命令，再因回读缺少目标而失败。
+
+修复：
+- 发命令前拒绝 wire 不承接的 dataSpace.models 和非空新增 source；正式回读后再按已提交 fields 对比 normalized formal wire。
+- 新 facade 在任何后续计划请求开始时检查 run completion snapshot；发现首个 DataView 写已确认即记录 repeat failure。共享 completion snapshot 变为 `PROJECT_PLANNING_BLUEPRINT_PARTIAL`，agent_complete 与 delivery 都无法继续给出完整成功。
+- 严格检查 next tree 的 nodeId 唯一性、全部旧节点顺序/拓扑不变，以及新叶子仅追加到根子节点末尾。
+- 将 system/SOP 示例改成单叶子，并清楚提示多节点、改旧节点、移动、删除时本 run 不调用写命令、不报告完整完成。
+
+GREEN：
+pnpm exec vitest run tests/app/services/project-planning-agent-run-provider.test.ts tests/app/services/project-planning-ai-runner.test.ts tests/app/services/project-planning/grouped-planning-contract.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot
+结果：4 files / 60 tests passed。
+
+另有 `pnpm run typecheck`、改动文件 ESLint、`pnpm run verify:rules`、`pnpm run build`、`git diff --check` 通过。Vue 测试保留既有 `el-form-item` 未解析组件 warning；构建保留既有 Rolldown/CodeMirror 动态导入与 chunk-size 告警。

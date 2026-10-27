@@ -16,6 +16,7 @@ import type {
 import { createAiAgentHost } from '@spark-appworks/spark-ai/agent'
 import { runProjectPlanningAiSession } from '@/services/project-planning/project-planning-ai-runner'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
+import { BLUEPRINT_WORKSPACE_FIELD_NAMES } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 
 const mocks = vi.hoisted(() => {
   const projectPlanningRun = vi.fn()
@@ -221,7 +222,7 @@ describe('runProjectPlanningAiSession', () => {
     expect(mocks.projectPlanningRun).toHaveBeenCalledOnce()
   })
 
-  it('saves the blueprint through delivery when saveBlueprintAfterRun is true', async () => {
+  it('does not submit a dirty blueprint through ProjectWorkspace delivery', async () => {
     const editor = createEditor('demo')
     const aiHost = createAiHost()
     const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
@@ -232,15 +233,101 @@ describe('runProjectPlanningAiSession', () => {
       },
     ])
 
-    const result = await runProjectPlanningAiSession({
+    await expect(runProjectPlanningAiSession({
       editor,
       host: aiHost,
       saveBlueprintAfterRun: true,
+    })).rejects.toThrow(/没有获准的 Base_NavigationInfo DataView 命令上下文/iu)
+
+    expect(saveAll).not.toHaveBeenCalled()
+    expect(editor.project.blueprintDirty).toBe(true)
+  })
+
+  it('reports DataView receipt as saved and never invokes ProjectWorkspace.saveAll', async () => {
+    const editor = createEditor('demo')
+    editor.project.markBlueprintClean('root')
+    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    let current = editor.project.blueprintTree
+    const owner = {
+      projectId: 'demo', hasTreeProjection: true, dirty: false,
+      treeProjection: () => current,
+      view: { queryColumns: BLUEPRINT_WORKSPACE_FIELD_NAMES.map(name => ({ name })) },
+      hasOutput: (field: string) => BLUEPRINT_WORKSPACE_FIELD_NAMES.includes(field as never),
+      addChildNode: vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
+        current = { ...current, children: [...current.children, { nodeId: id!, parentNodeId: current.nodeId, projectId: 'demo', kind: 'page', capability: { name: 'Planned' }, source: { ...fields, rowid: id!, prowid: parentId, SysId: 'demo' } }] }
+        return id!
+      }),
+    }
+    mocks.projectPlanningRun.mockImplementationOnce(async () => {
+      const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as Parameters<typeof resolveProjectPlanningDomainRoot>[0]
+      const firstFacade = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      await Promise.resolve(firstFacade.replaceBlueprintChildren({ children: [...current.children, { nodeId: 'planned', parentNodeId: current.nodeId, projectId: 'demo', kind: 'page', capability: { name: 'Planned' }, source: {} }] }))
+      const secondFacade = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      expect(secondFacade.completeProjectPlanning()).toMatchObject({ ok: true, completed: true })
+      let repeatedWriteError: unknown
+      try {
+        await Promise.resolve(secondFacade.replaceBlueprintChildren({ children: current.children.map(node =>
+          node.nodeId === 'existing' ? { ...node, capability: { name: 'Updated after save' } } : node,
+        ) }))
+      } catch (error) { repeatedWriteError = error }
+      expect(repeatedWriteError).toBeInstanceOf(Error)
+      expect((repeatedWriteError as Error).message).toMatch(/one DataView command per AI run|后续.*拒绝/iu)
+      expect(secondFacade.completeProjectPlanning()).toMatchObject({ ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_PARTIAL' })
+      expect(owner.addChildNode).toHaveBeenCalledOnce()
+      return createRunResult()
     })
 
-    expect(saveAll).toHaveBeenCalledOnce()
-    expect(result.blueprintDirty).toBe(true)
-    expect(result.savedBlueprint).toBe(true)
+    await expect(runProjectPlanningAiSession({ editor, blueprintDataView: owner as never, saveBlueprintAfterRun: true }))
+      .rejects.toThrow(/later plan change was refused|后续计划变更已拒绝/iu)
+
+    expect(owner.addChildNode).toHaveBeenCalledOnce()
+    expect(saveAll).not.toHaveBeenCalled()
+  })
+
+  it('builds planning inputs from the complete DataView tree rather than stale workspace rows', async () => {
+    const editor = createEditor('demo')
+    editor.project.markBlueprintClean('root')
+    const tree = { ...editor.project.blueprintTree, children: [...editor.project.blueprintTree.children, {
+      nodeId: 'data-view-only', parentNodeId: 'homepage_root', projectId: 'demo', kind: 'page' as const,
+      capability: { name: 'DataView only', description: 'authoritative row' }, source: {},
+    }] }
+    const owner = { projectId: 'demo', hasTreeProjection: true, dirty: false, treeProjection: () => tree }
+
+    const result = await runProjectPlanningAiSession({ editor, blueprintDataView: owner as never })
+
+    expect(result.input.blueprintNodes.map(node => node.nodeId)).toContain('data-view-only')
+    expect(editor.project.blueprintDirty).toBe(false)
+  })
+
+  it('keeps DataView receipt pending even when dirtyTracking is clear', async () => {
+    const editor = createEditor('demo')
+    editor.project.markBlueprintClean('root')
+    const saveAll = vi.spyOn(editor, 'saveAll').mockResolvedValue()
+    const current = editor.project.blueprintTree
+    let pending = false
+    const owner = {
+      projectId: 'demo', hasTreeProjection: true, dirty: false,
+      get hasPendingChildCreate() { return pending }, hasUnconfirmedSave: false,
+      treeProjection: () => current,
+      view: { queryColumns: BLUEPRINT_WORKSPACE_FIELD_NAMES.map(name => ({ name })) },
+      hasOutput: (field: string) => BLUEPRINT_WORKSPACE_FIELD_NAMES.includes(field as never),
+      addChildNode: vi.fn(async () => { pending = true; throw new Error('readback not confirmed') }),
+    }
+    mocks.projectPlanningRun.mockImplementationOnce(async () => {
+      const activation = mocks.activateProjectPlanningAgentWorkflow.mock.calls.at(-1)?.[0] as unknown as Parameters<typeof resolveProjectPlanningDomainRoot>[0]
+      const root = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
+      try {
+        await Promise.resolve(root.replaceBlueprintChildren({ children: [...current.children, { nodeId: 'planned', parentNodeId: current.nodeId, projectId: 'demo', kind: 'page', capability: { name: 'Planned' }, source: {} }] }))
+      } catch { /* Model script may continue; delivery must still observe the original pending command. */ }
+      return createRunResult()
+    })
+
+    await expect(runProjectPlanningAiSession({ editor, blueprintDataView: owner as never, saveBlueprintAfterRun: true }))
+      .rejects.toThrow(/DataView 命令仍待核验/iu)
+
+    expect(owner.addChildNode).toHaveBeenCalledOnce()
+    expect(saveAll).not.toHaveBeenCalled()
+    expect(pending).toBe(true)
   })
 
   it('fails closed before blueprint mutation and delivery can call the legacy save path', async () => {
@@ -253,7 +340,7 @@ describe('runProjectPlanningAiSession', () => {
         getProjectPlanningEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
       }
       const root = resolveProjectPlanningDomainRoot(activation, { moduleInstanceId: 'demo' } as never)
-      root.replaceBlueprintChildren({ children: [] })
+      await Promise.resolve(root.replaceBlueprintChildren({ children: [] }))
       return createRunResult()
     })
 

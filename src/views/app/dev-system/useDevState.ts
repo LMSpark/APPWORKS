@@ -1100,9 +1100,12 @@ export function useDevState() {
 
     try {
       addStatus('AI 开始读取项目策划附件并生成项目蓝图...', 'info')
+      const planningDataView = await loadBlueprintWorkspaceDataView()
+      await planningDataView.loadProjectTree()
       const result = await runProjectPlanningAiSession({
         planningAttachmentRef: attachmentRef,
         editor,
+        blueprintDataView: planningDataView,
         adapter: projectPlanningAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,

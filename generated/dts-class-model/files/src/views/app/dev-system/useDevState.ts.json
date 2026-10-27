@@ -1020,7 +1020,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-26T22:17:03.899Z",
+  "generatedAt": "2026-10-27T00:33:32.579Z",
   "models": {
     "EditableProjectOption": {
       "name": "EditableProjectOption",

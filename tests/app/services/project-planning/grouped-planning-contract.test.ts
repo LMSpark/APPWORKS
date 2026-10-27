@@ -1,12 +1,155 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createAppAgentWorkflowRuntimeBindings } from '@/services/ai/agent-workflow-bindings'
 import { createAgentWorkflowDefinitionFromDesign } from '@/services/workflow-designs'
 import { evaluateProjectPlanningToolGate, resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { normalizeLowcodeProjectBlueprintRecords } from '@spark-appworks/spark-lowcode-api'
 
 describe('projectPlanning formal node input', () => {
-  it('blocks blueprint replacement before it can mutate the project tree', () => {
+  it('keeps replaceBlueprintChildren in the formal action guide after async DataView adaptation', () => {
+    const shard = JSON.parse(readFileSync('generated/dts-class-model/files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json', 'utf8')) as {
+      $defs?: Record<string, { properties?: Record<string, unknown>; $defs?: Record<string, unknown> }>
+    }
+    const facade = shard.$defs?.['ProjectPlanningBlueprintFacade']
+
+    expect(facade?.properties).toHaveProperty('replaceBlueprintChildren')
+  })
+
+  it('commits one added leaf through the supplied live blueprint DataView and returns its readback', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({
+      projectId,
+      pageFiles: { readPageFile: async () => '' },
+      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    })
+    editor.project.replaceBlueprintTree({
+      nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {},
+      children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }],
+    })
+    editor.project.markBlueprintClean('root')
+    let readback = editor.project.blueprintTree
+    const addChildNode = vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
+      readback = { ...readback, children: [...readback.children, { nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Planned' }, source: { ...fields, rowid: id, prowid: parentId, SysId: projectId } }] }
+      return id ?? 'owner-id'
+    })
+    const owner = {
+      projectId,
+      hasTreeProjection: true,
+      dirty: false,
+      treeProjection: () => readback,
+      addChildNode,
+      view: { queryColumns: [{ name: 'name' }, { name: 'conType' }, { name: 'FunName' }, { name: 'FunOrderValue' }] },
+      hasOutput: (field: string) => ['name', 'conType', 'FunName', 'FunOrderValue'].includes(field),
+    }
+    let completionSnapshot: { projectId: string; result: ReturnType<NonNullable<Parameters<typeof resolveProjectPlanningDomainRoot>[0]['getDataViewCompletionResult']>> } | undefined
+    const getCompletion = (id: string) => completionSnapshot?.projectId === id ? completionSnapshot.result : undefined
+    const onCompletion = (id: string, result: NonNullable<ReturnType<typeof getCompletion>>) => { completionSnapshot = { projectId: id, result } }
+    const binding = { getProjectPlanningEditor: () => editor, blueprintDataView: owner as never, getDataViewCompletionResult: getCompletion, onDataViewCompletionConfirmed: onCompletion }
+    const planningRoot = resolveProjectPlanningDomainRoot(binding, { moduleInstanceId: projectId } as never)
+
+    const result = await Promise.resolve(planningRoot.replaceBlueprintChildren({ children: [
+      ...readback.children,
+      { nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Planned' }, source: {} },
+    ] }))
+
+    expect(addChildNode).toHaveBeenCalledOnce()
+    expect(addChildNode).toHaveBeenCalledWith('root', expect.objectContaining({ name: 'Planned', conType: 'Navitem' }), 'planned')
+    expect(result.children.map(child => child.nodeId)).toEqual(['existing', 'planned'])
+    expect(editor.project.blueprintDirty).toBe(false)
+    const agentCompleteFacade = resolveProjectPlanningDomainRoot(binding, { moduleInstanceId: projectId } as never)
+    expect(agentCompleteFacade.completeProjectPlanning()).toMatchObject({ ok: true, completed: true })
+
+    const nextRunFacade = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor }, { moduleInstanceId: projectId } as never)
+    expect(nextRunFacade.completeProjectPlanning()).toMatchObject({ ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_NOT_WRITTEN' })
+    const otherProject = new ProjectWorkspace({ projectId: 'APP-B', pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root-b', parentNodeId: '', projectId: 'APP-B', kind: 'module', capability: { name: 'Root B' }, source: {}, children: [] }) } })
+    otherProject.project.replaceBlueprintTree({ nodeId: 'root-b', parentNodeId: '', projectId: 'APP-B', kind: 'module', capability: { name: 'Root B' }, source: {}, children: [{ nodeId: 'b-node', parentNodeId: 'root-b', projectId: 'APP-B', kind: 'page', capability: { name: 'B' }, source: {} }] })
+    otherProject.project.markBlueprintClean('root')
+    const otherProjectFacade = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => otherProject, getDataViewCompletionResult: getCompletion }, { moduleInstanceId: 'APP-B' } as never)
+    expect(otherProjectFacade.completeProjectPlanning()).toMatchObject({ ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_NOT_WRITTEN' })
+  })
+
+  it('rejects an existing-node update before any DataView write', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }] })
+    editor.project.markBlueprintClean('root')
+    const current = editor.project.blueprintTree
+    const addChildNode = vi.fn()
+    const owner = { projectId, hasTreeProjection: true, dirty: false, treeProjection: () => current, addChildNode, view: { queryColumns: [] }, hasOutput: () => true }
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
+    const changed = { ...current.children[0]!, capability: { name: 'changed' } }
+
+    await expect(planningRoot.replaceBlueprintChildren({ children: [changed] })).rejects.toThrow(/更新、移动、删除或多节点计划保持拒绝|已有节点计划变化/iu)
+    expect(addChildNode).not.toHaveBeenCalled()
+    expect(editor.project.blueprintDirty).toBe(false)
+  })
+
+  it('rejects blueprint payloads that the formal NavigationInfo wire cannot preserve', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
+    editor.project.markBlueprintClean('root')
+    let current = editor.project.blueprintTree
+    const addChildNode = vi.fn(async (parentId: string, fields: Record<string, unknown>, id?: string) => {
+      const record = normalizeLowcodeProjectBlueprintRecords([{ ...fields, rowid: id, prowid: parentId, SysId: projectId }])[0]!
+      current = { ...current, children: [...current.children, {
+        nodeId: record.nodeId, parentNodeId: record.parentNodeId, projectId: record.projectId, kind: record.kind,
+        capability: record.capability, ...(record.navigation === undefined ? {} : { navigation: record.navigation }),
+        ...(record.dataSpace === undefined ? {} : { dataSpace: record.dataSpace }),
+        ...(record.prototype === undefined ? {} : { prototype: record.prototype }), source: record.source,
+      }] }
+      return id ?? ''
+    })
+    const owner = { projectId, hasTreeProjection: true, dirty: false, treeProjection: () => current, addChildNode,
+      view: { queryColumns: [] }, hasOutput: () => true }
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
+
+    await expect(Promise.resolve(planningRoot.replaceBlueprintChildren({ children: [{
+      nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Planned' }, source: {},
+      dataSpace: { scenarioId: 'SCENE-1', models: [{ metaName: 'Orders' }] },
+    }] }))).rejects.toThrow(/models.*DataView|DataView.*models|不能持久化/iu)
+    expect(addChildNode).not.toHaveBeenCalled()
+    expect(planningRoot.completeProjectPlanning()).toMatchObject({ ok: false })
+  })
+
+  it('rejects non-empty source payloads before the DataView command starts', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
+    editor.project.markBlueprintClean('root')
+    const addChildNode = vi.fn(async (_parentId: string, _fields: Record<string, unknown>, id?: string) => id ?? '')
+    const owner = { projectId, hasTreeProjection: true, dirty: false, treeProjection: () => editor.project.blueprintTree, addChildNode,
+      view: { queryColumns: [] }, hasOutput: () => true }
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
+
+    await expect(Promise.resolve(planningRoot.replaceBlueprintChildren({ children: [{
+      nodeId: 'planned', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Planned' }, source: { generatedBy: 'AI' },
+    }] }))).rejects.toThrow(/wire.*不承接.*source/iu)
+    expect(addChildNode).not.toHaveBeenCalled()
+  })
+
+  it('rejects duplicated existing node IDs instead of treating a missing node as unchanged', async () => {
+    const projectId = 'APP-A'
+    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) } })
+    const existing = [
+      { nodeId: 'a', parentNodeId: 'root', projectId, kind: 'page' as const, capability: { name: 'A' }, source: {} },
+      { nodeId: 'b', parentNodeId: 'root', projectId, kind: 'page' as const, capability: { name: 'B' }, source: {} },
+    ]
+    editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: existing })
+    editor.project.markBlueprintClean('root')
+    const current = editor.project.blueprintTree
+    const addChildNode = vi.fn()
+    const owner = { projectId, hasTreeProjection: true, dirty: false, treeProjection: () => current, addChildNode, view: { queryColumns: [] }, hasOutput: () => true }
+    const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor, blueprintDataView: owner as never }, { moduleInstanceId: projectId } as never)
+
+    await expect(Promise.resolve(planningRoot.replaceBlueprintChildren({ children: [
+      existing[0]!, existing[0]!, { nodeId: 'c', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'C' }, source: {} },
+    ] }))).rejects.toThrow(/重复.*nodeId|nodeId.*重复/iu)
+    expect(addChildNode).not.toHaveBeenCalled()
+  })
+
+  it('blocks blueprint replacement before it can mutate the project tree', async () => {
     const projectId = 'APP-A'
     const editor = new ProjectWorkspace({
       projectId,
@@ -21,7 +164,7 @@ describe('projectPlanning formal node input', () => {
     const originalTree = editor.project.blueprintTree
     const planningRoot = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor }, { moduleInstanceId: projectId } as never)
 
-    expect(() => planningRoot.replaceBlueprintChildren({ children: [] })).toThrow(/nodeId.*DataView.*rowid/iu)
+    await expect(planningRoot.replaceBlueprintChildren({ children: [] })).rejects.toThrow(/DataView/iu)
     expect(Object.getPrototypeOf(planningRoot)).toBeNull()
     expect(Object.getOwnPropertyDescriptor(planningRoot, 'design')).toBeUndefined()
     expect(Object.getOwnPropertyDescriptor(planningRoot, 'session')).toBeUndefined()
@@ -34,7 +177,7 @@ describe('projectPlanning formal node input', () => {
     expect(editor.project.blueprintDirty).toBe(false)
   })
 
-  it('interpolates the formal kind and teaches grouped blueprint writes', () => {
+  it('interpolates the formal kind and teaches the bounded single-leaf write contract', () => {
     const prompt = createAppAgentWorkflowRuntimeBindings({}).systemPromptInterpolator({
       editorSource: 'projectPlanning', template: '', hints: [], input: {
         projectScopeKey: 'APP-A', projectId: 'APP-A', requirement: '订单与库存管理',
@@ -43,7 +186,9 @@ describe('projectPlanning formal node input', () => {
     })
     expect(prompt).toContain('orders (page) 订单')
     expect(prompt).toContain('capability: { name:')
-    expect(prompt).toContain('parentNodeId: "core-module"')
+    expect(prompt).toContain('每次 AI run 最多提交一个新增叶子')
+    expect(prompt).toContain('parentNodeId,')
+    expect(prompt).not.toContain('nodeId: "core-service"')
     expect(prompt).not.toContain('blueprintKind')
     expect(prompt).not.toContain('nodeKind')
   })

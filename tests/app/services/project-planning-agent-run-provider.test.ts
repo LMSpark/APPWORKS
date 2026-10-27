@@ -169,7 +169,7 @@ describe('prepareProjectPlanningAgentRun', () => {
     })
   })
 
-  it('saves the blueprint only when saveBlueprintAfterRun is true', async () => {
+  it('fails closed instead of saving through ProjectWorkspace when saveBlueprintAfterRun is true', async () => {
     const editor = createEditor()
     editor.project.replaceBlueprintChildren([
       {
@@ -190,17 +190,9 @@ describe('prepareProjectPlanningAgentRun', () => {
       },
     }, {} as AiAgentHost)
 
-    const result = await host.run('projectPlanning', {} as JsonParams)
+    await expect(host.run('projectPlanning', {} as JsonParams)).rejects.toThrow(/没有获准的 Base_NavigationInfo DataView 命令上下文/iu)
 
-    expect(editor.saveAll).toHaveBeenCalledOnce()
-    expect(result.resultExtras?.['delivery']).toEqual({
-      mode: 'auto',
-      status: 'saved',
-      artifacts: [{ kind: 'project-blueprint', name: 'project-blueprint', status: 'saved' }],
-    })
-    expect(result.resultExtras?.['projectPlanning']).toEqual(expect.objectContaining({
-      savedBlueprint: true,
-    }))
+    expect(editor.saveAll).not.toHaveBeenCalled()
   })
 
   it('rolls back delivery metadata when run fails', async () => {

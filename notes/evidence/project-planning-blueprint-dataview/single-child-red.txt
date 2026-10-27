@@ -1,0 +1,28 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts (7 tests | 1 failed) 21ms
+     × commits one added leaf through the supplied live blueprint DataView and returns its readback 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project-planning/grouped-planning-contract.test.ts > projectPlanning formal node input > commits one added leaf through the supplied live blueprint DataView and returns its readback
+Error: 项目蓝图策划暂不能提交：稳定 nodeId 尚不能由获准的 Base_NavigationInfo DataView rowid 表达。请保留策划结果，待正式身份合同支持后再提交。
+ ❯ Proxy.replaceBlueprintChildren src/services/project-planning/project-planning-agent-workflow-binding.ts:294:45
+    292|     completeProjectPlanning: (input?: Parameters<ProjectBlueprint['com…
+    293|       snapshot(project.completeProjectPlanning(input)),
+    294|     replaceBlueprintChildren: () => { throw new Error(PROJECT_PLANNING…
+       |                                             ^
+    295|   }
+    296|   Object.freeze(facade)
+ ❯ tests/app/services/project-planning/grouped-planning-contract.test.ts:34:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  08:32:40
+   Duration  14.94s (transform 10.02s, setup 164ms, import 13.25s, tests 21ms, environment 1.16s)
+

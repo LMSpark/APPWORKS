@@ -45,6 +45,9 @@
             false,
             true
           ]
+        },
+        "blueprintDataView": {
+          "$ref": "../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
         }
       },
       "additionalProperties": false
@@ -94,6 +97,9 @@
             false,
             true
           ]
+        },
+        "blueprintDataView": {
+          "$ref": "../../views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
         },
         "editor": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
@@ -163,14 +169,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T01:13:38.180Z",
+  "generatedAt": "2026-10-27T00:56:07.815Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",
       "jsdoc": "Project Planning Ai Run Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
+        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -179,7 +185,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -188,6 +194,12 @@
             {
               "name": "saveBlueprintAfterRun",
               "jsdoc": "自动化/headless 可在 run 结束后保存项目蓝图；默认 false。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDataView",
+              "jsdoc": "DevSystem inline only: the live, already loaded PageRuntime DataView owner.",
               "readable": true,
               "writable": false
             }

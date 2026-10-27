@@ -1,0 +1,9 @@
+RED: pnpm exec vitest run tests/app/services/project-planning-agent-run-provider.test.ts
+
+ FAIL tests/app/services/project-planning-agent-run-provider.test.ts > prepareProjectPlanningAgentRun > normalizes tenant-scoped Agent Run args into app tool input
+AssertionError: expected "loadBlueprint" to not be called at all, but actually been called 1 times
+Received: 1st loadBlueprint call: Array []
+Number of calls: 1
+
+Tests: 1 failed | 4 passed (5)
+Exit code: 1

@@ -2236,3 +2236,9 @@ flowchart TD
 - **完整页面套件限制：**主控启动资源与完整 `data-space-design-page.test.ts` 两文件全量跑；进程超过 10 分钟无最终 reporter 结果后主动中断。没有已观测的断言失败，也不能把该跑记为通过；已独立运行新增宿主/预览用例。
 - **SPA烟测：**在同一登录 SPA 标签通过应用导航进入“数据空间管理”，只读打开“新增凭证”设计器，确认 6 个模型及“尚无视图配置”页面正常出现，关闭后返回 `/dev`；蓝图仍显示 41 页面及“蓝图已就绪”。未保存、创建、删除业务数据，也未触发工具目录预览查询。因此真实 SPA 验证覆盖设计会话装载/关闭，不证明服务端 ProjectToolCatalog 查询或保存回执。
 - **状态与剩余缺口：**本切片仅移除数据空间设计工具目录这一读取旁路；Planning/PageDesign Agent Run 的 gateway 树输入、ProjectWorkspace 更新后读回责任、桌面显示关联、AI填表与其它蓝图整树提交合同仍开放，整体“开发工作台按参考仓项目蓝图整合、所有数据只走 SPARK data”继续 active。未改 Java、未改 ClassModel 产物、未发生线上业务写入；代码尚待提交/推送。
+
+### 2026-10-27 ProjectPlanning Agent Run 蓝图输入改走正式 DataView
+
+- **实施：**`prepareProjectPlanningAgentRun` 不再调用 `ProjectWorkspace.loadBlueprint()` / `blueprintGateway.loadRoot()`。它为正式 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 创建独立 `PageRuntime`，通过 `loadLowcodeRuntimeScenario({projectId, scenarioId})` 装配正式 DataSet，由 `BlueprintWorkspaceDataView` 查询完整项目树，并调用既有 `synchronizeProjectPlanningTreeFromDataView` 作为本次 Agent 输入。查询失败时不激活 workflow；DataView owner 与 Runtime 均在准备阶段的 `finally` 释放。未将已释放 owner 传给写门面，蓝图保存继续由既有 DataView 命令限制 fail closed。
+- **TDD与主控验证：**RED/GREEN 原始记录为 `notes/evidence/project-blueprint/project-planning-agent-run-provider.RED.txt`、`notes/evidence/project-blueprint/project-planning-agent-run-provider.GREEN.txt`。主控独立重跑目标测试 **6/6**，改动文件 ESLint、`pnpm run typecheck`、完整 `pnpm run verify:rules` 及 `git diff --check` 通过；ClassModel 子集 **49 tests passed**。AI model spec 保留既有 **2 warnings / 1 info**，扫描通过。没有新增公开 ClassModel 合同。
+- **边界与下一步：**测试使用 DataView/Runtime 夹具，不证明实际服务上的正式查询、权限行集或 Agent Run 运行效果；本切片未在 SPA 发起 AI 运行，未写线上蓝图。ProjectPlanning 的 Agent 输出仍写入隔离 `ProjectWorkspace`，当前非单叶或无 DataView 命令 owner 的持久化继续拒绝；没有启用 headless DataView 写入。PageDesign headless Agent Run 全仓无生产调用者，仍经 gateway 读树，先登记为未启用路径，不为其创建新调用链。ProjectWorkspace 更新后读回、完整多节点保存、桌面显示关联、AI填表及其余参考蓝图闭环继续开放；总体工作台蓝图整合仍 active。无 Java 修改、无业务写入；代码待提交/推送。

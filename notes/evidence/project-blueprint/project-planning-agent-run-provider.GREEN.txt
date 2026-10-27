@@ -1,0 +1,12 @@
+GREEN: pnpm exec vitest run tests/app/services/project-planning-agent-run-provider.test.ts
+
+ Test Files  1 passed (1)
+ Tests      6 passed (6)
+ Exit code  0
+
+Coverage assertions added/retained: catalog scenario plus project identity passed to loadLowcodeRuntimeScenario; DataView tree query and synchronization used; owner and PageRuntime released; failed tree query rejects preparation and releases both resources; ProjectWorkspace.loadBlueprint is not called; the existing saveBlueprintAfterRun fail-closed and rollback tests remain passing.
+
+Independent root rerun after adding an explicit synchronization assertion:
+Test Files  1 passed (1)
+Tests      6 passed (6)
+Exit code  0

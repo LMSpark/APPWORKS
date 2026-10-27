@@ -19,6 +19,8 @@ import {
 } from '@spark-appworks/spark-ai/agent'
 import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { PageRuntime } from '@spark-appworks/spark-project-model'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import type {
   AiAgentRunPrepare,
   AiAgentRunTarget,
@@ -27,9 +29,12 @@ import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
 import {
   buildProjectPlanningAgentInput,
   PROJECT_PLANNING_MODULE_ID,
+  synchronizeProjectPlanningTreeFromDataView,
 } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { activateProjectPlanningAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createHeadlessProjectPlanningEditor } from '@/services/project-planning/project-planning-headless'
+import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { BlueprintWorkspaceDataView } from '@/views/app/dev-system/blueprint-workspace/blueprint-workspace-dataview'
 import {
   attachAiDeliveryResult,
   createAiDeliveryFailureError,
@@ -164,7 +169,33 @@ export const prepareProjectPlanningAgentRun: AiAgentRunPrepare<AiAgentHost> = as
     tenantId: scope.tenantId,
     projectId: scope.projectId,
   })
-  await editor.loadBlueprint()
+  const runtime = new PageRuntime({
+    pageId: 'project-planning-agent-run',
+    scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+    mainScenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    loadScenario: scenarioId => {
+      if (scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY) throw new Error(`项目策划蓝图运行时未声明场景 ${scenarioId}`)
+      return loadLowcodeRuntimeScenario({ projectId: scope.projectId, scenarioId })
+    },
+  })
+  try {
+    await runtime.load()
+    const dataSet = runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    if (!dataSet) throw new Error('项目策划蓝图运行时缺少正式目录 DataSet')
+    const owner = new BlueprintWorkspaceDataView(dataSet, scope.projectId, () => {
+      if (runtime.destroyed || !runtime.isLoaded || runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY) !== dataSet) {
+        throw new Error('项目策划蓝图 DataView 运行时已失效')
+      }
+    })
+    try {
+      await owner.loadProjectTree()
+      synchronizeProjectPlanningTreeFromDataView(editor.project, owner)
+    } finally {
+      owner.dispose()
+    }
+  } finally {
+    runtime.dispose()
+  }
 
   // 每次 Agent Run 使用独立 AiAgentHost + 闭包 getter，避免共享 Host 的 ensure 幂等
   // 或模块级 registry 在 HMR / 并发同 scope 时丢失 editor。

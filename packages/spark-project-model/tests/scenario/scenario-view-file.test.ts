@@ -1029,7 +1029,7 @@ function workspaceFixture() {
 
   const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
     pageFiles: { readPageFile: vi.fn(async () => { throw new Error('must not read a page file') }) },
-    blueprint: { loadRoot: async () => ({ children: [] }) },
+    blueprint: {},
     scenarioViews: { readScope: () => scope, readText, writeText, listVersions, readVersion, createVersion },
   })
   return { workspace, readText, writeText, listVersions, readVersion, createVersion,
@@ -1184,7 +1184,7 @@ describe('ProjectWorkspace scenario files', () => {
   it('rejects missing IO and invalid scope without reading an old page file', async () => {
     const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
       pageFiles: { readPageFile: async () => { throw new Error('old page path') } },
-      blueprint: { loadRoot: async () => ({ children: [] }) },
+      blueprint: {},
     })
     await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('IO')
     const configured = workspaceFixture()

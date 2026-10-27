@@ -69,7 +69,7 @@ function fixture(relations: FormalRelations = [], text = initial) {
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
-      blueprint: {loadRoot: async () => ({children: []})},
+      blueprint: {},
       scenarioViews: {readScope: () => 'SCOPE',
         readText: async id => {expect(id).toBe('SPACE'); return stored},
         writeText: async (id, value) => {

@@ -6,7 +6,7 @@
  */
 import {DataViewLocalQuery, type DataColumn, type DataRow, type DataView, type QueryParams} from '@spark-appworks/spark-data'
 import type {ProjectWorkspace} from '../project/project-workspace'
-import {projectNodeDeliveryKind} from '../blueprint/project-blueprint-node'
+import {projectNodeDeliveryKind, type ProjectBlueprintTreeData} from '../blueprint/project-blueprint-node'
 import {resolvePageNodePageId} from '../blueprint/project-blueprint-tree'
 
 /** 复用DataView的查询及保存适配协议。 */
@@ -27,7 +27,7 @@ export class ProjectToolResource {
 
   /** 每次异步边界核对宿主作用域；元数据空间身份与工具所属应用分别校验。 */
   constructor(private readonly options: Readonly<{workspace: ProjectWorkspace; metadataScenarioId: string; assertCurrent(): void;
-    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>}>) {
+    blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>}>) {
     this.#projectId = options.workspace.project.projectId
   }
 

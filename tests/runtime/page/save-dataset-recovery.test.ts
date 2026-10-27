@@ -19,7 +19,7 @@ async function fixture() {
   let lose = false
   let gate: Promise<void> | undefined
   const writes: string[] = []
-  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({children: []})},
+  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
     pageFiles: {readPageFile: async () => ''},
     scenarioViews: {readScope: () => 'scope', readText: async () => stored, writeText: async (_id, text) => {
       writes.push(text); stored = text; await gate

@@ -1,0 +1,489 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > uses the create endpoint and its actual action receipt
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > uses the create endpoint and its actual action receipt
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > uses the create endpoint and its actual action receipt
+🐛 [DataView] 销毁 DataView: Orders:default
+🐛 [DataView] 销毁 DataView: Orders:detail
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > rejects incompatible active routes before any write and retains all pending changes
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > rejects incompatible active routes before any write and retains all pending changes
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > rejects incompatible active routes before any write and retains all pending changes
+🐛 [DataView] 销毁 DataView: Orders:default
+🐛 [DataView] 销毁 DataView: Orders:detail
+
+ ❯ tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts (35 tests | 2 failed) 978ms
+     × uses the create endpoint and its actual action receipt 24ms
+     × rejects incompatible active routes before any write and retains all pending changes 12ms
+stdout | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > reports confirmed tool files and unknown definitions from the real shared workspace save, preserving later edits
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+
+stderr | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > reports confirmed tool files and unknown definitions from the real shared workspace save, preserving later edits
+❌ [DataView] requestData 失败 [PageToolFileSave@default]: PAGE_TOOL_FILE_SAVE_MISSING: 文件不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at PageToolFilesDataView.savePageFileCore (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:142:5)
+at PageToolFilesDataView.savePageFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:129:9)
+at savePageToolFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:334:5)
+at Object.saveAll (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:1436:41)
+
+stdout | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft save while a tool receipt is unknown
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+
+stderr | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft save while a tool receipt is unknown
+❌ [DataView] requestData 失败 [PageToolFileSave@default]: PAGE_TOOL_FILE_SAVE_MISSING: 文件不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at PageToolFilesDataView.savePageFileCore (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:142:5)
+at PageToolFilesDataView.savePageFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:129:9)
+at savePageToolFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:334:5)
+at Object.saveAll (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:1436:41)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/dev/use-dev-state-page-data-history.test.ts:288:4
+
+stdout | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft cancel while a tool receipt is unknown
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+
+stderr | tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft cancel while a tool receipt is unknown
+❌ [DataView] requestData 失败 [PageToolFileSave@default]: PAGE_TOOL_FILE_SAVE_MISSING: 文件不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at PageToolFilesDataView.savePageFileCore (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:142:5)
+at PageToolFilesDataView.savePageFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/page-tool-files-command.ts:129:9)
+at savePageToolFile (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:334:5)
+at Object.saveAll (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/views/app/dev-system/useDevState.ts:1436:41)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/dev/use-dev-state-page-data-history.test.ts:288:4
+
+ ❯ tests/app/dev/use-dev-state-page-data-history.test.ts (18 tests | 3 failed) 3819ms
+     × reports confirmed tool files and unknown definitions from the real shared workspace save, preserving later edits 1071ms
+     × lets the undispatched scene draft save while a tool receipt is unknown 62ms
+     × lets the undispatched scene draft cancel while a tool receipt is unknown 216ms
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates and consumes 'dict' through the real source reader and formal saved model
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:NavigationShowType_Content
+🐛 [DataView] 销毁 DataView: _Base_DictData:Navigationposition
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates and consumes 'dict' through the real source reader and formal saved model
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_ParamList:default
+🐛 [DataView] 销毁 DataView: _Base_ParamList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:modelOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel:apiInfoModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:designModels
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFieldOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:apiInfoFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:designFields
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:designParameters
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:designRelations
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts > data-space metadata DataSet > resolves native recovery without replaying a server-rejection
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_ParamList:default
+🐛 [DataView] 销毁 DataView: _Base_ParamList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:modelOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel:apiInfoModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:designModels
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFieldOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:apiInfoFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:designFields
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:designParameters
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:designRelations
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+ ❯ tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts (81 tests | 1 failed) 20522ms
+     × resolves native recovery without replaying a server-rejection 69ms
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ViewControls_ec8303aa7f6c486993b717a712b09514_bindings:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel:formalRead_3c1706b8-e21b-4d46-81ec-c757f78505f6
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: View_TblList:formalRead_6bbff4f6-924e-4dd3-9a20-b1bfc7caca07
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:formalRead_0cdc4b86-f491-44f3-8eb5-c52a0cf302cd
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_TblField:formalRead_63d68b52-f712-4b9c-b599-a2a34f823a96
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:east
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:east
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel:formalRead_f64488c8-a4a7-4c6a-ac8c-cd1e452db457
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: View_TblList:formalRead_dd5c975e-75a6-43f8-8eba-5281bafb78c0
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:formalRead_68e7639c-201c-4e8f-8811-2f05cd8a8ba6
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_TblField:formalRead_c5dc9e8e-63bc-477b-812f-327f66d0b53c
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:east
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:west
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:east
+🐛 [DataView] 销毁 DataView: ChoiceTable:west
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel:formalRead_c4013995-be17-425b-8050-06c333c16bfa
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: View_TblList:formalRead_f0d46040-d9b9-4f8a-adc0-52a301e9de69
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:formalRead_c44bed01-84e6-40af-bc33-3af866720982
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: Base_TblField:formalRead_428bb423-e9e8-4405-97bd-226872e9b225
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:west
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ChoiceTable:default
+🐛 [DataView] 销毁 DataView: ChoiceTable:east
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+stdout | tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+🐛 [DataView] 销毁 DataView: ViewControls_ec8303aa7f6c486993b717a712b09514_bindings:default
+🐛 [DataView] 销毁 DataView: ViewControls_ec8303aa7f6c486993b717a712b09514:default
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: View_TblList:default
+🐛 [DataView] 销毁 DataView: View_TblList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_JsonData:default
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_DataViewList:default
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: View_ViewList:default
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceDetails
+🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:sourceDetails
+🐛 [DataView] 销毁 DataView: _Base_ParamList:default
+🐛 [DataView] 销毁 DataView: _Base_ParamList:sourceDetails
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:modelOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel:apiInfoModels
+🐛 [DataView] 销毁 DataView: Base_DataModel:designModels
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFieldOptions
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:apiInfoFields
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:designFields
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:designParameters
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:designRelations
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+ ❯ tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts (26 tests | 2 failed) 34495ms
+     × creates and consumes 'dict' through the real source reader and formal saved model 216ms
+     × creates two named views through standard controls and reopens their independent requests and pages 15119ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > reports confirmed tool files and unknown definitions from the real shared workspace save, preserving later edits
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/app/dev/use-dev-state-page-data-history.test.ts:251:90
+    249|   await state.writeScenarioViewText(fixtureText(77))
+    250|   const saving=state.saveAll()
+    251|   await vi.waitFor(()=>expect(httpPut.mock.calls.some(call=>call[0]===…
+       |                                                                                          ^
+    252|   expect(state.allSaving.value).toBe(true)
+    253|   await state.saveAll();expect(httpPut).toHaveBeenCalledTimes(2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft save while a tool receipt is unknown
+ FAIL  tests/app/dev/use-dev-state-page-data-history.test.ts > tool and shared scenario editing owners > lets the undispatched scene draft cancel while a tool receipt is unknown
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/app/dev/use-dev-state-page-data-history.test.ts:289:20
+    287|   try {
+    288|    await state.saveAll();await flushPromises()
+    289|    expect(httpPut).toHaveBeenCalledOnce()
+       |                    ^
+    290|    expect(state.statusMessages.value[0]?.text).toContain('后续场景定义尚未提交')
+    291|    expect(state.statusMessages.value[0]?.text).toContain('再次保存先核验原工具提交…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts > data-space metadata DataSet > resolves native recovery without replaying a server-rejection
+AssertionError: expected { status: 'unknown', pending: true } to match object { Object (status, pending) }
+
+- Expected
++ Received
+
+  {
+    "pending": true,
+-   "status": "unsubmitted",
++   "status": "unknown",
+  }
+
+ ❯ tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts:853:46
+    851|     session.stageInputParameters({expectedValue: raw, value: []})
+    852|     await expect(session.saveInputParameters({expectedValue: raw})).re…
+    853|     expect(session.getInputParameterState()).toMatchObject({status: fa…
+       |                                              ^
+    854|     await expect(session.saveInputParameters({expectedValue: raw})).re…
+    855|     if (failure === 'lost-response') await expect(session.reloadInputP…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > uses the create endpoint and its actual action receipt
+Error: DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须通过 addRowWithIdentity 独立提交
+ ❯ DataView.addRow packages/spark-data/src/data-view.ts:2688:17
+    2686|         const keyField = context.resultPrimaryKey
+    2687|         if (keyField !== '' && Object.hasOwn(data, keyField)) {
+    2688|           throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须…
+       |                 ^
+    2689|         }
+    2690|         this.preflightNewRowFields(context, data)
+ ❯ tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts:300:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts > persisted DataTable submission configuration > rejects incompatible active routes before any write and retains all pending changes
+Error: DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须通过 addRowWithIdentity 独立提交
+ ❯ DataView.addRow packages/spark-data/src/data-view.ts:2688:17
+    2686|         const keyField = context.resultPrimaryKey
+    2687|         if (keyField !== '' && Object.hasOwn(data, keyField)) {
+    2688|           throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须…
+       |                 ^
+    2689|         }
+    2690|         this.preflightNewRowFields(context, data)
+ ❯ tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts:322:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates and consumes 'dict' through the real source reader and formal saved model
+Error: queryConfig.fields 不是当前正式输出字段: typeid
+ ❯ DataViewQuery.validateFields packages/spark-data/src/query/data-view-query.ts:114:37
+    112|     }
+    113|     for (const field of parsed.fields ?? []) {
+    114|       if (!fields.has(field)) throw new Error(`queryConfig.fields 不是当前…
+       |                                     ^
+    115|     }
+    116|     const tree = parsed.tree
+ ❯ LowcodeDataSpaceViewFields.validateReferences src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts:144:58
+ ❯ src/lowcode/data-space/lowcode-data-space-assembler.ts:170:33
+ ❯ DataTable.forEachView packages/spark-data/src/data-table.ts:277:7
+ ❯ LowcodeDataSpaceAssembler.assemble src/lowcode/data-space/lowcode-data-space-assembler.ts:164:11
+ ❯ loadScenarioDataSet src/lowcode/data-space/lowcode-data-space-runtime.ts:81:82
+ ❯ LowcodeDictionary.loadEditor src/lowcode/resources/dictionary/lowcode-dictionary.ts:115:23
+ ❯ LowcodeDictionary.loadDefinition src/lowcode/resources/dictionary/lowcode-dictionary.ts:154:23
+ ❯ LowcodeDataSpaceModelSourceReader.dictionaryFields src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts:61:21
+ ❯ LowcodeDataSpaceModelSourceReader.prepare src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts:156:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts > one data space from metadata definitions through persistence to runtime > creates two named views through standard controls and reopens their independent requests and pages
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts:316:3
+    314|   })
+    315|
+    316|   it('creates two named views through standard controls and reopens th…
+       |   ^
+    317|     const f = dataSpaceChainFixture()
+    318|     f.files.set(f.target, JSON.stringify({...JSON.parse(f.files.get(f.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  4 failed | 30 passed (34)
+      Tests  8 failed | 1237 passed (1245)
+   Start at  06:41:07
+   Duration  61.31s (transform 108.77s, setup 13.17s, import 213.15s, tests 142.80s, environment 129.43s)
+

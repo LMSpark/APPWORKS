@@ -387,7 +387,7 @@ describe('existing array headers use the formal definition batch',()=>{
   })
   it.each(['plain','projection','lost-db','lost-file','promote','hidden-primary','clear'] as const)('switches array primary metadata within the lazy workspace: %s',async mode=>{
     let toolReads=0
-    const {f,writes}=await setup({overviewOnly:true,blueprint:{loadRoot:async()=>{toolReads++;throw new Error('Unchanged tool bindings must not be read')}}})
+    const {f,writes}=await setup({overviewOnly:true,blueprintTreeProjection:()=>{toolReads++;throw new Error('Unchanged tool bindings must not be read')}})
     const projection=[['F1','code',true,true],['F2','name',false,mode!=='hidden-primary']].map(([id,name,primary,output])=>({
       fieldId:id,resourceFieldId:id,resourceField:name,viewField:name,source:'resource',type:'string',primaryKey:primary,
       output,label:name,sortOrder:0,sortDirection:null,expression:'',valueFunction:'',value:'',group:0,distinct:false,

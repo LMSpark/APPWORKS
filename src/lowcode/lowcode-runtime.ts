@@ -591,9 +591,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         return summary
       },
     },
-    blueprint: {
-      loadRoot: () => readLowcodeProjectBlueprintEditorTree(normalizedProjectId),
-    },
+    blueprint: {},
     projectReferences: {
       listProjects: async () => (await lowcodeApi.platform.listApplications()).map((application) => ({
         projectId: application.id,

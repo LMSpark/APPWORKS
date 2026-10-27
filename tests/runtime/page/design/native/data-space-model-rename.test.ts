@@ -19,9 +19,12 @@ function toolFixture() {
   const f = fixture({pageFiles: {
     readPageFile: async command => {const key = `${command.pageId}/${command.versionId ? `${command.versionId}/` : ''}${command.fileName}`; if (denyRead === key || !files.has(key)) throw new Error('file unavailable'); return files.get(key)!},
     saveFileContent: async (id, name, text) => {beforeSave?.(); saves.push(`${id}/${name}`); files.set(`${id}/${name}`, text); if (lose === id) {lose = ''; throw new Error('tool response lost')}},
-  }, blueprint: {loadRoot: async () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: pages.map(id => (
-    {nodeId: id, parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: id}, source: {VersionId: versions.get(id)}, navigation: {target: targets.get(id) ?? `cfg:${id}`, title: id, order: 0, publishInMenu: true, showChildren: true, beginGroup: false}}
-  ))})}})
+  }, blueprintTreeProjection: () => ({
+    nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {},
+    children: pages.map(id => ({nodeId: id, parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: id},
+      source: {VersionId: versions.get(id)}, navigation: {target: targets.get(id) ?? `cfg:${id}`, title: id, order: 0,
+        publishInMenu: true, showChildren: true, beginGroup: false}})),
+  })})
   return {f, files, saves, pages, targets, versions, lose(id: string) {lose = id}, deny(key: string) {denyRead = key}, onSave(run: () => void) {beforeSave = run}}
 }
 
@@ -324,9 +327,9 @@ describe('formal model registration rename', () => {
     const f = fixture({businessRows: {SalesOrders: [{rowid: 'O1', parentId: null}]},
       pageFiles: {readPageFile: async command => {if (command.pageId !== 'TOOL') throw new Error('wrong tool'); return files.get(command.fileName)!},
         saveFileContent: async (id, name, text) => {expect(id).toBe('TOOL'); saved.push(name); files.set(name, text)}},
-      blueprint: {loadRoot: async () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: [
+      blueprintTreeProjection: () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: [
         {nodeId: 'PAGE', parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: 'Orders tool'}, source: {}, navigation: {target: 'cfg:TOOL', title: 'Orders tool', order: 0, publishInMenu: true, showChildren: true, beginGroup: false}},
-      ]})}})
+      ]})})
     const session = await f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview(); await operation.save()
     const persisted = JSON.parse(files.get('rule.json')!)

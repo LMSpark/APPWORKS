@@ -25,8 +25,6 @@ const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'ge
   'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
   'createScenarioVersion', 'restoreScenarioVersion', 'saveDirtyScenarioDefinitions', 'dispose'])
 
-const RAW_BLUEPRINT_READ_METHODS=new Set(['loadBlueprint','previewBlueprintRemote'])
-
 // PageDesign model_script may inspect/project locally, but delivery writes belong to the
 // workspace's existing DataView and unified delivery owners, never to this proxy.
 const DELIVERY_WRITE_METHODS = new Set([
@@ -106,7 +104,6 @@ function wrapEditorTarget(target: object, context: WrapEditorContext): object {
 export function guardPageDesignEditor(editor: ProjectWorkspace, allowedOperations: PageDesignAllowedOperations | undefined): ProjectWorkspace {
   const proxies = new WeakMap<object, object>()
   const assertAllowed = (name: string, args: readonly unknown[]): void => {
-    if(RAW_BLUEPRINT_READ_METHODS.has(name))throw new Error(`PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED: ${name} 必须经正式 Base_NavigationInfo DataView 查询`)
     if (STORAGE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供资源存储适配使用，请通过场景定义DataSet操作`)
     if (DELIVERY_WRITE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供统一交付owner使用，请通过DataView提交`)
     const domain = resolveDomain(name, args)

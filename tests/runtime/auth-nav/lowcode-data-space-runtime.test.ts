@@ -83,6 +83,14 @@ describe('host scenario file request wiring', () => {
     expect('deleteVersion' in gateway).toBe(false)
   })
 
+  it('does not expose raw blueprint loading while retaining project-reference projection', () => {
+    sceneWorkspace()
+    const gateways = runtime.createLowcodeProjectGateways('APP-1')
+    expect('loadRoot' in gateways.blueprint).toBe(false)
+    expect(gateways.projectReferences.loadProjectBlueprint).toBeTypeOf('function')
+    expect(transport.request).not.toHaveBeenCalled()
+  })
+
   it('rejects scene reads and writes from a workspace belonging to another application', async () => {
     sceneWorkspace('APP-2')
     const gateway = runtime.createLowcodeProjectGateways('APP-1').scenarioViews

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '../src/blueprint/project-blueprint-node'
 import { ProjectBlueprintNode } from '../src/blueprint/project-blueprint-node'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
@@ -11,13 +11,13 @@ describe('ProjectBlueprint', () => {
     return new ProjectWorkspace({
       projectId: 'crm',
       pageFiles: { readPageFile: async () => '' },
-      blueprint: { loadRoot: async () => createRoot([]) },
+      blueprint: {},
     })
   }
 
   it('preserves edits made while a tool file is loading and refuses dirty reload',async()=>{
     let finish:(text:string)=>void=()=>{}
-    const workspace=new ProjectWorkspace({projectId:'crm',pageFiles:{readPageFile:()=>new Promise(resolve=>{finish=resolve})},blueprint:{loadRoot:async()=>createRoot([])}})
+    const workspace=new ProjectWorkspace({projectId:'crm',pageFiles:{readPageFile:()=>new Promise(resolve=>{finish=resolve})},blueprint:{}})
     workspace.project.setActivePage('orders');const page=workspace.project.getActivePage()!
     const loading=workspace.loadPageFile('script.js');const rejection=expect(loading).rejects.toThrow('EDIT_DURING_LOAD')
     page.setFileText('script.js','local');finish('remote');await rejection
@@ -68,6 +68,20 @@ describe('ProjectBlueprint', () => {
   })
 
   it('constructs a ProjectBlueprint root distinct from nodes and tools',()=>{ const workspace=createWorkspace(); expect(workspace.project).toBeInstanceOf(ProjectBlueprintApi.ProjectBlueprint); expect(workspace.project.openPageDesign('orders')).not.toBeInstanceOf(ProjectBlueprintNode) })
+  it('does not expose raw blueprint gateway loading from ProjectWorkspace', () => {
+    const workspace = createWorkspace()
+    expect({
+      loadBlueprint: Reflect.get(workspace, 'loadBlueprint'),
+      previewBlueprintRemote: Reflect.get(workspace, 'previewBlueprintRemote'),
+      probeLink: typeof Reflect.get(workspace, 'probeLink'),
+    }).toEqual({ loadBlueprint: undefined, previewBlueprintRemote: undefined, probeLink: 'function' })
+  })
+  it('retains the platform probeLink command', async () => {
+    const probeLink = vi.fn(async () => ({ embeddable: true, reason: 'allowed' }))
+    const workspace = new ProjectWorkspace({ projectId: 'crm', pageFiles: { readPageFile: async () => '' }, blueprint: { probeLink } })
+    await expect(workspace.probeLink('https://example.test')).resolves.toEqual({ embeddable: true, reason: 'allowed' })
+    expect(probeLink).toHaveBeenCalledWith('https://example.test')
+  })
   it('keeps one shared tool definition and distinct formal node identities across reloads',()=>{const workspace=createWorkspace();const a=node('a'),b=node('b');a.navigation!.target='cfg:shared';b.navigation!.target='cfg:shared';a.dataSpace={scenarioId:'s-a',models:[]};b.dataSpace={scenarioId:'s-b',models:[]};workspace.project.replaceBlueprintTree(createRoot([a,b]));const first=workspace.project.findNodeById('a');const tool=workspace.project.openPageDesign('shared');tool.setFileText('script.js','dirty');workspace.project.replaceBlueprintTree(createRoot([a,b]));expect(workspace.project.findNodeById('a')).toBe(first);expect(workspace.project.findNodeById('b')?.toNodeData().dataSpace?.scenarioId).toBe('s-b');expect(workspace.project.openPageDesign('shared')).toBe(tool);expect(tool.script.isDirty).toBe(true)})
   it('preserves four groups and keeps ability name separate from menu title',()=>{const workspace=createWorkspace();const item=node('a');item.navigation!.title='菜单';item.prototype={htmlDescription:'原型'};item.dataSpace={scenarioId:'scene',models:[{metaName:'Orders'}]};workspace.project.replaceBlueprintTree(createRoot([item]));const model=workspace.project.findNodeById('a')!;expect(model.name).toBe('a');expect(model.title).toBe('菜单');const snap=model.toNodeData();snap.capability.name='changed';expect(model.name).toBe('a');expect(model.toNodeData()).toMatchObject({nodeId:'a',kind:'page',prototype:{htmlDescription:'原型'},dataSpace:{scenarioId:'scene'}});expect(model.toNodeData()).not.toHaveProperty('title')})
   it('edits grouped navigation without changing capability or scenario',()=>{const workspace=createWorkspace();const item=node('a');item.dataSpace={scenarioId:'scene',models:[]};workspace.project.replaceBlueprintTree(createRoot([item]));workspace.project.selectNode('a');const draft=workspace.project.beginBlueprintDraft();draft.node.navigation!.title='new menu';workspace.project.applyBlueprintNodeEdit(draft);expect(workspace.project.findNodeById('a')?.toNodeData()).toMatchObject({capability:{name:'a'},navigation:{title:'new menu'},dataSpace:{scenarioId:'scene'}});expect(workspace.project.blueprintDirty).toBe(true)})

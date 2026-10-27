@@ -94,7 +94,7 @@ function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json'
   const editor = new ProjectWorkspace({
     projectId: 'demo',
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) },
+    blueprint: {},
   })
   editor.project.openPageDesign('orders')
   editor.project.getActivePage()?.markLoaded()
@@ -153,7 +153,7 @@ describe('pageDesign actual working-file delivery', () => {
       pageFiles: { readPageFile: async () => '', saveFileContent: async (_pageId, fileName, text) => {
         if (fileName === failedName) throw new Error(`write rejected: ${fileName}`)
         remoteFiles.set(fileName, text)
-      } }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) } })
+      } }, blueprint: {} })
     const page = editor.project.openPageDesign('orders')
     page.markLoaded()
     editor.project.setActivePage('orders')
@@ -176,7 +176,7 @@ describe('pageDesign actual working-file delivery', () => {
         if (fileName === 'style.css') throw new Error('style rejected')
         saved.push(text)
         await new Promise<void>((resolve) => { finishSave = resolve })
-      } }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) } })
+      } }, blueprint: {} })
     const page = editor.project.openPageDesign('orders')
     page.markLoaded()
     editor.project.setActivePage('orders')
@@ -226,7 +226,7 @@ describe('preparePageDesignAgentRun', () => {
   it('reports a recovered scene as still dirty until later edits are explicitly delivered', async () => {
     let remote = JSON.stringify({scenarioId:'SCENE-A',tables:{}}), writes = 0
     const editor = new ProjectWorkspace({projectId:'demo',pageFiles:{readPageFile:async()=>''},
-      blueprint:{loadRoot:async()=>({children:[]})},scenarioDefinitions:loadDefinitions,
+      blueprint:{},scenarioDefinitions:loadDefinitions,
       scenarioViews:{readScope:()=> 'tenant-A',readText:async()=>remote,writeText:async(_id,text)=>{
         remote=text; if(++writes===1)throw new Error('receipt lost')
       }}})
@@ -258,7 +258,7 @@ describe('preparePageDesignAgentRun', () => {
     let writes = 0
     const editor = new ProjectWorkspace({ projectId: 'demo',
       pageFiles: { readPageFile: async () => '', saveFileContent: async () => {} },
-      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+      blueprint: {},
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
         writeText: async (_id, text) => { writes++; remote = text; throw new Error('scene write unconfirmed') } },
       scenarioDefinitions: loadDefinitions,
@@ -282,7 +282,7 @@ describe('preparePageDesignAgentRun', () => {
     let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {Orders: {modelBinding: {modelId: 'ORDER-ID', modelName: 'Orders'}, views: {default: {}}}} })
     const writes: string[] = []
     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' },
-      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+      blueprint: {},
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
         writeText: async (_id, text) => { writes.push(text); remote = text } },
       scenarioDefinitions: loadDefinitions,
@@ -456,7 +456,7 @@ describe('preparePageDesignAgentRun', () => {
     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: {
       readPageFile: async ({ fileName }) => fileName === 'script.js' ? 'script A' : '',
       saveFileContent: async (_pageId, _fileName, text) => { writes.push(text) },
-    }, blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) } })
+    }, blueprint: {} })
     const failure = new Error('run rejected')
     mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
     mocks.delegateHost.run.mockImplementationOnce(async () => {

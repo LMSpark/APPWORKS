@@ -579,15 +579,6 @@
           "type": "object",
           "title": "Promise<PageTool>"
         },
-        "method.previewBlueprintRemote.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.previewBlueprintRemote.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeData>"
-        },
         "method.previewPageFileRemote.params": {
           "type": "object",
           "properties": {
@@ -619,15 +610,6 @@
         "method.savePageFileChange.return": {
           "type": "object",
           "title": "Promise<void>"
-        },
-        "method.loadBlueprint.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.loadBlueprint.return": {
-          "type": "object",
-          "title": "Promise<ProjectBlueprintTreeData>"
         },
         "method.ingestBlueprintTree.params": {
           "type": "object",
@@ -801,7 +783,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T21:59:14.208Z",
+  "generatedAt": "2026-10-27T22:22:31.921Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -1771,22 +1753,6 @@
               }
             },
             {
-              "name": "previewBlueprintRemote",
-              "jsdoc": "只读远端正式蓝图，不覆盖本地策划草稿或活动页。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
               "name": "previewPageFileRemote",
               "jsdoc": "读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。",
               "parameters": [
@@ -1852,23 +1818,8 @@
               }
             },
             {
-              "name": "loadBlueprint",
-              "jsdoc": "加载项目蓝图。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "ProjectBlueprintTreeData",
-                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                  }
-                ]
-              }
-            },
-            {
               "name": "ingestBlueprintTree",
+              "jsdoc": "加载项目蓝图。",
               "parameters": [
                 {
                   "name": "root",

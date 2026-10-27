@@ -21,7 +21,7 @@ function fixture(text: string | null = JSON.stringify(initial)) {
   })
   const validate = vi.fn(async () => undefined)
   const open = () => {
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({children: []})},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}, scenarioDefinitions: async () => dataSet,
       scenarioViews: {readScope: () => scope, readText: async id => {expect(id).toBe('TARGET'); return stored},
         writeText: async (_id, next) => {writes.push(next); stored = next; await gate; if (loseResponse) {loseResponse = false; throw new Error('response lost')}},
@@ -635,7 +635,7 @@ describe('formal definition resources through SPARK data', () => {
   it('routes real query input to its target, retains receipts and rejects mixed-target submissions', async () => {
     const stored = new Map(['T1', 'T2'].map(id => [id, JSON.stringify({...initial, scenarioId: id})]))
     const writes: string[] = []
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({children: []})},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
       scenarioViews: {readScope: () => 'scope', readText: async id => stored.get(id) ?? null,
         writeText: async (id, text) => {stored.set(id, text); writes.push(id)}}})

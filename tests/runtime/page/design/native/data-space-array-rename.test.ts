@@ -150,9 +150,9 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
     for(const page of pages){files.set(`${page}/rule.json`,JSON.stringify({type:'r-table',props:{dataViewKey:'A@Orders@shared'}}));files.set(`${page}/script.js`,'');files.set(`${page}/style.css`,'')}
     const {owner,view,writes,f}=await setup({pageFiles:{readPageFile:async command=>{const text=files.get(`${command.pageId}/${command.fileName}`);if(text===undefined)throw new Error('file unavailable');return text},
       saveFileContent:async(id,name,text)=>{files.set(`${id}/${name}`,text);saves.push(`${id}/${name}`);if(lose){lose=false;throw new Error('tool receipt lost')}}},
-      blueprint:{loadRoot:async()=>({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:pages.map(id=>({
+      blueprintTreeProjection: async () => ({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:pages.map(id=>({
         nodeId:id,parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:id},source:{},navigation:{target:`cfg:${id}`,title:id,order:0,publishInMenu:true,showChildren:true,beginGroup:false},
-      }))})}})
+      }))})})
     view.updateEditingValue('M1','Name','LocalOrders');await expect(owner.save()).rejects.toThrow('tool receipt lost')
     expect(owner.getState().status).toBe('configuration');expect(saves).toEqual(['ONE/rule.json']);expect(await owner.verify()).toBe(true)
     expect(saves).toEqual(['ONE/rule.json','TWO/rule.json']);expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
@@ -176,10 +176,10 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
   it('rechecks the complete rename dependency set after asynchronous file preflight',async()=>{
     const preflight:{gate?:Promise<void>}={};let release=()=>{},reached=()=>{}
     const entered=new Promise<void>(resolve=>{reached=resolve})
-    const {owner,view,writes,f,session}=await setup({blueprint:{loadRoot:async()=>{
+    const {owner,view,writes,f,session}=await setup({blueprintTreeProjection: async () => {
       if(preflight.gate){reached();await preflight.gate}
-      return{nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}
-    }}})
+      return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}
+    }})
     view.updateEditingValue('M1','Name','LocalOrders');preflight.gate=new Promise<void>(resolve=>{release=resolve})
     const saving=owner.save();await entered
     f.created.set('Base_DataModel_Field',[{rowid:'LATE',dataSetId:'A',dataModelId:'M2',Name:'late',type:'inputParams',ValueFun:'{"Type":"GetTableField","Field":"Orders.id"}'}])

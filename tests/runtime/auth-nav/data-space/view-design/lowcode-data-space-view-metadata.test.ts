@@ -46,7 +46,7 @@ function fixture(text: string | null = initial, withModelCatalog = false) {
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
       pageFiles: {readPageFile: async () => {throw new Error('unexpected tool read')}},
-      blueprint: {loadRoot: async () => ({children: []})},
+      blueprint: {},
       scenarioViews: {readScope: () => scope,
         readText: async id => {expect(id).toBe(targetId); return stored},
         writeText: async (id, value) => {

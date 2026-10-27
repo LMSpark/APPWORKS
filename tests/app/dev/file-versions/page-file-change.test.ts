@@ -4,7 +4,7 @@ import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
 describe('checked tool file changes', () => {
   it('does not confirm an acknowledged write when the remote original is unchanged', async () => {
     let writes = 0
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({})},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
       pageFiles: {readPageFile: async () => 'old', saveFileContent: async () => {writes++}}})
     await expect(workspace.savePageFileChange({pageId: 'TOOL', fileName: 'script.js', expectedText: 'old', text: 'new'})).rejects.toThrow(/回读未确认/)
     expect(writes).toBe(1)
@@ -13,7 +13,7 @@ describe('checked tool file changes', () => {
   it('serializes concurrent checked changes for one tool file', async () => {
     let rule = '{"type":"r-text"}', finish = () => {}, writes = 0
     const waiting = new Promise<void>(resolve => {finish = resolve})
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({})}, pageFiles: {
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, pageFiles: {
       readPageFile: async input => input.fileName === 'rule.json' ? rule : '',
       saveFileContent: async (_id, _name, text) => {writes++; await waiting; rule = text},
     }})

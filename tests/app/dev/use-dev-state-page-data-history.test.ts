@@ -121,9 +121,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
         return String(response?.content ?? '')
       },
     },
-    blueprint: {
-      loadRoot: async () => ({ nodeId:'homepage_root',parentNodeId:'',projectId:'homepage',kind:'module',capability:{name:'Test Project'},source:{},children:[] }),
-    },
+    blueprint: {},
     scenarioViews: {readScope:()=> 'scope',readText:async(scenarioId:string)=>{const content=(await httpGet(`scenario:${scenarioId}`)).content;return content === null ? null : String(content)},writeText:async(scenarioId:string,text:string)=>{await httpPut(`scenario:${scenarioId}`,{content:text})}},
     projectReferences: {
       listProjects: async () => [],

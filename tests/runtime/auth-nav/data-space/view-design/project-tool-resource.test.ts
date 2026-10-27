@@ -11,10 +11,7 @@ function fixture(blueprintTreeProjection: (() => ProjectBlueprintTreeData | Prom
   const files = new Map([['ONE//rule.json', '{"type":"r-text"}'], ['ONE/v1/rule.json', '{"type":"r-button"}']])
   const writes: string[] = []
   let current = true, lose = false, block: Promise<void> | undefined
-  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: ['v1','v2','v1'].map((version, i) => ({
-    nodeId: String(i), parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: 'One'}, source: {VersionId: version},
-    navigation: {target: 'cfg:ONE', title: 'One', order: i, publishInMenu: true, showChildren: true, beginGroup: false},
-  }))})}, pageFiles: {
+  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, pageFiles: {
     readPageFile: async input => {await block; const value = files.get(`${input.pageId}/${input.versionId ?? ''}/${input.fileName}`); if (value === undefined) throw new Error('file missing'); return value},
     saveFileContent: async (id, name, text) => {writes.push(text); files.set(`${id}//${name}`, text); if (lose) {lose = false; throw new Error('reply lost')}},
   }})
@@ -43,11 +40,9 @@ describe('project tool resources on native data views', () => {
     ]}
     const projection = vi.fn(() => tree)
     const f = fixture(projection), view = f.dataSet.getView('ProjectToolCatalog')!
-    const gateway = vi.spyOn(f.workspace, 'previewBlueprintRemote')
     await view.refresh()
     expect(view.rows).toMatchObject([{pageId:'ONE',versions:['v1']}])
     expect(projection).toHaveBeenCalledOnce()
-    expect(gateway).not.toHaveBeenCalled()
   })
 
   it('fails closed when the formal navigation tree owner is not injected', async () => {

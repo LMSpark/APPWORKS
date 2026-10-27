@@ -32,7 +32,7 @@ function fixture(initial: string | null = namedText, configureMetadata?: (dataSe
   const readText = vi.fn(async () => remote)
   const workspace = new ProjectWorkspace({ projectId: 'APP',
     pageFiles: { readPageFile: async () => { throw new Error('unexpected page read') } },
-    blueprint: { loadRoot: async () => ({ children: [] }) },
+    blueprint: {},
     scenarioViews: { readScope: () => scope, readText, writeText },
   })
   const readModel = vi.fn(async () => formalModel)

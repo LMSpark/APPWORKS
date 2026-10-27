@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {ProjectWorkspace} from '../../src/project/project-workspace'
 import type {ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '../../src/blueprint/project-blueprint-node'
 
@@ -8,10 +8,9 @@ function node(id: string): ProjectBlueprintTreeNodeData {
 
 function workspace() {
   const root: ProjectBlueprintTreeData = {...node('root'), parentNodeId: '', children: [node('a')]}
-  const loadRoot = vi.fn(async () => structuredClone(root))
-  const editor = new ProjectWorkspace({projectId: 'demo', pageFiles: {readPageFile: async () => ''}, blueprint: {loadRoot}})
+  const editor = new ProjectWorkspace({projectId: 'demo', pageFiles: {readPageFile: async () => ''}, blueprint: {}})
   editor.project.replaceBlueprintTree(structuredClone(root))
-  return {editor, loadRoot}
+  return {editor}
 }
 
 describe('ProjectWorkspace blueprint write boundary', () => {

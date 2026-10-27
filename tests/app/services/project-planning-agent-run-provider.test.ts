@@ -67,7 +67,7 @@ function createEditor(projectId = 'hr-enterprise-planning-smoke'): ProjectWorksp
   const editor = new ProjectWorkspace({
     projectId,
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    blueprint: {},
   })
   editor.project.replaceBlueprintTree({
     nodeId: 'root', parentNodeId: '', projectId, kind: 'module',
@@ -79,7 +79,7 @@ function createEditor(projectId = 'hr-enterprise-planning-smoke'): ProjectWorksp
       },
     ],
   })
-  vi.spyOn(editor, 'loadBlueprint').mockResolvedValue(editor.project.blueprintTree)
+  expect('loadBlueprint' in editor).toBe(false)
   expect('saveAll' in editor).toBe(false)
   return editor
 }
@@ -169,7 +169,7 @@ describe('prepareProjectPlanningAgentRun', () => {
         },
       ],
     })
-    expect(editor.loadBlueprint).not.toHaveBeenCalled()
+    expect('loadBlueprint' in editor).toBe(false)
     expect(mocks.loadScenario).toHaveBeenCalledWith({ projectId: 'hr-enterprise-planning-smoke', scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY })
     expect(mocks.loadProjectTree).toHaveBeenCalledOnce()
     expect(mocks.synchronize).toHaveBeenCalledOnce()
@@ -299,6 +299,6 @@ describe('prepareProjectPlanningAgentRun', () => {
     expect(mocks.ownerDispose).toHaveBeenCalledOnce()
     expect(mocks.runtime.dispose).toHaveBeenCalledOnce()
     expect(mocks.activateProjectPlanningAgentWorkflow).not.toHaveBeenCalled()
-    expect(editor.loadBlueprint).not.toHaveBeenCalled()
+    expect('loadBlueprint' in editor).toBe(false)
   })
 })

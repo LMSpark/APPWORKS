@@ -418,12 +418,11 @@
         "method.blueprintTreeProjection.return": {
           "anyOf": [
             {
-              "type": "object",
-              "title": "Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>"
+              "$ref": "../../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
             },
             {
               "type": "object",
-              "title": "Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>"
+              "title": "Promise<ProjectBlueprintTreeData>"
             }
           ]
         }
@@ -502,7 +501,7 @@
         },
         "blueprintTreeProjection": {
           "type": "object",
-          "title": "() => Awaited<ReturnType<ProjectWorkspace[\"previewBlueprintRemote\"]>> | Promise<Awaited<ReturnType<ProjectWorkspace[\"previewBlueprintRemote\"]>>>"
+          "title": "() => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>"
         }
       },
       "required": [
@@ -1367,7 +1366,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T18:22:35.122Z",
+  "generatedAt": "2026-10-27T22:24:16.107Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1819,11 +1818,11 @@
       "jsdoc": "当前会话的加载阶段；省略时完成目标定义装配后交付。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n}>",
+            "typeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n    /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */\n    blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1846,19 +1845,7 @@
                 "types": [
                   {
                     "type": "reference",
-                    "name": "Awaited",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "ReturnType",
-                        "typeArguments": [
-                          {
-                            "type": "unknown",
-                            "name": "ProjectWorkspace['previewBlueprintRemote']"
-                          }
-                        ]
-                      }
-                    ]
+                    "name": "ProjectBlueprintTreeData"
                   },
                   {
                     "type": "reference",
@@ -1866,19 +1853,7 @@
                     "typeArguments": [
                       {
                         "type": "reference",
-                        "name": "Awaited",
-                        "typeArguments": [
-                          {
-                            "type": "reference",
-                            "name": "ReturnType",
-                            "typeArguments": [
-                              {
-                                "type": "unknown",
-                                "name": "ProjectWorkspace['previewBlueprintRemote']"
-                              }
-                            ]
-                          }
-                        ]
+                        "name": "ProjectBlueprintTreeData"
                       }
                     ]
                   }

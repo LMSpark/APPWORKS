@@ -3299,7 +3299,7 @@
     "packages/spark-project-model/src/io/project-blueprint-client.ts": {
       "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
       "shardFile": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:55:33.086Z"
+      "sourceModifiedAt": "2026-10-27T22:23:46.177Z"
     },
     "packages/spark-project-model/src/io/project-reference-client.ts": {
       "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
@@ -3309,7 +3309,7 @@
     "packages/spark-project-model/src/page-tool/project-tool-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
       "shardFile": "files/packages/spark-project-model/src/page-tool/project-tool-resource.ts.json",
-      "sourceModifiedAt": "2026-10-27T20:28:00.087Z"
+      "sourceModifiedAt": "2026-10-27T22:24:16.101Z"
     },
     "packages/spark-project-model/src/page/compile-files.ts": {
       "sourceFile": "packages/spark-project-model/src/page/compile-files.ts",
@@ -3369,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:59:14.208Z"
+      "sourceModifiedAt": "2026-10-27T22:22:31.921Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3654,7 +3654,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-27T18:50:02.029Z"
+      "sourceModifiedAt": "2026-10-27T22:24:16.103Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -3809,7 +3809,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-27T18:22:35.122Z"
+      "sourceModifiedAt": "2026-10-27T22:24:16.107Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:55:58.724Z"
+      "sourceModifiedAt": "2026-10-27T22:22:31.927Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4124,7 +4124,7 @@
     "src/services/page-design/page-design-operation-guard.ts": {
       "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
       "shardFile": "files/src/services/page-design/page-design-operation-guard.ts.json",
-      "sourceModifiedAt": "2026-10-27T21:59:45.693Z"
+      "sourceModifiedAt": "2026-10-27T22:22:31.928Z"
     },
     "src/services/project-model-artifacts/index.ts": {
       "sourceFile": "src/services/project-model-artifacts/index.ts",

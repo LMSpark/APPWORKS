@@ -207,7 +207,7 @@
                 },
                 "blueprintTreeProjection": {
                   "type": "object",
-                  "title": "() => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>"
+                  "title": "() => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>"
                 }
               },
               "required": [
@@ -267,7 +267,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T20:28:00.087Z",
+  "generatedAt": "2026-10-27T22:24:16.101Z",
   "models": {
     "Executor": {
       "name": "Executor",
@@ -310,7 +310,7 @@
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "每次异步边界核对宿主作用域；元数据空间身份与工具所属应用分别校验。",
-          "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n    }>)",
+          "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n    }>)",
           "parameters": [
             {
               "name": "options",
@@ -320,7 +320,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>;\n    }"
+                    "name": "{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n    }"
                   }
                 ]
               }

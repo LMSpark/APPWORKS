@@ -6,7 +6,7 @@ import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { createLowcodeProjectGateways, lowcodeApi, lowcodeHttp } from '../lowcode-runtime'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource } from '@spark-appworks/spark-project-model'
+import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
@@ -31,7 +31,7 @@ type DefinitionExecutorsInput = Readonly<{
   config: ScenarioViewConfig
   assertCurrent: () => void
   owner?: ProjectWorkspace
-  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>
+  blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
 }>
 
 /** 场景视图文件与正式模型的唯一运行装配入口；请求 owner 提供应用及租户身份。 */
@@ -141,7 +141,7 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
 /** 装配元数据空间并读取首屏空间与模型；字段和来源关系由工作区按需加载。 */
 export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
  fileExecutors?: LoadScenarioDataSetInput['fileExecutors'], options: Readonly<{workspace?: ProjectWorkspace;
-  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>}> = {}): Promise<DataSet> {
+  blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>}> = {}): Promise<DataSet> {
  if (typeof dataSpaceId !== 'string' || !dataSpaceId.trim() || dataSpaceId.trim() !== dataSpaceId
    || dataSpaceId === '.' || dataSpaceId === '..' || /[\\/%\u0000-\u001f\u007f]/.test(dataSpaceId)) {
   throw new Error('DATA_SPACE_METADATA_TARGET: 数据空间 ID 无效')

@@ -11,23 +11,20 @@ function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    blueprint: {},
   })
   editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
   return editor
 }
 
 describe('guardPageDesignEditor', () => {
-  it('fails closed for gateway-backed loadBlueprint reads',()=>{
+  it('does not expose raw blueprint gateway read methods',()=>{
     const editor=createEditor()
     const guarded=guardPageDesignEditor(editor,{blueprint:true})
-    expect(()=>guarded.loadBlueprint()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
-  })
-
-  it('fails closed for gateway-backed previewBlueprintRemote reads',()=>{
-    const editor=createEditor()
-    const guarded=guardPageDesignEditor(editor,{blueprint:true})
-    expect(()=>guarded.previewBlueprintRemote()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
+    expect('loadBlueprint' in editor).toBe(false)
+    expect('previewBlueprintRemote' in editor).toBe(false)
+    expect('loadBlueprint' in guarded).toBe(false)
+    expect('previewBlueprintRemote' in guarded).toBe(false)
   })
 
   it('always denies raw scenario storage even without an operation restriction', () => {
@@ -64,18 +61,15 @@ describe('guardPageDesignEditor', () => {
 
   it('does not expose ProjectWorkspace blueprint write methods', async () => {
     const root: ProjectBlueprintTreeData = { nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }
-    const gateway: ProjectBlueprintGateway = {
-      loadRoot: vi.fn(async () => root),
-    }
+    const gateway: ProjectBlueprintGateway = {}
     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' }, blueprint: gateway })
     editor.project.replaceBlueprintTree(root)
     const guarded = guardPageDesignEditor(editor, { blueprint: true })
     for (const name of ['addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode']) {
       expect(name in editor, name).toBe(false)
     }
-    expect(() => guarded.loadBlueprint()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
-    expect(() => guarded.previewBlueprintRemote()).toThrow('PAGE_DESIGN_BLUEPRINT_DATAVIEW_REQUIRED')
-    expect(gateway.loadRoot).not.toHaveBeenCalled()
+    expect('loadBlueprint' in guarded).toBe(false)
+    expect('previewBlueprintRemote' in guarded).toBe(false)
   })
 
   it('denies remote PageTool file and version writes while preserving local draft edits and reads', async () => {
@@ -87,7 +81,7 @@ describe('guardPageDesignEditor', () => {
     const editor = new ProjectWorkspace({
       projectId: 'demo',
       pageFiles: { readPageFile: async () => '', ...fileApi },
-      blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+      blueprint: {},
     })
     const guarded = guardPageDesignEditor(editor, { script: true, style: true, nodeTree: true })
     const page = guarded.project.openPageDesign('orders')

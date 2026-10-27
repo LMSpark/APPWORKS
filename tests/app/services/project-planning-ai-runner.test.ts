@@ -44,7 +44,7 @@ function createEditor(projectId = 'demo'): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId,
     pageFiles: { readPageFile: async () => '' },
-    blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
+    blueprint: {},
   })
   seedPlanningProject(editor.project)
   return editor

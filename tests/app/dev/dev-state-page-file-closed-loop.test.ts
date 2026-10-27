@@ -121,9 +121,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
           await httpFns.post(`${pageFileKey}/${pageId}/${fileName}/versions/${version}/restore`)
         },
       },
-      blueprint: {
-        loadRoot: async () => httpFns.get(blueprintKey),
-      },
+      blueprint: {},
       projectReferences: {
         listProjects: async () => [],
         loadProjectBlueprint: async () => ({ children: [] }),

@@ -50,7 +50,7 @@ function fixture(text: string | null = initial) {
         description: '', output: true, computed: false, order, orderType: '', raw: {}}))}))
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP', pageFiles: {readPageFile: async () => ''},
-      blueprint: {loadRoot: async () => ({children: []})}, scenarioViews: {
+      blueprint: {}, scenarioViews: {
         readScope: () => scope, readText: async () => stored, writeText: async (id, text) => {
           expect(id).toBe('SPACE'); stored = text; writes++
           if (loseResponse) {loseResponse = false; throw new Error('response lost')}

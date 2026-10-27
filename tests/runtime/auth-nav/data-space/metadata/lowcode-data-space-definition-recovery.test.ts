@@ -125,7 +125,7 @@ function fixture() {
   const open = async () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
-      blueprint: {loadRoot: async () => ({children: []})},
+      blueprint: {},
       scenarioViews: {readScope: () => readScope().token,
         readText: async id => {expect(id).toBe(targetId); return stored},
         writeText: async (id, text) => {

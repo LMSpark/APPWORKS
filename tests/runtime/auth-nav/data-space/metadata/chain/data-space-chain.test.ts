@@ -199,7 +199,7 @@ describe('one data space from metadata definitions through persistence to runtim
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
     transport.gateways.mockReturnValue({scenarioViews: f.fileGateway})
     const workspace = new ProjectWorkspace({projectId: 'CHAIN-APP', pageFiles: {readPageFile: async () => ''},
-      blueprint: {loadRoot: async () => ({children: []})}, scenarioViews: f.fileGateway,
+      blueprint: {}, scenarioViews: f.fileGateway,
       scenarioDefinitions: loadLowcodeScenarioDefinitions})
     const [first, second] = await Promise.all([workspace.loadScenarioDefinitions({scenarioId: f.target}), workspace.loadScenarioDefinitions({scenarioId: f.target})])
     runtimes.push(first)
@@ -231,7 +231,7 @@ describe('one data space from metadata definitions through persistence to runtim
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
     transport.gateways.mockReturnValue({scenarioViews: f.fileGateway})
     const openWorkspace = () => new ProjectWorkspace({projectId: 'CHAIN-APP', pageFiles: {readPageFile: async () => ''},
-      blueprint: {loadRoot: async () => ({children: []})}, scenarioViews: f.fileGateway, scenarioDefinitions: loadLowcodeScenarioDefinitions})
+      blueprint: {}, scenarioViews: f.fileGateway, scenarioDefinitions: loadLowcodeScenarioDefinitions})
     const first = await openWorkspace().loadScenarioDefinitions({scenarioId: f.meta}); runtimes.push(first)
     const document = await ScenarioDefinitionDocument.open(first, f.meta)
     const definition = JSON.parse(document.getText())
@@ -270,7 +270,7 @@ describe('one data space from metadata definitions through persistence to runtim
     const f = sourceChainFixture()
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
     transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway,
-      blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+      blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await openLowcodeDataSpaceDesignSession(f.target); sessions.push(session)
     const reader = new LowcodeDataSpaceModelSourceReader()
     const candidates = await reader.query({type: item.type, pageSize: 100}, session.metadataDataSet)
@@ -318,7 +318,7 @@ describe('one data space from metadata definitions through persistence to runtim
     f.files.set(f.target, JSON.stringify({...JSON.parse(f.files.get(f.target)!), schemaVersion: 2, resourceRelations: []}))
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
     transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway,
-      blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+      blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await openLowcodeDataSpaceDesignSession(f.target)
     sessions.push(session)
     const definitions = view(session.metadataDataSet, 'DataViewDefinition')
@@ -398,7 +398,7 @@ describe('one data space from metadata definitions through persistence to runtim
     const f = dataSpaceChainFixture()
     if (relationFormat === 'native') f.files.set(f.target, JSON.stringify({...JSON.parse(f.files.get(f.target)!), schemaVersion: 2, resourceRelations: []}))
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
-    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await openLowcodeDataSpaceDesignSession(f.target)
     sessions.push(session)
     const definitions = view(session.metadataDataSet, 'DataViewDefinition')
@@ -480,7 +480,7 @@ describe('one data space from metadata definitions through persistence to runtim
       if (loseReceipt) {loseReceipt = false; throw new Error('file response lost')}
     }
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
-    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await openLowcodeDataSpaceDesignSession(f.target)
     sessions.push(session)
     const dataSet = session.metadataDataSet, metadata = view(dataSet, 'Base_DataSet'), definitions = view(dataSet, 'DataViewDefinition')
@@ -512,7 +512,7 @@ describe('one data space from metadata definitions through persistence to runtim
   it('saves the designer own C through its definition view and consumes it in fresh designer and page runtimes', async () => {
     const f = dataSpaceChainFixture()
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
-    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const designer = await open(f.meta)
     const runningModels = view(designer.metadataDataSet, 'Base_DataModel')
     const originalSize = runningModels.pageSize
@@ -536,7 +536,7 @@ describe('one data space from metadata definitions through persistence to runtim
   it('cascades definition field candidates by model and view, then saves through the definition DataSet', async () => {
     const f = dataSpaceChainFixture()
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
-    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await open(f.target)
     const definitions = view(session.metadataDataSet, 'DataViewDefinition')
     const address = {tableName: 'DataViewDefinition', viewId: 'default', field: 'labelField'}
@@ -568,7 +568,7 @@ describe('one data space from metadata definitions through persistence to runtim
   it('reopens named views, queries server aggregates, and edits through a bound standard component with a multi-input cascade', async () => {
     const f = dataSpaceChainFixture()
     transport.request.mockImplementation(f.request); transport.scope.mockImplementation(f.readScope)
-    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+    transport.workspace.mockImplementation(f.workspace); transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     const session = await open(f.target)
     expect(session.metadataDataSet.scenarioId).toBe(f.meta)
     expect(session.targetId).toBe(f.target)

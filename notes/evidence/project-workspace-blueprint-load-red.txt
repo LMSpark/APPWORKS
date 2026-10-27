@@ -1,0 +1,55 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ packages/spark-project-model/tests/project-model.test.ts (18 tests | 1 failed) 85ms
+     × does not expose raw blueprint gateway loading from ProjectWorkspace 15ms
+ ❯ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts (50 tests | 1 failed) 17528ms
+     × does not expose raw blueprint loading while retaining project-reference projection 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/project-model.test.ts > ProjectBlueprint > does not expose raw blueprint gateway loading from ProjectWorkspace
+AssertionError: expected { …(3) } to deeply equal { loadBlueprint: undefined, …(2) }
+
+- Expected
++ Received
+
+  {
+-   "loadBlueprint": undefined,
+-   "previewBlueprintRemote": undefined,
++   "loadBlueprint": [Function loadBlueprint],
++   "previewBlueprintRemote": [Function previewBlueprintRemote],
+    "probeLink": "function",
+  }
+
+ ❯ packages/spark-project-model/tests/project-model.test.ts:77:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > does not expose raw blueprint loading while retaining project-reference projection
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts:89:46
+     87|     sceneWorkspace()
+     88|     const gateways = runtime.createLowcodeProjectGateways('APP-1')
+     89|     expect('loadRoot' in gateways.blueprint).toBe(false)
+       |                                              ^
+     90|     expect(gateways.projectReferences.loadProjectBlueprint).toBeTypeOf…
+     91|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 66 passed (68)
+   Start at  06:21:11
+   Duration  24.66s (transform 18.11s, setup 445ms, import 7.54s, tests 17.61s, environment 3.45s)
+

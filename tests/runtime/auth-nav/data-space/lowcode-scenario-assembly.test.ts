@@ -99,7 +99,7 @@ describe('explicit file resource assembly', () => {
   let stored = text, scope = 'original'
   const writes: string[] = []
   const workspace = new ProjectWorkspace({projectId: 'APP', pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
-   blueprint: {loadRoot: async () => ({children: []})}, scenarioViews: {readScope: () => scope,
+   blueprint: {}, scenarioViews: {readScope: () => scope,
     readText: async () => stored, writeText: async (_id, next) => {writes.push(next); stored = next}}})
   const file = await workspace.loadScenarioViews({scenarioId: 'SCENE'})
   type Executor = Parameters<DataView['bindQueryExecutor']>[0]
@@ -340,7 +340,7 @@ it('saves a named aggregate through the definition DataView, reopens and consume
  if (!isRecord(metadata) || !isRecord(metadata['tables'])) throw new Error('Missing metadata tables')
  const definitionTable = metadata['tables']['DataViewDefinition']
  const open = () => {
-  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {loadRoot: async () => ({children: []})},
+  const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
    pageFiles: {readPageFile: async () => {throw new Error('Unexpected page read')}},
    scenarioViews: {readScope: () => 'scope', readText: async () => stored,
     writeText: async (_id, next) => {stored = next; writes.push(next)}}})

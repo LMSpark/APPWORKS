@@ -2,7 +2,7 @@ import {ScenarioDefinitionResource, ScenarioDefinitionRecords, DataSpaceReferenc
 import { DataSpaceDesignApi, DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
 import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { ScenarioViewConfig, ScenarioViewFile, type ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { ScenarioViewConfig, ScenarioViewFile, type ProjectBlueprintTreeData, type ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { LowcodeDataSpaceAssembly } from '../lowcode-data-space-assembler'
 import { LowcodeDataSpaceViewLayout } from './lowcode-data-space-view-layout'
 import { LowcodeDataSpaceViewMetadata } from './lowcode-data-space-view-metadata'
@@ -99,7 +99,7 @@ export type SessionLoadOptions = Readonly<{
   /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */
   deferDefinition?: boolean
   /** 由页面唯一 PageRuntime 持有的正式导航 DataView 投影；工具目录查询时惰性调用。 */
-  blueprintTreeProjection?: () => Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>> | Promise<Awaited<ReturnType<ProjectWorkspace['previewBlueprintRemote']>>>
+  blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
 }>
 
 /** 当前定义操作实际依赖的读取范围和预览快照。 */

@@ -144,7 +144,7 @@ async function openMetadataSession(targetId = 'SPACE') {
   const token = record(scope)['token']
   const workspace = new ProjectWorkspace({projectId: 'APP-1',
     pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
-    blueprint: {loadRoot: async () => ({children: []})},
+    blueprint: {},
     scenarioViews: {readScope: () => String(record(mocks.scope())['token']), readText: async () => null,
       writeText: async () => {throw new Error('declarations must not write pagedata')}},
   })
@@ -184,7 +184,7 @@ describe('data-space metadata DataSet', () => {
       return JSON.stringify(configuration)
     })
     mocks.gateways.mockReturnValue({scenarioViews: {readText: mocks.readConfiguration},
-      blueprint: {loadRoot: async () => ({children: []})}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+      blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
     mocks.readModelBatch.mockImplementation(async ({metaNames}: {metaNames: string[]}) => metaNames.map(formalModel))
     mocks.readSpaceDefinition.mockImplementation(async ({dataSpaceId}: {dataSpaceId: string}) =>
       ({dataSpaceId, name: '元数据正式空间'}))
@@ -236,7 +236,7 @@ describe('data-space metadata DataSet', () => {
       writeText: async (target: string, text: string) => {
         stored.set(target, text); fileWrites.push(target)
         if (loseNext) {loseNext = false; throw new Error('response lost after metadata configuration write')}
-      }}, blueprint: {loadRoot: async () => ({children: []})},
+      }}, blueprint: {},
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}}
     mocks.gateways.mockReturnValue(gateways)
     const open = async (target: string) => {

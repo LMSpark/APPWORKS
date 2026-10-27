@@ -1,6 +1,6 @@
 import {withDefinitionResources} from '../../../auth-nav/data-space/view-design/definition-resource.fixture'
 import {DataSpaceRuntimeApi, DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {ProjectWorkspace, ScenarioViewConfig, type ProjectWorkspaceOptions} from '@spark-appworks/spark-project-model'
+import {ProjectWorkspace, ScenarioViewConfig, type ProjectBlueprintTreeData, type ProjectWorkspaceOptions} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {LowcodeModelRelationAdapter} from '@/lowcode/data-space/lowcode-model-relation-adapter'
@@ -38,6 +38,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
   deferDefinition?: boolean; assemblyGate?: Promise<void>; sharedWorkspace?: boolean; formalSourceInputs?: boolean;
   readLegacyLayout?: (id: string) => Promise<string | null>; formalProjection?: boolean; sourceFieldPermissions?: {h?: string[]; m?: string[]}; overviewOnly?: boolean;
   pageFiles?: ProjectWorkspaceOptions['pageFiles']; blueprint?: ProjectWorkspaceOptions['blueprint'];
+  blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
   modelSources?: NonNullable<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['modelSources']>; allowModelAdd?: boolean; allowFieldAdd?: boolean; omitFieldReceipt?: boolean; omitFieldWrite?: boolean;
   allowSourceEdit?: boolean; allowModelRename?: boolean; allowFieldEdit?: boolean; allowRelationEdit?: boolean; omitRelationWrite?: boolean; omitRelationReceipt?: boolean;
   sourceFields?: Record<string, unknown>[]; hiddenFieldProperties?: string[]; hiddenModelProperties?: string[]; editableFieldProperties?: string[]; relationRows?: Record<string, unknown>[]; omitModelProperties?: string[]; omitFieldProperties?: string[]; partialFieldWriteId?: string; omitModelWrite?: boolean; omitAllFieldChanges?: boolean;
@@ -439,7 +440,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
     }}))
     const workspace = (options.sharedWorkspace ? workspaces.at(-1) : undefined) ?? new ProjectWorkspace({projectId: 'APP',
       pageFiles: options.pageFiles ?? {readPageFile: async () => {throw new Error('not page files')}},
-      blueprint: options.blueprint ?? {loadRoot: async () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'Application'}, source: {}, children: []})}, scenarioViews: {
+      blueprint: options.blueprint ?? {}, scenarioViews: {
         readScope: () => scope, readText: async id => stored.get(id) ?? null,
         writeText: async (id, text) => {
           stored.set(id, text); fileWrites.push({targetId: id, text})
@@ -513,7 +514,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
       },
     })
     const session = await service.openDesignSession(targetId, {deferDefinition: loading.deferDefinition ?? options.deferDefinition ?? false,
-      ...(loading.blueprintTreeProjection ? {blueprintTreeProjection: loading.blueprintTreeProjection} : {})})
+      blueprintTreeProjection: loading.blueprintTreeProjection ?? options.blueprintTreeProjection ?? (() => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'Application'}, source: {}, children: []}))})
     sessions.push(session)
     workspaces.push(workspace)
     return session

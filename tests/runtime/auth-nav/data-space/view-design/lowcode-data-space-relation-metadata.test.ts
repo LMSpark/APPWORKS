@@ -48,7 +48,7 @@ function fixture(text: string | null = initial) {
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
-      blueprint: {loadRoot: async () => ({children: []})},
+      blueprint: {},
       scenarioViews: {readScope: () => scope, readText: async () => stored,
         writeText: async (id, text) => {
           expect(id).toBe('SPACE'); stored = text; writes++

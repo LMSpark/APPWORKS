@@ -35,7 +35,6 @@ import {
   type ProjectSummary,
 } from '../io/project-reference-client'
 import {
-  normalizeBlueprintTree,
   resolvePageNodePageId,
 } from '../blueprint/project-blueprint-tree'
 
@@ -444,8 +443,6 @@ constructor(options: ProjectWorkspaceOptions) {
   public async loadPageTool(pageId: string, options?: ProjectPageLoadOptions): Promise<PageTool> { const tool=this.project.openPageDesign(pageId); await this.loadPage(tool,options); return tool }
 
   /** 只读远端正式蓝图，不覆盖本地策划草稿或活动页。 */
-  public async previewBlueprintRemote(): Promise<ProjectBlueprintTreeData> { return this.loadBlueprintRoot() }
-
   /** 读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。 */
   public async previewPageFileRemote(pageId: string, fileName: PageToolFileName, versionId?: string): Promise<string> {
     if (versionId !== undefined) {
@@ -491,10 +488,6 @@ constructor(options: ProjectWorkspaceOptions) {
 
 
     /** 加载项目蓝图。 */
-async loadBlueprint(): Promise<ProjectBlueprintTreeData> {
-    return this.reloadBlueprint()
-  }
-
 ingestBlueprintTree(
     root: ProjectBlueprintTreeData,
     options?: { selectedNodeId?: string | null },
@@ -620,13 +613,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     return pageId
   }
 
-  private async reloadBlueprint(options?: { selectedNodeId?: string | null }): Promise<ProjectBlueprintTreeData> {
-    const root = await this.loadBlueprintRoot()
-    return this.project.replaceBlueprintTree(root, {
-      selectedNodeId: options?.selectedNodeId ?? null,
-    })
-  }
-
   private async loadPage(page: PageTool, options?: ProjectPageLoadOptions): Promise<void> {
     const forceReload = options?.forceReload === true
     if (page.isLoaded && !forceReload) return
@@ -668,7 +654,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     loader.clearPageCache(normalized)
   }
 
-  private async loadBlueprintRoot(): Promise<ProjectBlueprintTreeData> { return normalizeBlueprintTree(await this.blueprintGateway.loadRoot()) }
   private getSelectedNode(): ProjectBlueprintTreeNodeData | null {
     const selectedNodeId = this.project.session.session.selectedNodeId
     if (!selectedNodeId) return null

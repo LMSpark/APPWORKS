@@ -32,7 +32,7 @@ function fixture() {
   let stored: string | null = null
   const workspace = () => new ProjectWorkspace({projectId: 'APP',
     pageFiles: {readPageFile: async () => {throw new Error('unexpected page file')}},
-    blueprint: {loadRoot: async () => ({children: []})},
+    blueprint: {},
     scenarioViews: {readScope: () => 'SCOPE', readText: async () => stored,
       writeText: async (_id, text) => {stored = text}},
   })

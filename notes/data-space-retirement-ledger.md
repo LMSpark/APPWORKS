@@ -963,6 +963,14 @@ flowchart TD
 
 **2026-10-27 WorkflowDesigns 与 gateway 候选复核（源码基线 `7d34c11e5`）。** 低价模型只读筛查并由主控复核：`src/services/workflow-designs.ts` 的生产目录读取经 `lowcodeApi.design.listFiles({appType:'designfile', folderPath: applicationId + '/workflow-designs'})`，正文读取按 workflowId 拼路径调用 `readTextFile`；当前没有正式 pagedata file resource 声明、绑定 DataView owner 或与现路径访问范围等价的查询权限证据。不能把同为文件的 `ProjectToolResource` 套给工作流，因为它只接受蓝图 pageId 与 `rule.json/script.js/style.css`。工作流保存函数目前明确拒绝，缺前镜像/journal/readback/补偿合同；本轮只核读取候选，不解锁写入。`createLowcodeProjectGateways()` 的直接蓝图 gateway 未发现当前生产消费者；DevSystem 使用专门的 `PageRuntime → BlueprintWorkspaceDataView`，headless provider 无已确认生产接线，不能把未调用定义列作活动生产旁路。结论：未找到可安全实施的新代码切片，等待正式工作流文件资源身份/owner/权限范围或其它已接线消费者合同。仅源码筛查，没有服务请求或写入。
 
+### 2026-10-28 DataSpace 补齐路线确认与未调用蓝图读取入口收口
+
+- **用户方向：**用户确认可以通过“数据空间设计”补齐现有游离于 DataSet 之外的数据。后续应优先在正式数据空间设计中声明语义资源、模型/字段、绑定及所需 DataView，再由页面和领域调用方绑定 DataView 使用；不能按页面重建一套 owner。数据空间设计只补本仓正式配置，不会自动创造后端授权、过滤范围、运行路由身份或提交回执合同，这些仍逐项验证。没有在本条指示下新建或修改任何正式空间/模型/业务数据，也没有改 Java。
+- **实施切片：**低价模型先添加失败用例并保存 RED 输出 `notes/evidence/project-workspace-blueprint-load-red.txt`，主控复核后移除 `ProjectWorkspace.loadBlueprint()`、`previewBlueprintRemote()` 及其私有 root reader/reload helper；`ProjectBlueprintGateway` 不再承担读取，只保留既有可选 `probeLink` 命令。`createLowcodeProjectGateways()` 返回空蓝图 gateway，PageDesign 不再保护已移除的两个方法名。`ProjectToolResource` 的导航目录由宿主显式注入 `ProjectBlueprintTreeData` 投影类型，测试现已显式注入投影，相关 suite 21/21 通过。DevSystem 自有 `PageRuntime → Base_NavigationInfo DataView` 树加载与投影保留。
+- **仍保留的独立读取边界：**`readLowcodeProjectBlueprintEditorTree()` 只由 `projectReferences.loadProjectBlueprint` 使用，属于跨项目引用投影，不在本切片中删除；该入口未来是否迁移，需单独核对正式应用目录 DataView 的身份、scope 与权限合同。不能据本切片宣称所有 owner 已统一。
+- **主控门禁：**正式 `generate:class-model-surface` 成功；`pnpm run typecheck`、受影响源/测试文件 ESLint、完整 `pnpm run verify:rules` 及生产 `pnpm run build` 均退出 0。正式生成器重算导致若干无关 DTS 分片的 TypeScript 内建 Symbol 编号变动，未手改产物。完整受影响测试集 34 files / 1245 tests 中 30 files 通过、1237 passed、8 failed；失败集中在 4 个 suite：DevState 文件保存 fixture 3 项、metadata unknown 回执期望 1 项、submit 新行正式身份断言 2 项、data-space-chain 字典 `typeid` 输出字段校验及一个 15 秒超时 2 项。`typeid` 已独立顺序重跑稳定失败，校验路径不调用被移除的 Workspace gateway；链路超时单独重跑未复现。未将失败项伪装成通过，完整输出见 `notes/evidence/project-workspace-blueprint-load-affected-tests.txt`。当前浏览器未认证且位于公开首页，未做真实 SPA 烟测或正式数据读写。
+- **状态：**本切片有明确代码完成与工程门禁，但影响测试仍有已登记失败，待分别判定/修复其自身合同或夹具；跨项目引用 raw 读取、静态 `/app-list` 和其它已登记旁路仍未完成。总体目标保持 active；下一步继续用 DataSpace 设计补齐可正式表达的资源定义，并按当前服务身份与权限证据迁移实际消费者，不通过添加配置假造服务合同。
+
 **2026-10-27 SPA 观察（历史）**：当时本地 `http://127.0.0.1:5273/` 打开平台首页，页面显示“登录”入口；没有已认证会话，也未提交认证或业务请求。该记录不表示 2026-10-28 当前 SPA 状态。
 
 ## 2026-10-24 低价模型实施与主控验收

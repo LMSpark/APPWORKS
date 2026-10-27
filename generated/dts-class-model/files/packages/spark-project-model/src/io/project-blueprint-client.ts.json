@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/io/project-blueprint-client.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "io/project-blueprint-client",
-    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：正式蓝图根读取与链接可嵌入性检查网关。\n边界：蓝图 CRUD 由正式 DataView/DataSet 负责，不由 ProjectWorkspace 直写。\nAI用途：确认Workspace蓝图读取和链接检查所需能力。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-blueprint-client\n职责：项目工作区可用的平台链接可嵌入性检查命令。\n边界：蓝图 CRUD 由正式 DataView/DataSet 负责，不由 ProjectWorkspace 直写。\nAI用途：确认Workspace的链接检查命令合同。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LinkProbeResult",
@@ -41,15 +41,6 @@
       "type": "object",
       "title": "ProjectBlueprintGateway",
       "$defs": {
-        "method.loadRoot.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.loadRoot.return": {
-          "type": "object",
-          "title": "Promise<Partial<ProjectBlueprintTreeData>>"
-        },
         "method.probeLink.params": {
           "type": "object",
           "properties": {
@@ -66,7 +57,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T21:55:33.086Z",
+  "generatedAt": "2026-10-27T22:23:46.177Z",
   "models": {
     "LinkProbeResult": {
       "name": "LinkProbeResult",
@@ -99,40 +90,19 @@
     },
     "ProjectBlueprintGateway": {
       "name": "ProjectBlueprintGateway",
-      "jsdoc": "ProjectWorkspace 可读取正式树并检查链接；写入须由 DataView/DataSet 完成。",
+      "jsdoc": "ProjectWorkspace 仅使用平台链接检查命令；蓝图树读取与写入由 DataView/DataSet 负责。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+        "declarationTypeText": "Readonly<{\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    loadRoot(): Promise<Partial<ProjectBlueprintTreeData>>;\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
+            "typeText": "Readonly<{\n    probeLink?: (url: string) => Promise<LinkProbeResult>;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "methods": [
-            {
-              "name": "loadRoot",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "Partial",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "ProjectBlueprintTreeData",
-                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
             {
               "name": "probeLink",
               "parameters": [

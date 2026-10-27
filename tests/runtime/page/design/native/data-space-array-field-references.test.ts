@@ -191,9 +191,9 @@ describe('array field references follow formal field identity',()=>{
     ]}));files.set('ONE/script.js','');files.set('ONE/style.css','')
     const {owner,rename,writes}=await setup({pageFiles:{readPageFile:async command=>files.get(`${command.pageId}/${command.fileName}`)??'',
       saveFileContent:async(id,name,text)=>{files.set(`${id}/${name}`,text);saves.push(`${id}/${name}`);if(lose){lose=false;throw new Error('tool receipt lost')}}},
-      blueprint:{loadRoot:async()=>({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[{
+      blueprint:{}, blueprintTreeProjection:()=>({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[{
         nodeId:'ONE',parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:'One'},source:{},navigation:{target:'cfg:ONE',title:'One',order:0,publishInMenu:true,showChildren:true,beginGroup:false},
-      }]})}})
+      }]})})
     await rename({F1:'name',F2:'code'});await expect(owner.save()).rejects.toThrow('tool receipt lost');expect(owner.getState().status).toBe('configuration')
     expect(await owner.verify()).toBe(true);expect(saves).toEqual(['ONE/rule.json']);expect(writes()).toHaveLength(1)
     expect(JSON.parse(files.get('ONE/rule.json')!)).toMatchObject({props:{dataViewKey:'A@Orders@shared'},children:[

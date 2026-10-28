@@ -3106,3 +3106,11 @@ flowchart TD
 - **低价实施与主控修复：**平面候选不再强行把 DataView 改成 `allPages=true`，也不要求首屏行数等于全体 total；标准表格按正式 DataView 配置分页。用户打开候选前，同一 DataView 用 `valueField eq selectedValue` 进行完整精确核验，结果必须恰好一行且主键、值匹配当前选择；同时复核视图/模型/空间/导航/当前行身份。查询失败、无匹配、重复结果、分页后旧行失效、核验期间更改选择均拒绝；busy 从核验开始覆盖到切换结束，阻止重复提交。树候选保留全量模式和原层级校验。不新增 owner、数组数据源、HTTP 入口或持久化查询配置。
 - **自动化验证：**低价目标文件复跑 3 个测试文件 29/29；主控独立复跑当前目录 3 文件 30/30、目标 ESLint `--max-warnings=0`、`pnpm run typecheck`、完整 `pnpm run verify:rules` 和 `pnpm run build` 均退出 0。完整规则检查保留既有 AI model spec 2 warnings/1 info；build 保留现有 CodeMirror ineffective dynamic import 警告。测试输出位于 [`devsystem-nav-host`](evidence/devsystem-nav-host/)；其中首份 `red.txt` 失败来自原树测试对既有 `allPages=true` 行为的旧断言，不计作本次分页实现的有效 RED 证明，测试期望已纠正并由后续 GREEN 覆盖。
 - **未完成与交付边界：**真实 1335 条候选 DataView 的分页/`queryOptionRows` 精确过滤仍未在 SPA 验证；`appworks-tool-dev` 关系仍无正式配置行，候选 DataSpace/模型/字段与写权限/保存回执合同缺失，因此本切片不宣称 DevSystem 项目切换可用。没有写正式关系、业务数据或 DataSpace，也未修改/启动/部署 Java。此切片已由主控复核；待提交推送。总体 SPARK data 统一目标保持 active。
+
+### 2026-10-28 SPARK data 全域下一切片复核
+
+- **基线复核：**当前工作树干净，`HEAD=ebf2248f77e4de99d6e6107c12b2325418674bd3`，与 `origin/codex/ai-data-entry` 一致。NavHost 平面候选分页切片已在该基线中，不重复登记或改写。
+- **当前源码审计：**低价只读审计重新检查生产调用者后，未找到同时具备正式 DataSet owner、查询 scope、服务端行/字段授权和真实保存回执合同，且能据此安全移除旧业务旁路的新切片。重点未决面为平台应用目录（`AppList.vue`、`PlatformApps.vue`、`project-settings.ts`、`lowcode-runtime.ts`）、数据库物理预览 executor、`AgentWorkflowFiles` 文件资源、结构化配置目录和财务账户设置绑定。它们各自缺 owner/scope 等价证据、物理资源授权、文件目录/权限回执或正式模型视图；具体不能替换的合同按前述相应条目继续跟踪。登录/注册与缓存运维状态不强行改造为业务 DataView。
+- **SPA 工具现场：**当前 CUA inventory 可见本地 D99 数据空间标签；对标签 ID `6` 按 browser ID `2` 附着时返回 `browser.user is unavailable`。这只证明当前自动化附着失败，不能推断标签未认证，也没有执行登录请求、正式 DataView 查询、切换或写入。用户已提供测试账号及授权，不再次索取或记录明文凭据；认证表单不会由自动化填写。
+- **下一解锁项：**优先取得平台应用目录受服务端承认的 root/app-less DataSet owner、请求 scope 和查询权限投影；随后对照目录 DataView 与旧消费者各自的范围、字段权限和保存回执，再按消费者迁移并删掉被替代路径。其他资源按其正式 owner 与拒绝/回执合同独立处理。不能用本地夹具、DataView 包装或数据空间设计来补造服务端身份与授权。
+- **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。

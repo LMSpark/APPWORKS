@@ -2817,3 +2817,10 @@ flowchart TD
 - **根应用目录：**当前无已证实的 root DataSet owner/scope。旧 `listApplications()` 使用固定 `7AB...` FormKey、`Base_AppSystemList`、`Filter:null`，曾返回 61 行；D99 正式 DataView 返回 1 行，不能据此认定范围相同。`90A8` 是元数据目录 owner，`0C70` 是应用管理页场景；现有空间不得代替 `homepage` root owner。找到正式 owner 后，可通过其设计器绑定 `Base_AppSystemList` 并定义经核实的字段、范围、分页 DataView，再对照 61 行及字段权限后迁移消费者。
 - **DevSystem 项目关系：**正式读取 owner `7AB...@Base_Navigation_DataRelation@default` 已确认，模型 26 列、查询 9 行；`prowid=appworks-tool-dev` 当前 0 行。可在此关系 owner 下通过设计器补专用关系视图，但字段可写授权、保存回执/读回及关系所引用候选 DataSpace 的正式范围仍未证实。候选 owner 必须来自真实关系引用及服务端认可的 DataSpace；不能把 `90A8` 的分页目录或 `7AB` 关系模型当成项目候选数据。
 - **实施界线：**设计器负责补齐已识别正式 owner 下的 DataTable/字段/DataView 定义，不能自行创造 root 身份、scope 或授权。SPA 本次只读审计，无设计保存、关系新增、业务行写入或 Java 改动；继续先补身份/权限/回执证据，再实施对应消费者。
+
+### 2026-10-28 DevSystem 项目关系生产接线复核
+
+- **当前生产调用：**`NavHostProjectPicker.vue` 只从正式 `7AB...@Base_Navigation_DataRelation@default` DataView 读取当前导航关系，再按关系记录加载候选 DataSet，并通过 `openEditingProject` 切换；`configureNavHostProjectRelation()` 目前仅被测试调用，没有生产 UI 调用。目标 `prowid=appworks-tool-dev` 的关系查询为 0，因此开发工作台项目切换尚未形成可用链路。
+- **实现前置：**关系写入命令已按 DataView 查询完整性、字段 `newRowFieldAccess`、`DataView.addRow` 与 `DataSet.saveChanges` 设计，但自动化夹具不能证明正式字段可写或服务端会接受回执。现有其它关系引用的 `03D8E17A...` 候选 DataSpace 未在 D99 目录确认；不把它或 D99 的元数据目录临时当作候选 owner。
+- **本轮验证边界：**重新尝试只读 SPA 检查时，Computer Use 拒绝以 Windows Chrome 窗口继续，原因是无法足够确定当前浏览器 URL；没有执行 UI 输入或数据写入。后续须在可验证 URL 的现有 SPA 窗口中，先核正式候选 DataSpace、关系字段读写权限及查询/保存回执，再接生产配置入口。
+- **变更状态：**只做源码与台账复核，没有产品代码、正式 DataSpace、关系行或 Java 改动；本条更新应随独立台账提交实时推送。整体 SPARK data 统一目标保持 active。

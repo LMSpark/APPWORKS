@@ -1,0 +1,177 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > reads formal space, model, fields, and relations through the active metadata DataSet owner
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataModel:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default
+🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default
+
+ ❯ src/platform/data-space/design/data-space-design-api.test.ts (169 tests | 1 failed) 923ms
+     × reads formal space, model, fields, and relations through the active metadata DataSet owner 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/data-space/design/data-space-design-api.test.ts > DataSpaceDesignApi formal space definition > reads formal space, model, fields, and relations through the active metadata DataSet owner
+AssertionError: expected "query" to not be called at all, but actually been called 4 times
+
+Received:
+
+  1st query call:
+
+    Array [
+      Object {
+        "metaName": "Base_DataSet",
+        "scenarioId": "DESIGN-1",
+      },
+      Object {
+        "fields": Array [
+          "rowid",
+          "Name",
+        ],
+        "filter": Object {
+          "field": "rowid",
+          "operator": "eq",
+          "value": "SPACE-1",
+        },
+        "page": Object {
+          "index": 1,
+          "size": 2,
+        },
+      },
+    ]
+
+  2nd query call:
+
+    Array [
+      Object {
+        "metaName": "Base_DataModel",
+        "scenarioId": "DESIGN-1",
+      },
+      Object {
+        "allPages": true,
+        "filter": Object {
+          "filters": Array [
+            Object {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": "SPACE-1",
+            },
+            Object {
+              "field": "Name",
+              "operator": "in",
+              "value": Array [
+                "Orders",
+              ],
+            },
+          ],
+          "logic": "and",
+        },
+        "page": Object {
+          "index": 1,
+          "size": 500,
+        },
+        "sort": Array [
+          Object {
+            "direction": "asc",
+            "field": "rowid",
+          },
+        ],
+      },
+    ]
+
+  3rd query call:
+
+    Array [
+      Object {
+        "metaName": "Base_DataModel_Field",
+        "scenarioId": "DESIGN-1",
+      },
+      Object {
+        "allPages": true,
+        "filter": Object {
+          "filters": Array [
+            Object {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": "SPACE-1",
+            },
+            Object {
+              "field": "dataModelId",
+              "operator": "in",
+              "value": Array [
+                "MODEL-1",
+              ],
+            },
+            Object {
+              "field": "type",
+              "operator": "eq",
+              "value": "dataModel",
+            },
+          ],
+          "logic": "and",
+        },
+        "page": Object {
+          "index": 1,
+          "size": 500,
+        },
+        "sort": Array [
+          Object {
+            "direction": "asc",
+            "field": "rowid",
+          },
+        ],
+      },
+    ]
+
+  4th query call:
+
+    Array [
+      Object {
+        "metaName": "Base_DataModel_Relation",
+        "scenarioId": "DESIGN-1",
+      },
+      Object {
+        "allPages": true,
+        "filter": Object {
+          "field": "dataSetId",
+          "operator": "eq",
+          "value": "SPACE-1",
+        },
+        "page": Object {
+          "index": 1,
+          "size": 500,
+        },
+        "sort": Array [
+          Object {
+            "direction": "asc",
+            "field": "rowid",
+          },
+        ],
+      },
+    ]
+
+
+Number of calls: 4
+
+ ❯ src/platform/data-space/design/data-space-design-api.test.ts:175:28
+    173|       expect(models[0]?.primaryKey).toBe('orderId')
+    174|       expect(await api.dataSpace.design.readRelations(formalSpaceInput…
+    175|       expect(oldQuery).not.toHaveBeenCalled()
+       |                            ^
+    176|       expect(http.requests.length).toBeGreaterThan(0)
+    177|       expect(http.requests.every(request => request.headers?.['x-FormK…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 168 passed (169)
+   Start at  19:47:22
+   Duration  2.61s (transform 1.10s, setup 0ms, import 1.41s, tests 923ms, environment 0ms)
+
+undefined
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-lowcode-api:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/platform/data-space/design/data-space-design-api.test.ts
+
+ORIGINAL_EXIT_CODE=1

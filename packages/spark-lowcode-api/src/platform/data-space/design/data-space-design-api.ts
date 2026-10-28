@@ -373,7 +373,7 @@ export class DataSpaceDesignApi {
   }
 
   /** 仅读取正式空间名称，不扩展模型、目录或输入参数。 */
-  public async readSpaceDefinition(input: DataSpaceFormalScenarioReadInput): Promise<DataSpaceFormalSpaceDefinition> {
+  public async readSpaceDefinition(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<DataSpaceFormalSpaceDefinition> {
     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
     const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
     const scope = this.readScope().token
@@ -382,10 +382,10 @@ export class DataSpaceDesignApi {
       if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式空间读取身份已失效')
     }
     assertCurrent()
-    const result = await this.runtime.query({ scenarioId: designScenarioId, metaName: DATA_SPACE_TABLE }, {
+    const result = await this.readFormalQuery({designScenarioId, metaName: DATA_SPACE_TABLE, assertCurrent, metadata}, {
       filter: DataViewFilter.condition({ field: 'rowid', operator: 'eq', value: dataSpaceId }),
       fields: ['rowid', 'Name'], page: { index: 1, size: 2 },
-    })
+    }, queryResult => queryResult)
     assertCurrent()
     const row = result.rows[0]
     if (!result.countReported || result.total !== 1 || result.rows.length !== 1 || row?.['rowid'] !== dataSpaceId
@@ -471,7 +471,7 @@ export class DataSpaceDesignApi {
   }
 
   /** 批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。 */
-  public async readModelBatch(input: DataSpaceFormalBatchReadInput): Promise<readonly DataSpaceFormalModel[]> {
+  public async readModelBatch(input: DataSpaceFormalBatchReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalModel[]> {
     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
     const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
     const names = [...new Set(input.metaNames.map(name => requiredText(name, 'metaName')))].sort()
@@ -482,7 +482,7 @@ export class DataSpaceDesignApi {
     }
     assertCurrent()
     if (!names.length) return Object.freeze([])
-    const rows = await this.readFormalRows({designScenarioId, metaName: MODEL_TABLE, assertCurrent,
+    const rows = await this.readFormalRows({designScenarioId, metaName: MODEL_TABLE, assertCurrent, metadata,
       filter: DataViewFilter.group({logic: 'and', filters: [
         {field: 'dataSetId', operator: 'eq', value: dataSpaceId}, {field: 'Name', operator: 'in', value: names},
       ]})}, true)
@@ -499,7 +499,7 @@ export class DataSpaceDesignApi {
     })
     const ids = rows.map(formalRowId).sort()
     const modelIds = new Set(ids)
-    const fields = this.readFormalRows({designScenarioId, metaName: FIELD_TABLE, assertCurrent,
+    const fields = this.readFormalRows({designScenarioId, metaName: FIELD_TABLE, assertCurrent, metadata,
       filter: DataViewFilter.group({logic: 'and', filters: [
         {field: 'dataSetId', operator: 'eq', value: dataSpaceId}, {field: 'dataModelId', operator: 'in', value: ids},
         {field: 'type', operator: 'eq', value: 'dataModel'},
@@ -511,10 +511,10 @@ export class DataSpaceDesignApi {
       }
       return fieldRows
     })
-    const sourceKeys = this.readFormalSourceKeys({designScenarioId, assertCurrent}, orderedModels.map(({model}) => model))
+    const sourceKeys = this.readFormalSourceKeys({designScenarioId, assertCurrent, metadata}, orderedModels.map(({model}) => model))
     const outcomes = await Promise.allSettled(orderedModels.map(({metaName, model}) => {
       return this.readFormalModelDetails({
-        input: {designScenarioId, dataSpaceId, metaName, assertCurrent},
+        input: {designScenarioId, dataSpaceId, metaName, assertCurrent, metadata},
         model,
         fieldsPromise: fields.then(fieldRows => fieldRows.filter(row => formalText(row, ['dataModelId', 'DataModelId', 'datamodelid']) === formalRowId(model))),
         sourceKeyPromise: sourceKeys.then(keys => keys.get(formalRowId(model)) ?? ''),
@@ -606,7 +606,7 @@ export class DataSpaceDesignApi {
   }
 
   /** 完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。 */
-  public async readRelations(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalRelation[]> {
+  public async readRelations(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalRelation[]> {
     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
     const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
     const scope = this.readScope().token
@@ -614,7 +614,7 @@ export class DataSpaceDesignApi {
       input.assertCurrent?.()
       if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式关系读取身份已失效')
     }
-    const rows = await this.readFormalRows({ designScenarioId, metaName: RELATION_TABLE, assertCurrent,
+    const rows = await this.readFormalRows({ designScenarioId, metaName: RELATION_TABLE, assertCurrent, metadata,
       filter: DataViewFilter.condition({ field: 'dataSetId', operator: 'eq', value: dataSpaceId }) })
     if (rows.some(row => formalText(row, ['dataSetId', 'DataSetId', 'datasetid']) !== dataSpaceId)) {
       throw new LowcodeApiError(0, `正式数据空间关系归属不一致: ${dataSpaceId}`)

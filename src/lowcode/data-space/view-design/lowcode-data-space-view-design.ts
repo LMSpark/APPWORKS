@@ -63,6 +63,8 @@ type PageDataSpaceViewSelection = Readonly<{
 export type ViewDesignAssembleInput = Readonly<{
   scenarioId: string
   config: ScenarioViewConfig
+  /** 当前设计会话的正式元数据DataSet；仅设计预览/装配读取复用此查询owner。 */
+  metadataDataSet?: SparkData.DataSet
   fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
   modelScope?: string
 }>
@@ -2703,8 +2705,10 @@ export class LowcodeDataSpaceViewDesign {
       if (!scenarioId) throw new Error('DATA_SPACE_REFERENCE_IDENTITY: 元空间身份缺失')
       return this.referenceLayoutResource(scenarioId).executeQuery(view, params)
     }}
-    const assemble = (input: ViewDesignAssembleInput) => this.options.assemble({...input, fileExecutors: input.fileExecutors ?? fileExecutors})
     const metadata = await loadMetadata(id, fileExecutors)
+    const assemble = (input: ViewDesignAssembleInput) => this.options.assemble({...input,
+      metadataDataSet: metadata,
+      fileExecutors: input.fileExecutors ?? fileExecutors})
     let session: LowcodeDataSpaceDesignSession | undefined
     try {
       this.options.assertScope()

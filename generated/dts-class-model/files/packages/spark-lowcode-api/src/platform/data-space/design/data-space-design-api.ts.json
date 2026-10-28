@@ -553,6 +553,10 @@
           "properties": {
             "input": {
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
+            },
+            "metadata": {
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -581,7 +585,8 @@
               "$ref": "#/$defs/DataSpaceFormalReadInput"
             },
             "metadata": {
-              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -595,6 +600,10 @@
           "properties": {
             "input": {
               "$ref": "#/$defs/DataSpaceFormalBatchReadInput"
+            },
+            "metadata": {
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -626,6 +635,10 @@
           "properties": {
             "input": {
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
+            },
+            "metadata": {
+              "type": "object",
+              "title": "DataSet"
             }
           },
           "additionalProperties": false
@@ -646,7 +659,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T17:08:58.101Z",
+  "generatedAt": "2026-10-28T11:55:24.713Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
@@ -1356,6 +1369,16 @@
                     "name": "DataSpaceFormalScenarioReadInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
                   }
+                },
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -1440,6 +1463,16 @@
                     "name": "DataSpaceFormalBatchReadInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
                   }
+                },
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -1480,6 +1513,16 @@
                     "type": "reference",
                     "name": "DataSpaceFormalScenarioReadInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                },
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

@@ -1,6 +1,6 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
-import { DataViewFilter, DataViewFilterCodec, DataViewFilterLocal } from '@spark-appworks/spark-data'
+import { DataViewFilter, DataViewFilterCodec, DataViewFilterLocal, SparkData } from '@spark-appworks/spark-data'
 import { describe, expect, it, vi } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'
@@ -141,6 +141,65 @@ function formalSpaceRow(change: Record<string, unknown> = {}): FormalDesignRow {
     lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['rowid', 'Name'] }, ...change }
 }
 describe('DataSpaceDesignApi formal space definition', () => {
+  it('reads formal space, model, fields, and relations through the active metadata DataSet owner', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const api = formalApi(http)
+    const metadata = SparkData.createDataSet({dataSetName: 'Design metadata', scenarioId: formalInput.designScenarioId,
+      tables: Object.fromEntries([
+        ['Base_DataSet', 'Base_DataSet'], ['Base_DataModel', 'Base_DataModel'],
+        ['Base_DataModel_Field', 'Base_DataModel_Field'], ['Base_DataModel_Relation', 'Base_DataModel_Relation'],
+      ].map(([tableName, modelName]) => [tableName, {tableName, modelBinding: {modelId: `MODEL-${tableName}`, modelName},
+        columns: (tableName === 'Base_DataSet' ? ['rowid', 'Name'] : tableName === 'Base_DataModel'
+          ? ['rowid', 'dataSetId', 'Name', 'MetaName', 'Type', 'PrimaryKeyFields', 'IsBusinessMain', 'Filter']
+          : tableName === 'Base_DataModel_Field' ? ['rowid', 'dataSetId', 'dataModelId', 'type', 'Name', 'AsName', 'FieldType', 'IsOutput', 'IsPKey', 'ValueFun']
+            : ['rowid', 'dataSetId', 'parentModId', 'childModId', 'parentTable', 'childTable', 'filter', 'depType', 'cascadeDel'])
+          .map(name => ({name, type: 'string', ...(name === 'rowid' ? {isPrimaryKey: true} : {})})), views: {default: {}}}]))})
+    for (const table of Object.values(metadata.tables)) table.getView('default')?.bindQueryExecutor(api.dataSpace.runtime)
+    const rowsByModel: Record<string, FormalDesignRow[]> = {
+      Base_DataSet: [formalSpaceRow({lingma_sys_params: {r: ['rowid', 'Name']}})],
+      Base_DataModel: [{...formalModel(), Type: 'JSON', DbId: '', lingma_sys_params: {r: ['rowid', 'dataSetId', 'Name', 'MetaName', 'Type', 'PrimaryKeyFields', 'IsBusinessMain', 'Filter']}}],
+      Base_DataModel_Field: formalFields().map(row => ({...row, ...(row['Name'] === 'rowid' ? {IsPKey: 1} : {}),
+        lingma_sys_params: {r: ['rowid', 'dataSetId', 'dataModelId', 'type', 'Name', 'AsName', 'FieldType', 'IsOutput', 'IsPKey', 'ValueFun']}})),
+      Base_DataModel_Relation: [],
+    }
+    http.resolveResult = config => {
+      const modelName = (config.data as {Table: Array<{Name: string}>}).Table[0]?.Name ?? ''
+      const rows = rowsByModel[modelName]
+      if (!rows) throw new Error(`Unexpected metadata model ${modelName}`)
+      return formalResult(rows)
+    }
+    const oldQuery = vi.spyOn(api.dataSpace.runtime, 'query')
+    const executeDataViewQuery = api.dataSpace.runtime.executeQuery.bind(api.dataSpace.runtime)
+    const executeQuery = vi.spyOn(api.dataSpace.runtime, 'executeQuery')
+    const executionIdentities: Array<{scenarioId: string | undefined; modelName: string | undefined}> = []
+    executeQuery.mockImplementation((view, params) => {
+      executionIdentities.push({scenarioId: view.dataSet?.scenarioId, modelName: metadata.getTable(view.tableName)?.modelBinding?.modelName})
+      return executeDataViewQuery(view, params)
+    })
+    const tempViewNames = Object.fromEntries(Object.entries(metadata.tables).map(([name, table]) => [name, Object.keys(table.views)]))
+    try {
+      expect(await api.dataSpace.design.readSpaceDefinition(formalSpaceInput, metadata)).toEqual({dataSpaceId: 'SPACE-1', name: '  薪资正式空间  '})
+      const models = await api.dataSpace.design.readModelBatch({...formalSpaceInput, metaNames: ['Orders']}, metadata)
+      expect(models).toHaveLength(1)
+      expect(models[0]?.primaryKey).toBe('orderId')
+      expect(await api.dataSpace.design.readRelations(formalSpaceInput, metadata)).toEqual([])
+      expect(oldQuery).not.toHaveBeenCalled()
+      expect(http.requests.length).toBeGreaterThan(0)
+      expect(http.requests.every(request => request.headers?.['x-FormKey'] === formalInput.designScenarioId
+        && request.data && (request.data as {Table: Array<{Name: string}>}).Table[0]?.Name
+          && Object.hasOwn(rowsByModel, (request.data as {Table: Array<{Name: string}>}).Table[0]!.Name))).toBe(true)
+      expect(executeQuery).toHaveBeenCalled()
+      expect(executionIdentities.length).toBeGreaterThan(0)
+      expect(executionIdentities.every(identity => identity.scenarioId === formalInput.designScenarioId
+        && identity.modelName && Object.hasOwn(rowsByModel, identity.modelName))).toBe(true)
+      rowsByModel['Base_DataSet'] = [formalSpaceRow({lingma_sys_params: {r: ['rowid'], h: ['Name']}})]
+      await expect(api.dataSpace.design.readSpaceDefinition(formalSpaceInput, metadata)).rejects.toThrow('必须唯一且可读')
+      expect(oldQuery).not.toHaveBeenCalled()
+      expect(Object.fromEntries(Object.entries(metadata.tables).map(([name, table]) => [name, Object.keys(table.views)]))).toEqual(tempViewNames)
+      expect(metadata.destroyed).toBe(false)
+    } finally {metadata.destroy()}
+  })
+
   it('reads only rowid and Name once with the target filter and preserves the formal Name', async () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     http.results.push(formalResult([formalSpaceRow()]))

@@ -22,6 +22,8 @@ export type LoadScenarioDataSetInput = Readonly<{
  modelScope?: string
  /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */
  fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors']
+ /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */
+ metadataDataSet?: DataSet
  assertCurrent?: () => void
 }>
 
@@ -48,7 +50,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   if (!isRecord(configuredTables) || !Object.hasOwn(configuredTables, input.modelScope)) throw new Error(`场景模型表不存在: ${input.modelScope}`)
   if (config.usesNativeResourceRelations) config = config.selectModelScope(input.modelScope)
   else {
-   inherited = await lowcodeApi.dataSpace.design.readRelations(formalInput)
+   inherited = await lowcodeApi.dataSpace.design.readRelations(formalInput, input.metadataDataSet)
    input.assertCurrent?.()
    const bindings = new Map<string, {id: string; name: string}>()
    for (const [key, table] of Object.entries(configuredTables)) {
@@ -73,9 +75,9 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   names.add(table['modelBinding']['modelName'])
  }
  const [space, models, relations] = await Promise.all([
-  lowcodeApi.dataSpace.design.readSpaceDefinition(formalInput),
-  names.size ? lowcodeApi.dataSpace.design.readModelBatch({...formalInput, metaNames: [...names]}) : Promise.resolve([]),
-  config.usesNativeResourceRelations ? Promise.resolve([]) : inherited !== undefined ? Promise.resolve(inherited) : lowcodeApi.dataSpace.design.readRelations(formalInput),
+  lowcodeApi.dataSpace.design.readSpaceDefinition(formalInput, input.metadataDataSet),
+  names.size ? lowcodeApi.dataSpace.design.readModelBatch({...formalInput, metaNames: [...names]}, input.metadataDataSet) : Promise.resolve([]),
+  config.usesNativeResourceRelations ? Promise.resolve([]) : inherited !== undefined ? Promise.resolve(inherited) : lowcodeApi.dataSpace.design.readRelations(formalInput, input.metadataDataSet),
  ])
  input.assertCurrent?.()
  return new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,

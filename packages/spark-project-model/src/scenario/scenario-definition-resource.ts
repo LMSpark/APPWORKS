@@ -80,6 +80,19 @@ export class ScenarioDefinitionResource {
         this.assertSourceView(view)
         return text
       },
+      status: view => {
+        this.assertSourceView(view)
+        const status = this.options.workspace.getScenarioVersionStatus({scenarioId: this.options.targetScenarioId})
+        this.assertSourceView(view)
+        return status
+      },
+      verify: async (view, hooks) => {
+        this.assertSourceView(view)
+        const status = await this.options.workspace.verifyScenarioVersionAttempt({scenarioId: this.options.targetScenarioId,
+          assertCurrent: () => {this.assertSourceView(view); hooks.assertCurrent()}})
+        this.assertSourceView(view)
+        return status
+      },
       create: async (view, hooks) => {
         const assertCurrent = () => {
           this.assertSourceView(view)
@@ -87,7 +100,8 @@ export class ScenarioDefinitionResource {
           hooks.assertCurrent()
         }
         assertCurrent()
-        await this.options.workspace.createScenarioVersion({scenarioId: this.options.targetScenarioId, assertCurrent})
+        await this.options.workspace.createScenarioVersion({scenarioId: this.options.targetScenarioId, assertCurrent,
+          onAttempt: hooks.onAttempt})
         assertCurrent()
       },
     },
@@ -148,6 +162,8 @@ export class ScenarioDefinitionResource {
         history: {
           list: view => resolve(view.queryContext['dataSpaceId']).source.history.list(view),
           preview: (view, version) => resolve(view.queryContext['dataSpaceId']).source.history.preview(view, version),
+          status: view => resolve(view.queryContext['dataSpaceId']).source.history.status(view),
+          verify: (view, hooks) => resolve(view.queryContext['dataSpaceId']).source.history.verify(view, hooks),
           create: (view, hooks) => resolve(view.queryContext['dataSpaceId']).source.history.create(view, hooks),
         },
         views: view => resolve(view.queryContext['dataSpaceId']).source.views(view),

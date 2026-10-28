@@ -116,7 +116,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T20:59:35.811Z",
+  "generatedAt": "2026-10-28T22:46:25.128Z",
   "models": {
     "LowcodePrincipal": {
       "name": "LowcodePrincipal",

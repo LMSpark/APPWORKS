@@ -43,6 +43,37 @@ describe('repository scenario Vite middleware', () => {
     expect(await readFile(file, 'utf8')).toBe(after)
   })
 
+  it('lists, reads and exclusively creates numbered history files without changing the active file', async () => {
+    const root = await fixtureRoot()
+    const file = path.join(root, resource.path)
+    await mkdir(path.dirname(file), {recursive: true})
+    const before = JSON.stringify({scenarioId: resource.scenarioId, tables: {}, viewCascades: []})
+    const snapshot = before
+    await writeFile(file, before)
+    const base = await startPluginServer(repositoryScenarioPlugin({root, resources: [resource]}))
+    const endpoint = `${base}/__spark/repository-scenarios`
+    const query = (params: Record<string, string>) => `${endpoint}?${new URLSearchParams({resourceId: resource.resourceId, ...params})}`
+
+    const empty = await fetch(query({history: 'list'}))
+    expect(empty.status).toBe(200)
+    expect(await empty.json()).toMatchObject({resourceId: resource.resourceId, scenarioId: resource.scenarioId, versions: []})
+    const created = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', Origin: base},
+      body: JSON.stringify({operation: 'create-version', resourceId: resource.resourceId, version: 0, text: snapshot, expectedText: before})})
+    expect(created.status).toBe(200)
+    expect(await created.json()).toMatchObject({resourceId: resource.resourceId, scenarioId: resource.scenarioId,
+      version: 0, fileName: '0__pagedata.json'})
+    const versions = await fetch(query({history: 'list'}))
+    expect(await versions.json()).toMatchObject({versions: [{version: 0, fileName: '0__pagedata.json'}]})
+    const preview = await fetch(query({version: '0'}))
+    expect(await preview.json()).toMatchObject({resourceId: resource.resourceId, scenarioId: resource.scenarioId,
+      version: 0, fileName: '0__pagedata.json', text: snapshot})
+    const collision = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', Origin: base},
+      body: JSON.stringify({operation: 'create-version', resourceId: resource.resourceId, version: 0, text: before, expectedText: before})})
+    expect(collision.status).toBe(409)
+    expect(await collision.json()).toMatchObject({resourceId: resource.resourceId, version: 0, outcome: 'not-applied'})
+    expect(await readFile(file, 'utf8')).toBe(before)
+  })
+
   it('rejects mismatched Origin and oversized JSON without touching the target', async () => {
     const root = await fixtureRoot()
     const file = path.join(root, resource.path)

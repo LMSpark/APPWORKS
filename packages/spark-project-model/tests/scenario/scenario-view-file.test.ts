@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from '../../src/scenario/scenario-view-file'
 import { ScenarioViewConfig } from '../../src/scenario/scenario-view-config'
 import { ScenarioDefinitionRecords } from '../../src/scenario/scenario-definition-records'
-import { ProjectWorkspace } from '../../src/project/project-workspace'
+import {ProjectWorkspace, ScenarioViewVersionNotAppliedError, type ScenarioViewVersionCreateCommand} from '../../src/project/project-workspace'
 import {DataSet} from '@spark-appworks/spark-data'
 
 function fixture(pageSize = 20): string {
@@ -1026,7 +1026,12 @@ function workspaceFixture() {
   const storeSnapshot = (version: number, text: string) => snapshots.set(version, text)
   const listVersions = vi.fn(async () => [...snapshots.keys()].map(version => ({ version, fileName: `${version}__pagedata.json`, lastModified: null })))
   const readVersion = vi.fn(async (_scenarioId: string, version: number) => { const text = snapshots.get(version); if (text === undefined) throw new Error('snapshot missing'); return text })
-  const createVersion = vi.fn(async (_scenarioId: string, text: string) => { storeSnapshot(8, text); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
+  const createVersion = vi.fn(async ({scenarioId, version, text, onAttempt, assertCurrent}: ScenarioViewVersionCreateCommand) => {
+    assertCurrent?.()
+    onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope, version, fileName: `${version}__pagedata.json`, text})
+    storeSnapshot(version, text)
+    return { version, fileName: `${version}__pagedata.json`, lastModified: null }
+  })
 
   const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
     pageFiles: { readPageFile: vi.fn(async () => { throw new Error('must not read a page file') }) },
@@ -1407,40 +1412,116 @@ describe('ProjectWorkspace shared scenario versions', () => {
     const { workspace, createVersion, readVersion } = workspaceFixture()
     await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
     await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
-    expect(createVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(), expect.any(Function))
-    expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 8)
+    expect(createVersion).toHaveBeenCalledExactlyOnceWith({scenarioId: 'UNIT-SCENE', version: 1, text: fixture(),
+      onAttempt: expect.any(Function), assertCurrent: expect.any(Function)})
+    expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 1)
   })
   it('requires verification after a snapshot write loses its receipt instead of creating another snapshot', async () => {
     const { workspace, createVersion, storeSnapshot } = workspaceFixture()
     await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
-    createVersion.mockImplementationOnce(async (_scenarioId, text) => {
-      storeSnapshot(8, text)
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      storeSnapshot(version, text)
       throw new Error('snapshot response lost')
     })
 
     await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('snapshot response lost')
-    let retryError: unknown
-    try {await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE'})} catch (error) {retryError = error}
-
     expect(createVersion).toHaveBeenCalledOnce()
-    expect(retryError).toBeDefined()
-    expect(String(retryError)).toMatch(/核验|verify/i)
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(true)
+    expect(() => workspace.dispose()).toThrow('原场景快照结果未核验')
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(true)
+    const file = workspace.getScenarioViews('UNIT-SCENE')!
+    file.setText(fixture(40))
+    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNKNOWN')
+    expect(await workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).toMatchObject({
+      state: 'confirmed', version: 1, fileName: '1__pagedata.json',
+    })
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(file.getText()).toBe(fixture(40))
+    expect(file.isDirty).toBe(true)
+    expect(createVersion).toHaveBeenCalledOnce()
+  })
+  it('keeps an unknown attempt when its original number is absent or its exact file has different text', async () => {
+    const {workspace, createVersion, listVersions, readVersion, storeSnapshot} = workspaceFixture()
+    await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      storeSnapshot(version, text)
+      throw new Error('receipt lost')
+    })
+    await expect(workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('receipt lost')
+    listVersions.mockResolvedValueOnce([{version: 8, fileName: '8__pagedata.json', lastModified: null}])
+    expect(await workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'unknown', version: 1})
+    expect(readVersion).not.toHaveBeenCalled()
+
+    listVersions.mockResolvedValueOnce([{version: 1, fileName: '1__pagedata.json', lastModified: null}])
+    readVersion.mockResolvedValueOnce(fixture(99))
+    expect(await workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'unknown', version: 1})
+    expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 1)
+  })
+  it('leaves an absent exact snapshot unknown, then confirms only after the same N and text appear', async () => {
+    const {workspace, createVersion, listVersions, readVersion, storeSnapshot} = workspaceFixture()
+    await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      throw new Error('response lost')
+    })
+    await expect(workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('response lost')
+    expect(await workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'unknown', version: 1})
+    storeSnapshot(1, fixture())
+    expect(await workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'confirmed', version: 1})
+    expect(listVersions).toHaveBeenCalledTimes(3)
+    expect(readVersion).toHaveBeenCalledOnce()
+  })
+  it('records a precise typed not-applied attempt without treating it as unknown', async () => {
+    const {workspace, createVersion} = workspaceFixture()
+    await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      const attempt = {scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text}
+      onAttempt(attempt)
+      throw new ScenarioViewVersionNotAppliedError(attempt.resourceId, attempt.scope, version, 'number occupied')
+    })
+    await expect(workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('number occupied')
+    expect(workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'not-applied', version: 1})
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
+  })
+  it('does not classify a typed readback failure as not-applied after create returned', async () => {
+    const {workspace, createVersion, readVersion} = workspaceFixture()
+    await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    readVersion.mockRejectedValueOnce(new ScenarioViewVersionNotAppliedError(
+      'test:scenario:UNIT-SCENE', 'request-a', 1, 'readback unavailable'))
+    await expect(workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('readback unavailable')
+    expect(workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'unknown', version: 1})
+    await expect(workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('UNKNOWN')
+    expect(createVersion).toHaveBeenCalledOnce()
   })
   it('rejects a second snapshot creation while the original create attempt is pending', async () => {
     const { workspace, createVersion, storeSnapshot } = workspaceFixture()
     await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
     const waiting = deferred<void>()
-    createVersion.mockImplementationOnce(async (_scenarioId, text) => {
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
       await waiting.promise
-      storeSnapshot(8, text)
-      return { version: 8, fileName: '8__pagedata.json', lastModified: null }
+      storeSnapshot(version, text)
+      return { version, fileName: `${version}__pagedata.json`, lastModified: null }
     })
 
     const creating = workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
     await vi.waitFor(() => expect(createVersion).toHaveBeenCalledOnce())
-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('正在写入')
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(true)
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(true)
+    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('PENDING')
     waiting.resolve()
     await creating
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(workspace.hasPendingScenarioVersionAttempt).toBe(false)
     expect(createVersion).toHaveBeenCalledOnce()
   })
   it('rejects snapshots for dirty or not-yet-persisted drafts', async () => {
@@ -1455,10 +1536,119 @@ describe('ProjectWorkspace shared scenario versions', () => {
   it('rejects an invalid snapshot receipt or stale request scope after a snapshot write', async () => {
     const { workspace, createVersion, setScope } = workspaceFixture()
     await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
-    createVersion.mockResolvedValueOnce({ version: 8, fileName: '8__rule.json', lastModified: null })
+    createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      return { version, fileName: `${version}__rule.json`, lastModified: null }
+    })
     await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
-    createVersion.mockImplementationOnce(async () => { setScope('request-b'); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
+    const staleFixture = workspaceFixture()
+    await staleFixture.workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    staleFixture.createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      staleFixture.setScope('request-b')
+      return { version, fileName: `${version}__pagedata.json`, lastModified: null }
+    })
+    await expect(staleFixture.workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
+  })
+  it('does not transfer an unknown attempt across scope changes or a replaced scenario owner', async () => {
+    const scoped = workspaceFixture()
+    await scoped.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    scoped.createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      throw new Error('receipt lost')
+    })
+    await expect(scoped.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('receipt lost')
+    scoped.setScope('request-b')
+    expect(scoped.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    await expect(scoped.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('ATTEMPT_NONE')
+    expect(scoped.readVersion).not.toHaveBeenCalled()
+
+    const replaced = workspaceFixture()
+    await replaced.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    replaced.createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      throw new Error('receipt lost')
+    })
+    await expect(replaced.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('receipt lost')
+    replaced.setScope('request-b')
+    await replaced.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    replaced.setScope('request-a')
+    await replaced.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    expect(replaced.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    await expect(replaced.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('OWNER_CHANGED')
+    await expect(replaced.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('UNKNOWN')
+    expect(replaced.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(replaced.readVersion).not.toHaveBeenCalled()
+  })
+  it('does not guard or retain an old unknown attempt as the active owner after its scope is replaced', async () => {
+    const fixture = workspaceFixture()
+    await fixture.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    fixture.createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      throw new Error('receipt lost')
+    })
+    await expect(fixture.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('receipt lost')
+    expect(fixture.workspace.hasPendingScenarioVersionAttempt).toBe(true)
+
+    fixture.setScope('request-b')
+    expect(fixture.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(fixture.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    await expect(fixture.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('ATTEMPT_NONE')
+    await fixture.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    expect(fixture.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    await expect(fixture.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('ATTEMPT_NONE')
+    expect(fixture.readVersion).not.toHaveBeenCalled()
+
+    fixture.setScope('request-a')
+    await fixture.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    expect(fixture.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    await expect(fixture.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('OWNER_CHANGED')
+    await expect(fixture.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('UNKNOWN')
+    expect(fixture.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(() => fixture.workspace.dispose()).not.toThrow()
+  })
+  it('does not expose a confirmed attempt after its file owner is removed', async () => {
+    const workspaceOwner = workspaceFixture()
+    const file = await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    await workspaceOwner.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'confirmed', version: 1})
+    workspaceOwner.setRemote(null)
+    await workspaceOwner.workspace.adoptScenarioViews({scenarioId: 'UNIT-SCENE', expectedRevision: file.revision, previewText: null})
+    expect(workspaceOwner.workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    expect(workspaceOwner.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    workspaceOwner.setRemote(fixture())
+    await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    expect(workspaceOwner.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    expect(() => workspaceOwner.workspace.dispose()).not.toThrow()
+  })
+  it('does not surface an old unknown attempt through a replacement file owner', async () => {
+    const workspaceOwner = workspaceFixture()
+    const file = await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    workspaceOwner.createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
+      onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
+        fileName: `${version}__pagedata.json`, text})
+      throw new Error('receipt lost')
+    })
+    await expect(workspaceOwner.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('receipt lost')
+    workspaceOwner.setRemote(null)
+    await workspaceOwner.workspace.adoptScenarioViews({scenarioId: 'UNIT-SCENE', expectedRevision: file.revision, previewText: null})
+    workspaceOwner.setRemote(fixture())
+    await workspaceOwner.workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+
+    expect(workspaceOwner.workspace.getScenarioVersionStatus({scenarioId: 'UNIT-SCENE'})).toMatchObject({state: 'idle'})
+    expect(workspaceOwner.workspace.hasPendingScenarioVersionAttempt).toBe(false)
+    await expect(workspaceOwner.workspace.verifyScenarioVersionAttempt({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('OWNER_CHANGED')
+    await expect(workspaceOwner.workspace.createScenarioVersion({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('UNKNOWN')
+    expect(workspaceOwner.createVersion).toHaveBeenCalledOnce()
+    expect(() => workspaceOwner.workspace.dispose()).not.toThrow()
   })
   it.each([-1, 1.5, Number.MAX_SAFE_INTEGER + 1])('rejects invalid version %s before IO', async version => {
     const { workspace, readVersion, writeText } = workspaceFixture()

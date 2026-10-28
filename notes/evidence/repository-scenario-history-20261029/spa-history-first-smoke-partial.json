@@ -1,0 +1,1705 @@
+{
+  "startedAt": "2026-10-28T23:02:11.372Z",
+  "network": [
+    {
+      "sequence": 758,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2275",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 759,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2275",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 763,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2276",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 766,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2276",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 769,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2277",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 772,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2277",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 776,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2278",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "method": "POST",
+      "operation": "create-version",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
+      "version": 1
+    },
+    {
+      "sequence": 780,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2278",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "status": 200
+    },
+    {
+      "sequence": 783,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2279",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "method": "GET"
+    },
+    {
+      "sequence": 786,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2279",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "status": 200
+    },
+    {
+      "sequence": 789,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2280",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 792,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2280",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 823,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2281",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 824,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2281",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 828,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2282",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 831,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2282",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 834,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2283",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 837,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2283",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 841,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2284",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "method": "POST",
+      "operation": "create-version",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
+      "version": 2
+    },
+    {
+      "sequence": 845,
+      "event": "Fetch.requestPaused",
+      "requestId": "interception-job-325908.0",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "method": "POST",
+      "operation": "create-version",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
+      "version": 2,
+      "status": 200
+    },
+    {
+      "sequence": 846,
+      "event": "Network.loadingFailed",
+      "requestId": "31560.2284",
+      "type": "Fetch",
+      "error": "net::ERR_CONNECTION_RESET"
+    },
+    {
+      "sequence": 871,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2285",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 873,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2285",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 879,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2286",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 881,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2286",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 884,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2287",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=2",
+      "method": "GET"
+    },
+    {
+      "sequence": 887,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2287",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=2",
+      "status": 200
+    },
+    {
+      "sequence": 907,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2288",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 910,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2288",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 913,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2289",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 914,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2290",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 921,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2290",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 924,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2291",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 928,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2289",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 934,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2291",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 970,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2292",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 971,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2293",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 976,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2292",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 981,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2293",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 984,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2294",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 985,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2295",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 992,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2295",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 995,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2296",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 999,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2294",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1005,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2296",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1012,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2297",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1013,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2298",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1018,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2298",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1022,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2299",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "method": "POST",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05"
+    },
+    {
+      "sequence": 1027,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2299",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "status": 200
+    },
+    {
+      "sequence": 1030,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2300",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1033,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2300",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1041,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2297",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1044,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2301",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1045,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2302",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1052,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2302",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1055,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2303",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1059,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2301",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1065,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2303",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1112,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2304",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 1114,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2304",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 1120,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2305",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "method": "GET"
+    },
+    {
+      "sequence": 1121,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2305",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "status": 200
+    },
+    {
+      "sequence": 1126,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2306",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "method": "GET"
+    },
+    {
+      "sequence": 1127,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2306",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&version=1",
+      "status": 200
+    },
+    {
+      "sequence": 1130,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2307",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1133,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2307",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1142,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2308",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1143,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2309",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1148,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2308",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1153,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2309",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1156,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2310",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1157,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2311",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1164,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2310",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1169,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2311",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1172,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2312",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1177,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2312",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1182,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2313",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1187,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2313",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1191,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2314",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "method": "POST",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05"
+    },
+    {
+      "sequence": 1196,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2314",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios",
+      "status": 200
+    },
+    {
+      "sequence": 1199,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2315",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1202,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2315",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1274,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2316",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1277,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2316",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1279,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2317",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1284,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2317",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1291,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2318",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1292,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2318",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1296,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2319",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1297,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2320",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1298,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2321",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1303,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2320",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1305,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2322",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1306,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2323",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1313,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2321",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1317,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2319",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1322,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2323",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1324,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2324",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1329,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2322",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1334,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2324",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1337,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2325",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1342,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2325",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1344,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2326",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1349,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2326",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1351,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2327",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1356,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2327",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1358,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2328",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1363,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2328",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1365,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2329",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1370,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2329",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1372,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2330",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A8D1AB14DD8277F3E7017CD38F77B09FD",
+      "method": "GET"
+    },
+    {
+      "sequence": 1377,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2330",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A8D1AB14DD8277F3E7017CD38F77B09FD",
+      "status": 200
+    },
+    {
+      "sequence": 1381,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2331",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1382,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2332",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1383,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2333",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1388,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2331",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1393,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2333",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1398,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2332",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1400,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2334",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1401,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2335",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1407,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2335",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1409,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2336",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1414,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2334",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1422,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2336",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1424,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2337",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1425,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2338",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1431,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2338",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1436,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2337",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1438,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2339",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1443,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2339",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1447,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2340",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1450,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2340",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1452,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2341",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1457,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2341",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1463,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2342",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "method": "GET"
+    },
+    {
+      "sequence": 1465,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2342",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05&history=list",
+      "status": 200
+    },
+    {
+      "sequence": 1534,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2343",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1539,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2344",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1542,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2344",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1544,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2345",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1547,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2343",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1554,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2345",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1560,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2346",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "method": "GET"
+    },
+    {
+      "sequence": 1562,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2346",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A7AB874097A1E8711A42FD845939A6E05",
+      "status": 200
+    },
+    {
+      "sequence": 1566,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2347",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1567,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2348",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1568,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2349",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1573,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2347",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1578,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2349",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1583,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2348",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1585,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2350",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1586,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2351",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1592,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2351",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1594,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2352",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1599,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2350",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1604,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2352",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1607,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2353",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1612,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2353",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1614,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2354",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1619,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2354",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1621,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2355",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1626,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2355",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1628,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2356",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1633,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2356",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1635,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2357",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1640,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2357",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1642,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2358",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A8D1AB14DD8277F3E7017CD38F77B09FD",
+      "method": "GET"
+    },
+    {
+      "sequence": 1647,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2358",
+      "type": "Fetch",
+      "url": "http://127.0.0.1:5273/__spark/repository-scenarios?resourceId=repository%3Ascenario-view%3A8D1AB14DD8277F3E7017CD38F77B09FD",
+      "status": 200
+    },
+    {
+      "sequence": 1651,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2359",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1653,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2360",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1654,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2361",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1658,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2361",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1664,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2360",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1666,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2362",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1667,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2363",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1670,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2359",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1677,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2363",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1679,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2364",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1684,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2362",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1692,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2364",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1697,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2365",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1698,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2366",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "sequence": 1705,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2365",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1709,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2366",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "sequence": 1711,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2367",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1716,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2367",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1718,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2368",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1723,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2368",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1725,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2369",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1730,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2369",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1732,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2370",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1737,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2370",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1739,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2371",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1744,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2371",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1746,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2372",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "sequence": 1751,
+      "event": "Network.responseReceived",
+      "requestId": "31560.2372",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "sequence": 1821,
+      "event": "Network.requestWillBeSent",
+      "requestId": "31560.2373",
+      "type": "XHR",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    }
+  ],
+  "checks": [
+    {
+      "name": "normal_snapshot",
+      "confirmed": true,
+      "version": 1,
+      "visibleText": "场景文件历史 · 1__pagedata.json\n刷新历史\n创建快照\n关闭历史\n\n场景快照已回读确认\n\n快照创建结果已核验\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览"
+    },
+    {
+      "name": "snapshot_1_disk",
+      "sha256": "9003145F07B8C1B5B6552F91A191C8DEAE1521814B294CE43D64B700380D9AAE",
+      "matchesActiveBaseline": true
+    },
+    {
+      "name": "response_loss_injection",
+      "status": 200,
+      "operation": "create-version",
+      "version": 2
+    },
+    {
+      "name": "unknown_after_response_loss",
+      "text": "场景文件历史 · 2__pagedata.json\n刷新历史\n核验原快照\n创建快照\n关闭历史\n\n原快照结果未知。只读核验原编号和原文，不会重发创建请求。\n\nFailed to fetch\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览",
+      "createEnabled": false
+    },
+    {
+      "name": "reopened_same_unknown",
+      "text": "场景文件历史 · 2__pagedata.json\n刷新历史\n核验原快照\n创建快照\n关闭历史\n\n原快照结果未知。只读核验原编号和原文，不会重发创建请求。\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览\n2__pagedata.json\n2026/10/29 07:04:00\n预览",
+      "createEnabled": false
+    },
+    {
+      "name": "verified_original_snapshot",
+      "text": "场景文件历史 · 2__pagedata.json\n刷新历史\n创建快照\n关闭历史\n\n快照原编号及原文已核验\n\n快照原编号及原文已核验\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览\n2__pagedata.json\n2026/10/29 07:04:00\n预览"
+    },
+    {
+      "name": "restore_to_draft",
+      "saveEnabled": true,
+      "undoEnabled": true,
+      "diskUnchanged": true
+    },
+    {
+      "name": "undo_ui_stale_dirty",
+      "saveButtonCount": 1,
+      "undoEnabled": false,
+      "redoEnabled": true,
+      "restoreEnabled": false,
+      "createEnabled": false,
+      "modelTree": "Base_AppSystemList\n字段（未加载）\n数据视图（3）\ndefault\ncatalogApps\nhistory_restore_smoke_20261029\n功能导航类型\n功能导航状态字"
+    },
+    {
+      "name": "explicit_save_cleanup",
+      "text": "场景文件历史 · 2__pagedata.json\n刷新历史\n创建快照\n关闭历史\n\n快照原编号及原文已核验\n\n定义已显式保存\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览\n2__pagedata.json\n2026/10/29 07:04:00\n预览\n\n预览 1__pagedata.json；恢复仅写入当前定义草稿。\n\n{\r\n  \"scenarioId\": \"7AB874097A1E8711A42FD845939A6E05\",\r\n  \"tables\": {\r\n    \"Base_",
+      "saveButtonCount": 0,
+      "diskSemanticMatchesBaseline": true
+    },
+    {
+      "name": "reopened_target",
+      "historyText": "场景文件历史 · 2__pagedata.json\n刷新历史\n创建快照\n关闭历史\n\n快照原编号及原文已核验\n\n1__pagedata.json\n2026/10/29 07:02:11\n预览\n2__pagedata.json\n2026/10/29 07:04:00\n预览",
+      "overview": "数据空间设计\n功能管理\n\n当前已接入 24 个数据模型，可继续在画布中编排关系。\n\n主业务表\nBase_NavigationInfo\n当前已标记 1 张主业务表\n数据模型\n24\n关系连线\n0"
+    },
+    {
+      "name": "independent_target_switch",
+      "overview": "数据空间设计\n资产管理\n\n围绕数据模型、关系与输入参数组织数据空间，逐步搭出清晰的查询结构。\n\n主业务表\n未设置\n可在节点设置中标记主业务表\n数据模型\n0\n关系连线\n—",
+      "openHistoryPanelCount": 0,
+      "temporaryViewTextCount": 0
+    }
+  ],
+  "windows": [
+    {
+      "name": "normal_snapshot",
+      "start": 755,
+      "end": 808
+    },
+    {
+      "name": "lost_snapshot_response",
+      "start": 817,
+      "end": 889
+    },
+    {
+      "name": "read_only_verify",
+      "start": 877,
+      "end": 889
+    },
+    {
+      "name": "temporary_view_setup",
+      "start": 957,
+      "end": 1088
+    },
+    {
+      "name": "preview_and_restore_draft",
+      "start": 1117,
+      "end": 1136
+    },
+    {
+      "name": "undo_restore",
+      "start": 1136,
+      "end": 1136
+    },
+    {
+      "name": "redo_then_cleanup_save",
+      "start": 1140,
+      "end": 1209
+    }
+  ],
+  "truncated": false,
+  "endedAt": "2026-10-28T23:14:41.453Z",
+  "documentRequests": 0,
+  "result": "partial: snapshot, unknown verify, restore draft, explicit save, reopen and target switch passed; undo dirty UI failed"
+}

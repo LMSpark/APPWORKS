@@ -2604,7 +2604,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:17:37.253Z"
+      "sourceModifiedAt": "2026-10-28T21:30:50.212Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2624,7 +2624,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-27T00:03:59.125Z"
+      "sourceModifiedAt": "2026-10-28T21:32:51.789Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2679,7 +2679,7 @@
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-source.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:21.819Z"
+      "sourceModifiedAt": "2026-10-28T22:43:44.849Z"
     },
     "packages/spark-data/src/query/filter/data-view-filter-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",
@@ -3289,7 +3289,7 @@
     "packages/spark-project-model/src/index.ts": {
       "sourceFile": "packages/spark-project-model/src/index.ts",
       "shardFile": "files/packages/spark-project-model/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-28T19:58:22.274Z"
+      "sourceModifiedAt": "2026-10-28T22:49:06.687Z"
     },
     "packages/spark-project-model/src/io/http.ts": {
       "sourceFile": "packages/spark-project-model/src/io/http.ts",
@@ -3379,7 +3379,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-28T20:40:14.018Z"
+      "sourceModifiedAt": "2026-10-28T22:53:55.421Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3399,7 +3399,7 @@
     "packages/spark-project-model/src/scenario/scenario-definition-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:54:15.038Z"
+      "sourceModifiedAt": "2026-10-28T21:32:44.343Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
@@ -3819,7 +3819,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-28T17:53:10.052Z"
+      "sourceModifiedAt": "2026-10-28T21:32:46.507Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -3849,7 +3849,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T20:59:35.811Z"
+      "sourceModifiedAt": "2026-10-28T22:46:25.128Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4064,12 +4064,12 @@
     "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts": {
       "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
       "shardFile": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts.json",
-      "sourceModifiedAt": "2026-10-28T20:48:23.203Z"
+      "sourceModifiedAt": "2026-10-28T22:53:55.422Z"
     },
     "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts": {
       "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
       "shardFile": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json",
-      "sourceModifiedAt": "2026-10-28T20:48:23.215Z"
+      "sourceModifiedAt": "2026-10-28T22:53:55.421Z"
     },
     "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts": {
       "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts",
@@ -4169,7 +4169,7 @@
     "src/services/page-design/page-design-operation-guard.ts": {
       "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
       "shardFile": "files/src/services/page-design/page-design-operation-guard.ts.json",
-      "sourceModifiedAt": "2026-10-28T07:09:18.521Z"
+      "sourceModifiedAt": "2026-10-28T21:32:48.494Z"
     },
     "src/services/project-model-artifacts/index.ts": {
       "sourceFile": "src/services/project-model-artifacts/index.ts",
@@ -4349,7 +4349,7 @@
     "src/views/app/dev-system/DevDataSetDesigner.vue": {
       "sourceFile": "src/views/app/dev-system/DevDataSetDesigner.vue",
       "shardFile": "files/src/views/app/dev-system/DevDataSetDesigner.vue.json",
-      "sourceModifiedAt": "2026-10-15T12:14:06.403Z"
+      "sourceModifiedAt": "2026-10-28T22:52:08.538Z"
     },
     "src/views/app/dev-system/DevFileEditor.vue": {
       "sourceFile": "src/views/app/dev-system/DevFileEditor.vue",
@@ -4399,7 +4399,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-28T17:22:30.643Z"
+      "sourceModifiedAt": "2026-10-28T22:38:30.470Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4529,7 +4529,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-27T18:50:02.037Z"
+      "sourceModifiedAt": "2026-10-28T22:52:08.539Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -4625,6 +4625,11 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue.json",
       "sourceModifiedAt": "2026-10-18T04:21:10.892Z"
+    },
+    "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue": {
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+      "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue.json",
+      "sourceModifiedAt": "2026-10-28T22:38:32.185Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.props.ts",

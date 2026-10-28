@@ -2,6 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
 import {DataView} from '../../data-view'
 import {RequestState} from '../../types'
+import type {DataViewSourceHistoryStatus} from '../../query/data-view-source'
 
 function fixture() {
   const ds = DataSet.fromJson({scenarioId: 'SPACE', dataSetName: 'sources', tables: {File: {
@@ -198,9 +199,15 @@ describe('requested refresh lifecycle', () => {
 describe('DataView source lifecycle', () => {
   it('reads source history without changing edits and rejects snapshots while any same-source view is dirty', async () => {
     const f = fixture()
-    const create = vi.fn(async (_view: DataView, hooks: {assertCurrent(): void}) => {hooks.assertCurrent()})
+    let status = {state: 'idle' as const, version: null as number | null, fileName: null as string | null, message: null as string | null}
+    const create = vi.fn(async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {
+      hooks.assertCurrent(); hooks.onAttempt({version: 2, fileName: '2__pagedata.json'})
+      status = {state: 'confirmed', version: 2, fileName: '2__pagedata.json', message: 'confirmed'}
+    })
     Object.assign(f.source, {history: {list: async () => [{version: 2, label: '2__config', lastModified: null}],
-      preview: async (_view: DataView, version: string | number) => `version-${version}`, create}})
+      preview: async (_view: DataView, version: string | number) => `version-${version}`,
+      status: () => status,
+      verify: async (_view: DataView, hooks: {assertCurrent(): void}) => {hooks.assertCurrent(); return status}, create}})
     try {
       await f.other.refresh(); f.other.updateEditingValue('1', 'text', 'draft')
       expect(await f.view.listSourceVersions()).toEqual([{version: 2, label: '2__config', lastModified: null}])
@@ -211,16 +218,45 @@ describe('DataView source lifecycle', () => {
       f.other.discardPendingChanges()
       await f.view.createSourceVersion()
       expect(create).toHaveBeenCalledOnce()
+      expect(f.view.getSourceHistoryStatus().state).toBe('confirmed')
       expect(f.view.rows).toEqual([])
     } finally {f.ds.destroy()}
+  })
+
+  it('verifies the original snapshot attempt while retaining edits made after the write', async () => {
+    const f = fixture()
+    let status: DataViewSourceHistoryStatus = {state: 'unknown', version: 7, fileName: '7__pagedata.json', message: 'receipt lost'}
+    let release!: () => void
+    const pending = new Promise<void>(resolve => {release = resolve})
+    Object.assign(f.source, {history: {list: async () => [], preview: async () => '', status: () => status,
+      verify: async (_view: DataView, hooks: {assertCurrent(): void}) => {
+        await pending; hooks.assertCurrent()
+        status = {state: 'confirmed', version: 7, fileName: '7__pagedata.json', message: 'original file verified'}
+        return status
+      }, create: async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {
+        hooks.assertCurrent(); hooks.onAttempt({version: 8, fileName: '8__pagedata.json'})
+      }}})
+    try {
+      await f.view.refresh()
+      const verification = f.view.verifySourceHistoryAttempt()
+      f.view.updateEditingValue('1', 'text', 'later draft')
+      release()
+      expect(await verification).toMatchObject({state: 'confirmed', version: 7, fileName: '7__pagedata.json'})
+      expect(f.view.getEditingRow('1')?.['text']).toBe('later draft')
+      expect(f.view.getSourceHistoryStatus().state).toBe('confirmed')
+    } finally {release(); f.ds.destroy()}
   })
 
   it.each(['edit-undo', 'query-input', 'destroy'] as const)('rejects history snapshot after asynchronous %s before the adapter writes', async change => {
     const f = fixture(); let release!: () => void
     const pending = new Promise<void>(resolve => {release = resolve})
     const written = vi.fn()
-    Object.assign(f.source, {history: {list: async () => [], preview: async () => '',
-      create: async (_view: DataView, hooks: {assertCurrent(): void}) => {await pending; hooks.assertCurrent(); written()}}})
+    let status = {state: 'idle' as const, version: null as number | null, fileName: null as string | null, message: null as string | null}
+    Object.assign(f.source, {history: {list: async () => [], preview: async () => '', status: () => status,
+      verify: async () => status,
+      create: async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {
+        await pending; hooks.assertCurrent(); hooks.onAttempt({version: 1, fileName: '1__pagedata.json'}); status = {state: 'pending', version: 1, fileName: '1__pagedata.json', message: null}; written()
+      }}})
     try {
       await f.other.refresh()
       const creation = f.view.createSourceVersion()
@@ -235,8 +271,11 @@ describe('DataView source lifecycle', () => {
 
   it('rejects a late historical preview after its source input changes', async () => {
     const f = fixture(); let release!: (value: string) => void
+    const status = {state: 'idle' as const, version: null, fileName: null, message: null}
     Object.assign(f.source, {history: {list: async () => [], preview: async () => new Promise<string>(resolve => {release = resolve}),
-      create: async () => {}}})
+      status: () => status, verify: async () => status, create: async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {
+        hooks.assertCurrent(); hooks.onAttempt({version: 1, fileName: '1__pagedata.json'})
+      }}})
     try {
       const rejected = expect(f.view.previewSourceVersion(1)).rejects.toThrow('STALE')
       f.view.queryContext = {target: 'new'}; release('old')

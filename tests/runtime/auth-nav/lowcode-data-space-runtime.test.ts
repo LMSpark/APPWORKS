@@ -38,12 +38,45 @@ async function stubRepositoryScenarioHost(resource: Readonly<{resourceId: string
   vi.stubEnv('DEV', true)
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
   const sourceRevision = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('')
-  const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+  const versions = new Map<number, string>()
+  const revision = async (value: string) => {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
+    return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('')
+  }
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input), 'http://localhost')
     const post = init?.method === 'POST'
-    const payload = post
-      ? {resourceId: resource.resourceId, outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_CONFLICT', message: 'fixture rejection'}
-      : {resourceId: resource.resourceId, scenarioId: resource.scenarioId, text, sourceRevision}
-    return new Response(JSON.stringify(payload), {status: post ? 409 : 200, headers: {'Content-Type': 'application/json'}})
+    let payload: unknown, status = 200
+    if (post) {
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      if (body['operation'] === 'create-version') {
+        const version = body['version'] as number
+        if (versions.has(version)) {
+          payload = {resourceId: resource.resourceId, version, outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_VERSION_CONFLICT', message: 'fixture collision'}
+          status = 409
+        } else {
+          const snapshot = body['text'] as string
+          versions.set(version, snapshot)
+          payload = {resourceId: resource.resourceId, scenarioId: resource.scenarioId, version,
+            fileName: `${version}__pagedata.json`, text: snapshot, sourceRevision: await revision(snapshot)}
+        }
+      } else {
+        payload = {resourceId: resource.resourceId, outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_CONFLICT', message: 'fixture rejection'}
+        status = 409
+      }
+    } else if (url.searchParams.get('history') === 'list') {
+      payload = {resourceId: resource.resourceId, scenarioId: resource.scenarioId,
+        versions: [...versions.keys()].sort((a, b) => a - b).map(version => ({version, fileName: `${version}__pagedata.json`, lastModified: null}))}
+    } else if (url.searchParams.has('version')) {
+      const version = Number(url.searchParams.get('version')), snapshot = versions.get(version)
+      payload = snapshot === undefined ? {resourceId: resource.resourceId, outcome: 'not-applied', code: 'MISSING', message: 'missing'}
+        : {resourceId: resource.resourceId, scenarioId: resource.scenarioId, version, fileName: `${version}__pagedata.json`,
+          text: snapshot, sourceRevision: await revision(snapshot)}
+      if (snapshot === undefined) status = 404
+    } else {
+      payload = {resourceId: resource.resourceId, scenarioId: resource.scenarioId, text, sourceRevision}
+    }
+    return new Response(JSON.stringify(payload), {status, headers: {'Content-Type': 'application/json'}})
   })
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
@@ -345,7 +378,9 @@ describe('host scenario file request wiring', () => {
       return {data,status:200,statusText:'OK',headers:{}}
     })
     expect(await gateway.listVersions('SCENE-1')).toEqual([{version:0,fileName:'0__pagedata.json',lastModified:100}])
-    expect(await gateway.createVersion('SCENE-1',current)).toEqual({version:1,fileName:'1__pagedata.json',lastModified:100})
+    let attempt: unknown
+    expect(await gateway.createVersion({scenarioId:'SCENE-1',version:1,text:current,onAttempt:value => {attempt = value}})).toEqual({version:1,fileName:'1__pagedata.json',lastModified:100})
+    expect(attempt).toMatchObject({scenarioId:'SCENE-1',resourceId:'scenario:SCENE-1',version:1,text:current})
     expect(await gateway.readVersion('SCENE-1',0)).toBe(previous)
     expect('restoreVersion' in gateway).toBe(false)
     expect(files.get('pagedata.json')).toBe(current)
@@ -353,7 +388,7 @@ describe('host scenario file request wiring', () => {
     expect(files.get('1__pagedata.json')).toBe(current)
     expect(transport.request.mock.calls.every(([config])=>config.url.startsWith('/api/File/'))).toBe(true)
     let guards = 0
-    await expect(gateway.createVersion('SCENE-1',current,()=>{if (++guards > 1) throw new Error('DEFINITION_CHANGED')})).rejects.toThrow('DEFINITION_CHANGED')
+    await expect(gateway.createVersion({scenarioId:'SCENE-1',version:2,text:current,onAttempt:()=>{},assertCurrent:()=>{if (++guards > 1) throw new Error('DEFINITION_CHANGED')}})).rejects.toThrow('DEFINITION_CHANGED')
     expect(files.has('2__pagedata.json')).toBe(false)
   })
 
@@ -369,13 +404,28 @@ describe('host scenario file request wiring', () => {
     expect(transport.request).not.toHaveBeenCalled()
   })
 
+  it.each(['list', 'read'] as const)('rejects a history %s response after the active application changes during IO', async operation => {
+    sceneWorkspace('APP-1')
+    const gateway = runtime.createLowcodeProjectGateways('APP-1').scenarioViews
+    if (!gateway.listVersions || !gateway.readVersion) throw new Error('missing scene history gateway')
+    let resolveRequest!: (value: {data: unknown; status: number; statusText: string; headers: Record<string, string>}) => void
+    transport.request.mockImplementation(() => new Promise(resolve => { resolveRequest = resolve }))
+    const pending = operation === 'list' ? gateway.listVersions('SCENE-1') : gateway.readVersion('SCENE-1', 0)
+    await vi.waitFor(() => expect(resolveRequest).toBeTypeOf('function'))
+
+    sceneWorkspace('APP-2')
+    resolveRequest({data: operation === 'list' ? {Code: 200, Result: []} : new Uint8Array([123]).buffer,
+      status: 200, statusText: 'OK', headers: {}})
+    await expect(pending).rejects.toThrow('SCOPE_STALE')
+  })
+
 
   it('rejects conflicting scene working content before snapshot upload', async () => {
     sceneWorkspace()
     const gateway=runtime.createLowcodeProjectGateways('APP-1').scenarioViews
     if(!gateway.createVersion)throw new Error('missing scene snapshot')
     transport.request.mockImplementation(async(config:RequestConfig)=>({data:{Code:200,Result:config.url === '/api/File/list'?[]:'changed remotely'},status:200,statusText:'OK',headers:{}}))
-    await expect(gateway.createVersion('SCENE-1',JSON.stringify({scenarioId:'SCENE-1',tables:{}}))).rejects.toThrow('CONFLICT')
+    await expect(gateway.createVersion({scenarioId:'SCENE-1',version:1,text:JSON.stringify({scenarioId:'SCENE-1',tables:{}}),onAttempt:()=>{}})).rejects.toThrow('CONFLICT')
     expect(transport.request.mock.calls.some(([config])=>config.url === '/api/File/UploadFile')).toBe(false)
   })
 
@@ -405,7 +455,7 @@ describe('host scenario file request wiring', () => {
     expect(transport.request).not.toHaveBeenCalled()
   })
 
-  it('blocks remote scenario write and history only for the four repository program scenes', async () => {
+  it('routes builtin scenario history through the development host and never remote file APIs', async () => {
     const applicationId = getBuiltinApplicationDescriptor().id
     sceneWorkspace(applicationId)
     const gateway = runtime.createLowcodeProjectGateways(applicationId).scenarioViews
@@ -418,11 +468,16 @@ describe('host scenario file request wiring', () => {
     await expect(gateway.writeText(programSceneId, '{}', baseline)).rejects.toMatchObject({
       name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
     })
-    await expect(gateway.listVersions(programSceneId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.readVersion(programSceneId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.createVersion(programSceneId, '{}')).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
+    await expect(gateway.listVersions(programSceneId)).resolves.toEqual([])
+    await expect(gateway.readVersion(programSceneId, 0)).rejects.toThrow('REPOSITORY_SCENARIO_HISTORY_READ_FAILED')
+    let attempt: unknown
+    await expect(gateway.createVersion({scenarioId:programSceneId,version:0,text:baseline,onAttempt:value => {attempt = value}})).resolves.toEqual({
+      version: 0, fileName: '0__pagedata.json', lastModified: null,
+    })
+    expect(attempt).toMatchObject({resourceId: resource.resourceId, scenarioId: programSceneId, version: 0, text: baseline})
+    await expect(gateway.readVersion(programSceneId, 0)).resolves.toBe(baseline)
     expect(transport.request).not.toHaveBeenCalled()
-    expect(host).toHaveBeenCalledOnce()
+    expect(host).toHaveBeenCalledTimes(6)
 
     const targetScenarioId = 'A'.repeat(32)
     const upload = vi.spyOn(runtime.lowcodeDesignFileUpload, 'uploadWorkingText').mockResolvedValue({state: 'success'})
@@ -451,23 +506,24 @@ describe('host scenario file request wiring', () => {
     await expect(gateway.writeText(resource.scenarioId, text, text)).rejects.toMatchObject({
       name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
     })
-    await expect(gateway.listVersions(resource.scenarioId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.readVersion(resource.scenarioId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.createVersion(resource.scenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
+    await expect(gateway.listVersions(resource.scenarioId)).resolves.toEqual([])
+    await expect(gateway.readVersion(resource.scenarioId, 0)).rejects.toThrow('REPOSITORY_SCENARIO_HISTORY_READ_FAILED')
+    await expect(gateway.createVersion({scenarioId:resource.scenarioId,version:0,text,onAttempt:()=>{}})).resolves.toMatchObject({version: 0})
+    await expect(gateway.readVersion(resource.scenarioId, 0)).resolves.toBe(text)
 
     const paddedScenarioId = ` ${resource.scenarioId} `
     await expect(gateway.readText(paddedScenarioId)).resolves.toBe(text)
     await expect(gateway.writeText(paddedScenarioId, text, text)).rejects.toMatchObject({
       name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
     })
-    await expect(gateway.listVersions(paddedScenarioId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.readVersion(paddedScenarioId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
-    await expect(gateway.createVersion(paddedScenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
+    await expect(gateway.listVersions(paddedScenarioId)).resolves.toMatchObject([{version: 0, fileName: '0__pagedata.json'}])
+    await expect(gateway.readVersion(paddedScenarioId, 0)).resolves.toBe(text)
+    await expect(gateway.createVersion({scenarioId:paddedScenarioId,version:1,text,onAttempt:()=>{}})).resolves.toMatchObject({version: 1})
     expect(transport.request).not.toHaveBeenCalled()
-    expect(host).toHaveBeenCalledTimes(4)
+    expect(host).toHaveBeenCalled()
     const post = host.mock.calls.find(([, init]) => init?.method === 'POST')
     if (!post?.[1]?.body || typeof post[1].body !== 'string') throw new Error('missing repository POST body')
-    expect(JSON.parse(post[1].body)).toEqual({resourceId: resource.resourceId, text, expectedText: text})
+    expect(JSON.parse(post[1].body)).toEqual(expect.objectContaining({resourceId: resource.resourceId, text, expectedText: text}))
   })
 
   it.each(['switch', 'logout'] as const)('rejects a stale registered-scene gateway before POST after %s', async transition => {
@@ -485,6 +541,21 @@ describe('host scenario file request wiring', () => {
 
     expect(host).not.toHaveBeenCalled()
     expect(transport.request).not.toHaveBeenCalled()
+  })
+
+  it('does not create a history snapshot through an old gateway after the same app opens a new request scope', async () => {
+    const applicationId = getBuiltinApplicationDescriptor().id
+    const resource = getBuiltinScenarioResource('dataSpaceCatalog'), text = readFileSync(resource.path, 'utf8')
+    const host = await stubRepositoryScenarioHost(resource, text)
+    const workspace = sceneWorkspace(applicationId)
+    await workspace.loadScenarioViews({scenarioId: resource.scenarioId})
+    const firstScope = runtime.lowcodeApi.readRequestScope().token
+
+    sceneWorkspace(applicationId)
+    expect(runtime.lowcodeApi.readRequestScope().token).not.toBe(firstScope)
+    await workspace.loadScenarioViews({scenarioId: resource.scenarioId})
+    await expect(workspace.createScenarioVersion({scenarioId: resource.scenarioId})).rejects.toThrow('SCOPE_STALE')
+    expect(host.mock.calls.some(([, init]) => init?.method === 'POST')).toBe(false)
   })
 
   it('blocks builtin tool-file remote IO per operation without rejecting gateway construction', async () => {

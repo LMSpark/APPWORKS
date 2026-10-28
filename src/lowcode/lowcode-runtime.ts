@@ -21,7 +21,7 @@ import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigati
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {readRepositoryScenarioText} from './resources/shared/repository-scenarios/repository-scenario-resource'
-import {writeRepositoryScenarioToHost} from './resources/shared/repository-scenarios/repository-scenario-host-client'
+import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/shared/repository-scenarios/repository-scenario-host-client'
 import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/shared/builtin-system-navigation'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
 
@@ -119,12 +119,6 @@ export async function readLowcodePageFile(command: ProjectModel.PageFileReadComm
     customPath: toolFilePath(command.projectId, command.pageId),
     fileName: versions === undefined ? command.fileName : LowcodePlatform.lowcodeBlueprintVersionedFileName(command.fileName, versions),
   })
-}
-
-function assertBuiltinScenarioHistoryUnavailable(scenarioId: string): void {
-  if (resolveBuiltinScenarioResource(scenarioId)) {
-    throw new Error(`BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: ${scenarioId} 尚无仓内历史适配器`)
-  }
 }
 
 function assertRemoteToolFilesAllowed(projectId: string): void {
@@ -623,6 +617,23 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')
   const executionScope = lowcodeApi.readRequestScope()
+  const assertExecutionScope = (): void => {
+    const current = lowcodeApi.readRequestScope()
+    if (current.token !== executionScope.token || current.headers['X-AppId'] !== normalizedProjectId) {
+      throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景历史创建执行身份已失效')
+    }
+  }
+  const captureScenarioReadScope = (): (() => void) => {
+    const captured = lowcodeApi.readRequestScope()
+    const assertCurrent = (): void => {
+      const current = lowcodeApi.readRequestScope()
+      if (current.token !== captured.token || current.headers['X-AppId'] !== normalizedProjectId) {
+        throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景历史读取身份已失效')
+      }
+    }
+    assertCurrent()
+    return assertCurrent
+  }
   return {
     pageFiles: {
       readPageFile: async command => {
@@ -691,40 +702,91 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         })
       },
       listVersions: async scenarioId => {
-        assertBuiltinScenarioHistoryUnavailable(scenarioId)
-        return [...await lowcodeApi.design.listFileVersions({
+        const assertCurrent = captureScenarioReadScope()
+        const resource = resolveBuiltinScenarioResource(scenarioId)
+        if (resource) {
+          if (!import.meta.env.DEV) throw new Error('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: 构建态不提供仓内场景历史')
+          const versions = [...await listRepositoryScenarioVersions(resource)]
+          assertCurrent()
+          return versions
+        }
+        const versions = [...await lowcodeApi.design.listFileVersions({
           appType: 'designfile', customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json',
         })]
+        assertCurrent()
+        return versions
       },
       readVersion: async (scenarioId, version) => {
-        assertBuiltinScenarioHistoryUnavailable(scenarioId)
         if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
+        const assertCurrent = captureScenarioReadScope()
+        const resource = resolveBuiltinScenarioResource(scenarioId)
+        if (resource) {
+          if (!import.meta.env.DEV) throw new Error('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: 构建态不提供仓内场景历史')
+          const text = await readRepositoryScenarioVersion(resource, version)
+          assertCurrent()
+          return text
+        }
         const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile',
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: `${version}__pagedata.json` })
+        assertCurrent()
         return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
       },
-      createVersion: async (scenarioId, text, assertCurrent) => {
-        assertBuiltinScenarioHistoryUnavailable(scenarioId)
+      createVersion: async ({scenarioId, version, text, onAttempt, assertCurrent}) => {
+        assertExecutionScope()
         assertCurrent?.()
         new ProjectModel.ScenarioViewConfig(scenarioId, text)
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
-        const scope = lowcodeApi.readRequestScope().token
+        const requestScope = lowcodeApi.readRequestScope()
+        const scope = requestScope.token
+        const resource = resolveBuiltinScenarioResource(scenarioId)
+        if (resource) {
+          if (!import.meta.env.DEV) throw new ProjectModel.ScenarioViewVersionNotAppliedError(resource.resourceId,
+            scope, version, '构建态不提供仓内场景历史')
+          if (requestScope.headers['X-AppId'] !== normalizedProjectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内场景历史所属应用已失效')
+          assertExecutionScope()
+          if (scope !== executionScope.token) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内场景历史执行身份已失效')
+          const working = await readRepositoryScenarioText(resource, assertCurrent ?? (() => undefined))
+          assertExecutionScope()
+          assertCurrent?.()
+          if (working !== text) throw new Error('SCENARIO_VIEW_CONFLICT: 仓内场景配置已改变')
+          assertExecutionScope()
+          await createRepositoryScenarioVersion({resource, scope, version, text, expectedText: working, onAttempt})
+          assertExecutionScope()
+          assertCurrent?.()
+          return {version, fileName: `${version}__pagedata.json`, lastModified: null}
+        }
+        assertExecutionScope()
         const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        assertExecutionScope()
         assertCurrent?.()
-        const version = Math.max(0, ...versions.map(item => item.version)) + 1
-        if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
+        if (versions.some(item => item.version === version || item.fileName === `${version}__pagedata.json`)) {
+          throw new ProjectModel.ScenarioViewVersionNotAppliedError(`scenario:${scenarioId}`, scope, version,
+            `场景快照编号 ${version} 已存在`)
+        }
+        assertExecutionScope()
         const working = await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        assertExecutionScope()
         assertCurrent?.()
         if (working !== text) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
-        if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建场景版本所属应用已失效')
         const fileName = `${version}__pagedata.json`
-        await scenarioFileUpload.uploadTextVersion({ customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName, text })
+        onAttempt({scenarioId, resourceId: `scenario:${scenarioId}`, scope, version, fileName, text})
+        assertExecutionScope()
+        assertCurrent?.()
+        await scenarioFileUpload.uploadTextVersion({ customPath, fileName, text })
+        assertExecutionScope()
         assertCurrent?.()
         const actual = await lowcodeApi.design.listFileVersions({ appType: 'designfile',
-          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json' })
+          customPath, fileName: 'pagedata.json' })
+        assertExecutionScope()
         assertCurrent?.()
         const summary = actual.find(item => item.fileName === fileName && item.version === version)
         if (summary === undefined) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 已上传快照未出现在实际列表')
+        const bytes = await lowcodeApi.design.readFileBytes({appType: 'designfile', customPath, fileName})
+        assertExecutionScope()
+        assertCurrent?.()
+        if (new TextDecoder('utf-8', {fatal: true, ignoreBOM: true}).decode(bytes) !== text) {
+          throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 已上传快照原文回读不一致')
+        }
         return summary
       },
     },

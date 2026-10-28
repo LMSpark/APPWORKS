@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 987,
+  "scannedFileCount": 988,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9287,6 +9287,8 @@
           "DataViewSourceAdoptOptions",
           "DataViewSourceAdoptHooks",
           "DataViewSourceVersion",
+          "DataViewSourceHistoryStatus",
+          "DataViewSourceHistoryAttempt",
           "DataViewSourceAdapter",
           "DataViewSource"
         ]
@@ -11593,6 +11595,10 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPageLoadOptions",
+          "ScenarioViewVersionAttempt",
+          "ScenarioViewVersionAttemptStatus",
+          "ScenarioViewVersionNotAppliedError",
+          "ScenarioViewVersionCreateCommand",
           "ProjectWorkspaceOptions",
           "ProjectWorkspace"
         ]
@@ -13702,7 +13708,9 @@
         "modulePath": "lowcode/resources/shared/repository-scenarios/repository-scenario-host-client",
         "jsdoc": "@module app:lowcode/resources/shared/repository-scenarios/repository-scenario-host-client\n职责：为仓内场景 SPARK data 资源适配器访问 Vite 开发宿主提供受约束的读写客户端。\n边界：GET读取新鲜文本；POST携带捕获的expectedText；仅精确资源的明确未应用响应可转成 typed 拒绝，超时/回读错误保持未知并且不重试。\nAI用途：仅由仓内场景资源执行器调用，不作为页面或通用文件API使用。",
         "jsdocSource": "source-file-jsdoc",
-        "symbols": []
+        "symbols": [
+          "CreateRepositoryScenarioVersionCommand"
+        ]
       }
     },
     "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts": {
@@ -13717,6 +13725,8 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "RepositoryScenarioSuccess",
+          "RepositoryScenarioHistoryList",
+          "RepositoryScenarioVersionSuccess",
           "RepositoryScenarioFailure"
         ]
       }
@@ -15381,6 +15391,19 @@
         "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval",
         "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval\n职责：使用标准弹窗与按钮预览、取消和暂存计算字段删除。\n边界：不直接查询、授权或保存；提交和未决结果核验由原字段工作区承接。\nAI用途：确认后返回原工作区统一保存，不另建删除提交或恢复入口。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue": {
+      "file": "files/src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel",
+        "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+        "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel",
+        "jsdoc": "app 的 views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
         "symbols": []
       }
     },
@@ -17830,6 +17853,10 @@
       "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
       "file": "files/src/services/page-design/page-design-agent-run-provider.ts.json"
     },
+    "CreateRepositoryScenarioVersionCommand": {
+      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
+      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts.json"
+    },
     "CreateSimpleInputContractOptions": {
       "sourcePath": "packages/spark-ai/src/agent/business/business-kit.ts",
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json"
@@ -18691,6 +18718,14 @@
       "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
     },
     "DataViewSourceAdoptOptions": {
+      "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
+      "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
+    },
+    "DataViewSourceHistoryAttempt": {
+      "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
+      "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
+    },
+    "DataViewSourceHistoryStatus": {
       "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
       "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
     },
@@ -21254,7 +21289,15 @@
       "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
       "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
     },
+    "RepositoryScenarioHistoryList": {
+      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
+      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+    },
     "RepositoryScenarioSuccess": {
+      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
+      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+    },
+    "RepositoryScenarioVersionSuccess": {
       "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
       "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
     },
@@ -21665,6 +21708,22 @@
     "ScenarioViewSubmission": {
       "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "file": "files/packages/spark-project-model/src/scenario/scenario-view-file.ts.json"
+    },
+    "ScenarioViewVersionAttempt": {
+      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
+    },
+    "ScenarioViewVersionAttemptStatus": {
+      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
+    },
+    "ScenarioViewVersionCreateCommand": {
+      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
+    },
+    "ScenarioViewVersionNotAppliedError": {
+      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "ScenarioViewWriteNotAppliedError": {
       "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts",

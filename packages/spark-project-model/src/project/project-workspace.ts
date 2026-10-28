@@ -44,6 +44,33 @@ forceReload?: boolean
 }
 
 /** 按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。 */
+/** 宿主在任何可能写请求发出前交付的不可变快照身份。 */
+export type ScenarioViewVersionAttempt = Readonly<{
+  scenarioId: string
+  resourceId: string
+  scope: string
+  version: number
+  fileName: string
+  text: string
+}>
+
+/** 页面可见的快照状态；原文本、scope和owner身份留在工作区。 */
+export type ScenarioViewVersionAttemptStatus = Readonly<{
+  state: 'idle' | 'pending' | 'unknown' | 'confirmed' | 'not-applied'
+  version: number | null
+  fileName: string | null
+  message: string | null
+}>
+
+/** 资源适配只在可证明本次固定N未应用时抛出。 */
+export class ScenarioViewVersionNotAppliedError extends Error {
+  constructor(readonly resourceId: string, readonly scope: string, readonly version: number,
+    message = '该编号的场景快照未应用') {
+    super(message)
+    this.name = 'ScenarioViewVersionNotAppliedError'
+  }
+}
+
 type ScenarioViewGateway = Readonly<{
   readScope: () => string
   readText: (scenarioId: string) => Promise<string | null>
@@ -54,14 +81,30 @@ type ScenarioViewGateway = Readonly<{
   writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>
   listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>
   readVersion?: (scenarioId: string, version: number) => Promise<string>
-  createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>
+  createVersion?: (command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>
+}>
+/**
+ * 给场景文件适配器的一次显式快照创建命令。版本由调用方按当前真实历史列表分配；适配器不得自行换号重试。
+ */
+export type ScenarioViewVersionCreateCommand = Readonly<{
+  /** 本次快照所属的场景文件身份。 */
+  scenarioId: string
+  /** 调用方预先分配并需原样回执的快照编号。 */
+  version: number
+  /** 与已保存活动文件一致的精确快照原文。 */
+  text: string
+  /** 适配器在首次可能写入前同步捕获原attempt。 */
+  onAttempt: (attempt: ScenarioViewVersionAttempt) => void
+  /** 检查调用期间原工作区、scope和视图身份仍有效。 */
+  assertCurrent?: () => void
 }>
 /** 读取明确场景文件，强制重载不得覆盖dirty。 */
 type ScenarioViewLoadCommand = Readonly<{ scenarioId: string; forceReload?: boolean }>
 /** 用户显式新建的单场景合法文本，远端必须确认不存在。 */
 type ScenarioViewCreateCommand = Readonly<{ scenarioId: string; text: string; assertCurrent?: () => void }>
 /** 保存已持有场景owner，写前比较基线并写后真实读回。 */
-type ScenarioViewSaveCommand = Readonly<{ scenarioId: string; assertCurrent?: () => void }>
+type ScenarioViewSaveCommand = Readonly<{ scenarioId: string; assertCurrent?: () => void
+  onAttempt?: (attempt: Readonly<{version: number; fileName: string}>) => void }>
 /** 接纳已展示的远端原文；异步读取前后核对调用方，失效时保留本地文件。 */
 type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision: number; previewText: string | null; assertCurrent?: () => void
   /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */
@@ -83,7 +126,20 @@ type ProjectWorkspacePageFileChange = Readonly<{
   assertCurrent?: () => void
 }>
 /** 版本操作捕获的场景owner、请求scope和工作文本基线。 */
-type ScenarioViewVersionContext = Readonly<{ scenarioId: string; scope: string; file: ScenarioViewFile; text: string; key: string }>
+type ScenarioViewVersionContext = Readonly<{ scenarioId: string; scope: string; file: ScenarioViewFile; text: string; revision: number; key: string }>
+type ScenarioVersionAttemptRecord = Readonly<{
+  context: ScenarioViewVersionContext
+  status: ScenarioViewVersionAttemptStatus
+  attempt?: ScenarioViewVersionAttempt
+}>
+const emptyScenarioVersionStatus: ScenarioViewVersionAttemptStatus = Object.freeze({
+  state: 'idle', version: null, fileName: null, message: null,
+})
+
+function scenarioVersionStatus(state: ScenarioViewVersionAttemptStatus['state'], attempt: ScenarioViewVersionAttempt,
+  message: string): ScenarioViewVersionAttemptStatus {
+  return Object.freeze({state, version: attempt.version, fileName: attempt.fileName, message})
+}
 
 /** Project Workspace Options 的调用配置。 */
 export type ProjectWorkspaceOptions = {
@@ -124,12 +180,22 @@ readonly project: ProjectBlueprint
   private readonly scenarioFiles = new Map<string, ScenarioViewFile>()
   private readonly scenarioLoads = new Map<string, Promise<ScenarioViewFile>>()
   private readonly scenarioSaves = new Set<string>()
+  private readonly scenarioVersionAttempts = new Map<string, ScenarioVersionAttemptRecord>()
   private readonly pageFileSaves = new Set<string>()
   private readonly unconfirmedToolSaves = new Map<string, {page: PageTool; name: PageToolFileName; text: string; baseline: string}>()
 
   /** 原工作文件提交尚未回读确认的目标；撤销本地文本不会把未知写入变成已取消。 */
   get unconfirmedPageFiles(): ReadonlyArray<{pageId: string; fileName: PageToolFileName}> {
     return [...this.unconfirmedToolSaves.values()].map(item => ({pageId: item.page.pageId, fileName: item.name}))
+  }
+  /** 原场景owner仍持有待提交或结果未知的快照attempt时，宿主不得释放该工作区。 */
+  get hasPendingScenarioVersionAttempt(): boolean {
+    let scope: string
+    try {scope = this.scenarioGateway?.readScope() ?? ''} catch {return false}
+    if (!scope.trim()) return false
+    return [...this.scenarioVersionAttempts.values()].some(record => record.context.scope === scope
+      && this.scenarioFiles.get(record.context.scenarioId) === record.context.file
+      && (record.status.state === 'pending' || record.status.state === 'unknown'))
   }
   /** 固定项目身份与真实IO能力，持有场景scope缓存并编排可验证保存。 */
 
@@ -195,8 +261,10 @@ constructor(options: ProjectWorkspaceOptions) {
     }
   }
 
-  /** 宿主释放工作区时销毁所属定义DataSet；在途结果不得重新注册，存储回执仍由原操作核验。 */
+  /** 宿主释放工作区时销毁所属定义DataSet；未决快照attempt必须先核验，不能随owner释放。 */
+  /** @throws 原快照仍pending或unknown时拒绝释放owner。 */
   public dispose(): void {
+    if (this.hasPendingScenarioVersionAttempt) throw new Error('SCENARIO_VIEW_VERSION_UNKNOWN: 原场景快照结果未核验，不能释放其工作区owner')
     this.disposed = true
     for (const dataSet of this.definitionDataSets.values()) dataSet.destroy()
     this.definitionDataSets.clear(); this.definitionLoads.clear()
@@ -369,6 +437,67 @@ constructor(options: ProjectWorkspaceOptions) {
     return versions
   }
 
+  /** 当前相同scenario/scope/file owner的历史快照提交状态。 */
+  public getScenarioVersionStatus(command: ScenarioViewSaveCommand): ScenarioViewVersionAttemptStatus {
+    const scenarioId = this.requireScenarioId(command.scenarioId), scope = this.currentScenarioScope()
+    const key = JSON.stringify([scope, scenarioId]), record = this.scenarioVersionAttempts.get(key)
+    const file = this.scenarioFiles.get(scenarioId)
+    if (!file) {
+      command.assertCurrent?.()
+      return emptyScenarioVersionStatus
+    }
+    if (record && record.context.file !== file) {
+      command.assertCurrent?.()
+      return emptyScenarioVersionStatus
+    }
+    command.assertCurrent?.()
+    return record?.status ?? emptyScenarioVersionStatus
+  }
+
+  /** 只读核验Workspace捕获的原编号和原文本；允许当前定义视图有后续草稿。 */
+  public async verifyScenarioVersionAttempt(command: ScenarioViewSaveCommand): Promise<ScenarioViewVersionAttemptStatus> {
+    const scenarioId = this.requireScenarioId(command.scenarioId), scope = this.currentScenarioScope()
+    const key = JSON.stringify([scope, scenarioId]), record = this.scenarioVersionAttempts.get(key)
+    const file = this.scenarioFiles.get(scenarioId)
+    if (!record?.attempt) throw new Error('SCENARIO_VIEW_VERSION_ATTEMPT_NONE: 没有待核验的场景快照')
+    if (!file || record.context.file !== file) {
+      if (record.status.state === 'pending' || record.status.state === 'unknown') {
+        throw new Error('SCENARIO_VIEW_OWNER_CHANGED: 原快照attempt属于已释放的场景owner')
+      }
+      throw new Error('SCENARIO_VIEW_VERSION_ATTEMPT_NONE: 没有待核验的场景快照')
+    }
+    const context: ScenarioViewVersionContext = {scenarioId, scope, file, text: file.getText(), revision: file.revision, key}
+    if (record.context.file !== context.file) throw new Error('SCENARIO_VIEW_OWNER_CHANGED: 原快照attempt属于已释放的场景owner')
+    if (record.status.state === 'pending') throw new Error('SCENARIO_VIEW_VERSION_PENDING: 场景快照仍在提交')
+    if (record.status.state !== 'unknown') return record.status
+    const attempt = record.attempt
+    const gateway = this.requireScenarioGateway(), list = gateway.listVersions, read = gateway.readVersion
+    if (list === undefined || read === undefined) throw new Error('当前平台未提供场景版本核验能力')
+    const assertCurrent = (): void => {
+      this.assertScenarioVersionContext(context, false)
+      command.assertCurrent?.()
+      if (this.scenarioVersionAttempts.get(context.key) !== record) throw new Error('SCENARIO_VIEW_VERSION_ATTEMPT_STALE: 原快照attempt已改变')
+    }
+    assertCurrent()
+    try {
+      const versions = await list(context.scenarioId)
+      assertCurrent()
+      const matches = versions.filter(item => item.version === attempt.version && item.fileName === attempt.fileName)
+      if (matches.length !== 1) return record.status
+      const text = await read(context.scenarioId, attempt.version)
+      assertCurrent()
+      if (text !== attempt.text) return record.status
+      new ScenarioViewFile(context.scenarioId, text)
+      const confirmed = scenarioVersionStatus('confirmed', attempt, '快照原编号及原文已核验')
+      this.scenarioVersionAttempts.set(context.key, {...record, status: confirmed})
+      return confirmed
+    } catch (error) {
+      if (error instanceof Error && (error.message.includes('SCOPE_STALE') || error.message.includes('OWNER_CHANGED')
+        || error.message.includes('ATTEMPT_STALE') || error.message.includes('DISPOSED'))) throw error
+      return record.status
+    }
+  }
+
   /** 读取并校验用户将要恢复的单场景快照，不改变工作文件或本地owner。 */
   public async previewScenarioVersion(command: ScenarioViewVersionCommand): Promise<string> {
     this.assertScenarioVersion(command.version)
@@ -381,28 +510,76 @@ constructor(options: ProjectWorkspaceOptions) {
     return text
   }
 
-  /** 仅为真实已保存且干净的工作文件建立快照，并核对快照原文。 */
+  /** 为真实已保存且干净的工作文件建立下一编号快照，捕获原attempt并核对精确原文。 */
   public async createScenarioVersion(command: ScenarioViewSaveCommand): Promise<void> {
     const context = this.scenarioVersionContext(command.scenarioId)
-    const assertCurrent = () => {this.assertScenarioVersionContext(context, true); command.assertCurrent?.()}
-    assertCurrent()
-    const gateway = this.requireScenarioGateway()
-    const create = gateway.createVersion
-    const read = gateway.readVersion
-    if (create === undefined || read === undefined) throw new Error('当前平台未提供场景版本创建及确认能力')
-    if (this.scenarioSaves.has(context.key)) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
+    if (this.scenarioSaves.has(context.key)) throw new Error('SCENARIO_VIEW_VERSION_PENDING: 场景快照或保存仍在提交')
+    const previous = this.scenarioVersionAttempts.get(context.key)
+    if (previous?.status.state === 'pending') throw new Error('SCENARIO_VIEW_VERSION_PENDING: 场景快照仍在提交')
+    if (previous?.status.state === 'unknown') throw new Error('SCENARIO_VIEW_VERSION_UNKNOWN: 请先只读核验原快照attempt')
     this.scenarioSaves.add(context.key)
+    const pending: ScenarioVersionAttemptRecord = {context,
+      status: {state: 'pending', version: null, fileName: null, message: '正在创建场景快照'}}
+    this.scenarioVersionAttempts.set(context.key, pending)
+    let attemptCaptured = false
+    let gatewayCreateReturned = false
+    const didCaptureAttempt = (): boolean => attemptCaptured
+    const assertCurrent = () => {this.assertScenarioVersionContext(context, !attemptCaptured); command.assertCurrent?.()}
     try {
+      assertCurrent()
+      const gateway = this.requireScenarioGateway()
+      const create = gateway.createVersion, list = gateway.listVersions, read = gateway.readVersion
+      if (create === undefined || list === undefined || read === undefined) throw new Error('当前平台未提供场景版本创建及确认能力')
       const baseline = await gateway.readText(context.scenarioId)
       assertCurrent()
       if (baseline !== context.text) throw new Error('SCENARIO_VIEW_CONFLICT: 工作文件已改变')
-      const summary = await create(context.scenarioId, context.text, assertCurrent)
+      const versions = await list(context.scenarioId)
       assertCurrent()
-      this.assertScenarioVersion(summary.version)
-      if (summary.fileName !== `${summary.version}__pagedata.json`) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 快照身份错误')
-      const snapshot = await read(context.scenarioId, summary.version)
+      const seen = new Set<number>()
+      for (const item of versions) {
+        this.assertScenarioVersion(item.version)
+        if (item.fileName !== `${item.version}__pagedata.json` || seen.has(item.version)) {
+          throw new Error('SCENARIO_VIEW_HISTORY_INVALID: 场景历史列表编号无效或重复')
+        }
+        seen.add(item.version)
+      }
+      const version = Math.max(0, ...seen) + 1
+      this.assertScenarioVersion(version)
+      const onAttempt = (attempt: ScenarioViewVersionAttempt): void => {
+        assertCurrent()
+        if (attemptCaptured || attempt.scenarioId !== context.scenarioId || attempt.scope !== context.scope
+          || attempt.version !== version || attempt.fileName !== `${version}__pagedata.json`
+          || attempt.text !== context.text || typeof attempt.resourceId !== 'string' || !attempt.resourceId.trim()) {
+          throw new Error('SCENARIO_VIEW_VERSION_ATTEMPT_INVALID: 快照attempt与原工作区不匹配')
+        }
+        command.onAttempt?.({version: attempt.version, fileName: attempt.fileName})
+        attemptCaptured = true
+        const captured = Object.freeze({...attempt})
+        this.scenarioVersionAttempts.set(context.key, {context,
+          status: scenarioVersionStatus('pending', captured, '原快照attempt已捕获'), attempt: captured})
+      }
+      const summary = await create({scenarioId: context.scenarioId, version, text: context.text, onAttempt, assertCurrent})
+      gatewayCreateReturned = true
+      if (!didCaptureAttempt()) throw new Error('SCENARIO_VIEW_VERSION_ATTEMPT_MISSING: 写入网关未捕获快照attempt')
+      assertCurrent()
+      if (summary.version !== version || summary.fileName !== `${version}__pagedata.json`) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 快照身份错误')
+      const snapshot = await read(context.scenarioId, version)
       assertCurrent()
       if (snapshot !== context.text) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 快照回读原文不一致')
+      const current = this.scenarioVersionAttempts.get(context.key)
+      if (current?.attempt) this.scenarioVersionAttempts.set(context.key,
+        {...current, status: scenarioVersionStatus('confirmed', current.attempt, '场景快照已回读确认')})
+    } catch (error) {
+      const current = this.scenarioVersionAttempts.get(context.key)
+      if (didCaptureAttempt() && current?.attempt) {
+        const typed = !gatewayCreateReturned && error instanceof ScenarioViewVersionNotAppliedError
+          && error.resourceId === current.attempt.resourceId && error.scope === current.attempt.scope
+          && error.version === current.attempt.version
+        this.scenarioVersionAttempts.set(context.key, {...current, status: typed
+          ? scenarioVersionStatus('not-applied', current.attempt, error.message)
+          : scenarioVersionStatus('unknown', current.attempt, error instanceof Error ? error.message : '场景快照结果未知')})
+      } else if (current === pending) this.scenarioVersionAttempts.delete(context.key)
+      throw error
     } finally { this.scenarioSaves.delete(context.key) }
   }
 
@@ -411,13 +588,15 @@ constructor(options: ProjectWorkspaceOptions) {
     const scope = this.currentScenarioScope()
     const file = this.scenarioFiles.get(scenarioId)
     if (file === undefined) throw new Error('场景视图文件尚未加载')
-    return { scenarioId, scope, file, text: file.getText(), key: JSON.stringify([scope, scenarioId]) }
+    return { scenarioId, scope, file, text: file.getText(), revision: file.revision, key: JSON.stringify([scope, scenarioId]) }
   }
 
   private assertScenarioVersionContext(context: ScenarioViewVersionContext, requireClean = false): void {
     this.assertScenarioScope(context.scope)
     if (this.scenarioFiles.get(context.scenarioId) !== context.file) throw new Error('SCENARIO_VIEW_OWNER_CHANGED: 场景owner已改变')
-    if (context.file.getText() !== context.text) throw new Error('SCENARIO_VIEW_EDIT_DURING_VERSION: 版本操作期间已发生编辑')
+    if (requireClean && (context.file.getText() !== context.text || context.file.revision !== context.revision)) {
+      throw new Error('SCENARIO_VIEW_EDIT_DURING_VERSION: 版本操作期间已发生编辑')
+    }
     if (requireClean && (context.file.isDirty || !context.file.isPersisted)) throw new Error('SCENARIO_VIEW_UNSAVED: 场景文件未持久化或有未保存编辑')
   }
 

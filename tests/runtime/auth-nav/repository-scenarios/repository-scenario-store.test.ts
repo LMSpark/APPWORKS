@@ -153,9 +153,77 @@ describe('repository scenario file store', () => {
     })
     expect(await readFile(path.join(outside, 'pages', 'scene', 'pagedata.json'), 'utf8')).toBe('outside')
   })
+
+  it('lists without creating history storage, then reads and exclusively creates a separate snapshot', async () => {
+    const {root, file, store} = await fixture()
+    expect(await store.listVersions(resource.resourceId)).toMatchObject({versions: []})
+    await expect(readdir(path.join(root, 'config', 'history', 'scenarios'))).rejects.toMatchObject({code: 'ENOENT'})
+    const created = await createVersion(store, 0, beforeText, beforeText)
+    expect(created).toMatchObject({version: 0, fileName: '0__pagedata.json', text: beforeText})
+    expect(await store.listVersions(resource.resourceId)).toMatchObject({versions: [{version: 0, fileName: '0__pagedata.json'}]})
+    expect(await store.readVersion(resource.resourceId, 0)).toMatchObject({text: beforeText, version: 0})
+    expect(await readFile(file, 'utf8')).toBe(beforeText)
+  })
+
+  it('does not overwrite or reallocate a colliding snapshot number', async () => {
+    const {root, store} = await fixture()
+    await createVersion(store, 4, beforeText, beforeText)
+    await expect(createVersion(store, 4, beforeText, beforeText)).rejects.toMatchObject({
+      response: {resourceId: resource.resourceId, version: 4, outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_VERSION_CONFLICT'}, status: 409,
+    })
+    expect((await store.readVersion(resource.resourceId, 4)).text).toBe(beforeText)
+    expect(await readdir(path.join(root, 'config', 'history', 'scenarios', resource.scenarioId))).toEqual(['4__pagedata.json'])
+  })
+
+  it('serializes concurrent creates for the same N and shares the queue with active file saves', async () => {
+    const {root, file, store} = await fixture()
+    const same = await Promise.allSettled([
+      createVersion(store, 2, beforeText, beforeText),
+      createVersion(store, 2, beforeText, beforeText),
+    ])
+    expect(same.filter(result => result.status === 'fulfilled')).toHaveLength(1)
+    expect(same.filter(result => result.status === 'rejected')).toHaveLength(1)
+
+    const nextText = JSON.stringify({scenarioId: resource.scenarioId, revision: 'saved'})
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    let started!: () => void
+    const didStart = new Promise<void>(resolve => {started = resolve})
+    const saving = new RepositoryScenarioStore({root, resources: [resource], beforeReplace: async () => {started(); await gate}})
+    const writing = saving.write(resource.resourceId, nextText, beforeText)
+    await didStart
+    const snapshot = createVersion(saving, 3, beforeText, beforeText)
+    expect(await readdir(path.join(root, 'config', 'history', 'scenarios', resource.scenarioId))).toEqual(['2__pagedata.json'])
+    release()
+    await writing
+    await expect(snapshot).rejects.toMatchObject({response: {outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_CONFLICT', version: 3}})
+    expect(await readFile(file, 'utf8')).toBe(nextText)
+    expect(await readdir(path.join(root, 'config', 'history', 'scenarios', resource.scenarioId))).toEqual(['2__pagedata.json'])
+  })
+
+  it('rejects history directory junctions and refuses snapshots that differ from the active baseline', async () => {
+    const {root, store} = await fixture()
+    const other = await newRoot(), historyRoot = path.join(root, 'config', 'history', 'scenarios')
+    await mkdir(historyRoot, {recursive: true})
+    await (await import('node:fs/promises')).symlink(other, path.join(historyRoot, resource.scenarioId), 'junction')
+    await expect(createVersion(store, 1, beforeText, beforeText)).rejects.toMatchObject({
+      response: {outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_PATH_LINK', version: 1},
+    })
+
+    const clean = await fixture()
+    const changed = JSON.stringify({scenarioId: resource.scenarioId, revision: 'not-active'})
+    await expect(createVersion(clean.store, 1, changed, beforeText)).rejects.toMatchObject({
+      response: {outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_VERSION_BASELINE_MISMATCH', version: 1},
+    })
+    await expect(readdir(path.join(clean.root, 'config', 'history', 'scenarios', resource.scenarioId))).rejects.toMatchObject({code: 'ENOENT'})
+  })
 })
 
 afterEach(async () => {for (const root of roots.splice(0)) await rm(root, {recursive: true, force: true})})
+
+function createVersion(store: RepositoryScenarioStore, version: number, text: string, expectedText: string) {
+  return store.createVersion({resourceId: resource.resourceId, version, text, expectedText})
+}
 
 async function fixture(): Promise<{root: string; file: string; store: RepositoryScenarioStore}> {
   const root = await newRoot()

@@ -1,0 +1,10 @@
+{
+  "stage": "temporary_view_saved",
+  "sha256": "433ABA65E6F862B4C0290708D6FF21B621DB1DC202C0408DAB38B048F820E785",
+  "viewNames": [
+    "default",
+    "catalogApps",
+    "history_restore_smoke_20261029"
+  ],
+  "temporaryViewPresent": true
+}

@@ -9,7 +9,7 @@ import {isIP} from 'node:net'
 import {TLSSocket} from 'node:tls'
 import {normalizePath, type Plugin, type ViteDevServer} from 'vite'
 import {RepositoryScenarioStore, RepositoryScenarioStoreError, type RepositoryScenarioDescriptor} from './repository-scenario-store'
-import {REPOSITORY_SCENARIO_ENDPOINT} from '../src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol'
+import {isNonnegativeSafeInteger, REPOSITORY_SCENARIO_ENDPOINT} from '../src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol'
 
 const maximumBodyBytes = 1024 * 1024
 
@@ -61,23 +61,46 @@ async function handleRequest(input: HandleRequestInput): Promise<void> {
 
     if (request.method === 'GET') {
       validateOrigin({request, port: listener.port, required: false})
-      resourceId = requestUrl.searchParams.get('resourceId')
-      if (!resourceId || requestUrl.searchParams.size !== 1) {
+      const resources = requestUrl.searchParams.getAll('resourceId')
+      resourceId = resources.length === 1 ? resources[0] ?? null : null
+      if (!resourceId) {
         throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '仓内场景读取请求无效'})
       }
-      sendJson(response, 200, await store.read(resourceId))
-      return
+      const requestedResourceId = resourceId
+      if (requestUrl.searchParams.size === 1 && requestUrl.searchParams.has('resourceId')) {
+        sendJson(response, 200, await store.read(requestedResourceId)); return
+      }
+      if (requestUrl.searchParams.size === 2 && requestUrl.searchParams.getAll('history').length === 1
+        && requestUrl.searchParams.get('history') === 'list') {
+        sendJson(response, 200, await store.listVersions(requestedResourceId)); return
+      }
+      const versionValues = requestUrl.searchParams.getAll('version')
+      const rawVersion = versionValues.length === 1 ? versionValues[0] ?? null : null
+      if (requestUrl.searchParams.size === 2 && rawVersion !== null && /^(0|[1-9]\d*)$/u.test(rawVersion)) {
+        const version = Number(rawVersion)
+        if (!Number.isSafeInteger(version)) throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '场景历史编号无效'})
+        sendJson(response, 200, await store.readVersion(requestedResourceId, version)); return
+      }
+      throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '仓内场景读取请求无效'})
     }
     if (request.method !== 'POST') {
       throw responseError({status: 405, code: 'REPOSITORY_SCENARIO_METHOD_INVALID', message: '仓内场景端点只支持 GET 和 POST'})
     }
     validateOrigin({request, port: listener.port, required: true})
     const body = await readJsonBody(request)
-    if (typeof body['resourceId'] !== 'string' || typeof body['text'] !== 'string'
-      || typeof body['expectedText'] !== 'string') {
+    if (typeof body['resourceId'] !== 'string') throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '仓内场景保存请求无效'})
+    resourceId = body['resourceId']
+    if (body['operation'] === 'create-version') {
+      const version = body['version'], text = body['text'], expectedText = body['expectedText']
+      if (!isNonnegativeSafeInteger(version) || typeof text !== 'string' || typeof expectedText !== 'string') {
+        throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '仓内场景历史创建请求无效'})
+      }
+      sendJson(response, 200, await store.createVersion({resourceId, version, text, expectedText}))
+      return
+    }
+    if (body['operation'] !== undefined || typeof body['text'] !== 'string' || typeof body['expectedText'] !== 'string') {
       throw responseError({status: 400, code: 'REPOSITORY_SCENARIO_REQUEST_INVALID', message: '仓内场景保存请求无效'})
     }
-    resourceId = body['resourceId']
     sendJson(response, 200, await store.write(resourceId, body['text'], body['expectedText']))
   } catch (error) {
     if (response.headersSent || response.destroyed) return

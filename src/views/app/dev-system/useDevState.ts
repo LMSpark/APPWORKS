@@ -180,11 +180,14 @@ export function useDevState() {
     blueprintWorkspaceLoadRevision++
     unregisterBlueprintWorkspaceSession?.();unregisterBlueprintWorkspaceSession=undefined
     const bundle=activeOwnerBundle
+    let retainHistoryOwner=false
     if(bundle?.leaseGeneration===ownerLeaseGeneration){
       bundle.pendingMountedPageDelete=pendingMountedPageDelete
       bundle.pendingPageBindingCreate=pendingPageBindingCreate
       const pending=!!pendingMountedPageDelete||!!pendingPageBindingCreate||bundle.blueprint.hasPendingBlueprintCommand
         ||bundle.blueprint.isBusy||bundle.blueprint.dirty||bundle.files.dirty||bundle.files.hasUnconfirmedSave||bundle.files.hasPendingFileSave||bundle.files.hasPendingRestoreDelivery
+        ||bundle.workspace.hasPendingScenarioVersionAttempt
+      retainHistoryOwner=bundle.workspace.hasPendingScenarioVersionAttempt
       bundle.assertCurrent=undefined
       ownerScopeToken=undefined
       if(!pending){deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.runtime.dispose()}
@@ -193,7 +196,7 @@ export function useDevState() {
       blueprintPageRuntime.value?.dispose()
     }
     ownerScopeToken=undefined
-    activeOwnerBundle=undefined
+    activeOwnerBundle=retainHistoryOwner?bundle:undefined
     blueprintWorkspaceDataView.value=undefined
     pageToolFilesDataView=undefined
     blueprintPageRuntime.value=undefined
@@ -233,7 +236,7 @@ export function useDevState() {
         assertOwnerBundleCurrent(parked)
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
-        if(fileOwner.hasPendingFileSave){await fileOwner.savePageFiles();refreshBlueprintTreeProjection();return}
+        if(fileOwner.hasPendingFileSave){await savePendingPageFiles(workspace,fileOwner);return}
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行');await fileOwner.save();refreshBlueprintTreeProjection();return}
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
         moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
@@ -282,7 +285,7 @@ export function useDevState() {
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||fileOwner.dirty,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||fileOwner.hasUnconfirmedSave||fileOwner.hasPendingFileSave,save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
-        if(fileOwner.hasPendingFileSave){await fileOwner.savePageFiles();refreshBlueprintTreeProjection();return}
+        if(fileOwner.hasPendingFileSave){await savePendingPageFiles(workspace,fileOwner);return}
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){
           if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行')
           await fileOwner.save();refreshBlueprintTreeProjection();return
@@ -372,6 +375,12 @@ export function useDevState() {
     externalDataViewSessions.add(session)
     externalDataViewRevision.value++
     return () => {externalDataViewSessions.delete(session); externalDataViewRevision.value++}
+  }
+  async function savePendingPageFiles(workspace:ProjectBlueprintDomain.ProjectWorkspace,fileOwner:PageToolFilesDataView):Promise<void>{
+    const dirtyTargets=[...workspace.project.design.pages].flatMap(page=>page.getDirtyFileNames().map(fileName=>({pageId:page.pageId,fileName})))
+    await fileOwner.savePageFiles()
+    for(const target of dirtyTargets)workspace.project.markPageFileChanged(target.pageId,target.fileName)
+    refreshBlueprintTreeProjection()
   }
   function notifyExternalDataViewChanged(): void {externalDataViewRevision.value++}
   async function completePendingMountedPageDelete():Promise<void>{
@@ -815,11 +824,27 @@ export function useDevState() {
     return pageToolFilesDataView?.hasPendingFileSave === true || pageToolFilesDataView?.hasUnconfirmedSave === true
       || pageToolFilesDataView?.hasPendingRestoreDelivery === true
       || blueprintWorkspaceDataView.value?.hasPendingBlueprintCommand === true
+      || activeOwnerBundle?.workspace.hasPendingScenarioVersionAttempt === true
+      || hasUnknownScenarioHistoryAttempt()
   }
 
   const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
   const scenarioDefinitionRevision = ref(0)
-  const pageDataDirty = computed(() => { void scenarioDefinitionRevision.value; return scenarioDefinitionDocument.value?.isDirty === true })
+  const pageDataDirty = computed(() => {
+    void scenarioDefinitionRevision.value
+    const document = scenarioDefinitionDocument.value
+    return document?.isDirty === true || !!document && scenarioHistoryViews(document).some(view =>
+      view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+  })
+  function hasUnknownScenarioHistoryAttempt(): boolean {
+    const document = scenarioDefinitionDocument.value
+    if (!document || document.dataSet.destroyed) return false
+    try {
+      const source = document.dataSet.getView('DataViewDefinition')
+      const state = source?.getSourceHistoryStatus().state
+      return state === 'unknown' || state === 'pending'
+    } catch {return true}
+  }
   let releaseScenarioDocument = () => {}
   let scenarioLoad = 0
 
@@ -827,7 +852,7 @@ export function useDevState() {
     releaseScenarioDocument()
     scenarioDefinitionDocument.value?.dispose()
     scenarioDefinitionDocument.value = document
-    const views = document?.viewSelectors.map(item => document.dataSet.getView(item.tableName, item.viewId)).filter((view): view is DataView => view !== undefined) ?? []
+    const views = document ? scenarioHistoryViews(document) : []
     const changed = () => {scenarioDefinitionRevision.value++}
     const events = ['editingChanged', 'editingDiscarded', 'rowsChanged', 'mutatingChanged'] as const
     for (const view of views) for (const event of events) view.events.on(event, changed)
@@ -842,15 +867,43 @@ export function useDevState() {
       return view
     })
   }
+  function scenarioHistoryViews(document: ProjectBlueprintDomain.ScenarioDefinitionDocument): DataView[] {
+    if (document.dataSet.destroyed) return []
+    const resources = new Set<string>(Object.values(ProjectBlueprintDomain.ScenarioDefinitionRecords.resources))
+    return Object.values(document.dataSet.tables).filter(table => table.resourceType === 'file'
+      && typeof table.resourceId === 'string' && resources.has(table.resourceId))
+      .flatMap(table => table.viewList.filter(view => view.queryContext['dataSpaceId'] === document.scenarioId))
+  }
+  function scenarioHistoryViewsFingerprint(views: readonly DataView[]): string {
+    return JSON.stringify(views.map(view => ({tableName: view.tableName, viewId: view.viewId,
+      resourceId: view.dataTable?.resourceId, queryContext: view.queryContext, definition: view.toJson(),
+      rows: view.rows.map(row => {const key = view.getPkKey(row); return [key, key === undefined ? row : view.getEditingRow(key) ?? row]}),
+      pending: {unconfirmed: view.hasUnconfirmedSave, editing: view.hasEditingChanges(),
+        creates: [...view.dirtyTracking.pendingCreateIds], deletes: [...view.dirtyTracking.pendingDeleteIds]}})))
+  }
+  function assertScenarioHistoryViewsCurrent(document: ProjectBlueprintDomain.ScenarioDefinitionDocument,
+    views: readonly DataView[], baseline?: string): void {
+    const current = scenarioHistoryViews(document)
+    if (document.dataSet.destroyed || current.length !== views.length || current.some((view, index) => view !== views[index]
+      || view.destroyed || view.dataSet !== document.dataSet || view.queryContext['dataSpaceId'] !== document.scenarioId)) {
+      throw new Error('SCENARIO_VIEW_SCOPE_STALE: 原定义DataView身份已改变')
+    }
+    if (baseline !== undefined && scenarioHistoryViewsFingerprint(current) !== baseline) {
+      throw new Error('SCENARIO_VIEW_UNSAVED: 同源定义在历史操作期间已变化')
+    }
+  }
   const pageDataError = ref<string | null>(null)
   function selectedScenarioMatches(id: string): boolean { return persistedDataSpaceId.value === id && !sceneBindingPending.value }
   async function loadSelectedScenarioViews(forceReload = false): Promise<void> {
     const scenarioId = persistedDataSpaceId.value
     const generation = ++scenarioLoad
     pageDataError.value = null
+    const previous = scenarioDefinitionDocument.value
+    if (previous?.scenarioId !== scenarioId && currentEditor.value.hasPendingScenarioVersionAttempt) {
+      throw new Error('SCENARIO_VIEW_VERSION_UNKNOWN: 原场景快照结果未核验，不能切换或释放其定义owner')
+    }
     if (!scenarioId || sceneBindingPending.value) {installScenarioDocument(null); return}
     const workspace = currentEditor.value
-    const previous = scenarioDefinitionDocument.value
     if (!forceReload && previous?.scenarioId === scenarioId && workspace.getScenarioDefinitions(scenarioId) === previous.dataSet) return
     if (forceReload && previous?.isDirty) throw new Error('SCENARIO_VIEW_UNSAVED: 请先保存或撤销当前定义修改')
     installScenarioDocument(null)
@@ -954,16 +1007,23 @@ export function useDevState() {
 
   async function restoreScenarioVersion(version: string | number, previewText: string): Promise<void> {
     const target = captureScenarioVersionTarget()
-    const hasChanges = () => target.document.isDirty
+    const views = scenarioHistoryViews(target.document)
+    const baseline = scenarioHistoryViewsFingerprint(views)
+    const hasChanges = () => target.document.isDirty || views.some(view =>
+      view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
     if (hasChanges()) throw new Error('SCENARIO_VIEW_UNSAVED: 请先处理当前定义修改')
     const current = target.document.getText()
     const verified = await target.source.previewSourceVersion(version)
     target.assertCurrent()
+    assertScenarioHistoryViewsCurrent(target.document, views, baseline)
     if (verified !== previewText) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与预览不一致')
     if (hasChanges() || target.document.getText() !== current) throw new Error('SCENARIO_VIEW_UNSAVED: 预览期间定义已改变')
     await target.document.setText(verified)
     target.assertCurrent()
-    await saveScenarioViewText()
+    assertScenarioHistoryViewsCurrent(target.document, views)
+    scenarioDefinitionRevision.value++
+    pageDataError.value = null
+    addStatus('已将所选历史快照恢复到定义草稿，请检查并显式保存', 'info')
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -1475,7 +1535,7 @@ export function useDevState() {
       addStatus(hasAnyDirty.value ? '本轮提交已确认，仍有新修改待保存' : '全部保存已确认', hasAnyDirty.value ? 'info' : 'success')
     } catch (cause) {
       if (currentEditor.value === workspace && currentScopeKey() === scope) addStatus(
-        `${stage}保存未完成：${String(cause)}。已确认部分保留，未确认修改仍待处理${stage === '场景定义' ? '' : '；后续场景定义尚未提交'}${workspace.unconfirmedPageFiles.length ? '；再次保存先核验原工具提交' : ''}`, 'error')
+        `${stage}保存未完成：${String(cause)}。已确认部分保留，未确认修改仍待处理${stage === '场景定义' ? '' : '；后续场景定义尚未提交'}${workspace.unconfirmedPageFiles.length || pageToolFilesDataView?.hasUnconfirmedSave ? '；再次保存先核验原工具提交' : ''}`, 'error')
     } finally {allSaving.value = false; scenarioDefinitionRevision.value++}
   }
 
@@ -1485,6 +1545,9 @@ export function useDevState() {
 
   async function selectNode(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     if(pendingPageBindingCreate&&pendingPageBindingCreate.nodeId!==node.nodeId){addStatus('工具页面创建流程尚未完成，请保存或核验后再切换节点','warning');return}
+    if(currentEditor.value.hasPendingScenarioVersionAttempt&&selectedNode.value?.nodeId!==node.nodeId){
+      addStatus('原场景快照结果尚未核验；请打开场景历史核验原编号和原文后再切换节点','warning');return
+    }
     const selectionRevision=++nodeSelectionRevision,scope=currentScopeKey(),workspace=currentEditor.value
     cancelAutoSave()
     if (hasExternalDataViewChanges()) {

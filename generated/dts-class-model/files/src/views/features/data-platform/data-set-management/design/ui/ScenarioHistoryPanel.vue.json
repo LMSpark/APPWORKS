@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel",
+    "jsdoc": "app 的 views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-28T22:38:32.185Z",
+  "models": {}
+}

@@ -14,22 +14,13 @@ AI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来
       <RendererButton :disabled="busy || recovering || !state.scenarioDefinitionDocument.value?.canUndo" label="撤销" @click="undo" />
       <RendererButton :disabled="busy || recovering || !state.scenarioDefinitionDocument.value?.canRedo" label="重做" @click="redo" />
       <RendererButton data-test="scene-save" button-type="primary" :disabled="busy || !state.pageDataDirty.value || !!inputError && !recovering" :label="recovering ? '核验场景提交' : '保存场景视图'" @click="save" />
-      <RendererButton data-test="scene-history" :disabled="busy || !state.scenarioDefinitionDocument.value?.isPersisted" label="远端历史" @click="openHistory" />
-      <RendererButton data-test="scene-snapshot" :disabled="!canVersion" label="创建场景快照" @click="snapshot" />
+      <RendererButton data-test="scene-history" :disabled="busy || !state.scenarioDefinitionDocument.value?.isPersisted" label="场景历史" @click="historyOpen = true" />
     </div>
-    <section v-if="historyOpen" class="history">
-      <div class="toolbar"><strong>pagedata.json 文件历史</strong><RendererButton data-test="scene-history-close" label="关闭历史" @click="closeHistory" /></div>
-      <p v-if="!versions.length && !busy">暂无远端快照</p>
-      <div v-for="version in versions" :key="version.label" class="toolbar">
-        <span>{{ version.label }}</span><span>{{ version.lastModified === null ? '时间未知' : new Date(version.lastModified).toLocaleString() }}</span>
-        <RendererButton data-test="scene-preview" :disabled="!canVersion" label="预览" @click="preview(version.version)" />
-      </div>
-      <template v-if="previewText !== null">
-        <p>预览 {{ previewVersion }}__pagedata.json；恢复将写入场景工作文件。</p>
-        <pre class="source-preview">{{ previewText }}</pre>
-        <RendererButton data-test="scene-restore" :disabled="!canVersion" label="确认恢复工作文件" @click="restore" />
-      </template>
-    </section>
+    <ScenarioHistoryPanel v-if="historyOpen && historyView" :open="true" :view="historyView" :can-create="canVersion"
+      :draft-dirty="state.pageDataDirty.value" :on-restore="restoreHistory" :on-save="saveHistoryDraft"
+      :can-undo="historyDocument?.canUndo === true" :can-redo="historyDocument?.canRedo === true"
+      :on-undo="undoHistoryDraft" :on-redo="redoHistoryDraft"
+      @pending="working = $event" @close="closeHistory" />
     <p v-if="displayError" role="alert">{{ displayError }}</p>
     <p v-if="recovering" role="status">场景提交结果尚未确认；请先核验原提交，新修改保留到下一次保存。</p>
     <p v-else-if="message" role="status">{{ message }}</p>
@@ -45,6 +36,7 @@ AI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来
 import { computed, ref, watch, onUnmounted } from 'vue'
 import type {DataView} from '@spark-appworks/spark-data'
 import {DATA_SOURCE, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import ScenarioDefinitionTextEditor from './definition/ScenarioDefinitionTextEditor.vue'
 import type { DevState } from './useDevState'
 const props=defineProps<{state:DevState}>()
@@ -66,14 +58,12 @@ const definitionViews=computed(()=>{
 const recovering=computed(()=>definitionViews.value.some(view=>view.hasUnconfirmedSave))
 const busy=computed({get:()=>working.value || definitionViews.value.some(view=>view.mutating),set:value=>{working.value=value}})
 const historyOpen=ref(false)
-const versions=ref<Awaited<ReturnType<DataView['listSourceVersions']>>>([])
-const previewText=ref<string|null>(null)
-const previewVersion=ref<string|number|null>(null)
+const historyDocument=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value})
 let request=0
 const canVersion=computed(()=>!busy.value && props.state.scenarioDefinitionDocument.value?.isPersisted === true && !props.state.pageDataDirty.value && !inputError.value)
-function closeHistory():void {request++;historyOpen.value=false;versions.value=[];previewText.value=null;previewVersion.value=null;busy.value=false}
+const historyView=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.dataSet.getView('DataViewDefinition')})
+function closeHistory():void {request++;historyOpen.value=false}
 watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.state.scenarioDefinitionDocument.value],closeHistory)
-watch(()=>props.state.scenarioDefinitionRevision.value,()=>{previewText.value=null;previewVersion.value=null})
 onUnmounted(()=>{request++})
 watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.state.selectedNode.value?.dataSpace?.scenarioId],()=>{
   const node=props.state.selectedNode.value?.nodeId
@@ -81,35 +71,10 @@ watch(()=>[props.state.projectId,props.state.selectedNode.value?.nodeId,props.st
     if(props.state.selectedNode.value?.nodeId===node)error.value=cause instanceof Error?cause.message:String(cause)
   })
 }, {immediate:true})
-async function openHistory():Promise<void>{
-  if(busy.value)return
-  historyOpen.value=true
-  const id=++request;busy.value=true;error.value=''
-  try{const listed=await props.state.listScenarioVersions();if(id===request)versions.value=listed}
-  catch(cause){if(id===request)error.value=cause instanceof Error?cause.message:String(cause)}
-  finally{if(id===request)busy.value=false}
-}
-async function snapshot():Promise<void>{
-  if(!canVersion.value)return
-  const id=++request;busy.value=true;error.value=''
-  try{await props.state.createScenarioVersion();if(id===request){const listed=await props.state.listScenarioVersions();if(id===request){versions.value=listed;historyOpen.value=true}}}
-  catch(cause){if(id===request)error.value=cause instanceof Error?cause.message:String(cause)}
-  finally{if(id===request)busy.value=false}
-}
-async function preview(version:string|number):Promise<void>{
-  if(!canVersion.value)return
-  const id=++request;busy.value=true;previewText.value=null;previewVersion.value=null
-  try{const value=await props.state.previewScenarioVersion(version);if(id===request){previewText.value=value;previewVersion.value=version}}
-  catch(cause){if(id===request)error.value=cause instanceof Error?cause.message:String(cause)}
-  finally{if(id===request)busy.value=false}
-}
-async function restore():Promise<void>{
-  if(!canVersion.value || previewVersion.value===null || previewText.value===null)return
-  const id=++request;busy.value=true
-  try{await props.state.restoreScenarioVersion(previewVersion.value,previewText.value);if(id===request){previewText.value=null;previewVersion.value=null}}
-  catch(cause){if(id===request)error.value=cause instanceof Error?cause.message:String(cause)}
-  finally{if(id===request)busy.value=false}
-}
+async function restoreHistory(version:string|number,text:string):Promise<void>{await props.state.restoreScenarioVersion(version,text)}
+async function saveHistoryDraft():Promise<void>{await props.state.saveScenarioViewText()}
+async function undoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.undo())throw new Error('没有可撤销的定义修改');props.state.scenarioDefinitionRevision.value++}
+async function redoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.redo())throw new Error('没有可重做的定义修改');props.state.scenarioDefinitionRevision.value++}
 const canCreate=computed(()=>props.state.scenarioDefinitionDocument.value?.isPersisted === false && !props.state.pageDataDirty.value)
 const displayError=computed(()=>inputError.value || error.value || props.state.pageDataError.value || '')
 watch(()=>props.state.scenarioDefinitionDocument.value,()=>{error.value='';inputError.value='';message.value=''})
@@ -135,7 +100,5 @@ async function redo():Promise<void>{try{if(await props.state.scenarioDefinitionD
 </script>
 <style scoped>
 .scenario-designer {padding:16px;}
-.history {border:1px solid var(--el-border-color);padding:12px;margin-bottom:16px;}
 .toolbar {display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.source-preview {white-space:pre-wrap;overflow:auto;max-height:400px;}
 </style>

@@ -14,7 +14,7 @@
 // ── 项目根 ────────────────────────────────────────────────────
 
 export { ProjectBlueprint } from './project/project-blueprint'
-export { ProjectWorkspace } from './project/project-workspace'
+export { ProjectWorkspace, ScenarioViewVersionNotAppliedError } from './project/project-workspace'
 export { ProjectToolResource } from './page-tool/project-tool-resource'
 export { ScenarioDefinitionResource } from './scenario/scenario-definition-resource'
 export { DataSpaceReferenceLayoutResource } from './scenario/data-space-reference-layout-resource'
@@ -38,6 +38,9 @@ export type {
 export type {
   ProjectWorkspaceOptions,
   ProjectPageLoadOptions,
+  ScenarioViewVersionAttempt,
+  ScenarioViewVersionAttemptStatus,
+  ScenarioViewVersionCreateCommand,
 } from './project/project-workspace'
 export type { ProjectPageFileGateway } from './io/page-file-api'
 export type { ProjectBlueprintGateway } from './io/project-blueprint-client'

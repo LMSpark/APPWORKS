@@ -30,7 +30,8 @@ import { SaveRuleValidator } from './validation/save-rule-validator'
 
 import { DataViewFilter } from './query/filter/data-view-filter'
 import { DataViewQuery } from './query/data-view-query'
-import {DataViewSource, type DataViewSourceAdapter, type DataViewSourceSnapshot, type DataViewSourceAdoptOptions, type DataViewSourceVersion} from './query/data-view-source'
+import {DataViewSource, type DataViewSourceAdapter, type DataViewSourceSnapshot, type DataViewSourceAdoptOptions,
+  type DataViewSourceVersion, type DataViewSourceHistoryStatus} from './query/data-view-source'
 import {DataViewFilterLookup} from './query/data-view-filter-lookup'
 import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
@@ -495,6 +496,14 @@ rows: DataRow[] = []
 
   /** 按存储版本身份预览历史原文；内容不替代当前查询结果，恢复须转为定义视图的变更再保存。 */
   async previewSourceVersion(version: string | number): Promise<string> {return this.sourceLifecycle().previewVersion(version)}
+
+  /** 读取原来源owner持有的快照提交状态；scope、文本和file owner不暴露给页面。 */
+  getSourceHistoryStatus(): DataViewSourceHistoryStatus {return this.sourceLifecycle().historyStatus()}
+
+  /** 只读核验来源owner捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。 */
+  async verifySourceHistoryAttempt(): Promise<DataViewSourceHistoryStatus> {
+    return this.sourceLifecycle().verifyHistoryAttempt()
+  }
 
   /** 为已保存且同源视图均干净的资源创建快照；异步编辑、来源切换或释放均拒绝旧操作。 */
   async createSourceVersion(): Promise<void> {await this.sourceLifecycle().createVersion()}

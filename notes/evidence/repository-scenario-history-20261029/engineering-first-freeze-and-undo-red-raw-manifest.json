@@ -1,0 +1,227 @@
+[
+  {
+    "name": "appworks-history-final-build.log",
+    "bytes": 106362,
+    "sha256": "54BFE5E5F87FD40583F966306C8920176723F85D2330E5646D26DDC5D37B6BBA"
+  },
+  {
+    "name": "appworks-history-final-dev-history.log",
+    "bytes": 426,
+    "sha256": "59DAD8BB35C78E6051B5B9D97948DFADC341646F616A28C78D3D39BE2C71EAA2"
+  },
+  {
+    "name": "appworks-history-final-eslint-02.log",
+    "bytes": 18,
+    "sha256": "B51F501AF8E54BF7F457AC556339699DB944D039E09FFA0629B536A3CDAAA228"
+  },
+  {
+    "name": "appworks-history-final-eslint-03.log",
+    "bytes": 18,
+    "sha256": "B51F501AF8E54BF7F457AC556339699DB944D039E09FFA0629B536A3CDAAA228"
+  },
+  {
+    "name": "appworks-history-final-eslint-04.log",
+    "bytes": 18,
+    "sha256": "B51F501AF8E54BF7F457AC556339699DB944D039E09FFA0629B536A3CDAAA228"
+  },
+  {
+    "name": "appworks-history-final-eslint-tools-02.log",
+    "bytes": 8,
+    "sha256": "CC258D839E50D5E0CF220528399D5C29A6BCC5C3A9EE2616A915627E0363D91D"
+  },
+  {
+    "name": "appworks-history-final-eslint-tools.log",
+    "bytes": 8,
+    "sha256": "CC258D839E50D5E0CF220528399D5C29A6BCC5C3A9EE2616A915627E0363D91D"
+  },
+  {
+    "name": "appworks-history-final-eslint.log",
+    "bytes": 1542,
+    "sha256": "1F9B822CB772651D9543FF840EBA40364DC39DAE1C5A810555E4CFFCC9D1F8C1"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-03.log",
+    "bytes": 5950,
+    "sha256": "097D7634E53DFD5D21590D32312E4347B8E2E603EFA570685BD2EBCE99BCAF3A"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-04.log",
+    "bytes": 5950,
+    "sha256": "61565063FAC4E00085CE9C3540A169ACD221499B16C2C73EEDB85C18560A82BF"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-05.log",
+    "bytes": 5958,
+    "sha256": "90FD951CE2E8DF222D21C5462862DC785901CFF34048EA34293C8E8170DE22B5"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-06.log",
+    "bytes": 5958,
+    "sha256": "B301EE16A2C904626C9E1ACC122670A1E8BD461A42F4591A9F827871B9616B61"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-confirm.log",
+    "bytes": 5950,
+    "sha256": "744BD6CF7C661E547D587DB76F21CD6F9F1CB8FC55A003080A8D22902EB5F58B"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model-rerun.log",
+    "bytes": 5950,
+    "sha256": "3CF2DED39177467A68297AE126B05B361014C457241527FD30A271D8DACBB404"
+  },
+  {
+    "name": "appworks-history-final-generate-class-model.log",
+    "bytes": 5944,
+    "sha256": "B5FCB2AAB09AA653D5BC1E842D06C285AE5F10380F99C95251CC50F420A073B7"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts-03.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts-04.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts-05.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts-06.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts-rerun.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-generate-lowcode-contracts.log",
+    "bytes": 110,
+    "sha256": "93B40F7A602B3F6DF08591BDB71A69F714BCAD1F9E10CBF5AAE900BE7774BBF9"
+  },
+  {
+    "name": "appworks-history-final-native-stale-assertion.log",
+    "bytes": 447,
+    "sha256": "CFB9D1367DEA53EFC12E19BED41436273B5A817D3283B7211C2125C3B8258450"
+  },
+  {
+    "name": "appworks-history-final-native-targeted.log",
+    "bytes": 440,
+    "sha256": "774E647BB4AEF981CC80D27DF0573B117D5E57BA0E1EDC14E0407673BFF47A28"
+  },
+  {
+    "name": "appworks-history-final-page-thin-02.log",
+    "bytes": 23,
+    "sha256": "DB84DB0AEDF551FB74D9EA70D6236599751BE89CDFF5CEEBAF820874D32701ED"
+  },
+  {
+    "name": "appworks-history-final-typecheck-02.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-03.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-04.log",
+    "bytes": 1524,
+    "sha256": "5069D7D5F64DE63A5E750EF80930B1EDD80724AA4B8A5790DD1C9316894542B4"
+  },
+  {
+    "name": "appworks-history-final-typecheck-05.log",
+    "bytes": 370,
+    "sha256": "82082B2A2E8257E54D3830EFFD1839EAF17E6DC44A49ED794CCA8B2493A3F4C3"
+  },
+  {
+    "name": "appworks-history-final-typecheck-06.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-07.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-08.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-09.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-typecheck-rerun.log",
+    "bytes": 325,
+    "sha256": "2690C693D1ACBBAE5280256784AB65050BA8904BAC7A264D0C4BA78BADC9F7AD"
+  },
+  {
+    "name": "appworks-history-final-typecheck.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-final-verify-rules-02.log",
+    "bytes": 3615,
+    "sha256": "3C72C1C984B1A7F5D81057F32567BEDD1D1DC021F2E290CB5EB0180313373B24"
+  },
+  {
+    "name": "appworks-history-final-verify-rules-03.log",
+    "bytes": 3871,
+    "sha256": "7FB6C888CDC16EFD75E9AA3C9EA8E45C4ED1A7CE09593DF3B64D4A4CBDBF3DDB"
+  },
+  {
+    "name": "appworks-history-final-verify-rules-04.log",
+    "bytes": 3426,
+    "sha256": "607F9D57CFDB0334F1521ECB21F3EE147EDB51AB1889431D27B6D8BC31EB8B1B"
+  },
+  {
+    "name": "appworks-history-final-verify-rules.log",
+    "bytes": 2123,
+    "sha256": "40CA7386B3037B5C221BFAA3E3D0949791BDAFAE8CB77027B153DBC35A515118"
+  },
+  {
+    "name": "appworks-history-final-workspace-history.log",
+    "bytes": 426,
+    "sha256": "5792102A1AEA719072C89AAC474A3BF24637826D5A3371BC16B719A1DDBF6A01"
+  },
+  {
+    "name": "appworks-history-root-final-affected.log",
+    "bytes": 6216,
+    "sha256": "CD1F9F030B11502B22AD212FA3E6ACB0F7CE4E364E991D3D91599978358D513D"
+  },
+  {
+    "name": "appworks-history-root-final-affected-02.log",
+    "bytes": 435,
+    "sha256": "CC04F5B336D1FD10030E2575FA8A8813557BE3374BBFF2ACCB4CE8A218DD2A50"
+  },
+  {
+    "name": "appworks-history-root-undo-stale-dirty-red.log",
+    "bytes": 10750,
+    "sha256": "BA91F1AADCADBA6822F0A4450B152600DAC7A2B6D7B1EEE3A23295871A0638EF"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red-02.log",
+    "bytes": 43500,
+    "sha256": "99A5D20772D18B42A5ED01B2A45E8732AE252DB105B6F3F9DDE10481E74018D1"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red-03.log",
+    "bytes": 10757,
+    "sha256": "9481ABEC6C2E98C09CCE2E5A64467CECE8C14589FEA71F5FEB6C10670E423CA4"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red.log",
+    "bytes": 1503,
+    "sha256": "AF241A6065FD7ECF1CCE97CA93C66D28D8E064232D7A1C1CCDDB33DC2A7D44F3"
+  }
+]

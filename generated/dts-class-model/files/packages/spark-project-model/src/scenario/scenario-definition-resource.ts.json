@@ -103,14 +103,24 @@
           "type": "object",
           "title": "(view: DataView, version: string | number) => Promise<string>"
         },
+        "status": {
+          "type": "object",
+          "title": "(view: DataView) => DataViewSourceHistoryStatus"
+        },
+        "verify": {
+          "type": "object",
+          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceHistoryStatus>"
+        },
         "create": {
           "type": "object",
-          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<void>"
+          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; onAttempt(attempt: DataViewSourceHistoryAttempt): void; }>) => Promise<void>"
         }
       },
       "required": [
         "list",
         "preview",
+        "status",
+        "verify",
         "create"
       ],
       "additionalProperties": false
@@ -490,7 +500,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:54:15.038Z",
+  "generatedAt": "2026-10-28T21:32:44.343Z",
   "models": {
     "Executor": {
       "name": "Executor",

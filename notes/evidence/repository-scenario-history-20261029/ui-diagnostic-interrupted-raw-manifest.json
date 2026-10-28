@@ -1,0 +1,12 @@
+[
+  {
+    "name": "appworks-history-root-full-regression.log",
+    "bytes": 121205,
+    "sha256": "1F4D383E38780836BBBA0A0347A7C7EC9971DA46756C26FC1A1E23E7296ADE58"
+  },
+  {
+    "name": "appworks-history-dev-diagnostic-20261029.log",
+    "bytes": 479186,
+    "sha256": "161DBEE25502B94F1DF1A673A7CF64C8C1878DEC0ADAB14BF21F71EF5BFFAB7A"
+  }
+]

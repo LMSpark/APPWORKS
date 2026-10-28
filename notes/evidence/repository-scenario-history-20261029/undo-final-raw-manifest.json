@@ -1,0 +1,57 @@
+[
+  {
+    "name": "appworks-history-native-related-green-02.log",
+    "bytes": 448,
+    "sha256": "E6C8C9B6BC29907DDDE4E506F4DC50E777DFE967F4F84FA24D61CC92A80A8E91"
+  },
+  {
+    "name": "appworks-history-root-undo-final-green.log",
+    "bytes": 448,
+    "sha256": "5F76A8DCCECAABC92ACD9B932C2FFEAE792A168129144D0646FB58A284AB4572"
+  },
+  {
+    "name": "appworks-history-undo-build.log",
+    "bytes": 28112,
+    "sha256": "A2DF621E916AB496BF251F2A7BAB2F94AA1BF04A56B3AAA167059968621AA833"
+  },
+  {
+    "name": "appworks-history-undo-eslint.log",
+    "bytes": 8,
+    "sha256": "CC258D839E50D5E0CF220528399D5C29A6BCC5C3A9EE2616A915627E0363D91D"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-green-01.log",
+    "bytes": 449,
+    "sha256": "2148424A193A37E6A873C6ED540F97D3D48E88C4F6F2F8A3EB1B4DB9B15DD1CE"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-green-02.log",
+    "bytes": 448,
+    "sha256": "6360F73B5362F125177D91B31D2AC4385C088FFFAAD0C15E2D3B35B96BF0DE48"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red-02.log",
+    "bytes": 43500,
+    "sha256": "99A5D20772D18B42A5ED01B2A45E8732AE252DB105B6F3F9DDE10481E74018D1"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red-03.log",
+    "bytes": 10757,
+    "sha256": "9481ABEC6C2E98C09CCE2E5A64467CECE8C14589FEA71F5FEB6C10670E423CA4"
+  },
+  {
+    "name": "appworks-history-undo-stale-dirty-red.log",
+    "bytes": 1503,
+    "sha256": "AF241A6065FD7ECF1CCE97CA93C66D28D8E064232D7A1C1CCDDB33DC2A7D44F3"
+  },
+  {
+    "name": "appworks-history-undo-typecheck.log",
+    "bytes": 70,
+    "sha256": "EE55FBD8C684DDE07886568054DF88CE4D0B6661738048B07BDD798DE4C5BEA7"
+  },
+  {
+    "name": "appworks-history-undo-verify-rules.log",
+    "bytes": 3425,
+    "sha256": "4EEDC80EB0ACA0D4DCC7A48E6B2A4AB95B799CA6B0535B8154156AF7CAA7C828"
+  }
+]

@@ -23,7 +23,7 @@ const METHOD_DOMAINS: Readonly<Record<string, OperationDomain>> = {
 
 const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'getScenarioViews', 'saveScenarioViews',
   'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
-  'createScenarioVersion', 'restoreScenarioVersion', 'saveDirtyScenarioDefinitions', 'dispose'])
+  'createScenarioVersion', 'getScenarioVersionStatus', 'verifyScenarioVersionAttempt', 'restoreScenarioVersion', 'saveDirtyScenarioDefinitions', 'dispose'])
 
 // PageDesign model_script may inspect/project locally, but delivery writes belong to the
 // workspace's existing DataView and unified delivery owners, never to this proxy.

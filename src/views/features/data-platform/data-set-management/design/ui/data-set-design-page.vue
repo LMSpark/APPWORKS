@@ -12,6 +12,14 @@
     <p v-if="selectedId === 'parameters' && actionError" role="alert">{{ actionError }}</p>
     <p v-if="selectedId === 'parameters' && actionMessage" role="status">{{ actionMessage }}</p>
     <template v-if="session">
+      <section class="space-history-entry" aria-label="空间级场景历史">
+        <RendererButton v-if="historyView" label="场景历史" :disabled="historyPending" @click="historyOpen = true" />
+        <ScenarioHistoryPanel v-if="historyOpen && historyView" :open="true" :view="historyView" :can-create="historyCanCreate"
+          :draft-dirty="historyDraftDirty" :on-restore="restoreHistoryDraft" :on-save="saveHistoryDraft"
+          :can-undo="historyDocument?.canUndo === true" :can-redo="historyDocument?.canRedo === true"
+          :on-undo="historyDocument ? undoHistoryDraft : undefined" :on-redo="historyDocument ? redoHistoryDraft : undefined"
+          @pending="historyPending = $event" @close="historyOpen = false" />
+      </section>
       <section v-if="workbenchKey" class="design-workbench" aria-label="空间工作台概览">
         <RendererDetail :data-view-key="workbenchKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <template #default="{row}"><div class="design-workbench__hero">
@@ -38,7 +46,8 @@
           <RendererTree v-if="navigationViewKey" :data-view-key="navigationViewKey" node-key="id" :current-key="findNode(selectedId)?.id ?? null"
             :tree-props="treeOptions" :on-node-click="selectTreeNode" :show-data-view-meta="false">
             <template #default="{ data }">
-              <RendererButton :data-design-node="data.id" :title="data.label" :label="data.label" :disabled="definitionLoading" text @click.stop="selectNode(data.id)" />
+            <RendererButton :data-design-node="data.id" :title="data.label" :label="data.label" :disabled="definitionLoading" text
+              :on-click="(row, event) => selectDirectoryNode(data.id, row, event)" />
             </template>
           </RendererTree>
         </nav>
@@ -304,7 +313,7 @@ import DataSpaceArrayEditor from './node-panel/DataSpaceArrayEditor.vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PageRuntime, ScenarioDefinitionDocument} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
@@ -316,6 +325,7 @@ import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-desi
 import DataSpaceParametersEditor from '../parameters/DataSpaceParametersEditor.vue'
 import DataSpaceViewEditor from '../views/DataSpaceViewEditor.vue'
 import DataSpaceQueryPreview from '../views/preview/DataSpaceQueryPreview.vue'
+import ScenarioHistoryPanel from './ScenarioHistoryPanel.vue'
 import DataSpaceSourceInputEditor from '../source-input/DataSpaceSourceInputEditor.vue'
 import DataSpaceFieldEditor from './node-panel/fields/DataSpaceFieldEditor.vue'
 import DataSpaceModelFields from './node-panel/fields/DataSpaceModelFields.vue'
@@ -347,6 +357,8 @@ let pageRuntime: PageRuntime | undefined
 let blueprintDataSet: DataSet | undefined
 let blueprintWorkspace: BlueprintWorkspaceDataView | undefined
 const session = shallowRef<LowcodeDataSpaceDesignSession | null>(null)
+const historyDocument = shallowRef<ScenarioDefinitionDocument | null>(null)
+const historyOpen = ref(false), historyPending = ref(false)
 const loading = ref(false)
 const definitionLoading = ref(false)
 const workspaceLoading = ref(false)
@@ -366,6 +378,21 @@ const navigationView = shallowRef<DataView>()
 const navigationViewKey = computed(() => navigationView.value
   ? buildDataViewKey(navigationView.value.tableName, navigationView.value.viewId, session.value?.metadataDataSet.scenarioId) : undefined)
 const revision = ref(0)
+const historyView = computed(() => {revision.value; return session.value?.metadataDataSet.getView('DataViewDefinition', 'default')})
+const historyDefinitionViews = computed(() => {
+  revision.value
+  const dataSet = session.value?.metadataDataSet
+  if (!dataSet || dataSet.destroyed) return []
+  return Object.values(dataSet.tables).filter(table => table.resourceType === 'file'
+    && typeof table.resourceId === 'string' && table.resourceId.startsWith('pagedata:'))
+    .flatMap(table => table.viewList)
+})
+const historyDraftDirty = computed(() => {
+  revision.value
+  return historyDocument.value?.isDirty === true || historyDefinitionViews.value.some(view =>
+    view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+})
+const historyCanCreate = computed(() => !!historyView.value && !historyPending.value && !historyDraftDirty.value)
 const showDirectory = ref(false)
 const workbench = shallowRef<DataSpaceWorkbench>()
 const workbenchError = ref('')
@@ -446,6 +473,53 @@ let parameterBaseline: unknown
 const targetId = computed(() => props.targetId)
 const readError = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const changed = () => {revision.value++}
+async function restoreHistoryDraft(version: string | number, preview: string): Promise<void> {
+  const current = session.value, source = historyView.value, ownGeneration = generation
+  if (!current || !source || current.targetId !== props.targetId || historyDraftDirty.value) throw new Error('SCENARIO_VIEW_UNSAVED: 请先处理当前定义修改')
+  const baseline = historyDefinitionSnapshot()
+  const text = await source.previewSourceVersion(version)
+  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')
+  if (historyDraftDirty.value || historyDefinitionSnapshot() !== baseline) throw new Error('SCENARIO_VIEW_UNSAVED: 预览期间定义已变化')
+  if (text !== preview) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与预览不一致')
+  const document = await ScenarioDefinitionDocument.open(current.metadataDataSet, current.targetId)
+  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) {document.dispose(); throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')}
+  if (historyDraftDirty.value || historyDefinitionSnapshot() !== baseline) {document.dispose(); throw new Error('SCENARIO_VIEW_UNSAVED: 打开定义期间内容已变化')}
+  try {await document.setText(text)} catch (cause) {document.dispose(); throw cause}
+  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) {document.dispose(); throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')}
+  historyDocument.value?.dispose(); historyDocument.value = document
+  changed()
+}
+async function saveHistoryDraft(): Promise<void> {
+  const current = session.value, document = historyDocument.value, ownGeneration = generation
+  if (!current || !document || document.dataSet !== current.metadataDataSet || !document.isDirty) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 没有待保存的历史定义草稿')
+  const result = await current.metadataDataSet.saveChanges({views: document.viewSelectors})
+  if (session.value !== current || ownGeneration !== generation) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存目标已切换')
+  if (!result.success) throw result.error ?? new Error(result.message ?? '历史定义保存失败')
+  document.dispose(); historyDocument.value = null
+  await current.refresh({deferDefinition: true})
+  if (session.value !== current || ownGeneration !== generation) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存回读目标已切换')
+  changed()
+}
+function historyDefinitionSnapshot(): string {
+  return JSON.stringify(historyDefinitionViews.value.map(view => ({
+    tableName: view.tableName, viewId: view.viewId, definition: view.toJson(),
+    rows: view.rows.map(row => {
+      const key = view.getPkKey(row)
+      return [key, key === undefined ? row : view.getEditingRow(key) ?? row]
+    }),
+    pending: view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges(),
+  })))
+}
+async function undoHistoryDraft(): Promise<void> {
+  const document = historyDocument.value
+  if (!document || !(await document.undo())) throw new Error('没有可撤销的历史定义操作')
+  changed()
+}
+async function redoHistoryDraft(): Promise<void> {
+  const document = historyDocument.value
+  if (!document || !(await document.redo())) throw new Error('没有可重做的历史定义操作')
+  changed()
+}
 
 function view(table: string): DataView | undefined {return session.value?.metadataDataSet.getView(table, 'default')}
 async function copyApi(): Promise<void> {
@@ -657,6 +731,11 @@ async function openDefinition(mode: 'edit' | 'remove' = 'edit'): Promise<void> {
 }
 function closeDefinition(): void {
   if (canCloseDefinition.value) {detailOpen.value = false; graphRemovalOnly.value = false}
+}
+function selectDirectoryNode(id: string, rowOrEvent?: unknown, event?: unknown): void {
+  const clickEvent = event ?? rowOrEvent
+  if (clickEvent instanceof Event) clickEvent.stopPropagation()
+  selectNode(id)
 }
 function selectNode(id: string, open = true): void {
   if (definitionLoading.value) return
@@ -1316,6 +1395,11 @@ const inspection = computed(() => {
   try {return {result: session.value?.inspectInputParameters() ?? null, error: ''}} catch (cause) {return {result: null, error: readError(cause)}}
 })
 function isPending(includeLayout = true): boolean {
+  if (historyPending.value) return true
+  try {
+    if ((historyView.value?.getSourceHistoryStatus().state === 'unknown')
+      || historyView.value?.getSourceHistoryStatus().state === 'pending') return true
+  } catch {return true}
   if (parameterRowEditing.value) return true
   if (layoutEdit.value?.rebuild) return true
   if (activeFieldRemovalId.value) return true
@@ -1348,6 +1432,8 @@ async function load(): Promise<void> {
   workspaceLoading.value = false; busy.value = false
   unsubscribe?.(); unsubscribe = undefined
   layoutEdit.value?.dispose(); layoutEdit.value = undefined
+  historyDocument.value?.dispose(); historyDocument.value = null
+  historyOpen.value = false; historyPending.value = false
   layoutError.value = ''; layoutMessage.value = ''; layoutPreview.value = undefined
   sparkRemove(PAGE_RUNTIME); pageRuntime?.dispose(); pageRuntime = undefined
   blueprintWorkspace?.dispose(); blueprintWorkspace = undefined
@@ -1488,6 +1574,7 @@ function closeParameters(): void {
 watch(() => props.targetId, () => {void load()}, {immediate: true})
 onBeforeUnmount(() => {
   active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME)
+  historyDocument.value?.dispose(); historyDocument.value = null
   layoutEdit.value?.dispose()
   pageRuntime?.dispose(); pageRuntime = undefined
   blueprintWorkspace?.dispose(); blueprintWorkspace = undefined

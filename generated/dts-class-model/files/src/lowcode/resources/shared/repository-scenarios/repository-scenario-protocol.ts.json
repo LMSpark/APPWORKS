@@ -11,6 +11,8 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "RepositoryScenarioSuccess",
+      "RepositoryScenarioHistoryList",
+      "RepositoryScenarioVersionSuccess",
       "RepositoryScenarioFailure"
     ]
   },
@@ -41,6 +43,85 @@
       ],
       "additionalProperties": false
     },
+    "RepositoryScenarioHistoryList": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioHistoryList",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "lastModified": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              }
+            },
+            "required": [
+              "version",
+              "fileName",
+              "lastModified"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "resourceId",
+        "scenarioId",
+        "versions"
+      ],
+      "additionalProperties": false
+    },
+    "RepositoryScenarioVersionSuccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RepositoryScenarioVersionSuccess",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId",
+        "scenarioId",
+        "version",
+        "fileName",
+        "text",
+        "sourceRevision"
+      ],
+      "additionalProperties": false
+    },
     "RepositoryScenarioFailure": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -63,6 +144,9 @@
         },
         "message": {
           "type": "string"
+        },
+        "version": {
+          "type": "number"
         }
       },
       "required": [
@@ -74,7 +158,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T20:48:23.215Z",
+  "generatedAt": "2026-10-28T22:53:55.421Z",
   "models": {
     "RepositoryScenarioSuccess": {
       "name": "RepositoryScenarioSuccess",
@@ -115,16 +199,99 @@
         }
       }
     },
+    "RepositoryScenarioHistoryList": {
+      "name": "RepositoryScenarioHistoryList",
+      "jsdoc": "仓内场景历史目录中的真实编号清单。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    versions: ReadonlyArray<Readonly<{\n        version: number;\n        fileName: string;\n        lastModified: number | null;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    versions: ReadonlyArray<Readonly<{\n        version: number;\n        fileName: string;\n        lastModified: number | null;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "versions",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RepositoryScenarioVersionSuccess": {
+      "name": "RepositoryScenarioVersionSuccess",
+      "jsdoc": "精确编号的只读历史原文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    text: string;\n    sourceRevision: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    scenarioId: string;\n    version: number;\n    fileName: string;\n    text: string;\n    sourceRevision: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "RepositoryScenarioFailure": {
       "name": "RepositoryScenarioFailure",
       "jsdoc": "请求失败结果。`not-applied` 仅代表服务端能证明替换尚未开始；`unknown` 要求调用方只读核验，不能重放写入。\nresourceId 为 null 表示服务端尚未确认目标身份，客户端不得据此清除某个资源的待保存状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n    version?: number;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n}>",
+            "typeText": "Readonly<{\n    resourceId: string | null;\n    outcome: 'not-applied' | 'unknown';\n    code: string;\n    message: string;\n    version?: number;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -147,6 +314,11 @@
             },
             {
               "name": "message",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
               "readable": true,
               "writable": false
             }

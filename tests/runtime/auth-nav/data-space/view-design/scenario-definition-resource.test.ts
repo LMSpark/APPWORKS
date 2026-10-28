@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, DataViewLocalQuery, RequestState, type DataView} from '@spark-appworks/spark-data'
 import {ProjectWorkspace, ScenarioDefinitionResource, ScenarioDefinitionDocument, ScenarioViewConfig,
-  ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
+  ScenarioViewWriteNotAppliedError, type ScenarioViewVersionCreateCommand} from '@spark-appworks/spark-project-model'
 
 const metadataConfig = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
 const definitions = Object.fromEntries(Object.entries(metadataConfig.tables).filter(([, table]) => (table as {resourceId?: string}).resourceId?.startsWith('pagedata:')))
@@ -16,8 +16,10 @@ function fixture(text: string | null = JSON.stringify(initial)) {
   let stored = text, scope = 'scope', loseResponse = false, rejectedWrite: Error | undefined, gate: Promise<void> | undefined
   const writes: string[] = []
   const versions = new Map<number, string>([[1, JSON.stringify({...initial, layout: {modelPositions: {P: {x: 1, y: 2}}}})]])
-  const snapshots = vi.fn(async (_id: string, snapshot: string) => {
-    const version = versions.size + 1; versions.set(version, snapshot)
+  const snapshots = vi.fn(async ({scenarioId: id, version, text: snapshot, onAttempt}: ScenarioViewVersionCreateCommand) => {
+    onAttempt({scenarioId: id, resourceId: 'repository:scenario-view:TARGET', scope, version,
+      fileName: `${version}__pagedata.json`, text: snapshot})
+    versions.set(version, snapshot)
     return {version, fileName: `${version}__pagedata.json`, lastModified: null}
   })
   const validate = vi.fn(async () => undefined)
@@ -311,7 +313,8 @@ describe('formal definition resources through SPARK data', () => {
       expect(storage.snapshots).not.toHaveBeenCalled()
       view.discardPendingChanges()
       await view.createSourceVersion()
-      expect(storage.snapshots).toHaveBeenCalledWith('TARGET', original, expect.any(Function))
+      expect(storage.snapshots).toHaveBeenCalledWith({scenarioId: 'TARGET', version: 2, text: original,
+        onAttempt: expect.any(Function), assertCurrent: expect.any(Function)})
       expect(storage.versions.get(2)).toBe(original)
       expect(storage.writes).toEqual([])
       expect(target(view)['pageSize']).toBe(10)

@@ -1,10 +1,12 @@
 import { shallowMount, mount, flushPromises } from '@vue/test-utils'
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, toRaw } from 'vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
+import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {DataSet} from '@spark-appworks/spark-data'
+import {DataSet, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
+import {DATA_SOURCE, useSparkConsume} from '@spark-appworks/spark-component'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
@@ -126,7 +128,23 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
       loadProjectBlueprint: async () => ({ title: 'Test Project', children: [] }),
     },
   }),
-  createPageToolFilesIo: () => ({list:async()=>[],read:async()=>null,upload:async()=>{},remove:async()=>{}}),
+  createPageToolFilesIo: () => ({
+    list:async()=>['rule.json','script.js','style.css'],
+    read:async(appId:string,pageId:string,fileName:'rule.json'|'script.js'|'style.css')=>{
+      const result=await httpGet(`designfile:${appId}/${pageId}/${fileName}`)
+      return result?.content===undefined?null:String(result.content)
+    },
+    upload:async(command:{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string})=>{
+      try {await httpPut(`designfile:${command.appId}/${command.pageId}/${command.fileName}`,{content:command.text})}
+      catch(error) {
+        if(error instanceof Error) {error.name='RequestError';Object.assign(error,{config:{url:`/api/File/UploadFile`}})}
+        throw error
+      }
+    },
+    restoreWorkingFile:async(command:{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string})=>
+      httpPut(`designfile:${command.appId}/${command.pageId}/${command.fileName}`,{content:command.text}),
+    remove:async()=>{},
+  }),
 }))
 
 import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateAppProjectWorkspaceForTest } from './dev-state-test-fixture'
@@ -186,6 +204,108 @@ describe('tool and shared scenario editing owners',()=>{
   expect(httpPut).toHaveBeenCalledOnce()
   expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50)
   expect(definitionView.hasEditingChanges()).toBe(false)
+ })
+ it('blocks history restore while any named same-source definition view has a pending draft', async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const document=state.scenarioDefinitionDocument.value!, graph=document.dataSet.getView('DataResourceRelationDefinition','graph')!
+  const graphRead=await graph.loadFromServer({allPages:true})
+  expect(graphRead.success).toBe(true)
+  await graph.addRow({definitionKey:'graph-draft',dataSetId:'scene'})
+  expect(graph.dirtyTracking.pendingCreateIds).toHaveLength(1)
+  vi.spyOn(state.editor,'previewScenarioVersion').mockResolvedValue(fixtureText(50))
+
+  await expect(state.restoreScenarioVersion(1,fixtureText(50))).rejects.toThrow('UNSAVED')
+
+  expect(graph.dirtyTracking.pendingCreateIds).toHaveLength(1)
+  expect(graph.rows.some(row=>row['definitionKey']==='graph-draft')).toBe(true)
+  expect(state.pageDataDirty.value).toBe(true)
+  expect(httpPut).not.toHaveBeenCalled()
+ })
+ it('exposes the same accessible space-level history region in the development designer', async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
+  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  await wrapper.get('[data-test="scene-history"]').trigger('click')
+  expect(wrapper.find('[aria-label="场景历史"]').exists()).toBe(true)
+  wrapper.unmount()
+ })
+ it('retains an unknown attempt in the source owner when the shared panel closes and reopens', async()=>{
+  const dataSet=DataSet.fromJson({scenarioId:'scene',tables:{History:{resourceType:'file',resourceId:'history',
+   columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{commitMode:'staged'}}}}})
+  const view=dataSet.getView('History')!
+  let status:DataViewSourceHistoryStatus={state:'unknown',version:7,fileName:'7__pagedata.json',message:'receipt lost'}
+  vi.spyOn(view,'getSourceHistoryStatus').mockImplementation(()=>status)
+  vi.spyOn(view,'listSourceVersions').mockResolvedValue([{version:7,label:'7__pagedata.json',lastModified:null}])
+  vi.spyOn(view,'previewSourceVersion').mockResolvedValue('{"scenarioId":"scene"}')
+  vi.spyOn(view,'verifySourceHistoryAttempt').mockImplementation(async()=>{
+   status={state:'confirmed',version:7,fileName:'7__pagedata.json',message:'verified'}
+   return status
+  })
+  const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
+  const props={open:true,view,canCreate:false,draftDirty:false,onRestore:async()=>{}}
+  const first=mount(ScenarioHistoryPanel,{props,global:{stubs:{RendererButton:Button}}})
+  await flushPromises()
+  expect(first.text()).toContain('原快照结果未知')
+  await first.get('[data-test="scene-history-close"]').trigger('click')
+  first.unmount()
+  const reopened=mount(ScenarioHistoryPanel,{props,global:{stubs:{RendererButton:Button}}})
+  await flushPromises()
+  expect(reopened.text()).toContain('原快照结果未知')
+  await reopened.findAll('button').find(button=>button.text()==='核验原快照')!.trigger('click')
+  expect(status.state).toBe('confirmed')
+  expect(reopened.text()).toContain('verified')
+  reopened.unmount();dataSet.destroy()
+ })
+ it('keeps an unresolved history attempt inside the development owner leave guard after panel close', async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const source=state.scenarioDefinitionDocument.value!.dataSet.getView('DataViewDefinition')!
+  let attempt:DataViewSourceHistoryStatus={state:'unknown',version:3,fileName:'3__pagedata.json',message:'receipt lost'}
+  vi.spyOn(source,'getSourceHistoryStatus').mockImplementation(()=>attempt)
+  expect(state.hasPendingDevSystemWrite()).toBe(true)
+  attempt={state:'confirmed',version:3,fileName:'3__pagedata.json',message:'verified'}
+  expect(state.hasPendingDevSystemWrite()).toBe(false)
+ })
+ it('previews and stages through the shared panel, then saves only on its explicit save action', async()=>{
+  const dataSet=DataSet.fromJson({scenarioId:'scene',tables:{History:{resourceType:'file',resourceId:'history',
+   columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{commitMode:'staged'}}}}})
+  const view=dataSet.getView('History')!
+  vi.spyOn(view,'getSourceHistoryStatus').mockReturnValue({state:'idle',version:null,fileName:null,message:null})
+  vi.spyOn(view,'listSourceVersions').mockResolvedValue([{version:5,label:'5__pagedata.json',lastModified:null}])
+  vi.spyOn(view,'previewSourceVersion').mockResolvedValue('{"scenarioId":"scene","tables":{}}')
+  const onRestore=vi.fn(async()=>{}),onSave=vi.fn(async()=>{})
+  const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
+  const wrapper=mount(ScenarioHistoryPanel,{props:{open:true,view,canCreate:false,draftDirty:false,onRestore,onSave},global:{stubs:{RendererButton:Button}}})
+  await flushPromises()
+  await wrapper.findAll('button').find(button=>button.text()==='预览')!.trigger('click')
+  expect(wrapper.text()).toContain('恢复仅写入当前定义草稿')
+  await wrapper.get('[data-test="scene-restore"]').trigger('click')
+  expect(onRestore).toHaveBeenCalledOnce()
+  expect(onSave).not.toHaveBeenCalled()
+  await wrapper.setProps({draftDirty:true})
+  await wrapper.get('[data-test="scene-save"]').trigger('click')
+  expect(onSave).toHaveBeenCalledOnce()
+  wrapper.unmount();dataSet.destroy()
+ })
+ it('provides the original history DataView as shared RendererButton data-source context',async()=>{
+  const dataSet=DataSet.fromJson({scenarioId:'scene',tables:{History:{resourceType:'file',resourceId:'history',
+   columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{commitMode:'staged'}}}}})
+  const view=dataSet.getView('History')!
+  vi.spyOn(view,'getSourceHistoryStatus').mockReturnValue({state:'idle',version:null,fileName:null,message:null})
+  vi.spyOn(view,'listSourceVersions').mockResolvedValue([])
+  let provided:unknown
+  const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>',setup(){
+   provided=useSparkConsume().sparkConsume(DATA_SOURCE)
+  }})
+  const wrapper=mount(ScenarioHistoryPanel,{props:{open:true,view,canCreate:false,draftDirty:false,onRestore:async()=>{}},global:{stubs:{RendererButton:Button}}})
+  await flushPromises()
+  expect(toRaw(provided as typeof view)).toBe(toRaw(view))
+  wrapper.unmount();dataSet.destroy()
  })
  it('previews the shared DataView draft while the storage owner remains unchanged', async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
@@ -300,6 +420,7 @@ describe('tool and shared scenario editing owners',()=>{
   })
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const page=state.project.getActivePage()!
   state.project.markBlueprintClean('node')
   state.project.writePageFile({fileName:'script.js',text:'submitted'})
   await state.writeScenarioViewText(fixtureText(77))
@@ -371,12 +492,15 @@ describe('tool and shared scenario editing owners',()=>{
   const list=vi.spyOn(state.editor,'listScenarioVersions').mockResolvedValue([{version:0,fileName:'0__pagedata.json',lastModified:null}])
   const preview=vi.spyOn(state.editor,'previewScenarioVersion').mockResolvedValue(fixtureText(50))
   const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{ElButton:Button,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
   await wrapper.get('[data-test="scene-history"]').trigger('click');await vi.waitFor(()=>expect(wrapper.find('[data-test="scene-preview"]').exists()).toBe(true))
   expect(list).toHaveBeenCalled()
   await wrapper.get('[data-test="scene-preview"]').trigger('click');await vi.waitFor(()=>expect(wrapper.find('[data-test="scene-restore"]').exists()).toBe(true))
   expect(httpPut).not.toHaveBeenCalled()
-  await wrapper.get('[data-test="scene-restore"]').trigger('click');await vi.waitFor(()=>expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50))
+  await wrapper.get('[data-test="scene-restore"]').trigger('click');await flushPromises()
+  expect(JSON.parse(state.scenarioDefinitionDocument.value!.getText()).tables.Orders.views.default.pageSize).toBe(50)
+  expect(state.pageDataDirty.value).toBe(true);expect(httpPut).not.toHaveBeenCalled()
+  await wrapper.get('[data-test="scene-save"]').trigger('click');await vi.waitFor(()=>expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50))
   expect(httpPut).toHaveBeenCalledOnce()
   expect(preview).toHaveBeenCalledTimes(2)
   await state.writeScenarioViewText(fixtureText(70));await wrapper.vm.$nextTick()
@@ -391,7 +515,7 @@ describe('tool and shared scenario editing owners',()=>{
   const pending=new Promise<{version:number;fileName:string;lastModified:null}[]>(resolve=>{release=resolve})
   vi.spyOn(state.editor,'listScenarioVersions').mockReturnValue(pending)
   const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{ElButton:Button,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
   await wrapper.get('[data-test="scene-history"]').trigger('click')
   await wrapper.get('[data-test="scene-history-close"]').trigger('click')
   release?.([{version:4,fileName:'4__pagedata.json',lastModified:null}]);await pending;await wrapper.vm.$nextTick()

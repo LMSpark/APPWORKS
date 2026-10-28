@@ -1,0 +1,102 @@
+[
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "2D60BBF3C4138846D76CB2FE2051C67C7C7E6B71A3973A949BB18C41315A1BF6"
+  },
+  {
+    "path": "packages/spark-data/src/index.ts",
+    "sha256": "BC4815B3E09F2F87C21AD79D2B53A28DE72A76CCB27A81DC1FE9A189AAF32B22"
+  },
+  {
+    "path": "packages/spark-data/src/query/data-view-source.ts",
+    "sha256": "1FF21EA6FA2196E3EC18DF3D4D88C92184BF55695F48D5ADAAF8289C6968F888"
+  },
+  {
+    "path": "packages/spark-data/src/tests/crud/query-source.test.ts",
+    "sha256": "7B501F58793D43547C8B7D3BD218A421383B189E7E42144523964BC1C84BF66F"
+  },
+  {
+    "path": "packages/spark-project-model/src/index.ts",
+    "sha256": "CFF1118A488022DD5E9105819F434936FC1282CA4FE4377AD3168E2E46838EF9"
+  },
+  {
+    "path": "packages/spark-project-model/src/project/project-workspace.ts",
+    "sha256": "147A0BB3A72B9329DA4367F58426656C6D4B232ED2069527C16BBAE2B30346E6"
+  },
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
+    "sha256": "37CE7FE9EED675B5BE2B47A69710E9A044DECAB4E5A861A2F1E842CC7ADEBD46"
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "2C0B141E7BA0115DA4A66DB125581144041317BDFD54FD213AC0C81A9FD20FDB"
+  },
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "sha256": "D1F956414C8479CDAA56A1BE367B9A645D17DF9B3953C56202F370ADAD2D1209"
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "sha256": "E47836A6E3842C84E815523CB6F480BA8EB8F9367EB1CABF6E923ACC9D346EA1"
+  },
+  {
+    "path": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
+    "sha256": "06E4F3CF1A87372D414B03A688AE083701CCFEF850675F9AA6BE69617C6954E7"
+  },
+  {
+    "path": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
+    "sha256": "4EDE515F03060ADC20DB24CD690E7EDC3509E2249C49F6BFF75552BDF56C93CD"
+  },
+  {
+    "path": "src/services/page-design/page-design-operation-guard.ts",
+    "sha256": "C2632B2B19778528E2430BA7B75240636E9FF2A1BCBD8E5D0C26B51A4AA74B2F"
+  },
+  {
+    "path": "src/views/app/dev-system/DevDataSetDesigner.vue",
+    "sha256": "916E3D3ADDB267FEA57A46B05330D79491BA387DBC293EA9250BF39E1A439C8D"
+  },
+  {
+    "path": "src/views/app/dev-system/useDevState.ts",
+    "sha256": "2B02758D473A74BF9C807F49226E194CAE94141BB4FDF4896B7F4D85C2593397"
+  },
+  {
+    "path": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+    "sha256": "66FC8AD7D77CB1EE4C3A8428A917C7039E65E2F0B43D8A99A054F1A7EFF838FC"
+  },
+  {
+    "path": "tests/app/dev/use-dev-state-page-data-history.test.ts",
+    "sha256": "B2B63BD0E598F3631296A4D3DDC46E45F362C133E1777DAE87364D78AB49928A"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts",
+    "sha256": "B32C6000117357910511B752407DA6FC9E4478B5F54DBAB840DE511851164545"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "sha256": "3E11BB410EB13F9CF53969A4D800A3E6817D43EA9FAAC81BC8E68E0ED906C54C"
+  },
+  {
+    "path": "tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts",
+    "sha256": "0639155985584294A2B4E933177EAC4B590C495CA9B8721A1EA9B80E57EF3DF5"
+  },
+  {
+    "path": "tests/runtime/auth-nav/repository-scenarios/repository-scenario-store.test.ts",
+    "sha256": "D49DEC24D46B39D3FF6BA8703C940D75652481D9AC442261E0B74A860382DC70"
+  },
+  {
+    "path": "tests/runtime/page/design/native/data-space-design-page.test.ts",
+    "sha256": "157E0AA8337D427E28FB0D5FA78B482BF3B7115E22403CB538874C2D79C375CB"
+  },
+  {
+    "path": "tools/repository-scenario-store.ts",
+    "sha256": "9D83482EBC35B22386786792341EB8FDA6112848637D7852864F59D6946B550E"
+  },
+  {
+    "path": "tools/vite-plugin-repository-scenarios.ts",
+    "sha256": "B3C8E6E65ABD5AF7ED753392D039612DEE8B8E433D44308BCF8C54410BC6BFDB"
+  },
+  {
+    "path": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+    "sha256": "B35E4A2BB6DBCBFB3C29D7D329644B8E7EB07EA7CB46B10D846BE5D0D7B6C21C"
+  }
+]

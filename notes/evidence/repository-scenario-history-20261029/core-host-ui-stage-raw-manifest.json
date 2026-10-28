@@ -1,0 +1,27 @@
+[
+  {
+    "name": "appworks-history-root-core-green.log",
+    "bytes": 1723,
+    "sha256": "7278C53D0C4C382C20F4530ED2CCA4266588312C70B8E56410B062DC46507021"
+  },
+  {
+    "name": "appworks-history-root-core-final.log",
+    "bytes": 426,
+    "sha256": "053D94F141585E3B99AF61CB4C65D8A19025BDAAFDD07CE8497FE6A2D46D9BD8"
+  },
+  {
+    "name": "appworks-history-root-host-runtime.log",
+    "bytes": 426,
+    "sha256": "D576F49EC22C9938602D1AD3822F520DB3AD7AE2290886A59329BA7C55362494"
+  },
+  {
+    "name": "appworks-history-root-red-readback.log",
+    "bytes": 437,
+    "sha256": "9252AC6E3F84C83F396567DCFA2CCBB08DB31BF0F70BC930267B300CEF3C9AC7"
+  },
+  {
+    "name": "appworks-history-root-red-shared-ui.log",
+    "bytes": 7041,
+    "sha256": "7541EFDC96FA71F371B60A16E2FE757CC8D96A45B0A1F92C215BC0C511DFD0F4"
+  }
+]

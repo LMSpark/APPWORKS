@@ -34,6 +34,17 @@ export type DataViewSourceVersion = Readonly<{
   /** 存储返回的毫秒时间戳；未知时为null。 */ lastModified: number | null
 }>
 
+/** 不可变来源快照 attempt 的可见状态；文本与 scope 留在资源 owner 内。 */
+export type DataViewSourceHistoryStatus = Readonly<{
+  state: 'idle' | 'pending' | 'unknown' | 'confirmed' | 'not-applied'
+  version: string | number | null
+  fileName: string | null
+  message: string | null
+}>
+
+/** 创建回调在任何可能写入的请求发出前冻结的具体历史编号。 */
+export type DataViewSourceHistoryAttempt = Readonly<{version: string | number; fileName: string}>
+
 /** 查询执行器可选的来源适配；具体存储保留冲突、作用域及未知结果核验责任。 */
 export type DataViewSourceAdapter = Readonly<{
   /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */
@@ -46,8 +57,14 @@ export type DataViewSourceAdapter = Readonly<{
   history?: Readonly<{
     /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>
     /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>
-    /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */
-    create(view: DataView, hooks: Readonly<{assertCurrent(): void}>): Promise<void>
+    /** 当前owner保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus
+    /** 只读核验status中的原编号和原文；即使后续同源DataView有草稿也可核验。 */
+    verify(view: DataView, hooks: Readonly<{assertCurrent(): void}>): Promise<DataViewSourceHistoryStatus>
+    /** 为干净已保存的来源创建快照；写入前调用onAttempt冻结候选编号，后续编辑不更换它。 */
+    create(view: DataView, hooks: Readonly<{
+      assertCurrent(): void
+      onAttempt(attempt: DataViewSourceHistoryAttempt): void
+    }>): Promise<void>
   }>
 }>
 
@@ -81,20 +98,51 @@ export class DataViewSource {
     return result
   }
 
+  /** 返回来源owner中保存的原attempt状态，不将attempt放入临时DataViewSource。 */
+  historyStatus(): DataViewSourceHistoryStatus {
+    const baseline = this.identity(this.view), history = this.history()
+    const result = history.status(this.view)
+    if (baseline !== this.identity(this.view) || history !== this.adapter.history) throw new Error('DATA_VIEW_SOURCE_STALE: 历史来源在读取期间改变')
+    return Object.freeze({...result})
+  }
+
+  /** 核验原快照attempt；不要求当前视图干净，以保留核验期间后续编辑。 */
+  async verifyHistoryAttempt(): Promise<DataViewSourceHistoryStatus> {
+    const baseline = this.identity(this.view), history = this.history()
+    const result = await history.verify(this.view, {assertCurrent: () => {
+      if (baseline !== this.identity(this.view) || history !== this.adapter.history) throw new Error('DATA_VIEW_SOURCE_STALE: 历史来源在核验期间改变')
+    }})
+    if (baseline !== this.identity(this.view) || history !== this.adapter.history) throw new Error('DATA_VIEW_SOURCE_STALE: 历史来源在核验期间改变')
+    return Object.freeze({...result})
+  }
+
   /** 仅同源全部视图干净且在整个操作期间未变化时，允许存储适配创建来源快照。 */
   async createVersion(): Promise<void> {
     const history = this.history(), views = [...this.adapter.views(this.view)], dataSet = this.view.dataSet
     if (!views.includes(this.view) || new Set(views).size !== views.length || views.some(view => view.dataSet !== dataSet)) {
       throw new Error('DATA_VIEW_SOURCE_IDENTITY: 来源视图集合无效')
     }
+    const identities = new Map(views.map(view => [view, this.identity(view)]))
     const signatures = new Map(views.map(view => [view, this.signature(view)]))
     let changed = false
     const onChanged = () => {changed = true}
     const events = ['editingChanged', 'configChanged', 'cleared', 'mutatingChanged', 'requestStateChanged'] as const
+    let attemptCaptured = false
+    const didCaptureAttempt = (): boolean => attemptCaptured
     const assertCurrent = () => {
       const current = this.adapter.views(this.view)
       if (history !== this.adapter.history || current.length !== views.length || current.some(view => !signatures.has(view))) {
         throw new Error('DATA_VIEW_SOURCE_IDENTITY: 来源视图或历史能力已改变')
+      }
+      if (attemptCaptured) {
+        // A captured immutable write attempt may outlive later edits, but it may not
+        // outlive the DataSet, DataViews, or source binding that gave it identity.
+        for (const view of views) {
+          if (identities.get(view) !== this.identity(view) || view.dataSet !== dataSet || view.destroyed) {
+            throw new Error('DATA_VIEW_SOURCE_IDENTITY: 快照attempt所属视图已释放或换绑')
+          }
+        }
+        return
       }
       for (const view of views) {
         if (changed || signatures.get(view) !== this.signature(view) || view.mutating
@@ -106,7 +154,18 @@ export class DataViewSource {
     }
     assertCurrent()
     for (const view of views) for (const event of events) view.events.on(event, onChanged)
-    try {await history.create(this.view, {assertCurrent}); assertCurrent()}
+    try {
+      await history.create(this.view, {assertCurrent, onAttempt: attempt => {
+        assertCurrent()
+        if (attemptCaptured) throw new Error('DATA_VIEW_SOURCE_ATTEMPT_INVALID: 快照attempt重复捕获')
+        if ((typeof attempt.version !== 'string' && typeof attempt.version !== 'number')
+          || (typeof attempt.version === 'number' && !Number.isFinite(attempt.version))
+          || !attempt.fileName.trim()) throw new Error('DATA_VIEW_SOURCE_ATTEMPT_INVALID: 快照身份无效')
+        attemptCaptured = true
+      }})
+      if (!didCaptureAttempt()) throw new Error('DATA_VIEW_SOURCE_ATTEMPT_MISSING: 来源适配未在写入前捕获快照attempt')
+      assertCurrent()
+    }
     finally {for (const view of views) for (const event of events) view.events.off(event, onChanged)}
   }
 

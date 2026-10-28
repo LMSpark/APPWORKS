@@ -2648,6 +2648,89 @@ async function boundNumber(wrapper: Pick<VueWrapper, 'findAllComponents'>, field
 }
 
 describe('native data-space design entry', () => {
+  it('offers shared scenario history at the space level, outside individual model editors', async () => {
+    fixture({overviewOnly: true})
+    const {wrapper} = await page('?scenarioId=A')
+    const entry = wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '场景历史')
+    expect(entry).toBeDefined()
+    await entry!.get('button').trigger('click'); await flushPromises()
+    expect(wrapper.find('[aria-label="场景历史"]').exists()).toBe(true)
+    expect(wrapper.findComponent(DataSpaceViewEditor).exists()).toBe(false)
+  })
+  it('does not treat an unloaded missing scenario file as an unresolved history attempt', async () => {
+    fixture({missing: true, overviewOnly: true})
+    const {instance} = await page('?scenarioId=A')
+    expect(instance.isDirty).toBe(false)
+  })
+  it('restores from a fresh overview after the full definition document loads without treating hydration as an edit', async () => {
+    const f = fixture({overviewOnly: true})
+    const {wrapper} = await page('?scenarioId=A')
+    const historical = JSON.parse(f.stored.get('A')!) as {tables: Record<string, {views: Record<string, Record<string, unknown>>}>}
+    historical.tables['OrdersAlias']!.views['default']!['pageSize'] = 37
+    const snapshot = JSON.stringify(historical)
+    const session = f.sessions[0]!
+    const source = session.metadataDataSet.getView('DataViewDefinition')!
+    // Listing and previewing history must leave the current definition rows unchanged.
+    const rowsBeforeRestore = JSON.stringify(source.rows)
+    vi.spyOn(source, 'getSourceHistoryStatus').mockReturnValue({state: 'idle', version: null, fileName: null, message: null})
+    vi.spyOn(source, 'listSourceVersions').mockResolvedValue([{version: 4, label: '4__pagedata.json', lastModified: null}])
+    vi.spyOn(source, 'previewSourceVersion').mockResolvedValue(snapshot)
+
+    const entry = wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '场景历史')!
+    await entry.get('button').trigger('click'); await flushPromises()
+    await wrapper.get('[data-test="scene-preview"]').trigger('click'); await flushPromises()
+    expect(JSON.stringify(source.rows)).toBe(rowsBeforeRestore)
+    await wrapper.get('[data-test="scene-restore"]').trigger('click'); await flushPromises()
+
+    expect(wrapper.find('[aria-label="场景历史"] [role="alert"]').exists(), wrapper.text()).toBe(false)
+    expect(source.rows.length).toBeGreaterThan(0)
+    expect(source.hasEditingChanges()).toBe(true)
+    expect(f.fileWrites).toEqual([])
+  })
+  it('recomputes shared history dirtiness after undoing a restored named view and redoing it', async () => {
+    const f = fixture({overviewOnly: true})
+    await f.open('A', {deferDefinition: true})
+    const snapshotText = f.stored.get('A')!
+    const active = JSON.parse(snapshotText) as {tables: Record<string, {views: Record<string, unknown>}>}
+    active.tables['OrdersAlias']!.views['temporaryUndoProbe'] = {pageSize: 41}
+    f.stored.set('A', JSON.stringify(active))
+    const {wrapper} = await page('?scenarioId=A')
+    const source = f.sessions.at(-1)!.metadataDataSet.getView('DataViewDefinition')!
+    vi.spyOn(source, 'getSourceHistoryStatus').mockReturnValue({state: 'idle', version: null, fileName: null, message: null})
+    vi.spyOn(source, 'listSourceVersions').mockResolvedValue([{version: 1, label: '1__pagedata.json', lastModified: null}])
+    vi.spyOn(source, 'previewSourceVersion').mockResolvedValue(snapshotText)
+
+    const entry = wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '场景历史')!
+    await entry.get('button').trigger('click'); await flushPromises()
+    await wrapper.get('[data-test="scene-preview"]').trigger('click'); await flushPromises()
+    await wrapper.get('[data-test="scene-restore"]').trigger('click'); await flushPromises()
+    expect(source.rows.some(row => row['viewId'] === 'temporaryUndoProbe')).toBe(false)
+    expect(wrapper.find('[data-test="scene-save"]').exists()).toBe(true)
+    expect(f.fileWrites).toEqual([])
+
+    await wrapper.get('[data-test="scene-history-undo"]').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('定义草稿已撤销')
+    expect(wrapper.get('[data-test="scene-history-undo"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-test="scene-history-redo"]').attributes('disabled')).toBeUndefined()
+    expect.soft(source.rows.some(row => row['viewId'] === 'temporaryUndoProbe')).toBe(true)
+    const sameSourceViews = Object.values(f.sessions.at(-1)!.metadataDataSet.tables)
+      .filter(table => table.resourceType === 'file' && typeof table.resourceId === 'string' && table.resourceId.startsWith('pagedata:'))
+      .flatMap(table => table.viewList)
+    expect(sameSourceViews.length).toBeGreaterThan(0)
+    expect(sameSourceViews.every(view => !view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges() && !view.hasUnconfirmedSave)).toBe(true)
+    expect.soft(wrapper.find('[data-test="scene-save"]').exists()).toBe(false)
+    expect.soft(wrapper.get('[data-test="scene-snapshot"]').attributes('disabled')).toBeUndefined()
+    expect.soft(wrapper.get('[data-test="scene-restore"]').attributes('disabled')).toBeUndefined()
+    expect(f.fileWrites).toEqual([])
+
+    await wrapper.get('[data-test="scene-history-redo"]').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('定义草稿已重做')
+    expect(source.rows.some(row => row['viewId'] === 'temporaryUndoProbe')).toBe(false)
+    expect(wrapper.find('[data-test="scene-save"]').exists()).toBe(true)
+    expect(wrapper.get('[data-test="scene-snapshot"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-test="scene-restore"]').attributes('disabled')).toBeDefined()
+    expect(f.fileWrites).toEqual([])
+  })
   it('reuses the session navigation projection owner for a ProjectToolCatalog preview', async () => {
     const f = fixture()
     f.stored.set('A', JSON.stringify({scenarioId:'A',tables:{ProjectToolCatalog:{resourceType:'file',resourceId:'project:tool-catalog',
@@ -7130,7 +7213,9 @@ describe('native data-space design entry', () => {
   it('groups fields and multiple named views under formal models and separates relations from cascades', async () => {
     const f = fixture()
     const {wrapper} = await page()
-    expect(openLowcodeDataSpaceDesignSession).toHaveBeenCalledWith('A')
+    expect(openLowcodeDataSpaceDesignSession).toHaveBeenCalledTimes(1)
+    expect(openLowcodeDataSpaceDesignSession).toHaveBeenCalledWith('A',
+      expect.objectContaining({blueprintTreeProjection: expect.any(Function)}))
     expect(f.sessions[0]?.metadataDataSet.scenarioId).toBe('META')
     expect(wrapper.text()).toContain('空间 A')
     const tree = wrapper.getComponent(ElTree)

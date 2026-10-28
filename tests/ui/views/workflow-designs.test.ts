@@ -5,6 +5,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type { WorkflowDesignDocument } from '@/services/workflow-designs'
+import type { AgentWorkflowFileDataViewOwner } from '@/lowcode/resources/shared/agent-workflow-file-owner'
 
 const mocks = vi.hoisted(() => ({
   listWorkflowDesigns: vi.fn(),
@@ -723,6 +724,46 @@ describe('WorkflowDesigns visual editor', () => {
       filename: 'definition.json',
       timestamp: '4',
     })
+  })
+
+  it('disposes an owner that resolves after the page has unmounted without querying it', async () => {
+    let resolveOwner!: (owner: AgentWorkflowFileDataViewOwner) => void
+    const ownerPending = new Promise<AgentWorkflowFileDataViewOwner>(resolve => { resolveOwner = resolve })
+    const createOwner = mocks.createOwner.getMockImplementation()
+    mocks.createOwner.mockImplementationOnce(() => ownerPending)
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    wrapper.unmount()
+
+    const owner = await createOwner!()
+    const dispose = vi.spyOn(owner, 'dispose')
+    const refreshDirectory = vi.spyOn(owner, 'refreshDirectory')
+    resolveOwner(owner)
+    await flushPromises()
+
+    expect(dispose).toHaveBeenCalledOnce()
+    expect(refreshDirectory).not.toHaveBeenCalled()
+  })
+
+  it('disposes the attached owner and its exact runtime when the page unmounts', async () => {
+    const createOwner = mocks.createOwner.getMockImplementation()!
+    let attachedOwner: AgentWorkflowFileDataViewOwner | undefined
+    mocks.createOwner.mockImplementationOnce(async () => {
+      const owner = await createOwner()
+      attachedOwner = owner
+      vi.spyOn(owner, 'dispose')
+      vi.spyOn(owner.runtime, 'dispose')
+      return owner
+    })
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    expect(attachedOwner).toBeDefined()
+    const owner = attachedOwner as AgentWorkflowFileDataViewOwner
+
+    wrapper.unmount()
+
+    expect(owner.dispose).toHaveBeenCalledOnce()
+    expect(owner.runtime.dispose).toHaveBeenCalledOnce()
   })
 
   it('auto-opens the first readable design and skips unreadable summaries', async () => {

@@ -1,5 +1,22 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-29 新会话接续摘要（目标不变，交接完成）
+
+- **原目标不变：**完成参考 AppWorks 元数据平台与开发工作台在本仓的整合，遵循 SPA，不改/启动/部署后端 Java；数据空间为交换中心，所有数据来源和配置保存均统一走 SPARK data 的 DataSet/DataTable/DataView，标准组件绑定真实视图。配置驱动、设计/数据维护分离、按需加载、改什么存什么。继续清理被替代结构、代码、文件、注册与活动说明，禁止留下兼容旁路导致 AI 再生。不能以只读迁入或这一片写入替代整个目标。
+- **执行方式：**gpt-6-luna 是唯一产品写者；主控派工、核有效 RED、复核、真实 SPA 烟测与更新本台账，可调 gpt-6-astra 只读分析/审查。中间成果及时提交推送。已有授权持续有效；不得重复索要账号或把测试身份当权限规则。凭据不写入本摘要、日志或生成物。
+- **唯一实施目录：**`C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks`，分支 `codex/ai-data-entry`。不要在旧聊天默认的 `catalog-baseline-audit`（detached 3e182b62d）或项目入口 D:/SPARK_AppWorks 中实施；每条命令显式 workdir。当前源码提交 `a87461e7fb8ca3248df72ab570fb6209bc77c5d1` 已推送，与远端相同，交接开始前工作树干净。
+- **已完成切片：**64f57344d 将 builtin 应用声明、导航和四场景实际读取来源迁到 config；a87461e7f 将四场景开发态保存接入原 SPARK data 文件资源链，构建态只读。导航发布授权仍读原 GetNavigationMenus 结果，正式模型、字段和业务数据仍由真实服务承接。不能把所有远端业务目标或文件适配器一刀切删掉；它们仍有正式消费者。
+- **仓内配置真源：**`config/applications/appworks.json` 和 `config/navigation/appworks-system.json`；四场景 pagedata 位于 config/pages 下：设计 8D1AB14DD8277F3E7017CD38F77B09FD、目录 90A82E287930A234FEC3E687C94A93EA、字典 69B79AB779DF4C12A5595DACDF3283F1、蓝图 7AB874097A1E8711A42FD845939A6E05。按场景身份固定程序来源，不因执行应用改变而回退仓外。
+- **关键纠偏：**应用目录用 7AB 正式 p001 Base_AppSystemList（Memo 为描述），不要改到 90A 同名模型。90A 自身既有绑定仍有消费者，不能机械删除。7AB 只读参考布局 SysForm/7AB…json 尚未迁入，不能把它误称程序 pagedata 回退或已清理。
+- **最新实现定位：**`src/lowcode/resources/shared/repository-scenarios/` 三模块；`tools/repository-scenario-store.ts`、`tools/vite-plugin-repository-scenarios.ts`；包侧 ScenarioViewFile、ProjectWorkspace；定义资源 ScenarioDefinitionResource。保存链为定义 DataView → DataSet.saveChanges → 领域文件资源 → Workspace/ScenarioViewFile/ScenarioViewData → 适配器。原文基线通过 gateway.writeText 第三参捕获传递，禁止第二基线缓存；明确未应用与 unknown 分开，未知只核验原捕获、不重发。开发宿主仅四白名单文件、loopback/Origin/路径边界、逐资源读写队列与真实回读，无生产/preview端点。
+- **SPA 关键修复：**raw glob 的 HMR 曾使保存后整页重载，已修为 Vite hotUpdate 的 post hook，仅拦四个精确场景路径；真实 import-glob create/update/delete 有有效 RED 与回归，其他导航/源码继续热更新。不得全局关闭 HMR 或恢复 MODE=test 产品特判。正式生成已清掉旧模块路径及 ClassModel 产物，没有转导包装。
+- **已验证：**主控最终 9 文件 390 项通过，正式 ClassModel/lowcode 合同生成、typecheck、变动 ESLint、verify:rules、build 全部退出 0。真实 SPA 保存 POST/GET 200、丢成功响应→unknown→原入口只读核验成功且只写一次、关闭重开及另一个 0 模型目标切换均通过；独立完整窗口 Document=0。两临时视图均通过 UI/DataView 删除保存，配置语义恢复；释放全部实例后仅恢复原排版，config/pages 无变更。证据在 `notes/evidence/repository-scenario-write-red-20261029/`，首轮失败保留，32 份原始终端日志和 SHA 在 terminal-raw-output.zip。
+- **剩余范围与下一步：**先按当前代码核真实场景历史 list/preview/create/恢复与创建快照未知 attempt 核验，再恢复 builtin 项目树、工具三文件正式映射，继续完整页面业务语义与配置驱动收敛。原生 Vue 页不伪造三文件；历史文件不是活动配置真源。先查现有公共能力/目录/概要/指南，源码公开面改后正式生成，禁止手改生成物。仍须真正移除被替代仓外来源，不仅靠拒绝入口宣称整体合仓完成。
+- **基线失败必须保留：**lowcode-api 4 项、dev history 5 项、runtime-loader 的旧 mock/参数失败、目录 3 项 15 秒交互超时已在原基线分组复现，不能宣称全仓全绿或把夹具通过当真实线上验收。详情按证据路径定向检索，不重读全部历史。
+- **浏览器接续：**主前端 127.0.0.1:5273 来自上述实施目录。旧 IAB browser 2/tab 39 刚有授权会话，可能跨会话不可用；复用可用会话，旧句柄失效时在同一已选浏览器新建 tab，不反复重选浏览器或索要密码。正常授权登录可自动填已有账号，不应虚构技能禁止。电脑交互先读当前 computer-use 技能/API，不能复用未声明方法。不得将凭据写入接续摘要。
+- **交接状态：交接完成。**新会话 `01a1845e-c66f-7832-9f68-754cd4657b9f`（SPARK AppWorks 仓内整合接续）为唯一执行会话；生效条件为本交接记录已提交推送、实施工作树干净。旧会话 `01a169da-017b-7ce1-8005-3c4f1dd061e6` 不再派产品任务，原整体目标不变。新会话继续维护本文件，不另建总计划或全文加载旧聊天。
+
+
 ### 2026-10-29 仓内场景写入：已核合同与当前实施范围
 
 - **当前基线：**`64f57344d` 已提交推送，开始本片时工作树干净。上一读源切片属实质进展，不是整体合仓完成；本片继续补真实写入，不改 Java、正式模型输出或业务记录。

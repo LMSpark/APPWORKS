@@ -2914,3 +2914,10 @@ flowchart TD
 - **自动化回归：**主控执行 `pnpm exec vitest run tests/app/views/tenant/app-list-dataview.test.ts --reporter=dot`，1 个文件、8/8 测试通过。运行时输出了 Vue Test Utils 未注册 Element Plus 组件及路由无 `/target` 匹配等夹具警告；不影响用例退出状态，也不作为真实 SPA 交互证明。
 - **SPA 观察边界：**IAB 清单当前显示标签标题“应用列表 - SPARK”、路径 `/t/NewApp/homepage/app-list`。尝试按标签 URL 附着时 `cua.getTab` 返回 `browser.user is unavailable`；因此本轮只确认浏览器清单所示页面位置，未读取 DOM、网络请求、正式 DataView 回包或授权字段，也未证明该状态可执行后端查询。没有通过当前标签执行数据读写。
 - **本轮交付：**只更新本台账；工作树开始时干净，未改产品代码、测试、正式 DataSpace/业务数据或 Java，未发起登录或服务端写入。用户已提供的测试账号不再要求重复提供；此前凭据失败与剩余次数记录保持有效，不盲目重试或自动切换另一账号。整体 SPARK data 唯一通道目标继续 active；优先解锁正式 root owner/scope/权限合同，获得有效 SPA 数据证据后再迁移真实消费者。
+
+### 2026-10-28 业务 Feature 数据通道复核
+
+- **审计范围与证据：**低价模型只读盘点 `src/views/features/` 业务页，主控复核当前源码。该目录当前主要含 data-platform 与 integration；没有发现 Vue 页面直接调用 fetch/axios/HttpClient 或 lowcodeApi 读写业务记录。结构化配置资源专题从 `lowcode-data-space-runtime` 装配正式 DataSet，再由 `staged-design-file-view.ts` 把文件配置读取/保存放入 DataView executor；其单行身份、scope 失效、保存后原 scope 回读比对均在适配层。API 管理页构建真实 `PageRuntime`、按场景装配 DataSet 并以 DataView 操作。WorkflowDesigns 也注入 PageRuntime，通过正式文件 DataView 查询，文件 API 属 executor 内的存储适配。上述静态链路没有发现页面另建业务查询或保存器；仍须用真实服务权限及回执验收，自动化夹具不能代替线上证明。
+- **平台面数据分类：**尚存 `listApplications()` 的根首页、PlatformApps、项目设置及跨项目运行时消费者均是实际目录读取，但各自缺同一宿主可用的 DataView owner/scope/字段授权合同，不能借用隐藏应用管理页或数据空间目录的视图。`getEnterpriseInfo()` 只归一化当前 session 的 `enterprise.raw`，企业列表/登录/注册调用属于认证或会话投影；CacheManager 的服务端缓存计数和浏览器本地文件缓存属于运维状态/本地存储，不据此强行改成业务 DataSet。PlatformTenantManagement 当前展示的是单一登录企业投影，其写操作被治理门禁拒绝，不证明存在平台租户 CRUD 业务表。
+- **实施裁定及后续：**本次全域追加盘点仍未找到具备已确认 owner、scope、授权和真实提交合同的立即可迁移切片；不通过 fail-fast、DataView 包装或删除页面入口伪造统一成果。首要解锁项仍是正式 app-less/root DataSpace 身份及服务端授权投影；取得后逐消费者恢复标准组件直接绑定、消除旧旁路并做完整 SPA 烟测。当前 Feature 资源适配器保留，不能因为 executor 内最终需要 HTTP/文件 owner 而被误判为页面直连。
+- **本轮变更与验证：**只追加本台账；低价模型及主控均未访问网络/浏览器/正式服务，未修改产品代码、测试、正式配置、业务数据或 Java。前一轮针对 `app-list-dataview.test.ts` 的 8/8 自动化结果仍只覆盖 AppList 生命周期/映射，不构成本次 Feature 整体验收。总体唯一 SPARK data 目标保持 active。

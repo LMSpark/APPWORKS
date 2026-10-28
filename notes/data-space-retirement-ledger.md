@@ -1,5 +1,12 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 Tenant 应用目录 owner 作用域对照
+
+- **同会话真实 SPA 对照：**homepage tenant `/app-list` 当前渲染 62 个应用卡片；正式 D99 `功能管理` 空间中对 `Base_AppSystemList` 执行只读模型预览得到 `Loaded 1/1`，唯一行是 `元数据管理 / D99A1DCE9894698799101EFD70F8FC76`。此次观察更新了早前目录 61 项的历史计数；旧数值只代表当时页面状态。
+- **设计合同：**该 DataSpace ID `7AB874097A1E8711A42FD845939A6E05` 共 24 个模型；`Base_DataModel` 与 `Base_AppSystemList` 均无已配置命名视图。DataSpace 是 D99 scope 下的 `Base_AppSystemList` 记录，不是 62 项 tenant 目录的同范围查询；不能借用该 owner 或自行加 DataView 伪造等价。详见 [`tenant-app-catalog-scope-dataview-20261028.md`](evidence/tenant-app-catalog-scope-dataview-20261028.md)。
+- **源码边界：**homepage route 在 `config/navigation/vue-pages.json` 注册为 tenant scope 且未声明 `dataSpaceId`；`AppList.vue::loadProjects()` 的无场景分支仍调用 `lowcodeApi.platform.listApplications()`。`loadLowcodeRuntimeScenario({projectId,scenarioId})` 按当前 route projectId 加载 pagedata，并以当前 `X-AppId` 检查请求 scope；直接将 D99 的 `7AB...` 常量加到 homepage 不会建立有效 owner，反而按 `homepage/7AB...` 读取配置。正式应用模型缺口是全局 owner/服务端 scope 与权限合同，不只是缺视图。
+- **派工状态：**`gpt-6-luna` 正在审计是否能以 SPARK data 的正式 API-backed 资源 executor 承接现有 tenant API，并保持其服务端租户范围和权限语义。审计前不改 consumer、不移除现入口、不创建/套用 DataSpace。无 Java 修改；本次 SPA 只有读取，无配置/业务数据写入。
+
 ### 2026-10-28 D99 功能管理 DataSpace 命名视图核验
 
 - **真实 SPA 证据：**复用用户已给的 NewApp 测试账号登录，D99 正式数据空间目录按名称查到归属“元数据管理”的“功能管理”空间，设计器目标 ID `7AB874097A1E8711A42FD845939A6E05`。画布显示 24 个模型、12 张数据库表、11 个字典、1 个文件资源、0 条关系；主业务模型为 `Base_NavigationInfo`。

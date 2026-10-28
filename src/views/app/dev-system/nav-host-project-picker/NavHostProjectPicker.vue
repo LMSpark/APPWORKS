@@ -131,22 +131,24 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     }
     candidateView.resetState()
     if (mappedParentField) configureProjectHierarchy(candidateView, {valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField})
-    candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
+    if (mappedParentField) candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
     await candidateView.refresh()
     if (stale || own !== generation) { next.dispose(); return }
     if (candidateView.loadingError) throw candidateView.loadingError
-    if (candidateView.rows.length !== candidateView.total) throw new Error('导航项目候选 DataView 读取不完整')
+    if (mappedParentField && candidateView.rows.length !== candidateView.total) throw new Error('导航项目候选 DataView 读取不完整')
     if (candidateView.rows.length === 0) throw new Error('导航项目候选为空')
     if (mappedParentField) validateProjectHierarchy(candidateView, {valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField})
     const candidateFields = [mappedValueField, mappedLabelField, candidateView.primaryKey, ...(mappedParentField ? [mappedParentField] : [])]
     if (candidateFields.some(field => !field || candidateView.rows.some(row => candidateView.fieldAccess(row, field).read !== 'visible'))) {
       throw new Error('导航项目候选值、文案或行身份字段不可读')
     }
-    const rowIds = candidateView.rows.map(row => candidateView.getPkKey(row))
-    if (rowIds.some(id => id === undefined) || new Set(rowIds).size !== rowIds.length) throw new Error('导航项目候选行身份缺失或重复')
-    const values = candidateView.rows.map(row => row[mappedValueField])
-    if (values.some(value => typeof value !== 'string' || !value.trim()) || new Set(values).size !== values.length) {
-      throw new Error('导航项目候选值为空或重复')
+    if (mappedParentField) {
+      const rowIds = candidateView.rows.map(row => candidateView.getPkKey(row))
+      if (rowIds.some(id => id === undefined) || new Set(rowIds).size !== rowIds.length) throw new Error('导航项目候选行身份缺失或重复')
+      const values = candidateView.rows.map(row => row[mappedValueField])
+      if (values.some(value => typeof value !== 'string' || !value.trim()) || new Set(values).size !== values.length) {
+        throw new Error('导航项目候选值为空或重复')
+      }
     }
     fields.value = [
       {type: 'r-text', props: {field: mappedLabelField, label: '项目名称'}},
@@ -169,16 +171,34 @@ async function openSelected(): Promise<void> {
   const selectedView = runtime?.resolveView(viewKey.value)
   const selected = selectedView?.currentRow
   if (!selectedView || !selected || busy.value) return
-  const selectedValueField = valueField.value, selectedLabelField = labelField.value
-  if (!selectedValueField || !selectedLabelField) return
-  let value: string
-  try {value = resolveProjectCandidate(selectedView, selected, {valueField: selectedValueField, labelField: selectedLabelField})}
-  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
-  if (own !== generation || selectedView !== runtime?.resolveView(viewKey.value)) return
   busy.value = true
-  try {await props.state.openEditingProject({tenantId: props.state.tenantId, projectId: value})}
-  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
-  finally {if (own === generation) busy.value = false}
+  try {
+    const selectedValueField = valueField.value, selectedLabelField = labelField.value
+    if (!selectedValueField || !selectedLabelField) return
+    let value: string
+    try {value = resolveProjectCandidate(selectedView, selected, {valueField: selectedValueField, labelField: selectedLabelField})}
+    catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
+    if (own !== generation || selectedView !== runtime?.resolveView(viewKey.value)) return
+    if (!parentField.value) {
+      const selectedPk = selectedView.getPkKey(selected)
+      const scenario = selectedView.dataSet?.scenarioId
+      const model = selectedView.dataTable?.modelBinding?.modelName
+      const viewId = selectedView.viewId
+      const nav = navigationId.value
+      try {
+        const rows = await selectedView.queryOptionRows({fields: [selectedView.primaryKey, selectedValueField, selectedLabelField],
+          filter: DataViewFilter.condition({field: selectedValueField, operator: 'eq', value}).toJSON()})
+        if (own !== generation || selectedView !== runtime?.resolveView(viewKey.value) || nav !== navigationId.value
+          || scenario !== selectedView.dataSet?.scenarioId || model !== selectedView.dataTable?.modelBinding?.modelName
+          || viewId !== selectedView.viewId || selectedView.getPkKey(selectedView.currentRow ?? {}) !== selectedPk) throw new Error('导航项目候选身份已改变')
+        if (rows.length !== 1 || rows[0]?.[selectedView.primaryKey] !== selectedPk || rows[0]?.[selectedValueField] !== value) {
+          throw new Error('导航项目候选精确核验失败')
+        }
+      } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
+    }
+    try {await props.state.openEditingProject({tenantId: props.state.tenantId, projectId: value})}
+    catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+  } finally {if (own === generation) busy.value = false}
 }
 
 onBeforeUnmount(() => {generation++; dispose()})

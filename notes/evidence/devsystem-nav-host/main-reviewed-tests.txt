@@ -1,0 +1,46 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+··················stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > stages one reference-compatible project-switch relation through the supplied DataView
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (empty navigation identity) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (missing data-space identity) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (missing model name) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (missing project value field) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (missing project label field) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects invalid config (unexpected output parameter) before mutating the view
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > preflights actual new-row fieldAccess and leaves no partial row when a field is denied
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > keeps DataView.addRow as the final permission guard after the command preflight
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects duplicate existing relations for the same navigation before adding
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > rejects a single existing relation instead of creating a duplicate
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+stdout | tests/app/dev/nav-host-project-picker/nav-host-project-relation-command.test.ts > configureNavHostProjectRelation > requires the exact metadata DataSet scenario rather than a same-named model in another space
+🐛 [DataView] 销毁 DataView: Base_Navigation_DataRelation:default
+
+············
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  19:30:58
+   Duration  3.72s (transform 1.56s, setup 489ms, import 2.43s, tests 162ms, environment 4.62s)

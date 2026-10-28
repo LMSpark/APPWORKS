@@ -3098,3 +3098,11 @@ flowchart TD
 - **低价模型独立源码审计：**复核结构化配置目录、tenant 应用目录、数据库物理资源预览和 DevSystem 导航关系。没有找到可在正式 owner/scope/字段权限/保存回执合同不变的前提下安全迁移的产品切片：结构化配置目录读取的是正式设计 API，尚无等价元数据 DataView 范围证明；`listApplications()` 的 tenant 62 项与正式 `Base_AppSystemList` DataView 1 项范围不等价；数据库预览 executor 仍缺物理资源字段权限合同；NavHost 关系缺正式可写行/字段授权及回执读回。不得用夹具、包装旧接口或补造 DataSpace 掩盖这些缺口。
 - **认证限制：**`computer-use/SKILL.md` 的 non-negotiable 规则明确写着 `Do not automate user authentication dialogs`。即使用户提供账号，当前工具也不能代填认证表单；此前登录回执还出现过凭据错误和剩余次数提示，故本轮未重试、未发认证请求。此为本轮真实 SPA DataView 读写烟测的具体阻断，不是要求用户重发账号。
 - **本轮交付与状态：**低价模型只读审计完成；主控核对当前源码、上述已提交现场证据及该认证规则。没有修改产品代码、测试、正式 DataSpace/业务数据或 Java，也未运行测试。唯一台账已记录仍需服务端正式 owner/scope/权限合同与可供工具附着的认证会话；总体 SPARK data 统一目标保持 active。下一可执行项是获得平台提供的可附着认证会话或正式合同证据后继续查询，再按真实结果实施；在此之前不猜测配置和授权。
+
+### 2026-10-28 DevSystem 平面候选尊重 DataView 分页
+
+- **当前基线与现场：**本轮从 `HEAD=cb7f5b96d754da54afa4fdc8f6ffc7accf9607f6` 开始，远端一致。浏览器清单实际列出 D99 数据空间和平台首页标签，但读取 D99 标签返回 `browser.user is unavailable`；不把标签列表当成已认证/可读，不提交登录请求。用户此前明确提供并授权测试账号，不再索取凭据。
+- **合同依据：**正式 DataView `queryConfig` 决定分页或全量读取；标准 `RendererTable` 直接消费所绑 DataView 的 page/pageSize/total 并用 `setPage/setPageSize` 翻页。`DataView.queryOptionRows()` 在同一已绑定视图上执行保留原过滤条件的附加查询，要求完整结果、字段已声明/可读且当前身份/定义未变化。树候选仍必须读取完整集合才能验证父项、重复值和循环；宿主关系必须完整读取才能确认当前导航恰有一行。
+- **低价实施与主控修复：**平面候选不再强行把 DataView 改成 `allPages=true`，也不要求首屏行数等于全体 total；标准表格按正式 DataView 配置分页。用户打开候选前，同一 DataView 用 `valueField eq selectedValue` 进行完整精确核验，结果必须恰好一行且主键、值匹配当前选择；同时复核视图/模型/空间/导航/当前行身份。查询失败、无匹配、重复结果、分页后旧行失效、核验期间更改选择均拒绝；busy 从核验开始覆盖到切换结束，阻止重复提交。树候选保留全量模式和原层级校验。不新增 owner、数组数据源、HTTP 入口或持久化查询配置。
+- **自动化验证：**低价目标文件复跑 3 个测试文件 29/29；主控独立复跑当前目录 3 文件 30/30、目标 ESLint `--max-warnings=0`、`pnpm run typecheck`、完整 `pnpm run verify:rules` 和 `pnpm run build` 均退出 0。完整规则检查保留既有 AI model spec 2 warnings/1 info；build 保留现有 CodeMirror ineffective dynamic import 警告。测试输出位于 [`devsystem-nav-host`](evidence/devsystem-nav-host/)；其中首份 `red.txt` 失败来自原树测试对既有 `allPages=true` 行为的旧断言，不计作本次分页实现的有效 RED 证明，测试期望已纠正并由后续 GREEN 覆盖。
+- **未完成与交付边界：**真实 1335 条候选 DataView 的分页/`queryOptionRows` 精确过滤仍未在 SPA 验证；`appworks-tool-dev` 关系仍无正式配置行，候选 DataSpace/模型/字段与写权限/保存回执合同缺失，因此本切片不宣称 DevSystem 项目切换可用。没有写正式关系、业务数据或 DataSpace，也未修改/启动/部署 Java。此切片已由主控复核；待提交推送。总体 SPARK data 统一目标保持 active。

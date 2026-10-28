@@ -56,6 +56,11 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
     dataTable: {modelBinding: {modelName: fields['modelName'] ?? 'Project'}},
     viewId: 'default',
     currentRow: fields['currentRow'] ?? null,
+    queryOptionRows: vi.fn(async ({fields: requested, filter}: any) => {
+      const condition = filter as {field: string; value: unknown} | undefined
+      const matches = rows.filter(row => !condition || row[condition.field] === condition.value)
+      return matches.map(row => Object.fromEntries(requested.map((field: string) => [field, row[field]])))
+    }),
     queryConfig: {},
     fieldAccess: () => ({read: 'visible'}),
     getPkKey: (row: Record<string, unknown>) => row['rowid'] as string,
@@ -66,7 +71,7 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
 }
 
 describe('NavHost project picker hierarchy rendering', () => {
-  it('binds RendererTree to the temporary candidate DataView and retains its primary-key node identity', async () => {
+  it('keeps tree candidates complete and validates selected identity through the same view', async () => {
     runtimeState.runtimes.length = 0
     runtimeState.provided.length = 0
     runtimeState.hostView = dataView([{
@@ -91,6 +96,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     expect(tree.attributes('data-view-key')).toBe('projects@Project@default')
     expect(tree.attributes('data-node-key')).toBe('rowid')
     expect(runtimeState.projectView.setTreeConfig).toHaveBeenCalledWith({idField: 'code', parentIdField: 'parent', textField: 'name', treeMode: 'flat'})
+    expect(runtimeState.projectView.queryConfig.allPages).toBe(true)
     const candidateRuntime = runtimeState.runtimes.find(item => item.scenarioIds[0] === 'projects')
     expect(runtimeState.provided).toContainEqual({key: runtimeState.token, value: candidateRuntime})
     expect(tree.attributes('data-candidates')).toBeUndefined()
@@ -103,5 +109,78 @@ describe('NavHost project picker hierarchy rendering', () => {
     expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'C'})
     wrapper.unmount()
     expect(candidateRuntime?.disposed).toBe(true)
+  })
+
+  it.each([
+    ['zero matches', async (view: any) => {view.queryOptionRows.mockResolvedValue([])}],
+    ['duplicate matches', async (view: any) => {view.queryOptionRows.mockResolvedValue([{rowid: 'row-p', code: 'P', name: 'Parent'}, {rowid: 'row-p', code: 'P', name: 'Parent'}])}],
+    ['query rejected', async (view: any) => {view.queryOptionRows.mockRejectedValue(new Error('query denied'))}],
+    ['selection changed during query', async (view: any) => {view.queryOptionRows.mockImplementationOnce(async () => {view.currentRow = {rowid: 'row-other', code: 'Q', name: 'Other'}; return [{rowid: 'row-p', code: 'P', name: 'Parent'}]})}],
+    ['old page row expired', async (view: any) => {view.rows = [{rowid: 'row-other', code: 'Q', name: 'Other'}]}],
+  ])('fails closed when exact selection verification has %s', async (_case, arrange) => {
+    runtimeState.runtimes.length = 0
+    runtimeState.provided.length = 0
+    runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
+    runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
+    runtimeState.projectView.queryConfig = {pageSize: 20}
+    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    await flushPromises()
+    const view = runtimeState.projectView
+    view.currentRow = view.rows[0]
+    await wrapper.find('[data-stub="RendererTable"]').trigger('click')
+    await arrange(view)
+    const button = wrapper.findAllComponents({name: 'RendererButton'}).find(item => item.props('label') === '打开所选项目')!
+    await button.trigger('click')
+    await flushPromises()
+    expect(state.openEditingProject).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('allows native paging for flat candidates and verifies exact selection before opening', async () => {
+    runtimeState.runtimes.length = 0
+    runtimeState.provided.length = 0
+    runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
+    runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
+    runtimeState.projectView.total = 1335
+    runtimeState.projectView.queryConfig = {pageSize: 20}
+    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    await flushPromises()
+    expect(runtimeState.projectView.queryConfig).toEqual({pageSize: 20})
+    runtimeState.projectView.currentRow = runtimeState.projectView.rows[0]
+    await wrapper.find('[data-stub="RendererTable"]').trigger('click')
+    const button = wrapper.findAllComponents({name: 'RendererButton'}).find(item => item.props('label') === '打开所选项目')!
+    await button.trigger('click')
+    await flushPromises()
+    expect(runtimeState.projectView.queryOptionRows).toHaveBeenCalledWith(expect.objectContaining({fields: ['rowid', 'code', 'name']}))
+    expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'P'})
+    wrapper.unmount()
+  })
+
+  it('locks the whole command while exact selection verification is pending', async () => {
+    runtimeState.runtimes.length = 0
+    runtimeState.provided.length = 0
+    runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
+    runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
+    const view = runtimeState.projectView
+    let finish!: (rows: any[]) => void
+    view.queryOptionRows.mockImplementationOnce(() => new Promise(resolve => {finish = resolve}))
+    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    await flushPromises()
+    view.currentRow = view.rows[0]
+    await wrapper.find('[data-stub="RendererTable"]').trigger('click')
+    const button = wrapper.findAllComponents({name: 'RendererButton'}).find(item => item.props('label') === '打开所选项目')!
+    const first = button.trigger('click')
+    await flushPromises()
+    expect(button.props('disabled')).toBe(true)
+    await button.trigger('click')
+    expect(view.queryOptionRows).toHaveBeenCalledTimes(1)
+    finish([{rowid: 'row-p', code: 'P', name: 'Parent'}])
+    await first
+    await flushPromises()
+    expect(state.openEditingProject).toHaveBeenCalledTimes(1)
+    wrapper.unmount()
   })
 })

@@ -1,10 +1,10 @@
 # 数据空间旧方案删除记录
 
-> **当前源码与 SPA 审计覆盖：**产品代码最后变更为 `80fe08265`；目录 owner、DataView 查询和绕行清单以本文件末尾 2026-10-28 最新审计为准，覆盖早期调用点计数及更早的目录按钮观察。
+> **当前源码与 SPA 审计覆盖：**产品代码最后变更为 `95cc4d1cb`；目录 owner、DataView 查询和绕行清单以本文件末尾 2026-10-28 最新审计为准，覆盖早期调用点计数及更早的目录按钮观察。台账提交最新为 `c4ab50899`。
 
-> **当前入口（2026-10-28；产品代码基线 `80fe08265`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；适用于已识别且由服务端承认的 DataSet owner，可补模型/字段/视图/参数/executor 注册，不能自行制造 owner、scope 或权限。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
+> **当前入口（2026-10-28；产品代码基线 `95cc4d1cb`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；适用于已识别且由服务端承认的 DataSet owner，可补模型/字段/视图/参数/executor 注册，不能自行制造 owner、scope 或权限。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `80fe08265`，本轮实现、验证与证据已推送；本台账本次更新待提交）
+## 当前源码状态（2026-10-28，产品代码基线 `95cc4d1cb`，登录企业简称默认值修复及验证已推送；本台账持续滚动维护）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -14,6 +14,7 @@
 | 数据库物理表/视图预览 | 页面将预览参数暂存于 DataSet 输入表，并绑定 `DatabaseTablePreviewRows@default` DataView；命令查询由 `database-catalog-preview-view-ops.ts` 的资源 executor 适配动态物理表请求。该适配使用真实 `dbId/tableName`，`Filter: null`，底层调用 GetData 是动态物理资源存储适配，不是页面层的第二查询入口。 | 当前 DataView 返回构造 `fieldAccess`：可读限制为正式列投影中的返回字段，写入一律拒绝；这不是已证明的服务端权限回包。需核实这是数据库管理只读预览的正式授权合同，并补场景失效、列投影、空结果、分页等 DataView 消费验证；未有服务端范围/字段权限证据前不把它改成普通模型绑定，也不删除 executor。 |
 | DevSystem 工具版本 | `ProjectToolVersion.default` 已在正式 7AB DataSet 中由标准 `RendererTable`/字段子组件消费；查询经 DataView 资源 executor 读取版本摘要。页面没有版本删除操作。当前工作树移除了未调用且绕过 DataSet 的 `ProjectWorkspace.deleteRemotePageVersion`、`PageFileApi.deleteVersion` 与 page-file gateway 删除能力；底层版本删除继续不可用。 | 正式定义保存并关闭重开读回已由同 SPA 证据确认；但当前蓝图没有可用正式 `cfg:` 工具页目标，运行态版本查询/切换隔离未验。新增负向合同 RED 原始输出见 [`page-version-delete-api-red.txt`](evidence/page-version-delete-api-red.txt)；删除权限与未知回执合同仍未建立，本次不启用或补造。 |
 | ProjectWorkspace 蓝图读取 | `ProjectWorkspace.loadBlueprint()`、`previewBlueprintRemote()` 及其 gateway root reader 已移除；DevSystem 正式蓝图树由 `PageRuntime → Base_NavigationInfo DataView` 投影。 `projectReferences.loadProjectBlueprint` 仍单独读取跨项目引用投影，待正式目录 DataView 身份/范围/权限核验。 | HEAD `6c51e7853`：typecheck、受影响文件 ESLint、完整 `verify:rules`、production build 通过；ClassModel 正式生成器通过。受影响测试 34 files/1245 tests 中 30 files 通过、8 failures 已保存至 `notes/evidence/project-workspace-blueprint-load-affected-tests.txt`；不得宣称全绿。 |
+| SPA 认证入口 | `LoginView` 的企业选项显示 `ShortCName || ShortName`，提交值必须使用目录正式 `ShortName`。代码已修正为唯一显示名匹配才自动选正式简称，不覆盖手动输入；新增 3 个回归场景。 | 产品提交 `95cc4d1cb`；目标测试 8/8、ESLint、typecheck 通过。用户提供的 `领码科技/wangtao` 在正确 `ShortName` 下仍返回凭据错误并提示剩余 4 次；本轮没有继续登录。当前 SPA 实时数据烟测未认证，不将自动化夹具当成服务端验收。 |
 | 静态 Vue 页面 DataSpace 身份投影 | `vue-pages.json` 可选 `dataSpaceId` 经页面注册表校验/规范化，并由 `lowcodeApplicationCatalogNavigation()` 投影为既有 `RuntimeNavigationItem.blueprintScenarioId`；后续由现有 `SystemPageIdentityResolver` 注入 route meta，业务页仍通过 PageRuntime/DataSet 消费。 | 56 项注册表/导航定向测试和 49 项路由/导航回归通过；ClassModel 正式生成、typecheck、目标 ESLint、`verify:rules`、production build、`verify:docs` 通过。没有给任何正式页面配置该值，也没有改变当前运行页身份。该投影只传递场景标识，不创建正式 DataSet，也不提供无应用上下文时的请求范围。 |
 | 平台应用目录读 | 根 `/app-list` 与 PlatformApps、项目设置、动态导航仍有 `listApplications()` 的 direct GetData 消费者。静态 `/app-list` 可投影显式 DataSpace ID，但配置没有正式场景 ID；AppList 仅在有 `route.meta.blueprintScenarioId` 时建 PageRuntime 查询 `Base_AppSystemList@default`。 | 根 `/t/NewApp/homepage/app-list` 旧目录请求使用固定 FormKey `7AB...`、无 `X-AppId`/租户头、`Filter:null`，返回 61 行/61 卡片。最新只读设计核验确认 7AB 正式 DataSpace “功能管理”存在 `Base_AppSystemList` 模型绑定但没有命名视图；故 7AB 已是该目录的正式 owner 候选，尚未证明 DataView 在相同请求范围返回同样 61 行/字段权限。此前 0C70 在 D99 scope 的 1 行只说明它是不同 owner/范围，不能继续用来否认 7AB owner 已存在。脱敏旧响应汇总见 [`application-catalog-scope-live-20261028.json`](evidence/application-catalog-scope-live-20261028.json)；本次完整设计器观察见末尾“7AB 应用目录 DataView 补齐”。不改 Java 或正式业务行。 |
 
@@ -2841,3 +2842,10 @@ flowchart TD
 - **自动化复核：**低价实施者先提交唯一匹配/歧义/手动输入三类用例及原始 RED 输出；主控复跑受影响目标 `pnpm exec vitest run tests/app/views/tenant/app-list-dataview.test.ts --reporter=dot`，8/8 通过。`pnpm exec eslint src/views/platform/LoginView.vue tests/app/views/tenant/app-list-dataview.test.ts`、`pnpm run typecheck` 及 `git diff --check` 均退出 0。主控首次独立 typecheck 发现数组索引和测试 `slots.default` 类型错误，实施者修复后主控复跑通过。原始 RED 记录位于 `notes/evidence/login-enterprise-default-red.txt` 与 `notes/evidence/login-enterprise-default-ambiguity-red.txt`。
 - **验收状态：**仅完成登录前端企业标识映射修复及自动化验证；真实 SPA 认证未通过，SPARK DataView 烟测继续待认证会话。账号此前已由用户提供，不再要求用户重复发送；如果继续烟测，先检查现有会话/授权凭据上下文，不通过反复尝试规避服务端返回的剩余次数。整体数据统一迁移范围保持 active。
 - **授权凭据检查：**按已有本机授权凭据约定，已确认 DPAPI 凭据可在当前 Windows 用户下读取，元数据为企业“领码科技”、租户 `NewApp`、账号 `admin`；没有输出或记录密码。它与用户本轮此前明确提供并已尝试的 `wangtao` 账号不同。本次不切换身份、不提交额外登录请求；真实烟测仍等待有效认证会话，用户无需重发任何密码。
+
+### 2026-10-28 最新源码复核与下一迁移边界
+
+- **当前状态核对：**工作树在开始时干净；产品代码提交为 `95cc4d1cb`，台账最近提交为 `c4ab50899`，远程分支与 HEAD 一致。产品代码没有新的 SPARK data 迁移提交。SPA 前端服务由本工作树 Vite 进程监听 `127.0.0.1:5273`；当前 Computer Use 浏览器清单无可复用标签，本轮没有登录、正式查询或写入。后端 Java 未启动或修改。
+- **低价模型派工复核：**低价模型按当前源码和唯一台账只读审计，没有找到在现有证据下可安全闭环的 SPARK data 唯一通道代码切片。根 `/app-list` 和 `listApplications()` 消费者仍缺可证明相等的正式 root scope/字段授权；导航根的 owner/scope/回执单独未证实；Workflow 文件页及 AI activation 已使用 `AgentWorkflowFiles` DataView，内部文件 API 属 executor 存储适配，不能从业务层删除；headless A2 gateway 的生产 CRUD 调用身份尚未证明。
+- **下一候选及判定：**数据库物理表/视图预览的生产入口为 `src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue`；`src/lowcode/resources/database/database-catalog-preview-view-ops.ts` 已把命令输入和结果放入 DataSet/DataView，但 executor 仍以 `dbId/tableName` 直接请求 GetData，并从目录元数据构造字段投影、主键与只读 `fieldAccess`。这证明仍有待解决的资源授权边界，不能把 DataView 外壳视为完整统一，也不能直接删除 executor。执行前仍需正式物理资源身份、稳定主键、分页/过滤合同及服务端字段授权投影；本轮没有这些服务端证据，故不改代码、不生成或保存视图、不改 Java。其余 root 目录、导航根与 Workflow 条件继续按当前状态表记录。
+- **继续策略：**下一轮先从本仓 API 源码、DataView owner 协议与现有真实回包中逐项核物理资源身份和权限合同，区分已证事实/缺证合同；取得完整合同后才让低价模型实施并由主控复核、烟测。认证账号已在本会话提供，不再次要求重发；此前正式服务对 `wangtao` 返回凭据错误，本轮没有重试或改用另一账号。总体目标继续 active，未将本轮只读审计记作代码迁移完成。

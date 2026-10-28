@@ -85,10 +85,13 @@ export const databaseTableViewModels = {
 
 export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
+  onPhysicalPreviewResponse?: () => void
+  physicalPreviewRowsOverride?: Array<Record<string, unknown>>
   connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
   connectionTestGate?: Promise<void>
   deniedFieldsByModel: Record<string, readonly string[]> = {}
   hiddenFieldsByModel: Record<string, readonly string[]> = {}
+  allowAddByModel = new Set<string>()
   rejectNextRelationSave = false
   /** Registration response overrides model per-item AjaxResult shapes. */
   registerTableResult: unknown = undefined
@@ -320,16 +323,17 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     const tableType = String(table['Type'] ?? '')
     if (tableType === '数据库表' || tableType === '数据库视图' || (table['DbId'] && table['OutputType'] === 'Table')) {
       const page = body.PageParam ?? {index: 1, size: 10}
-      const previewRows = tableType === '数据库视图'
+      const previewRows = this.physicalPreviewRowsOverride ?? (tableType === '数据库视图'
         ? [{rowid: 'VP1', Total: '100.00'}, {rowid: 'VP2', Total: '200.00'}]
         : [
           {rowid: 'P1', Id: '1', Name: '预览行一'},
           {rowid: 'P2', Id: '2', Name: '预览行二'},
-        ]
+        ])
       const index = Math.max(1, Number(page.index) || 1)
       const size = Math.max(1, Number(page.size) || 10)
       const start = (index - 1) * size
       const slice = previewRows.slice(start, start + size)
+      this.onPhysicalPreviewResponse?.()
       return {data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: slice, Count: previewRows.length}}}, status: 200, statusText: 'OK', headers: {}}
     }
     const tableName = String(table['Name'] ?? '')
@@ -359,7 +363,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     const model = databaseTableViewModels[tableName as keyof typeof databaseTableViewModels]
     const fieldNames = model?.fields.map(field => field.name) ?? []
-    const allowAdd = tableName === DATABASE_CATALOG_DB_MODEL || tableName === DATABASE_CATALOG_TABLE_MODEL
+    const allowAdd = this.allowAddByModel.has(tableName) || tableName === DATABASE_CATALOG_DB_MODEL || tableName === DATABASE_CATALOG_TABLE_MODEL
       || tableName === DATABASE_CATALOG_RELATION_MODEL
     const pageIndex = Math.max(1, Number(page.index) || 1)
     const pageSize = Math.max(1, Number(page.size) || 20)

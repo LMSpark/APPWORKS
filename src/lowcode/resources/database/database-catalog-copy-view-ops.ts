@@ -2,7 +2,7 @@
  * @module app:lowcode/resources/database/database-catalog-copy-view-ops
  * 职责：复制物理表（_Base_TblList + Base_TblField 同一次 saveChanges，对齐参考 copyTable）。
  */
-import type {DataRow, DataSet} from '@spark-appworks/spark-data'
+import type {DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
 import {
   DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
@@ -49,6 +49,17 @@ function copyFieldPayload(source: DataRow, tblid: string, tblname: string): Part
   return payload
 }
 
+function assertNewRowPermission(view: DataView, payload: Partial<DataRow>): void {
+  const canAdd = view.addActionState() === 'enabled'
+  for (const field of Object.keys(payload)) {
+    const access = view.newRowFieldAccess(field)
+    if (access.read !== 'visible' || access.write !== 'allowed') {
+      throw new Error(`当前正式查询不允许新增字段 ${field}`)
+    }
+  }
+  if (!canAdd) throw new Error('当前正式查询不允许新增记录')
+}
+
 export async function databaseCatalogCopyTable(dataSet: DataSet, input: DatabaseCatalogCopyTableInput): Promise<string> {
   const sourceTableId = input.sourceTableId.trim()
   const dbId = input.dbId.trim()
@@ -82,16 +93,23 @@ export async function databaseCatalogCopyTable(dataSet: DataSet, input: Database
   const newRowId = crypto.randomUUID().replaceAll('-', '').toUpperCase()
   const schemaName = scalar(sourceRow['schemaName']) || 'dbo'
   const status = scalar(sourceRow['status']) || '1'
-  await tableView.addRowWithIdentity({field: 'rowid', value: newRowId}, {
+  const tablePayload = {
     dbid: dbId,
     tblname: newTableName,
     tbldesc: newTableDesc,
     schemaName,
     status,
-  })
+  }
+  if (!tableView.supportsExplicitIdentityCreate) throw new Error('当前正式查询不支持复制表身份新增')
+  assertNewRowPermission(tableView, tablePayload)
 
-  for (const sourceField of sourceFields) {
-    await fieldView.addRow(copyFieldPayload(sourceField, newRowId, newTableName))
+  const fieldPayloads = sourceFields.map(sourceField => copyFieldPayload(sourceField, newRowId, newTableName))
+  for (const fieldPayload of fieldPayloads) assertNewRowPermission(fieldView, fieldPayload)
+
+  await tableView.addRowWithIdentity({field: 'rowid', value: newRowId}, tablePayload)
+
+  for (const fieldPayload of fieldPayloads) {
+    await fieldView.addRow(fieldPayload)
   }
 
   const result = await dataSet.saveChanges({

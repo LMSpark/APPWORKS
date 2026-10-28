@@ -1,0 +1,35 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+-----------------------x---
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/database/database-catalog-table-view-ops.test.ts > database-catalog-table-view-ops > refuses a copy before staging the table when the formal field DataView denies new rows
+AssertionError: expected Set{ '4435EF75BEBB416594EC7BE1B02DCE…' } to deeply equal []
+
+- Expected:
+[]
+
++ Received:
+Set {
+  "4435EF75BEBB416594EC7BE1B02DCEBA",
+}
+
+ ❯ tests/runtime/page/database/database-catalog-table-view-ops.test.ts:510:54
+    508|     })).rejects.toThrow('当前正式查询不允许新增字段 tblid')
+    509|
+    510|     expect(tableView.dirtyTracking.pendingCreateIds).toEqual([])
+       |                                                      ^
+    511|     expect(fieldView.dirtyTracking.pendingCreateIds).toEqual([])
+    512|     expect(http.requests.some(request => request.url === '/api/DataOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 skipped (27)
+   Start at  10:14:01
+   Duration  3.46s (transform 1.75s, setup 119ms, import 2.14s, tests 52ms, environment 879ms)
+

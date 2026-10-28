@@ -1,0 +1,37 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+--x
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > does not publish physical preview columns when the application scope changes during the request
+AssertionError: expected [ 'rowid', '_pk', 'Id', 'Name' ] to deeply equal [ 'rowid', '_pk' ]
+
+- Expected
++ Received
+
+  [
+    "rowid",
+    "_pk",
++   "Id",
++   "Name",
+  ]
+
+ ❯ tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:95:56
+     93|     })).rejects.toThrow('表和视图目录请求所属应用或登录身份已变化')
+     94|
+     95|     expect(preview.columns.map(column => column.name)).toEqual(origina…
+       |                                                        ^
+     96|     expect(preview.rows).toEqual([])
+     97|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  10:02:14
+   Duration  3.77s (transform 1.92s, setup 139ms, import 2.38s, tests 67ms, environment 899ms)
+

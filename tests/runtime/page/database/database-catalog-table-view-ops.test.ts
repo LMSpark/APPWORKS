@@ -460,6 +460,7 @@ describe('database-catalog-table-view-ops', () => {
   })
 
   it('copies a table with fields through one saveChanges', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbViewForTable(ds)
@@ -486,6 +487,29 @@ describe('database-catalog-table-view-ops', () => {
     if (fieldView.loadingError) throw fieldView.loadingError
     expect(fieldView.rows.filter(row => row['tblid'] === newId).length).toBeGreaterThan(0)
     expect(http.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(true)
+  })
+
+  it('refuses a copy before staging the table when the formal field DataView denies new rows', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = requireDatabaseCatalogDbViewForTable(ds)
+    const tableView = requireDatabaseCatalogTableView(ds)
+    dbView.setSelectedRows([dbView.rows[0]!])
+    await tableView.refresh()
+    if (tableView.loadingError) throw tableView.loadingError
+    const source = tableView.rows.find(row => row['tblname'] === 'Orders')
+    expect(source).toBeTruthy()
+    const sourceId = tableView.getPkKey(source!) as string
+    const dbId = databaseCatalogDbSelectedId(dbView)
+    const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+
+    await expect(databaseCatalogCopyTable(ds, {
+      sourceTableId: sourceId, dbId, newTableName: 'DeniedCopy', newTableDesc: '权限拒绝',
+    })).rejects.toThrow('当前正式查询不允许新增字段 tblid')
+
+    expect([...tableView.dirtyTracking.pendingCreateIds]).toEqual([])
+    expect([...fieldView.dirtyTracking.pendingCreateIds]).toEqual([])
+    expect(http.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
   })
 
   it('deletes a table row through saveChanges on _Base_TblList', async () => {

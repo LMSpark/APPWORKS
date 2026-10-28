@@ -191,8 +191,8 @@ export async function databaseCatalogPreviewRefresh(
   params: DatabaseCatalogPreviewParams,
 ): Promise<void> {
   databaseCatalogPreviewWriteInput(dataSet, params)
-  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
   if (params.pageSize !== undefined) await view.setPageSize(params.pageSize)
+  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
   await view.refresh()
   if (view.loadingError) throw view.loadingError
 }
@@ -230,6 +230,7 @@ export function attachDatabaseCatalogTablePreviewView(
         pageSize,
       }
       const {items, total} = await fetchPhysicalPreviewPage({http, dataSet, input: previewParams, pageIndex, pageSize})
+      guard()
       syncPreviewColumns(target, items)
       return readonlyQueryResult({view: target, rows: items, total, guard})
     },
@@ -293,8 +294,8 @@ export async function databaseCatalogViewPreviewRefresh(
   params: DatabaseCatalogViewPreviewParams,
 ): Promise<void> {
   databaseCatalogViewPreviewWriteInput(dataSet, params)
-  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
   if (params.pageSize !== undefined) await view.setPageSize(params.pageSize)
+  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
   await view.refresh()
   if (view.loadingError) throw view.loadingError
 }
@@ -330,6 +331,7 @@ export function attachDatabaseCatalogViewPreviewView(
         pageSize,
       }
       const {items, total} = await fetchViewPreviewPage({http, dataSet, input: previewParams, pageIndex, pageSize})
+      guard()
       syncPreviewColumns(target, items)
       return readonlyQueryResult({view: target, rows: items, total, guard})
     },

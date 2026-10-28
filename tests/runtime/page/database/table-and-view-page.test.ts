@@ -1609,7 +1609,7 @@ describe('table-and-view-page', () => {
 
   it('cancels only the new relation row and leaves an unrelated pending row intact', async () => {
     const {wrapper, designDialog, relationView} = await openRelationWorkspace()
-    await relationView.addRow({rowid: 'UNRELATED-PENDING', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: 'UNRELATED-PENDING'}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'unrelated', IsCascadeDeletion: 0})
     const writesBefore = http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD').length
     const addRelation = designDialog.findAll('button').find(button => button.text() === '新增')
@@ -2137,10 +2137,10 @@ describe('table-and-view-page', () => {
 
   it('submits only the requested relation row through the real DataSet owner and preserves a JSON payload', async () => {
     const {dataSet, relationView} = await openRelationWorkspace()
-    await relationView.addRow({rowid: 'REL-TARGET', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: 'REL-TARGET'}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'Orders to LineItems',
       RelshipExp: genericJsonPayload('target'), IsCascadeDeletion: 0})
-    await relationView.addRow({rowid: 'REL-OTHER', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: 'REL-OTHER'}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'unrelated',
       RelshipExp: genericJsonPayload('other'), IsCascadeDeletion: 0})
     await dataSet.saveChanges({views: [{tableName: DATABASE_CATALOG_RELATION_MODEL,
@@ -2156,7 +2156,7 @@ describe('table-and-view-page', () => {
 
   it('preserves a relation pending row and generic JSON payload after a real query owner refusal', async () => {
     const {dataSet, relationView} = await openRelationWorkspace()
-    await relationView.addRow({rowid: 'REL-REFUSED', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: 'REL-REFUSED'}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'Orders to LineItems',
       RelshipExp: genericJsonPayload('preserve-on-refusal'), IsCascadeDeletion: 0})
     http.rejectNextRelationSave = true
@@ -2169,7 +2169,7 @@ describe('table-and-view-page', () => {
 
   it('keeps an unknown relation save capture for a generic JSON payload and does not send a second POST', async () => {
     const {dataSet, relationView} = await openRelationWorkspace()
-    await relationView.addRow({rowid: 'REL-UNKNOWN', pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: 'REL-UNKNOWN'}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'Orders to LineItems',
       RelshipExp: genericJsonPayload('unknown'), IsCascadeDeletion: 0})
     const requestOwner = http as unknown as {executeRequest: (config: RequestConfig) => Promise<HttpResponse<unknown>>}
@@ -2300,6 +2300,7 @@ describe('table-and-view-page', () => {
   })
 
   it('copies selected table through copy dialog and saveChanges', async () => {
+    http.allowAddByModel.add(DATABASE_CATALOG_FIELD_MODEL)
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     await selectDatabase(wrapper)
     const tables = wrapper.findAllComponents(RendererTable)

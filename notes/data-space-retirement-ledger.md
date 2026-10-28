@@ -8,6 +8,13 @@
 - **主控复核：**原失败的 named-view 用例及三个受影响测试文件复跑通过：3 files / 91 tests。`pnpm run typecheck`、目标 ESLint 与 `git diff --check` 均通过。改动仅在 `tests/runtime/page/design/native/data-space-view-parameter-input.test.ts`；本轮产品代码基线不变，未做真实 SPA 认证、业务查询或数据写入，未改/启动 Java。
 - **账号上下文：**用户账号已在本任务提供，不再要求重发。此前服务端对 `wangtao` 的认证失败及剩余次数仍按上方历史事实处理；本轮没有再次尝试认证，也没有把测试夹具通过记作服务端烟测。
 
+### 2026-10-28 数据库预览 DataView 作用域与复制权限预检
+
+- **物理表/视图预览：**低价实施在两条 DataView executor 的网络请求返回后、同步列定义前重新检查原查询 scope，阻止过期响应先污染已切换场景的 DataTable；刷新时先设 pageSize 再设 page，避免设页大小把 pageIndex 重置为 1。自动化覆盖正式目录字段投影、服务器 total、空结果 Loaded 状态及 scope 失效不发布行/列。RED 证据见 [`database-preview-stale-scope-red.txt`](evidence/database-preview-stale-scope-red.txt)、[`database-preview-page-reset-red.txt`](evidence/database-preview-page-reset-red.txt)。
+- **复制表：**复制前预检表 DataView 的显式身份能力、表级新增和表行字段权限，并预检全部字段 DataView 新增权限；拒绝时不暂存新表或字段。成功测试仅在测试夹具显式模拟服务允许字段新增的查询回包；默认拒绝用例证明零 pending 与零保存提交。RED 证据见 [`database-copy-permission-preflight-red.txt`](evidence/database-copy-permission-preflight-red.txt)。四个关系回归测试准备改用 `addRowWithIdentity`，不放松 DataView 正式主键守卫；历史失败原因见 [`database-relation-addrow-identity-red.md`](evidence/database-relation-addrow-identity-red.md)。
+- **主控复核与门禁：**预览、目录操作及页面宿主 3 个测试文件 109/109；typecheck、六个改动 TypeScript 文件 ESLint、正式 `generate:lowcode-contracts`、完整 `verify:rules` 与 production build 通过。规则扫描保留既有 AI model spec 2 warnings/1 info；构建保留既有依赖注释/CodeMirror 动态导入及大 chunk 警告。ClassModel 未变。
+- **在线验收边界：**本轮未做真实 SPA 数据查询，未写正式目录或业务数据，未改/启动 Java。测试仅证明本地 DataView 合同与自动化模拟；不能证明物理资源身份、稳定主键或服务端字段授权回包。用户提供的账号不再重复索取；此前认证失败后本轮未重试，因此数据库授权与服务端读回烟测仍未完成。整体 SPARK data 唯一通道目标保持 active。
+
 > **当前入口（2026-10-28；产品代码基线 `95cc4d1cb`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；适用于已识别且由服务端承认的 DataSet owner，可补模型/字段/视图/参数/executor 注册，不能自行制造 owner、scope 或权限。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
 ## 当前源码状态（2026-10-28，产品代码基线 `95cc4d1cb`，登录企业简称默认值修复及验证已推送；本台账持续滚动维护）
@@ -954,21 +961,21 @@ flowchart TD
 
 证据统一包含：源码HEAD/相关哈希、用例ID、当前目标及脱敏身份、操作、预期、实际回执摘要、回读、重开、下游、截图/日志位置和未通过原因。不留token/密码/权限凭据。历史证据只能说明其原时间/部署/目标；本轮本地结果不能覆盖线上验收列。
 
-### 9. 当前代码驱动的执行队列（2026-10-28，按产品代码基线 `33928b5c6` 动态复核）
+### 9. 当前代码驱动的执行队列（2026-10-28，按顶部最新源码状态及 HEAD 动态复核）
 
-**基线与总状态。** 当前代码基线为已与上游同步的 `33928b5c6`。静态 Vue 页可在 registry 声明 DataSpace ID 并透传到系统页身份，但这仅传递标识，不提供 app-less root 的请求上下文；`/app-list` 仍无正式 DataSet owner，且没有新的 DataView 接线。设计器可以补正式资源定义：当前 7AB 有 `Base_AppSystemList` 模型而无 DataView，归属 D99“元数据管理”；它与 homepage 全局目录不是同一 owner，不能直接绑定。最近切片移除了未调用的页面版本删除 API 和 ProjectWorkspace 蓝图/文件第二写入口；DataView executor 内部文件存储适配仍保留。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件空目录精确处理已有同 SPA 只读查询证据；非空文件与 Agent 下游消费尚未验收。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
+**基线与总状态。** 当前代码状态按台账顶部最新代码条目滚动更新。静态 Vue 页可在 registry 声明 DataSpace ID 并透传到系统页身份，但这仅传递标识，不提供 app-less root 的请求上下文；`/app-list` 仍无正式 DataSet owner，且没有新的 DataView 接线。设计器可以补正式资源定义：当前 7AB 有 `Base_AppSystemList` 模型而无 DataView，归属 D99“元数据管理”；它与 homepage 全局目录不是同一 owner，不能直接绑定。最近切片移除了未调用的页面版本删除 API 和 ProjectWorkspace 蓝图/文件第二写入口；DataView executor 内部文件存储适配仍保留。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件空目录精确处理已有同 SPA 只读查询证据；非空文件与 Agent 下游消费尚未验收。数据库物理预览 DataView 现有过期响应隔离、分页状态及本地权限预检反例覆盖；真实资源身份、稳定主键和服务端字段授权仍缺在线证据。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工：**
 
 1. **Workflow 文件资源目录 DataView 空集合路径已验收；继续验证真实文件读取消费者。** 通过正式数据空间设计已在 `01000B6C7F84B4F1A85C91C4FC28E875` 保存 `AgentWorkflowFiles` 和四个视图，同一 SPA 重开后确认模型/视图并查询 `directory`：精确处理运行时 `[1003] 文件夹路径不存在` 后，DataView 显示 `Loaded`、0 行/0 总数。错误对象与界面结果见 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json)。源码复核确认 WorkflowDesigns 与 AI activation 都经 `AgentWorkflowFileDataViewOwner` 使用 DataView，API 调用只在 executor 内部适配；不存在当前消费方的 raw Workflow 文件读取旁路。当前目录为空，没有可合法用于 `design`/`definition` 读取的 workflowId；不得猜造文件身份或写测试文件。下一步找出真实存在的 workflow 文件及其正式应用/权限上下文；若无可读目标，保留正文读取与 Agent 下游消费验收为待解锁项。
 2. **继续迁移平台应用目录旁路。** 有正式身份的隐藏“应用系统列表”节点已接入专属 DataSpace `0C70F74793F9E858B71E0DBDEC784D57` 的 `Base_AppSystemList@default`，`allPages=true`；代码、5 项隔离测试与台账已推送（`d3579fe93`/`d1d0c5406`）。该查询行范围/权限投影仍缺服务响应证据。静态 Vue 注册表支持显式 `dataSpaceId → blueprintScenarioId` 投影，但投影不创建正式 DataSet owner 或 app-less 请求上下文；根 `/app-list` 仍回退 `listApplications()`。最新认证 SPA 只读核验：`/t/NewApp/homepage/app-list` 显示 61 个卡片；D99 当前空间 7AB 的模型目录显示 `Base_AppSystemList` 已绑定但 DataView 数为 0，创建空间表单仅列“元数据管理”应用；没有点击任何写操作。下一步先从正式平台场景/服务合同确立 homepage 的 owner 和可查询范围，再通过设计器在该正确 owner 下补 `Base_AppSystemList` 与 view；在比较同 scope 的正式查询行范围、字段权限及切换行为前，不切断旧通道。不能借用 0C70、7AB 蓝图场景或数据空间目录 `catalogApps`，也不能用添加模型/视图伪造服务端租户过滤或权限等价。PlatformApps、project-settings、动态导航也继续调用 `listApplications()`，范围分别核定。
-3. **验数据库物理表/视图预览的只读权限合同。** 该页面已有 `DatabaseTablePreviewRows@default` DataView、DataSet 命令输入和场景 guard；GetData 调用在 DataView 的物理资源 executor 中，属于统一链的数据层适配，不应仅因 owner 类名或 HTTP 方法而删除。当前 executor 以 `Filter: null` 读取用户指定物理对象，并在本地构造输出列可读、所有字段不可写的访问描述，尚无服务端行/字段权限回包证明。先核正式数据库管理预览的授权合同，再补 DataView 的场景失效、列投影、空结果和分页用例；没有服务端范围权限证据前不改成普通模型绑定或宣称权限闭环。
+3. **验数据库物理表/视图预览的只读权限合同。** 该页面已有 `DatabaseTablePreviewRows@default` DataView、DataSet 命令输入和场景 guard；GetData 调用在 DataView 的物理资源 executor 中，属于统一链的数据层适配，不应仅因 owner 类名或 HTTP 方法而删除。当前 executor 以 `Filter: null` 读取用户指定物理对象，并在本地构造输出列可读、所有字段不可写的访问描述，尚无服务端行/字段权限回包证明。已补 DataView 场景失效、目录字段投影、空结果与分页自动化覆盖，并修复复制表新增前的权限预检；这些均不构成真实授权证明。下一步核正式数据库管理预览的物理资源身份、稳定主键、服务端行/字段权限投影和拒绝语义，再做 SPA 查询/读回；不改成普通模型绑定或宣称权限闭环。
 4. **保持 NavHost 关系只读，等待正式关系证据。** `appworks-tool-dev` 当前关系 DataView 正式查询返回 0 行；编辑仍缺行/字段写权限、CRUD owner 和服务端读回合同。不得由本地 UI 或测试补关系。旧 `/DataCenter/ServerManagerment.html` 节点仍需正式目标/部署身份证据后才可做 alias。
 5. **按原业务语义处理其余服务依赖项。** B1 AI 候选字段/批量新增、字典删除引用完整性与下游消费、AI system prompt 部署绑定、B2 正式登记/连接回执、`_Base_DictData` 动态选项、C/E pending 和 D 权限专题，逐项按 DataSpace、实际消费者、正式权限/回执和下游影响解锁。服务能力未知时 fail closed，不用夹具或 HTTP 200代替真实结果。
 
 **每次重排都须留下可复核理由。** 先从当前源码追踪入口→消费者→DataView/资源 owner→保存/查询→释放；再分开记录原实现事实、目标、缺陷、待证合同。不得把“未找到生产调用者”写成旁路仍活动，也不得把“底层最终用了 DataSet”写成页面链已统一。若真实 SPA 未登录或缺少正式目标，仅可做源码与自动化审查，并把在线验收列为未完成；登录、页面显示或请求 200 不单独证明保存和消费。每轮结束更新本表及本节，保留日期化历史证据，不新增并行总计划。
 
-**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow DataSpace 绑定及目录视图的精确空结果路径已通过同 SPA DataView 查询。隐藏应用系统列表节点专属 DataSpace 已补齐并回读，AppList DataView 切片 `d3579fe93` 及台账 `d1d0c5406` 已推送；当前正式服务的 DataView 查询范围/权限回包未与旧目录对照。根 `/app-list` 身份及其余应用目录消费者仍未迁移；homepage scope 61 个卡片只是旧路径读数，不是权限/范围等价证明。用户允许通过数据空间设计补齐 DataSpace 定义；但当前设计器可选应用列表没有 `homepage`，已确认的 7AB 属于 D99 元数据管理且 `Base_AppSystemList` 无 DataView。实施须先建立正式 homepage owner 身份和服务端范围/权限证据，再在正确空间补模型/视图，不借用其它场景身份。尚无真实 workflowId 可供设计正文读取及 AI 下游消费验收。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因单一资源无数据而停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
+**当前交付闸门。** PageDesign 读取切片已完成自动化及构建门禁并推送，真实 Agent 运行/消费仍待验；Workflow DataSpace 绑定及目录视图的精确空结果路径已通过同 SPA DataView 查询。隐藏应用系统列表节点专属 DataSpace 已补齐并回读，AppList DataView 切片 `d3579fe93` 及台账 `d1d0c5406` 已推送；当前正式服务的 DataView 查询范围/权限回包未与旧目录对照。根 `/app-list` 身份及其余应用目录消费者仍未迁移；homepage scope 61 个卡片只是旧路径读数，不是权限/范围等价证明。数据库预览与复制权限切片已完成自动化及工程门禁，但没有本轮 SPA 服务回包，物理资源身份/稳定主键/服务端权限仍未验证。用户允许通过数据空间设计补齐 DataSpace 定义；但当前设计器可选应用列表没有 `homepage`，已确认的 7AB 属于 D99 元数据管理且 `Base_AppSystemList` 无 DataView。实施须先建立正式 homepage owner 身份和服务端范围/权限证据，再在正确空间补模型/视图，不借用其它场景身份。尚无真实 workflowId 可供设计正文读取及 AI 下游消费验收。之后按调用者动态选择能满足身份/权限/保存合同的切片；不要因单一资源无数据而停掉独立源码审计。实施使用与任务复杂度相称的低价模型，主控独立复核、门禁、烟测和更新本唯一台账；每一产品切片完成后及时提交推送。任何实现必须完成相关测试、typecheck/lint、正式生成（若合同变更）、`verify:rules`、build 及真实 SPA 证据边界记录后，才更新完成状态。
 
 ### 2026-10-28 静态 Vue 页面 DataSpace 身份投影接线
 

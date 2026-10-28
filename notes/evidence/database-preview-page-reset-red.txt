@@ -1,0 +1,39 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+---x-
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses DataView page inputs for the physical request and preserves the service total
+AssertionError: expected { Table: [ { …(7) } ], …(1) } to match object { PageParam: { index: 2, size: 1 } }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "PageParam": {
+-     "index": 2,
++     "index": 1,
+      "size": 1,
+    },
+  }
+
+ ❯ tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:129:27
+    127|     const request = http.requests.filter(request => request.url === '/…
+    128|       && (request.data as {Table?: Array<Record<string, unknown>>}).Ta…
+    129|     expect(request?.data).toMatchObject({PageParam: {index: 2, size: 1…
+       |                           ^
+    130|     expect(preview.rows.map(row => row['Id'])).toEqual(['2'])
+    131|     expect(preview.total).toBe(2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  10:05:26
+   Duration  3.24s (transform 1.66s, setup 122ms, import 2.05s, tests 47ms, environment 772ms)
+

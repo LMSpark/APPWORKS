@@ -87,6 +87,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
   onPhysicalPreviewResponse?: () => void
   physicalPreviewRowsOverride?: Array<Record<string, unknown>>
+  physicalPreviewResponseOverride: unknown = undefined
   connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
   connectionTestGate?: Promise<void>
   deniedFieldsByModel: Record<string, readonly string[]> = {}
@@ -334,6 +335,9 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       const start = (index - 1) * size
       const slice = previewRows.slice(start, start + size)
       this.onPhysicalPreviewResponse?.()
+      if (this.physicalPreviewResponseOverride !== undefined) {
+        return {data: this.physicalPreviewResponseOverride, status: 200, statusText: 'OK', headers: {}}
+      }
       return {data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: slice, Count: previewRows.length}}}, status: 200, statusText: 'OK', headers: {}}
     }
     const tableName = String(table['Name'] ?? '')

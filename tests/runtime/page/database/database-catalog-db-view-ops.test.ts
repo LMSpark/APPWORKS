@@ -315,7 +315,7 @@ describe('database-catalog-db-view-ops', () => {
     expect(dbView.dirtyTracking.hasPendingChanges()).toBe(false)
   })
 
-  it('keeps a staged create when the formal query marks Name as a computed read-only field', async () => {
+  it('rejects a create when the formal query marks Name as a computed read-only field', async () => {
     service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
       const found = databaseTableViewModels[metaName as keyof typeof databaseTableViewModels]
       if (!found) throw new Error(`unexpected model ${metaName}`)
@@ -329,11 +329,9 @@ describe('database-catalog-db-view-ops', () => {
     const dbView = requireDatabaseCatalogDbView(ds)
     serverView.setSelectedRows([serverView.rows[0]!])
     expect(dbView.addActionState()).toBe('enabled')
-    const edit = await databaseCatalogDbBeginCreate(dbView, serverView)
-    expect(dbView.fieldAccess(edit.row, 'Name')).toMatchObject({write: 'denied'})
-    await expect(databaseCatalogDbSaveEdit(ds, dbView, edit)).rejects.toThrow('数据库名称字段当前不可写')
-    expect(dbView.rows).toContain(edit.row)
-    expect(dbView.dirtyTracking.isPendingCreate(edit.id)).toBe(true)
+    await expect(databaseCatalogDbBeginCreate(dbView, serverView)).rejects.toThrow('DATA_VIEW_NEW_ROW_FIELD_DENIED: 当前正式查询不允许新增字段 Name')
+    expect(dbView.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(dbView.dirtyTracking.pendingCreateIds.size).toBe(0)
     expect(http.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
   })
 

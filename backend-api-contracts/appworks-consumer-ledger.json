@@ -1231,13 +1231,13 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-      "sourceLine": 160,
+      "sourceLine": 170,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-      "sourceLine": 264,
+      "sourceLine": 274,
       "scope": "app-composition"
     },
     {

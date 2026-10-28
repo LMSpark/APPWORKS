@@ -1,0 +1,235 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > edits only the selected existing database row through its original DataView/DataSet
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > deletes exactly the requested primary key through the scoped DataView save and verifies it is absent
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-relation-view-ops.test.ts > database-catalog-relation-view-ops > loads relations for selected table with OR pktbid/fktbid filter
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > rechecks delete permission and target identity and never submits when either is invalid
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > preserves the staged deletion when the save result is unknown and does not retry
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > rejects existing-row edit without an allowed field and when the target/query identity expires, without submitting
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-relation-view-ops.test.ts > database-catalog-relation-view-ops > creates a relation row through saveChanges on Base_TblRln
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > allows Name-only edits when SchemaName is denied and submits only the permitted change
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > cancels an existing-row edit back to its original values without submitting
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-relation-view-ops.test.ts > database-catalog-relation-view-ops > deletes a relation row through saveChanges on Base_TblRln
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > requires explicit server selection and saves one database row through its DataView/DataSet
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+···stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > cancels only the newly added DataView row without submitting it
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+········stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > queries unregistered database names through the directory DataSet command view
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > accepts the standard AjaxResult envelope for unregistered database names
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > does not invent a database type when the selected server has no readable type
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > refuses server context when request failed
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > refuses server context when server name is unreadable
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > rejects a create when the formal query marks Name as a computed read-only field
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+stdout | tests/runtime/page/database/database-catalog-db-view-ops.test.ts > database-catalog-db-view-ops > blocks cancel and create after an unknown save, then verifies only the original DataView target
+🐛 [DataView] 销毁 DataView: Base_serverInfo:default
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryUnregisteredDatabaseNames:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestInput:default
+🐛 [DataView] 销毁 DataView: DatabaseDirectoryConnectionTestResult:default
+
+········
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  16:32:02
+   Duration  4.17s (transform 3.69s, setup 259ms, import 4.79s, tests 230ms, environment 2.19s)
+

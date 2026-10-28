@@ -3081,3 +3081,13 @@ flowchart TD
 - 对正式 DataSpace `2C76CB8B29B72CC9F566A65469BDC972` 打开“数据空间绑定查询”，可见一条绑定：`财务管理 / 资金 / 账户设置` → `vue:/finance/funds/settings/index`。
 - 此结果只证明页面绑定关系，不足以推导 DataSpace owner、跨应用 scope、运行 DataView 或服务端授权；不据此补造 owner 或权限。未写业务数据/配置、未修改 Java。
 - 观察细节：[`d99-account-settings-binding-live-20261028.md`](evidence/d99-account-settings-binding-live-20261028.md)。
+
+### 2026-10-28 DataView 数据库预览 AjaxResult 错误回执修复与 SPA 续核
+
+- **低价实施与边界：**由 `gpt-6-luna` 实施；物理表/视图预览的 `GetData` 位于 DataView query executor 内，是预览资源适配器而非页面另建查询入口。此路径仍未消费正式物理资源字段权限投影：当前 `readonlyQueryResult` 按响应行字段存在构造可读状态。没有正式权限合同，未猜造替代授权；此缺口继续开放。
+- **实现：**预览 parser 现按仓内 AjaxResult 合同严格要求数值型 `Code`；非 200 通过 `LowcodeApiError` 进入原 DataView Failed 状态，空白错误消息沿用标准兜底。无 `Code` 的旧载荷解析保持兼容。未改 Java、服务端协议、物理数据权限或 DataView owner。
+- **RED/GREEN：**新增拒绝码、错误码类型、空白消息与旧载荷测试。原始输出见 [`database-catalog-preview-ajaxresult-red-20261028.txt`](evidence/database-catalog-preview-ajaxresult-red-20261028.txt) 与 [`database-catalog-preview-ajaxresult-green-20261028.txt`](evidence/database-catalog-preview-ajaxresult-green-20261028.txt)；目标测试复核 9/9 通过。
+- **基线夹具纠正：**完整数据库域初次复跑发现两个未改生产逻辑的旧测试违反 DataView 当前合同：computed 只读字段新增应 fail closed，关系新增正式主键应走 `addRowWithIdentity`。低价实施者仅更新这两个测试，不改变生产权限/身份处理。证据 [`database-domain-baseline-red-20261028.txt`](evidence/database-domain-baseline-red-20261028.txt)、[`database-domain-baseline-green-20261028.txt`](evidence/database-domain-baseline-green-20261028.txt)。数据库页面域全量复跑 `tests/runtime/page/database`：13 文件、199/199 通过，完整输出 [`database-domain-suite-green-20261028.txt`](evidence/database-domain-suite-green-20261028.txt)。
+- **工程门禁：**主控复核后 `pnpm run typecheck`、3 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules`、`git diff --check` 通过。正式 `pnpm run generate:lowcode-contracts` 更新 `backend-api-contracts/appworks-consumer-ledger.json` 的两个行号；生成后低代码合同检查通过。规则扫描仍有既有 AI model spec 2 warnings、1 info；build 有既有 CodeMirror 动态导入分块警告。
+- **真实 SPA 续核：**D99 目录总数 `1346`，首屏可见 10 条 owner 都为“未解析应用”。只读目标空间“账户设置”ID `2C76CB8B29B72CC9F566A65469BDC972` 显示 0 模型、0 输入参数、尚无视图。绑定页面事实见前条证据。本轮点击绑定应用进入“财务管理”后发生 `SCENARIO_VIEW_FILE_MISSING`/导航身份失效；这些结果没有证明 owner 或权限。详细可见回执见 [`d99-account-settings-space-and-app-switch-live-20261028.md`](evidence/d99-account-settings-space-and-app-switch-live-20261028.md)。
+- **状态与下一步：**代码修复及数据库页面域验证完成；SPARK data 唯一通道总目标继续 active。下一步仍按 DataSpace 身份 → DataTable → DataView → consumer → 权限/回执核对，只在正式 owner/scope/字段权限可证实后补空间配置。全局 tenant owner、跨 app DataSpace 生命周期、物理资源字段权限及财务页真实实现仍未闭环；本轮未做任何正式业务写入。

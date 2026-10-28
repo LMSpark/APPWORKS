@@ -56,7 +56,7 @@ describe('database-catalog-relation-view-ops', () => {
     const expression = DataViewFilterCodec.serializeStored(DataViewFilter.condition({
       field: 'LineItems.Id', operator: 'eq', value: {Type: 'GetTableField', Field: 'Orders.Id'},
     }))
-    await relationView.addRow({rowid: rowId, pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
+    await relationView.addRowWithIdentity({field: 'rowid', value: rowId}, {pkdbid: 'DB1', pktbid: 'T1', pktable: 'Orders',
       fkdbid: 'DB1', fktbid: 'T3', fktable: 'LineItems', rlname: 'Orders to LineItems', RelshipExp: expression, IsCascadeDeletion: 0})
     await ds.saveChanges({views: [{tableName: DATABASE_CATALOG_RELATION_MODEL, viewId: DATABASE_CATALOG_RELATION_TABLE_VIEW, ids: [rowId]}]})
     expect(http.rows[DATABASE_CATALOG_RELATION_MODEL]!.some(row => row['rowid'] === rowId && row['RelshipExp'] === expression)).toBe(true)

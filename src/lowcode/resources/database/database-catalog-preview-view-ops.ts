@@ -12,6 +12,7 @@ import {
   type DataSetCommandScopeGuard,
 } from '@spark-appworks/spark-data'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
+import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {
   DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
@@ -56,6 +57,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function parseGetDataPage(response: unknown): {items: DataRow[]; total: number} {
   if (!isRecord(response)) throw new Error('物理表预览响应格式无效')
+  if ('Code' in response) {
+    const code = response['Code']
+    if (typeof code !== 'number') throw new LowcodeApiError(0, 'lowcode 响应缺少数字 Code')
+    if (code !== 200) {
+      const message = response['Message']
+      throw new LowcodeApiError(code,
+        typeof message === 'string' && message.trim() !== '' ? message : 'lowcode 请求失败')
+    }
+  }
   const envelope = 'Code' in response ? response['Result'] : response
   if (!isRecord(envelope)) throw new Error('物理表预览结果无效')
   const data = envelope['data']

@@ -1,0 +1,415 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > loads physical table preview through GetData readonly command view
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > loads database view preview through GetData readonly command view
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > does not publish physical preview columns when the application scope changes during the request
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 表和视图目录请求所属应用或登录身份已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPageSize (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3661:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:204:38)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:107:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > does not publish physical preview columns when the application scope changes during the request
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 表和视图目录请求所属应用或登录身份已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPage (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3648:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:205:39)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:107:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > does not publish physical preview columns when the application scope changes during the request
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 表和视图目录请求所属应用或登录身份已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:206:3)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:107:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > does not publish physical preview columns when the application scope changes during the request
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses DataView page inputs for the physical request and preserves the service total
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > keeps an empty physical result as a successful loaded empty view
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a non-success GetData AjaxResult instead of accepting it as an empty preview
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 物理资源查询被拒绝 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPageSize (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3661:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:204:38)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:156:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a non-success GetData AjaxResult instead of accepting it as an empty preview
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 物理资源查询被拒绝 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPage (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3648:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:205:39)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:156:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a non-success GetData AjaxResult instead of accepting it as an empty preview
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: 物理资源查询被拒绝 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:206:3)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:156:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+·····stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a non-success GetData AjaxResult instead of accepting it as an empty preview
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a string success code because AjaxResult Code must be numeric
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 响应缺少数字 Code Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPageSize (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3661:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:204:38)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:172:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a string success code because AjaxResult Code must be numeric
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 响应缺少数字 Code Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPage (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3648:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:205:39)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:172:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a string success code because AjaxResult Code must be numeric
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 响应缺少数字 Code Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:206:3)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:172:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > rejects a string success code because AjaxResult Code must be numeric
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses the standard failure message when a numeric error code has a blank message
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 请求失败 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPageSize (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3661:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:204:38)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:186:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses the standard failure message when a numeric error code has a blank message
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 请求失败 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.setPage (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:3648:53)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:205:39)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:186:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses the standard failure message when a numeric error code has a blank message
+❌ [DataView] requestData 失败 [DatabaseTablePreviewRows@default]: lowcode 请求失败 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at Module.databaseCatalogPreviewRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/database/database-catalog-preview-view-ops.ts:206:3)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/page/database/database-catalog-preview-view-ops.test.ts:186:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > uses the standard failure message when a numeric error code has a blank message
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+stdout | tests/runtime/page/database/database-catalog-preview-view-ops.test.ts > database-catalog-preview-view-ops > keeps accepting the legacy GetData payload without an AjaxResult Code
+🐛 [DataView] 销毁 DataView: _base_dbInfo:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:default
+🐛 [DataView] 销毁 DataView: _Base_TblList:registrationVerify
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationPeers
+🐛 [DataView] 销毁 DataView: _Base_TblList:relationEndpoints
+🐛 [DataView] 销毁 DataView: _Base_ViewList:default
+🐛 [DataView] 销毁 DataView: _Base_ViewList:registrationVerify
+🐛 [DataView] 销毁 DataView: Base_TblField:default
+🐛 [DataView] 销毁 DataView: Base_TblField:tableFields
+🐛 [DataView] 销毁 DataView: Base_TblField:viewFields
+🐛 [DataView] 销毁 DataView: Base_TblField:relationEndpointFields
+🐛 [DataView] 销毁 DataView: Base_Desensitization_Rule:default
+🐛 [DataView] 销毁 DataView: Dict_encryption_rule:default
+🐛 [DataView] 销毁 DataView: TblField_type:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:default
+🐛 [DataView] 销毁 DataView: Base_TblRln:forTable
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:default
+🐛 [DataView] 销毁 DataView: Base_WorkflowDefinition:forTable
+🐛 [DataView] 销毁 DataView: workflowStatus:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: DatabaseCatalogCommandInput:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredTables:default
+🐛 [DataView] 销毁 DataView: DatabaseUnregisteredViews:default
+🐛 [DataView] 销毁 DataView: DatabaseTableSyncMetaData:default
+🐛 [DataView] 销毁 DataView: DatabaseTableRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseViewRegister:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseTablePreviewRows:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewInput:default
+🐛 [DataView] 销毁 DataView: DatabaseViewPreviewRows:default
+
+····
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  16:26:42
+   Duration  3.94s (transform 1.87s, setup 132ms, import 2.34s, tests 143ms, environment 1.00s)
+

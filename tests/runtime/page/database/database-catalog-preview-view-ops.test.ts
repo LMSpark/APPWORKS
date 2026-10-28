@@ -146,4 +146,58 @@ describe('database-catalog-preview-view-ops', () => {
     expect(preview.rows).toEqual([])
     expect(preview.total).toBe(0)
   })
+
+  it('rejects a non-success GetData AjaxResult instead of accepting it as an empty preview', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    http.physicalPreviewResponseOverride = {Code: 500, Message: '物理资源查询被拒绝', Result: {data: {Items: [], Count: 0}}}
+
+    await expect(databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })).rejects.toMatchObject({name: 'LowcodeApiError', code: 500, message: '物理资源查询被拒绝'})
+    expect(preview.requestState).toBe(RequestState.Failed)
+    expect(preview.rows).toEqual([])
+  })
+
+  it('rejects a string success code because AjaxResult Code must be numeric', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    http.physicalPreviewResponseOverride = {Code: '200', Message: 'OK', Result: {data: {Items: [], Count: 0}}}
+
+    const refresh = databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })
+    await expect(refresh).rejects.toMatchObject({name: 'LowcodeApiError', code: 0})
+    await expect(refresh).rejects.toThrow('lowcode 响应缺少数字 Code')
+    expect(preview.requestState).toBe(RequestState.Failed)
+  })
+
+  it('uses the standard failure message when a numeric error code has a blank message', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    http.physicalPreviewResponseOverride = {Code: 503, Message: '  ', Result: {data: {Items: [], Count: 0}}}
+
+    const refresh = databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })
+    await expect(refresh).rejects.toMatchObject({name: 'LowcodeApiError', code: 503})
+    await expect(refresh).rejects.toThrow('lowcode 请求失败')
+  })
+
+  it('keeps accepting the legacy GetData payload without an AjaxResult Code', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    http.physicalPreviewResponseOverride = {data: {Items: [{rowid: 'LEGACY', Name: 'Legacy'}], Count: 1}}
+
+    await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })
+
+    expect(preview.rows[0]).toMatchObject({rowid: 'LEGACY', Name: 'Legacy'})
+    expect(preview.total).toBe(1)
+  })
 })

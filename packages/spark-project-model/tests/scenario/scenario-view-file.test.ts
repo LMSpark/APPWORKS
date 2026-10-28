@@ -1023,16 +1023,17 @@ function workspaceFixture() {
   const readText = vi.fn(async (_scenarioId: string) => remoteText)
   const writeText = vi.fn(async (_scenarioId: string, text: string) => { remoteText = text })
   const snapshots = new Map<number, string>([[0, fixture(10)]])
+  const storeSnapshot = (version: number, text: string) => snapshots.set(version, text)
   const listVersions = vi.fn(async () => [...snapshots.keys()].map(version => ({ version, fileName: `${version}__pagedata.json`, lastModified: null })))
   const readVersion = vi.fn(async (_scenarioId: string, version: number) => { const text = snapshots.get(version); if (text === undefined) throw new Error('snapshot missing'); return text })
-  const createVersion = vi.fn(async (_scenarioId: string, text: string) => { snapshots.set(8, text); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
+  const createVersion = vi.fn(async (_scenarioId: string, text: string) => { storeSnapshot(8, text); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
 
   const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
     pageFiles: { readPageFile: vi.fn(async () => { throw new Error('must not read a page file') }) },
     blueprint: {},
     scenarioViews: { readScope: () => scope, readText, writeText, listVersions, readVersion, createVersion },
   })
-  return { workspace, readText, writeText, listVersions, readVersion, createVersion,
+  return { workspace, readText, writeText, listVersions, readVersion, createVersion, storeSnapshot,
     setScope: (value: string) => { scope = value },
     setRemote: (value: string | null) => { remoteText = value },
   }
@@ -1408,6 +1409,39 @@ describe('ProjectWorkspace shared scenario versions', () => {
     await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
     expect(createVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(), expect.any(Function))
     expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 8)
+  })
+  it('requires verification after a snapshot write loses its receipt instead of creating another snapshot', async () => {
+    const { workspace, createVersion, storeSnapshot } = workspaceFixture()
+    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    createVersion.mockImplementationOnce(async (_scenarioId, text) => {
+      storeSnapshot(8, text)
+      throw new Error('snapshot response lost')
+    })
+
+    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('snapshot response lost')
+    let retryError: unknown
+    try {await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE'})} catch (error) {retryError = error}
+
+    expect(createVersion).toHaveBeenCalledOnce()
+    expect(retryError).toBeDefined()
+    expect(String(retryError)).toMatch(/核验|verify/i)
+  })
+  it('rejects a second snapshot creation while the original create attempt is pending', async () => {
+    const { workspace, createVersion, storeSnapshot } = workspaceFixture()
+    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    const waiting = deferred<void>()
+    createVersion.mockImplementationOnce(async (_scenarioId, text) => {
+      await waiting.promise
+      storeSnapshot(8, text)
+      return { version: 8, fileName: '8__pagedata.json', lastModified: null }
+    })
+
+    const creating = workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
+    await vi.waitFor(() => expect(createVersion).toHaveBeenCalledOnce())
+    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('正在写入')
+    waiting.resolve()
+    await creating
+    expect(createVersion).toHaveBeenCalledOnce()
   })
   it('rejects snapshots for dirty or not-yet-persisted drafts', async () => {
     const { workspace, createVersion, setRemote } = workspaceFixture()

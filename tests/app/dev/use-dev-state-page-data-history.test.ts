@@ -165,6 +165,28 @@ describe('tool and shared scenario editing owners',()=>{
   await expect(state.restoreScenarioVersion(0,fixtureText(50))).rejects.toThrow('UNSAVED')
   expect(httpPut).not.toHaveBeenCalled()
  })
+ it('stages a restored snapshot in definition DataViews until the user explicitly saves', async()=>{
+  let remote=fixtureText(20)
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}))
+  httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content})
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const document=state.scenarioDefinitionDocument.value
+  expect(document?.scenarioId).toBe('scene')
+  const definitionView=document!.dataSet.getView('DataViewDefinition')!
+  vi.spyOn(state.editor,'previewScenarioVersion').mockResolvedValue(fixtureText(50))
+
+  await state.restoreScenarioVersion(0,fixtureText(50))
+
+  expect(httpPut).not.toHaveBeenCalled()
+  expect(definitionView.hasEditingChanges()).toBe(true)
+  expect(state.pageDataDirty.value).toBe(true)
+  expect(JSON.parse(document!.getText()).tables.Orders.views.default.pageSize).toBe(50)
+  await state.saveScenarioViewText()
+  expect(httpPut).toHaveBeenCalledOnce()
+  expect(JSON.parse(remote).tables.Orders.views.default.pageSize).toBe(50)
+  expect(definitionView.hasEditingChanges()).toBe(false)
+ })
  it('previews the shared DataView draft while the storage owner remains unchanged', async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
   const state=createDevStateWithConfigPages([], '')

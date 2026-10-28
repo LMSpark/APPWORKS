@@ -1,0 +1,37 @@
+[
+  {
+    "file": "dev-history-baseline.log",
+    "bytes": 322238,
+    "sha256": "ab5823913039483acf435f25f3e500fae930ae4aa6e152110814da8237d86d8a"
+  },
+  {
+    "file": "red-restore-controller.log",
+    "bytes": 1989,
+    "sha256": "0eabd18786446f57ca9b9f9cc54b239ceb9da284ebdbf0edded2e12404db31fc"
+  },
+  {
+    "file": "red-restore-writer.log",
+    "bytes": 1988,
+    "sha256": "86cef5eda9d227b7947e30ce898729ace94c341da42e196caf133094973eeb3b"
+  },
+  {
+    "file": "red-workspace-controller.log",
+    "bytes": 1522,
+    "sha256": "8a8e9a6b7750a3236475da32a02f7bc43c79da6cc9aa0f9bc0da258226589528"
+  },
+  {
+    "file": "red-workspace-writer.log",
+    "bytes": 1522,
+    "sha256": "f3f8af25a067b3af7c73e9cb98df0cd053de21b41ebc3a8902800105353d6167"
+  },
+  {
+    "file": "scenario-model-baseline.log",
+    "bytes": 426,
+    "sha256": "c8478e299c40375397d3a256605cbcbe03929244618c3b1ecb0bab821be2912b"
+  },
+  {
+    "file": "typecheck-baseline.log",
+    "bytes": 62,
+    "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+  }
+]

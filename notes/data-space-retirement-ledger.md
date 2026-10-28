@@ -2983,3 +2983,9 @@ flowchart TD
 - **低价模型只读审计与主控交叉复核：**未发现同时具备正式 DataSet owner、宿主身份、scope 和写权限依据的下一安全切片。最接近的 DevSystem `NavHostProjectPicker` 已用 `7AB...@Base_Navigation_DataRelation@default` 查询关系，再按正式绑定加载候选 DataView；生产接线依赖 `prowid=appworks-tool-dev` 的关系行。此前认证态 SPA 已正式确认该目标 0 行，且 `03D8...` 候选空间未能在 D99 目录确认，不能猜空间或写关系。`configureNavHostProjectRelation()` 目前只供测试调用，虽会预检 `newRowFieldAccess` 并仅 `DataView.addRow` 暂存，但夹具不证明正式写权限或服务端回执。
 - **自动化与当前路径：**`pnpm exec vitest run tests/app/dev/nav-host-project-picker --reporter=dot` 3 个文件、23/23 通过，只证明目标身份、候选投影及关系命令的本地合同；不证明正式服务授权或项目切换现场。真实切片须先在已可读取的认证 SPA 中核对当前导航关系目标行、关系字段新增权限及真实候选空间/字段。得到正式依据后才将关系配置接入绑定 DataView 并走 DataSet 保存/取消；否则保留现有入口，避免借用 D99/90A8 候选或构造 DataView 包装旧 API。
 - **交付边界：**本轮只读，未改产品代码、正式数据、测试或 Java。账号已由用户提供并授权，不要求重发；工具当前无法附着浏览器标签，因此不声称已登录或完成真实烟测。下一步保持整体 owner 盘点，优先取得 NavHost 正式 owner/权限证据；根应用目录、导航根、物理表预览 executor 的既有独立差距仍按各自合同处理。总体 SPARK data 唯一通道目标继续 active。
+
+### 2026-10-28 SPA 会话可访问性续验
+
+- **当前会话证据：**刷新浏览器 inventory 后仍列出原应用列表与 D99 标签；按完整 D99 URL 再次附着仍返回 `browser.user is unavailable`。另经用户可见 IAB 打开同一 SPA 数据空间路由，新标签被重定向到公开“平台首页”，显示登录链接。故本次无法读取原标签页面或确认其认证态，也未取得 NavHost DataView/字段权限回包。
+- **安全边界与继续条件：**computer-use 技能明确禁止自动化用户认证表单。本会话已使用用户提供的测试账号授权上下文，不要求重发、不自动填表或盲目调用登录请求。必须先由平台提供可供当前工具附着的既有认证 SPA 会话/浏览器能力，再继续真实只读 DataView 取证；之后按正式服务范围和授权决定能否接入 DevSystem 项目关系。此技术阻断重复出现，低价源码审计也未找到可绕过它且满足 owner/scope/权限合同的代码切片。
+- **本次操作：**仅打开用户本地 SPA 路由并读取可见首页，未登录、未请求正式 DataView、未执行项目切换/查询/保存或其它业务数据写入；没有代码、正式数据或 Java 变更。总体目标未完成，唯一台账保持 active，现场证据未被历史烟测替代。

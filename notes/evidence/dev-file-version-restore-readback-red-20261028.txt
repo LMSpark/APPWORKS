@@ -1,0 +1,31 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+-----x-------------------------
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/page-tool-files-command.test.ts > PageToolFilesDataView > keeps an applied restore unknown when the upload adapter readback returns an HTTP response error
+AssertionError: expected [Function] to throw error including 'PAGE_TOOL_RESTORE_UNCONFIRMED' but got 'readback response failed'
+
+Expected: "PAGE_TOOL_RESTORE_UNCONFIRMED"
+Received: "readback response failed"
+
+ ❯ tests/app/dev/page-tool-files-command.test.ts:89:45
+     87|     },()=>{})
+     88|     const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.…
+     89|     await expect(owner.restoreVersion(input)).rejects.toThrow('PAGE_TO…
+       |                                             ^
+     90|     await expect(dataSet.resolveUnconfirmedSaves()).resolves.toBe('con…
+     91|     await expect(owner.restoreVersion(input)).resolves.toBe('restored …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 30 skipped (31)
+   Start at  15:16:07
+   Duration  3.22s (transform 1.51s, setup 126ms, import 1.84s, tests 21ms, environment 936ms)
+
+EXIT_CODE=1

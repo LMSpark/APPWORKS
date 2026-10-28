@@ -1,11 +1,149 @@
 import {describe, expect, it, vi} from 'vitest'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
+import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '../../../src/lowcode/resources/shared/page-tool-files-command'
 
 function timeoutAfterAccept():Error{const error=new Error('timeout after accept');error.name='RequestError';Object.assign(error,{config:{url:'/test'}});return error}
+function responseFailureAfterAccept():Error{const error=new Error('readback response failed');error.name='RequestError';Object.assign(error,{config:{url:'/api/File/DownFile'},response:{status:404}});return error}
 
 describe('PageToolFilesDataView',()=>{
+  it('restores an exact listed file version through its DataView command and returns confirmed text',async()=>{
+    const files=new Map([['script.js','working baseline']]),snapshots=new Map([[`APP/PAGE/4__script.js`,'restored text']])
+    const upload=vi.fn(),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text)})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),save=vi.spyOn(dataSet,'saveChanges'),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],
+      readVersion:async()=>snapshots.get('APP/PAGE/4__script.js')??null,
+    },()=>{})
+    await expect(owner.restoreVersion({pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js',version:4,baselineText:'working baseline',assertCurrent:()=>{}})).resolves.toBe('restored text')
+    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
+    expect(restoreWorkingFile).toHaveBeenCalledWith({appId:'APP',pageId:'PAGE',fileName:'script.js',text:'restored text'})
+    expect(upload).not.toHaveBeenCalled()
+    expect(files.get('script.js')).toBe('restored text')
+  })
+
+  it('rejects restore if the working file changed since the command baseline without uploading',async()=>{
+    const upload=vi.fn(),read=vi.fn().mockResolvedValueOnce('captured baseline').mockResolvedValueOnce('changed remotely')
+    const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[],read,upload,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    await expect(owner.restoreVersion({pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js',version:4,baselineText:'captured baseline',assertCurrent:()=>{}})).rejects.toThrow('PAGE_TOOL_RESTORE_CONFLICT')
+    expect(upload).not.toHaveBeenCalled()
+  })
+
+  it('rejects a restore command whose customPath does not exactly match its page identity',async()=>{
+    const listVersions=vi.fn(async()=>[{version:4,fileName:'4__script.js',lastModified:null}])
+    const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[],read:async()=> 'baseline',upload:async()=>{},remove:async()=>{},listVersions,readVersion:async()=> 'restored text',
+    },()=>{})
+    await expect(owner.restoreVersion({pageId:'PAGE',customPath:'APP/OTHER',fileName:'script.js',version:4,baselineText:'baseline',assertCurrent:()=>{}}))
+      .rejects.toThrow('PAGE_TOOL_RESTORE_TARGET')
+    expect(listVersions).not.toHaveBeenCalled()
+  })
+
+  it('verifies an unknown restore receipt against the same DataView command without replay',async()=>{
+    const files=new Map([['script.js','working baseline']]),upload=vi.fn(),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,version:4,baselineText:'working baseline',assertCurrent:()=>{}}
+    await expect(owner.restoreVersion(input)).rejects.toThrow('timeout after accept')
+    const commandId=owner.view.rows[0]?.['commandId']
+    await expect(owner.restoreVersion(input)).resolves.toBe('restored text')
+    expect(owner.view.rows[0]?.['commandId']).toBe(commandId)
+    expect(restoreWorkingFile).toHaveBeenCalledOnce()
+  })
+
+  it('confirms an applied restore after owner readback was unknown without uploading again',async()=>{
+    const files=new Map([['script.js','working baseline']]),upload=vi.fn(),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{
+      files.set(command.fileName,command.text)
+    }),read=vi.fn(async(_app:string,_page:string,name:string)=>{
+      if(name==='script.js'&&read.mock.calls.length===3)throw timeoutAfterAccept()
+      return files.get(name)??null
+    })
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read,upload,restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,version:4,baselineText:'working baseline',assertCurrent:()=>{}}
+    await expect(owner.restoreVersion(input)).rejects.toThrow('PAGE_TOOL_RESTORE_UNCONFIRMED')
+    await expect(dataSet.resolveUnconfirmedSaves()).resolves.toBe('confirmed')
+    await expect(owner.restoreVersion(input)).resolves.toBe('restored text')
+    expect(restoreWorkingFile).toHaveBeenCalledOnce()
+    expect(upload).not.toHaveBeenCalled()
+    expect(files.get('script.js')).toBe('restored text')
+  })
+
+  it('blocks another command refresh until the original confirmed restore receipt is delivered',async()=>{
+    const files=new Map([['script.js','working baseline']]),snapshots=new Map<string,string>(),uploadVersion=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{
+      snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text)
+    }),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read:async(_app:string,_page:string,name:string)=>files.get(name)??null,upload:async()=>{},restoreWorkingFile,remove:async()=>{},uploadVersion,
+      listVersions:async(command:{customPath:string;fileName:string})=>command.fileName==='script.js'
+        ?[{version:4,fileName:'4__script.js',lastModified:null}]
+        :[...snapshots.keys()].flatMap(key=>{const match=key.match(new RegExp(`^${command.customPath}/(\\d+)__${command.fileName}$`));return match?[{version:Number(match[1]),fileName:`${match[1]}__${command.fileName}`,lastModified:null}]:[]}),
+      readVersion:async(command:{customPath:string;fileName:string;version:number})=>command.fileName==='script.js'?'restored text':snapshots.get(`${command.customPath}/${command.version}__${command.fileName}`)??null,
+    },()=>{})
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,version:4,baselineText:'working baseline',assertCurrent:()=>{}}
+    await expect(owner.restoreVersion(input)).rejects.toThrow('timeout after accept')
+    await dataSet.resolveUnconfirmedSaves()
+    await expect(owner.createSnapshot({pageId:'OTHER',customPath:'APP/OTHER',fileName:'style.css',text:'snapshot',assertCurrent:()=>{}}))
+      .rejects.toThrow('PAGE_TOOL_RESTORE_DELIVERY_PENDING')
+    expect(uploadVersion).not.toHaveBeenCalled()
+    await expect(owner.restoreVersion(input)).resolves.toBe('restored text')
+    owner.acknowledgeRestoreDelivery('PAGE','script.js',4)
+    expect(owner.hasPendingRestoreDelivery).toBe(false)
+  })
+
+  it('keeps an applied restore unknown when the upload adapter readback returns an HTTP response error',async()=>{
+    const files=new Map([['script.js','working baseline']]),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{
+      files.set(command.fileName,command.text);throw responseFailureAfterAccept()
+    })
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read:async(_app:string,_page:string,name:string)=>files.get(name)??null,upload:async()=>{},restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,version:4,baselineText:'working baseline',assertCurrent:()=>{}}
+    await expect(owner.restoreVersion(input)).rejects.toThrow('PAGE_TOOL_RESTORE_UNCONFIRMED')
+    await expect(dataSet.resolveUnconfirmedSaves()).resolves.toBe('confirmed')
+    await expect(owner.restoreVersion(input)).resolves.toBe('restored text')
+    expect(restoreWorkingFile).toHaveBeenCalledOnce()
+  })
+
+  it('preserves an explicit backend restore rejection instead of treating it as unknown',async()=>{
+    const denied=new LowcodeApiError(403,'restore forbidden'),restoreWorkingFile=vi.fn().mockRejectedValue(denied)
+    const owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[],read:async()=> 'working baseline',upload:async()=>{},restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    await expect(owner.restoreVersion({pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js',version:4,baselineText:'working baseline',assertCurrent:()=>{}}))
+      .rejects.toBe(denied)
+    expect(owner.view.hasUnconfirmedSave).toBe(false)
+    expect(restoreWorkingFile).toHaveBeenCalledOnce()
+  })
+
+  it('verifies an unknown restore after the original UI guard turns stale and only delivers the receipt when current again',async()=>{
+    const files=new Map([['script.js','working baseline']]),upload=vi.fn(),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text);throw timeoutAfterAccept()})
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),save=vi.spyOn(dataSet,'saveChanges'),owner=new PageToolFilesDataView(dataSet,'APP',{
+      list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,upload,restoreWorkingFile,remove:async()=>{},
+      listVersions:async()=>[{version:4,fileName:'4__script.js',lastModified:null}],readVersion:async()=> 'restored text',
+    },()=>{})
+    let uiCurrent=true
+    const input={pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js' as const,version:4,baselineText:'working baseline',assertCurrent:()=>{if(!uiCurrent)throw Error('UI target switched')}}
+    await expect(owner.restoreVersion(input)).rejects.toThrow('timeout after accept')
+    uiCurrent=false
+    await expect(dataSet.resolveUnconfirmedSaves()).resolves.toBe('confirmed')
+    await expect(owner.restoreVersion(input)).rejects.toThrow('UI target switched')
+    uiCurrent=true
+    await expect(owner.restoreVersion(input)).resolves.toBe('restored text')
+    expect(restoreWorkingFile).toHaveBeenCalledOnce()
+    expect(save).toHaveBeenCalledTimes(2)
+  })
+
   it('publishes an exact snapshot through its DataView command and returns the confirmed file version',async()=>{
     const files=new Map<string,string>(), snapshots=new Map<string,string>()
     const uploadVersion=vi.fn(async(command:{customPath:string;fileName:string;version:number;text:string})=>{snapshots.set(`${command.customPath}/${command.version}__${command.fileName}`,command.text)})

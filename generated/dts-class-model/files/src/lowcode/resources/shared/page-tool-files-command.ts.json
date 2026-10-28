@@ -7,11 +7,12 @@
     "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/shared/page-tool-files-command",
-    "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolFilesDataView（共 3 个 symbol）。",
+    "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolRestoreInput, PageToolFilesDataView（共 4 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
       "PageToolSnapshotInput",
       "PageToolSnapshotResult",
+      "PageToolRestoreInput",
       "PageToolFilesDataView"
     ]
   },
@@ -95,6 +96,19 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.restoreWorkingFile.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageToolFileUploadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreWorkingFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.remove.params": {
           "type": "object",
           "properties": {
@@ -171,6 +185,37 @@
         "fileName"
       ],
       "additionalProperties": false
+    },
+    "PageToolRestoreInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolRestoreInput",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "version": {
+          "type": "number"
+        },
+        "baselineText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "FileVersion": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -361,11 +406,13 @@
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "ownerDataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "saveView": {
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "hasPendingRestoreDelivery": {
+          "type": "boolean"
         },
         "dirty": {
           "type": "boolean"
@@ -389,8 +436,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "appId": {
               "type": "string"
@@ -519,6 +565,35 @@
           "type": "object",
           "title": "Promise<PageToolSnapshotResult>"
         },
+        "method.restoreVersion.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageToolRestoreInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.acknowledgeRestoreDelivery.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acknowledgeRestoreDelivery.return": true,
         "method.hasPendingCommandForParent.params": {
           "type": "object",
           "properties": {
@@ -529,6 +604,21 @@
           "additionalProperties": false
         },
         "method.hasPendingCommandForParent.return": {
+          "type": "boolean"
+        },
+        "method.hasUnconfirmedPageFile.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedPageFile.return": {
           "type": "boolean"
         },
         "method.pendingCommandForParent.params": {
@@ -580,7 +670,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T10:36:20.397Z",
+  "generatedAt": "2026-10-28T07:21:15.914Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -626,11 +716,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}> & Partial<SnapshotFileIo>",
+        "declarationTypeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    restoreWorkingFile?: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}> & Partial<SnapshotFileIo>",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    list: (appId: string, pageId: string) => Promise<readonly string[]>;\n    read: (appId: string, pageId: string, name: PageToolFileName) => Promise<string | null>;\n    upload: (command: PageToolFileUploadCommand) => Promise<void>;\n    restoreWorkingFile?: (command: PageToolFileUploadCommand) => Promise<void>;\n    remove: (appId: string, pageId: string, name: string) => Promise<void>;\n}>",
             "targetName": "Readonly"
           },
           {
@@ -717,6 +807,29 @@
             },
             {
               "name": "upload",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileUploadCommand",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreWorkingFile",
               "parameters": [
                 {
                   "name": "command",
@@ -876,6 +989,60 @@
               "jsdoc": "经回执确认的 version__fileName。",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolRestoreInput": {
+      "name": "PageToolRestoreInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baselineText",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -1236,6 +1403,11 @@
               "writable": false
             },
             {
+              "name": "hasPendingRestoreDelivery",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "dirty",
               "readable": true,
               "writable": false
@@ -1455,6 +1627,61 @@
               }
             },
             {
+              "name": "restoreVersion",
+              "jsdoc": "将版本恢复作为原文件 DataView 命令提交；未知回执只核验原命令。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolRestoreInput",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acknowledgeRestoreDelivery",
+              "jsdoc": "仅在 PageTool 已接收或明确保留本次恢复结果后消费确认回执。",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "hasPendingCommandForParent",
               "parameters": [
                 {
@@ -1462,6 +1689,29 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "hasUnconfirmedPageFile",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
                   }
                 }
               ],

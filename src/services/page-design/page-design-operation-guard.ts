@@ -29,7 +29,6 @@ const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'ge
 // workspace's existing DataView and unified delivery owners, never to this proxy.
 const DELIVERY_WRITE_METHODS = new Set([
   'savePageFileChange',
-  'restoreRemotePageVersion', 'createRemotePageVersion',
 ])
 
 const FILE_METHODS = new Set(['setFileText', 'getFileText', 'writePageFile'])

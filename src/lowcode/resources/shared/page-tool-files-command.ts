@@ -1,13 +1,14 @@
 import {DataViewLocalQuery, bindDataSetCommandSubmit, ensureDataSetFileCommandView, type DataSet, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {PageTool, PAGE_TOOL_FILE_NAMES, type PageToolFileName} from '@spark-appworks/spark-project-model'
 import {isRequestError} from '@spark-appworks/spark-utils'
+import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 
 const TABLE='PageToolFilesCommand'
 const FILES=PAGE_TOOL_FILE_NAMES
 type PageToolFileUploadCommand=Readonly<{appId:string;pageId:string;fileName:PageToolFileName;text:string}>
-type FileIo=Readonly<{list:(appId:string,pageId:string)=>Promise<readonly string[]>;read:(appId:string,pageId:string,name:PageToolFileName)=>Promise<string|null>;upload:(command:PageToolFileUploadCommand)=>Promise<void>;remove:(appId:string,pageId:string,name:string)=>Promise<void>}>
+type FileIo=Readonly<{list:(appId:string,pageId:string)=>Promise<readonly string[]>;read:(appId:string,pageId:string,name:PageToolFileName)=>Promise<string|null>;upload:(command:PageToolFileUploadCommand)=>Promise<void>;restoreWorkingFile?:(command:PageToolFileUploadCommand)=>Promise<void>;remove:(appId:string,pageId:string,name:string)=>Promise<void>}>
   & Partial<SnapshotFileIo>
-type Action='create'|'compensate'|'snapshot'|'delete'
+type Action='create'|'compensate'|'snapshot'|'restore'|'delete'
 export type PageToolSnapshotInput=Readonly<{
   /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */
   pageId:string
@@ -27,6 +28,14 @@ export type PageToolSnapshotResult=Readonly<{
   version:number
   /** 经回执确认的 version__fileName。 */
   fileName:string
+}>
+export type PageToolRestoreInput=Readonly<{
+  pageId:string
+  customPath:string
+  fileName:PageToolFileName
+  version:number
+  baselineText:string
+  assertCurrent:()=>void
 }>
 type FileVersion=Readonly<{version:number;fileName:string;lastModified:number|null}>
 type FileVersionListCommand=Readonly<{appId:string;customPath:string;fileName:PageToolFileName}>
@@ -52,7 +61,7 @@ type PageToolFileSaveInput=Readonly<{
 const SAVE_TABLE='PageToolFileSave'
 function isPageToolFileName(value:unknown):value is PageToolFileName{return FILES.some(name=>name===value)}
 function parseAction(value:unknown):Action{
-  if(value==='create'||value==='compensate'||value==='snapshot'||value==='delete')return value
+  if(value==='create'||value==='compensate'||value==='snapshot'||value==='restore'||value==='delete')return value
   throw new Error(`PAGE_TOOL_FILE_ACTION: 不支持的文件命令 ${String(value)}`)
 }
 export async function createChildPageWithFiles(input:Readonly<{parentId:string;assertParent:()=>void;createFiles:(parentId:string)=>Promise<string>;addNode:(pageId:string)=>Promise<void>;isNodeReceiptUnknown:()=>boolean;compensate:(pageId:string,parentId:string)=>Promise<void>}>):Promise<string>{
@@ -66,6 +75,15 @@ export async function assertRecoveredChildPermission(input:Readonly<{parentId:st
 }
 function defaults(pageId:string):Record<PageToolFileName,string>{const page=new PageTool({pageId});page.markLoaded();return {'rule.json':page.getFileText('rule.json'),'script.js':page.getFileText('script.js'),'style.css':page.getFileText('style.css')}}
 function confirmedText(text:string|null,expected:string):boolean{return text===expected}
+function unconfirmedRestoreWrite(error:unknown):Error{
+  const cause=error instanceof Error?error.message:String(error),result=new Error(`PAGE_TOOL_RESTORE_UNCONFIRMED: ${cause}`)
+  result.name='RequestError';Object.assign(result,{config:{url:'/api/File/UploadFile'}});return result
+}
+function isDefiniteRestoreRejection(error:unknown):boolean{
+  // uploadWorkingText includes a post-dispatch readback; a response-bearing RequestError may come from that read.
+  // Only an explicit SPARK upload rejection is definite here. Everything else must retain the original command for verification.
+  return error instanceof LowcodeApiError&&error.code!==0
+}
 
 /** File resource command owner; page identity and request guard are captured per command. */
 export class PageToolFilesDataView {
@@ -75,6 +93,8 @@ export class PageToolFilesDataView {
   readonly #snapshotGuards=new Map<string,()=>void>()
   readonly #snapshotAttemptCallbacks=new Map<string,(result:PageToolSnapshotResult)=>void>()
   readonly #snapshotReceiptsNeedingDelivery=new Set<string>()
+  readonly #restoreGuards=new Map<string,()=>void>()
+  readonly #restoreReceiptsNeedingDelivery=new Set<string>()
   readonly #pendingUnknownActions=new Map<string,Action>()
   readonly saveView:DataView
   #savingFileView=false
@@ -83,10 +103,10 @@ export class PageToolFilesDataView {
   constructor(private readonly dataSet:DataSet,private readonly appId:string,private readonly io:FileIo,private assertCurrent:()=>void){
     if(!appId.trim())throw new Error('page-tool-files 缺少 appId')
     this.view=ensureDataSetFileCommandView({dataSet,tableName:TABLE,resourceId:`page-tool-files:${appId}`,columns:[{name:'commandId',primary:true},{name:'action'},{name:'pageId'},{name:'parentId'},
-      {name:'customPath'},{name:'fileName'},{name:'text'},{name:'snapshotVersion'},{name:'versionedFileName'}]})
+      {name:'customPath'},{name:'fileName'},{name:'text'},{name:'snapshotVersion'},{name:'versionedFileName'},{name:'baselineText'}]})
     this.view.commitMode='staged'
     bindDataSetCommandSubmit(this.view,{resource:{resourceType:'file',resourceId:`page-tool-files:${appId}`},guard:()=>this.assertCurrent(),
-      inputFields:['commandId','action','pageId','parentId','customPath','fileName','text','snapshotVersion','versionedFileName'],createKey:()=>crypto.randomUUID(),
+      inputFields:['commandId','action','pageId','parentId','customPath','fileName','text','snapshotVersion','versionedFileName','baselineText'],createKey:()=>crypto.randomUUID(),
       submit:row=>this.submit(row),verify:row=>this.verify(row),isUnconfirmed:error=>this.isUnknown(error)})
     const saveTable=dataSet.getTable(SAVE_TABLE)??dataSet.addTable(SAVE_TABLE,[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},{name:'text',type:'string'},{name:'revision',type:'string'}])
     if(saveTable.modelBinding!==undefined||(saveTable.resourceType!==undefined&&saveTable.resourceType!=='file'))throw new Error('PAGE_TOOL_FILE_SAVE_IDENTITY: 保存表不是file资源')
@@ -202,6 +222,7 @@ export class PageToolFilesDataView {
   }
   /** Delete a complete mounted page directory through the shared file command DataView. */
   public async deletePageFiles(pageId:string,customPath:string):Promise<void>{
+    this.assertNoPendingRestoreDelivery()
     await this.preflightDeletePageFiles(pageId,customPath)
     const page=pageId.trim(),path=customPath.trim()
     let row=this.view.rows.find(candidate=>candidate['action']==='delete'&&candidate['pageId']===page&&candidate['customPath']===path
@@ -233,9 +254,10 @@ export class PageToolFilesDataView {
    */
   public async createSnapshot(input:PageToolSnapshotInput):Promise<PageToolSnapshotResult>{
     this.assertCurrent();input.assertCurrent()
+    this.assertNoPendingRestoreDelivery()
     const pageId=input.pageId.trim(),customPath=input.customPath.trim()
     if(!pageId||pageId!==input.pageId||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
-      ||customPath!==input.customPath||!customPath.startsWith(`${this.appId}/`)||/[\\%\u0000-\u001f\u007f?#]/.test(customPath)
+      ||customPath!==input.customPath||customPath!==`${this.appId}/${pageId}`||/[\\%\u0000-\u001f\u007f?#]/.test(customPath)
       ||customPath.split('/').some(segment=>!segment||segment==='.'||segment==='..'||segment.trim()!==segment)
       ||!FILES.some(name=>name===input.fileName)||typeof input.text!=='string')throw new Error('PAGE_TOOL_SNAPSHOT_TARGET: 快照目标无效')
     const same=(row:DataRow):boolean=>row['action']==='snapshot'&&row['pageId']===pageId&&row['customPath']===customPath
@@ -279,10 +301,79 @@ export class PageToolFilesDataView {
     this.#snapshotAttemptCallbacks.delete(commandId)
     return {version,fileName}
   }
+  /** 将版本恢复作为原文件 DataView 命令提交；未知回执只核验原命令。 */
+  public async restoreVersion(input:PageToolRestoreInput):Promise<string>{
+    this.assertCurrent()
+    const pageId=input.pageId.trim(),customPath=input.customPath.trim(),version=input.version
+    if(!pageId||pageId!==input.pageId||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
+      ||customPath!==input.customPath||customPath!==`${this.appId}/${pageId}`||/[\\%\u0000-\u001f\u007f?#]/.test(customPath)
+      ||customPath.split('/').some(segment=>!segment||segment==='.'||segment==='..'||segment.trim()!==segment)
+      ||!isPageToolFileName(input.fileName)||!Number.isSafeInteger(version)||version<0||typeof input.baselineText!=='string')throw new Error('PAGE_TOOL_RESTORE_TARGET: 恢复目标无效')
+    const same=(row:DataRow):boolean=>row['action']==='restore'&&row['pageId']===pageId&&row['customPath']===customPath
+      &&row['fileName']===input.fileName&&Number(row['snapshotVersion'])===version
+    const accepted=this.view.rows.find(row=>same(row)&&(()=>{const key=this.view.getPkKey(row);return key!==undefined&&this.#restoreReceiptsNeedingDelivery.has(String(key))&&!this.view.dirtyTracking.hasPendingChanges(key)})())
+    if(accepted){this.assertCurrent();input.assertCurrent();const text=accepted['text'];
+      if(typeof text!=='string')throw new Error('PAGE_TOOL_RESTORE_RECEIPT: 恢复回执缺少文本')
+      return text}
+    this.assertNoPendingRestoreDelivery()
+    const priorUnknown=this.view.rows.find(candidate=>same(candidate)&&(()=>{const key=this.view.getPkKey(candidate);return key!==undefined&&this.#pendingUnknownActions.get(String(key))==='restore'})())
+    if(!priorUnknown)input.assertCurrent()
+    let row=this.view.rows.find(candidate=>same(candidate)&&(()=>{const key=this.view.getPkKey(candidate);return key!==undefined&&(this.view.dirtyTracking.hasPendingChanges(key)||this.#pendingUnknownActions.get(String(key))==='restore')})())
+    if(!row){
+      if(!this.io.listVersions||!this.io.readVersion)throw new Error('PAGE_TOOL_RESTORE_OWNER: 版本恢复文件 owner 不可用')
+      const versions=await this.io.listVersions({appId:this.appId,customPath,fileName:input.fileName});this.assertCurrent();input.assertCurrent()
+      const versionedFileName=`${version}__${input.fileName}`
+      if(!versions.some(item=>item.version===version&&item.fileName===versionedFileName))throw new Error('PAGE_TOOL_RESTORE_VERSION_MISSING: 目标版本不存在')
+      const [text,baselineText]=await Promise.all([
+        this.io.readVersion({appId:this.appId,customPath,fileName:input.fileName,version}),
+        this.io.read(this.appId,pageId,input.fileName),
+      ]);this.assertCurrent();input.assertCurrent()
+      if(typeof text!=='string')throw new Error('PAGE_TOOL_RESTORE_VERSION_UNREADABLE: 目标版本不是有效文本')
+      if(typeof baselineText!=='string')throw new Error('PAGE_TOOL_RESTORE_WORKING_FILE_MISSING: 工作文件不存在')
+      if(baselineText!==input.baselineText)throw new Error('PAGE_TOOL_RESTORE_CONFLICT: 工作文件已改变')
+      await this.view.refresh();this.assertCurrent();input.assertCurrent()
+      const pending=this.view.rows.find(candidate=>candidate['action']==='restore'&&candidate['pageId']===pageId&&candidate['customPath']===customPath
+        &&candidate['fileName']===input.fileName&&Number(candidate['snapshotVersion'])===version
+        &&(()=>{const key=this.view.getPkKey(candidate);return key!==undefined&&(this.view.dirtyTracking.hasPendingChanges(key)||this.#pendingUnknownActions.get(String(key))==='restore')})())
+      if(pending){row=pending}
+      else {
+      const added=await this.view.addRow({commandId:crypto.randomUUID(),action:'restore',pageId,parentId:'',customPath,fileName:input.fileName,
+        text,snapshotVersion:String(version),versionedFileName,baselineText:input.baselineText})
+      if('success'in added)throw new Error('PAGE_TOOL_RESTORE_COMMAND: 无法创建恢复命令')
+      row=added
+      }
+    }
+    const commandId=String(row['commandId']??''),id=this.view.getPkKey(row)
+    if(!commandId||id!==commandId)throw new Error('PAGE_TOOL_RESTORE_COMMAND: 缺少稳定命令身份')
+    this.#restoreGuards.set(commandId,input.assertCurrent)
+    try{
+      const result=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})
+      if(!result.success)throw result.error??new Error(result.message??'版本恢复 DataView 命令失败')
+    }catch(error){if(this.view.hasUnconfirmedSave)this.#pendingUnknownActions.set(commandId,'restore');throw error}
+    this.#restoreReceiptsNeedingDelivery.add(commandId)
+    this.assertCurrent();input.assertCurrent()
+    const confirmed=this.view.rows.find(candidate=>candidate['commandId']===commandId)
+    if(!confirmed||confirmed['text']!==row['text']||confirmed['snapshotVersion']!==String(version))throw new Error('PAGE_TOOL_RESTORE_RECEIPT: DataView 未确认目标版本恢复')
+    const text=confirmed['text'];if(typeof text!=='string')throw new Error('PAGE_TOOL_RESTORE_RECEIPT: 恢复回执缺少文本')
+    this.#pendingUnknownActions.delete(commandId)
+    return text
+  }
+  /** 仅在 PageTool 已接收或明确保留本次恢复结果后消费确认回执。 */
+  public acknowledgeRestoreDelivery(pageId:string,fileName:PageToolFileName,version:number):void{
+    const row=this.view.rows.find(candidate=>candidate['action']==='restore'&&candidate['pageId']===pageId
+      &&candidate['fileName']===fileName&&Number(candidate['snapshotVersion'])===version)
+    const commandId=row?.['commandId']
+    if(typeof commandId!=='string'||!this.#restoreReceiptsNeedingDelivery.has(commandId))return
+    this.#restoreReceiptsNeedingDelivery.delete(commandId);this.#restoreGuards.delete(commandId);this.#pendingUnknownActions.delete(commandId)
+  }
   public hasPendingCommandForParent(parentId:string):boolean{return this.pendingCommandForParent(parentId)!==undefined}
-  public get dirty():boolean{return this.view.rows.some(row=>{const id=this.view.getPkKey(row);return id!==undefined&&this.view.dirtyTracking.hasPendingChanges(id)})||this.saveView.dirtyTracking.hasPendingChanges()}
+  public get hasPendingRestoreDelivery():boolean{return this.#restoreReceiptsNeedingDelivery.size>0}
+  public get dirty():boolean{return this.hasPendingRestoreDelivery||this.view.rows.some(row=>{const id=this.view.getPkKey(row);return id!==undefined&&this.view.dirtyTracking.hasPendingChanges(id)})||this.saveView.dirtyTracking.hasPendingChanges()}
   public get hasUnconfirmedSave():boolean{return this.view.hasUnconfirmedSave||this.saveView.hasUnconfirmedSave}
   public get hasPendingFileSave():boolean{return this.saveView.hasUnconfirmedSave||this.saveView.dirtyTracking.hasPendingChanges()}
+  public hasUnconfirmedPageFile(pageId:string,fileName:PageToolFileName):boolean{
+    return this.#fileSavePending.has(JSON.stringify([this.appId,pageId,fileName]))
+  }
   public get hasPendingPageDelete():boolean{return this.view.rows.some(candidate=>candidate['action']==='delete'&&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&(this.view.dirtyTracking.hasPendingChanges(id)||this.#pendingUnknownActions.get(String(id))==='delete')})())}
   public get hasPendingNonDeleteCommand():boolean{return this.view.rows.some(candidate=>candidate['action']!=='delete'&&(()=>{const id=this.view.getPkKey(candidate);return id!==undefined&&(this.view.dirtyTracking.hasPendingChanges(id)||this.#pendingUnknownActions.has(String(id)))})())}
   public pendingCommandForParent(parentId:string):Readonly<{action:'create'|'compensate';pageId:string}>|undefined{
@@ -310,7 +401,7 @@ export class PageToolFilesDataView {
     if(!result.success)throw result.error??new Error(result.message??'工具文件DataView保存未确认')
   }
   private async run(action:Action,pageId:string,parentId:string):Promise<string>{
-    this.assertCurrent();const parent=parentId.trim();if(!parent)throw new Error('FILE_SCOPE: parentId 不能为空')
+    this.assertCurrent();this.assertNoPendingRestoreDelivery();const parent=parentId.trim();if(!parent)throw new Error('FILE_SCOPE: parentId 不能为空')
     const requestedPageId=pageId.trim()
     const sameRequestedPage=(row:DataRow)=>action!=='create'||!requestedPageId||String(row['pageId']??'')===requestedPageId
     let created=this.view.rows.find(row=>row['action']===action&&row['parentId']===parent&&sameRequestedPage(row)&&(()=>{const key=this.view.getPkKey(row);return key!==undefined&&(this.view.dirtyTracking.hasPendingChanges(key)||this.#pendingUnknownActions.get(String(key))===action)})())
@@ -333,6 +424,7 @@ export class PageToolFilesDataView {
   private async submit(row:DataRow):Promise<DataRow>{
     this.assertCurrent();const pageId=String(row['pageId']??''),action=parseAction(row['action'])
     if(action==='snapshot')return this.submitSnapshot(row)
+    if(action==='restore')return this.submitRestore(row)
     if(action==='delete')return this.submitPageDelete(row)
     const texts=defaults(pageId),existing=await this.io.list(this.appId,pageId)
     if(action==='create'){
@@ -348,6 +440,7 @@ export class PageToolFilesDataView {
   private async verify(row:DataRow):Promise<DataRow|undefined>{
     this.assertCurrent();const pageId=String(row['pageId']??''),action=parseAction(row['action']),texts=defaults(pageId)
     if(action==='snapshot')return this.verifySnapshot(row)
+    if(action==='restore')return this.verifyRestore(row)
     if(action==='delete'){
       const customPath=String(row['customPath']??'')
       if(!this.isValidDeleteTarget(pageId,customPath))return undefined
@@ -428,5 +521,45 @@ export class PageToolFilesDataView {
     if(!versions.some(item=>item.version===version&&item.fileName===versionedFileName)||content!==text)return undefined
     return {...row,snapshotVersion:String(version),versionedFileName}
   }
+  private async submitRestore(row:DataRow):Promise<DataRow>{
+    const io=this.io,commandId=String(row['commandId']??''),pageId=String(row['pageId']??''),customPath=String(row['customPath']??''),
+      fileName=row['fileName'],version=Number(row['snapshotVersion']),text=row['text'],baselineText=row['baselineText'],guard=this.#restoreGuards.get(commandId)
+    if(!io.listVersions||!io.readVersion||!guard||!commandId||!pageId||!customPath||!isPageToolFileName(fileName)
+      ||!Number.isSafeInteger(version)||version<0||typeof text!=='string'||typeof baselineText!=='string')throw new Error('PAGE_TOOL_RESTORE_OWNER: 恢复命令无效')
+    const check=()=>{this.assertCurrent();guard()};check()
+    const versionedFileName=`${version}__${fileName}`
+    const versions=await io.listVersions({appId:this.appId,customPath,fileName});check()
+    if(!versions.some(item=>item.version===version&&item.fileName===versionedFileName))throw new Error('PAGE_TOOL_RESTORE_VERSION_MISSING: 目标版本不存在')
+    const [versionText,currentText]=await Promise.all([
+      io.readVersion({appId:this.appId,customPath,fileName,version}),io.read(this.appId,pageId,fileName),
+    ]);check()
+    if(versionText!==text)throw new Error('PAGE_TOOL_RESTORE_VERSION_CHANGED: 目标版本内容已改变')
+    if(currentText!==baselineText)throw new Error('PAGE_TOOL_RESTORE_CONFLICT: 工作文件已改变')
+    if(!io.restoreWorkingFile)throw new Error('PAGE_TOOL_RESTORE_OWNER: 工作文件替换适配器不可用')
+    try{await io.restoreWorkingFile({appId:this.appId,pageId,fileName,text})}
+    catch(error){if(isDefiniteRestoreRejection(error))throw error;throw unconfirmedRestoreWrite(error)}
+    let restored:string|null
+    try{this.assertCurrent();restored=await io.read(this.appId,pageId,fileName);this.assertCurrent()}
+    catch(error){throw unconfirmedRestoreWrite(error)}
+    if(restored!==text)throw unconfirmedRestoreWrite(new Error('恢复后工作文件回读不一致'))
+    return row
+  }
+  private async verifyRestore(row:DataRow):Promise<DataRow|undefined>{
+    const io=this.io,commandId=String(row['commandId']??''),pageId=String(row['pageId']??''),customPath=String(row['customPath']??''),
+      fileName=row['fileName'],version=Number(row['snapshotVersion']),text=row['text']
+    if(!io.listVersions||!io.readVersion||!pageId||!customPath||!commandId||!isPageToolFileName(fileName)
+      ||!Number.isSafeInteger(version)||version<0||typeof text!=='string')return undefined
+    this.assertCurrent()
+    const versionedFileName=`${version}__${fileName}`
+    const [versions,versionText,currentText]=await Promise.all([
+      io.listVersions({appId:this.appId,customPath,fileName}),io.readVersion({appId:this.appId,customPath,fileName,version}),io.read(this.appId,pageId,fileName),
+    ]);this.assertCurrent()
+    if(!versions.some(item=>item.version===version&&item.fileName===versionedFileName)||versionText!==text||currentText!==text)return undefined
+    this.#restoreReceiptsNeedingDelivery.add(commandId);this.#pendingUnknownActions.delete(commandId)
+    return row
+  }
   private isUnknown(error:unknown):boolean{return isRequestError(error)&&error.response===undefined}
+  private assertNoPendingRestoreDelivery():void{
+    if(this.hasPendingRestoreDelivery)throw new Error('PAGE_TOOL_RESTORE_DELIVERY_PENDING: 请先将已确认恢复结果交付到原 PageTool')
+  }
 }

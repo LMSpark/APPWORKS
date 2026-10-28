@@ -1,5 +1,5 @@
 {
-  "gapCount": 3276,
+  "gapCount": 3287,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -18669,85 +18669,13 @@
     },
     {
       "kind": "method",
-      "className": "ProjectPageFileGateway",
-      "memberName": "listVersions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectPageFileGateway.listVersions 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 14,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
-      "className": "ProjectPageFileGateway",
-      "memberName": "restoreVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectPageFileGateway.restoreVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 15,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
-      "className": "ProjectPageFileGateway",
-      "memberName": "createVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectPageFileGateway.createVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 16,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "method",
       "className": "PageFileApi",
       "memberName": "saveFileContent",
       "reason": "missing-jsdoc",
       "chainBreak": "PageFileApi.saveFileContent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 23,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PageFileApi",
-      "memberName": "listVersions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageFileApi.listVersions 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 24,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PageFileApi",
-      "memberName": "restoreVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageFileApi.restoreVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 25,
-      "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PageFileApi",
-      "memberName": "createVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageFileApi.createVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/io/page-file-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/io/page-file-api.ts",
-      "declarationLine": 26,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
       "declarationKind": "class"
     },
@@ -21557,36 +21485,12 @@
     {
       "kind": "method",
       "className": "ProjectWorkspace",
-      "memberName": "listRemotePageVersions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectWorkspace.listRemotePageVersions 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 175,
-      "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "ProjectWorkspace",
-      "memberName": "restoreRemotePageVersion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectWorkspace.restoreRemotePageVersion 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 176,
-      "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "ProjectWorkspace",
       "memberName": "notifyPageFileChanged",
       "reason": "missing-jsdoc",
       "chainBreak": "ProjectWorkspace.notifyPageFileChanged 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 179,
+      "declarationLine": 175,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21598,7 +21502,7 @@
       "chainBreak": "ProjectWorkspace.probeLink 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 180,
+      "declarationLine": 176,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21610,7 +21514,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjects 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 184,
+      "declarationLine": 180,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -21622,7 +21526,7 @@
       "chainBreak": "ProjectWorkspace.listReferenceProjectPages 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-workspace.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-workspace.ts",
-      "declarationLine": 185,
+      "declarationLine": 181,
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "declarationKind": "class"
     },
@@ -30544,7 +30448,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.applicationName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 37,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30556,7 +30460,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 38,
+      "declarationLine": 40,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30568,7 +30472,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.navigationRootId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 39,
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30580,7 +30484,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.records 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 40,
+      "declarationLine": 42,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30592,7 +30496,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.authorization 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30604,7 +30508,7 @@
       "chainBreak": "LowcodeProjectGateways.pageFiles 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 48,
+      "declarationLine": 50,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30616,7 +30520,7 @@
       "chainBreak": "LowcodeProjectGateways.blueprint 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 49,
+      "declarationLine": 51,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30628,7 +30532,7 @@
       "chainBreak": "LowcodeProjectGateways.projectReferences 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 50,
+      "declarationLine": 52,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -30640,7 +30544,7 @@
       "chainBreak": "LowcodeProjectGateways.scenarioViews 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/lowcode-runtime.ts",
-      "declarationLine": 51,
+      "declarationLine": 53,
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -32907,12 +32811,24 @@
     {
       "kind": "attribute",
       "className": "OwnerInput",
+      "memberName": "fileUpload",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OwnerInput.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-owner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
+      "declarationLine": 28,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "OwnerInput",
       "memberName": "catalogScenarioId",
       "reason": "missing-jsdoc",
       "chainBreak": "OwnerInput.catalogScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-owner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
-      "declarationLine": 28,
+      "declarationLine": 29,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
       "declarationKind": "interface"
     },
@@ -32924,7 +32840,7 @@
       "chainBreak": "OwnerInput.loadScenario 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-owner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
       "declarationKind": "typeAlias"
     },
@@ -33052,7 +32968,7 @@
       "chainBreak": "WorkflowFileApi 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "declarationLine": 38,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -33064,7 +32980,7 @@
       "chainBreak": "WorkflowFileApi.listFiles 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
       "declarationKind": "interface"
     },
@@ -33076,9 +32992,76 @@
       "chainBreak": "WorkflowFileApi.readTextFile 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowFileApi",
+      "memberName": "readFileBytes",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowFileApi.readFileBytes 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 42,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "WorkflowFileUpload",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowFileUpload 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 44,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "FileQueryExecutor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileQueryExecutor 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 45,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "FileSaveCommand",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileSaveCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 46,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "FileSaveReceipt",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileSaveReceipt 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 47,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "FileQueryResult",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileQueryResult 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 48,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "constructor",
@@ -33088,7 +33071,7 @@
       "chainBreak": "AgentWorkflowFileResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "declarationLine": 45,
+      "declarationLine": 52,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
       "declarationKind": "class"
     },
@@ -33100,7 +33083,31 @@
       "chainBreak": "AgentWorkflowFileResource.executeQuery 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "declarationLine": 50,
+      "declarationLine": 58,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "AgentWorkflowFileResource",
+      "memberName": "save",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AgentWorkflowFileResource.save 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 59,
+      "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "AgentWorkflowFileResource",
+      "memberName": "hasUnconfirmedSave",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AgentWorkflowFileResource.hasUnconfirmedSave 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/agent-workflow-file-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+      "declarationLine": 60,
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
       "declarationKind": "class"
     },
@@ -33235,12 +33242,24 @@
     {
       "kind": "method",
       "className": "FileIo",
+      "memberName": "restoreWorkingFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileIo.restoreWorkingFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "FileIo",
       "memberName": "remove",
       "reason": "missing-jsdoc",
       "chainBreak": "FileIo.remove 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33251,7 +33270,7 @@
       "chainBreak": "PageToolSnapshotInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33262,7 +33281,90 @@
       "chainBreak": "PageToolSnapshotResult 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "PageToolRestoreInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 36,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolRestoreInput",
+      "memberName": "pageId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 37,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolRestoreInput",
+      "memberName": "customPath",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolRestoreInput",
+      "memberName": "fileName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 39,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolRestoreInput",
+      "memberName": "version",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.version 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolRestoreInput",
+      "memberName": "baselineText",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.baselineText 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 41,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "PageToolRestoreInput",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolRestoreInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 42,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33273,7 +33375,7 @@
       "chainBreak": "FileVersion 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 35,
+      "declarationLine": 44,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33285,7 +33387,7 @@
       "chainBreak": "FileVersion.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 36,
+      "declarationLine": 45,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33297,7 +33399,7 @@
       "chainBreak": "FileVersion.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 37,
+      "declarationLine": 46,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33309,7 +33411,7 @@
       "chainBreak": "FileVersion.lastModified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 38,
+      "declarationLine": 47,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33320,7 +33422,7 @@
       "chainBreak": "FileVersionListCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 40,
+      "declarationLine": 49,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33332,7 +33434,7 @@
       "chainBreak": "FileVersionListCommand.appId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 41,
+      "declarationLine": 50,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33344,7 +33446,7 @@
       "chainBreak": "FileVersionListCommand.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 42,
+      "declarationLine": 51,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33356,7 +33458,7 @@
       "chainBreak": "FileVersionListCommand.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 43,
+      "declarationLine": 52,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33367,7 +33469,7 @@
       "chainBreak": "FileVersionReadCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 45,
+      "declarationLine": 54,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33379,7 +33481,7 @@
       "chainBreak": "FileVersionReadCommand.appId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 46,
+      "declarationLine": 55,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33391,7 +33493,7 @@
       "chainBreak": "FileVersionReadCommand.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 47,
+      "declarationLine": 56,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33403,7 +33505,7 @@
       "chainBreak": "FileVersionReadCommand.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 48,
+      "declarationLine": 57,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33415,7 +33517,7 @@
       "chainBreak": "FileVersionReadCommand.version 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 49,
+      "declarationLine": 58,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33426,7 +33528,7 @@
       "chainBreak": "FileVersionWriteCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 51,
+      "declarationLine": 60,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33438,7 +33540,7 @@
       "chainBreak": "FileVersionWriteCommand.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 52,
+      "declarationLine": 61,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33449,7 +33551,7 @@
       "chainBreak": "SnapshotFileIo 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 54,
+      "declarationLine": 63,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33461,7 +33563,7 @@
       "chainBreak": "SnapshotFileIo.listVersions 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 55,
+      "declarationLine": 64,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33473,7 +33575,7 @@
       "chainBreak": "SnapshotFileIo.uploadVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 56,
+      "declarationLine": 65,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33485,7 +33587,7 @@
       "chainBreak": "SnapshotFileIo.readVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 57,
+      "declarationLine": 66,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33496,7 +33598,7 @@
       "chainBreak": "PageToolFileSaveInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 59,
+      "declarationLine": 68,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33508,7 +33610,7 @@
       "chainBreak": "PageToolFileSaveInput.page 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 60,
+      "declarationLine": 69,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33520,7 +33622,7 @@
       "chainBreak": "PageToolFileSaveInput.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 61,
+      "declarationLine": 70,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33532,7 +33634,7 @@
       "chainBreak": "PageToolFileSaveInput.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 62,
+      "declarationLine": 71,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33544,7 +33646,7 @@
       "chainBreak": "PageToolFileSaveInput.revision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 63,
+      "declarationLine": 72,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "interface"
     },
@@ -33556,7 +33658,7 @@
       "chainBreak": "PageToolFileSaveInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 66,
+      "declarationLine": 75,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "typeAlias"
     },
@@ -33568,7 +33670,7 @@
       "chainBreak": "PageToolFilesDataView.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 89,
+      "declarationLine": 98,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33580,7 +33682,7 @@
       "chainBreak": "PageToolFilesDataView.ownerDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 90,
+      "declarationLine": 99,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33592,7 +33694,7 @@
       "chainBreak": "PageToolFilesDataView.saveView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 91,
+      "declarationLine": 100,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33604,7 +33706,7 @@
       "chainBreak": "PageToolFilesDataView.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 92,
+      "declarationLine": 101,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33616,7 +33718,7 @@
       "chainBreak": "PageToolFilesDataView.savePageFile 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 98,
+      "declarationLine": 107,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33628,7 +33730,7 @@
       "chainBreak": "PageToolFilesDataView.create 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 101,
+      "declarationLine": 110,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33640,7 +33742,7 @@
       "chainBreak": "PageToolFilesDataView.compensateCreate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 102,
+      "declarationLine": 111,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33652,7 +33754,19 @@
       "chainBreak": "PageToolFilesDataView.hasPendingCommandForParent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 112,
+      "declarationLine": 125,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "PageToolFilesDataView",
+      "memberName": "hasPendingRestoreDelivery",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.hasPendingRestoreDelivery 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 126,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33664,7 +33778,7 @@
       "chainBreak": "PageToolFilesDataView.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 113,
+      "declarationLine": 127,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33676,7 +33790,7 @@
       "chainBreak": "PageToolFilesDataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 114,
+      "declarationLine": 128,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33688,7 +33802,19 @@
       "chainBreak": "PageToolFilesDataView.hasPendingFileSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 115,
+      "declarationLine": 129,
+      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "PageToolFilesDataView",
+      "memberName": "hasUnconfirmedPageFile",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageToolFilesDataView.hasUnconfirmedPageFile 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "declarationLine": 130,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33700,7 +33826,7 @@
       "chainBreak": "PageToolFilesDataView.hasPendingPageDelete 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 116,
+      "declarationLine": 131,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33712,7 +33838,7 @@
       "chainBreak": "PageToolFilesDataView.hasPendingNonDeleteCommand 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 117,
+      "declarationLine": 132,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33724,7 +33850,7 @@
       "chainBreak": "PageToolFilesDataView.pendingCommandForParent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 118,
+      "declarationLine": 133,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33736,7 +33862,7 @@
       "chainBreak": "PageToolFilesDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 122,
+      "declarationLine": 137,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },
@@ -33748,7 +33874,7 @@
       "chainBreak": "PageToolFilesDataView.savePageFiles 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/shared/page-tool-files-command.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "declarationLine": 123,
+      "declarationLine": 138,
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "declarationKind": "class"
     },

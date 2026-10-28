@@ -514,33 +514,6 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
           customPath: toolFilePath(normalizedProjectId, pageId), fileName, text,
         })
       },
-      listVersions: async (pageId, fileName) => [...await lowcodeApi.design.listFileVersions({
-        appType: 'designfile', customPath: toolFilePath(normalizedProjectId, pageId), fileName,
-      })],
-      createVersion: async (pageId, fileName) => {
-        const customPath = toolFilePath(normalizedProjectId, pageId)
-        const scope = lowcodeApi.readRequestScope().token
-        const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName })
-        const version = Math.max(0, ...versions.map(item => item.version)) + 1
-        if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
-        const text = await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName })
-        if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建版本所属应用已失效')
-        await scenarioFileUpload.uploadTextVersion({ customPath, fileName: `${version}__${fileName}`, text })
-      },
-      restoreVersion: async (pageId, fileName, version) => {
-        if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
-          throw new Error('pagedata.json 不属于工具文件版本')
-        }
-        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
-        const customPath = toolFilePath(normalizedProjectId, pageId)
-        const bytes = await lowcodeApi.design.readFileBytes({
-          appType: 'designfile', customPath, fileName: `${version}__${fileName}`,
-        })
-        const text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
-        await scenarioFileUpload.uploadWorkingText({
-          customPath: toolFilePath(normalizedProjectId, pageId), fileName, text,
-        })
-      },
     },
     scenarioViews: {
       readScope: () => lowcodeApi.readRequestScope().token,
@@ -620,6 +593,10 @@ export function createPageToolFilesIo(projectId:string){
       if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       await scenarioFileUpload.uploadTextVersion({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
     },
+    restoreWorkingFile:async(command:Readonly<{appId:string;pageId:string;fileName:'rule.json'|'script.js'|'style.css';text:string}>)=>{
+      if(command.appId!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      await scenarioFileUpload.uploadWorkingText({customPath:toolFilePath(appId,command.pageId),fileName:command.fileName,text:command.text})
+    },
     listVersions:async({appId:app,customPath,fileName}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css'})=>{
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
       return [...await lowcodeApi.design.listFileVersions({appType:'designfile',customPath:assertProjectFilePath(appId,customPath),fileName})]
@@ -629,9 +606,12 @@ export function createPageToolFilesIo(projectId:string){
       await scenarioFileUpload.uploadTextVersion({customPath:assertProjectFilePath(appId,customPath),fileName:`${version}__${fileName}`,text})
     },
     readVersion:async({appId:app,customPath,fileName,version}:{appId:string;customPath:string;fileName:'rule.json'|'script.js'|'style.css';version:number}):Promise<string|null>=>{
-      if(app!==appId||!Number.isSafeInteger(version)||version<1)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
+      if(app!==appId||!Number.isSafeInteger(version)||version<0)throw new Error('FILE_SCOPE: 快照应用或版本号无效')
       const path=assertProjectFilePath(appId,customPath)
-      try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:path,fileName:`${version}__${fileName}`})}
+      try{
+        const bytes=await lowcodeApi.design.readFileBytes({appType:'designfile',customPath:path,fileName:`${version}__${fileName}`})
+        return new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes)
+      }
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },
     remove:async(app:string,page:string,name:string)=>{

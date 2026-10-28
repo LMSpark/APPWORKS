@@ -30,7 +30,7 @@ const httpFns = vi.hoisted(() => ({
     response: { use: vi.fn() },
   },
 }))
-const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
+const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
 
 const navTreeState = vi.hoisted(() => ({
   tree: null as ProjectBlueprintTreeData | null,
@@ -105,6 +105,8 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     return {
       pageFiles: {
         readPageFile: async (command: { pageId: string; fileName: string }) => {
+          const stored=pageFiles.files.get(`${command.pageId}/${command.fileName}`)
+          if(stored!==undefined)return stored
           const response = await httpFns.get(`${pageFileKey}/${command.pageId}/${command.fileName}`)
           return String(response?.content ?? '')
         },
@@ -117,9 +119,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
             ? rows
             : []
         },
-        restoreVersion: async (pageId: string, fileName: string, version: number) => {
-          await httpFns.post(`${pageFileKey}/${pageId}/${fileName}/versions/${version}/restore`)
-        },
       },
       blueprint: {},
       projectReferences: {
@@ -131,7 +130,22 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   createPageToolFilesIo: (projectId:string) => ({
     list:async(_app:string,page:string)=>[...pageFiles.files.keys()].filter(key=>key.startsWith(`${page}/`)).map(key=>key.slice(page.length+1)),
     read:async(_app:string,page:string,name:string)=>pageFiles.files.get(`${page}/${name}`)??null,
-    upload:pageFiles.upload,remove:pageFiles.remove,
+    upload:pageFiles.upload,restoreWorkingFile:pageFiles.restoreWorkingFile,remove:pageFiles.remove,
+    listVersions:async({customPath,fileName}:{customPath:string;fileName:string})=>{
+      const page=customPath.split('/').at(-1)??''
+      return [...pageFiles.files.keys()].flatMap(key=>{
+        const name=key.slice(page.length+1)
+        const separator=name.indexOf('__'),versionText=name.slice(0,separator)
+        return key.startsWith(`${page}/`)&&separator>0&&name.slice(separator+2)===fileName&&/^\d+$/.test(versionText)
+          ?[{version:Number(versionText),fileName:name,lastModified:null}]:[]
+      })
+    },
+    uploadVersion:async({customPath,fileName,version,text}:{customPath:string;fileName:string;version:number;text:string})=>{
+      const page=customPath.split('/').at(-1)??'';pageFiles.files.set(`${page}/${version}__${fileName}`,text)
+    },
+    readVersion:async({customPath,fileName,version}:{customPath:string;fileName:string;version:number})=>{
+      const page=customPath.split('/').at(-1)??'';return pageFiles.files.get(`${page}/${version}__${fileName}`)??null
+    },
   }),
 }))
 
@@ -1594,35 +1608,115 @@ describe('DevState 页面文件闭环', () => {
     expect(state.project.getActivePage()?.isLoaded).toBe(false)
   })
 
-  it('版本摘要保留编号文件名和可空修改时间', async () => {
-    const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
-    httpMock.get.mockResolvedValueOnce([
-      {version:1,fileName:'1__script.js',lastModified:1710000000000},
-    ])
-
-    state.project.setActivePage(state.activePageId.value)
-    const versions = await state.editor.listRemotePageVersions('script.js')
-
-    expect(versions).toEqual([
-      {
-        version: 1,
-        fileName:'1__script.js',
-        lastModified:1710000000000,
-      },
-    ])
+  it('通过文件命令 DataView 恢复版本并同步同一个 PageTool', async () => {
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','working baseline');pageFiles.files.set('demo/style.css','.restored { color: red; }')
+      await ensureDevStateActivePageLoaded(state)
+      const page=state.project.getActivePage()!
+      expect(page.pageId).toBe('demo')
+      page.hydrateFileText('script.js','working baseline')
+      pageFiles.files.set('demo/4__script.js','restored text')
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!
+      const save=vi.spyOn(dataSet,'saveChanges')
+      await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:4,assertCurrent:()=>{}}))
+        .resolves.toBe('restored text')
+      expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
+      expect(page.getFileText('script.js')).toBe('restored text')
+      expect(page.getSavedFileText('script.js')).toBe('restored text')
+      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(false)
+      expect(pageFiles.files.get('demo/4__script.js')).toBe('restored text')
+      expect('restoreRemotePageVersion' in state.editor).toBe(false)
+      pageFiles.files.set('demo/5__script.js','second restored text')
+      pageFiles.restoreWorkingFile.mockImplementationOnce(async(command:{pageId:string;fileName:string;text:string})=>{
+        pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+        page.setFileText('script.js','new local edit')
+      })
+      await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:5,assertCurrent:()=>{}}))
+        .rejects.toThrow('PAGE_TOOL_RESTORE_REMOTE_CONFIRMED_LOCAL_CHANGED')
+      expect(pageFiles.files.get('demo/script.js')).toBe('second restored text')
+      expect(page.getFileText('script.js')).toBe('new local edit')
+      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(true)
+    }finally{ownerScope.stop()}
   })
 
-  it('restore 后立即强制重读并回填文档模型', async () => {
-    const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
-    state.project.getActivePage()?.hydrateFileText('script.js', 'console.log("old")')
-    httpMock.post.mockResolvedValueOnce({ ok: true })
-    httpMock.get.mockImplementation(async (url: string) => pageFileResponse(url))
+  it('确认后 UI 目标变更时保留恢复回执，SPA 重开后交付到原 PageTool', async () => {
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
+    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.selectNode(first.treeData.value[0]!)
+    pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+    pageFiles.files.set('demo/script.js','working baseline');pageFiles.files.set('demo/style.css','')
+    await ensureDevStateActivePageLoaded(first)
+    const page=first.project.getActivePage()!,runtime=first.blueprintPageRuntime.value!
+    page.hydrateFileText('script.js','working baseline');pageFiles.files.set('demo/4__script.js','restored text')
+    const dataSet=runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!
+    const save=dataSet.saveChanges.bind(dataSet)
+    let uiCurrent=true
+    vi.spyOn(dataSet,'saveChanges').mockImplementation(async command=>{
+      const result=await save(command)
+      if(command?.views?.some(view=>view.tableName==='PageToolFilesCommand'))uiCurrent=false
+      return result
+    })
+    const input={projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js' as const,version:4,
+      assertCurrent:()=>{if(!uiCurrent)throw new Error('UI target switched')}}
+    await expect(first.restorePageToolVersion(input)).rejects.toThrow('UI target switched')
+    expect(page.getFileText('script.js')).toBe('working baseline')
+    expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
+    expect(first.hasPendingDevSystemWrite()).toBe(true)
+    firstScope.stop()
+    expect(runtime.destroyed).toBe(false)
 
-    state.project.setActivePage('demo')
-    await state.editor.restoreRemotePageVersion(1, 'script.js')
-    expect(state.project.readPageFileText('script.js')).toBe('console.log("restored")')
-    expect(isDevStatePageDocumentDirty(state, 'script.js')).toBe(false)
-    expect(state.projectRevision.value).toBeGreaterThan(0)
+    const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
+    try{
+      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await second.loadBlueprintWorkspaceDataView()
+      expect(owner.dataSet).toBe(dataSet)
+      await second.selectNode(second.treeData.value[0]!)
+      expect(second.project.getActivePage()).toBe(page)
+      await expect(second.restorePageToolVersion({...input,assertCurrent:()=>{}})).resolves.toBe('restored text')
+      expect(page.getFileText('script.js')).toBe('restored text')
+      expect(page.getSavedFileText('script.js')).toBe('restored text')
+      expect(second.hasPendingDevSystemWrite()).toBe(false)
+      expect(dataSet.saveChanges).toHaveBeenCalledTimes(1)
+    }finally{secondScope.stop()}
+  })
+
+  it('拒绝恢复到脏文件或保存回执未知的文件', async () => {
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','.restored { color: red; }')
+      await ensureDevStateActivePageLoaded(state)
+      const page=state.project.getActivePage()!
+      page.hydrateFileText('script.js','baseline');pageFiles.files.set('demo/1__script.js','snapshot')
+      page.setFileText('script.js','dirty')
+      await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:1,assertCurrent:()=>{}}))
+        .rejects.toThrow('PAGE_TOOL_RESTORE_LOCAL_PENDING')
+      pageFiles.upload.mockImplementationOnce(async(command:{pageId:string;fileName:string;text:string})=>{
+        pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
+        const error=Object.assign(new Error('timeout after accept'),{name:'RequestError',config:{url:'/upload'}})
+        throw error
+      })
+      await expect(state.savePageToolFile({pageId:'demo',fileName:'script.js'})).rejects.toThrow('timeout after accept')
+      page.hydrateFileText('script.js','dirty')
+      await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:1,assertCurrent:()=>{}}))
+        .rejects.toThrow('PAGE_TOOL_RESTORE_LOCAL_PENDING')
+      expect(pageFiles.upload).toHaveBeenCalledOnce()
+    }finally{ownerScope.stop()}
   })
 
   it('切换左侧节点时触发右侧 blueprintDraft 订阅刷新', async () => {

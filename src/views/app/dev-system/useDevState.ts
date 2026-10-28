@@ -45,7 +45,7 @@ import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictiona
 import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
-import type {PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
+import type {PageToolRestoreInput,PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
 
 const {
   isConfigFilesPageSurface,
@@ -184,7 +184,7 @@ export function useDevState() {
       bundle.pendingMountedPageDelete=pendingMountedPageDelete
       bundle.pendingPageBindingCreate=pendingPageBindingCreate
       const pending=!!pendingMountedPageDelete||!!pendingPageBindingCreate||bundle.blueprint.hasPendingBlueprintCommand
-        ||bundle.blueprint.isBusy||bundle.blueprint.dirty||bundle.files.dirty||bundle.files.hasUnconfirmedSave||bundle.files.hasPendingFileSave
+        ||bundle.blueprint.isBusy||bundle.blueprint.dirty||bundle.files.dirty||bundle.files.hasUnconfirmedSave||bundle.files.hasPendingFileSave||bundle.files.hasPendingRestoreDelivery
       bundle.assertCurrent=undefined
       ownerScopeToken=undefined
       if(!pending){deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.runtime.dispose()}
@@ -324,6 +324,38 @@ export function useDevState() {
     const owner=pageToolFilesDataView
     if(!owner)throw new Error('PAGE_TOOL_SNAPSHOT_DATAVIEW_REQUIRED: 工具文件DataView尚未装配')
     return owner.createSnapshot(input)
+  }
+  async function restorePageToolVersion(input:Omit<PageToolRestoreInput,'baselineText'>&Readonly<{projectId:string}>):Promise<string>{
+    const workspace=currentEditor.value,scope=currentScopeKey(),owner=await loadBlueprintWorkspaceDataView(),fileOwner=pageToolFilesDataView
+    const page=workspace.project.findPageTool(input.pageId)
+    if(input.projectId!==projectId.value||input.customPath!==`${input.projectId}/${input.pageId}`
+      ||fileOwner?.ownerDataSet!==owner.dataSet||page?.isLoaded!==true||workspace.project.getActivePage()!==page) {
+      throw new Error('PAGE_TOOL_RESTORE_OWNER: 活跃项目、页面或文件命令DataView身份不匹配')
+    }
+    if(page.getDirtyFileNames().includes(input.fileName)
+      ||workspace.unconfirmedPageFiles.some(target=>target.pageId===input.pageId&&target.fileName===input.fileName)
+      ||fileOwner.hasUnconfirmedPageFile(input.pageId,input.fileName)) {
+      throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 文件有未保存或未确认修改')
+    }
+    const baselineText=page.getSavedFileText(input.fileName)
+    if(page.getFileText(input.fileName)!==baselineText)throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 当前文件与保存基线不一致')
+    const assertCurrent=()=>{
+      input.assertCurrent()
+      if(currentEditor.value!==workspace||currentScopeKey()!==scope||projectId.value!==input.projectId
+        ||workspace.project.findPageTool(input.pageId)!==page||workspace.project.getActivePage()!==page) {
+        throw new Error('PAGE_TOOL_RESTORE_STALE: 工作区、页面或本地文件目标已改变')
+      }
+    }
+    const text=await fileOwner.restoreVersion({...input,baselineText,assertCurrent})
+    assertCurrent()
+    if(page.getFileText(input.fileName)!==baselineText||page.getSavedFileText(input.fileName)!==baselineText) {
+      fileOwner.acknowledgeRestoreDelivery(input.pageId,input.fileName,input.version)
+      throw new Error('PAGE_TOOL_RESTORE_REMOTE_CONFIRMED_LOCAL_CHANGED: 远端恢复已确认，本地新修改已保留')
+    }
+    page.hydrateFileText(input.fileName,text)
+    workspace.project.markPageFileChanged(input.pageId,input.fileName)
+    fileOwner.acknowledgeRestoreDelivery(input.pageId,input.fileName,input.version)
+    return text
   }
   async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean}):Promise<void>{
     const {pageId,fileName,submittedText,requireActive=true}=input
@@ -781,6 +813,7 @@ export function useDevState() {
   })
   function hasPendingDevSystemWrite(): boolean {
     return pageToolFilesDataView?.hasPendingFileSave === true || pageToolFilesDataView?.hasUnconfirmedSave === true
+      || pageToolFilesDataView?.hasPendingRestoreDelivery === true
       || blueprintWorkspaceDataView.value?.hasPendingBlueprintCommand === true
   }
 
@@ -1728,6 +1761,7 @@ export function useDevState() {
     blueprintPageRuntime,
     loadBlueprintWorkspaceDataView,
     savePageToolFile,
+    restorePageToolVersion,
     loadNavigationDictionaryOptions,
     createPageToolSnapshot,
 

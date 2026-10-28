@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
@@ -8,15 +8,19 @@ const fixture = vi.hoisted(() => ({ save: vi.fn(), sparkProvide: vi.fn(), sparkR
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
-    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: ref(fixture.text),
+    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: computed(() => (state as typeof state & {restoredText?: ReturnType<typeof ref<string>>}).restoredText?.value ?? fixture.text),
     isFileDirty: () => state.dirty.value, save: fixture.save, refresh: vi.fn(),
   }),
 }))
 vi.mock('@spark-appworks/spark-component', async () => {
-  const {defineComponent} = await import('vue')
+  const {defineComponent, h} = await import('vue')
   return {SparkCodeEditor: {}, JsonTreeEditor: {}, PAGE_RUNTIME: 'PAGE_RUNTIME',
     useSparkComponent: () => ({sparkProvide: fixture.sparkProvide, sparkRemove: fixture.sparkRemove}),
-    RendererTable: defineComponent({name: 'RendererTable', props: {dataViewKey: String}, template: '<div class="bound-table"><slot /></div>'}),
+    RendererTable: defineComponent({name: 'RendererTable', props: {dataViewKey: String, actions: Object}, setup(props, {slots}) { return () => h('div', {class: 'bound-table'}, [
+      h('button', {onClick: () => (props.actions as {children: {props: {onClick: (row: unknown) => void}}[]})['children'][0]?.props.onClick({
+        versionKey:'["page-A","script.js",2]',pageId:'page-A',fileName:'script.js',version:2,snapshotFileName:'2__script.js',
+      })}, '恢复'), slots['default']?.(),
+    ]) }}),
     FieldText: defineComponent({name: 'FieldText', props: {field: String, label: String, displayFormatter: Function}, template: '<span>{{ label }}</span>'}),
   }
 })
@@ -42,16 +46,16 @@ function setup(hasFormalVersionBinding = true) {
   const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
   const state = {
     activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
+    restoredText: ref(fixture.text),
     selectedNode: ref({nodeId: 'node-A', projectId: 'project-A', navigation: {target: 'cfg:legacy/route'}}),
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
     blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
     createPageToolSnapshot: vi.fn().mockResolvedValue({version: 3, fileName: '3__script.js'}),
-    editor: {
-      createRemotePageVersion: vi.fn().mockResolvedValue(undefined),
-      restoreRemotePageVersion: vi.fn().mockResolvedValue(undefined),
-    },
+    restorePageToolVersion: vi.fn().mockResolvedValue('restored text'),
+    editor: {},
   }
+  state.restorePageToolVersion.mockImplementation(async()=>{state.restoredText.value='restored text';return 'restored text'})
   const wrapper = mount({ ...DevFileEditor, props: ['state', 'activeFile', 'showTabs'] }, {
     props: { state, activeFile: 'script.js', showTabs: false },
     global: { directives: { loading: () => {} }, stubs: {
@@ -146,10 +150,44 @@ describe('DevFileEditor snapshot identity', () => {
     expect(input).toMatchObject({pageId: 'page-A', customPath: 'project-A/page-A', fileName: 'script.js', text: 'saved file contents'})
     expect(input.assertCurrent).toBeTypeOf('function')
     input.assertCurrent()
-    expect(state.editor.createRemotePageVersion).not.toHaveBeenCalled()
     expect(state.addStatus).toHaveBeenCalledWith('script.js 已创建新版本快照', 'success')
     state.activePageId.value = 'page-B'
     expect(input.assertCurrent).toThrow('快照期间编辑目标已切换')
+    wrapper.unmount()
+  })
+
+  it('restores the selected version through the SPARK data command owner', async () => {
+    const {state, wrapper, click}=setup()
+    await click('版本');await flushPromises();await click('恢复');await flushPromises()
+    expect(state.restorePageToolVersion).toHaveBeenCalledOnce()
+    const input=state.restorePageToolVersion.mock.calls[0]![0] as {projectId:string;pageId:string;customPath:string;fileName:string;version:number;assertCurrent:()=>void}
+    expect(input).toMatchObject({projectId:'project-A',pageId:'page-A',customPath:'project-A/page-A',fileName:'script.js',version:2})
+    expect(input.assertCurrent).toBeTypeOf('function');input.assertCurrent()
+    expect('restoreRemotePageVersion' in state.editor).toBe(false)
+    expect(state.addStatus).toHaveBeenCalledWith('页面 page-A 已将 script.js 快照 v2 恢复为工作文件','success')
+    wrapper.unmount()
+  })
+
+  it('rejects a stale version row whose page or file does not match the active query', async () => {
+    const {state,wrapper,click}=setup()
+    await click('版本');await flushPromises()
+    const actions=wrapper.findComponent({name:'RendererTable'}).props('actions') as {children:{props:{onClick:(row:Record<string,unknown>)=>void}}[]}
+    actions.children[0]!.props.onClick({versionKey:'["page-A","style.css",2]',pageId:'page-A',fileName:'style.css',version:2,snapshotFileName:'2__style.css'})
+    await flushPromises()
+    expect(state.restorePageToolVersion).not.toHaveBeenCalled()
+    expect(state.addStatus).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('does not accept a late restore result after switching tools', async () => {
+    const {state, wrapper, click}=setup(), restored=deferred<string>()
+    state.restorePageToolVersion.mockReturnValueOnce(restored.promise)
+    await click('版本');await flushPromises();await click('恢复')
+    const input=state.restorePageToolVersion.mock.calls[0]![0] as {assertCurrent:()=>void}
+    state.activePageId.value='page-B';restored.resolve('restored text');await flushPromises()
+    expect(() => input.assertCurrent()).toThrow('恢复期间编辑目标已切换')
+    expect('restoreRemotePageVersion' in state.editor).toBe(false)
+    expect(state.addStatus).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 

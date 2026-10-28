@@ -152,12 +152,11 @@ onBeforeUnmount(() => { disposed = true; versionRevision++; sparkRemove(PAGE_RUN
 const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
-const host = computed(() => props.state.editor)
 const project = computed(() => props.state.project)
 const versionViewKey = buildDataViewKey('ProjectToolVersion', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
 const versionActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
   label: '恢复', disabled: versionBusy.value || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value,
-  onClick: (row: DataRow) => restoreVersion(Number(row['version'])),
+  onClick: (row: DataRow) => restoreVersion(row),
 }}]}))
 
 watch(() => props.state.blueprintPageRuntime.value, runtime => {
@@ -260,18 +259,35 @@ function toggleVersionPanel() {
   }
 }
 
-async function restoreVersion(version: number) {
+async function restoreVersion(row: DataRow) {
   if (versionBusy.value || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value) return
   const pageId = props.state.activePageId.value
+  const projectId = props.state.projectId
   const fileName = resolvedActiveFile.value
+  const version=Number(row['version'])
   if (!pageId || !alignActivePage()) return
+  if(row['pageId']!==pageId||row['fileName']!==fileName||!Number.isSafeInteger(version)||version<0
+    ||row['snapshotFileName']!==`${version}__${fileName}`
+    ||row['versionKey']!==JSON.stringify([pageId,fileName,version]))return
+  const selectedNode=props.state.selectedNode.value,nodeId=selectedNode?.nodeId,navigationTarget=selectedNode?.navigation?.target
+  const customPath=`${projectId}/${pageId}`
+  const isCurrentTarget=()=>!disposed&&pageId===props.state.activePageId.value&&projectId===props.state.projectId
+    &&fileName===resolvedActiveFile.value&&nodeId===props.state.selectedNode.value?.nodeId
+    &&navigationTarget===props.state.selectedNode.value?.navigation?.target
+  const assertCurrent=()=>{
+    const currentNode=props.state.selectedNode.value
+    if(!isCurrentTarget()
+      ||nodeId!==currentNode?.nodeId||navigationTarget!==currentNode?.navigation?.target)throw new Error('恢复期间编辑目标已切换')
+  }
   restoringVersion.value = version
   try {
-    await host.value.restoreRemotePageVersion(version, fileName)
+    const restoredText=await props.state.restorePageToolVersion({projectId,pageId,customPath,fileName,version,assertCurrent})
+    assertCurrent()
+    if(fileEditor.text.value!==restoredText)throw new Error('恢复命令已确认，但当前工具文件尚未同步')
     props.state.addStatus(`页面 ${pageId} 已将 ${fileName} 快照 v${version} 恢复为工作文件`, 'success')
     if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {
-    props.state.addStatus(`恢复版本失败: ${String(e)}`, 'error')
+    if(isCurrentTarget())props.state.addStatus(`恢复版本失败: ${String(e)}`, 'error')
   } finally {
     restoringVersion.value = null
   }

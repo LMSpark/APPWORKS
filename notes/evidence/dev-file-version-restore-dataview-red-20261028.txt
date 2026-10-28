@@ -1,0 +1,14 @@
+RED evidence — 2026-10-28
+Command: pnpm exec vitest run tests/app/dev/page-tool-files-command.test.ts --reporter=dot
+Exit code: 1
+Result: 23 passed, 3 failed.
+Expected: PageToolFilesDataView.restoreVersion to submit a listed version restore through its DataView command, reject a changed working-file baseline without upload, and verify an accepted unknown receipt without replay.
+Actual: TypeError: owner.restoreVersion is not a function in all three new cases.
+This confirms the existing command owner has no restore command before implementation.
+
+RED evidence — DevFileEditor restore routing
+Command: pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts --reporter=dot
+Exit code: 1
+Result: 8 passed, 2 failed.
+Expected: selecting a version calls the new state SPARK data command owner and ignores a late result after switching tools.
+Actual: state.restorePageToolVersion call count was 0; the late-result case had no captured command input. The component still used ProjectWorkspace.restoreRemotePageVersion.

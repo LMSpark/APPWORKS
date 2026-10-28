@@ -20,7 +20,6 @@ import type { PageToolFileVersionSummary } from '../page/page-file'
 import {
   assertNonEmptyPageId,
   PAGE_TOOL_FILE_NAMES,
-  pageFilePath,
   type PageToolFileName,
 } from '../page/page-file'
 import { PageTool } from '../page/page-tool'
@@ -539,41 +538,6 @@ async loadPageFile(name: PageToolFileName, options?: ProjectPageLoadOptions): Pr
     this.project.markPageFileChanged(page.pageId, name)
   }
 
-async listRemotePageVersions(filename: PageToolFileName): Promise<PageToolFileVersionSummary[]> {
-    const page = this.project.getActivePage()
-    if (!page) return []
-    return this.fileApi.listVersions(page.pageId, filename)
-  }
-
-async restoreRemotePageVersion(version: number, filename: PageToolFileName): Promise<void> {
-    const page = this.requireActivePage('无活动页面，无法恢复版本')
-    if (this.unconfirmedToolSaves.has(JSON.stringify([page.pageId, filename]))) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具提交，再恢复版本')
-    if (page.getDirtyFileNames().includes(filename)) {
-      throw new Error('文件有未保存修改，请先保存或放弃修改再恢复版本')
-    }
-    const previousText = page.getFileText(filename)
-    await this.fileApi.restoreVersion(page.pageId, filename, version)
-    if (this.project.getActivePage() !== page) throw new Error('PAGE_TOOL_IDENTITY_CHANGED: 恢复期间活动工具已改变')
-    const restored = await this.getContentLoader().loadPageFileContent(page.pageId, filename, { forceReload: true })
-    this.clearPageCache(page.pageId, filename)
-    if (this.project.getActivePage() !== page || page.getFileText(filename) !== previousText) {
-      throw new Error('恢复期间文件已修改，远端恢复已完成，请明确处理未保存修改')
-    }
-    if (!restored.success) throw new Error(restored.error ?? restored.reason ?? `${filename} 加载失败`)
-    page.hydrateFileText(filename, restored.data ?? '')
-    this.notifyPageFileChanged(page.pageId, filename)
-  }
-
-    /** 创建 Remote Page Version。 */
-async createRemotePageVersion(filename: PageToolFileName): Promise<void> {
-    const page = this.project.getActivePage()
-    if (!page) return
-    if (this.unconfirmedToolSaves.has(JSON.stringify([page.pageId, filename]))) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具提交，再创建快照')
-    if (page.getDirtyFileNames().includes(filename)) throw new Error('文件有未保存修改，不能创建远端版本')
-    await this.fileApi.createVersion(page.pageId, filename)
-    if (this.project.getActivePage() !== page) throw new Error('PAGE_TOOL_IDENTITY_CHANGED: 创建版本期间活动工具已改变')
-  }
-
 notifyPageFileChanged(
     pageId: string,
     filename: PageToolFileName | '__created' | '__deleted' | '__bulk',
@@ -641,17 +605,6 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     if (page.getFileText(name) !== baseline || page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_EDIT_DURING_LOAD: ${name} 在装载期间发生编辑`)
     page.hydrateFileText(name, result.data ?? '')
     this.unconfirmedToolSaves.delete(pendingKey)
-  }
-
-  private clearPageCache(pageId: string, filename?: PageToolFileName): void {
-    const normalized = pageId.trim()
-    if (!normalized) return
-    const loader = this.getContentLoader()
-    if (filename !== undefined) {
-      loader.clearCache(pageFilePath(normalized, filename))
-      return
-    }
-    loader.clearPageCache(normalized)
   }
 
   private getSelectedNode(): ProjectBlueprintTreeNodeData | null {

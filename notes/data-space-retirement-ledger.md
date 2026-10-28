@@ -3026,3 +3026,11 @@ flowchart TD
 - **主控验证：**`pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts tests/app/dev/page-tool-files-command.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot` 3 文件、80/80 通过；`pnpm run typecheck`、目标 ESLint、`git diff --check` 退出码均为 0。测试输出包含现有 Vue Test Utils 未注册 Element Plus 组件警告，不影响断言和退出码。没有更改 Java、正式 SPARK 数据或页面工作文件。
 - **未闭环项：**版本恢复仍由 `DevFileEditor` 直接调用 `host.restoreRemotePageVersion`，尚无经 DataView/DataSet 提交并消费恢复回执的正式命令合同；继续列为本项目数据层旁路，不宣称唯一通道已完成。真实 SPA 登录态与版本创建后的关闭/重开读回也未实测。用户已提供并授权测试账号，后续不得要求重复提供。Computer Use 的认证对话框限制下本轮未自动填写认证表单，也没有真实 SPA 请求或写入证据。
 - **总体状态：**SPARK data 唯一数据通道整合继续 active；下一步优先梳理恢复命令的正式 DataView/DataSet 合同，再实施并复核，之后完成可附着认证 SPA 的真实烟测。
+
+### 2026-10-28 DevSystem 版本恢复统一到 SPARK data 命令视图
+
+- **实现与正式通道：**版本恢复已从 `host.restoreRemotePageVersion` 迁移到现有 `PageToolFilesDataView` 命令和 `DataSet.saveChanges`。命令核验项目/页面/文件/版本的精确身份及保存基线，经现有文件 owner 覆盖工作文件并读回；页面只有在正式回执和本地目标身份仍有效时才把结果交付给原 PageTool。删除 `PageFileApi`/`ProjectWorkspace` 的远程版本 list/create/restore 公共旁路；不改 Java、不增加页面保存器或第二份草稿。
+- **未知结果与生命周期：**仅明确非零 SPARK `LowcodeApiError` 视为确定拒绝；上传后读回的响应错误按未知结果保留原命令，重试先核验原回执，不重复上传。确认写入后遇页面身份过期时保留待交付回执，DevSystem dirty/owner lease 阻止释放丢失；同 SPA scope 重开后可重挂原 DataSet 并完成本地交付。待交付期间拒绝其它会刷新共享命令视图的 `createSnapshot`、`deletePageFiles`、`restoreVersion`、`run`，防止回执行被清空。
+- **RED、回归与复核：**新增 RED 原始输出 `dev-file-version-restore-dataview-red-20261028.txt`、`dev-file-version-restore-readback-red-20261028.txt`、`dev-file-version-restore-delivery-red-20261028.txt`、`dev-file-version-restore-refresh-red-20261028.txt`。主控聚焦复跑 7 个测试文件、185/185 通过；当前 `pnpm run typecheck`、目标 ESLint、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 通过。ClassModel 与 lowcode consumer ledger 使用正式生成器刷新。独立最终复核确认 4 个共享视图 refresh 入口均受保护，无剩余阻断项。规则扫描报告现有 AI model spec 2 条 warning、1 条 info；构建保留既有动态导入分块警告。
+- **SPA 验收限制：**本轮没有真实版本恢复、保存回执或关闭重开读回烟测；浏览器当前停在 `/login`。用户此前已提供并授权测试账号，不再要求重复提供。Computer Use `SKILL.md` 禁止自动填写认证对话框，且先前尝试已记录认证失败与剩余次数，本轮不再尝试登录，避免账户锁定；自动化夹具不能代替真实 SPA 证据。
+- **边界和状态：**本次只涉及 DevSystem 版本恢复链、测试、正式生成物、consumer ledger 与本台账，没有写正式业务记录或 Java。版本恢复代码自动化验收通过，真实 SPA 验收待有效已认证浏览器会话；总体 SPARK data 唯一通道仍 active，其它 owner/scope/权限合同缺口按上文队列继续。

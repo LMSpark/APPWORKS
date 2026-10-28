@@ -11333,7 +11333,7 @@
         "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "io/page-file-api",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件保存与编号快照读取、创建和恢复语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace保存三文件或查看、创建、恢复编号快照。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件读取与保存的宿主语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace读取页面文件；文件写操作由正式SPARK data命令承接。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectPageFileGateway",
@@ -13623,11 +13623,12 @@
         "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/shared/page-tool-files-command",
-        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolFilesDataView（共 3 个 symbol）。",
+        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolRestoreInput, PageToolFilesDataView（共 4 个 symbol）。",
         "jsdocSource": "inferred",
         "symbols": [
           "PageToolSnapshotInput",
           "PageToolSnapshotResult",
+          "PageToolRestoreInput",
           "PageToolFilesDataView"
         ]
       }
@@ -20477,6 +20478,10 @@
     "PageToolOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
+    },
+    "PageToolRestoreInput": {
+      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
     },
     "PageToolSnapshotInput": {
       "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",

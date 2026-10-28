@@ -44,6 +44,64 @@ describe('host scenario file request wiring', () => {
     })
     runtime = await import('../../../src/lowcode/lowcode-runtime')
   })
+
+  it('reads tool snapshot text with fatal UTF-8 decoding while preserving a BOM', async () => {
+    sceneWorkspace()
+    const io=runtime.createPageToolFilesIo('APP-1'),source='\uFEFFconst value = "历史";\r\n'
+    const encoded=new TextEncoder().encode(source),buffer=new ArrayBuffer(encoded.length);new Uint8Array(buffer).set(encoded)
+    transport.request.mockResolvedValue({data:buffer,status:200,statusText:'OK',headers:{}})
+    await expect(io.readVersion({appId:'APP-1',customPath:'APP-1/orders',fileName:'script.js',version:0})).resolves.toBe(source)
+    expect(transport.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      url:'/api/File/DownFile',data:expect.objectContaining({customPath:'APP-1/orders',fileName:'0__script.js'}),responseType:'arraybuffer',
+    }))
+  })
+
+  it('rejects a tool snapshot with invalid UTF-8 bytes', async () => {
+    sceneWorkspace()
+    const io=runtime.createPageToolFilesIo('APP-1'),buffer=new Uint8Array([0xc3,0x28]).buffer
+    transport.request.mockResolvedValue({data:buffer,status:200,statusText:'OK',headers:{}})
+    await expect(io.readVersion({appId:'APP-1',customPath:'APP-1/orders',fileName:'script.js',version:1})).rejects.toThrow()
+  })
+
+  it('replaces an existing tool working file on restore while keeping version uploads non-replacing', async () => {
+    sceneWorkspace()
+    const io=runtime.createPageToolFilesIo('APP-1') as ReturnType<typeof runtime.createPageToolFilesIo> & {
+      restoreWorkingFile:(command:{appId:string;pageId:string;fileName:'script.js';text:string})=>Promise<void>
+    }
+    const contents=new Map([['script.js','existing working text']])
+    const toBuffer=(text:string):ArrayBuffer=>{const bytes=new TextEncoder().encode(text),buffer=new ArrayBuffer(bytes.length);new Uint8Array(buffer).set(bytes);return buffer}
+    transport.request.mockImplementation(async(config:RequestConfig)=>{
+      if(config.url==='/api/File/UploadFile'){
+        const form=config.data as FormData,fileName=String(form.get('newName')),file=form.get('file')
+        if(!(file instanceof Blob))throw new Error('expected multipart file')
+        const text=new TextDecoder().decode(await file.arrayBuffer()),replace=form.get('isReplace')==='true'
+        if(contents.has(fileName)&&!replace)return {data:{Code:200,Result:[{state:'success',filePath:`/APP-1/orders/${fileName} (1)`}]},status:200,statusText:'OK',headers:{}}
+        contents.set(fileName,text)
+        return {data:{Code:200,Result:[{state:'success',filePath:`/APP-1/orders/${fileName}`}]},status:200,statusText:'OK',headers:{}}
+      }
+      if(config.url==='/api/File/DownFile'){
+        const fileName=String((config.data as Record<string,unknown>)['fileName'])
+        return {data:toBuffer(contents.get(fileName)??''),status:200,statusText:'OK',headers:{}}
+      }
+      throw new Error(`unexpected request: ${config.url}`)
+    })
+
+    await io.restoreWorkingFile({appId:'APP-1',pageId:'orders',fileName:'script.js',text:'restored text'})
+    const restoreUpload=transport.request.mock.calls[0]?.[0]
+    const restoreForm=restoreUpload?.data as FormData
+    expect(restoreUpload?.url).toBe('/api/File/UploadFile')
+    expect(restoreForm.get('customPath')).toBe('APP-1/orders')
+    expect(restoreForm.get('newName')).toBe('script.js')
+    expect(restoreForm.get('isReplace')).toBe('true')
+    expect(transport.request.mock.calls[1]?.[0].url).toBe('/api/File/DownFile')
+    expect(contents.get('script.js')).toBe('restored text')
+
+    await io.uploadVersion({appId:'APP-1',customPath:'APP-1/orders',fileName:'script.js',version:5,text:'snapshot text'})
+    const versionForm=transport.request.mock.calls[2]?.[0].data as FormData
+    expect(versionForm.get('customPath')).toBe('APP-1/orders')
+    expect(versionForm.get('newName')).toBe('5__script.js')
+    expect(versionForm.get('isReplace')).toBe('false')
+  })
   afterAll(() => {
     if (originalTransport) Object.defineProperty(Request.prototype, 'executeRequest', originalTransport)
   })
@@ -183,53 +241,6 @@ describe('host scenario file request wiring', () => {
     }
   })
 
-  it('restores filename snapshots without changing the snapshot or exposing a direct working-file save', async () => {
-    const workspace = sceneWorkspace()
-    const snapshot = '\uFEFFconst value = "历史";\r\n'
-    const files = new Map([['3__script.js', snapshot]])
-    const requests: RequestConfig[] = []
-    transport.request.mockImplementation(async (config: RequestConfig) => {
-      requests.push(config)
-      let data: unknown
-      if (config.data instanceof FormData) {
-        expect(config.data.get('customPath')).toBe('APP-1/orders')
-        expect(config.data.get('isReplace')).toBe('true')
-        const file = config.data.get('file')
-        const name = config.data.get('newName')
-        if (!(file instanceof Blob) || typeof name !== 'string') throw new Error('invalid upload')
-        files.set(name, new TextDecoder('utf-8', { ignoreBOM: true }).decode(await file.arrayBuffer()))
-        data = { Code: 200, Result: [{ state: 'success' }] }
-      } else {
-        if (!isRecord(config.data) || typeof config.data['fileName'] !== 'string') throw new Error('invalid file read')
-        expect(config.data['customPath']).toBe('APP-1/orders')
-        const text = files.get(config.data['fileName'])
-        if (text === undefined) throw new Error('file not found')
-        if (config.url === '/api/File/DownFile') {
-          const bytes = new TextEncoder().encode(text)
-          const buffer = new ArrayBuffer(bytes.length)
-          new Uint8Array(buffer).set(bytes)
-          data = buffer
-        } else {
-          data = { Code: 200, Result: text }
-        }
-      }
-      expect(config.headers).toMatchObject({ 'X-AppId': 'APP-1', 'tenant-id': 'fixture-tenant' })
-      return { data, status: 200, statusText: 'OK', headers: {} }
-    })
-    const page = workspace.project.openPageDesign('orders')
-    workspace.project.setActivePage('orders')
-    expect('savePageFile' in workspace).toBe(false)
-
-    await workspace.restoreRemotePageVersion(3, 'script.js')
-    expect(files.get('script.js')).toBe(snapshot)
-    expect(files.get('3__script.js')).toBe(snapshot)
-    expect(page.script.text).toBe(snapshot)
-    expect(page.script.isDirty).toBe(false)
-    expect(requests.map(request => request.url)).toEqual([
-      '/api/File/DownFile', '/api/File/UploadFile', '/api/File/DownFile', '/api/File/content/text',
-    ])
-  })
-
   it.each([
     { fileName: 'rule.json' as const, versionId: undefined, expected: 'rule.json' },
     { fileName: 'rule.json' as const, versionId: '2', expected: '2__rule.json' },
@@ -268,51 +279,15 @@ describe('host scenario file request wiring', () => {
     }))
   })
 
-  it('refuses restoration over an unsaved tool file before transport', async () => {
-    const workspace = sceneWorkspace()
-    const page = workspace.project.openPageDesign('orders')
-    workspace.project.setActivePage('orders')
-    page.setFileText('script.js', 'unsaved')
-    await expect(workspace.restoreRemotePageVersion(1, 'script.js')).rejects.toThrow('未保存')
-    expect(page.script.text).toBe('unsaved')
-    expect(page.script.isDirty).toBe(true)
-    expect(transport.request).not.toHaveBeenCalled()
-  })
-
-  it('rejects tool writes and restoration from another application before transport', async () => {
+  it('rejects tool file reads and writes from another application before transport', async () => {
     sceneWorkspace('APP-2')
     const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.saveFileContent || !gateway.restoreVersion) throw new Error('missing tool file gateway')
+    if (!gateway.saveFileContent) throw new Error('missing tool file gateway')
     await expect(gateway.readPageFile({ projectId: 'APP-1', pageId: 'orders', fileName: 'script.js' }))
       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     await expect(gateway.saveFileContent('orders', 'script.js', 'changed')).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
-    await expect(gateway.restoreVersion('orders', 'script.js', 1)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(transport.request).not.toHaveBeenCalled()
   })
-
-  it.each(['/api/File/UploadFile', '/api/File/content/text'])(
-    'retains local edits made during restore at %s', async editAt => {
-      const workspace = sceneWorkspace()
-      const page = workspace.project.openPageDesign('orders')
-      workspace.project.setActivePage('orders')
-      page.hydrateFileText('script.js', 'previous')
-      transport.request.mockImplementation(async (config: RequestConfig) => {
-        if (config.url === editAt) page.setFileText('script.js', 'new local edit')
-        let data: unknown
-        if (config.url === '/api/File/UploadFile') data = { Code: 200, Result: [{ state: 'success' }] }
-        else if (config.url === '/api/File/DownFile') {
-          const bytes = new TextEncoder().encode('snapshot')
-          const buffer = new ArrayBuffer(bytes.length)
-          new Uint8Array(buffer).set(bytes)
-          data = buffer
-        } else data = { Code: 200, Result: 'snapshot' }
-        return { data, status: 200, statusText: 'OK', headers: {} }
-      })
-      await expect(workspace.restoreRemotePageVersion(1, 'script.js')).rejects.toThrow('恢复期间文件已修改')
-      expect(page.script.text).toBe('new local edit')
-      expect(page.script.isDirty).toBe(true)
-    },
-  )
 
   it('does not expose direct working-file save for an unsaved editor draft', async () => {
     const workspace = sceneWorkspace()
@@ -322,18 +297,6 @@ describe('host scenario file request wiring', () => {
     expect('savePageFile' in workspace).toBe(false)
     expect(page.script.isDirty).toBe(true)
     expect(page.script.text).toBe('submitted')
-  })
-
-  it('rejects a snapshot from a retired application before uploading the working file', async () => {
-    sceneWorkspace()
-    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.restoreVersion) throw new Error('missing restore gateway')
-    transport.request.mockImplementation(async () => {
-      sceneWorkspace('APP-2')
-      return { data: new ArrayBuffer(0), status: 200, statusText: 'OK', headers: {} }
-    })
-    await expect(gateway.restoreVersion('orders', 'script.js', 1)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
-    expect(transport.request).toHaveBeenCalledTimes(1)
   })
 
   it('snapshots and previews shared scene files with a fresh definition guard before upload', async () => {
@@ -398,61 +361,29 @@ describe('host scenario file request wiring', () => {
     expect(transport.request.mock.calls.some(([config])=>config.url === '/api/File/UploadFile')).toBe(false)
   })
 
-  it('uses actual filename history for creation without exposing snapshot deletion', async () => {
+  it('does not expose direct page-file version list or create gateways', async () => {
     sceneWorkspace()
-    const files = new Map([['script.js', 'working'], ['2__script.js', 'previous'], ['9__style.css', 'other']])
     const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.listVersions || !gateway.createVersion) throw new Error('missing version gateway')
-    transport.request.mockImplementation(async (config: RequestConfig) => {
-      let data: unknown
-      if (config.url === '/api/File/list') {
-        data = { Code: 200, Result: [...files.keys()].map(name => ({ name, lastModified: 100 })) }
-      } else if (config.data instanceof FormData) {
-        const name = config.data.get('newName')
-        const file = config.data.get('file')
-        if (typeof name !== 'string' || !(file instanceof Blob)) throw new Error('invalid upload')
-        expect(config.data.get('isReplace')).toBe('false')
-        files.set(name, new TextDecoder().decode(await file.arrayBuffer()))
-        data = { Code: 200, Result: [{ state: 'success', filePath: `APP-1/orders/${name}` }] }
-      } else {
-        if (!isRecord(config.data) || typeof config.data['fileName'] !== 'string') throw new Error('invalid read')
-        const text = files.get(config.data['fileName'])
-        if (text === undefined) throw new Error('file missing')
-        if (config.url === '/api/File/DownFile') {
-          const bytes = new TextEncoder().encode(text)
-          const buffer = new ArrayBuffer(bytes.length)
-          new Uint8Array(buffer).set(bytes)
-          data = buffer
-        } else data = { Code: 200, Result: text }
-      }
-      return { data, status: 200, statusText: 'OK', headers: {} }
-    })
-    expect(await gateway.listVersions('orders', 'script.js')).toEqual([{ version: 2, fileName: '2__script.js', lastModified: 100 }])
-    await gateway.createVersion('orders', 'script.js')
-    expect(files.get('3__script.js')).toBe('working')
-    expect(files.get('script.js')).toBe('working')
-    expect('deleteVersion' in gateway).toBe(false)
-    expect(transport.request.mock.calls.some(([config]) => config.url === '/api/File/RemoveFile')).toBe(false)
-    expect(transport.request.mock.calls.every(([config]) => config.url.startsWith('/api/File/'))).toBe(true)
+    expect('listVersions' in gateway).toBe(false)
+    expect('createVersion' in gateway).toBe(false)
+    expect(transport.request).not.toHaveBeenCalled()
   })
 
   it.each(['..', '../orders', 'parent\\orders'])(
     'rejects invalid tool paths %j before transport', async pageId => {
       sceneWorkspace()
       const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-      if (!gateway.saveFileContent || !gateway.restoreVersion) throw new Error('missing tool gateway')
+      if (!gateway.saveFileContent) throw new Error('missing tool gateway')
       await expect(gateway.saveFileContent(pageId, 'script.js', 'text')).rejects.toThrow('合法路径段')
-      await expect(gateway.restoreVersion(pageId, 'script.js', 1)).rejects.toThrow('合法路径段')
       expect(transport.request).not.toHaveBeenCalled()
     },
   )
 
-  it('refuses the retired page-local pagedata write and restore paths', async () => {
+  it('refuses the retired page-local pagedata write path', async () => {
     sceneWorkspace()
     const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.saveFileContent || !gateway.restoreVersion) throw new Error('missing tool gateway')
+    if (!gateway.saveFileContent) throw new Error('missing tool gateway')
     await expect(Reflect.apply(gateway.saveFileContent, gateway, ['orders', 'pagedata.json', '{}'])).rejects.toThrow('场景文件')
-    await expect(Reflect.apply(gateway.restoreVersion, gateway, ['orders', 'pagedata.json', 1])).rejects.toThrow('不属于工具文件')
     expect(transport.request).not.toHaveBeenCalled()
   })
 })

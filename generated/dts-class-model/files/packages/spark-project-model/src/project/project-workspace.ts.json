@@ -680,48 +680,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.listRemotePageVersions.params": {
-          "type": "object",
-          "properties": {
-            "filename": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.listRemotePageVersions.return": {
-          "type": "object",
-          "title": "Promise<PageToolFileVersionSummary[]>"
-        },
-        "method.restoreRemotePageVersion.params": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "number"
-            },
-            "filename": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.restoreRemotePageVersion.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.createRemotePageVersion.params": {
-          "type": "object",
-          "properties": {
-            "filename": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.createRemotePageVersion.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.notifyPageFileChanged.params": {
           "type": "object",
           "properties": {
@@ -786,7 +744,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T22:22:31.921Z",
+  "generatedAt": "2026-10-28T07:14:38.979Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -1957,87 +1915,6 @@
                   },
                   "flags": {
                     "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "listRemotePageVersions",
-              "parameters": [
-                {
-                  "name": "filename",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "array",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "PageToolFileVersionSummary",
-                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "name": "restoreRemotePageVersion",
-              "parameters": [
-                {
-                  "name": "version",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "number"
-                  }
-                },
-                {
-                  "name": "filename",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "createRemotePageVersion",
-              "jsdoc": "创建 Remote Page Version。",
-              "parameters": [
-                {
-                  "name": "filename",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
                   }
                 }
               ],

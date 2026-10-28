@@ -1,0 +1,34 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+------------------------------------------------------------x-----
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/dev/dev-state-page-file-closed-loop.test.ts > DevState 页面文件闭环 > 确认后 UI 目标变更时保留恢复回执，SPA 重开后交付到原 PageTool
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/app/dev/dev-state-page-file-closed-loop.test.ts:1674:46
+    1672|     expect(page.getFileText('script.js')).toBe('working baseline')
+    1673|     expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
+    1674|     expect(first.hasPendingDevSystemWrite()).toBe(true)
+       |                                              ^
+    1675|     firstScope.stop()
+    1676|     expect(runtime.destroyed).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 65 skipped (66)
+   Start at  15:18:02
+   Duration  4.85s (transform 2.81s, setup 131ms, import 3.44s, tests 40ms, environment 942ms)
+
+EXIT_CODE=1

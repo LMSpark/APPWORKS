@@ -73,11 +73,7 @@ describe('guardPageDesignEditor', () => {
   })
 
   it('denies remote PageTool file and version writes while preserving local draft edits and reads', async () => {
-    const fileApi = {
-      saveFileContent: vi.fn(async () => undefined),
-      createVersion: vi.fn(async () => undefined),
-      restoreVersion: vi.fn(async () => undefined),
-    }
+    const fileApi = { saveFileContent: vi.fn(async () => undefined) }
     const editor = new ProjectWorkspace({
       projectId: 'demo',
       pageFiles: { readPageFile: async () => '', ...fileApi },
@@ -91,12 +87,11 @@ describe('guardPageDesignEditor', () => {
     expect('saveDirtyPageFiles' in editor).toBe(false)
     expect('saveAll' in editor).toBe(false)
     expect(() => guarded.savePageFileChange({ pageId: 'orders', fileName: 'script.js', expectedText: '', text: 'x' })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.createRemotePageVersion('script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
-    expect(() => guarded.restoreRemotePageVersion(1, 'script.js')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect('createRemotePageVersion' in editor).toBe(false)
+    expect('listRemotePageVersions' in editor).toBe(false)
+    expect('restoreRemotePageVersion' in guarded).toBe(false)
     expect('deleteRemotePageVersion' in editor).toBe(false)
     expect(fileApi.saveFileContent).not.toHaveBeenCalled()
-    expect(fileApi.createVersion).not.toHaveBeenCalled()
-    expect(fileApi.restoreVersion).not.toHaveBeenCalled()
     expect(page.getFileText('script.js')).toBe('draft')
   })
 })

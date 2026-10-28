@@ -63,6 +63,22 @@
 - **清理与持久结果：**临时视图已由同一 DataSet 显式保存移除，活动 JSON 与原始基线逐项语义相同；关闭设计器并关闭验证标签释放全部实例后，才恢复原排版。活动文件最终 SHA-256 为 `9003145F07B8C1B5B6552F91A191C8DEAE1521814B294CE43D64B700380D9AAE`，config/pages 无改动。真实 UI 创建的 1/2 号档案保留，两者同为该 SHA、3035 字节。没有通过文件系统代替业务清理，没有数据库定义/业务行写入。
 - **证据与后续：**本片证据统一在 `evidence/repository-scenario-history-20261029/`；首次工程冻结与有效撤销 RED 归档含 45 份日志，最后撤销修复归档含 11 份日志，均附逐文件 SHA。最终源文件 SHA、修后截图与脱敏网络记录一并保留。整体整合目标继续 active；下一片先核 builtin 项目树及工具身份/三文件正式映射，不把 18 个原生 Vue 叶伪造成三文件。旧远端历史库存/迁档、构建态可写历史仍未完成；本片构建态明确不可用、无远端回退。
 
+- **提交已核：**`a5e7670dba902a477aa37e23511f5774f2a65808` 已推送到 `origin/codex/ai-data-entry`，主控核 HEAD 与远端相同、工作树干净。最终高阶窄审无阻断项，报告 `history-contract-review.md`；短暂布局提示不据现有证据升级为已证实缺陷。该报告最初在工程检查后复制为 final-review.md，下一片完整规则扫描指出 FINAL 低信息文件名，现按主题改名，内容未变；后续门禁重新覆盖此证据文件。
+
+### 2026-10-29 开发工作台项目树与工具映射接续
+
+- **起点与范围：**从 `a5e7670db` 继续整体目标。仓内 26 导航节点含 18 个原生 Vue 叶；保留节点身份、URL、原文件目录和当前服务端导航授权。原生页不伪造三文件。主树仍由 BlueprintWorkspaceDataView 读 Base_NavigationInfo，跨项目引用树是另一个被拒入口；须分别解决，不以解除一个 guard 宣称树来源迁移完成。
+- **当前并行取证：**高阶只读者沿实际 metadata DataSet、repository navigation 资源与所有消费者核下一片正式接入合同及缺失字段；主控核真实页面/存量，单一低价写者仅补工具发布身份反例。没有开放 builtin 新字段、导航写入、旧格式批量迁移或生产写入；也没有创建第二总计划。
+- **已冻结的发布子合同：**当前创建器生成 `cfg:<pageId>`，文件资源已有真实 `{projectId,pageId}` 身份。发布应从同一身份沿 PageToolFiles DataView 创建三个不可变快照，仅更新 VersionId，不能把 `app/page` 存储定位写回导航作为工具 ID。首先补正式投影贯通的有效 RED；明确 NavigationUrl 可读但不可写、VersionId 可读写时只提交指针。保留当前路径/应用/权限/未知结果守卫，不以放宽校验解决矛盾。旧多段 cfg 值的来源与现存数量尚未核，禁止猜测剥前缀、最后一段或双读回退。
+- **真实设计范围纠偏：**主控从 D99 开发工作台的正式 DataView 查询取得 5 页 `20/20/20/20/5`、Code=200、Count=85；85 个唯一节点全部 SysId=D99。UI 为 84 树项（不含根）、41 页面；原始 kind 为 14 Model/71 Navitem，42 个 vue 目标、43 空目标、0 cfg。Model 中存在带 vue 的流程监控，不能擅自按 URL 改业务种类。仓内 26 节点全部在 85 内，但少 59；53 条 IsShowAtNav=1 不代表本仓应自动发布 53 条。故“26 节点为完整设计树”的初步方向已撤回：完整设计蓝图与当前 18 叶运行菜单投影必须分清，不能在切源时丢内容或扩大可达范围。
+- **现场证据边界：**`evidence/workbench-tool-mapping-20261029/` 保存现场截图、85 节点身份清单、缺失 59 节点对照及原始 28 业务字段白名单记录；排除 lingma_sys_key/lingma_sys_params、headers/cookies/tokens。原型正文均空、仅 3 条 memo 非空。这些是本次读取时点的迁入证据，不是活动配置或授权真源；未写任何后端记录。旧三文件唯一候选为目录 rule/script/style，分析者已逐项对照原生目录承接，正式删除仍待本片范围冻结。
+- **发布有效 RED 已独立核：**主控复跑 `blueprint-workspace-delivery.test.ts` 两新例为 2 失败/49 跳过：规范 cfg:tool-A 在正确身份/clean/权限下被旧 customPath 守卫拒绝，快照 0/预期3；NavigationUrl 只读时 canPublish=false。据此只开放发布路径最小修复；现有成功夹具必须改成真实创建器身份，不得将 APP-A/tool-A 当 pageId 的裸 spy 通过伪装为文件 owner 成功。旧错误信息断言仅作 RED 诊断，GREEN 必须断言正确回执及 NavigationUrl 未写。其他解析器、builtin 配置与树仍只读核合同。
+- **并发发布补充 RED：**身份修复首轮 delivery 52/52、文件命令32/32、工具资源13/13通过后，主控窄复审发现 snapshot 等待期间的新草稿会被 `current.save()` 全部夹带。独立 DataView 改绑反例为 1 失败/52 跳过：预期1快照/0指针保存，实际3/3；用户 NavigationUrl patch 被清并写入持久行。高阶静态核实可达 UI 路径为发布等待时切估算修改 Manhour → draft setter → owner.update；蓝图视图不 busy，保存收集全部节点 patch。正常 URL 下拉会同步 activePageId，不能把直接 DataView 改绑反例等同该下拉路径。写者补工时同缺陷反例也有效失败；已开放当前发布函数内的 owner/view/row、导航/版本预期与新增草稿守卫，保留用户草稿和已确认快照，不做额外架构重写。
+- **动态只读抽查：**正式应用目录进入“AI 交付工单系统” BE7C7452A333B0EB675F1EACBA035E8F，再用现有开发工作台查询，Count=4、UI2页面，原目标为 `/delivery/...`，cfg=0。只读记录见 `dynamic-delivery-app-readonly-inventory.json`；没有文件创建、发布或后端写入。这与D99 cfg=0均不能外推其他动态应用的旧cfg格式不存在，旧格式迁移仍未裁决。
+- **完整蓝图来源方向已核：**`builtin-blueprint-source-contract.md` 根据85条真实记录修订。复用同一 navigation resource/path，以单份85 records和仅含身份的现有26 publishedNodeIds替换旧重复节点字段；同源派生主设计树与原运行菜单。7AB新增明确file语义节点DataView，普通动态Base_NavigationInfo模型保留；四处owner、标准字段绑定、AI/引用树/工具依赖必须同源，不能只换主树数组。下一片先验证完整只读消费与旧三文件删除，不把只读阶段冒充完整蓝图编辑/规划/发布；后续写入仍属于整体目标。
+- **发布修复收口验证：**主控独立组合 delivery/文件命令/工具资源为3文件、99/99通过，exit0；其中54项交付覆盖新建身份、只改VersionId、异步改绑/工时草稿保留及原部分成功/未知语义。typecheck、两文件ESLint、完整verify:rules及build退出0，保留AI spec既有2 warnings/1 info和构建分块告警；无公开声明变化，不需要重生成ClassModel。高阶窄复审无阻断，`publication-contract-review.md` 含源码SHA。第一轮夹具双身份失败与证据文件命名规则失败均保留在原始归档，未当有效产品RED或掩为通过。
+- **当前交付边界：**本组产品仅改BlueprintWorkspace发布函数及相应权限门槛，测试夹具从真实ProjectBlueprint投影解析工具身份。真实SPA只核D99完整设计树及动态应用只读加载；未创建工具或执行线上发布，两个抽查应用都没有cfg目标，不能声称真实后端发布已成功。完整85树仓内来源和三文件清理尚未实施，下一步先补其正式资源/owner反例；整体目标保持active。
+
 ### 2026-10-29 仓内场景写入：已核合同与当前实施范围
 
 - **当前基线：**`64f57344d` 已提交推送，开始本片时工作树干净。上一读源切片属实质进展，不是整体合仓完成；本片继续补真实写入，不改 Java、正式模型输出或业务记录。

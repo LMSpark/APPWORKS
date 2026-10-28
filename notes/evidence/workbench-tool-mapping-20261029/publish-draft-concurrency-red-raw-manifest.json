@@ -1,0 +1,17 @@
+[
+  {
+    "name": "appworks-cfg-tool-publish-identity-remap-during-upload-red-02.log",
+    "bytes": 575266,
+    "sha256": "ECE6505F8394704B2F6F20A60839C79F63AB192E15ADBDEDDF361A84F58F66E0"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-root-remap-red.log",
+    "bytes": 575274,
+    "sha256": "F453D3EF67D58194CE5443513F165EE93D897137A5D3A8F490275748E7F7CEB0"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-manhour-await-red-01.log",
+    "bytes": 576244,
+    "sha256": "3213E1A887E243812D9BD27D4F19377D352EDF7E116C866C576A92AE72793149"
+  }
+]

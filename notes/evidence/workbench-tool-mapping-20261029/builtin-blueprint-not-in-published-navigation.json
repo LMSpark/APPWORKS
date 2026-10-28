@@ -1,0 +1,533 @@
+[
+  {
+    "nodeId": "02215DFBCA2079FBC076CEF7D91FBF6E",
+    "parentId": "47DA54EA853C8780976D43CF2369B096",
+    "name": "applyApps",
+    "title": "申请应用授权",
+    "kind": "Navitem",
+    "target": "vue:/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "03D8E17A88BC6E0AB1B2DF6787F8E779",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "selectApp",
+    "title": "应用系统选择",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "0A835EB88AAC2BDFBDE344477C6827BB",
+    "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+    "name": "job",
+    "title": "岗位管理",
+    "kind": "Navitem",
+    "target": "vue:/features/organization/job-management/ui/job-management-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "0C2859124D4CB62E14BCA6C52ECAC1F1",
+    "parentId": "EDB0E34486FFB903E896E5C281230961",
+    "name": "DictionarySet",
+    "title": "字典设置",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "parentId": "5E9676B1E38860B023921F48FB4370DE",
+    "name": "WorkFlowDesign",
+    "title": "工作流设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "0F93B82141CF40852021D704B0E30BF4",
+    "parentId": "36B01771C627B9BF5CD493DC75B996A1",
+    "name": "ConfigSet",
+    "title": "设置",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "127A9552625522AA29CD4E5F6784EF2F",
+    "parentId": "A8FB2B2B161125A16FD15ED9581CD15B",
+    "name": "Register",
+    "title": "注册",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "1364C6047118E0FCA201CFC79D8596A5",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "Auth",
+    "title": "权限配置",
+    "kind": "Navitem",
+    "target": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "15D1E3E76874F29538FC3A3B35E76F1F",
+    "parentId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "name": "CodeClassDesign",
+    "title": "编码分类设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "Report",
+    "title": "报表管理",
+    "kind": "Navitem",
+    "target": "vue:/features/integration/report/ui/report-management-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "1B7FD70E326717B8E4B611D0431FFCBA",
+    "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+    "name": "user",
+    "title": "人员管理",
+    "kind": "Navitem",
+    "target": "vue:/features/organization/user-management/ui/user-management-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "23D8B53174DB7195CC3AE82099BDD675",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "Flow",
+    "title": "业务流程设计",
+    "kind": "Navitem",
+    "target": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "2CA968B3513084BA2537BB0C85AE945E",
+    "parentId": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+    "name": "DataMenu",
+    "title": "导航宿主",
+    "kind": "Navitem",
+    "target": "vue:/features/application/data-menu/ui/data-menu-page",
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "2E504C95E67504B68C704530B2E4B5ED",
+    "parentId": "48E2195E703207B46E8F73250E0EB9E3",
+    "name": "FlowRunDetail",
+    "title": "流程运行详情",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "3074BAF05FB59C2E0CB879C126A49989",
+    "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+    "name": "NavigationPermissionConfig",
+    "title": "导航权限配置",
+    "kind": "Navitem",
+    "target": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "3A45C53F29C2C005FF21AA06B2BCA133",
+    "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+    "name": "DesensitizationRuleConfig",
+    "title": "脱敏规则配置",
+    "kind": "Navitem",
+    "target": "vue:/features/governance/desensitization-rule/ui/desensitization-rule-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "4138A7C47ECB96EA85CA61A8A8B7191F",
+    "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+    "name": "zuzhi",
+    "title": "机构管理",
+    "kind": "Navitem",
+    "target": "vue:/features/organization/organization-structure/ui/organization-structure-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "439BD7FB0463A2FE197B9167234A81D0",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "ApplicationRoleMan",
+    "title": "人员管理",
+    "kind": "Navitem",
+    "target": "vue:/features/governance/role-management/ui/role-user-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "446B5D94A71587E9BD4D325A4DF5F6F8",
+    "parentId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+    "name": "ConfigSet",
+    "title": "基础配置设置",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "47DA54EA853C8780976D43CF2369B096",
+    "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+    "name": "myapplys",
+    "title": "我的申请",
+    "kind": "Navitem",
+    "target": "vue:/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "48E2195E703207B46E8F73250E0EB9E3",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "FlowManage",
+    "title": "业务流程管理",
+    "kind": "Model",
+    "target": null,
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "491ED31B15A986D2C82E1F2B92717A40",
+    "parentId": "48E2195E703207B46E8F73250E0EB9E3",
+    "name": "FlowRunPage",
+    "title": "流程运行页面",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "5914FF981A7DF228ED88BBDB71353470",
+    "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+    "name": "EnterpriseRegistManager",
+    "title": "入驻管理",
+    "kind": "Navitem",
+    "target": "vue:/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "5B54AEBD5BD1BBC72710D4022589A404",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "BugManage",
+    "title": "BUG管理",
+    "kind": "Navitem",
+    "target": "vue:/features/system/bug-manage/ui/bug-manage-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "5EF2C6B79A70AB8D203ADC7873D2B4C9",
+    "parentId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "name": "add",
+    "title": "新增数据库",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "66CACF47121BDB8621C5BE703FF65899",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "BusinessTableSelector",
+    "title": "业务选择功能",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "6A22191FF564F494CC1F0D9BA2519A7B",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "APPWORKS_APPLICATION_DELIVERY",
+    "title": "应用设计与交付",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "6E462C4A39EE0D96F4D1A28FFE887C89",
+    "parentId": "87F0EF6AD1B64D67FFE597E7E3285994",
+    "name": "FlowDesign",
+    "title": "流程模型设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "70D5D8FACCC201A822F64B16A441BE8F",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "DataRecover",
+    "title": "数据恢复",
+    "kind": "Navitem",
+    "target": "vue:/features/system/data-recovery/ui/data-recovery-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "70E2F859E011F351D8BC0FF0411FFBA6",
+    "parentId": "90A82E287930A234FEC3E687C94A93EA",
+    "name": "DataSetAuth",
+    "title": "数据空间控制",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "732153B66CC6BF097121E59E4FEB13B0",
+    "parentId": "EB720370EF06A5A656838F87E0716D6B",
+    "name": "LogicViewDesign",
+    "title": "逻辑视图设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "75832B0CCD57464B53A957E642806A23",
+    "parentId": "A8FB2B2B161125A16FD15ED9581CD15B",
+    "name": "AddTable",
+    "title": "表新增",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "777A4102E8866B24472F34A56FE74E9E",
+    "parentId": "A8FB2B2B161125A16FD15ED9581CD15B",
+    "name": "TableDesign",
+    "title": "表设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "7AB874097A1E8711A42FD845939A6E05",
+    "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+    "name": "ApplicationFunMan",
+    "title": "项目蓝图",
+    "kind": "Navitem",
+    "target": "vue:/features/application/application-function-management/ui/application-function-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "7B0F1639B00476188AD461BDB689E491",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "myflow",
+    "title": "我的流程相关",
+    "kind": "Navitem",
+    "target": "",
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "7B54BBABC1172F3AB67D8A2213ED04B8",
+    "parentId": "D3F8C26067DD48BE7246A6ABDF4F3253",
+    "name": "RoleAuthManagement",
+    "title": "角色权限管理",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "7FADEE997F7E851B095EDB27F9C4771C",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "enterprise",
+    "title": "企业管理",
+    "kind": "Model",
+    "target": null,
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "parentId": "A133D679691178F192D7E9DA06829506",
+    "name": "CodeEdit",
+    "title": "编码编辑",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "87F0EF6AD1B64D67FFE597E7E3285994",
+    "parentId": "48E2195E703207B46E8F73250E0EB9E3",
+    "name": "FlowModel",
+    "title": "模型管理",
+    "kind": "Navitem",
+    "target": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "88A4D51B01702C3856F4632E234BF34B",
+    "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+    "name": "DimensionDesign",
+    "title": "维度设计",
+    "kind": "Navitem",
+    "target": "vue:/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "8A3D3C82CBA9725BFDBAC560028ABE83",
+    "parentId": "EDB0E34486FFB903E896E5C281230961",
+    "name": "DictionaryDataEdit",
+    "title": "字典数据编辑",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "parentId": "90A82E287930A234FEC3E687C94A93EA",
+    "name": "DataSetDesign",
+    "title": "数据空间设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "93DF05182084B1F0E8DA7283E83BBE0C",
+    "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+    "name": "DataBase",
+    "title": "数据库管理",
+    "kind": "Navitem",
+    "target": "vue:/features/application/application-context/ui/application-database-relations-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "9D26D23E5A9DD0D31619D776114405E8",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "hrManagement",
+    "title": "人力资源管理",
+    "kind": "Model",
+    "target": null,
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "9EFFD97B4156A0D81C5CEAFFCC75381E",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "FileDataManager",
+    "title": "文件数据管理",
+    "kind": "Model",
+    "target": null,
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "B3735AD3AAB2520FBB29B5BDD3B50A3B",
+    "parentId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "name": "regist",
+    "title": "注册",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "BDA0CD1ACE48E7E46BCA22CF851DF32E",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "PersonSelector",
+    "title": "人员选择功能",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "C06D41607B6258106F35A0A319B71804",
+    "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+    "name": "applyApps",
+    "title": "申请列表",
+    "kind": "Navitem",
+    "target": "vue:/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "C3608C3EB2D7D8844743206C9050B8BF",
+    "parentId": "D3F8C26067DD48BE7246A6ABDF4F3253",
+    "name": "RoleAndUserManagement",
+    "title": "角色管理",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "C938D29FAD67AD5B7E275EE11C44F37D",
+    "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+    "name": "UserAppAuth",
+    "title": "用户应用权限查看",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "D05A785F310B72BD345D237E59A8ACF7",
+    "parentId": "48E2195E703207B46E8F73250E0EB9E3",
+    "name": "FlowAppendUser",
+    "title": "流程办理人追加",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "D3F8C26067DD48BE7246A6ABDF4F3253",
+    "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+    "name": "RoleClassManagement",
+    "title": "角色分类管理",
+    "kind": "Navitem",
+    "target": "vue:/features/governance/role-management/ui/role-management-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "D9973E63EB612DB2B7F165413B248BC9",
+    "parentId": "A8FB2B2B161125A16FD15ED9581CD15B",
+    "name": "ViewDesign",
+    "title": "视图设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "DEB19A7882B6B91C816FBA700641AB2C",
+    "parentId": "FB291E325272007AEED8921C28B93CFD",
+    "name": "ReportDesign",
+    "title": "报表设计",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "E328FBBF518141973C575D612CD75151",
+    "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+    "name": "FlowMonitor",
+    "title": "流程监控",
+    "kind": "Model",
+    "target": "vue:/features/system/flow-monitor/ui/flow-monitor-page",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+    "parentId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+    "name": "InterfaceList",
+    "title": "接口列表",
+    "kind": "Navitem",
+    "target": null,
+    "publishInMenu": 0
+  },
+  {
+    "nodeId": "EDF7DE3E5723E127F98B2A119BE81BF9",
+    "parentId": "9EFFD97B4156A0D81C5CEAFFCC75381E",
+    "name": "FileManager",
+    "title": "文件管理",
+    "kind": "Navitem",
+    "target": "vue:/FileDataManager/FileManager/index",
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "F4052F3F068CCAB21910EA5633EC7F88",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "SafetyProtectionManager",
+    "title": "安全防护管理",
+    "kind": "Model",
+    "target": null,
+    "publishInMenu": 1
+  },
+  {
+    "nodeId": "FB291E325272007AEED8921C28B93CFD",
+    "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+    "name": "ReportManage",
+    "title": "业务报表管理",
+    "kind": "Navitem",
+    "target": "vue:/features/integration/report/ui/report-management-page",
+    "publishInMenu": 1
+  }
+]

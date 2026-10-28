@@ -1,0 +1,182 @@
+[
+  {
+    "name": "appworks-cfg-tool-publish-identity-build-final.log",
+    "bytes": 28104,
+    "sha256": "5CEDCEA21BF769B5361A4683DCFCF0F8D1B2C6BB9D6C25E3FA8F4A583F54783C"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-build-implementation-final.log",
+    "bytes": 28104,
+    "sha256": "5FE82E09762D148ECA495EA8AFF7F7B85E61320A5FCA3160917750D0B70932ED"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-delivery-01.log",
+    "bytes": 177618,
+    "sha256": "C853EBA9D4D8EE94AABD1A1447DCE0AAB17A4DD7DE531C5495056FEA6543E8EF"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-delivery-02.log",
+    "bytes": 426,
+    "sha256": "6FC800801F2D777BEA02C70D43B1956A24330DAFA896FD0ED7B13853B997A3DB"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-delivery-final.log",
+    "bytes": 426,
+    "sha256": "EE12D67E7F717ACDA699A7331B0FCE32173C704E6DDAC24587329B1EBE2B1DB3"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-delivery-implementation-final.log",
+    "bytes": 426,
+    "sha256": "80AD11684EA10D5CC9459FEA81BC4C3F23DBDEA10AB8E83B08DD85D5E6A87584"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-eslint-01.log",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-eslint-02.log",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-eslint-final.log",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-manhour-await-red-01.log",
+    "bytes": 576244,
+    "sha256": "3213E1A887E243812D9BD27D4F19377D352EDF7E116C866C576A92AE72793149"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-01.log",
+    "bytes": 424,
+    "sha256": "0D74781F01D7345812E2AC3ECF5F27C0CB1FE80366ADEE4917892C20463C875C"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-final.log",
+    "bytes": 424,
+    "sha256": "1F8D80D147295AA94C97FB1BB3EE405B10C0A46B980D898B477B0440DF2C5DAD"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-build-final.log",
+    "bytes": 28104,
+    "sha256": "9F5A574848316EDE62F0CBAE8FF1F9259D43699F53BF64357EFC78902DD95220"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-delivery-02.log",
+    "bytes": 427,
+    "sha256": "A82E27EBEA0B41DE6A4F0B940AD4BED6FACDCB68F9F70BC6219147C2C5D2095D"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-eslint-02.log",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-owner-final.log",
+    "bytes": 424,
+    "sha256": "BF835CD3D2B9C15EDBBD6E592C3804191A4CEF4021D0AFCB62002FAB3D904499"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-rules-final.log",
+    "bytes": 3418,
+    "sha256": "79691D9ACCA213B795328273E9D44107A531B543F2787CF5D4D47721857166C9"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-tool-resource-final.log",
+    "bytes": 423,
+    "sha256": "0C236A1DCBE9DE1028CDDB791F6C370E43F963DFB9449D34611533EC03BD60A4"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guard-typecheck-02.log",
+    "bytes": 62,
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-guards-green-01.log",
+    "bytes": 438,
+    "sha256": "F13EA09C23547FC1E3B3C9C4AEEE86B97EF7886A310967CE75538DFDC4DC2267"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-owner-implementation-final.log",
+    "bytes": 424,
+    "sha256": "65E68C5340939E44572B8C7E0C598BE69957D9B24AB086C8C2BC66857477E379"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-red-01.log",
+    "bytes": 59462,
+    "sha256": "276EF6F9B1B10003B203533D7D19B1CCF5FE88F502928C6A1BE698522F01CE69"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-red-02.log",
+    "bytes": 59535,
+    "sha256": "442C4C49A68404B383CE8799232A22F4F3C6A3EC15BA3165336983065E31F6ED"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-red-03.log",
+    "bytes": 59493,
+    "sha256": "C89FB28C765673DF3EE10D12B40854275CB0604A2B5D44A73FD0BF4A99B4233D"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-remap-during-upload-red-01.log",
+    "bytes": 571744,
+    "sha256": "00333CDB78D8CF02FB2210E236FA771C1C3E63A987CFB75551DEAE39AA4F61EF"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-remap-during-upload-red-02.log",
+    "bytes": 575266,
+    "sha256": "ECE6505F8394704B2F6F20A60839C79F63AB192E15ADBDEDDF361A84F58F66E0"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-rules-final-02.log",
+    "bytes": 3417,
+    "sha256": "F980E9AD8C604C699B32E2201F54446291075A29FF4FAFE6DDF80751148D78E2"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-rules-final.log",
+    "bytes": 1122,
+    "sha256": "950312702EC4B4921E23331C3EC56473F00AA1403AE7D2F410F3ADA47689870C"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-rules-implementation-final.log",
+    "bytes": 3417,
+    "sha256": "2B999815181A859109BD2FD30926450B68AFEE9629C1427B9A91E7EAACBF43F8"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-tool-resource-final.log",
+    "bytes": 423,
+    "sha256": "10ED3F88047D21FBDC9A2A728E5547A3BD75B47B1F97FCD6C2CA4CFAB5BE6387"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-tool-resource-implementation-final.log",
+    "bytes": 423,
+    "sha256": "CB5827EF7AAC43DA601F0EB1BBA679ECC08A0931D20165EF870B8FA614B0EA85"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-typecheck-01.log",
+    "bytes": 62,
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-typecheck-02.log",
+    "bytes": 62,
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-root-green.log",
+    "bytes": 435,
+    "sha256": "6575884B291AF298683BB3C3427D946F120DB980588D59EEE4241C954D3A7B98"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-root-red.log",
+    "bytes": 59501,
+    "sha256": "7F079292022FFF878255AF1F51F1E10ED2D076367F7F16CD9F186B583C510134"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-root-remap-red.log",
+    "bytes": 575274,
+    "sha256": "F453D3EF67D58194CE5443513F165EE93D897137A5D3A8F490275748E7F7CEB0"
+  }
+]

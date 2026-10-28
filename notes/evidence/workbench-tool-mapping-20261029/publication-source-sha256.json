@@ -1,0 +1,10 @@
+[
+  {
+    "path": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
+    "sha256": "33DB661F54D122FA7751F325B4BD9C2EF8994ECE11BEA0F632D368BF4B2D4F1F"
+  },
+  {
+    "path": "tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts",
+    "sha256": "2D945F1A1DD8A3F3B999335EA849B3463CAE860DE9D1EF2879BEA06E1DBB8C43"
+  }
+]

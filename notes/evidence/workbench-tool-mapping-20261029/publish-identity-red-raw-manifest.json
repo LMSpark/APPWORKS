@@ -1,0 +1,17 @@
+[
+  {
+    "name": "appworks-cfg-tool-publish-identity-red-02.log",
+    "bytes": 59535,
+    "sha256": "442C4C49A68404B383CE8799232A22F4F3C6A3EC15BA3165336983065E31F6ED"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-identity-red-03.log",
+    "bytes": 59493,
+    "sha256": "C89FB28C765673DF3EE10D12B40854275CB0604A2B5D44A73FD0BF4A99B4233D"
+  },
+  {
+    "name": "appworks-cfg-tool-publish-root-red.log",
+    "bytes": 59501,
+    "sha256": "7F079292022FFF878255AF1F51F1E10ED2D076367F7F16CD9F186B583C510134"
+  }
+]

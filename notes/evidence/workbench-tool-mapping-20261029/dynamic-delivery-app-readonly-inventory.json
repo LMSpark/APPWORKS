@@ -1,0 +1,111 @@
+{
+  "observedAt": "2026-10-28T23:42:47.616Z",
+  "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+  "applicationTitle": "AI 交付工单系统",
+  "source": "Formal DevSystem DataView, no writes",
+  "reads": [
+    {
+      "requestId": "17316.4001",
+      "code": 200,
+      "total": 4,
+      "rows": [
+        {
+          "nodeId": "1FCD3D06975AE072447686E8DAF759E6",
+          "parentId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "work-item-list",
+          "title": "工单列表",
+          "kind": "Navitem",
+          "target": "/delivery/work-items",
+          "scenarioId": "1FCD3D06975AE072447686E8DAF759E6",
+          "versionId": null
+        },
+        {
+          "nodeId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "parentId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "delivery-management",
+          "title": "交付管理",
+          "kind": "Model",
+          "target": null,
+          "scenarioId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "versionId": null
+        },
+        {
+          "nodeId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "parentId": "000000",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "spark-skill-factory-pilot",
+          "title": "AI 交付工单系统",
+          "kind": "Model",
+          "target": "",
+          "scenarioId": "4F5B62285167FEDE0772EF3EB39F3E72",
+          "versionId": null
+        },
+        {
+          "nodeId": "BFCB498202A053D936A7D93263C61D3C",
+          "parentId": "1FCD3D06975AE072447686E8DAF759E6",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "work-item-detail",
+          "title": "工单详情",
+          "kind": "Navitem",
+          "target": "/delivery/work-items/:workItemId",
+          "scenarioId": "BFCB498202A053D936A7D93263C61D3C",
+          "versionId": null
+        }
+      ]
+    },
+    {
+      "requestId": "17316.4089",
+      "code": 200,
+      "total": 4,
+      "rows": [
+        {
+          "nodeId": "1FCD3D06975AE072447686E8DAF759E6",
+          "parentId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "work-item-list",
+          "title": "工单列表",
+          "kind": "Navitem",
+          "target": "/delivery/work-items",
+          "scenarioId": "1FCD3D06975AE072447686E8DAF759E6",
+          "versionId": null
+        },
+        {
+          "nodeId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "parentId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "delivery-management",
+          "title": "交付管理",
+          "kind": "Model",
+          "target": null,
+          "scenarioId": "4A4C826A78FF7AF6D7026CF011F6AD26",
+          "versionId": null
+        },
+        {
+          "nodeId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "parentId": "000000",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "spark-skill-factory-pilot",
+          "title": "AI 交付工单系统",
+          "kind": "Model",
+          "target": "",
+          "scenarioId": "4F5B62285167FEDE0772EF3EB39F3E72",
+          "versionId": null
+        },
+        {
+          "nodeId": "BFCB498202A053D936A7D93263C61D3C",
+          "parentId": "1FCD3D06975AE072447686E8DAF759E6",
+          "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+          "name": "work-item-detail",
+          "title": "工单详情",
+          "kind": "Navitem",
+          "target": "/delivery/work-items/:workItemId",
+          "scenarioId": "BFCB498202A053D936A7D93263C61D3C",
+          "versionId": null
+        }
+      ]
+    }
+  ],
+  "visiblePages": 2
+}

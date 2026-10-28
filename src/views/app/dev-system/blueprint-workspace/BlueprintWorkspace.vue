@@ -111,7 +111,7 @@ const estimateAccess = computed(() => {void dataViewRevision.value; return ({
   DifficultyFactor: access('DifficultyFactor'), Manhour: access('Manhour'), Number: access('Number'),
   Sum: access('Sum'), Total: access('Total'), personCharge: access('personCharge'), status: access('status'),
 })})
-const deliveryAccess = computed(() => {void dataViewRevision.value; return access('NavigationUrl').write && access('VersionId').read && access('VersionId').write})
+const deliveryAccess = computed(() => {void dataViewRevision.value; return access('NavigationUrl').read && access('VersionId').read && access('VersionId').write})
 
 onBeforeUnmount(() => { disposed = true; loadRevision++; sparkRemove(PAGE_RUNTIME) })
 
@@ -174,27 +174,56 @@ async function saveDelivery() {
   if (!nodeId || !pageId || saving.value || loading.value) return
   const projectId = props.state.projectId
   const current = session.value
-  if (!current || !deliveryAccess.value) {props.state.addStatus('发布交付要求当前 DataView 正式返回 NavigationUrl、VersionId 且允许读写', 'warning'); return}
+  if (!current || !deliveryAccess.value) {props.state.addStatus('发布交付要求当前 DataView 可读 NavigationUrl、VersionId 且允许写 VersionId', 'warning'); return}
   if (current.dirty || current.hasUnconfirmedSave) {props.state.addStatus('请先保存或取消当前节点字段修改，再提交发布文件', 'warning'); return}
   const scopeToken = lowcodeApi.readRequestScope().token
+  const originalNavigationUrl = String(current.value('NavigationUrl') ?? '')
+  let expectedVersionId = String(current.value('VersionId') ?? '')
+  const originalWorkspace = readyWorkspace.value
   const texts = new Map((['rule.json', 'script.js', 'style.css'] as const).map(name => [name, props.state.project.readPageFileText(name)]))
   const written: string[] = []
   const confirmed: string[] = []
   const attemptedSnapshots: string[] = []
   const attemptedReferences: string[] = []
-  const assertTarget = () => {
+  const assertTarget = (allowOnlyOwnedVersionPatch = false) => {
     if (disposed || props.state.selectedNode.value?.nodeId !== nodeId || props.state.activePageId.value !== pageId
-      || props.state.projectId !== projectId || lowcodeApi.readRequestScope().token !== scopeToken) throw new Error('交付目标已切换，后续交付已停止')
+      || props.state.projectId !== projectId || lowcodeApi.readRequestScope().token !== scopeToken
+      || session.value !== current || readyWorkspace.value !== originalWorkspace || originalWorkspace?.session !== current
+      || !originalWorkspace || originalWorkspace.nodeId !== nodeId || originalWorkspace.projectId !== projectId
+      || current.projectId !== projectId || current.nodeId !== nodeId) throw new Error('交付目标已切换，后续交付已停止')
+    if (current.isBusy || current.view.loadingError) throw new Error('交付蓝图 DataView 查询状态已改变，后续交付已停止')
+    if (!current.canRead('NavigationUrl') || !current.canRead('VersionId') || !current.canWrite('VersionId')) {
+      throw new Error('交付期间正式 DataView 字段权限已改变，后续交付已停止')
+    }
+    const row = current.row
+    const rowKey = row ? current.view.getPkKey(row) : undefined
+    if (!row || rowKey === undefined || row['rowid'] !== nodeId || row['SysId'] !== projectId
+      || String(current.value('NavigationUrl') ?? '') !== originalNavigationUrl
+      || String(current.value('VersionId') ?? '') !== expectedVersionId) throw new Error('交付 DataView 行或发布身份已改变，后续交付已停止')
+    const patch = current.view.getEditingPatch(rowKey)
+    const changedFields = Object.keys(patch ?? {})
+    const submittedRowIds = current.view.rows.map(candidate => current.view.getPkKey(candidate))
+      .filter((key): key is string | number => key !== undefined
+        && (current.view.hasEditingChanges(key) || current.view.dirtyTracking.hasPendingChanges(key)))
+    if (current.hasUnconfirmedSave || current.hasPendingBlueprintCommand || current.view.dirtyTracking.hasPendingChanges(rowKey)) {
+      throw new Error('交付 DataView 保存或命令状态已改变，后续交付已停止')
+    }
+    if (allowOnlyOwnedVersionPatch) {
+      if (submittedRowIds.length !== 1 || submittedRowIds[0] !== rowKey
+        || changedFields.length !== 1 || changedFields[0] !== 'VersionId' || patch?.['VersionId'] !== expectedVersionId) {
+        throw new Error('交付期间 DataView 出现其他未保存修改，后续交付已停止')
+      }
+    } else if (current.dirty || changedFields.length > 0) {
+      throw new Error('交付期间 DataView 出现未保存修改，后续交付已停止')
+    }
   }
   saving.value = true
   try {
     const runtimeTarget = String(current.value('NavigationUrl') ?? '')
-    const customPath = runtimeTarget.startsWith('cfg:')
-      ? runtimeTarget.slice(4)
-      : `${projectId}/${pageId}`
-    const pathSegments = customPath.split('/')
-    if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || pathSegments[0] !== projectId || pathSegments.length < 2
-      || /[\\?#]/.test(customPath) || pathSegments.some(segment => !segment || segment.trim() !== segment || segment === '.' || segment === '..')) throw new Error('交付路径必须属于当前请求应用')
+    const customPath = `${projectId}/${pageId}`
+    if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || !pageId || pageId.trim() !== pageId
+      || pageId === '.' || pageId === '..' || /[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
+      || runtimeTarget !== `cfg:${pageId}`) throw new Error('交付工具身份必须与当前项目及页面一致')
     let versions = parseLowcodeBlueprintFileVersions(fileVersions.value)
     for (const fileName of ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]) {
       assertTarget()
@@ -209,13 +238,16 @@ async function saveDelivery() {
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 上传期间已修改，未更新发布引用`)
       versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       attemptedReferences.push(versionedName)
-      current.update('NavigationUrl', `cfg:${customPath}`)
-      current.update('VersionId', encodeLowcodeBlueprintFileVersions(versions))
+      expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)
+      current.update('VersionId', expectedVersionId)
       dataViewRevision.value++
       props.state.notifyExternalDataViewChanged()
+      assertTarget(true)
       await current.save()
+      assertTarget()
       const readbackVersions = String(current.value('VersionId') ?? '').trim()
-      if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== encodeLowcodeBlueprintFileVersions(versions)) throw new Error(`${fileName} 发布指针回读不一致`)
+      if (encodeLowcodeBlueprintFileVersions(parseLowcodeBlueprintFileVersions(readbackVersions)) !== expectedVersionId) throw new Error(`${fileName} 发布指针回读不一致`)
+      assertTarget()
       confirmed.push(versionedName)
       assertTarget()
       props.state.notifyExternalDataViewChanged()

@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
-import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { PageRuntime, ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
@@ -38,7 +38,7 @@ const StandardRenderer = defineComponent({props:['dataViewKey','label','disabled
 const Delivery = defineComponent({ props: ['canPublish'], emits: ['save'], template: '<button @click="$emit(\'save\')">交付</button>' })
 const Planning = defineComponent({props:['modelValue','fieldAccess'],emits:['update:modelValue'],template:'<div v-if="fieldAccess.read"><input data-testid="planning" :disabled="!fieldAccess.write" :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value)"></div><span v-else>无读取权限</span>'})
 const scenarioId = '7AB874097A1E8711A42FD845939A6E05'
-const initialRow = (target = 'cfg:APP-A/tool-A', versionId = 'rule=1;script=1;style=1'): DataRow => ({rowid: 'node-A', SysId: 'APP-A',
+const initialRow = (target = 'cfg:tool-A', versionId = 'rule=1;script=1;style=1'): DataRow => ({rowid: 'node-A', SysId: 'APP-A',
   memo: 'planning', htmlDesc: '', conid: 'scene-A', NavigationUrl: target, VersionId: versionId, DifficultyFactor: 1,
   Manhour: 2, Number: 3, Sum: 6, Total: 6, personCharge: '', status: '', IsShowAtNav: 0, NavigationType: 0})
 function createDataSet(options: {target?: string; versionId?: string; deniedWrite?: string; readbackVersion?: string} = {}) {
@@ -69,15 +69,23 @@ function createDataSet(options: {target?: string; versionId?: string; deniedWrit
     })})
   return dataSet
 }
+function projectedActivePageId(target: string): string {
+  const blueprint = new ProjectBlueprint({projectId: 'APP-A'})
+  blueprint.replaceBlueprintTree({nodeId: 'project-root', parentNodeId: '', projectId: 'APP-A', kind: 'module',
+    capability: {name: 'APP-A'}, source: {}, children: [{nodeId: 'node-A', parentNodeId: 'project-root', projectId: 'APP-A', kind: 'page',
+      capability: {name: 'tool-A'}, navigation: {title: 'tool-A', target, order: 0, publishInMenu: true, showChildren: true, beginGroup: false}, source: {}}]})
+  return blueprint.readBlueprintProjection().pageDeliveries.find(node => node.nodeId === 'node-A')?.pageId ?? ''
+}
 function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   const dataSet = createDataSet(options)
+  const target = options.target ?? 'cfg:tool-A'
   const pageRuntime={instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>dataSet,
     resolveView:()=>dataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime
   let owner: BlueprintWorkspaceDataView | undefined
   const accessRevision = ref(0)
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
   const state = {
-    selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref('tool-A'), projectId: 'APP-A', addStatus: vi.fn(),
+    selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref(projectedActivePageId(target)), projectId: 'APP-A', addStatus: vi.fn(),
     blueprintPageRuntime: ref(pageRuntime),
     registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(() => {accessRevision.value++}),
     loadBlueprintWorkspaceDataView: vi.fn(async () => {
@@ -110,7 +118,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       },
     },
   })
-  return { state, wrapper, dataSet }
+  return { state, wrapper, dataSet, workspaceOwner: () => owner }
 }
 
 describe('BlueprintWorkspace runtime mount lifecycle', () => {
@@ -275,6 +283,37 @@ describe('BlueprintWorkspace file delivery', () => {
     wrapper.unmount()
   })
 
+  it('publishes the newly created cfg:tool-A identity through the actual ProjectBlueprint projection', async () => {
+    const {wrapper, state, dataSet} = setup({target: 'cfg:tool-A'}); await flushPromises()
+    expect(state.activePageId.value).toBe('tool-A')
+    expect(state.registerExternalDataViewSession.mock.calls[0]?.[0].isDirty()).toBe(false)
+    expect(state.blueprintNodeFieldAccess('NavigationUrl')).toMatchObject({read: true, write: true})
+    expect(state.blueprintNodeFieldAccess('VersionId')).toMatchObject({read: true, write: true})
+    expect(wrapper.findComponent(Delivery).props('canPublish')).toBe(true)
+    await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
+    expect(api.createSnapshot).toHaveBeenCalledTimes(3)
+    expect(api.createSnapshot.mock.calls.map(call => [call[0].pageId, call[0].customPath])).toEqual([
+      ['tool-A', 'APP-A/tool-A'], ['tool-A', 'APP-A/tool-A'], ['tool-A', 'APP-A/tool-A'],
+    ])
+    expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('交付路径必须属于当前请求应用'), 'error')
+    expect(dataSet.getView('Base_NavigationInfo')?.rows[0]?.['NavigationUrl']).toBe('cfg:tool-A')
+    expect(dataSet.getView('Base_NavigationInfo')?.rows[0]?.['VersionId']).toBe('rule=8;script=8;style=8')
+    wrapper.unmount()
+  })
+
+  it('publishes the VersionId when NavigationUrl is readable but not writable', async () => {
+    const {wrapper, state, dataSet} = setup({target: 'cfg:tool-A', deniedWrite: 'NavigationUrl'}); await flushPromises()
+    expect(state.activePageId.value).toBe('tool-A')
+    expect(state.blueprintNodeFieldAccess('NavigationUrl')).toMatchObject({read: true, write: false})
+    expect(state.blueprintNodeFieldAccess('VersionId')).toMatchObject({read: true, write: true})
+    expect(wrapper.findComponent(Delivery).props('canPublish')).toBe(true)
+    await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
+    expect(api.createSnapshot).toHaveBeenCalledTimes(3)
+    expect(dataSet.getView('Base_NavigationInfo')?.rows[0]?.['NavigationUrl']).toBe('cfg:tool-A')
+    expect(dataSet.getView('Base_NavigationInfo')?.rows[0]?.['VersionId']).toBe('rule=8;script=8;style=8')
+    wrapper.unmount()
+  })
+
   it('reports the confirmed snapshot when its reference fails without claiming rollback', async () => {
     const { wrapper, state, dataSet } = setup()
     vi.spyOn(dataSet, 'saveChanges').mockRejectedValueOnce(new Error('pointer rejected'))
@@ -287,10 +326,11 @@ describe('BlueprintWorkspace file delivery', () => {
     wrapper.unmount()
   })
 
-  it.each(['cfg:APP-B/tool-A', 'cfg:APP-A/../APP-B/tool-A'])('rejects a path outside the current application: %s', async target => {
-    const { wrapper } = setup({target}); await flushPromises()
+  it.each(['cfg:APP-A/tool-A', 'cfg:APP-B/tool-A', 'cfg:APP-A/../APP-B/tool-A'])('rejects invalid tool identities before snapshot I/O: %s', async target => {
+    const { wrapper, state } = setup({target}); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     expect(api.createSnapshot).not.toHaveBeenCalled()
+    expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('交付工具身份必须与当前项目及页面一致'), 'error')
     wrapper.unmount()
   })
 
@@ -302,6 +342,55 @@ describe('BlueprintWorkspace file delivery', () => {
     state.selectedNode.value = { nodeId: 'node-B' }; await flushPromises()
     finish(); await flushPromises()
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('已确认快照：8__rule.json'), 'error')
+    wrapper.unmount()
+  })
+
+  it('stops the old publication when the NavigationUrl DataView draft changes during snapshot upload', async () => {
+    let finish!: (result: {version:number;fileName:string}) => void
+    api.createSnapshot.mockImplementationOnce(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void}) => {
+      const result={version:8,fileName:`8__${input.fileName}`}
+      input.onAttempt?.(result)
+      return await new Promise(resolve=>{finish=()=>resolve(result)})
+    })
+    const {wrapper,state,dataSet}=setup(); await flushPromises()
+    const save=vi.spyOn(dataSet,'saveChanges')
+    await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
+    expect(api.createSnapshot).toHaveBeenCalledTimes(1)
+    const view=dataSet.getView('Base_NavigationInfo')!
+    view.updateEditingValue('node-A','NavigationUrl','cfg:tool-B')
+    expect(state.activePageId.value).toBe('tool-A')
+    expect(view.getEditingPatch('node-A')).toMatchObject({NavigationUrl:'cfg:tool-B'})
+    finish({version:8,fileName:'8__rule.json'})
+    await flushPromises()
+    expect.soft(api.createSnapshot).toHaveBeenCalledTimes(1)
+    expect.soft(save).not.toHaveBeenCalled()
+    expect.soft(view.getEditingPatch('node-A')).toMatchObject({NavigationUrl:'cfg:tool-B'})
+    expect.soft(view.rows[0]?.['NavigationUrl']).toBe('cfg:tool-A')
+    wrapper.unmount()
+  })
+
+  it('preserves a Manhour DataView draft made through the estimate pane while snapshot upload is pending', async () => {
+    let finish!: (result: {version:number;fileName:string}) => void
+    api.createSnapshot.mockImplementationOnce(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void}) => {
+      const result={version:8,fileName:`8__${input.fileName}`}
+      input.onAttempt?.(result)
+      return await new Promise(resolve=>{finish=()=>resolve(result)})
+    })
+    const {wrapper,state,dataSet,workspaceOwner}=setup(); await flushPromises()
+    const save=vi.spyOn(dataSet,'saveChanges')
+    await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
+    expect(api.createSnapshot).toHaveBeenCalledTimes(1)
+    const owner=workspaceOwner()!
+    owner.update('Manhour',17)
+    expect(owner.dirty).toBe(true)
+    expect(state.activePageId.value).toBe('tool-A')
+    finish({version:8,fileName:'8__rule.json'})
+    await flushPromises()
+    expect.soft(api.createSnapshot).toHaveBeenCalledTimes(1)
+    expect.soft(save).not.toHaveBeenCalled()
+    expect.soft(owner.view.getEditingPatch('node-A')).toMatchObject({Manhour:17})
+    expect.soft(owner.row?.['Manhour']).toBe(2)
+    expect.soft(owner.row?.['VersionId']).toBe('rule=1;script=1;style=1')
     wrapper.unmount()
   })
 
@@ -332,8 +421,8 @@ describe('BlueprintWorkspace file delivery', () => {
     wrapper.unmount()
   })
 
-  it('refreshes delivery permission when the loaded DataView denies a required field', async () => {
-    const {wrapper} = setup({deniedWrite: 'NavigationUrl'}); await flushPromises()
+  it('refreshes delivery permission when the loaded DataView denies VersionId write access', async () => {
+    const {wrapper} = setup({deniedWrite: 'VersionId'}); await flushPromises()
     expect(wrapper.findComponent(Delivery).props('canPublish')).toBe(false)
     wrapper.unmount()
   })

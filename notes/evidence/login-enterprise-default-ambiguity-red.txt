@@ -1,0 +1,48 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > LoginView enterprise selection > leaves enterprise empty when the display label is ambiguous
+[Vue Router warn]: No match found for location with path "/target"
+
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts (8 tests | 1 failed) 166ms
+     × leaves enterprise empty when the display label is ambiguous 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/views/tenant/app-list-dataview.test.ts > LoginView enterprise selection > leaves enterprise empty when the display label is ambiguous
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "enterpriseName": "",
++   {
++     "account": "",
++     "enterpriseName": "Lingma",
++     "password": "",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts:169:25
+    167|     await wrapper.get('.login-btn').trigger('click')
+    168|     await flushPromises()
+    169|     expect(state.login).toHaveBeenCalledWith(expect.objectContaining({…
+       |                         ^
+    170|   })
+    171|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  09:41:39
+   Duration  10.87s (transform 7.47s, setup 102ms, import 9.59s, tests 166ms, environment 762ms)
+

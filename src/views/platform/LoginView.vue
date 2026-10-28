@@ -213,11 +213,20 @@ const loading = ref(false)
 const errorMsg = ref('')
 const enterpriseLoading = ref(false)
 const enterprises = ref<readonly LowcodeEnterpriseCatalogItem[]>([])
+const preferredEnterpriseDisplayName = '领码科技'
+const loginForm = reactive({ enterpriseName: '', account: '', password: '' })
 
 async function loadEnterprises(): Promise<void> {
   enterpriseLoading.value = true
   try {
     enterprises.value = await lowcodeApi.platform.listEnterprises()
+    if (!loginForm.enterpriseName) {
+      const preferredEnterprises = enterprises.value.filter(enterprise => enterprise.name === preferredEnterpriseDisplayName)
+      if (preferredEnterprises.length === 1) {
+        const preferredEnterprise = preferredEnterprises[0]
+        if (preferredEnterprise) loginForm.enterpriseName = preferredEnterprise.shortName
+      }
+    }
   } catch (error) {
     ElMessage.warning(error instanceof Error ? error.message : '企业列表加载失败')
   } finally {
@@ -237,7 +246,6 @@ function getUserHomePath(enterpriseName: string): string {
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
 
-const loginForm = reactive({ enterpriseName: '领码科技', account: '', password: '' })
 const loginFormRef = ref<FormInstance>()
 const loginRules: FormRules = {
   enterpriseName: [{ required: true, message: '请选择或输入企业', trigger: 'change' }],

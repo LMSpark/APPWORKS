@@ -12,7 +12,7 @@
 
 **设计会话的正式模型读取**：字段目录与模型操作校验向DataSpaceDesignApi.readModel传入本次元数据DataSet。数据层按正式modelBinding.modelName唯一定位元表，在原查询owner上创建独立DataView，读取目标模型、所属columns记录、必要来源主键及来源入参，沿查询接纳边界校验身份、权限和完整性后投影，最后释放查询视图。缺失、释放或身份不匹配的元视图直接拒绝，不回退底层HTTP；原工作区行、编辑、选择和查询配置保持。临时视图不继承工作区输出收窄或查询模式来改变正式结构读取范围。复制API不再要求全空间字段default预先加载；按正式模型逐一读取，仍拒绝任一字段视图的未提交编辑或未决保存，字段可读性由该次正式查询核验。装配元空间前尚无DataSet的引导读取仍由原runtime query承接；该初始化阶段与活动会话数据操作分开，不据此宣称所有历史入口均已统一。
 
-**AppWorks 系统程序来源**：`config/applications/appworks.json`登记D99系统应用、仓内导航JSON及四个系统场景；这些程序定义始终从仓内资源DataView读取，缺文件或资源身份不匹配即失败。其他已由正式元数据确认的数据空间目标继续沿既有`ProjectWorkspace`场景文件DataView/owner读取；四个清单场景不会因为设计器入口而转回远端。动态用户应用仍以正式应用目录、蓝图和场景资源为来源。菜单发布授权仍读取既有`GetNavigationMenus`响应，并由只读语义DataView承接；仓内程序导航声明不代替后台授权或业务数据权限。页面工具三文件及真实DB模型、业务数据仍沿各自正式来源。
+**AppWorks 系统程序来源**：`config/applications/appworks.json`登记D99系统应用、仓内导航JSON及四个系统场景；这些程序定义始终从仓内资源DataView读取，缺文件或资源身份不匹配即失败。四场景开发态可经SPARK data保存，构建态只读；场景历史和工具定义仍未迁入。其他已由正式元数据确认的数据空间目标继续沿既有`ProjectWorkspace`场景文件DataView/owner读取；四个清单场景不会因为设计器入口而转回远端。动态用户应用仍以正式应用目录、蓝图和场景资源为来源。菜单发布授权仍读取既有`GetNavigationMenus`响应，并由只读语义DataView承接；仓内程序导航声明不代替后台授权或业务数据权限。页面工具三文件及真实DB模型、业务数据仍沿各自正式来源。
 
 **旧设计工具及页面旁路已退出**：仓内旧设计工具的script/rule/style、宿主dataSpaceDesign/dataSpaceLayout能力和`$page`专用查询/暂存/保存/文本草稿方法已删除。现有导航URL仍解析到参考层级内的原生设计页；AppWorks四个系统场景配置已随系统程序一并迁入仓内。脚本使用`getDataSet/resolveView`取得本次实例，数据操作调用DataSet/DataView。文件owner只在资源适配内部执行存储。六类来源的数据合同归数据空间领域，不从页面服务反推；LowcodeDataSpaceViewDesign保留设计会话与原生预览编排，旧open/readModel/stage/save/verify/previewRemote/adopt接口已删除。查询、编辑、取消和保存通过DataView/DataSet；整页验收和仓内写入适配仍未完成。
 
@@ -683,7 +683,7 @@ SparkPageRenderer在页面脚本编译后、初始化与自动加载前，在原
 | 空间参数声明、模型来源入参映射 | Base_DataSet.inputParams / Base_DataModel_Field 中 type=inputParams 的记录；仍归数据库正式 query/save | 声明、实参、来源映射是三个对象；当前映射消费断点见 5.1 参数链，不把入参记录装成输出列 |
 | 后端已有关系记录 | Base_DataModel_Relation；只代表其既有后端合同 | 当前适配器转换可绑定部分，不等于完整原生关系的持久化 |
 | 本仓模型关系 resourceRelations | 无来源的完整原生关系及数据库来源的前端扩展由 pagedata 保存；已有DB定义不复制 | ScenarioViewConfig.resolveResourceRelations 合并当次来源，装配后交原生消费者；详见 6.1 |
-| 模型绑定、命名视图、前端校验与计算扩展、级联、布局 | AppWorks清单中的四个系统程序场景从仓内登记文件读取；其他已由正式元数据核实的设计目标沿执行应用的`SysForm/<scenarioId>/pagedata.json`读取。定义DataView编辑、DataSet提交，动态场景的ScenarioDefinitionResource在数据层内部复用文件owner及ProjectWorkspace | ScenarioViewConfig 校验后与正式模型合成；仓内程序场景目前只读，缺少仓内写入适配器时明确失败 |
+| 模型绑定、命名视图、前端校验与计算扩展、级联、布局 | AppWorks清单中的四个系统程序场景从仓内登记文件读取；其他已由正式元数据核实的设计目标沿执行应用的`SysForm/<scenarioId>/pagedata.json`读取。定义DataView编辑、DataSet提交，动态场景的ScenarioDefinitionResource在数据层内部复用文件owner及ProjectWorkspace | ScenarioViewConfig 校验后与正式模型合成；四个仓内场景开发态经SPARK data资源适配写入，构建态只读；其历史与工具定义仍未迁入 |
 | 页面结构、事件、样式 | PageTool 的三个文件及其文件 owner | PageRuntime materialize 后由渲染器消费 |
 | 结果、选择、编辑覆盖、dirty/stale | 不作为设计定义持久化；归各 DataView 实例 | 公共查询、编辑、选择及保存机制 |
 | 查询权限和保存凭据 | 当次正式响应及私有查询上下文 | DataView 字段访问和动作状态接口 |

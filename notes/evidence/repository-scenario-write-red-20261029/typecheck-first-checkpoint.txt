@@ -1,0 +1,3 @@
+$ vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json
+tests/runtime/auth-nav/data-space/repository-scenario-middleware.test.ts(88,40): error TS2684: The 'this' context of type 'void' is not assignable to method's 'this' of type 'MinimalPluginContextWithoutEnvironment'.
+[ELIFECYCLE] Command failed with exit code 2.

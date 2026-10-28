@@ -10,6 +10,8 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-file\n职责：场景共享文件的编辑历史与保存基线。\n边界：一个场景一个owner，新建草稿不能冒充已持久化。\nAI用途：编辑场景视图并保持并发保存期间的新修改。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "ScenarioViewSubmission",
+      "ScenarioViewWriteNotAppliedError",
       "ScenarioViewFile"
     ]
   },
@@ -34,6 +36,37 @@
         "baseline"
       ],
       "additionalProperties": false
+    },
+    "ScenarioViewWriteNotAppliedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewWriteNotAppliedError",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "resourceId": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
     },
     "ScenarioViewFile": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -193,6 +226,16 @@
           "additionalProperties": false
         },
         "method.confirmNotApplied.return": true,
+        "method.rejectSaveBeforeApply.params": {
+          "type": "object",
+          "properties": {
+            "submission": {
+              "$ref": "#/$defs/ScenarioViewSubmission"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rejectSaveBeforeApply.return": true,
         "method.invalidate.params": {
           "type": "object",
           "properties": {},
@@ -248,11 +291,11 @@
       }
     }
   },
-  "generatedAt": "2026-10-11T18:06:46.836Z",
+  "generatedAt": "2026-10-28T20:40:14.019Z",
   "models": {
     "ScenarioViewSubmission": {
       "name": "ScenarioViewSubmission",
-      "jsdoc": "",
+      "jsdoc": "单次 DataSet 保存捕获的提交原文和写前基线；对象身份标识当前待核验提交。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    text: string;\n    baseline: string | null;\n}>",
@@ -272,6 +315,60 @@
             },
             {
               "name": "baseline",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewWriteNotAppliedError": {
+      "name": "ScenarioViewWriteNotAppliedError",
+      "jsdoc": "存储适配器对特定提交作出的明确未应用证明。\n只用于替换尚未开始且目标资源匹配的拒绝；读回错误、响应丢失或超时不得构造此错误。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(resourceId: string, code: string, message: string)",
+          "parameters": [
+            {
+              "name": "resourceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "code",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
               "readable": true,
               "writable": false
             }
@@ -538,6 +635,24 @@
             {
               "name": "confirmNotApplied",
               "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "rejectSaveBeforeApply",
+              "jsdoc": "仅在写入适配器明确证明替换未开始后，结算同一对象标识的当前提交。\n拒绝其他或已过期提交；保留当前文本、已保存基线和撤销历史，使草稿仍可重试。",
+              "parameters": [
+                {
+                  "name": "submission",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSubmission",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

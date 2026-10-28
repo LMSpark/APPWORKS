@@ -1,0 +1,15 @@
+
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-project-model\src\project\project-workspace.ts
+  305:64  error  Unnecessary conditional, the types have no overlap                                   @typescript-eslint/no-unnecessary-condition
+  306:12  error  Unnecessary conditional, comparison is always false, since `null !== null` is false  @typescript-eslint/no-unnecessary-condition
+
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\tools\repository-scenario-store.ts
+  0:0  warning  File ignored because of a matching ignore pattern. Use "--no-ignore" to disable file ignore settings or use "--no-warn-ignored" to suppress this warning
+
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\tools\vite-plugin-repository-scenarios.ts
+  0:0  warning  File ignored because of a matching ignore pattern. Use "--no-ignore" to disable file ignore settings or use "--no-warn-ignored" to suppress this warning
+
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\vite.config.ts
+  0:0  warning  File ignored because of a matching ignore pattern. Use "--no-ignore" to disable file ignore settings or use "--no-warn-ignored" to suppress this warning
+
+✖ 5 problems (2 errors, 3 warnings)

@@ -1,0 +1,43 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > passes the exact captured preimage to the scenario write adapter
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts (186 tests | 1 failed | 185 skipped) 32ms
+     × passes the exact captured preimage to the scenario write adapter 30ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > passes the exact captured preimage to the scenario write adapter
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'UNIT-SCENE', …(2) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "UNIT-SCENE",
+    "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":30,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
+-   "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":20,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
+  ]
+
+
+Number of calls: 1
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts:1050:23
+    1048|     await workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})
+    1049|
+    1050|     expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fi…
+       |                       ^
+    1051|   })
+    1052|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 185 skipped (186)
+   Start at  03:53:42
+   Duration  3.14s (transform 1.15s, setup 161ms, import 1.46s, tests 32ms, environment 1.14s)

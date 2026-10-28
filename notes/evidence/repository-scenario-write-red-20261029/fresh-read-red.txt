@@ -1,0 +1,44 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads fresh host text through a new file DataView query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads fresh host text through a new file DataView query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+ ❯ tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts (6 tests | 1 failed | 5 skipped) 40ms
+     × reads fresh host text through a new file DataView query 39ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads fresh host text through a new file DataView query
+AssertionError: expected '{\r\n  "scenarioId": "8D1AB14DD8277F3…' to be '{\r\n  "scenarioId": "8D1AB14DD8277F3…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -859,6 +859,5 @@
+      "childViewId": "modelFieldOptions",
+      "filterBindings": [{ "targetField": "dataModelId" }]
+    }]
+  }
+
+-
+
+ ❯ tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts:35:22
+     33|       await writeFile(path, changed, 'utf8')
+     34|       const second = await readRepositoryScenarioText(resource, () => …
+     35|       expect(second).toBe(changed)
+       |                      ^
+     36|     } finally {
+     37|       await writeFile(path, original, 'utf8')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  03:53:50
+   Duration  3.47s (transform 1.30s, setup 154ms, import 1.65s, tests 40ms, environment 1.26s)

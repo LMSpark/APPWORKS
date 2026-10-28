@@ -5,6 +5,7 @@ import {
 } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewFilter, RequestState } from '@spark-appworks/spark-data'
 import { afterEach, beforeAll, afterAll, describe, expect, it, vi } from 'vitest'
+import {readFileSync} from 'node:fs'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 
 const transport = { request: vi.fn() }
@@ -31,6 +32,21 @@ function sceneWorkspace(applicationId = 'APP-1'): ProjectWorkspace {
   lowcodeApi.application.save({ application: { id: applicationId, code: 'APP-CODE', name: 'fixture', description: '',
     enterpriseId: 'OWNER-1', enterpriseShortName: 'owner', isDefault: false }, navigationRootId: 'NAV-ROOT' })
   return new ProjectWorkspace({ projectId: applicationId, ...createLowcodeProjectGateways(applicationId) })
+}
+
+async function stubRepositoryScenarioHost(resource: Readonly<{resourceId: string; scenarioId: string}>, text: string) {
+  vi.stubEnv('DEV', true)
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  const sourceRevision = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('')
+  const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const post = init?.method === 'POST'
+    const payload = post
+      ? {resourceId: resource.resourceId, outcome: 'not-applied', code: 'REPOSITORY_SCENARIO_CONFLICT', message: 'fixture rejection'}
+      : {resourceId: resource.resourceId, scenarioId: resource.scenarioId, text, sourceRevision}
+    return new Response(JSON.stringify(payload), {status: post ? 409 : 200, headers: {'Content-Type': 'application/json'}})
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
 }
 
 describe('host scenario file request wiring', () => {
@@ -110,6 +126,7 @@ describe('host scenario file request wiring', () => {
     transport.request.mockReset()
     runtime.lowcodeApi.application.clear()
     runtime.lowcodeApi.session.clear()
+    vi.unstubAllEnvs(); vi.unstubAllGlobals()
   })
 
   it('reports only an actual backend 404 as a missing shared scene file', async () => {
@@ -396,11 +413,16 @@ describe('host scenario file request wiring', () => {
     if (!gateway.writeText || !gateway.listVersions || !gateway.readVersion || !gateway.createVersion) {
       throw new Error('missing scenario write/history gateway')
     }
-    await expect(gateway.writeText(programSceneId, '{}')).rejects.toThrow('BUILTIN_SCENARIO_WRITE_UNAVAILABLE')
+    const resource = getBuiltinScenarioResource('dataSpaceCatalog'), baseline = readFileSync(resource.path, 'utf8')
+    const host = await stubRepositoryScenarioHost(resource, baseline)
+    await expect(gateway.writeText(programSceneId, '{}', baseline)).rejects.toMatchObject({
+      name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
+    })
     await expect(gateway.listVersions(programSceneId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.readVersion(programSceneId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.createVersion(programSceneId, '{}')).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     expect(transport.request).not.toHaveBeenCalled()
+    expect(host).toHaveBeenCalledOnce()
 
     const targetScenarioId = 'A'.repeat(32)
     const upload = vi.spyOn(runtime.lowcodeDesignFileUpload, 'uploadWorkingText').mockResolvedValue({state: 'success'})
@@ -420,21 +442,48 @@ describe('host scenario file request wiring', () => {
       throw new Error('missing scenario write/history gateway')
     }
 
-    const text = await gateway.readText(resource.scenarioId)
+    const text = readFileSync(resource.path, 'utf8')
+    const host = await stubRepositoryScenarioHost(resource, text)
+    await expect(gateway.readText(resource.scenarioId)).resolves.toBe(text)
     if (text === null) throw new Error('registered system scenario unexpectedly missing')
     expect(text).toContain(`"scenarioId": "${resource.scenarioId}"`)
     expect(transport.request).not.toHaveBeenCalled()
-    await expect(gateway.writeText(resource.scenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_WRITE_UNAVAILABLE')
+    await expect(gateway.writeText(resource.scenarioId, text, text)).rejects.toMatchObject({
+      name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
+    })
     await expect(gateway.listVersions(resource.scenarioId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.readVersion(resource.scenarioId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.createVersion(resource.scenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
 
     const paddedScenarioId = ` ${resource.scenarioId} `
     await expect(gateway.readText(paddedScenarioId)).resolves.toBe(text)
-    await expect(gateway.writeText(paddedScenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_WRITE_UNAVAILABLE')
+    await expect(gateway.writeText(paddedScenarioId, text, text)).rejects.toMatchObject({
+      name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,
+    })
     await expect(gateway.listVersions(paddedScenarioId)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.readVersion(paddedScenarioId, 0)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
     await expect(gateway.createVersion(paddedScenarioId, text)).rejects.toThrow('BUILTIN_SCENARIO_HISTORY_UNAVAILABLE')
+    expect(transport.request).not.toHaveBeenCalled()
+    expect(host).toHaveBeenCalledTimes(4)
+    const post = host.mock.calls.find(([, init]) => init?.method === 'POST')
+    if (!post?.[1]?.body || typeof post[1].body !== 'string') throw new Error('missing repository POST body')
+    expect(JSON.parse(post[1].body)).toEqual({resourceId: resource.resourceId, text, expectedText: text})
+  })
+
+  it.each(['switch', 'logout'] as const)('rejects a stale registered-scene gateway before POST after %s', async transition => {
+    const applicationId = getBuiltinApplicationDescriptor().id
+    sceneWorkspace(applicationId)
+    const gateway = runtime.createLowcodeProjectGateways(applicationId).scenarioViews
+    const resource = getBuiltinScenarioResource('dataSpaceCatalog')
+    const text = readFileSync(resource.path, 'utf8')
+    const host = await stubRepositoryScenarioHost(resource, text)
+    if (!gateway.writeText) throw new Error('missing scenario write gateway')
+    if (transition === 'switch') sceneWorkspace('APP-2')
+    else runtime.lowcodeApi.application.clear()
+
+    await expect(gateway.writeText(resource.scenarioId, text, text)).rejects.toThrow(/SPARK_EXECUTION_SCOPE_(STALE|REQUIRED)/u)
+
+    expect(host).not.toHaveBeenCalled()
     expect(transport.request).not.toHaveBeenCalled()
   })
 

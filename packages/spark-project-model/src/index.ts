@@ -99,7 +99,8 @@ export type {
 } from './io/page-content-loader'
 export { PageRuntime } from './page/runtime-page'
 export type { PageRuntimeOptions, PageRuntimeCall } from './page/runtime-page'
-export { ScenarioViewFile } from './scenario/scenario-view-file'
+export {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from './scenario/scenario-view-file'
+export type {ScenarioViewSubmission} from './scenario/scenario-view-file'
 export { ScenarioViewConfig } from './scenario/scenario-view-config'
 
 export {

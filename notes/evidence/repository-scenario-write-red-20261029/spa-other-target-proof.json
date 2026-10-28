@@ -1,0 +1,158 @@
+{
+  "target": "A651B6600F623DD7F22F127CF3B12B56",
+  "state": "- dialog \"数据集设计\":\n  - banner:\n    - generic: 数据集设计\n    - button \"Close this dialog\":\n  - main:\n    - region \"空间工作台概览\":\n      - generic: 数据空间设计\n      - heading \"资产管理\" [level=2]\n      - paragraph: 围绕数据模型、关系与输入参数组织数据空间，逐步搭出清晰的查询结构。\n      - article:\n        - generic: 主业务表\n        - strong: 未设置\n        - generic: 可在节点设置中标记主业务表\n      - article:\n        - generic: 数据模型\n        - strong: \"0\"\n      - article:\n        - generic: 关系连线\n        - strong: —\n    - status: 尚无视图配置；正式模型、字段和输入参数仍可维护。\n    - region \"关系画布\":\n      - heading \"关系画布\" [level=3]\n      - paragraph: 拖拽模型编排关系，双击节点或连线进入详细配置。\n      - generic \"模型节点图例\":\n        - article:\n          - generic: 节点风格\n          - generic: 主业务\n          - strong: 主业务模型\n          - generic: 画布主线，优先关注核心业务表\n        - article:\n          - generic: 节点风格\n          - generic: 业务层\n          - strong: 业务模型\n          - generic: 围绕主业务扩展关系和字段语义\n        - article:\n          - generic: 节点风格\n          - generic: 基础层\n          - strong: 普通模型\n          - generic: 承载通用来源和补充信息\n      - button \"选择\":\n        - generic: 选择\n      - button \"新增模型\":\n        - generic: 新增模型\n      - button \"居中\":\n        - generic: 居中\n      - button \"全图\":\n        - generic: 全图\n      - button \"对齐\":\n        - generic: 对齐\n      - button \"放大\":\n        - generic: 放大\n      - button \"缩小\":\n        - generic: 缩小\n      - button \"输入参数\":\n        - generic: 输入参数\n      - button \"复制API\":\n        - generic: 复制API\n      - button \"删除\" [disabled]:\n        - generic: 删除\n      - button \"保存布局\" [disabled]:\n        - generic: 保存布局\n      - button \"模型目录\":\n        - generic: 模型目录\n      - button \"重新打开\":\n        - generic: 重新打开\n      - button \"模型关系\":\n        - generic: 模型关系\n      - button \"数据级联\":\n        - generic: 数据级联\n      - button \"取消布局修改\" [disabled]:\n        - generic: 取消布局修改",
+  "truncated": false,
+  "hasMore": false,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "http://127.0.0.1:5273/ebdde542-539f-4d40-ae3b-2e9c3d4aeee8",
+      "type": "Script"
+    }
+  ]
+}

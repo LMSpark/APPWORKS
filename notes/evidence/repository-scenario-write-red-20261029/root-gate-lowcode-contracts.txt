@@ -1,0 +1,2 @@
+$ node tools/lowcode-contracts/generate-ledgers.mjs
+lowcode contracts: 611 endpoints, 208 consumers

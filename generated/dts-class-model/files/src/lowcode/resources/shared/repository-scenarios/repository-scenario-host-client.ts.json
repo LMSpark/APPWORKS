@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/repository-scenarios/repository-scenario-host-client",
+    "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
+    "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/repository-scenarios/repository-scenario-host-client",
+    "jsdoc": "@module app:lowcode/resources/shared/repository-scenarios/repository-scenario-host-client\n职责：为仓内场景 SPARK data 资源适配器访问 Vite 开发宿主提供受约束的读写客户端。\n边界：GET读取新鲜文本；POST携带捕获的expectedText；仅精确资源的明确未应用响应可转成 typed 拒绝，超时/回读错误保持未知并且不重试。\nAI用途：仅由仓内场景资源执行器调用，不作为页面或通用文件API使用。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-28T20:48:23.203Z",
+  "models": {}
+}

@@ -8,7 +8,19 @@ import { SnapshotHistory } from '@spark-appworks/spark-utils'
 import { ScenarioViewConfig } from './scenario-view-config'
 import {ScenarioViewData} from './scenario-view-data'
 
-type ScenarioViewSubmission = Readonly<{ text: string; baseline: string | null }>
+/** 单次 DataSet 保存捕获的提交原文和写前基线；对象身份标识当前待核验提交。 */
+export type ScenarioViewSubmission = Readonly<{ text: string; baseline: string | null }>
+
+/**
+ * 存储适配器对特定提交作出的明确未应用证明。
+ * 只用于替换尚未开始且目标资源匹配的拒绝；读回错误、响应丢失或超时不得构造此错误。
+ */
+export class ScenarioViewWriteNotAppliedError extends Error {
+  constructor(readonly resourceId: string, readonly code: string, message: string) {
+    super(message)
+    this.name = 'ScenarioViewWriteNotAppliedError'
+  }
+}
 
 /** 场景共享配置的编辑 owner；保存回执仅标记实际提交文本，不能清除等待期间的新编辑。 */
 export class ScenarioViewFile {
@@ -110,6 +122,22 @@ export class ScenarioViewFile {
   public confirmNotApplied(): void {
     this.assertValid()
     if (!this.#submission || this.#saveStatus !== 'unknown') throw new Error('SCENARIO_VIEW_SAVE_STATE: 无未知提交')
+    this.#submission = null
+    this.#saveStatus = 'idle'
+    this.resetData(this.getText())
+    this.#revision++
+    this.notify()
+  }
+
+  /**
+   * 仅在写入适配器明确证明替换未开始后，结算同一对象标识的当前提交。
+   * 拒绝其他或已过期提交；保留当前文本、已保存基线和撤销历史，使草稿仍可重试。
+   */
+  public rejectSaveBeforeApply(submission: ScenarioViewSubmission): void {
+    this.assertValid()
+    if (this.#saveStatus !== 'pending' || this.#submission !== submission) {
+      throw new Error('SCENARIO_VIEW_SAVE_STATE: 明确拒绝不属于当前待提交内容')
+    }
     this.#submission = null
     this.#saveStatus = 'idle'
     this.resetData(this.getText())

@@ -4,6 +4,8 @@ import path from 'path'
 import { fileURLToPath } from 'node:url'
 import { sparkComponentsPlugin } from './tools/vite-plugin-spark-components'
 import { classModelStaticPlugin } from './tools/vite-plugin-class-model-static'
+import {repositoryScenarioPlugin} from './tools/vite-plugin-repository-scenarios'
+import appworks from './config/applications/appworks.json'
 import {
   COMPONENT_SCAN_PATTERNS,
   COMPONENT_EXCLUDE_PATTERNS,
@@ -145,6 +147,7 @@ export default defineConfig(({ command, mode }) => {
 
     // ClassModel JSON：dev/build 均直接读 generated/dts-class-model（入库 SSOT，便于评审）
     classModelStaticPlugin(),
+    repositoryScenarioPlugin({root, resources: appworks.scenarioResources}),
   ],
   build: {
     rollupOptions: {

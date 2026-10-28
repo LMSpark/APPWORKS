@@ -11,7 +11,7 @@ import {LowcodeDataSpaceAssembler} from './data-space/lowcode-data-space-assembl
 import {LowcodeModelRelationAdapter} from './data-space/lowcode-model-relation-adapter'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {lowcodeApi, lowcodeHttp} from './lowcode-runtime'
-import {readRepositoryScenarioText} from './resources/shared/repository-scenario-resource'
+import {readRepositoryScenarioText} from './resources/shared/repository-scenarios/repository-scenario-resource'
 
 const APPLICATION_CATALOG_SCENARIO = 'projectBlueprint'
 const NAVIGATION_ROOT_SCENARIO = 'projectBlueprint'

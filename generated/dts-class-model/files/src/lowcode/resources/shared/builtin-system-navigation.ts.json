@@ -82,7 +82,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T17:53:10.096Z",
+  "generatedAt": "2026-10-28T20:48:23.219Z",
   "models": {
     "NavigationNode": {
       "name": "NavigationNode",

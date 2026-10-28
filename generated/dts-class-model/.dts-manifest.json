@@ -3289,7 +3289,7 @@
     "packages/spark-project-model/src/index.ts": {
       "sourceFile": "packages/spark-project-model/src/index.ts",
       "shardFile": "files/packages/spark-project-model/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-15T10:40:00.063Z"
+      "sourceModifiedAt": "2026-10-28T19:58:22.274Z"
     },
     "packages/spark-project-model/src/io/http.ts": {
       "sourceFile": "packages/spark-project-model/src/io/http.ts",
@@ -3379,7 +3379,7 @@
     "packages/spark-project-model/src/project/project-workspace.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-28T07:14:38.979Z"
+      "sourceModifiedAt": "2026-10-28T20:40:14.018Z"
     },
     "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
@@ -3414,7 +3414,7 @@
     "packages/spark-project-model/src/scenario/scenario-view-file.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-view-file.ts.json",
-      "sourceModifiedAt": "2026-10-11T18:06:46.836Z"
+      "sourceModifiedAt": "2026-10-28T20:40:14.019Z"
     },
     "packages/spark-utils/src/ai-model.ts": {
       "sourceFile": "packages/spark-utils/src/ai-model.ts",
@@ -3844,12 +3844,12 @@
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
       "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-28T19:03:21.571Z"
+      "sourceModifiedAt": "2026-10-28T20:48:23.218Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T19:08:20.308Z"
+      "sourceModifiedAt": "2026-10-28T20:59:35.811Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4039,7 +4039,7 @@
     "src/lowcode/resources/shared/builtin-system-navigation.ts": {
       "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
       "shardFile": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json",
-      "sourceModifiedAt": "2026-10-28T17:53:10.096Z"
+      "sourceModifiedAt": "2026-10-28T20:48:23.219Z"
     },
     "src/lowcode/resources/shared/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/shared/file-resource-query-parameters.ts",
@@ -4049,7 +4049,7 @@
     "src/lowcode/resources/shared/navigation-authorization-resource.ts": {
       "sourceFile": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
       "shardFile": "files/src/lowcode/resources/shared/navigation-authorization-resource.ts.json",
-      "sourceModifiedAt": "2026-10-28T19:18:18.613Z"
+      "sourceModifiedAt": "2026-10-28T19:36:58.805Z"
     },
     "src/lowcode/resources/shared/page-tool-files-command.ts": {
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
@@ -4061,10 +4061,20 @@
       "shardFile": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json",
       "sourceModifiedAt": "2026-10-27T20:28:16.162Z"
     },
-    "src/lowcode/resources/shared/repository-scenario-resource.ts": {
-      "sourceFile": "src/lowcode/resources/shared/repository-scenario-resource.ts",
-      "shardFile": "files/src/lowcode/resources/shared/repository-scenario-resource.ts.json",
-      "sourceModifiedAt": "2026-10-28T17:38:36.079Z"
+    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts": {
+      "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
+      "shardFile": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts.json",
+      "sourceModifiedAt": "2026-10-28T20:48:23.203Z"
+    },
+    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts": {
+      "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
+      "shardFile": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json",
+      "sourceModifiedAt": "2026-10-28T20:48:23.215Z"
+    },
+    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts": {
+      "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts",
+      "shardFile": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts.json",
+      "sourceModifiedAt": "2026-10-28T20:48:48.990Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",

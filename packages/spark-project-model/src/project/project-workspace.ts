@@ -24,7 +24,7 @@ import {
 } from '../page/page-file'
 import { PageTool } from '../page/page-tool'
 import { ProjectBlueprint } from './project-blueprint'
-import { ScenarioViewFile } from '../scenario/scenario-view-file'
+import {ScenarioViewFile, ScenarioViewWriteNotAppliedError, type ScenarioViewSubmission} from '../scenario/scenario-view-file'
 import { ScenarioViewConfig } from '../scenario/scenario-view-config'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {
@@ -47,7 +47,11 @@ forceReload?: boolean
 type ScenarioViewGateway = Readonly<{
   readScope: () => string
   readText: (scenarioId: string) => Promise<string | null>
-  writeText?: (scenarioId: string, text: string) => Promise<void>
+  /**
+   * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。
+   * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。
+   */
+  writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>
   listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>
   readVersion?: (scenarioId: string, version: number) => Promise<string>
   createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>
@@ -276,6 +280,7 @@ constructor(options: ProjectWorkspaceOptions) {
     if (file.saveStatus !== 'idle') throw new Error('SCENARIO_VIEW_SAVE_PENDING: 须先核验上次保存')
     if (!file.isDirty) return
     this.scenarioSaves.add(key)
+    const rejection: {submission?: ScenarioViewSubmission; error?: ScenarioViewWriteNotAppliedError} = {}
     try {
       await file.saveChanges(async submitted => {
         const preimage = await gateway.readText(scenarioId)
@@ -283,7 +288,16 @@ constructor(options: ProjectWorkspaceOptions) {
         if (preimage !== (file.isPersisted ? file.savedText : null)) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
         command.assertCurrent?.()
         file.beginSave(submitted, preimage)
-        await write(scenarioId, submitted)
+        const submission = file.submission
+        if (!submission) throw new Error('SCENARIO_VIEW_SAVE_STATE: 缺少当前提交身份')
+        try { await write(scenarioId, submitted, preimage) }
+        catch (error) {
+          if (error instanceof ScenarioViewWriteNotAppliedError) {
+            rejection.submission = submission
+            rejection.error = error
+          }
+          throw error
+        }
         this.assertScenarioScope(scope)
         const readback = await gateway.readText(scenarioId)
         this.assertScenarioScope(scope)
@@ -291,7 +305,10 @@ constructor(options: ProjectWorkspaceOptions) {
       })
       file.confirmSubmitted()
     } catch (error) {
-      file.markSaveUnknownIfPending()
+      if (error instanceof ScenarioViewWriteNotAppliedError && rejection.error === error
+        && rejection.submission !== undefined && file.submission === rejection.submission) {
+        file.rejectSaveBeforeApply(rejection.submission)
+      } else file.markSaveUnknownIfPending()
       throw error
     } finally {
       this.scenarioSaves.delete(key)

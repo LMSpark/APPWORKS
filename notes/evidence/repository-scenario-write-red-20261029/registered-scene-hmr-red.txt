@@ -1,0 +1,26 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts (6 tests | 1 failed | 5 skipped) 78ms
+     × filters HMR only for the four manifest scenario paths, normalizing Windows separators 69ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts > repository scenario Vite middleware > filters HMR only for the four manifest scenario paths, normalizing Windows separators
+Error: repository scenario plugin has no hotUpdate hook
+ ❯ tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts:129:48
+    127|     viteServers.push(server)
+    128|     const hotUpdate = plugin.hotUpdate
+    129|     if (typeof hotUpdate !== 'function') throw new Error('repository s…
+       |                                                ^
+    130|     const context = server.environments.client.pluginContainer.minimal…
+    131|     const update = async (file: string): Promise<Awaited<ReturnType<ty…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  04:56:04
+   Duration  2.45s (transform 234ms, setup 241ms, import 479ms, tests 78ms, environment 1.26s)

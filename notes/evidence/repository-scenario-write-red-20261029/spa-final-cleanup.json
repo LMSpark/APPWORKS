@@ -1,0 +1,60 @@
+{
+  "confirmed": true,
+  "editorStillOpen": true,
+  "temporaryViewsAbsent": true,
+  "truncated": false,
+  "hasMore": false,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    }
+  ],
+  "responses": [
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    }
+  ]
+}

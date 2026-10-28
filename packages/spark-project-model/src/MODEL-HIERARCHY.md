@@ -49,7 +49,7 @@ classDiagram
 
 `ScenarioViewConfig` 校验单场景 tables、modelBinding、views 和显式 viewCascades。正式模型提供输出字段，场景配置可补允许的前端校验和计算列；装配核对字段身份及引用，数据权限由当次正式查询返回并在运行时消费。正式字段不等同于物理数据库字段。DataSet → DataTable → columns / 多个 DataView 及数据库与文件的持久边界统一见[数据空间主合同](../../../docs/architecture/DATAFLOW_ARCHITECTURE.md)。
 
-`ScenarioViewFile` 持有原文、savedText 基线、校验后的 value 和撤销历史。动态应用的`ProjectWorkspace.loadScenarioViews({scenarioId})` / `getScenarioViews(scenarioId)`获取远端场景owner，`saveScenarioViews({scenarioId})`执行写前原文比较和写后字节回读；AppWorks四个系统程序场景走其仓内只读资源DataView，不进入该动态owner。业务编辑与取消由正式元数据DataView承载，提交经DataSet，不从文件owner另开通道。身份改变、远端冲突、重复保存和回读不一致明确失败。后端没有CAS，客户端比较不能承诺原子保护；失败不表示已写内容已撤销。
+`ScenarioViewFile` 持有原文、savedText 基线、校验后的 value 和撤销历史。动态应用的`ProjectWorkspace.loadScenarioViews({scenarioId})` / `getScenarioViews(scenarioId)`获取正式场景owner，`saveScenarioViews({scenarioId})`执行写前原文比较和写后字节回读；AppWorks四个系统程序场景走仓内资源DataView，开发态保存仍经SPARK data适配，构建态只读，场景历史和工具定义未迁入。业务编辑与取消由正式元数据DataView承载，提交经DataSet，不从文件owner另开通道。身份改变、来源冲突、重复保存和回读不一致明确失败。后端没有CAS，客户端比较不能承诺原子保护；失败不表示已写内容已撤销。
 
 动态场景文件位于 `SysForm/<scenarioId>/pagedata.json`，与 `<appId>/<pageId>` 下的工具文件分离。AppWorks系统程序的四个登记场景改由仓内`config/pages/**/pagedata.json`提供；其余正式业务目标继续通过对应ProjectWorkspace场景owner访问。
 

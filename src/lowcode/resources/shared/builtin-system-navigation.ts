@@ -1,6 +1,6 @@
 import type {LowcodeApplication} from '@spark-appworks/spark-lowcode-api'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
-import {readRepositoryNavigationText} from './repository-scenario-resource'
+import {readRepositoryNavigationText} from './repository-scenarios/repository-scenario-resource'
 
 type NavigationNode = Readonly<{
   id: string

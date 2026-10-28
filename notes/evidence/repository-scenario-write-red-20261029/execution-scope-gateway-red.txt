@@ -1,0 +1,32 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts (53 tests | 2 failed | 51 skipped) 6545ms
+     × rejects a stale registered-scene gateway before POST after switch 16ms
+     × rejects a stale registered-scene gateway before POST after logout 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects a stale registered-scene gateway before POST after switch
+ FAIL  tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > rejects a stale registered-scene gateway before POST after logout
+AssertionError: expected [Function] to throw error including 'SPARK_EXECUTION_SCOPE_STALE' but got 'fixture rejection'
+
+Expected: "SPARK_EXECUTION_SCOPE_STALE"
+Received: "fixture rejection"
+
+ ❯ tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts:483:68
+    481|     else runtime.lowcodeApi.application.clear()
+    482|
+    483|     await expect(gateway.writeText(resource.scenarioId, text, text)).r…
+       |                                                                    ^
+    484|
+    485|     expect(host).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 51 skipped (53)
+   Start at  04:27:47
+   Duration  9.68s (transform 6.35s, setup 112ms, import 1.88s, tests 6.54s, environment 855ms)

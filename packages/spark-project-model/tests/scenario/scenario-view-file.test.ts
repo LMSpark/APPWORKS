@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ScenarioViewFile } from '../../src/scenario/scenario-view-file'
+import {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from '../../src/scenario/scenario-view-file'
 import { ScenarioViewConfig } from '../../src/scenario/scenario-view-config'
 import { ScenarioDefinitionRecords } from '../../src/scenario/scenario-definition-records'
 import { ProjectWorkspace } from '../../src/project/project-workspace'
@@ -675,7 +675,7 @@ describe('ScenarioViewFile', () => {
       file.setText(fixture(31))
       await workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})
       expect(save).toHaveBeenCalledTimes(1)
-      expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(31))
+      expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(31), fixture())
       expect(file.isDirty).toBe(false)
       expect(file.getText()).toBe(fixture(31))
       expect(Object.values(save.mock.contexts[0]!.tables).every(table => table.modelBinding === undefined)).toBe(true)
@@ -1039,6 +1039,57 @@ function workspaceFixture() {
 }
 
 describe('ProjectWorkspace scenario files', () => {
+  it('passes the exact captured preimage to the scenario write adapter', async () => {
+    const {workspace, writeText} = workspaceFixture()
+    const preimage = fixture()
+    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    file.setText(fixture(30))
+
+    await workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})
+
+    expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(30), preimage)
+  })
+
+  it('settles an explicit write rejection after DataSet save exits and preserves edits made while pending', async () => {
+    const {workspace, writeText} = workspaceFixture()
+    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    const savedBaseline = file.savedText
+    file.setText(fixture(30))
+    const error = new ScenarioViewWriteNotAppliedError('repository:scenario-view:UNIT-SCENE', 'CONFLICT', 'preimage changed')
+    writeText.mockImplementationOnce(async () => {
+      expect(file.saveStatus).toBe('pending')
+      expect(file.submission?.text).toBe(fixture(30))
+      file.setText(fixture(40))
+      throw error
+    })
+
+    await expect(workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})).rejects.toBe(error)
+
+    expect(file.saveStatus).toBe('idle')
+    expect(file.submission).toBeNull()
+    expect(file.savedText).toBe(savedBaseline)
+    expect(file.getText()).toBe(fixture(40))
+    expect(file.isDirty).toBe(true)
+  })
+
+  it('keeps a typed error from readback unknown because only write rejection can settle not-applied', async () => {
+    const {workspace, readText, writeText} = workspaceFixture()
+    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    file.setText(fixture(30))
+    let readsAfterLoad = 0
+    readText.mockImplementation(async () => {
+      readsAfterLoad++
+      if (readsAfterLoad === 2) throw new ScenarioViewWriteNotAppliedError('repository:scenario-view:UNIT-SCENE', 'CONFLICT', 'not a write receipt')
+      return fixture()
+    })
+
+    await expect(workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})).rejects.toThrow('not a write receipt')
+
+    expect(writeText).toHaveBeenCalledOnce()
+    expect(file.saveStatus).toBe('unknown')
+    expect(file.submission?.text).toBe(fixture(30))
+  })
+
   it.each(['changed', 'invalid', 'missing', 'valid'] as const)('only cancels native edits after all remote checks succeed (%s)', async state => {
     const {workspace, setRemote, writeText} = workspaceFixture()
     const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
@@ -1258,7 +1309,7 @@ describe('ProjectWorkspace scenario files', () => {
     const writing = deferred<void>()
     writeText.mockImplementationOnce(async () => { await writing.promise })
     const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
-    await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(30)))
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(30), fixture()))
     file.setText(fixture(40))
     setRemote(fixture(30))
     writing.resolve()
@@ -1285,7 +1336,7 @@ describe('ProjectWorkspace scenario files', () => {
     const submitted = ` \n${fixture(30)}\n`
     file.setText(submitted)
     await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
-    expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', submitted)
+    expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', submitted, fixture())
     expect(readText).toHaveBeenCalledTimes(3)
     expect(file.isDirty).toBe(false)
   })

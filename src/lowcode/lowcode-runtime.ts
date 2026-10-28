@@ -20,7 +20,8 @@ import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runt
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readRepositoryScenarioText} from './resources/shared/repository-scenario-resource'
+import {readRepositoryScenarioText} from './resources/shared/repository-scenarios/repository-scenario-resource'
+import {writeRepositoryScenarioToHost} from './resources/shared/repository-scenarios/repository-scenario-host-client'
 import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/shared/builtin-system-navigation'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
 
@@ -120,10 +121,9 @@ export async function readLowcodePageFile(command: ProjectModel.PageFileReadComm
   })
 }
 
-function assertRemoteScenarioWriteAllowed(scenarioId: string, operation: 'write' | 'history'): void {
+function assertBuiltinScenarioHistoryUnavailable(scenarioId: string): void {
   if (resolveBuiltinScenarioResource(scenarioId)) {
-    const kind = operation === 'write' ? 'WRITE' : 'HISTORY'
-    throw new Error(`BUILTIN_SCENARIO_${kind}_UNAVAILABLE: ${scenarioId} 尚无仓内${operation === 'write' ? '保存' : '历史'}适配器`)
+    throw new Error(`BUILTIN_SCENARIO_HISTORY_UNAVAILABLE: ${scenarioId} 尚无仓内历史适配器`)
   }
 }
 
@@ -622,6 +622,7 @@ function assertProjectFilePath(applicationId:string,customPath:string):string {
 export function createLowcodeProjectGateways(projectId: string): LowcodeProjectGateways {
   const normalizedProjectId = projectId.trim()
   if (!normalizedProjectId) throw new Error('projectId 不能为空')
+  const executionScope = lowcodeApi.readRequestScope()
   return {
     pageFiles: {
       readPageFile: async command => {
@@ -667,27 +668,43 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
           throw error
         }
       },
-      writeText: async (scenarioId, text) => {
-        assertRemoteScenarioWriteAllowed(scenarioId, 'write')
+      writeText: async (scenarioId, text, expectedText) => {
+        const resource = resolveBuiltinScenarioResource(scenarioId)
+        if (resource) {
+          const currentScope = lowcodeApi.readRequestScope()
+          if (currentScope.token !== executionScope.token || currentScope.headers['X-AppId'] !== normalizedProjectId) {
+            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内场景保存执行身份已失效')
+          }
+          if (!import.meta.env.DEV) {
+            throw new ProjectModel.ScenarioViewWriteNotAppliedError(resource.resourceId,
+              'REPOSITORY_SCENARIO_READ_ONLY', '仓内系统场景只允许开发宿主保存')
+          }
+          if (typeof expectedText !== 'string') {
+            throw new ProjectModel.ScenarioViewWriteNotAppliedError(resource.resourceId,
+              'REPOSITORY_SCENARIO_BASELINE_MISSING', '仓内系统场景保存缺少已捕获的原文基线')
+          }
+          await writeRepositoryScenarioToHost(resource, text, expectedText)
+          return
+        }
         await scenarioFileUpload.uploadWorkingText({
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json', text,
         })
       },
       listVersions: async scenarioId => {
-        assertRemoteScenarioWriteAllowed(scenarioId, 'history')
+        assertBuiltinScenarioHistoryUnavailable(scenarioId)
         return [...await lowcodeApi.design.listFileVersions({
           appType: 'designfile', customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json',
         })]
       },
       readVersion: async (scenarioId, version) => {
-        assertRemoteScenarioWriteAllowed(scenarioId, 'history')
+        assertBuiltinScenarioHistoryUnavailable(scenarioId)
         if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
         const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile',
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: `${version}__pagedata.json` })
         return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
       },
       createVersion: async (scenarioId, text, assertCurrent) => {
-        assertRemoteScenarioWriteAllowed(scenarioId, 'history')
+        assertBuiltinScenarioHistoryUnavailable(scenarioId)
         assertCurrent?.()
         new ProjectModel.ScenarioViewConfig(scenarioId, text)
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)

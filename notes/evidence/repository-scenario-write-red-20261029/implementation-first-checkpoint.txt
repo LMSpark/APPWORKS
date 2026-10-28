@@ -1,0 +1,102 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > submits shared configuration through native DataSet changes and skips unchanged files
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > saves and validates exact text without normalizing it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts (188 tests | 3 failed) 1251ms
+     × submits shared configuration through native DataSet changes and skips unchanged files 26ms
+     × checks the remote baseline and marks only submitted text saved after readback 1012ms
+     × saves and validates exact text without normalizing it 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > submits shared configuration through native DataSet changes and skips unchanged files
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'UNIT-SCENE', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "UNIT-SCENE",
+    "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":31,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
++   "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":20,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
+  ]
+
+
+Number of calls: 1
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts:678:25
+    676|       await workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE'})
+    677|       expect(save).toHaveBeenCalledTimes(1)
+    678|       expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', …
+       |                         ^
+    679|       expect(file.isDirty).toBe(false)
+    680|       expect(file.getText()).toBe(fixture(31))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > checks the remote baseline and marks only submitted text saved after readback
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'UNIT-SCENE', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "UNIT-SCENE",
+    "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":30,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
++   "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":20,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
+  ]
+
+
+Number of calls: 1
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts:1312:46
+    1310|     writeText.mockImplementationOnce(async () => { await writing.promi…
+    1311|     const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCE…
+    1312|     await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOn…
+       |                                              ^
+    1313|     file.setText(fixture(40))
+    1314|     setRemote(fixture(30))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > saves and validates exact text without normalizing it
+AssertionError: expected "vi.fn()" to be called once with arguments: [ 'UNIT-SCENE', …(1) ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    "UNIT-SCENE",
+    "
+  {\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":30,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}
+  ",
++   "{\"scenarioId\":\"UNIT-SCENE\",\"tables\":{\"Orders\":{\"modelBinding\":{\"modelId\":\"UNIT-ORDERS\",\"modelName\":\"OrdersModel\"},\"views\":{\"default\":{},\"list\":{\"pageSize\":20,\"autoCurrentFirst\":false,\"selectionDelimiter\":\"\",\"filterExpression\":{\"field\":\"active\",\"operator\":\"eq\",\"value\":false}}}},\"Items\":{\"modelBinding\":{\"modelId\":\"UNIT-ITEMS\",\"modelName\":\"ItemsModel\"},\"views\":{\"default\":{},\"detail\":{}}}},\"viewCascades\":[{\"parentTable\":\"Orders\",\"parentViewId\":\"list\",\"childTable\":\"Items\",\"childViewId\":\"detail\",\"filterBindings\":[{\"sourceField\":\"id\",\"targetField\":\"orderId\"}],\"autoLoad\":false}]}",
+  ]
+
+
+Number of calls: 1
+
+ ❯ packages/spark-project-model/tests/scenario/scenario-view-file.test.ts:1339:23
+    1337|     file.setText(submitted)
+    1338|     await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    1339|     expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', su…
+       |                       ^
+    1340|     expect(readText).toHaveBeenCalledTimes(3)
+    1341|     expect(file.isDirty).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  3 failed | 204 passed (207)
+   Start at  03:59:59
+   Duration  5.35s (transform 3.02s, setup 812ms, import 4.15s, tests 4.57s, environment 6.92s)

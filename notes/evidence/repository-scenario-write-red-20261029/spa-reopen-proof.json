@@ -1,0 +1,144 @@
+{
+  "view": "writerSmoke_20261029_unknown",
+  "present": true,
+  "truncated": false,
+  "hasMore": false,
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "GET",
+      "path": "/__spark/repository-scenarios",
+      "type": "Fetch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/content/text",
+      "type": "XHR"
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "type": "XHR"
+    }
+  ],
+  "hostResponses": [
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    },
+    {
+      "status": 200
+    }
+  ]
+}

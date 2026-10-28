@@ -1,7 +1,8 @@
 import {describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, DataViewLocalQuery, RequestState, type DataView} from '@spark-appworks/spark-data'
-import {ProjectWorkspace, ScenarioDefinitionResource, ScenarioDefinitionDocument, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {ProjectWorkspace, ScenarioDefinitionResource, ScenarioDefinitionDocument, ScenarioViewConfig,
+  ScenarioViewWriteNotAppliedError} from '@spark-appworks/spark-project-model'
 
 const metadataConfig = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
 const definitions = Object.fromEntries(Object.entries(metadataConfig.tables).filter(([, table]) => (table as {resourceId?: string}).resourceId?.startsWith('pagedata:')))
@@ -12,7 +13,7 @@ const initial = {scenarioId: 'TARGET', schemaVersion: 2, tables: {
   viewCascades: [{kind: 'query', cascadeId: 'Q', parentTable: 'Parents', parentViewId: 'default', childTable: 'Children', childViewId: 'default', filterBindings: [{sourceField: 'id', targetField: 'parentId'}]}]}
 
 function fixture(text: string | null = JSON.stringify(initial)) {
-  let stored = text, scope = 'scope', loseResponse = false, gate: Promise<void> | undefined
+  let stored = text, scope = 'scope', loseResponse = false, rejectedWrite: Error | undefined, gate: Promise<void> | undefined
   const writes: string[] = []
   const versions = new Map<number, string>([[1, JSON.stringify({...initial, layout: {modelPositions: {P: {x: 1, y: 2}}}})]])
   const snapshots = vi.fn(async (_id: string, snapshot: string) => {
@@ -24,7 +25,11 @@ function fixture(text: string | null = JSON.stringify(initial)) {
     const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}, scenarioDefinitions: async () => dataSet,
       scenarioViews: {readScope: () => scope, readText: async id => {expect(id).toBe('TARGET'); return stored},
-        writeText: async (_id, next) => {writes.push(next); stored = next; await gate; if (loseResponse) {loseResponse = false; throw new Error('response lost')}},
+        writeText: async (_id, next) => {
+          if (rejectedWrite) {const error = rejectedWrite; rejectedWrite = undefined; throw error}
+          writes.push(next); stored = next; await gate
+          if (loseResponse) {loseResponse = false; throw new Error('response lost')}
+        },
         listVersions: async () => [...versions.keys()].map(version => ({version, fileName: `${version}__pagedata.json`, lastModified: null})),
         readVersion: async (_id, version) => {const value = versions.get(version); if (!value) throw new Error('version missing'); return value},
         createVersion: snapshots}})
@@ -39,12 +44,40 @@ function fixture(text: string | null = JSON.stringify(initial)) {
     return {dataSet, view, workspace, resource}
   }
   return {open, writes, validate, snapshots, versions, get stored() {if (stored === null) throw new Error('file still missing'); return stored}, changeScope: () => {scope = 'other'},
-    loseResponse: () => {loseResponse = true}, restore: (value: string) => {stored = value}, gate: (value: Promise<void> | undefined) => {gate = value}}
+    loseResponse: () => {loseResponse = true}, rejectNextWrite: (error: Error) => {rejectedWrite = error},
+    restore: (value: string) => {stored = value}, gate: (value: Promise<void> | undefined) => {gate = value}}
 }
 
 const target = (view: DataView) => view.rows.find(row => row['tableName'] === 'Parents' && row['viewId'] === 'one')!
 
 describe('formal definition resources through SPARK data', () => {
+  it('keeps the original DataView dirty after an explicit not-applied write and allows retry', async () => {
+    const storage = fixture(), {dataSet, view, workspace} = storage.open()
+    try {
+      await view.refresh()
+      const key = view.getPkKey(target(view))!
+      const original = storage.stored
+      view.updateEditingValue(key, 'pageSize', 43)
+      storage.rejectNextWrite(new ScenarioViewWriteNotAppliedError('repository:scenario-view:TARGET', 'CONFLICT', 'preimage changed'))
+
+      await expect(dataSet.saveChanges()).rejects.toThrow('preimage changed')
+
+      const file = workspace.getScenarioViews('TARGET')!
+      expect(file.saveStatus).toBe('idle')
+      expect(file.savedText).toBe(original)
+      expect(file.getText()).toBe(original)
+      expect(view.hasUnconfirmedSave).toBe(false)
+      expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+      expect(storage.writes).toEqual([])
+      expect(storage.stored).toBe(original)
+
+      expect((await dataSet.saveChanges()).success).toBe(true)
+      expect(storage.writes).toHaveLength(1)
+      expect(JSON.parse(storage.stored).tables.Parents.views.one.pageSize).toBe(43)
+      expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {dataSet.destroy()}
+  })
+
   it.each(['same-model', 'same-name', 'same-id', 'binding-record', 'rebind'])('rejects a conflicting model binding through DataSet (%s) without writing or dropping the draft', async mode => {
     const storage = fixture(), {dataSet, view} = storage.open()
     const bindings = dataSet.getView('DataTableBindingDefinition')!

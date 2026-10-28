@@ -64,6 +64,12 @@
             },
             "text": {
               "type": "string"
+            },
+            "expectedText": {
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           "additionalProperties": false
@@ -741,7 +747,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T07:14:38.979Z",
+  "generatedAt": "2026-10-28T20:40:14.018Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -766,11 +772,11 @@
       "jsdoc": "按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
+        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
+            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    /**\n     * 写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n     * 仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。\n     */\n    writeText?: (scenarioId: string, text: string, expectedText?: string | null) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -817,6 +823,7 @@
             },
             {
               "name": "writeText",
+              "jsdoc": "写入已加载场景；expectedText 是 ProjectWorkspace 刚捕获并核对的原文，未持久化草稿时为 null。\n仅资源适配器明确证明本次提交尚未应用且资源身份匹配时，才可抛 ScenarioViewWriteNotAppliedError；回读失败或超时必须保持未知。",
               "parameters": [
                 {
                   "name": "scenarioId",
@@ -830,6 +837,25 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "expectedText",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

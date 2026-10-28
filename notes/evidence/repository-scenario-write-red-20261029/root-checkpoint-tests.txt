@@ -1,0 +1,1323 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > keeps the existing shell tool group and stable /dev identity
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > keeps the existing shell tool group and stable /dev identity
+🐛 [DataView] 销毁 DataView: RepositoryNavigation:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > loads and saves the scene file with the selected appId through the existing request layer
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > keeps the existing shell tool group and stable /dev identity
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > keeps the existing shell tool group and stable /dev identity
+🐛 [DataView] 销毁 DataView: RepositoryNavigation:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > does not promote a partially authorized parent chain into a root system page
+🐛 [DataView] 销毁 DataView: RepositoryNavigation:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > does not promote a partially authorized parent chain into a root system page
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > AppWorks builtin navigation authorization projection > does not promote a partially authorized parent chain into a root system page
+🐛 [DataView] 销毁 DataView: RepositoryNavigation:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > keeps registered system scenes on their repository source when a dynamic app executes them
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > keeps registered system scenes on their repository source when a dynamic app executes them
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles one column from equivalent repeated formal output records
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > sends explicit view cascade constraints through the sole API wire codec
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > does not query a parent or add a filter when the scenario has no view cascade
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > applies an explicit named-view query filter without touching sibling views
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:detail
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:summary
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:detail
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:summary
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps an explicit view cascade when no model relationship exists
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles model-bound views with original private permissions and no CRUD query transforms
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles two independent read-only views for one keyless formal model
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps allowAIAdd on formal DataTable columns while every native DataView inherits its output columns
+🐛 [DataView] 销毁 DataView: MODEL-AI:default
+🐛 [DataView] 销毁 DataView: MODEL-AI:selection
+🐛 [DataView] 销毁 DataView: MODEL-AI:default
+🐛 [DataView] 销毁 DataView: MODEL-AI:selection
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when the execution application changes during authorization read
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at runNextTicks (node:internal/process/task_queues:65:5)
+at processTimers (node:internal/timers:538:9)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+
+···················································stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when the execution application changes during authorization read
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when the execution application changes during authorization read
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when session-reset changes while authorization is pending
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:380:7
+
+············stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when session-reset changes while authorization is pending
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when session-reset changes while authorization is pending
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when application-round-trip changes while authorization is pending
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+··stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when application-round-trip changes while authorization is pending
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:380:7
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when application-round-trip changes while authorization is pending
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when navigation-root-change changes while authorization is pending
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:380:7
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when navigation-root-change changes while authorization is pending
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when navigation-root-change changes while authorization is pending
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reads explicit target navigation through its scoped DataView while authorization stays independent
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reads explicit target navigation through its scoped DataView while authorization stays independent
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > waits for the DataView read before disposal when authorization fails and execution scope changes
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: authorization read failed Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:476:5
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > waits for the DataView read before disposal when authorization fails and execution scope changes
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > waits for the DataView read before disposal when authorization fails and execution scope changes
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+······stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the active URL, platform application, and native page instance aligned after same-app navigation supersedes activation
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the active URL, platform application, and native page instance aligned after same-app navigation supersedes activation
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+··stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+C2D2F_EXTERNAL_ACTIVATION_OUTCOME {"activationOutcome":{"status":"rejected","errorMessage":"LOWCODE_APPLICATION_SELECTION_STALE: 应用选择已失效，请重新选择。"},"url":"/t/fixture-tenant/APP-A/dashboard?view=latest&__sparkNavigationId=dashboard","applicationId":"APP-A","navigationProjectId":"APP-A","nativeInstanceId":"system-page-2"}
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps a committed application receipt current through an ordinary same-app query navigation
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps a committed application receipt current through an ordinary same-app query navigation
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+[DynamicRouter] ℹ️ 刷新动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+[DynamicRouter] ℹ️ 路由刷新完成
+
+···········stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks after the final parallel response before assembling navigation
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks after the final parallel response before assembling navigation
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > turns a late request failure into stale-scope failure after the execution application changes
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: late backend failure Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > turns a late request failure into stale-scope failure after the execution application changes
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:848:5
+
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > turns a late request failure into stale-scope failure after the execution application changes
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+·stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stderr | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: fixture authorization failure Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at readWithinExecutionScope (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:452:22)
+at async Promise.allSettled (index 1)
+at Module.readLowcodeRuntimeNavigation (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-runtime.ts:502:52)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:866:5
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+············stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps the original DataView dirty after an explicit not-applied write and allows retry
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps the original DataView dirty after an explicit not-applied write and allows retry
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps the original DataView dirty after an explicit not-applied write and allows retry
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a conflicting model binding through DataSet (same-model) without writing or dropping the draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a conflicting model binding through DataSet (same-name) without writing or dropping the draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a conflicting model binding through DataSet (same-id) without writing or dropping the draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a conflicting model binding through DataSet (binding-record) without writing or dropping the draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a conflicting model binding through DataSet (rebind) without writing or dropping the draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a new file model that collides with the other resource public name
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects a new formal model that collides with the other resource public name
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects duplicate model bindings from the definition document without replacing its original drafts
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > repairs historical duplicate bindings explicitly while retaining their readable definitions and unrelated edits
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > repairs historical duplicate bindings explicitly while retaining their readable definitions and unrelated edits
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > repairs historical duplicate bindings explicitly while retaining their readable definitions and unrelated edits
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries binding identity from the file without persisting a second model identity
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries binding identity from the file without persisting a second model identity
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > does not overwrite an external consumer edit with local undo and invalidates after a definition requery
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps a newly created document unconfirmed after a lost receipt until the original DataSet verifies it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps a newly created document unconfirmed after a lost receipt until the original DataSet verifies it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps a newly created document unconfirmed after a lost receipt until the original DataSet verifies it
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+·············stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > saves workspace definition changes through DataSet and preserves independent reopen results
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > saves workspace definition changes through DataSet and preserves independent reopen results
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects an already loaded filtered definition view instead of treating unseen records as deletions
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > projects a complete configuration from definition views and undoes text edits without a second file draft
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > projects a complete configuration from definition views and undoes text edits without a second file draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > stages explicit historical definitions through DataView and preserves root metadata and other views
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > stages explicit historical definitions through DataView and preserves root metadata and other views
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > reads and creates source history through the bound definition view, preserving drafts and the working file
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > edits, cancels, saves and reopens native view cache policy without changing the other view
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > edits, cancels, saves and reopens native view cache policy without changing the other view
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > persists completion configuration per view and restores it through an independent reopen
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > persists completion configuration per view and restores it through an independent reopen
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+·······stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects disposal during validation before writing the captured definitions
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps unresolved legacy sources intact during delete-reference
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps unresolved legacy sources intact during delete-reference
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps unresolved legacy sources intact during delete-native
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps unresolved legacy sources intact during edit
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps unresolved legacy sources intact during add
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > adopts through the native source protocol and saves after unknown recovery
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > adopts through the native source protocol and saves after unknown recovery
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > adopts through the native source protocol and saves after unknown recovery
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=false)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=false)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=false)
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=true)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=true)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > accepts derived read-only model names when binding and view edits save together (lost=true)
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps 'Table' mode and query inputs through filtering, sorting and pagination
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps 'SelfRefData' mode and query inputs through filtering, sorting and pagination
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stderr | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects server joins and node queries without silently coercing file configuration
+❌ [DataView] requestData 失败 [DataViewDefinition@default]: 本地资源支持Table或完整SelfRefData，不执行服务器节点/关联查询 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts:477:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects server joins and node queries without silently coercing file configuration
+❌ [DataView] requestData 失败 [DataViewDefinition@default]: 本地资源支持Table或完整SelfRefData，不执行服务器节点/关联查询 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts:482:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects server joins and node queries without silently coercing file configuration
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects file model deletion with a surviving relation reference without writing or losing its draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects file model deletion with a surviving cascade reference without writing or losing its draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects file model deletion with a surviving lookup reference without writing or losing its draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects file model deletion with a surviving function reference without writing or losing its draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects file model deletion with a surviving pending-edge reference without writing or losing its draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > saves a filtered file binding deletion, preserves unloaded models and literal values, and reopens independently
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > saves a filtered file binding deletion, preserves unloaded models and literal values, and reopens independently
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+··················stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries file model bindings through the configured filter and denies editing the graph projection
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > consumes a pending file model connection when its native relation is saved and reopens it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > consumes a pending file model connection when its native relation is saved and reopens it
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > retains unapplied layout changes after verification and writes again only on explicit save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > retains unapplied layout changes after verification and writes again only on explicit save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > retains unapplied layout changes after verification and writes again only on explicit save
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > validates layout shape, clears optional positions and preserves unedited definitions
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > validates layout shape, clears optional positions and preserves unedited definitions
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and edits layout in its native DataView, cancels and saves without assembling unchanged models
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and edits layout in its native DataView, cancels and saves without assembling unchanged models
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > denies a container placeholder without a row identity while retaining real row access
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > creates file models with their named views in one native batch for self-description
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > creates file models with their named views in one native batch for self-description
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps relation query identity across explicit legacy conversion and a second save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps relation query identity across explicit legacy conversion and a second save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps relation query identity across explicit legacy conversion and a second save
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > routes real query input to its target, retains receipts and rejects mixed-target submissions
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > routes real query input to its target, retains receipts and rejects mixed-target submissions
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > routes real query input to its target, retains receipts and rejects mixed-target submissions
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > routes real query input to its target, retains receipts and rejects mixed-target submissions
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataViewDefinition:second
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > deletes an explicit table binding through its own DataView and preserves other model definitions
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > deletes an explicit table binding through its own DataView and preserves other model definitions
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+··········stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps edits made during a save and submits them in the next native save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps edits made during a save and submits them in the next native save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps edits made during a save and submits them in the next native save
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > cancels first-file creation before submission and creates only on native save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > cancels first-file creation before submission and creates only on native save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > cancels first-file creation before submission and creates only on native save
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps surviving cascade identity after deletion and supports a second save without reloading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps surviving cascade identity after deletion and supports a second save without reloading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps surviving cascade identity after deletion and supports a second save without reloading
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > deletes an unnamed cascade after confirmed unknown save and native cancellation without reloading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > deletes an unnamed cascade after confirmed unknown save and native cancellation without reloading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > deletes an unnamed cascade after confirmed unknown save and native cancellation without reloading
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > adds the first view for an unbound formal model without staging another file draft
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > adds the first view for an unbound formal model without staging another file draft
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > rejects new bindings without an explicit formal model name and retains the original file
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and edit through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and edit through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and clear through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and clear through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and add through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and add through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and delete through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > queries and delete through DataSet, then independently reopens without another business save API
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves definitions outside the filtered page and uses the same query configuration after save
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves definitions outside the filtered page and uses the same query configuration after save
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > submits view, relation and cascade changes as one file resource batch while leaving unloaded views alone
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > submits view, relation and cascade changes as one file resource batch while leaving unloaded views alone
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > cancels using DataView without file mutation, and rejects a stale application before saving
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > verifies an unknown file write when the same DataSet submission is retried, without writing twice
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > verifies an unknown file write when the same DataSet submission is retried, without writing twice
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+··············stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > verifies an unknown save before applying edits made while its receipt was pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > verifies an unknown save before applying edits made while its receipt was pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > verifies an unknown save before applying edits made while its receipt was pending
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps the original unknown submission recoverable after an explicit local discard
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > keeps the original unknown submission recoverable after an explicit local discard
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and refresh
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and refresh
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and clear
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and clear
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and reset
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and reset
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and cascade-error
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > preserves the original unknown query after local discard and cascade-error
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > defers refresh registered before local discard until unknown recovery and remaining draft handling
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > defers refresh registered before local discard until unknown recovery and remaining draft handling
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+·······stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > defers refresh registered after local discard until unknown recovery and remaining draft handling
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > defers refresh registered after local discard until unknown recovery and remaining draft handling
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > runs one deferred refresh after the unknown submission is confirmed without later edits
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > runs one deferred refresh after the unknown submission is confirmed without later edits
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > does not classify a different rejected draft as part of the original unknown submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > submits shared configuration through native DataSet changes and skips unchanged files
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > does not classify a different rejected draft as part of the original unknown submission
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataViewDefinition:other
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > describes file model views without fabricating database model IDs
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/scenario-definition-resource.test.ts > formal definition resources through SPARK data > describes file model views without fabricating database model IDs
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+····stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > notifies subscribers after valid edits, saved baselines, undo and reload
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+·······································································································stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > marks the submitted text saved while keeping edits made during saving dirty
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > loads a validated saved file and resets history
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > passes the exact captured preimage to the scenario write adapter
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > settles an explicit write rejection after DataSet save exits and preserves edits made while pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (missing)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (valid)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > keeps pre-dispatch failures out of unknown and can explicitly adopt remote content
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects an old remote adoption when the same file receives a save receipt while reading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+······································································stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > checks the remote baseline and marks only submitted text saved after readback
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > saves and validates exact text without normalizing it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains the submitted baseline when remote readback cannot confirm a write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects another save or forced reload while a save is pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+·····stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | packages/spark-project-model/tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+·······················stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads 8D1AB14DD8277F3E7017CD38F77B09FD through the repository file DataView
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads 90A82E287930A234FEC3E687C94A93EA through the repository file DataView
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads 69B79AB779DF4C12A5595DACDF3283F1 through the repository file DataView
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > reads 7AB874097A1E8711A42FD845939A6E05 through the repository file DataView
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > fetches fresh host text for each repository DataView query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/data-space/repository-scenario-resource.test.ts > repository-backed system scenario resources > fetches fresh host text for each repository DataView query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+······stdout | tests/runtime/auth-nav/data-space/scenario-initial-read-red.test.ts > repository scenario initial DataView read contract > creates and starts the file DataView before the resource executor loads the registered file
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+········
+
+ Test Files  9 passed (9)
+      Tests  385 passed (385)
+   Start at  04:26:04
+   Duration  18.52s (transform 12.76s, setup 1.08s, import 13.40s, tests 8.61s, environment 9.32s)

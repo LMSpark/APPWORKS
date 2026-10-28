@@ -1,0 +1,18 @@
+[
+  {
+    "Path": "config/pages/application/project-blueprint/pagedata.json",
+    "Hash": "9003145F07B8C1B5B6552F91A191C8DEAE1521814B294CE43D64B700380D9AAE"
+  },
+  {
+    "Path": "config/pages/data-platform/data-space-design/pagedata.json",
+    "Hash": "83B34543DF0DF98BAD7D4A5768635F23DED477782A106D480F1757EEE18BEC6C"
+  },
+  {
+    "Path": "config/pages/data-platform/data-space-catalog/pagedata.json",
+    "Hash": "32918F306C64D6A29D2BF29A3D612CA1DD71038BB05AA16A8B4E7C2A7C2701FF"
+  },
+  {
+    "Path": "config/pages/data-platform/data-dictionary/pagedata.json",
+    "Hash": "7A7363F4C4D959F8773A9A974FD4560079027FB19EA4833C8BE55E415F0ABBD4"
+  }
+]

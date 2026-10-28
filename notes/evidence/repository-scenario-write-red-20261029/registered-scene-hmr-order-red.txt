@@ -1,0 +1,467 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts (6 tests | 1 failed | 5 skipped) 81ms
+     × filters registered scenario HMR after the real import-glob hook for create, update and delete 79ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts > repository scenario Vite middleware > filters registered scenario HMR after the real import-glob hook for create, update and delete
+AssertionError: expected [ EnvironmentModuleNode{ …(21) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   EnvironmentModuleNode {
++     "acceptedHmrDeps": Set {},
++     "acceptedHmrExports": null,
++     "environment": "client",
++     "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++     "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++     "importedBindings": null,
++     "importedModules": Set {
++       EnvironmentModuleNode {
++         "acceptedHmrDeps": Set {},
++         "acceptedHmrExports": null,
++         "environment": "client",
++         "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/application/project-blueprint/pagedata.json",
++         "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/application/project-blueprint/pagedata.json?raw",
++         "importedBindings": null,
++         "importedModules": Set {},
++         "importers": Set {
++           EnvironmentModuleNode {
++             "acceptedHmrDeps": Set {},
++             "acceptedHmrExports": null,
++             "environment": "client",
++             "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "importedBindings": null,
++             "importedModules": [Circular],
++             "importers": Set {},
++             "info": undefined,
++             "invalidationState": undefined,
++             "isSelfAccepting": false,
++             "lastHMRInvalidationReceived": false,
++             "lastHMRTimestamp": 0,
++             "lastInvalidationTimestamp": 0,
++             "meta": undefined,
++             "ssrError": null,
++             "ssrModule": null,
++             "staticImportedUrls": Set {
++               "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++               "/config/navigation/appworks-system.json?import&raw",
++             },
++             "transformResult": {
++               "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++               "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++               "map": {
++                 "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++                 "names": [],
++                 "sources": [
++                   "glob-fixture.ts",
++                 ],
++                 "sourcesContent": [
++                   "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++                 ],
++                 "version": 3,
++               },
++             },
++             "type": "js",
++             "url": "/src/glob-fixture.ts",
++           },
++         },
++         "info": undefined,
++         "invalidationState": undefined,
++         "isSelfAccepting": false,
++         "lastHMRInvalidationReceived": false,
++         "lastHMRTimestamp": 0,
++         "lastInvalidationTimestamp": 0,
++         "meta": undefined,
++         "ssrError": null,
++         "ssrModule": null,
++         "staticImportedUrls": undefined,
++         "transformResult": null,
++         "type": "js",
++         "url": "/config/pages/application/project-blueprint/pagedata.json?raw",
++       },
++       EnvironmentModuleNode {
++         "acceptedHmrDeps": Set {},
++         "acceptedHmrExports": null,
++         "environment": "client",
++         "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-dictionary/pagedata.json",
++         "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-dictionary/pagedata.json?raw",
++         "importedBindings": null,
++         "importedModules": Set {},
++         "importers": Set {
++           EnvironmentModuleNode {
++             "acceptedHmrDeps": Set {},
++             "acceptedHmrExports": null,
++             "environment": "client",
++             "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "importedBindings": null,
++             "importedModules": [Circular],
++             "importers": Set {},
++             "info": undefined,
++             "invalidationState": undefined,
++             "isSelfAccepting": false,
++             "lastHMRInvalidationReceived": false,
++             "lastHMRTimestamp": 0,
++             "lastInvalidationTimestamp": 0,
++             "meta": undefined,
++             "ssrError": null,
++             "ssrModule": null,
++             "staticImportedUrls": Set {
++               "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++               "/config/navigation/appworks-system.json?import&raw",
++             },
++             "transformResult": {
++               "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++               "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++               "map": {
++                 "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++                 "names": [],
++                 "sources": [
++                   "glob-fixture.ts",
++                 ],
++                 "sourcesContent": [
++                   "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++                 ],
++                 "version": 3,
++               },
++             },
++             "type": "js",
++             "url": "/src/glob-fixture.ts",
++           },
++         },
++         "info": undefined,
++         "invalidationState": undefined,
++         "isSelfAccepting": false,
++         "lastHMRInvalidationReceived": false,
++         "lastHMRTimestamp": 0,
++         "lastInvalidationTimestamp": 0,
++         "meta": undefined,
++         "ssrError": null,
++         "ssrModule": null,
++         "staticImportedUrls": undefined,
++         "transformResult": null,
++         "type": "js",
++         "url": "/config/pages/data-platform/data-dictionary/pagedata.json?raw",
++       },
++       EnvironmentModuleNode {
++         "acceptedHmrDeps": Set {},
++         "acceptedHmrExports": null,
++         "environment": "client",
++         "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-space-catalog/pagedata.json",
++         "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-space-catalog/pagedata.json?raw",
++         "importedBindings": null,
++         "importedModules": Set {},
++         "importers": Set {
++           EnvironmentModuleNode {
++             "acceptedHmrDeps": Set {},
++             "acceptedHmrExports": null,
++             "environment": "client",
++             "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "importedBindings": null,
++             "importedModules": [Circular],
++             "importers": Set {},
++             "info": undefined,
++             "invalidationState": undefined,
++             "isSelfAccepting": false,
++             "lastHMRInvalidationReceived": false,
++             "lastHMRTimestamp": 0,
++             "lastInvalidationTimestamp": 0,
++             "meta": undefined,
++             "ssrError": null,
++             "ssrModule": null,
++             "staticImportedUrls": Set {
++               "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++               "/config/navigation/appworks-system.json?import&raw",
++             },
++             "transformResult": {
++               "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++               "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++               "map": {
++                 "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++                 "names": [],
++                 "sources": [
++                   "glob-fixture.ts",
++                 ],
++                 "sourcesContent": [
++                   "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++                 ],
++                 "version": 3,
++               },
++             },
++             "type": "js",
++             "url": "/src/glob-fixture.ts",
++           },
++         },
++         "info": undefined,
++         "invalidationState": undefined,
++         "isSelfAccepting": false,
++         "lastHMRInvalidationReceived": false,
++         "lastHMRTimestamp": 0,
++         "lastInvalidationTimestamp": 0,
++         "meta": undefined,
++         "ssrError": null,
++         "ssrModule": null,
++         "staticImportedUrls": undefined,
++         "transformResult": null,
++         "type": "js",
++         "url": "/config/pages/data-platform/data-space-catalog/pagedata.json?raw",
++       },
++       EnvironmentModuleNode {
++         "acceptedHmrDeps": Set {},
++         "acceptedHmrExports": null,
++         "environment": "client",
++         "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-space-design/pagedata.json",
++         "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/pages/data-platform/data-space-design/pagedata.json?raw",
++         "importedBindings": null,
++         "importedModules": Set {},
++         "importers": Set {
++           EnvironmentModuleNode {
++             "acceptedHmrDeps": Set {},
++             "acceptedHmrExports": null,
++             "environment": "client",
++             "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "importedBindings": null,
++             "importedModules": [Circular],
++             "importers": Set {},
++             "info": undefined,
++             "invalidationState": undefined,
++             "isSelfAccepting": false,
++             "lastHMRInvalidationReceived": false,
++             "lastHMRTimestamp": 0,
++             "lastInvalidationTimestamp": 0,
++             "meta": undefined,
++             "ssrError": null,
++             "ssrModule": null,
++             "staticImportedUrls": Set {
++               "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++               "/config/navigation/appworks-system.json?import&raw",
++             },
++             "transformResult": {
++               "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++               "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++               "map": {
++                 "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++                 "names": [],
++                 "sources": [
++                   "glob-fixture.ts",
++                 ],
++                 "sourcesContent": [
++                   "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++                 ],
++                 "version": 3,
++               },
++             },
++             "type": "js",
++             "url": "/src/glob-fixture.ts",
++           },
++         },
++         "info": undefined,
++         "invalidationState": undefined,
++         "isSelfAccepting": false,
++         "lastHMRInvalidationReceived": false,
++         "lastHMRTimestamp": 0,
++         "lastInvalidationTimestamp": 0,
++         "meta": undefined,
++         "ssrError": null,
++         "ssrModule": null,
++         "staticImportedUrls": undefined,
++         "transformResult": null,
++         "type": "js",
++         "url": "/config/pages/data-platform/data-space-design/pagedata.json?raw",
++       },
++       EnvironmentModuleNode {
++         "acceptedHmrDeps": Set {},
++         "acceptedHmrExports": null,
++         "environment": "client",
++         "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/navigation/appworks-system.json",
++         "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/config/navigation/appworks-system.json?raw",
++         "importedBindings": null,
++         "importedModules": Set {},
++         "importers": Set {
++           EnvironmentModuleNode {
++             "acceptedHmrDeps": Set {},
++             "acceptedHmrExports": null,
++             "environment": "client",
++             "file": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "id": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/.repository-scenario-hmr-nn6oPU/src/glob-fixture.ts",
++             "importedBindings": null,
++             "importedModules": [Circular],
++             "importers": Set {},
++             "info": undefined,
++             "invalidationState": undefined,
++             "isSelfAccepting": false,
++             "lastHMRInvalidationReceived": false,
++             "lastHMRTimestamp": 0,
++             "lastInvalidationTimestamp": 0,
++             "meta": undefined,
++             "ssrError": null,
++             "ssrModule": null,
++             "staticImportedUrls": Set {
++               "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++               "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++               "/config/navigation/appworks-system.json?import&raw",
++             },
++             "transformResult": {
++               "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++               "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++               "map": {
++                 "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++                 "names": [],
++                 "sources": [
++                   "glob-fixture.ts",
++                 ],
++                 "sourcesContent": [
++                   "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++                 ],
++                 "version": 3,
++               },
++             },
++             "type": "js",
++             "url": "/src/glob-fixture.ts",
++           },
++         },
++         "info": undefined,
++         "invalidationState": undefined,
++         "isSelfAccepting": false,
++         "lastHMRInvalidationReceived": false,
++         "lastHMRTimestamp": 0,
++         "lastInvalidationTimestamp": 0,
++         "meta": undefined,
++         "ssrError": null,
++         "ssrModule": null,
++         "staticImportedUrls": undefined,
++         "transformResult": null,
++         "type": "js",
++         "url": "/config/navigation/appworks-system.json?raw",
++       },
++     },
++     "importers": Set {},
++     "info": undefined,
++     "invalidationState": undefined,
++     "isSelfAccepting": false,
++     "lastHMRInvalidationReceived": false,
++     "lastHMRTimestamp": 0,
++     "lastInvalidationTimestamp": 0,
++     "meta": undefined,
++     "ssrError": null,
++     "ssrModule": null,
++     "staticImportedUrls": Set {
++       "/config/pages/application/project-blueprint/pagedata.json?import&raw",
++       "/config/pages/data-platform/data-dictionary/pagedata.json?import&raw",
++       "/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw",
++       "/config/pages/data-platform/data-space-design/pagedata.json?import&raw",
++       "/config/navigation/appworks-system.json?import&raw",
++     },
++     "transformResult": {
++       "code": "export const pages = /* #__PURE__ */ Object.assign({\"../config/pages/application/project-blueprint/pagedata.json\": () => import(\"/config/pages/application/project-blueprint/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-dictionary/pagedata.json\": () => import(\"/config/pages/data-platform/data-dictionary/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-catalog/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-catalog/pagedata.json?import&raw\").then(m => m[\"default\"]),\"../config/pages/data-platform/data-space-design/pagedata.json\": () => import(\"/config/pages/data-platform/data-space-design/pagedata.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ export const navigation = /* #__PURE__ */ Object.assign({\"../config/navigation/appworks-system.json\": () => import(\"/config/navigation/appworks-system.json?import&raw\").then(m => m[\"default\"])
++
++
++ });
++ ",
++       "etag": "W/\"3bb-ML2PqaPTib57ct1ddg4w8qVFv5w\"",
++       "map": {
++         "mappings": "AAAA,OAAO,MAAM,QAAQ,OAAO,KAAK,KAAK,6BAA6B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC;AACrG,OAAO,MAAM,aAAa,OAAO,KAAK,KAAK,+BAA+B;CAAC,OAAO;CAAQ,QAAQ;AAAS,CAAC",
++         "names": [],
++         "sources": [
++           "glob-fixture.ts",
++         ],
++         "sourcesContent": [
++           "export const pages = import.meta.glob('../config/pages/**/*.json', {query: '?raw', import: 'default'})
++ export const navigation = import.meta.glob('../config/navigation/*.json', {query: '?raw', import: 'default'})",
++         ],
++         "version": 3,
++       },
++     },
++     "type": "js",
++     "url": "/src/glob-fixture.ts",
++   },
++ ]
+
+ ❯ tests/runtime/auth-nav/repository-scenarios/repository-scenario-middleware.test.ts:186:54
+    184|           expect(globResult?.map(module => module.file)).toContain(nor…
+    185|         }
+    186|         expect(await runChain(type, normalizedPath)).toEqual([])
+       |                                                      ^
+    187|       }
+    188|       const hookOptions = {type: 'update' as const, file: slashPath, t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  05:01:23
+   Duration  1.66s (transform 95ms, setup 116ms, import 202ms, tests 81ms, environment 1.04s)

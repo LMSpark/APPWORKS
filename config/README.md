@@ -13,7 +13,7 @@
 ## 当前配置
 
 - `navigation/vue-pages.json`：Vue 页面组件注册，作为路由组件、公共路径和设计器页面选项的配置源。
-- `applications/appworks.json`：AppWorks builtin system application 的仓内身份、导航资源及已迁入场景资源索引。导航节点来自 `navigation/appworks-system.json`；四个声明场景由仓内 pagedata 唯一供给，其正文经 SPARK data file DataView executor 读取。manifest 只登记资源，不复制导航或场景正文。
+- `applications/appworks.json`：AppWorks builtin system application 的仓内身份、导航资源及已迁入场景资源索引。导航节点来自 `navigation/appworks-system.json`；四个声明场景由仓内 pagedata 唯一供给，其正文经 SPARK data file DataView executor 读取。四场景开发态可经 SPARK data 保存，构建态只读；场景历史和工具定义仍未迁入。manifest 只登记资源，不复制导航或场景正文。
 - `navigation/appworks-system.json`：正式核对过的 AppWorks 系统导航节点子集，保留原 node ID、父子层级、顺序和 Vue URL；运行时仍消费后台菜单授权响应，不把仓内程序定义当作数据授权。
 - `schemas/*.schema.json`：配置协议的 JSON Schema。
 

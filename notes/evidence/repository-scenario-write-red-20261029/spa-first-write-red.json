@@ -1,0 +1,60 @@
+{
+  "target": "7AB874097A1E8711A42FD845939A6E05",
+  "model": "Base_AppSystemList",
+  "view": "writerSmoke_20261029_0455",
+  "diskViewCreated": true,
+  "editorAfterSaveMissing": true,
+  "returnedToUnfilteredCatalog": true,
+  "captureTruncated": true,
+  "claim": "SPA acceptance failed; reload cause under investigation",
+  "viteLogs": [
+    {
+      "level": "debug",
+      "message": "[vite] connecting...",
+      "timestamp": "2026-10-28T20:47:31.423Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connected.",
+      "timestamp": "2026-10-28T20:47:31.430Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connecting...",
+      "timestamp": "2026-10-28T20:48:06.272Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connected.",
+      "timestamp": "2026-10-28T20:48:06.292Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connecting...",
+      "timestamp": "2026-10-28T20:49:50.950Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connected.",
+      "timestamp": "2026-10-28T20:49:50.976Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connecting...",
+      "timestamp": "2026-10-28T20:53:28.865Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "debug",
+      "message": "[vite] connected.",
+      "timestamp": "2026-10-28T20:53:28.877Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    }
+  ]
+}

@@ -18,6 +18,11 @@ export function selectFieldContextRow(input: {
   const sameView = input.source !== null && input.source !== undefined
     && input.inheritedSource !== null && input.inheritedSource !== undefined
     && toRaw(input.source) === toRaw(input.inheritedSource)
-  if (input.explicit) return sameView ? input.inheritedRow ?? input.currentRow ?? null : input.currentRow ?? null
+  if (input.explicit) {
+    const inheritedRow = input.inheritedRow
+    const belongsToView = sameView && inheritedRow !== null && inheritedRow !== undefined
+      && input.source?.rows.some(row => toRaw(row) === toRaw(inheritedRow)) === true
+    return belongsToView ? inheritedRow : input.currentRow ?? null
+  }
   return input.inheritedRow ?? input.currentRow ?? null
 }

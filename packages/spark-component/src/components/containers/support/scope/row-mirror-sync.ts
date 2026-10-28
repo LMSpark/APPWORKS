@@ -4,7 +4,7 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/containers/support/row-mirror-sync 的声明、导出和使用边界时，从本模块开始。
  */
-import {isDataRow, type DataRow} from '@spark-appworks/spark-data'
+import {isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {toRaw} from 'vue'
 
 const ROW_SOURCE = Symbol('spark-render-row-source')
@@ -18,13 +18,24 @@ export function resolveReactiveRow(row: DataRow | null | undefined): DataRow | n
   return isDataRow(source) ? source : null
 }
 
+/** Return the canonical row only when the identity is present in this formal DataView's rows. */
+export function resolveDataViewRow(view: DataView | null | undefined, row: DataRow | null | undefined): DataRow | null {
+  if (!view || !row) return null
+  const candidate = resolveReactiveRow(row)
+  if (!candidate) return null
+  return view.rows.find(item => toRaw(item) === toRaw(candidate)) ?? null
+}
+
 export function syncReactiveRow(
   target: DataRow,
   source: DataRow | null | undefined,
-  preserveIdentity = false,
+  preserveIdentity?: boolean,
 ): void {
   // 仅为标准容器的现有渲染镜像保留对象引用，不复制权限、值或草稿；Symbol不进入业务序列化。
-  if (preserveIdentity || source && Object.hasOwn(toRaw(source), ROW_SOURCE)) {
+  const shouldPreserveIdentity = preserveIdentity === true
+    || preserveIdentity === undefined && source !== null && source !== undefined
+      && Object.hasOwn(toRaw(source), ROW_SOURCE)
+  if (shouldPreserveIdentity) {
     if (!Object.hasOwn(toRaw(target), ROW_SOURCE)) {
       Object.defineProperty(toRaw(target), ROW_SOURCE, {value: undefined, configurable: true, writable: true})
     }

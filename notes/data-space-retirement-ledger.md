@@ -3005,3 +3005,11 @@ flowchart TD
 - **工程复核与门禁：**主控复核并修正 `RendererForm` 非正式 `readonly` 属性、改用正式 `buildDataViewKey`；`pnpm run typecheck` 通过，`pnpm exec eslint src/views/app/WorkflowDesigns.vue tests/ui/views/workflow-designs.test.ts --max-warnings=0` 通过，`pnpm run verify:rules` 通过（AI model spec 保留 2 条已有警告、1 条提示），`pnpm run build` 通过（Vite 输出既有 dynamic import 分块警告）。`git diff --check` 通过。
 - **旁路回归缺陷：**包含在最初扩展聚焦回归中的未改文件 `tests/ui/field/choice/field-independent-binding.test.ts` 有 1 条失败（预期 `A`、实际 `DECOY`）；同一测试单独运行仍失败，改动不触及该文件，登记为独立绑定缺陷继续查，不把它描述为通过或归因于本切片。
 - **真实 SPA 验收与交付：**当前 IAB 控制接口仍返回 `browser.user is unavailable`，本轮没有读取正式 DataView 页面、执行真实保存或关闭重开读回；用户已提供测试账号并授权，不再次索取，也不自动填认证表单。故本切片自动化通过，真实 SPA 验收未完成。工作仅限页面、测试及本记录，没有正式业务数据写入或 Java 改动；提交推送待本轮确认完成后执行。
+
+### 2026-10-28 标准字段 DataView 行作用域身份修复
+
+- **基线与 RED：**从推送基线 `3e1a1cd05` 开始，原先已登记的 `field-independent-binding.test.ts` 独立失败再次复现：标准字段将父级同空间注入的 decoy `DATA_ROW` 显示为 `DECOY`，而显式 `dataViewKey=A@Input@default` 应读取 A 的正式 currentRow。初步成员判断又暴露 HostScope/FieldScope 镜像丢失真实 DataView 行身份；修复前标准 children renderer 测试显示 currentRow 而非所选 scoped row。RED 原始输出保存在 [`field-independent-binding-red-20261028.txt`](evidence/field-independent-binding-red-20261028.txt)。
+- **实施及身份合同：**低价模型修复 `row-mirror-sync`、`RendererHostScope`、`RendererFieldScope` 和字段绑定行解析。scope 仅在解开镜像后的对象仍是当前 `DATA_SOURCE.rows` 内的同一对象时保留来源身份；跨视图或非成员 decoy 使用绑定 DataView 的 currentRow。`syncReactiveRow` 省略参数继续兼容既有 marker 链，显式 `false` 现在会清除 marker；FieldScope 反向同步亦检查 model 身份。标准组件属性/公开合同未改，无新增请求、数据权限逻辑或页面数据副本；字段仍从 DataView 读写。没有改 Java 或写正式数据。
+- **主控验收：**`field-independent-binding.test.ts`、纯 `field-row-scope.test.ts`、`row-mirror-sync.test.ts`、标准 `renderer-form-detail.test.ts` 共 4 文件/47 测试通过；主控复跑 `pnpm run typecheck`、8 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules` 与 `git diff --check` 均通过。正式规则检查的 AI model spec 保留已有 2 条警告、1 条提示；build 保留既有动态导入分块警告。
+- **独立既有失败：**主控单独复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 1 项失败、19 项通过。它调用 `DataView.addRow({id:'new'})` 直接提供正式主键，触发 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`；该用例及生产路径没有在本切片修改，仍单独登记为测试夹具与 DataView 身份 API 合同未对齐，不计入 47 项通过结果。
+- **真实 SPA 边界与交付：**用户已在本任务提供并授权测试账号，不再要求重复提供。按 Computer Use `SKILL.md` 的“Do not automate user authentication dialogs”硬性规则，本轮不能自动填写/提交登录表单；当前会话没有可直接附着的认证 SPA 句柄，因此没有真实在线查询、修改或写入回执，真实 SPA 验收仍未完成。自动化浏览器状态检查不能替代服务端证明。总体唯一 SPARK data 目标保持 active。

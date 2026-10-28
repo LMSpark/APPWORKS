@@ -32,4 +32,13 @@ describe('standard container row identity', () => {
     syncReactiveRow(inner, first, true)
     expect(resolved.value).toBe(first)
   })
+
+  it('does not propagate a source identity when the caller rejects it', () => {
+    const source = {id: 'view-row'}
+    const outer = shallowReactive<DataRow>({}), inner = shallowReactive<DataRow>({})
+    syncReactiveRow(outer, source, true)
+    syncReactiveRow(inner, outer, false)
+
+    expect(resolveReactiveRow(inner)).toBe(inner)
+  })
 })

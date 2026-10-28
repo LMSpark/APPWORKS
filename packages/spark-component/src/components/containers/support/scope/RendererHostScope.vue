@@ -22,11 +22,13 @@ AI用途：需要定位 components/containers/support/RendererHostScope 的声�
 import { shallowReactive, watch } from 'vue'
 import { type SparkNode, type DataRow, nodeId } from '@spark-appworks/spark-data'
 import {
+  DATA_SOURCE,
   DATA_ROW,
   SparkComponentRenderer,
   useSparkComponent,
+  useSparkConsume,
 } from '../../../internal'
-import { syncReactiveRow } from './row-mirror-sync'
+import { resolveDataViewRow, syncReactiveRow } from './row-mirror-sync'
 
 const props = withDefaults(defineProps<{
   type?: string
@@ -38,6 +40,8 @@ const props = withDefaults(defineProps<{
 })
 
 const { sparkProvide, sparkRemove } = useSparkComponent({ type: props.type })
+const {sparkConsume} = useSparkConsume()
+const inheritedView = sparkConsume(DATA_SOURCE)
 
 const rowMirror = shallowReactive<DataRow>({})
 let hasProvidedRow = false
@@ -60,7 +64,7 @@ watch(
       sparkProvide(DATA_ROW, rowMirror)
       hasProvidedRow = true
     }
-    syncReactiveRow(rowMirror, newRow)
+    syncReactiveRow(rowMirror, newRow, resolveDataViewRow(inheritedView, newRow) !== null)
   },
   { immediate: true, deep: true },
 )

@@ -1,0 +1,36 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/ui/field/choice/field-independent-binding.test.ts > standard fields bind their own DataView > resolves full model identity and writes the same view editing overlay, then releases old bindings
+🐛 [DataView] 销毁 DataView: internal:default
+🐛 [DataView] 销毁 DataView: choices:default
+🐛 [DataView] 销毁 DataView: internal:default
+🐛 [DataView] 销毁 DataView: choices:default
+
+--------x----
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/field/choice/field-independent-binding.test.ts > standard fields bind their own DataView > resolves full model identity and writes the same view editing overlay, then releases old bindings
+AssertionError: expected 'DECOY' to be 'A' // Object.is equality
+
+Expected: "A"
+Received: "DECOY"
+
+ ❯ tests/ui/field/choice/field-independent-binding.test.ts:148:62
+    146|       props.dataViewKey = 'A@Input@default'; await flushPromises()
+    147|       expect(off).toHaveBeenCalled()
+    148|       expect(wrapper.get('.input').attributes('data-value')).toBe('A')
+       |                                                              ^
+    149|       f.b.updateEditingValue('one', 'name', 'old view')
+    150|       await flushPromises()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  14:13:47
+   Duration  8.64s (transform 5.05s, setup 130ms, import 7.12s, tests 66ms, environment 1.01s)
+

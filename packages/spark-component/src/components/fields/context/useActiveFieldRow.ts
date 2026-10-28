@@ -71,7 +71,7 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
     const row = selectFieldContextRow({
       source,
       inheritedSource,
-      inheritedRow,
+      inheritedRow: resolveReactiveRow(inheritedRow),
       currentRow: source?.currentRow,
       explicit: explicit.value,
     })

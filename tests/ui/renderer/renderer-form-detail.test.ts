@@ -2,8 +2,9 @@ import { afterEach, describe, it, expect } from 'vitest'
 import { config, flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import { defineComponent, h, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
-import { RendererToolbar, RendererForm, RendererDetail, FieldText, FieldTextarea, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
+import { RendererToolbar, RendererForm, RendererDetail, FieldText, FieldTextarea, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, DATA_SOURCE, useSparkComponent } from '@spark-appworks/spark-component'
 import RendererFieldScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
+import RendererHostScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererHostScope.vue'
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
 import type { DataView, SparkNode } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
@@ -138,6 +139,40 @@ it.each(['form', 'detail'] as const)('keeps %s slot scope on the bound DataView 
     expect(wrapper.get('[data-slot-mode]').text()).toBe('Join')
     view.updateEditingValue('b', 'mode', 'Navigation'); await flushPromises()
     expect(wrapper.get('[data-slot-mode]').text()).toBe('Navigation')
+  } finally {wrapper.unmount(); runtime.dispose()}
+})
+
+it.each(['host', 'field'] as const)('%s scope preserves the DataView row identity for an explicitly bound field', async kind => {
+  const ds = SparkData.createDataSet({scenarioId: 'SCENE', dataSetName: 'ScopedRows', tables: {Inputs: {
+    tableName: 'Inputs', modelBinding: {modelId: 'MODEL', modelName: 'Inputs'}, resourceType: 'static-data',
+    columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+    views: {default: {autoCurrentFirst: false, rows: [
+      {id: 'current', name: 'current row', lingma_sys_params: {r: [], e: ['name'], h: [], m: [], d: false}},
+      {id: 'scoped', name: 'scoped row', lingma_sys_params: {r: [], e: ['name'], h: [], m: [], d: false}},
+    ]}},
+  }}})
+  const view = ds.getView('Inputs', 'default')!
+  await loadFieldQuery(view, 'Inputs')
+  view.setCurrentRowById('current')
+  const scopedRow = view.rows.find(row => row['id'] === 'scoped')!
+  const runtime = new PageRuntime({pageId: `scope-row-${kind}`, scenarioIds: ['SCENE'], loadScenario: async () => ds})
+  await runtime.load()
+  const registry = Spark.createRegistry()
+  registry.register({type: 'r-text', component: FieldText})
+  const children: SparkNode[] = [{type: 'r-text', props: {dataViewKey: 'SCENE@Inputs@default', dataField: 'name'}}]
+  const stubs = {...config.global.stubs}
+  delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+  config.global.stubs = stubs
+  const wrapper = mount(defineComponent({setup() {
+    const {sparkProvide} = useSparkComponent({type: 'scope-row-test-host'})
+    sparkProvide(PAGE_RUNTIME, runtime)
+    sparkProvide(DATA_SOURCE, view)
+    return () => kind === 'host'
+      ? h(RendererHostScope, {row: scopedRow, children})
+      : h(RendererFieldScope, {model: scopedRow, inline: true, children})
+  }}), {global: {plugins: [ElementPlus, Spark.createPlugin({registry})]}})
+  try {
+    expect(wrapper.get('.field-value').text()).toBe('scoped row')
   } finally {wrapper.unmount(); runtime.dispose()}
 })
 

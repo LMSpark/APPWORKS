@@ -2786,3 +2786,11 @@ flowchart TD
 - **裁定：**数据空间设计可补正式已识别 owner 的定义，但当前新增表单只能创建归属 D99 元数据管理应用的空间，不能据此生成 root `/app-list` 所需的服务端 owner/scope。`homepage` 预览仍为 0 行，root 与 D99 应用目录范围仍不等价；禁止将新建 D99 空间改名或伪映射为平台根 owner。
 - **下一步：**继续从服务端正式目录/导航合同确认 root 应用身份及可维护的 owner scope；取得后才在正确 owner 下使用设计器补 `Base_AppSystemList` DataView。若 owner 只能由外部平台配置提供，则先记录真实 scope 与维护路径，不创建猜测空间。证据见 [`data-space-create-owner-scope-20261028.md`](evidence/data-space-create-owner-scope-20261028.md)。
 - **副作用边界：**本次只导航、读取目录并打开/取消新增表单；没有提交真实写接口、改 Java 或改变数据空间配置。SPA 当前仍停在 D99 数据空间目录页。
+
+### 2026-10-28 允许通过数据空间设计补齐正式 DataSet 定义
+
+- **用户最新方向：**可以通过数据空间设计补齐数据空间。后续将把游离于 DataSet/DataView 之外、经核实确有业务消费需要的资源，按真实 owner 定义为 DataTable、字段、DataView、查询参数及 executor；页面再绑定标准组件，通过 DataView/DataSet 读写。不能只因存在 owner 类就删掉它：若它只在 DataView executor 内作存储适配，则属于 SPARK data 内部实现；要清理的是领域/页面第二套查询、暂存、取消、权限推导及提交逻辑。
+- **最新正式数据核验：**认证 SPA 中 `7AB874097A1E8711A42FD845939A6E05` 是“功能管理”空间；其 `Base_Navigation_DataRelation` 模型有 26 列、`default` 视图，正式查询返回 9 行、总数 9、状态 `Loaded`。精确宿主 `prowid=appworks-tool-dev` 尚无关系行。现有一行的 DataSpace ID 前缀 `03D8E17A` 在当前 D99 目录筛选无匹配，但未证明其它 owner 范围内不存在。细节见 [`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。
+- **补全边界：**该查询证明可通过设计器扩展已识别 owner 下的 DataView 定义；不证明 D99 元数据范围等于平台根目录范围。D99 的 DataSpace 新增表单只提供“元数据管理”应用，90A8 `Base_AppSystemList@catalogApps` 正式查询只有 1 行，根 `/app-list` 历史请求返回 61 行，`homepage` 在 90A8 的 `Base_DataSet` 预览为 0 行。不得把新建 D99 空间或 7AB 的视图冒充 `homepage` owner。
+- **下一步执行顺序：**继续盘点每条现存游离 owner 的业务语义、正式资源身份和下游消费者；逐项映射至正式 DataSpace owner、DataTable/columns/DataView 和权限/回执合同。owner 已确认且 DataView 能表达真实范围时，直接通过设计器补定义并在同一 SPA 读回；再把标准组件绑定和页面消费者切到该 DataView，删除被替代逻辑并做真实查询/编辑/取消/保存烟测。owner/scope/权限/结果未知时保留现入口并登记缺口，不造身份，不改 Java、不绕开 SPARK data。
+- **本轮变更：**更新本台账与 SPA 证据文件；没有产品代码、正式 DataSpace、业务数据或 Java 改动。SPA 保持在 D99 数据空间目录。整体唯一 SPARK data 通道目标仍 active。

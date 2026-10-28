@@ -24,6 +24,13 @@
 - `Base_AppSystemList@catalogApps` 预览返回 1 行、总数 1、状态 `Loaded`，唯一行显示 `NewApp`、系统名“元数据管理”、应用代码 `DataSchemaManage`。此响应证明该 view 在本应用的实际范围只有一项。
 - 结果只支持候选视图的分页查询可运行；不支持全量候选、权限完整性或跨 DataSet 绑定。没有继续创建 `Base_DataModel`、`Base_DataModel_Field` 视图，没有添加级联或修改 `Base_Navigation_DataRelation` / 业务行。
 
+## 项目蓝图关系正式查询
+
+- 在正式空间 `7AB874097A1E8711A42FD845939A6E05`（应用“元数据管理”，名称“功能管理”）的设计器中，`Base_Navigation_DataRelation` 的正式字段定义共 26 列，唯一已配置视图为 `default`；预览没有修改定义。
+- `Base_Navigation_DataRelation@default` 通过 SPA 查询返回 9 行、总数 9、页 1/20、状态 `Loaded`。这证实模型已有正式关系行；DevSystem 宿主 `prowid=appworks-tool-dev` 对应的精确查询仍为 0 行，所以候选项目关系尚未配置。
+- 9 行中现有 `Base_AppSystemList` 关系引用 DataSpace ID 前缀 `03D8E17A`。用 D99 数据空间目录的正式名称/ID筛选该前缀返回“No Data”。这只证明当前目录查询没有匹配行，尚不足以证明该 DataSpace 在别的应用范围或服务端目录中不存在。
+- 对 `Base_Navigation_DataRelation` 及其 9 行没有执行新增、修改或删除。没有更改 DataView 查询条件、排序、输出字段或 pagedata。
+
 ## root `homepage` owner 检查
 
 - 在同一 `Base_DataSet@navHostDataSpaceOptions` 预览中，以正式字段“所属系统 ID”（`sysid`）等于 `homepage` 查询，DataView 返回 0 行、总数 0、状态 `Loaded`。此预览条件未保存到设计定义。

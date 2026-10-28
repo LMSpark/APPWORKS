@@ -71,7 +71,7 @@
         },
         "toolbarClassValue": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "showToolbar": {
           "type": "object",

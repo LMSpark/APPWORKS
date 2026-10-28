@@ -1,0 +1,724 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/tenant/app-list-dataview-binding.test.ts (2 tests | 2 failed) 20ms
+     × binds the scenario list to its PageRuntime DataView through RendererList 14ms
+     × keeps app-specific labels and row actions on the row-scoped standard component contract 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/tenant/app-list-dataview-binding.test.ts > AppList formal scenario data binding > binds the scenario list to its PageRuntime DataView through RendererList
+AssertionError: expected '<!--\r\n@module app:views/tenant/AppL…' to contain 'dataViewKey="${scenarioId}@Base_AppSy…'
+
+- Expected
++ Received
+
+- dataViewKey="${scenarioId}@Base_AppSystemList@default"
++ <!--
++ @module app:views/tenant/AppList
++ 职责：提供主应用 AppList 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
++ 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
++ AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。
++ -->
++ <template>
++   <div class="app-list-page">
++     <p v-if="runtimeError" role="alert">{{ runtimeError }}</p>
++     <el-page-header content="应用管理" @back="$router.go(-1)">
++       <template #icon>
++         <span style="font-size: 20px">📱</span>
++       </template>
++       <template #extra>
++         <el-button type="primary" @click="showCreateDialog = true">
++           ➕ 创建应用
++         </el-button>
++       </template>
++     </el-page-header>
++ 
++     <div class="app-list-content">
++       <el-row :gutter="20">
++         <el-col v-for="project in projects" :key="project.projectId" :xs="24" :sm="12" :md="8" :lg="6">
++           <el-card
++             class="app-card"
++             :class="{ 'is-active': project.projectId === currentProjectId }"
++             shadow="hover"
++           >
++             <div class="app-card-header">
++               <span class="app-icon"><NavIcon :name="project.icon" :size="32" /></span>
++               <el-tag v-if="project.projectType === 'homepage'" type="warning" size="small">应用工场</el-tag>
++               <el-tag v-else type="info" size="small">应用</el-tag>
++             </div>
++             <h3 class="app-name">{{ project.name }}</h3>
++             <p class="app-desc">{{ project.description || '暂无描述' }}</p>
++             <div class="app-actions">
++               <el-button
++                 v-if="project.projectId !== currentProjectId"
++                 type="primary"
++                 size="small"
++                 @click="handleSwitch(project)"
++               >
++                 进入应用
++               </el-button>
++               <el-tag v-else type="success" size="small">当前应用</el-tag>
++               <el-button size="small" @click="openSettings(project)">设置</el-button>
++               <el-button
++                 v-if="project.projectType !== 'homepage'"
++                 type="danger"
++                 size="small"
++                 text
++                 @click="handleDelete(project)"
++               >
++                 删除
++               </el-button>
++             </div>
++           </el-card>
++         </el-col>
++       </el-row>
++     </div>
++ 
++     <AppProjectSettingsDialog
++       v-if="settingsTarget"
++       v-model="settingsVisible"
++       :tenant-id="tenantId"
++       :project-id="settingsTarget.projectId"
++       :project-name="settingsTarget.name"
++       @saved="loadProjects"
++     />
++ 
++     <!-- 创建应用弹窗 -->
++     <el-dialog v-model="showCreateDialog" title="创建应用" width="480px">
++       <el-form :model="createForm" label-width="80px">
++         <el-form-item label="应用 ID">
++           <el-input v-model="createForm.projectId" placeholder="英文标识，如 my-app" />
++         </el-form-item>
++         <el-form-item label="应用名称">
++           <el-input v-model="createForm.name" placeholder="显示名称" />
++         </el-form-item>
++         <el-form-item label="图标">
++           <el-input v-model="createForm.icon" placeholder="Emoji 图标" />
++         </el-form-item>
++         <el-form-item label="描述">
++           <el-input v-model="createForm.description" type="textarea" :rows="3" placeholder="应用描述" />
++         </el-form-item>
++       </el-form>
++       <template #footer>
++         <el-button @click="showCreateDialog = false">取消</el-button>
++         <el-button type="primary" :loading="creating" @click="handleCreate">创建</el-button>
++       </template>
++     </el-dialog>
++   </div>
++ </template>
++ 
++ <script setup lang="ts">
++ /**
++  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；属于租户路由页，不允许作为 SparkNode 组件配置生成。
++  */
++ import { ref, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
++ import { useRoute, useRouter } from 'vue-router'
++ import { ElMessage, ElMessageBox } from 'element-plus'
++ import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
++ import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
++ import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
++ import NavIcon from '@/components/NavIcon.vue'
++ import { getNavHomePath } from '@spark-appworks/spark-app'
++ import { PageRuntime } from '@spark-appworks/spark-project-model'
++ import type { DataView } from '@spark-appworks/spark-data'
++ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
++ import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
++ 
++ type ProjectItem = {
++   projectId: string
++   name: string
++   projectType: string
++   icon: string
++   description: string
++   order: number
++   homeNodeId?: string | null
++ }
++ 
++ const router = useRouter()
++ const route = useRoute()
++ const projectSwitch = inject(PROJECT_SWITCH_KEY)
++ const projects = ref<ProjectItem[]>([])
++ const showCreateDialog = ref(false)
++ const creating = ref(false)
++ const settingsVisible = ref(false)
++ const settingsTarget = ref<ProjectItem | null>(null)
++ const runtimeError = ref('')
++ let runtime: PageRuntime | undefined
++ let active = true
++ let generation = 0
++ let unsubscribe: (() => void) | undefined
++ 
++ const tenantId = computed(() => {
++   const fromRoute = parseTenantScope(route.path)?.tenantId
++   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
++ })
++ 
++ const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
++ 
++ const createForm = ref({
++   projectId: '',
++   name: '',
++   icon: 'Box',
++   description: '',
++ })
++ 
++ async function loadProjects() {
++   const scenarioId = typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : ''
++   if (scenarioId) {
++     runtimeError.value = ''
++     return loadScenarioProjects(scenarioId)
++   }
++   const own = ++generation
++   projects.value = []
++   runtimeError.value = ''
++   const data = await lowcodeApi.platform.listApplications()
++   if (!active || own !== generation) return
++   projects.value = data.map((application, order) => ({
++     projectId: application.id,
++     name: application.name,
++     projectType: 'application',
++     icon: 'Box',
++     description: application.description,
++     order,
++   }))
++ }
++ 
++ function projectRows(view: DataView): ProjectItem[] {
++   const required = ['rowid', 'AppName', 'AppDesc', 'IsSys']
++   if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
++     throw new Error('应用目录 DataView 模型或主键身份不匹配')
++   }
++   return view.rows.map((row, order) => {
++     if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) {
++       throw new Error('应用目录 DataView 缺少可读的应用身份或展示字段')
++     }
++     const id = row['rowid']
++     if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
++     const code = String(row['AppName'] ?? '')
++     const description = String(row['AppDesc'] ?? '')
++     return {projectId: id, name: description || code || id, description, projectType: Number(row['IsSys'] ?? 0) === 1 ? 'homepage' : 'application', icon: 'Box', order}
++   })
++ }
++ 
++ async function loadScenarioProjects(scenarioId: string): Promise<void> {
++   const own = ++generation
++   projects.value = []
++   runtimeError.value = ''
++   runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
++   const projectId = parseTenantScope(route.path)?.projectId ?? ''
++   if (!projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
++   try {
++     const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
++       loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
++     runtime = current
++     await current.load()
++     if (!active || own !== generation || current.destroyed) { current.dispose(); return }
++     const loaded = current.getDataSet(scenarioId)
++     const view = loaded?.getView('Base_AppSystemList', 'default')
++     if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
++     if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
++     const update = () => { if (active && own === generation) projects.value = projectRows(view) }
++     unsubscribe = loaded.onAnyViewChange({rowsChanged: update, requestStateChanged: update})
++     const result = await view.requestRefresh()
++     if (!active || own !== generation || current.destroyed) return
++     if (!result.success) throw new Error(result.message ?? '应用目录 DataView 查询未成功')
++     projects.value = projectRows(view)
++   } catch (cause) {
++     if (active && own === generation) runtimeError.value = cause instanceof Error ? cause.message : String(cause)
++   }
++ }
++ 
++ function getProjectSwitch() {
++   if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务，无法同步项目上下文')
++   return projectSwitch
++ }
++ 
++ function openSettings(project: ProjectItem): void {
++   ElMessage.warning(`“${project.name}”设置需要 lowcode 治理写入合同；当前只读接入不会调用旧 AppWorks 后端`)
++ }
++ 
++ async function handleCreate() {
++   const { projectId, name, icon, description } = createForm.value
++   if (!projectId.trim()) {
++     ElMessage.warning('请输入应用 ID')
++     return
++   }
++   creating.value = true
++   try {
++     void name
++     void icon
++     void description
++     throw new Error('lowcode 现有应用写入接口未提供写前镜像、journal、readback 与补偿合同，已阻止创建')
++   } catch (e: unknown) {
++     const msg = e instanceof Error ? e.message : '创建失败'
++     ElMessage.error(msg)
++   } finally {
++     creating.value = false
++   }
++ }
++ 
++ async function handleSwitch(project: ProjectItem) {
++   try {
++     const principal = readLowcodePrincipal()
++     if (!principal) throw new Error('未登录，无法切换应用')
++     const receipt = await getProjectSwitch().switchAndReload(project.projectId)
++     receipt.assertCurrent()
++     const failure = await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
++     receipt.assertCurrent()
++     if (failure) throw new Error('应用页面导航未完成')
++     ElMessage.success(`已切换到「${project.name}」`)
++   } catch (error: unknown) {
++     ElMessage.error(error instanceof Error ? error.message : '切换应用失败')
++   }
++ }
++ 
++ async function handleDelete(project: ProjectItem) {
++   try {
++     await ElMessageBox.confirm(`确定删除应用「${project.name}」？此操作不可恢复。`, '删除确认', {
++       type: 'warning',
++       confirmButtonText: '删除',
++       cancelButtonText: '取消',
++     })
++     ElMessage.error('lowcode 现有应用删除接口未提供写前镜像、journal、readback 与补偿合同，已阻止删除')
++   } catch (error) {
++     if (error instanceof Error && error.message) ElMessage.error(error.message)
++   }
++ }
++ 
++ onMounted(async () => {
++   await loadProjects()
++ })
++ watch(() => route.meta['blueprintScenarioId'], value => {
++   if (typeof value === 'string' && value.trim()) {
++     void loadScenarioProjects(value.trim())
++     return
++   }
++   generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined
++   runtimeError.value = ''
++   void loadProjects()
++ }, {flush: 'sync'})
++ onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); runtime?.dispose(); runtime = undefined })
++ </script>
++ 
++ <style scoped>
++ .app-list-page {
++   padding: 20px;
++ }
++ 
++ .app-list-content {
++   margin-top: 20px;
++ }
++ 
++ .app-card {
++   margin-bottom: 20px;
++   transition: border-color 0.3s;
++ }
++ 
++ .app-card.is-active {
++   border-color: var(--el-color-primary);
++ }
++ 
++ .app-card-header {
++   display: flex;
++   align-items: center;
++   justify-content: space-between;
++   margin-bottom: 8px;
++ }
++ 
++ .app-icon {
++   font-size: 32px;
++ }
++ 
++ .app-name {
++   margin: 8px 0 4px;
++   font-size: 16px;
++ }
++ 
++ .app-desc {
++   color: var(--el-text-color-secondary);
++   font-size: 13px;
++   margin-bottom: 12px;
++   min-height: 36px;
++ }
++ 
++ .app-actions {
++   display: flex;
++   align-items: center;
++   gap: 8px;
++   flex-wrap: wrap;
++ }
++ </style>
++
+
+ ❯ tests/runtime/tenant/app-list-dataview-binding.test.ts:9:20
+      7| describe('AppList formal scenario data binding', () => {
+      8|   it('binds the scenario list to its PageRuntime DataView through Rend…
+      9|     expect(source).toContain('dataViewKey="${scenarioId}@Base_AppSyste…
+       |                    ^
+     10|     expect(source).toContain('<RendererList')
+     11|     expect(source).not.toContain('function projectRows(')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/runtime/tenant/app-list-dataview-binding.test.ts > AppList formal scenario data binding > keeps app-specific labels and row actions on the row-scoped standard component contract
+AssertionError: expected '<!--\r\n@module app:views/tenant/AppL…' to contain 'dataField: \'AppDesc\''
+
+- Expected
++ Received
+
+- dataField: 'AppDesc'
++ <!--
++ @module app:views/tenant/AppList
++ 职责：提供主应用 AppList 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
++ 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
++ AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。
++ -->
++ <template>
++   <div class="app-list-page">
++     <p v-if="runtimeError" role="alert">{{ runtimeError }}</p>
++     <el-page-header content="应用管理" @back="$router.go(-1)">
++       <template #icon>
++         <span style="font-size: 20px">📱</span>
++       </template>
++       <template #extra>
++         <el-button type="primary" @click="showCreateDialog = true">
++           ➕ 创建应用
++         </el-button>
++       </template>
++     </el-page-header>
++ 
++     <div class="app-list-content">
++       <el-row :gutter="20">
++         <el-col v-for="project in projects" :key="project.projectId" :xs="24" :sm="12" :md="8" :lg="6">
++           <el-card
++             class="app-card"
++             :class="{ 'is-active': project.projectId === currentProjectId }"
++             shadow="hover"
++           >
++             <div class="app-card-header">
++               <span class="app-icon"><NavIcon :name="project.icon" :size="32" /></span>
++               <el-tag v-if="project.projectType === 'homepage'" type="warning" size="small">应用工场</el-tag>
++               <el-tag v-else type="info" size="small">应用</el-tag>
++             </div>
++             <h3 class="app-name">{{ project.name }}</h3>
++             <p class="app-desc">{{ project.description || '暂无描述' }}</p>
++             <div class="app-actions">
++               <el-button
++                 v-if="project.projectId !== currentProjectId"
++                 type="primary"
++                 size="small"
++                 @click="handleSwitch(project)"
++               >
++                 进入应用
++               </el-button>
++               <el-tag v-else type="success" size="small">当前应用</el-tag>
++               <el-button size="small" @click="openSettings(project)">设置</el-button>
++               <el-button
++                 v-if="project.projectType !== 'homepage'"
++                 type="danger"
++                 size="small"
++                 text
++                 @click="handleDelete(project)"
++               >
++                 删除
++               </el-button>
++             </div>
++           </el-card>
++         </el-col>
++       </el-row>
++     </div>
++ 
++     <AppProjectSettingsDialog
++       v-if="settingsTarget"
++       v-model="settingsVisible"
++       :tenant-id="tenantId"
++       :project-id="settingsTarget.projectId"
++       :project-name="settingsTarget.name"
++       @saved="loadProjects"
++     />
++ 
++     <!-- 创建应用弹窗 -->
++     <el-dialog v-model="showCreateDialog" title="创建应用" width="480px">
++       <el-form :model="createForm" label-width="80px">
++         <el-form-item label="应用 ID">
++           <el-input v-model="createForm.projectId" placeholder="英文标识，如 my-app" />
++         </el-form-item>
++         <el-form-item label="应用名称">
++           <el-input v-model="createForm.name" placeholder="显示名称" />
++         </el-form-item>
++         <el-form-item label="图标">
++           <el-input v-model="createForm.icon" placeholder="Emoji 图标" />
++         </el-form-item>
++         <el-form-item label="描述">
++           <el-input v-model="createForm.description" type="textarea" :rows="3" placeholder="应用描述" />
++         </el-form-item>
++       </el-form>
++       <template #footer>
++         <el-button @click="showCreateDialog = false">取消</el-button>
++         <el-button type="primary" :loading="creating" @click="handleCreate">创建</el-button>
++       </template>
++     </el-dialog>
++   </div>
++ </template>
++ 
++ <script setup lang="ts">
++ /**
++  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；属于租户路由页，不允许作为 SparkNode 组件配置生成。
++  */
++ import { ref, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
++ import { useRoute, useRouter } from 'vue-router'
++ import { ElMessage, ElMessageBox } from 'element-plus'
++ import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
++ import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
++ import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
++ import NavIcon from '@/components/NavIcon.vue'
++ import { getNavHomePath } from '@spark-appworks/spark-app'
++ import { PageRuntime } from '@spark-appworks/spark-project-model'
++ import type { DataView } from '@spark-appworks/spark-data'
++ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
++ import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
++ 
++ type ProjectItem = {
++   projectId: string
++   name: string
++   projectType: string
++   icon: string
++   description: string
++   order: number
++   homeNodeId?: string | null
++ }
++ 
++ const router = useRouter()
++ const route = useRoute()
++ const projectSwitch = inject(PROJECT_SWITCH_KEY)
++ const projects = ref<ProjectItem[]>([])
++ const showCreateDialog = ref(false)
++ const creating = ref(false)
++ const settingsVisible = ref(false)
++ const settingsTarget = ref<ProjectItem | null>(null)
++ const runtimeError = ref('')
++ let runtime: PageRuntime | undefined
++ let active = true
++ let generation = 0
++ let unsubscribe: (() => void) | undefined
++ 
++ const tenantId = computed(() => {
++   const fromRoute = parseTenantScope(route.path)?.tenantId
++   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
++ })
++ 
++ const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
++ 
++ const createForm = ref({
++   projectId: '',
++   name: '',
++   icon: 'Box',
++   description: '',
++ })
++ 
++ async function loadProjects() {
++   const scenarioId = typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : ''
++   if (scenarioId) {
++     runtimeError.value = ''
++     return loadScenarioProjects(scenarioId)
++   }
++   const own = ++generation
++   projects.value = []
++   runtimeError.value = ''
++   const data = await lowcodeApi.platform.listApplications()
++   if (!active || own !== generation) return
++   projects.value = data.map((application, order) => ({
++     projectId: application.id,
++     name: application.name,
++     projectType: 'application',
++     icon: 'Box',
++     description: application.description,
++     order,
++   }))
++ }
++ 
++ function projectRows(view: DataView): ProjectItem[] {
++   const required = ['rowid', 'AppName', 'AppDesc', 'IsSys']
++   if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
++     throw new Error('应用目录 DataView 模型或主键身份不匹配')
++   }
++   return view.rows.map((row, order) => {
++     if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) {
++       throw new Error('应用目录 DataView 缺少可读的应用身份或展示字段')
++     }
++     const id = row['rowid']
++     if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
++     const code = String(row['AppName'] ?? '')
++     const description = String(row['AppDesc'] ?? '')
++     return {projectId: id, name: description || code || id, description, projectType: Number(row['IsSys'] ?? 0) === 1 ? 'homepage' : 'application', icon: 'Box', order}
++   })
++ }
++ 
++ async function loadScenarioProjects(scenarioId: string): Promise<void> {
++   const own = ++generation
++   projects.value = []
++   runtimeError.value = ''
++   runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
++   const projectId = parseTenantScope(route.path)?.projectId ?? ''
++   if (!projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
++   try {
++     const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
++       loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
++     runtime = current
++     await current.load()
++     if (!active || own !== generation || current.destroyed) { current.dispose(); return }
++     const loaded = current.getDataSet(scenarioId)
++     const view = loaded?.getView('Base_AppSystemList', 'default')
++     if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
++     if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
++     const update = () => { if (active && own === generation) projects.value = projectRows(view) }
++     unsubscribe = loaded.onAnyViewChange({rowsChanged: update, requestStateChanged: update})
++     const result = await view.requestRefresh()
++     if (!active || own !== generation || current.destroyed) return
++     if (!result.success) throw new Error(result.message ?? '应用目录 DataView 查询未成功')
++     projects.value = projectRows(view)
++   } catch (cause) {
++     if (active && own === generation) runtimeError.value = cause instanceof Error ? cause.message : String(cause)
++   }
++ }
++ 
++ function getProjectSwitch() {
++   if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务，无法同步项目上下文')
++   return projectSwitch
++ }
++ 
++ function openSettings(project: ProjectItem): void {
++   ElMessage.warning(`“${project.name}”设置需要 lowcode 治理写入合同；当前只读接入不会调用旧 AppWorks 后端`)
++ }
++ 
++ async function handleCreate() {
++   const { projectId, name, icon, description } = createForm.value
++   if (!projectId.trim()) {
++     ElMessage.warning('请输入应用 ID')
++     return
++   }
++   creating.value = true
++   try {
++     void name
++     void icon
++     void description
++     throw new Error('lowcode 现有应用写入接口未提供写前镜像、journal、readback 与补偿合同，已阻止创建')
++   } catch (e: unknown) {
++     const msg = e instanceof Error ? e.message : '创建失败'
++     ElMessage.error(msg)
++   } finally {
++     creating.value = false
++   }
++ }
++ 
++ async function handleSwitch(project: ProjectItem) {
++   try {
++     const principal = readLowcodePrincipal()
++     if (!principal) throw new Error('未登录，无法切换应用')
++     const receipt = await getProjectSwitch().switchAndReload(project.projectId)
++     receipt.assertCurrent()
++     const failure = await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
++     receipt.assertCurrent()
++     if (failure) throw new Error('应用页面导航未完成')
++     ElMessage.success(`已切换到「${project.name}」`)
++   } catch (error: unknown) {
++     ElMessage.error(error instanceof Error ? error.message : '切换应用失败')
++   }
++ }
++ 
++ async function handleDelete(project: ProjectItem) {
++   try {
++     await ElMessageBox.confirm(`确定删除应用「${project.name}」？此操作不可恢复。`, '删除确认', {
++       type: 'warning',
++       confirmButtonText: '删除',
++       cancelButtonText: '取消',
++     })
++     ElMessage.error('lowcode 现有应用删除接口未提供写前镜像、journal、readback 与补偿合同，已阻止删除')
++   } catch (error) {
++     if (error instanceof Error && error.message) ElMessage.error(error.message)
++   }
++ }
++ 
++ onMounted(async () => {
++   await loadProjects()
++ })
++ watch(() => route.meta['blueprintScenarioId'], value => {
++   if (typeof value === 'string' && value.trim()) {
++     void loadScenarioProjects(value.trim())
++     return
++   }
++   generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined
++   runtimeError.value = ''
++   void loadProjects()
++ }, {flush: 'sync'})
++ onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); runtime?.dispose(); runtime = undefined })
++ </script>
++ 
++ <style scoped>
++ .app-list-page {
++   padding: 20px;
++ }
++ 
++ .app-list-content {
++   margin-top: 20px;
++ }
++ 
++ .app-card {
++   margin-bottom: 20px;
++   transition: border-color 0.3s;
++ }
++ 
++ .app-card.is-active {
++   border-color: var(--el-color-primary);
++ }
++ 
++ .app-card-header {
++   display: flex;
++   align-items: center;
++   justify-content: space-between;
++   margin-bottom: 8px;
++ }
++ 
++ .app-icon {
++   font-size: 32px;
++ }
++ 
++ .app-name {
++   margin: 8px 0 4px;
++   font-size: 16px;
++ }
++ 
++ .app-desc {
++   color: var(--el-text-color-secondary);
++   font-size: 13px;
++   margin-bottom: 12px;
++   min-height: 36px;
++ }
++ 
++ .app-actions {
++   display: flex;
++   align-items: center;
++   gap: 8px;
++   flex-wrap: wrap;
++ }
++ </style>
++
+
+ ❯ tests/runtime/tenant/app-list-dataview-binding.test.ts:16:20
+     14|
+     15|   it('keeps app-specific labels and row actions on the row-scoped stan…
+     16|     expect(source).toContain('dataField: \'AppDesc\'')
+       |                    ^
+     17|     expect(source).toContain('dataField: \'AppName\'')
+     18|     expect(source).toContain('disabledWhenRow')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  10:29:13
+   Duration  1.15s (transform 35ms, setup 102ms, import 17ms, tests 20ms, environment 766ms)
+

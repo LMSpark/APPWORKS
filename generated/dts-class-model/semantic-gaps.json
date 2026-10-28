@@ -19040,17 +19040,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
-    },
-    {
       "kind": "model",
       "className": "PageContentState",
       "reason": "missing-jsdoc",
@@ -19060,6 +19049,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
     },
     {
       "kind": "attribute",
@@ -38227,17 +38227,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceParametersEditorProps",
       "reason": "missing-jsdoc",
@@ -38248,6 +38237,17 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
       "componentName": "DataSpaceParametersEditor",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
     },
     {
       "kind": "attribute",
@@ -38361,17 +38361,6 @@
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
-    },
-    {
       "kind": "model",
       "className": "RegisterObjectType",
       "reason": "missing-jsdoc",
@@ -38381,6 +38370,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
     },
     {
       "kind": "module",

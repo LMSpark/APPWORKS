@@ -43,6 +43,13 @@ vi.mock('@/services/tenant-scope', () => ({
 }))
 
 const EmptyPage = defineComponent({setup: () => () => h('div')})
+const RendererListStub = defineComponent({
+  name: 'RendererList',
+  props: {dataViewKey: {type: String, default: ''}},
+  setup(props) {
+    return () => h('div', {'data-testid': 'scenario-list', 'data-view-key': props.dataViewKey}, state.rows.map(row => row.AppDesc).join(' '))
+  },
+})
 const mounted: Array<{unmount: () => void}> = []
 afterEach(() => { mounted.splice(0).forEach(item => item.unmount()); state.allPages = true; state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}]; vi.clearAllMocks() })
 
@@ -54,7 +61,7 @@ async function mountAt(path: string, blueprintScenarioId?: string) {
     {path: '/target', component: EmptyPage},
   ]})
   await router.push(path)
-  const wrapper = mount(AppList, {global: {plugins: [router], stubs: {AppProjectSettingsDialog: true}}})
+  const wrapper = mount(AppList, {global: {plugins: [router], stubs: {AppProjectSettingsDialog: true, RendererList: RendererListStub}}})
   mounted.push(wrapper)
   await flushPromises()
   return {wrapper, router}
@@ -65,6 +72,7 @@ describe('AppList DataView routing', () => {
     const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
     expect(state.dataViewLoad).toHaveBeenCalledOnce()
     expect(state.listApplications).not.toHaveBeenCalled()
+    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('0C70F74793F9E858B71E0DBDEC784D57@Base_AppSystemList@default')
     expect(wrapper.text()).toContain('Alpha')
   })
 
@@ -92,6 +100,7 @@ describe('AppList DataView routing', () => {
     state.rows = [{rowid: 'APP-2', AppName: 'beta', AppDesc: 'Beta', IsSys: 0}]
     await router.push('/application-manager-next')
     await flushPromises()
+    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('SCENE-NEXT@Base_AppSystemList@default')
     expect(wrapper.text()).toContain('Beta')
     finishOld({success: true})
     await flushPromises()

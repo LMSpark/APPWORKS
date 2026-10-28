@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command",
+    "sourcePath": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
+    "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command",
+    "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command 模块。\n导出 DtsTypeDeclarationModel symbol: NavHostProjectRelationConfig（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "NavHostProjectRelationConfig"
+    ]
+  },
+  "$defs": {
+    "NavHostProjectRelationConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavHostProjectRelationConfig",
+      "properties": {
+        "prowid": {
+          "type": "string"
+        },
+        "pName": {
+          "type": "string"
+        },
+        "ValParamName": {
+          "type": "string"
+        },
+        "TextParamName": {
+          "type": "string"
+        },
+        "childrowid": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "dataSetId": {
+          "type": "string"
+        },
+        "DataName": {
+          "type": "string"
+        },
+        "DbName": {
+          "type": "string"
+        },
+        "selectValParam": {
+          "type": "string"
+        },
+        "selectTextParam": {
+          "type": "string"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "selectPid": {
+          "type": "string"
+        },
+        "paramType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "prowid",
+        "pName",
+        "ValParamName",
+        "TextParamName",
+        "childrowid",
+        "title",
+        "location",
+        "dataSetId",
+        "DataName",
+        "DbName",
+        "selectValParam",
+        "selectTextParam",
+        "dataType",
+        "selectPid",
+        "paramType"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-28T00:24:31.575Z",
+  "models": {
+    "NavHostProjectRelationConfig": {
+      "name": "NavHostProjectRelationConfig",
+      "jsdoc": "Reference-compatible fields for one Base_Navigation_DataRelation row, without its generated rowid.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    prowid: string;\n    pName: string;\n    ValParamName: string;\n    TextParamName: string;\n    childrowid: string;\n    title: string;\n    location: string;\n    dataSetId: string;\n    DataName: string;\n    DbName: string;\n    selectValParam: string;\n    selectTextParam: string;\n    dataType: string;\n    selectPid: string;\n    paramType: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    prowid: string;\n    pName: string;\n    ValParamName: string;\n    TextParamName: string;\n    childrowid: string;\n    title: string;\n    location: string;\n    dataSetId: string;\n    DataName: string;\n    DbName: string;\n    selectValParam: string;\n    selectTextParam: string;\n    dataType: string;\n    selectPid: string;\n    paramType: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "prowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValParamName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TextParamName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childrowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "location",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DataName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "DbName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectValParam",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectTextParam",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectPid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "paramType",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

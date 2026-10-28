@@ -13,6 +13,7 @@ import {resolveDataViewEditingRow} from './dataViewEditing'
 import {useResolvedFieldContext} from './useResolvedFieldContext'
 import {TABLE_FIELD_CELL} from './tableCellContext'
 import {resolveReactiveRow} from '../../containers/support/scope/row-mirror-sync'
+import { selectFieldContextRow } from './field-row-scope'
 
 /** 字段值绑定属性；与选项来源绑定分别解析。 */
 export type FieldValueBindingProps = FieldComposableProps<Pick<SparkFieldSemanticProps, 'dataViewKey' | 'dataMember' | 'dataField' | 'field' | 'editOnDblclick'>>
@@ -67,7 +68,14 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
       const row = cell.row()
       return source.rows.find(candidate => toRaw(candidate) === toRaw(row)) ?? null
     }
-    return explicit.value ? source?.currentRow ?? null : resolveReactiveRow(inheritedRow ?? source?.currentRow)
+    const row = selectFieldContextRow({
+      source,
+      inheritedSource,
+      inheritedRow,
+      currentRow: source?.currentRow,
+      explicit: explicit.value,
+    })
+    return resolveReactiveRow(row)
   })
   function resolveEditingRow(row: DataRow | null): DataRow | null {
     revision.value

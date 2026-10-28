@@ -62,7 +62,13 @@
           ]
         },
         "modelValue": true,
-        "value": true
+        "value": true,
+        "displayFallbackFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       },
       "additionalProperties": false
     },
@@ -128,14 +134,14 @@
       }
     }
   },
-  "generatedAt": "2026-10-16T07:15:01.364Z",
+  "generatedAt": "2026-10-28T02:39:46.092Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",
       "jsdoc": "Field Permission Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n    /** 有序只读呈现回退字段，由本次绑定 DataView 对每个字段单独授权。 */\n    displayFallbackFields?: string[] | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -144,7 +150,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}"
+            "typeText": "{\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n    /** 有序只读呈现回退字段，由本次绑定 DataView 对每个字段单独授权。 */\n    displayFallbackFields?: string[] | undefined;\n}"
           }
         ],
         "members": {
@@ -158,6 +164,12 @@
             {
               "name": "value",
               "jsdoc": "当前值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayFallbackFields",
+              "jsdoc": "有序只读呈现回退字段，由本次绑定 DataView 对每个字段单独授权。",
               "readable": true,
               "writable": false
             }

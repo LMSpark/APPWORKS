@@ -1,0 +1,5 @@
+$ pnpm run ensure:class-model-bundle && pnpm --filter @spark-appworks/spark-ai run lint && pnpm --filter @spark-appworks/spark-ai run typecheck && pnpm exec vitest run packages/spark-ai/src/class-model/tests/read-dts-class-model-bundle-json.test.ts packages/spark-ai/src/class-model/tests/class-model-tool-schema-recovery.test.ts tests/scripts/class-model-bundle-assert.test.ts tests/scripts/class-model-incremental-build.test.ts
+$ node scripts/ensure-class-model-bundle.mjs
+$ eslint "src/**/*.{ts,tsx}" --max-warnings=0
+$ tsc --noEmit -p tsconfig.json
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`

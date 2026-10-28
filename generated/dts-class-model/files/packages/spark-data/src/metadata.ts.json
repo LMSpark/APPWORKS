@@ -231,7 +231,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@214916": {
+                "__@iterator@138649": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -286,7 +286,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@214916"
+                "__@iterator@138649"
               ],
               "additionalProperties": false
             },
@@ -516,7 +516,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@214916": {
+                "__@iterator@138649": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -571,7 +571,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@214916"
+                "__@iterator@138649"
               ],
               "additionalProperties": false
             },
@@ -589,8 +589,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "types.ts.json#/$defs/DataColumn"
           }
         },
         "api": {

@@ -18,13 +18,16 @@ import type { FormItemRule } from '../columnFormRules'
 import { useActiveFieldRow } from './useActiveFieldRow'
 import { writeDataViewEditingValue } from './dataViewEditing'
 import type { FieldComposableProps } from './field-composable-props'
+import { resolveReadableDisplayFallback } from './field-display-fallback'
 
 /** Field Permission Props 的属性契约。 */
 export type FieldPermissionProps<TValue> = FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>> & {
     /** model Value 字段。 */
 modelValue?: TValue | undefined
         /** 当前值。 */
-value?: TValue | undefined}
+value?: TValue | undefined
+    /** 有序只读呈现回退字段，由本次绑定 DataView 对每个字段单独授权。 */
+displayFallbackFields?: string[] | undefined}
 
 /** Use Field Permission Options 的调用配置。 */
 type UseFieldPermissionOptions<TValue> = {
@@ -157,6 +160,9 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
 
   const currentDisplayValue = computed(() => {
     if (shouldSuppressReadableValueWhenWritable.value) return ''
+    if (props.displayFallbackFields?.length && currentRow.value) {
+      return getFallbackDisplayValue(currentRow.value)
+    }
     const state = currentFieldState.value
     if (state?.visibility === FieldVisibility.Hidden) return ''
     if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
@@ -183,11 +189,21 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   }
 
   function getTableCellDisplayValue(row: DataRow): string {
+    if (props.displayFallbackFields?.length) return getFallbackDisplayValue(row)
     if (!fieldName.value) return formatValue(fallbackValue)
     const state = perm.resolveFieldState(fieldName.value, row)
     if (state?.visibility === FieldVisibility.Hidden) return ''
     if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
     return formatValue(getRowRawValue(row))
+  }
+
+  function getFallbackDisplayValue(row: DataRow): string {
+    const resolved = resolveReadableDisplayFallback({
+      view: dataSource.value,
+      row: binding.resolveEditingRow(row) ?? row,
+      fields: [fieldName.value, ...(props.displayFallbackFields ?? [])],
+    })
+    return formatValue(resolved)
   }
 
   function writeField(field: string, value: unknown): void {

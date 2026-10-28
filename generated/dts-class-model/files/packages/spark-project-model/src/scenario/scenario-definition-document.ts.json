@@ -20,8 +20,7 @@
       "title": "ScenarioDefinitionDocument",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "scenarioId": {
           "type": "string"
@@ -69,8 +68,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "scenarioId": {
               "type": "string"

@@ -64,6 +64,12 @@
         },
         "modelValue": true,
         "value": true,
+        "displayFallbackFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "type": {
           "type": "string"
         },

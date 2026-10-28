@@ -43,8 +43,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "functionContext": {

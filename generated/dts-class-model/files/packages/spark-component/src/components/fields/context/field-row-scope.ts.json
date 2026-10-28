@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/field-row-scope",
+    "sourcePath": "packages/spark-component/src/components/fields/context/field-row-scope.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/field-row-scope.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/field-row-scope",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/field-row-scope\n职责：解析标准字段绑定与其父数据容器提供的行作用域。\n边界：只有 DataView 身份相同时才把容器行用于显式字段绑定，不查询、不授权、不写入。\nAI用途：需要理解显式 DataViewKey 与列表/表格行上下文如何相交时，从本模块核实身份判定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-28T02:37:21.033Z",
+  "models": {}
+}

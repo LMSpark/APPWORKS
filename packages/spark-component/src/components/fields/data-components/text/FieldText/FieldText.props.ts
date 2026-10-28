@@ -13,6 +13,8 @@ export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   filterAlternatives?: Array<{field: string; operator: DataViewFilterOperator}>
   /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */
   displayFormatter?: (value: unknown) => string
+  /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */
+  displayFallbackFields?: string[]
   /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */
   showCellControl?: boolean
   /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */

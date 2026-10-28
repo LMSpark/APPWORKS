@@ -63,8 +63,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Data.DataColumn"
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "functionContext": {
@@ -264,8 +263,7 @@
                 "columns": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "title": "Data.DataColumn"
+                    "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
                   }
                 },
                 "context": {
@@ -308,8 +306,7 @@
             "columns": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Data.DataColumn"
+                "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
               }
             }
           },

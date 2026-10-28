@@ -9,6 +9,9 @@ import type { ActionDescriptor, BuiltinActionName } from '../../../../../page/ac
 
 /** RButton Props 的属性契约。 */
 export type RButtonProps = SparkNodeProps & {
+  /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */
+  onClick?: (...args: unknown[]) => unknown
+
   /**
    * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。
    * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。

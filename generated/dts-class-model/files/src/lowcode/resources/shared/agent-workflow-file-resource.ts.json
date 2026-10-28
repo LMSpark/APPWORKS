@@ -57,8 +57,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "views": {
@@ -183,7 +182,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T20:31:17.394Z",
+  "generatedAt": "2026-10-28T00:16:28.985Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",

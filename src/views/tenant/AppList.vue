@@ -19,13 +19,22 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     </el-page-header>
 
     <div class="app-list-content">
-      <el-row :gutter="20">
+      <RendererList
+        v-if="scenarioId && scenarioView && !runtimeError"
+        class="app-scenario-list"
+        :data-view-key="scenarioDataViewKey"
+        :children="scenarioRowChildren"
+        :columns="4"
+        :grid-columns="24"
+        :grid-gap="20"
+        :show-pagination="false"
+        :use-card="true"
+        card-shadow="hover"
+        row-key="rowid"
+      />
+      <el-row v-else-if="!scenarioId" :gutter="20">
         <el-col v-for="project in projects" :key="project.projectId" :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card
-            class="app-card"
-            :class="{ 'is-active': project.projectId === currentProjectId }"
-            shadow="hover"
-          >
+          <el-card class="app-card" :class="{ 'is-active': project.projectId === currentProjectId }" shadow="hover">
             <div class="app-card-header">
               <span class="app-icon"><NavIcon :name="project.icon" :size="32" /></span>
               <el-tag v-if="project.projectType === 'homepage'" type="warning" size="small">应用工场</el-tag>
@@ -34,25 +43,10 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             <h3 class="app-name">{{ project.name }}</h3>
             <p class="app-desc">{{ project.description || '暂无描述' }}</p>
             <div class="app-actions">
-              <el-button
-                v-if="project.projectId !== currentProjectId"
-                type="primary"
-                size="small"
-                @click="handleSwitch(project)"
-              >
-                进入应用
-              </el-button>
+              <el-button v-if="project.projectId !== currentProjectId" type="primary" size="small" @click="handleSwitch(project)">进入应用</el-button>
               <el-tag v-else type="success" size="small">当前应用</el-tag>
               <el-button size="small" @click="openSettings(project)">设置</el-button>
-              <el-button
-                v-if="project.projectType !== 'homepage'"
-                type="danger"
-                size="small"
-                text
-                @click="handleDelete(project)"
-              >
-                删除
-              </el-button>
+              <el-button v-if="project.projectType !== 'homepage'" type="danger" size="small" text @click="handleDelete(project)">删除</el-button>
             </div>
           </el-card>
         </el-col>
@@ -96,7 +90,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；属于租户路由页，不允许作为 SparkNode 组件配置生成。
  */
-import { ref, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
+import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
@@ -105,7 +99,8 @@ import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } fro
 import NavIcon from '@/components/NavIcon.vue'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
-import type { DataView } from '@spark-appworks/spark-data'
+import { PAGE_RUNTIME, RendererList, useSparkComponent } from '@spark-appworks/spark-component'
+import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
 
@@ -122,12 +117,14 @@ type ProjectItem = {
 const router = useRouter()
 const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
+const { sparkProvide } = useSparkComponent({ type: 'tenant-app-list' })
 const projects = ref<ProjectItem[]>([])
 const showCreateDialog = ref(false)
 const creating = ref(false)
 const settingsVisible = ref(false)
 const settingsTarget = ref<ProjectItem | null>(null)
 const runtimeError = ref('')
+const scenarioView = shallowRef<DataView | null>(null)
 let runtime: PageRuntime | undefined
 let active = true
 let generation = 0
@@ -136,6 +133,48 @@ let unsubscribe: (() => void) | undefined
 const tenantId = computed(() => {
   const fromRoute = parseTenantScope(route.path)?.tenantId
   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
+})
+const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
+const scenarioDataViewKey = computed(() => `${scenarioId.value}@Base_AppSystemList@default`)
+
+function projectFromRow(row: DataRow): ProjectItem {
+  const view = scenarioView.value
+  if (!view || view.fieldAccess(row, 'rowid').read !== 'visible') throw new Error('应用目录 DataView 缺少可读的应用身份')
+  const id = row['rowid']
+  if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
+  const description = view.fieldAccess(row, 'AppDesc').read === 'visible' ? String(row['AppDesc'] ?? '') : ''
+  const code = view.fieldAccess(row, 'AppName').read === 'visible' ? String(row['AppName'] ?? '') : ''
+  const isHomepage = view.fieldAccess(row, 'IsSys').read === 'visible' && Number(row['IsSys'] ?? 0) === 1
+  return {projectId: id, name: description || code || id, description, projectType: isHomepage ? 'homepage' : 'application', icon: 'Box', order: 0}
+}
+
+function rowButton(type: string, id: string, props: Record<string, unknown>): SparkNode {
+  return {type, id, props}
+}
+
+const scenarioRowChildren = computed<SparkNode[]>(() => {
+  const dataViewKey = scenarioDataViewKey.value
+  const field = (id: string, dataField: string, extra: Record<string, unknown> = {}) => rowButton('r-text', id, {
+    dataViewKey, dataMember: 'currentRow', dataField, ...extra,
+  })
+  const button = (id: string, label: string, extra: Record<string, unknown> = {}) => rowButton('r-button', id, {
+    dataViewKey, label, buttonSize: 'small', ...extra,
+  })
+  const condition = (fieldName: string, predicate: (row: DataRow) => boolean) => (
+    ({ row, dataSource }: { row?: DataRow | null; dataSource?: DataView | null }) => Boolean(row && dataSource
+      && dataSource.fieldAccess(row, fieldName).read === 'visible' && predicate(row))
+  )
+  return [
+    rowButton('display-icon', 'app-icon', { icon: 'Box', iconSize: 32 }),
+    field('app-name', 'AppDesc', { displayFallbackFields: ['AppName', 'rowid'], label: '应用名称' }),
+    field('app-description', 'AppDesc', { emptyText: '暂无描述', label: '描述' }),
+    button('app-home-tag', '应用工场', { disabled: true, buttonType: 'warning', gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) === 1) }),
+    button('app-standard-tag', '应用', { disabled: true, buttonType: 'info', gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1) }),
+    button('app-switch', '进入应用', { buttonType: 'primary', gridColSpan: 8, onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') !== currentProjectId.value), onClick: (row: DataRow) => handleSwitch(projectFromRow(row)) }),
+    button('app-current-tag', '当前应用', { disabled: true, buttonType: 'success', gridColSpan: 8, onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') === currentProjectId.value) }),
+    button('app-settings', '设置', { gridColSpan: 8, onClick: (row: DataRow) => openSettings(projectFromRow(row)) }),
+    button('app-delete', '删除', { buttonType: 'danger', text: true, gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1), onClick: (row: DataRow) => handleDelete(projectFromRow(row)) }),
+  ]
 })
 
 const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
@@ -168,27 +207,11 @@ async function loadProjects() {
   }))
 }
 
-function projectRows(view: DataView): ProjectItem[] {
-  const required = ['rowid', 'AppName', 'AppDesc', 'IsSys']
-  if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
-    throw new Error('应用目录 DataView 模型或主键身份不匹配')
-  }
-  return view.rows.map((row, order) => {
-    if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) {
-      throw new Error('应用目录 DataView 缺少可读的应用身份或展示字段')
-    }
-    const id = row['rowid']
-    if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
-    const code = String(row['AppName'] ?? '')
-    const description = String(row['AppDesc'] ?? '')
-    return {projectId: id, name: description || code || id, description, projectType: Number(row['IsSys'] ?? 0) === 1 ? 'homepage' : 'application', icon: 'Box', order}
-  })
-}
-
 async function loadScenarioProjects(scenarioId: string): Promise<void> {
   const own = ++generation
   projects.value = []
   runtimeError.value = ''
+  scenarioView.value = null
   runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
   const projectId = parseTenantScope(route.path)?.projectId ?? ''
   if (!projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
@@ -196,20 +219,44 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
     const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
       loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
     runtime = current
+    sparkProvide(PAGE_RUNTIME, current)
     await current.load()
     if (!active || own !== generation || current.destroyed) { current.dispose(); return }
     const loaded = current.getDataSet(scenarioId)
     const view = loaded?.getView('Base_AppSystemList', 'default')
     if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
     if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
-    const update = () => { if (active && own === generation) projects.value = projectRows(view) }
+    const update = () => {
+      if (!active || own !== generation) return
+      try {
+        validateScenarioView(view)
+        runtimeError.value = ''
+      } catch (cause) {
+        runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+      }
+    }
     unsubscribe = loaded.onAnyViewChange({rowsChanged: update, requestStateChanged: update})
     const result = await view.requestRefresh()
     if (!active || own !== generation || current.destroyed) return
     if (!result.success) throw new Error(result.message ?? '应用目录 DataView 查询未成功')
-    projects.value = projectRows(view)
+    validateScenarioView(view)
+    scenarioView.value = view
   } catch (cause) {
     if (active && own === generation) runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+  }
+}
+
+function validateScenarioView(view: DataView): void {
+  if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
+    throw new Error('应用目录 DataView 模型或主键身份不匹配')
+  }
+  for (const row of view.rows) {
+    if (view.fieldAccess(row, 'rowid').read !== 'visible') {
+      throw new Error('应用目录 DataView 缺少可读的应用身份')
+    }
+    if (typeof row['rowid'] !== 'string' || !String(row['rowid']).trim()) {
+      throw new Error('应用目录 DataView 返回了无效主键')
+    }
   }
 }
 
@@ -278,7 +325,7 @@ watch(() => route.meta['blueprintScenarioId'], value => {
     void loadScenarioProjects(value.trim())
     return
   }
-  generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined
+  generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined; scenarioView.value = null
   runtimeError.value = ''
   void loadProjects()
 }, {flush: 'sync'})

@@ -74,8 +74,7 @@
       "title": "AiDataEntrySessionInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetView": {
           "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"

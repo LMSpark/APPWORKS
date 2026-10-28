@@ -275,8 +275,7 @@
           "additionalProperties": false
         },
         "method.getDataSet.return": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "method.resolveView.params": {
           "type": "object",

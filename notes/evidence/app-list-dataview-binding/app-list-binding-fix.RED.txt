@@ -1,0 +1,48 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/tenant/app-list-dataview-binding.test.ts (4 tests | 1 failed) 9ms
+     × fails closed on structural identity but does not reject all rows for unreadable display fields 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/tenant/app-list-dataview-binding.test.ts > AppList formal scenario data binding > fails closed on structural identity but does not reject all rows for unreadable display fields
+AssertionError: expected 'function validateScenarioView(view: D…' to contain 'view.fieldAccess(row, \'rowid\').read…'
+
+- Expected
++ Received
+
+- view.fieldAccess(row, 'rowid').read !== 'visible'
++ function validateScenarioView(view: DataView): void {
++   const required = ['rowid', 'AppName', 'AppDesc', 'IsSys']
++   if (view.primaryKey !== 'rowid' || view.dataTable?.modelBinding?.modelName !== 'Base_AppSystemList') {
++     throw new Error('应用目录 DataView 模型或主键身份不匹配')
++   }
++   for (const row of view.rows) {
++     if (required.some(field => view.fieldAccess(row, field).read !== 'visible')) {
++       throw new Error('应用目录 DataView 缺少可读的应用身份或展示字段')
++     }
++     if (typeof row['rowid'] !== 'string' || !String(row['rowid']).trim()) {
++       throw new Error('应用目录 DataView 返回了无效主键')
++     }
++   }
++ }
++ 
+
+ ❯ tests/runtime/tenant/app-list-dataview-binding.test.ts:35:23
+     33|     const validator = source.slice(validatorStart, validatorEnd)
+     34|     expect(validator).toContain("view.primaryKey !== 'rowid'")
+     35|     expect(validator).toContain("view.fieldAccess(row, 'rowid').read !…
+       |                       ^
+     36|     expect(validator).not.toContain('AppName')
+     37|     expect(validator).not.toContain('AppDesc')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 9 passed (10)
+   Start at  10:49:41
+   Duration  1.52s (transform 98ms, setup 342ms, import 102ms, tests 16ms, environment 2.97s)
+

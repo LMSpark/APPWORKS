@@ -2949,3 +2949,10 @@ flowchart TD
 - **主控复验：**重新运行 `pnpm exec vitest run tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts tests/ui/views/workflow-designs.test.ts --reporter=dot`，2 个测试文件、51/51 通过。输出含测试夹具的 Vue Router “无 active route record”警告，不影响退出码；本轮未修改产品代码，也未运行 Java。
 - **本次 SPA 会话边界：**为检查会话状态，新建 IAB 标签访问应用目录路径后被重定向到公开平台首页，页面显示登录链接；这只证明新标签没有可用登录态。旧 SPA 标签仍无法由自动化附着（`browser.user is unavailable`）。本轮没有再次提交凭据，没有业务数据查询/写入或正式 DataSpace 保存；不将前述自动化回归当作真实 SPA 烟测。继续沿用用户已提供的账号授权，不要求重复提供；此前账号认证失败及剩余尝试次数记录仍然有效，不盲目重试。
 - **后续队列：**Workflow 编辑保存仍需 authenticated SPA 对真实文件进行查询、编辑、DataView/DataSet 提交并关闭重开读回；旧标签附着恢复或获得有效 SPA 会话后继续。其它尚存目录及物理资源旁路，仍必须先取得各自正式 owner、scope 与服务端行/字段权限合同，再迁移并移除旧业务入口。总体 SPARK data 唯一通道整合保持 active。
+
+### 2026-10-28 认证成功与 7AB 数据空间现场复核（更正上条会话状态）
+
+- **认证纠正：**上一条只记录了新开未认证标签；随后使用用户本任务明确提供并授权的 `领码科技 / wangtao` 凭据，通过当前登录页一次提交成功，SPA 显示用户“王涛”并进入 NewApp 应用目录。此前同一任务的失败认证记录不能覆盖本次成功会话；本轮不再重试登录，不记录密码。
+- **真实 SPA 只读核验：**进入 `D99A1DCE9894698799101EFD70F8FC76` 元数据管理应用，打开用户先前给出的数据空间目录路由；按 7AB ID 的正式 DataView 目录过滤返回唯一“功能管理”空间（ID `7AB874097A1E8711A42FD845939A6E05`）。设计器显示 24 个模型，其中 `Base_AppSystemList` 绑定 `QYVirtualPlat.Base_AppSystemList`；其“数据视图”页当前没有已登记的命名视图，提示需选择或新增视图。没有新增/保存视图、修改模型输出、保存业务记录或调用 Java。
+- **切片裁定：**该现场确认 7AB 模型/空间 owner 存在且设计页可通过正式 SPARK data 打开，但不解决静态 `/app-list` 的 homepage/app-less 请求 scope，也未取得根目录服务端行字段授权；因此不能把 7AB 借给根目录，也不能以新增命名视图代替缺失的 root owner。后续要么先取得平台正式 root scope/授权合同，要么按另一个真实、已具备 7AB scope 的消费者评估视图用途；本次没有证据允许保存共享定义。
+- **继续状态：**当前 IAB 的已认证 SPA 标签已标记留存供后续烟测。本轮只读登录及设计核验；Workflow 两组测试仍为 51/51；唯一台账已提交推送 `2e415370f` 后追加本条更正，待本条再次收口提交。整体 DataSet/DataView 唯一通道目标继续 active。

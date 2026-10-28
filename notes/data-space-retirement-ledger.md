@@ -2794,3 +2794,11 @@ flowchart TD
 - **补全边界：**该查询证明可通过设计器扩展已识别 owner 下的 DataView 定义；不证明 D99 元数据范围等于平台根目录范围。D99 的 DataSpace 新增表单只提供“元数据管理”应用，90A8 `Base_AppSystemList@catalogApps` 正式查询只有 1 行，根 `/app-list` 历史请求返回 61 行，`homepage` 在 90A8 的 `Base_DataSet` 预览为 0 行。不得把新建 D99 空间或 7AB 的视图冒充 `homepage` owner。
 - **下一步执行顺序：**继续盘点每条现存游离 owner 的业务语义、正式资源身份和下游消费者；逐项映射至正式 DataSpace owner、DataTable/columns/DataView 和权限/回执合同。owner 已确认且 DataView 能表达真实范围时，直接通过设计器补定义并在同一 SPA 读回；再把标准组件绑定和页面消费者切到该 DataView，删除被替代逻辑并做真实查询/编辑/取消/保存烟测。owner/scope/权限/结果未知时保留现入口并登记缺口，不造身份，不改 Java、不绕开 SPARK data。
 - **本轮变更：**更新本台账与 SPA 证据文件；没有产品代码、正式 DataSpace、业务数据或 Java 改动。SPA 保持在 D99 数据空间目录。整体唯一 SPARK data 通道目标仍 active。
+
+### 2026-10-28 DataSet 唯一通道 owner 分类续审
+
+- **业务层旁路：**`listApplications()` 仍被五个生产消费位置使用；平台根 `/app-list` 旧查询曾返回 61 行，而正式 D99 DataView 返回 1 行，`homepage` 在现有 90A8 `Base_DataSet` 查询为 0 行。尚缺正式 root DataSet 身份、租户范围及服务端行/字段授权合同。`resolveNavigationRootId()` 是独立的导航根查询，另缺正式 owner/scope/权限/回执合同；不能与应用目录查询合并判断。
+- **外层有 DataView 仍未统一：**数据库物理表/视图预览由 DataView 触发，但 executor 仍直接调用 GetData、按目录字段在前端投影并合成只读 `fieldAccess`。物理资源身份、稳定主键、服务端权限及分页合同未证实，故不能声称该链符合 SPARK data 唯一通道，也不能只加包装层结案。
+- **应保留的数据层适配：**Agent Workflow 页面与 AI 激活通过 `AgentWorkflowFiles` DataView 读取；`listFiles/readTextFile` 位于正式 DataView executor 内，属于文件存储适配而非页面第二查询入口。正式目录目前查询为 `Loaded, 0`，非空文件及 AI 下游仍待有效资源目标验证；不得删除 executor IO 来冒充 owner 清理。
+- **可执行迁移顺序：**先确认服务端正式 root DataSet owner 及租户/授权投影；在该同一 scope 的正式 DataView 查询核对 61 行对照、字段可读权限及实例生命周期；再迁移一个真实消费者，并在同一切片移除其 `listApplications()` 旁路。导航根另开合同核验。物理预览先补资源身份和正式权限合同。Workflow 仅补真实非空资源只读验证。未满足合同的入口保留并登记，不猜身份、不造权限、不改 Java。
+- **本轮审计范围：**低价只读审计、主控按当前源码及台账复核；无产品代码、正式配置、业务数据、测试或 Java 改动。整体 SPARK data 唯一通道目标继续 active。

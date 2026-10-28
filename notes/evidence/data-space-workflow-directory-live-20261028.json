@@ -9,7 +9,8 @@
     "Read back AgentWorkflowFiles and its four named views in the design workspace.",
     "Opened the directory named-view preview and ran its read-only DataView query.",
     "Captured the rejection at AgentWorkflowFileResource.readDirectory: Error name LowcodeApiError, code 1003, message [1003] 文件夹路径不存在.",
-    "After the exact prefixed-message handling was hot-loaded, reopened the design workspace and reran the same preview query."
+    "After the exact prefixed-message handling was hot-loaded, reopened the design workspace and reran the same preview query.",
+    "After removing the missing-directory-to-empty conversion in AgentWorkflowFileResource.readDirectory, reopened the saved design and queried the same formal DataView again."
   ],
   "result": {
     "requestState": "Loaded",
@@ -18,7 +19,29 @@
     "visibleColumns": ["workflowId", "fileName", "timestamp", "content"],
     "emptyState": "No Data"
   },
+  "followUp": {
+    "resultAfterErrorPropagationFix": {
+      "requestState": "Loaded",
+      "rows": 0,
+      "total": 0,
+      "emptyState": "No Data",
+      "interpretation": "The current checkout has no conversion branch for LowcodeApiError 1003; this successful Loaded response therefore reflects the current service returning an empty list, not the historical 1003 error. No 1003 was observed in this latest query."
+    },
+    "automatedVerification": {
+      "redCommand": "pnpm exec vitest run tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts",
+      "redResult": "3 expected missing-directory failures; 13 passed; exit 1",
+      "redOutput": "workflow-missing-directory-red.txt",
+      "greenCommands": [
+        "pnpm exec vitest run tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts tests/app/services/workflow-designs.test.ts tests/ui/views/workflow-designs.test.ts",
+        "pnpm run typecheck",
+        "pnpm exec eslint src/lowcode/resources/shared/agent-workflow-file-resource.ts tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts --max-warnings=0",
+        "pnpm run build"
+      ],
+      "greenResults": ["57 tests passed", "typecheck exit 0", "eslint exit 0", "build exit 0"],
+      "verifyRules": "Failed on existing unrelated type assertion at src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts:68; not caused by this change."
+    }
+  },
   "writesPerformed": false,
   "verificationSurface": "SPARK DataSpace Design preview bound to the formal AgentWorkflowFiles@directory DataView",
-  "evidenceLimit": "Confirms empty-directory query handling in this authenticated SPA and active deployment. Does not verify design.json or definition.json reads, workflow file writes, downstream Agent consumption, or persistence after browser/process restart."
+  "evidenceLimit": "Confirms the formal DataView configuration readback and current service success-empty result after the query-error propagation fix. The automated 1003 cases prove missing-directory errors remain failed DataView queries. Does not verify design.json or definition.json reads, workflow file writes, downstream Agent consumption, or persistence after browser/process restart."
 }

@@ -1,0 +1,93 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts (16 tests | 3 failed) 85ms
+     × keeps the formal missing workflow directory response as a failed query 10ms
+     × keeps a cross-module missing-directory response as a failed query 3ms
+     × keeps the backend-prefixed missing-directory response as a failed query 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:58:30
+     56|     try {
+     57|       const result = await view.requestRefresh()
+     58|       expect(result.success).toBe(false)
+       |                              ^
+     59|       expect(view.requestState).not.toBe(RequestState.Loaded)
+     60|       expect(view.rows).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:72:30
+     70|     try {
+     71|       const result = await view.requestRefresh()
+     72|       expect(result.success).toBe(false)
+       |                              ^
+     73|       expect(view.requestState).not.toBe(RequestState.Loaded)
+     74|       expect(view.rows).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:86:30
+     84|     try {
+     85|       const result = await view.requestRefresh()
+     86|       expect(result.success).toBe(false)
+       |                              ^
+     87|       expect(view.requestState).not.toBe(RequestState.Loaded)
+     88|       expect(view.rows).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 passed (16)
+   Start at  08:15:58
+   Duration  20.06s (transform 12.47s, setup 257ms, import 16.67s, tests 85ms, environment 2.49s)
+
+Exit code: 1

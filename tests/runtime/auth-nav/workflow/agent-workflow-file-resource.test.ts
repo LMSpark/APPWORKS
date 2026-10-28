@@ -48,36 +48,51 @@ describe('Agent Workflow file DataView resource', () => {
     } finally {dataSet.destroy()}
   })
 
-  it('treats only the explicit missing workflow directory response as an empty loaded directory', async () => {
+  it('keeps the formal missing workflow directory response as a failed query', async () => {
     const {api, dataSet} = fixture()
-    vi.mocked(api.listFiles).mockRejectedValueOnce(new LowcodeApiError(1003, '文件夹路径不存在'))
+    const error = new LowcodeApiError(1003, '文件夹路径不存在')
+    vi.mocked(api.listFiles).mockRejectedValueOnce(error)
     const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
     try {
       const result = await view.requestRefresh()
-      expect(result.success).toBe(true)
-      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(result.success).toBe(false)
+      expect(view.requestState).not.toBe(RequestState.Loaded)
       expect(view.rows).toEqual([])
-      expect(view.total).toBe(0)
+      expect(view.loadingError).toBe(error)
     } finally {dataSet.destroy()}
   })
 
-  it('recognizes the missing-directory error contract across LowcodeApiError module instances', async () => {
+  it('keeps a cross-module missing-directory response as a failed query', async () => {
     const {api, dataSet} = fixture()
     const foreignModuleError = Object.assign(new Error('文件夹路径不存在'), {name: 'LowcodeApiError', code: 1003})
     vi.mocked(api.listFiles).mockRejectedValueOnce(foreignModuleError)
     const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
     try {
       const result = await view.requestRefresh()
-      expect(result.success).toBe(true)
-      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(result.success).toBe(false)
+      expect(view.requestState).not.toBe(RequestState.Loaded)
       expect(view.rows).toEqual([])
-      expect(view.total).toBe(0)
+      expect(view.loadingError).toBe(foreignModuleError)
     } finally {dataSet.destroy()}
   })
 
-  it('recognizes the backend-prefixed missing-directory LowcodeApiError message', async () => {
+  it('keeps the backend-prefixed missing-directory response as a failed query', async () => {
     const {api, dataSet} = fixture()
-    vi.mocked(api.listFiles).mockRejectedValueOnce(new LowcodeApiError(1003, '[1003] 文件夹路径不存在'))
+    const error = new LowcodeApiError(1003, '[1003] 文件夹路径不存在')
+    vi.mocked(api.listFiles).mockRejectedValueOnce(error)
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
+    try {
+      const result = await view.requestRefresh()
+      expect(result.success).toBe(false)
+      expect(view.requestState).not.toBe(RequestState.Loaded)
+      expect(view.rows).toEqual([])
+      expect(view.loadingError).toBe(error)
+    } finally {dataSet.destroy()}
+  })
+
+  it('loads an empty directory when listFiles successfully returns no entries', async () => {
+    const {api, dataSet} = fixture()
+    vi.mocked(api.listFiles).mockResolvedValueOnce([])
     const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'directory')!
     try {
       const result = await view.requestRefresh()
@@ -85,6 +100,7 @@ describe('Agent Workflow file DataView resource', () => {
       expect(view.requestState).toBe(RequestState.Loaded)
       expect(view.rows).toEqual([])
       expect(view.total).toBe(0)
+      expect(view.loadingError).toBeNull()
     } finally {dataSet.destroy()}
   })
 

@@ -2976,3 +2976,10 @@ flowchart TD
 - **低价实施与主控复核：**针对上一轮未能覆盖的“手动刷新进行中卸载”补充 RED 用例，精确点击目录工具栏刷新，卸载页面后拒绝待处理请求，稳定复现旧实现仍弹出目录错误。低价模型只修改 `WorkflowDesigns.vue`：刷新完成、失败与 finally 均校验组件仍活动且当前 owner 身份未变；失效结果不弹提示、不递增目录修订号，也不更新已销毁页面的加载状态。测试仅改进按钮 stub 对 `loading` 状态的模拟并补 1 个回归用例。
 - **自动化验证：**`pnpm exec vitest run tests/ui/views/workflow-designs.test.ts --reporter=dot` 25/25 通过；`pnpm run typecheck` 退出 0；`git diff --check` 退出 0。测试输出仍有既存 Vue Router 无活动路由夹具警告及 esbuild/oxc 配置提示。
 - **SPA 与交付边界：**本次没有执行真实 SPA 文件查询、保存或关闭重开读回；自动化页面附着限制仍在，用户已授权的测试账号不再要求重发。未修改、启动或部署 Java；仅合入 SPA 生命周期边界修复，不宣称后端 DataView 写回或 B1 完整验收通过。整体 SPARK data 唯一通道目标保持 active。
+
+### 2026-10-28 下一条 DataSet 迁移切片复核
+
+- **当前基线：**复核开始时 `HEAD=0910a978a8136f33a0652875cca412ef9955638a`，与 `origin/codex/ai-data-entry` 一致、工作树干净。IAB inventory 仍列出应用列表与 D99 数据空间标签；通过对应标签读取页面时返回 `browser.user is unavailable`，故不能由标题/URL推断当前认证态或服务回包。本轮不重发凭据。
+- **低价模型只读审计与主控交叉复核：**未发现同时具备正式 DataSet owner、宿主身份、scope 和写权限依据的下一安全切片。最接近的 DevSystem `NavHostProjectPicker` 已用 `7AB...@Base_Navigation_DataRelation@default` 查询关系，再按正式绑定加载候选 DataView；生产接线依赖 `prowid=appworks-tool-dev` 的关系行。此前认证态 SPA 已正式确认该目标 0 行，且 `03D8...` 候选空间未能在 D99 目录确认，不能猜空间或写关系。`configureNavHostProjectRelation()` 目前只供测试调用，虽会预检 `newRowFieldAccess` 并仅 `DataView.addRow` 暂存，但夹具不证明正式写权限或服务端回执。
+- **自动化与当前路径：**`pnpm exec vitest run tests/app/dev/nav-host-project-picker --reporter=dot` 3 个文件、23/23 通过，只证明目标身份、候选投影及关系命令的本地合同；不证明正式服务授权或项目切换现场。真实切片须先在已可读取的认证 SPA 中核对当前导航关系目标行、关系字段新增权限及真实候选空间/字段。得到正式依据后才将关系配置接入绑定 DataView 并走 DataSet 保存/取消；否则保留现有入口，避免借用 D99/90A8 候选或构造 DataView 包装旧 API。
+- **交付边界：**本轮只读，未改产品代码、正式数据、测试或 Java。账号已由用户提供并授权，不要求重发；工具当前无法附着浏览器标签，因此不声称已登录或完成真实烟测。下一步保持整体 owner 盘点，优先取得 NavHost 正式 owner/权限证据；根应用目录、导航根、物理表预览 executor 的既有独立差距仍按各自合同处理。总体 SPARK data 唯一通道目标继续 active。

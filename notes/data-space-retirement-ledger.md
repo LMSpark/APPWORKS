@@ -1,5 +1,12 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 显式跨应用导航的目录查询收敛
+
+- **切片与反例：**主控核对调用链后，开放 `gpt-6-luna` 单一写者将 `readLowcodeRuntimeNavigation(projectId)` 的显式跨应用目标查找替换为既有正式应用目录 DataSet/DataView。先补真实 DataView 夹具：原有 36 项通过，新增 9 项因旧列表旁路失败；主控排除了授权读取未 mock 导致的网络伪 RED，确认重复主键夹具确实返回两行。原始 RED/GREEN 与范围见 [summary.md](evidence/cross-app-catalog-red-20261028/summary.md)。
+- **实现与主控复核：**目标仅按可读 rowid 精确匹配，缺失或重复身份拒绝；名称按 AppDesc/AppName 的当次读取权限投影，均不可读则回退可读 ID。中间对象收窄为 id/name，不伪造 isDefault、企业字段或完整 LowcodeApplication。DataSet 获取后在 try/finally 内校验调用方执行身份，成功、失败、装载返回时过期及查询期间过期均释放；原执行应用与目标应用分离、导航根、蓝图 DataView 与授权并发收敛逻辑保留，没有第二份查询状态或旧 API 回退。
+- **验证边界：**实施者导航 45/45、仓级 typecheck、定向 ESLint 通过；主控独立复跑导航、目录装配、PlatformApps、AppList 和应用切换五套测试共 78/78 通过，并运行正式 ClassModel/lowcode 合同生成、verify:rules 与 build:fe。具体门禁最终状态见本批证据。主导航 main.ts 不传显式目标，仅 project-settings 传入，而设置 UI 入口当前仍为只读提示；因此本分支只有自动化验收，没有真实 SPA 调用证明，不借上批普通进入应用烟测充数。
+- **剩余与交付：**PlatformApps 上批 `e58c83d30` 已推送；当前仍有 projectReferences.listProjects、project-settings 两个业务目录旧调用，以及 LowcodePlatformApi 活跃应用选择内部的旧目录读取。后续优先核活跃选择链身份/中止/回执，引用摘要和设置类型需各自核完整消费合同，不根据缺失 IsSys 猜普通应用。没有线上业务/元数据写入，没有 Java 修改。暂存仅导航源码、相关回归、正式生成物、本台账及本批证据，整体目标继续进行。
+
 ### 2026-10-28 平台应用管理复用正式应用目录 DataView
 
 - **实施与复核：**由 `gpt-6-luna` 单一产品写者实施，主控复核。PlatformApps 删除 `listApplications()`、项目数组及手写表格列，复用既有正式目录加载器，经 PageRuntime → DataSet → `7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default`，以 RendererTable 和标准字段子组件绑定。刷新使用标准工具栏 action；当前企业仅作登录信息展示，不再提供只有一个选项的租户选择器，不建立前端租户授权。保留应用切换回执的前后核验及卸载/过期查询隔离。

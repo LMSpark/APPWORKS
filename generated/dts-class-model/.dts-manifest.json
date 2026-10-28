@@ -3849,7 +3849,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T07:09:18.521Z"
+      "sourceModifiedAt": "2026-10-28T13:33:32.446Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4874,7 +4874,7 @@
     "src/views/platform/PlatformApps.vue": {
       "sourceFile": "src/views/platform/PlatformApps.vue",
       "shardFile": "files/src/views/platform/PlatformApps.vue.json",
-      "sourceModifiedAt": "2026-10-28T13:05:18.455Z"
+      "sourceModifiedAt": "2026-10-28T13:14:55.379Z"
     },
     "src/views/platform/PlatformTenantManagement.vue": {
       "sourceFile": "src/views/platform/PlatformTenantManagement.vue",

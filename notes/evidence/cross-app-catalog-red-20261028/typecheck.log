@@ -1,0 +1,2 @@
+Command: pnpm exec vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json
+Result: exit 0, no diagnostics.

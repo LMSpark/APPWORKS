@@ -1,0 +1,444 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > resolves an explicit target from the formal application catalog DataView and releases its DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > preserves a formal catalog query failure and does not fall back to listApplications
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects an explicit target absent from the formal catalog and releases its DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects a target whose rowid is not readable and releases its DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects duplicate target identities instead of selecting an arbitrary application row
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses only readable application name fields and falls back to the readable rowid
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects an execution-app change while formal catalog loading is pending and releases the returned DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > releases the acquired DataSet when execution scope changes as catalog loading resolves
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects a session clear during the formal catalog DataView query and releases its DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts (45 tests | 9 failed) 816ms
+     × resolves an explicit target from the formal application catalog DataView and releases its DataSet 8ms
+     × preserves a formal catalog query failure and does not fall back to listApplications 11ms
+     × rejects an explicit target absent from the formal catalog and releases its DataSet 5ms
+     × rejects a target whose rowid is not readable and releases its DataSet 6ms
+     × rejects duplicate target identities instead of selecting an arbitrary application row 5ms
+     × uses only readable application name fields and falls back to the readable rowid 3ms
+     × rejects an execution-app change while formal catalog loading is pending and releases the returned DataSet 3ms
+     × releases the acquired DataSet when execution scope changes as catalog loading resolves 3ms
+     × rejects a session clear during the formal catalog DataView query and releases its DataSet 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > resolves an explicit target from the formal application catalog DataView and releases its DataSet
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:339:43
+    337|     const navigation = await readLowcodeRuntimeNavigation('APP-B')
+    338|
+    339|     expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+       |                                           ^
+    340|     expect(refresh).toHaveBeenCalledOnce()
+    341|     expect(listApplications).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > preserves a formal catalog query failure and does not fall back to listApplications
+AssertionError: promise resolved "{ id: 'ROOT-B', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "id": "ROOT-B",
++   "items": [
++     {
++       "children": [
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-demo-template-dsl",
++           "itemKind": "system-page",
++           "path": "/demo/template-dsl",
++           "title": "Template DSL Demo",
++         },
++         {
++           "icon": "Coin",
++           "id": "appworks-tool-cache-manager",
++           "itemKind": "system-page",
++           "path": "/cache-manager",
++           "title": "缓存管理",
++         },
++         {
++           "icon": "DataBoard",
++           "id": "appworks-tool-dashboard",
++           "itemKind": "system-page",
++           "path": "/dashboard",
++           "title": "仪表盘",
++         },
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-capability-demo",
++           "itemKind": "system-page",
++           "path": "/capability-demo",
++           "title": "能力管理演示",
++         },
++         {
++           "icon": "Share",
++           "id": "appworks-tool-workflow-designs",
++           "itemKind": "system-page",
++           "path": "/workflow-designs",
++           "title": "工作流设计",
++         },
++         {
++           "icon": "Tools",
++           "id": "appworks-tool-dev",
++           "itemKind": "system-page",
++           "path": "/dev",
++           "title": "开发工作台",
++         },
++         {
++           "icon": "DataBase",
++           "id": "appworks-tool-dbms",
++           "itemKind": "system-page",
++           "path": "/dbms",
++           "title": "数据库管理",
++         },
++       ],
++       "id": "appworks-system-tools",
++       "itemKind": "module",
++       "title": "SPARK 工具",
++     },
++   ],
++   "projectId": "APP-B",
++   "title": "APP-B",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:355:55
+    353|     vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mock…
+    354|
+    355|     await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThro…
+       |                                                       ^
+    356|
+    357|     expect(listApplications).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects an explicit target absent from the formal catalog and releases its DataSet
+AssertionError: promise resolved "{ id: 'ROOT-B', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "id": "ROOT-B",
++   "items": [
++     {
++       "children": [
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-demo-template-dsl",
++           "itemKind": "system-page",
++           "path": "/demo/template-dsl",
++           "title": "Template DSL Demo",
++         },
++         {
++           "icon": "Coin",
++           "id": "appworks-tool-cache-manager",
++           "itemKind": "system-page",
++           "path": "/cache-manager",
++           "title": "缓存管理",
++         },
++         {
++           "icon": "DataBoard",
++           "id": "appworks-tool-dashboard",
++           "itemKind": "system-page",
++           "path": "/dashboard",
++           "title": "仪表盘",
++         },
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-capability-demo",
++           "itemKind": "system-page",
++           "path": "/capability-demo",
++           "title": "能力管理演示",
++         },
++         {
++           "icon": "Share",
++           "id": "appworks-tool-workflow-designs",
++           "itemKind": "system-page",
++           "path": "/workflow-designs",
++           "title": "工作流设计",
++         },
++         {
++           "icon": "Tools",
++           "id": "appworks-tool-dev",
++           "itemKind": "system-page",
++           "path": "/dev",
++           "title": "开发工作台",
++         },
++         {
++           "icon": "DataBase",
++           "id": "appworks-tool-dbms",
++           "itemKind": "system-page",
++           "path": "/dbms",
++           "title": "数据库管理",
++         },
++       ],
++       "id": "appworks-system-tools",
++       "itemKind": "module",
++       "title": "SPARK 工具",
++     },
++   ],
++   "projectId": "APP-B",
++   "title": "APP-B",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:370:55
+    368|     vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mock…
+    369|
+    370|     await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThro…
+       |                                                       ^
+    371|
+    372|     expect(listApplications).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects a target whose rowid is not readable and releases its DataSet
+AssertionError: promise resolved "{ id: 'ROOT-B', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "id": "ROOT-B",
++   "items": [
++     {
++       "children": [
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-demo-template-dsl",
++           "itemKind": "system-page",
++           "path": "/demo/template-dsl",
++           "title": "Template DSL Demo",
++         },
++         {
++           "icon": "Coin",
++           "id": "appworks-tool-cache-manager",
++           "itemKind": "system-page",
++           "path": "/cache-manager",
++           "title": "缓存管理",
++         },
++         {
++           "icon": "DataBoard",
++           "id": "appworks-tool-dashboard",
++           "itemKind": "system-page",
++           "path": "/dashboard",
++           "title": "仪表盘",
++         },
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-capability-demo",
++           "itemKind": "system-page",
++           "path": "/capability-demo",
++           "title": "能力管理演示",
++         },
++         {
++           "icon": "Share",
++           "id": "appworks-tool-workflow-designs",
++           "itemKind": "system-page",
++           "path": "/workflow-designs",
++           "title": "工作流设计",
++         },
++         {
++           "icon": "Tools",
++           "id": "appworks-tool-dev",
++           "itemKind": "system-page",
++           "path": "/dev",
++           "title": "开发工作台",
++         },
++         {
++           "icon": "DataBase",
++           "id": "appworks-tool-dbms",
++           "itemKind": "system-page",
++           "path": "/dbms",
++           "title": "数据库管理",
++         },
++       ],
++       "id": "appworks-system-tools",
++       "itemKind": "module",
++       "title": "SPARK 工具",
++     },
++   ],
++   "projectId": "APP-B",
++   "title": "APP-B",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:385:55
+    383|     vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mock…
+    384|
+    385|     await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThro…
+       |                                                       ^
+    386|
+    387|     expect(listApplications).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects duplicate target identities instead of selecting an arbitrary application row
+AssertionError: promise resolved "{ id: 'ROOT-B', …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "id": "ROOT-B",
++   "items": [
++     {
++       "children": [
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-demo-template-dsl",
++           "itemKind": "system-page",
++           "path": "/demo/template-dsl",
++           "title": "Template DSL Demo",
++         },
++         {
++           "icon": "Coin",
++           "id": "appworks-tool-cache-manager",
++           "itemKind": "system-page",
++           "path": "/cache-manager",
++           "title": "缓存管理",
++         },
++         {
++           "icon": "DataBoard",
++           "id": "appworks-tool-dashboard",
++           "itemKind": "system-page",
++           "path": "/dashboard",
++           "title": "仪表盘",
++         },
++         {
++           "icon": "SetUp",
++           "id": "appworks-tool-capability-demo",
++           "itemKind": "system-page",
++           "path": "/capability-demo",
++           "title": "能力管理演示",
++         },
++         {
++           "icon": "Share",
++           "id": "appworks-tool-workflow-designs",
++           "itemKind": "system-page",
++           "path": "/workflow-designs",
++           "title": "工作流设计",
++         },
++         {
++           "icon": "Tools",
++           "id": "appworks-tool-dev",
++           "itemKind": "system-page",
++           "path": "/dev",
++           "title": "开发工作台",
++         },
++         {
++           "icon": "DataBase",
++           "id": "appworks-tool-dbms",
++           "itemKind": "system-page",
++           "path": "/dbms",
++           "title": "数据库管理",
++         },
++       ],
++       "id": "appworks-system-tools",
++       "itemKind": "module",
++       "title": "SPARK 工具",
++     },
++   ],
++   "projectId": "APP-B",
++   "title": "APP-B",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:405:55
+    403|     vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mock…
+    404|
+    405|     await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThro…
+       |                                                       ^
+    406|
+    407|     expect(listApplications).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses only readable application name fields and falls back to the readable rowid
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:422:43
+    420|     const navigation = await readLowcodeRuntimeNavigation('APP-B')
+    421|
+    422|     expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+       |                                           ^
+    423|     expect(navigation.title).toBe('APP-B')
+    424|     expect(navigation.title).not.toContain('Application B')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects an execution-app change while formal catalog loading is pending and releases the returned DataSet
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ expectFormalCatalogLookupStarted tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:155:41
+    153|   // Consume the legacy path before asserting so a red test does not l…
+    154|   await navigation
+    155|   expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+       |                                         ^
+    156|   return false
+    157| }
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:437:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > releases the acquired DataSet when execution scope changes as catalog loading resolves
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ expectFormalCatalogLookupStarted tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:155:41
+    153|   // Consume the legacy path before asserting so a red test does not l…
+    154|   await navigation
+    155|   expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+       |                                         ^
+    156|   return false
+    157| }
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:457:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects a session clear during the formal catalog DataView query and releases its DataSet
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ expectFormalCatalogLookupStarted tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:155:41
+    153|   // Consume the legacy path before asserting so a red test does not l…
+    154|   await navigation
+    155|   expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+       |                                         ^
+    156|   return false
+    157| }
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:480:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 36 passed (45)
+   Start at  21:30:11
+   Duration  16.60s (transform 10.57s, setup 135ms, import 14.32s, tests 816ms, environment 1.02s)

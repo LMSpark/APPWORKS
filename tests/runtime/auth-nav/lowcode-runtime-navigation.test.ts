@@ -17,7 +17,9 @@ import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspa
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
 
+const applicationCatalogLoader = vi.hoisted(() => ({load: vi.fn<() => Promise<unknown>>()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({loadLowcodeApplicationCatalog: applicationCatalogLoader.load}))
 
 import {
   assembleLowcodeRuntimeNavigation,
@@ -110,8 +112,53 @@ function createNavigationDataSet(options: {rows?: DataRow[]; beforeQuery?: () =>
   return fixture
 }
 
+type ApplicationCatalogFixture = {dataSet: DataSet; view: ReturnType<DataSet['getView']>}
+function createApplicationCatalogDataSet(options: {
+  rows?: DataRow[]
+  unreadableRowId?: boolean
+  unreadableNameFields?: string[]
+  beforeQuery?: () => Promise<void>
+  queryError?: Error
+} = {}): ApplicationCatalogFixture {
+  const scenarioId = LOWCODE_APPLICATION_CATALOG_FORM_KEY
+  const fields = ['rowid', 'AppName', 'AppDesc']
+  const dataSet = DataSet.fromJson({scenarioId, tables: {Base_AppSystemList: {
+    modelBinding: {modelId: `${scenarioId}p000`, modelName: 'Base_AppSystemList'},
+    columns: fields.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
+    views: {default: {autoLoad: false, queryConfig: {allPages: true, distinct: true}}},
+  }}})
+  const view = dataSet.getView('Base_AppSystemList', 'default')!
+  view.bindQueryExecutor({executeQuery: async _target => {
+    await options.beforeQuery?.()
+    if (options.queryError) throw options.queryError
+    const rows = options.rows ?? [{rowid: 'APP-B', AppName: 'app-b', AppDesc: 'Application B'}]
+    return {rows, total: rows.length, countReported: true, resultPrimaryKey: 'rowid',
+      assertIdentity: actual => {if (actual.scenarioId !== scenarioId || actual.metaName !== 'Base_AppSystemList') throw new Error('identity mismatch')},
+      rowKey: row => String(row['rowid'] ?? ''),
+      fieldAccess: (key, field) => rows.some(row => row['rowid'] === key && Object.hasOwn(row, field)
+        && !(options.unreadableRowId && field === 'rowid') && !options.unreadableNameFields?.includes(field))
+        ? {read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}
+        : {read: 'invisible', write: 'denied', component: 'hidden', required: false, writeMode: 'readonly'},
+      readFieldAccess: (row, field) => Object.hasOwn(row, field) && !(options.unreadableRowId && field === 'rowid')
+        && !options.unreadableNameFields?.includes(field) ? 'visible' : 'invisible',
+      addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+      createChildActionState: () => 'hidden', viewActionState: () => 'hidden'}
+  }})
+  return {dataSet, view}
+}
+
+async function expectFormalCatalogLookupStarted(navigation: Promise<RuntimeNavigation>): Promise<boolean> {
+  await Promise.resolve()
+  if (applicationCatalogLoader.load.mock.calls.length > 0) return true
+  // Consume the legacy path before asserting so a red test does not leave a floating request.
+  await navigation
+  expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+  return false
+}
+
 beforeEach(() => {
   lastNavigationDataSet = undefined
+  applicationCatalogLoader.load.mockReset()
   vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet().dataSet)
 })
 
@@ -241,24 +288,30 @@ describe('lowcode project navigation projection', () => {
 
   it('keeps an explicit target separate from the stable execution application', async () => {
     saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet()
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
     const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
     const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
     const authorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({ items: [], contexts: [] })
 
     const navigation = await readLowcodeRuntimeNavigation('APP-B')
 
-    expect(listApplications).toHaveBeenCalledOnce()
+    expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+    expect(listApplications).not.toHaveBeenCalled()
     expect(resolveRoot).toHaveBeenCalledWith('APP-B')
     expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId: 'APP-A', scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
     expect(lastNavigationDataSet?.filters[0]).toMatchObject({field: 'SysId', operator: 'eq', value: 'APP-B'})
     expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
     expect(navigation.projectId).toBe('APP-B')
     expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+    expect(catalog.dataSet.destroyed).toBe(true)
   })
 
   it('reads explicit target navigation through a scoped DataView and keeps authorization independent', async () => {
     saveExecutionScope('APP-A')
-    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    const catalog = createApplicationCatalogDataSet()
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
     vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
     const row: DataRow = {rowid: 'NODE-B', SysId: 'APP-B', prowid: '000000', FunOrderValue: 1, name: 'Page B', FunName: 'Page B',
       conType: 'Navitem', NavigationUrl: 'vue:dashboard', IsShowAtNav: 1}
@@ -273,9 +326,175 @@ describe('lowcode project navigation projection', () => {
     expect(JSON.stringify(lastNavigationDataSet?.filters[0])).toContain('APP-B')
     expect(lowcodeApi.readRequestScope().headers['X-AppId']).toBe('APP-A')
     expect(records).not.toHaveBeenCalled()
+    expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+    expect(listApplications).not.toHaveBeenCalled()
     expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
     expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
     expect(navigation.items.some(item => item.id === 'NODE-B')).toBe(true)
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('resolves an explicit target from the formal application catalog DataView and releases its DataSet', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet()
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+    const refresh = vi.spyOn(catalog.view!, 'requestRefresh')
+
+    const navigation = await readLowcodeRuntimeNavigation('APP-B')
+
+    expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+    expect(refresh).toHaveBeenCalledOnce()
+    expect(listApplications).not.toHaveBeenCalled()
+    expect(navigation).toMatchObject({projectId: 'APP-B', title: 'Application B'})
+    expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('preserves a formal catalog query failure and does not fall back to listApplications', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet({queryError: new Error('formal app catalog query failed')})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('formal app catalog query failed')
+
+    expect(listApplications).not.toHaveBeenCalled()
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('rejects an explicit target absent from the formal catalog and releases its DataSet', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet({rows: [{rowid: 'APP-C', AppName: 'app-c', AppDesc: 'Application C'}]})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('应用不存在或无权访问')
+
+    expect(listApplications).not.toHaveBeenCalled()
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('rejects a target whose rowid is not readable and releases its DataSet', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet({unreadableRowId: true})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('应用不存在或无权访问')
+
+    expect(listApplications).not.toHaveBeenCalled()
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('rejects duplicate target identities instead of selecting an arbitrary application row', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet({rows: [
+      {rowid: 'APP-B', AppName: 'app-b', AppDesc: 'Application B'},
+      {rowid: 'APP-B', AppName: 'app-b-2', AppDesc: 'Application B duplicate'},
+    ]})
+    expect((await catalog.view!.requestRefresh()).success).toBe(true)
+    expect(catalog.view!.rows).toHaveLength(2)
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('应用身份不唯一')
+
+    expect(listApplications).not.toHaveBeenCalled()
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('uses only readable application name fields and falls back to the readable rowid', async () => {
+    saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet({unreadableNameFields: ['AppDesc', 'AppName']})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    const navigation = await readLowcodeRuntimeNavigation('APP-B')
+
+    expect(applicationCatalogLoader.load).toHaveBeenCalledOnce()
+    expect(navigation.title).toBe('APP-B')
+    expect(navigation.title).not.toContain('Application B')
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('rejects an execution-app change while formal catalog loading is pending and releases the returned DataSet', async () => {
+    saveExecutionScope('APP-A')
+    const deferredCatalog = deferred<DataSet>()
+    applicationCatalogLoader.load.mockReturnValue(deferredCatalog.promise)
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId')
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    if (!await expectFormalCatalogLookupStarted(navigation)) return
+
+    const catalog = createApplicationCatalogDataSet()
+    lowcodeApi.application.save({application: application('APP-C'), navigationRootId: 'ROOT-C'})
+    deferredCatalog.resolve(catalog.dataSet)
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('releases the acquired DataSet when execution scope changes as catalog loading resolves', async () => {
+    saveExecutionScope('APP-A')
+    const deferredCatalog = deferred<DataSet>()
+    applicationCatalogLoader.load.mockReturnValue(deferredCatalog.promise)
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId')
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    if (!await expectFormalCatalogLookupStarted(navigation)) return
+
+    const catalog = createApplicationCatalogDataSet()
+    deferredCatalog.resolve(catalog.dataSet)
+    lowcodeApi.application.save({application: application('APP-C'), navigationRootId: 'ROOT-C'})
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
+  })
+
+  it('rejects a session clear during the formal catalog DataView query and releases its DataSet', async () => {
+    saveExecutionScope('APP-A')
+    let startQuery!: () => void
+    const queryStarted = new Promise<void>(resolve => {startQuery = resolve})
+    const queryGate = deferred<void>()
+    const catalog = createApplicationCatalogDataSet({beforeQuery: async () => {startQuery(); await queryGate.promise}})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
+    vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+    const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId')
+    const navigation = readLowcodeRuntimeNavigation('APP-B')
+    if (!await expectFormalCatalogLookupStarted(navigation)) return
+
+    await queryStarted
+    lowcodeApi.session.clear()
+    queryGate.resolve()
+
+    await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
   })
 
   it('waits for the DataView read before disposal when authorization fails and execution scope changes', async () => {
@@ -594,22 +813,27 @@ describe('lowcode project navigation projection', () => {
 
   it('stops after a pending target lookup invalidates the execution scope', async () => {
     saveExecutionScope('APP-A')
-    const applications = deferred<Awaited<ReturnType<typeof lowcodeApi.platform.listApplications>>>()
-    vi.spyOn(lowcodeApi.platform, 'listApplications').mockReturnValue(applications.promise)
+    const deferredCatalog = deferred<DataSet>()
+    applicationCatalogLoader.load.mockReturnValue(deferredCatalog.promise)
     const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId')
     const records = vi.spyOn(lowcodeApi.blueprint, 'readRecords')
 
     const navigation = readLowcodeRuntimeNavigation('APP-B')
+    await vi.waitFor(() => expect(applicationCatalogLoader.load).toHaveBeenCalledOnce())
     lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
-    applications.resolve([application('APP-B')])
+    const catalog = createApplicationCatalogDataSet()
+    deferredCatalog.resolve(catalog.dataSet)
 
     await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(resolveRoot).not.toHaveBeenCalled()
     expect(records).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
   })
 
   it('stops before blueprint reads when navigation-root resolution becomes stale', async () => {
     saveExecutionScope('APP-A')
+    const catalog = createApplicationCatalogDataSet()
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
     vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
     const root = deferred<string>()
     vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
@@ -622,22 +846,29 @@ describe('lowcode project navigation projection', () => {
 
     await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(records).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
   })
 
   it('rechecks immediately after application lookup before resolving the target root', async () => {
     saveExecutionScope('APP-A')
-    const applications = deferred<Awaited<ReturnType<typeof lowcodeApi.platform.listApplications>>>()
-    vi.spyOn(lowcodeApi.platform, 'listApplications').mockReturnValue(applications.promise)
+    let startQuery!: () => void
+    const queryStarted = new Promise<void>(resolve => {startQuery = resolve})
+    const queryGate = deferred<void>()
+    const catalog = createApplicationCatalogDataSet({beforeQuery: async () => {startQuery(); await queryGate.promise}})
+    applicationCatalogLoader.load.mockResolvedValue(catalog.dataSet)
+    vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-B')])
     const resolveRoot = vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
 
     const navigation = readLowcodeRuntimeNavigation('APP-B')
-    applications.resolve([application('APP-B')])
+    await queryStarted
+    queryGate.resolve()
     queueMicrotask(() => {
       lowcodeApi.application.save({ application: application('APP-B'), navigationRootId: 'ROOT-B' })
     })
 
     await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(resolveRoot).not.toHaveBeenCalled()
+    expect(catalog.dataSet.destroyed).toBe(true)
   })
 
   it('rechecks after the final parallel response before assembling navigation', async () => {

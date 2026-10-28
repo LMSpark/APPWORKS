@@ -16030,7 +16030,7 @@
         "sourceFile": "src/views/platform/PlatformApps.vue",
         "packageName": "app",
         "modulePath": "views/platform/PlatformApps",
-        "jsdoc": "@module app:views/platform/PlatformApps\n职责：提供主应用 PlatformApps 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/PlatformApps。",
+        "jsdoc": "@module app:views/platform/PlatformApps\n职责：通过正式应用目录 DataView 展示应用并编排应用切换。\n边界：目录数据与字段权限由 SPARK DataView 提供；本页不推导租户授权或直接读取旧目录接口。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

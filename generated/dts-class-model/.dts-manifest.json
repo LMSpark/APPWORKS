@@ -2279,7 +2279,7 @@
     "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue.json",
-      "sourceModifiedAt": "2026-10-18T16:46:39.882Z"
+      "sourceModifiedAt": "2026-10-28T12:45:42.359Z"
     },
     "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue",
@@ -4874,7 +4874,7 @@
     "src/views/platform/PlatformApps.vue": {
       "sourceFile": "src/views/platform/PlatformApps.vue",
       "shardFile": "files/src/views/platform/PlatformApps.vue.json",
-      "sourceModifiedAt": "2026-10-07T08:37:37.751Z"
+      "sourceModifiedAt": "2026-10-28T13:05:18.455Z"
     },
     "src/views/platform/PlatformTenantManagement.vue": {
       "sourceFile": "src/views/platform/PlatformTenantManagement.vue",

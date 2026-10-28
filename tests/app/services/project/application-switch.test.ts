@@ -10,13 +10,13 @@ import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/projec
 import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
 import App from '@/App.vue'
 import AppList from '@/views/tenant/AppList.vue'
-import PlatformApps from '@/views/platform/PlatformApps.vue'
 import PlatformTenantManagement from '@/views/platform/PlatformTenantManagement.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
 
 type LowcodeState = { applicationId: string | null; ownerIntent: number }
 const lowcodeState = vi.hoisted((): LowcodeState => ({ applicationId: 'old', ownerIntent: 0 }))
 const shellState = vi.hoisted(() => ({ reload: vi.fn(async () => null), resetWorkspace: vi.fn() }))
+const appListData = vi.hoisted(() => ({rows: [{rowid: 'APP-A', AppName: 'app-a', AppDesc: 'App A'}], refresh: vi.fn(async () => ({success: true}))}))
 
 vi.mock('@/lowcode/lowcode-runtime', () => {
   const receipt = (intent: number) => ({
@@ -51,6 +51,19 @@ vi.mock('@/lowcode/lowcode-runtime', () => {
       username: 'tester', displayName: 'Tester' }),
   }
 })
+vi.mock('@spark-appworks/spark-project-model', async importOriginal => {
+  const actual = await importOriginal<typeof import('@spark-appworks/spark-project-model')>()
+  return {...actual, PageRuntime: class {
+    destroyed = false
+    constructor(readonly options: {scenarioIds: string[]; loadScenario: (id: string) => Promise<unknown>}) {}
+    async load() {for (const id of this.options.scenarioIds) await this.options.loadScenario(id)}
+    getDataSet() {return {getView: () => ({primaryKey: 'rowid', queryConfig: {allPages: true, distinct: true},
+      dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}}, rows: appListData.rows,
+      fieldAccess: () => ({read: 'visible'}), requestRefresh: appListData.refresh}), onAnyViewChange: () => () => undefined}}
+    dispose() {this.destroyed = true}
+  }}
+})
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({loadLowcodeApplicationCatalog: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'}))}))
 
 vi.mock('@/services/project/project-shell', () => ({
   PROJECT_SWITCH_KEY: Symbol('project-switch'),
@@ -81,7 +94,6 @@ const AppHeaderProbe = defineComponent({
 })
 const page = defineComponent({ setup: () => () => h('div', 'route page') })
 const platformConsumerCases: Array<[string, Component]> = [
-  ['PlatformApps', PlatformApps],
   ['PlatformTenantManagement', PlatformTenantManagement],
 ]
 const TableColumnProbe = defineComponent({
@@ -90,6 +102,25 @@ const TableColumnProbe = defineComponent({
       projectId: 'APP-A', name: 'App A', projectType: 'application', tenantId: 'acme', defaultProjectId: 'homepage',
       status: 'ACTIVE', tenantName: 'Acme', tenantCode: 'ACME', adminUserName: 'admin',
     } }))
+  },
+})
+const RendererListProbe = defineComponent({
+  props: {children: {type: Array, default: () => []}},
+  setup(props) {
+    return () => {
+      const row = appListData.rows[0]!
+      const dataSource = {fieldAccess: () => ({read: 'visible'})}
+      const children = (props.children as Array<{type: string; props?: Record<string, unknown>}>).filter(child => {
+        const condition = child.props?.['onBeforeRender']
+        return typeof condition !== 'function' || condition({row, dataSource})
+      })
+      return h('div', children.filter(child => child.type === 'r-button').map(child => h('button', {
+        onClick: () => {
+          const action = child.props?.['onClick']
+          if (typeof action === 'function') action(row)
+        },
+      }, String(child.props?.['label'] ?? ''))))
+    }
   },
 })
 
@@ -333,7 +364,7 @@ describe('App project selection owner', () => {
     const success = vi.spyOn(ElMessage, 'success')
     const wrapper = mount(AppList, { global: {
       plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service },
-      stubs: { NavIcon: true, AppProjectSettingsDialog: true },
+      stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()
@@ -359,7 +390,7 @@ describe('App project selection owner', () => {
       return receipt
     }) }
     const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true },
+      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()
@@ -384,7 +415,7 @@ describe('App project selection owner', () => {
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
     const cancel = router.beforeEach(() => false)
     const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true },
+      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()

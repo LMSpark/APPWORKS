@@ -1,246 +1,184 @@
 <!--
 @module app:views/platform/PlatformApps
-职责：提供主应用 PlatformApps 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
-边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
-AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/PlatformApps。
+职责：通过正式应用目录 DataView 展示应用并编排应用切换。
+边界：目录数据与字段权限由 SPARK DataView 提供；本页不推导租户授权或直接读取旧目录接口。
 -->
 <template>
-  <div class="platform-apps">
-    <div class="page-toolbar">
+  <section class="platform-apps">
+    <header class="page-toolbar">
       <div>
         <h2>应用管理</h2>
-        <p>按租户查看项目，并进入对应业务工作台。</p>
+        <p>当前企业：{{ enterpriseName || '未登录' }}</p>
       </div>
-      <div class="toolbar-actions">
-        <el-select v-model="selectedTenantId" placeholder="选择租户" style="width: 220px" @change="loadProjects">
-          <el-option
-            v-for="tenant in tenants"
-            :key="tenant.tenantId"
-            :label="`${tenant.tenantName || tenant.tenantId} (${tenant.tenantId})`"
-            :value="tenant.tenantId"
-          />
-        </el-select>
-        <el-button :icon="Refresh" @click="loadAll">刷新</el-button>
-        <el-button type="primary" :icon="Plus" :disabled="!selectedTenantId" @click="openCreateDialog">新建应用</el-button>
-      </div>
-    </div>
-
-    <el-table v-loading="loading" :data="projects" row-key="projectId" class="project-table">
-      <el-table-column prop="projectId" label="项目 ID" min-width="150" />
-      <el-table-column prop="name" label="名称" min-width="180" />
-      <el-table-column prop="projectType" label="类型" width="120">
-        <template #default="{ row }">
-          <el-tag :type="row.projectType === 'homepage' ? 'warning' : 'info'">
-            {{ row.projectType === 'homepage' ? '应用工场' : '应用' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="description" label="描述" min-width="260" show-overflow-tooltip />
-      <el-table-column label="操作" fixed="right" width="180">
-        <template #default="{ row }">
-          <el-button size="small" type="primary" text @click="enterProject(row)">进入</el-button>
-          <el-button
-            v-if="row.projectType !== 'homepage'"
-            size="small"
-            type="danger"
-            text
-            @click="deleteProject(row)"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+      <p v-if="loading" role="status">正在读取应用目录…</p>
+      <p v-if="runtimeError" role="alert">{{ runtimeError }}</p>
+    </header>
+    <RendererButton v-if="runtimeError && !ready" label="重新加载" :disabled="loading" @click="loadCatalog" />
+    <RendererTable v-if="ready && !runtimeError" :data-view-key="catalogKey" :children="fields"
+      :toolbar="toolbar" :actions="actions" :show-pagination="false" :show-data-view-meta="true"
+      :stripe="true" row-key="rowid" />
 
     <el-dialog v-model="dialogVisible" title="新建应用" width="500px">
       <el-form :model="form" label-width="90px">
-        <el-form-item label="应用 ID">
-          <el-input v-model="form.projectId" placeholder="例如 crm" />
-        </el-form-item>
-        <el-form-item label="应用名称">
-          <el-input v-model="form.name" placeholder="显示名称" />
-        </el-form-item>
-        <el-form-item label="图标">
-          <el-input v-model="form.icon" placeholder="例如 Box" />
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="form.description" type="textarea" :rows="3" />
-        </el-form-item>
+        <el-form-item label="应用 ID"><el-input v-model="form.projectId" placeholder="例如 crm" /></el-form-item>
+        <el-form-item label="应用名称"><el-input v-model="form.name" placeholder="显示名称" /></el-form-item>
+        <el-form-item label="图标"><el-input v-model="form.icon" placeholder="例如 Box" /></el-form-item>
+        <el-form-item label="描述"><el-input v-model="form.description" type="textarea" :rows="3" /></el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="submitProject">创建</el-button>
       </template>
     </el-dialog>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Refresh } from '@element-plus/icons-vue'
-import {
-  lowcodeApi,
-  lowcodeEnterpriseDisplayName,
-} from '@/lowcode/lowcode-runtime'
-import { buildTenantPath } from '@/services/tenant-scope'
-import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { getNavHomePath } from '@spark-appworks/spark-app'
+import {computed, inject, onBeforeUnmount, onMounted, reactive, ref, shallowRef} from 'vue'
+import {useRouter} from 'vue-router'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {getNavHomePath} from '@spark-appworks/spark-app'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {lowcodeApi, lowcodeEnterpriseDisplayName, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
+import {loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
+import {buildTenantPath} from '@/services/tenant-scope'
+import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 
-type PlatformTenant = {
-  tenantId: string
-  tenantName: string
-  status: string}
-
-type ProjectItem = {
-  projectId: string
-  name: string
-  projectType: string
-  icon: string
-  description: string}
-
+const MODEL = 'Base_AppSystemList'
+const {sparkProvide, sparkRemove} = useSparkComponent({type: 'platform-apps'})
 const router = useRouter()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
-const tenants = ref<PlatformTenant[]>([])
-const selectedTenantId = ref('')
-const projects = ref<ProjectItem[]>([])
-const loading = ref(false)
-const submitting = ref(false)
-const dialogVisible = ref(false)
-const form = reactive({
-  projectId: '',
-  name: '',
-  icon: 'Box',
-  description: '',
+const view = shallowRef<DataView>()
+const ready = ref(false), loading = ref(false), runtimeError = ref(''), submitting = ref(false), dialogVisible = ref(false)
+const form = reactive({projectId: '', name: '', icon: 'Box', description: ''})
+let runtime: PageRuntime | undefined
+let unsubscribe: (() => void) | undefined
+let active = true
+let generation = 0
+
+const enterpriseName = computed(() => {
+  const enterprise = lowcodeApi.session.get()?.enterprise
+  return enterprise ? lowcodeEnterpriseDisplayName(enterprise) : ''
 })
+const catalogKey = buildDataViewKey(MODEL, 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+const fields = computed<SparkNode[]>(() => [
+  {type: 'r-text', props: {dataViewKey: catalogKey, field: 'rowid', label: '项目 ID', width: 190}},
+  {type: 'r-text', props: {dataViewKey: catalogKey, field: 'AppDesc', label: '名称', displayFallbackFields: ['AppName', 'rowid'], width: 220}},
+  ...(view.value?.queryColumns.some(column => column.name === 'IsSys')
+    ? [{type: 'r-text', props: {dataViewKey: catalogKey, field: 'IsSys', label: '类型', width: 120,
+      displayFormatter: (value: unknown) => value === 1 || value === '1' ? '应用工场' : value === 0 || value === '0' ? '应用' : ''}} satisfies SparkNode]
+    : []),
+  {type: 'r-text', props: {dataViewKey: catalogKey, field: 'AppDesc', label: '描述', emptyText: '暂无描述', showOverflowTooltip: true}},
+])
+const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
+  {type: 'r-button', props: {dataViewKey: catalogKey, label: '刷新', action: 'refresh', disabled: loading.value}},
+  {type: 'r-button', props: {dataViewKey: catalogKey, label: '新建应用', disabled: loading.value, onClick: openCreateDialog}},
+]}))
+const actions: RToolbarProps = {children: [
+  {type: 'r-button', props: {dataViewKey: catalogKey, label: '进入', buttonType: 'primary', onClick: (row: DataRow) => enterProject(projectFromRow(row))}},
+  {type: 'r-button', props: {dataViewKey: catalogKey, label: '删除', buttonType: 'danger', text: true,
+    onBeforeRender: ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) => Boolean(row && dataSource
+      && Object.hasOwn(row, 'IsSys') && dataSource.fieldAccess(row, 'IsSys').read === 'visible'
+      && (row['IsSys'] === 0 || row['IsSys'] === '0')),
+    onClick: (row: DataRow) => deleteProject(projectFromRow(row))}},
+]}
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+function projectFromRow(row: DataRow): {projectId: string; name: string} {
+  const current = view.value
+  if (!current || current.fieldAccess(row, 'rowid').read !== 'visible') throw new Error('应用目录缺少可读的应用身份')
+  const projectId = row['rowid']
+  if (typeof projectId !== 'string' || !projectId.trim()) throw new Error('应用目录返回了无效主键')
+  const description = Object.hasOwn(row, 'AppDesc') && current.fieldAccess(row, 'AppDesc').read === 'visible' ? String(row['AppDesc'] ?? '') : ''
+  const name = Object.hasOwn(row, 'AppName') && current.fieldAccess(row, 'AppName').read === 'visible' ? String(row['AppName'] ?? '') : ''
+  return {projectId, name: description || name || projectId}
 }
 
-async function loadTenants(): Promise<void> {
-  const session = lowcodeApi.session.get()
-  tenants.value = session === null ? [] : [{
-    tenantId: session.enterprise.shortName,
-    tenantName: lowcodeEnterpriseDisplayName(session.enterprise),
-    status: 'ACTIVE',
-  }]
-  if (!selectedTenantId.value && tenants.value.length > 0) {
-    selectedTenantId.value = tenants.value[0]?.tenantId ?? ''
-  }
-}
-
-async function loadProjects(): Promise<void> {
-  if (!selectedTenantId.value) {
-    projects.value = []
-    return
-  }
-  loading.value = true
+async function loadCatalog(): Promise<void> {
+  const own = ++generation
+  ready.value = false; loading.value = true; runtimeError.value = ''
+  unsubscribe?.(); unsubscribe = undefined; view.value = undefined
+  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
   try {
-    projects.value = (await lowcodeApi.platform.listApplications()).map((application) => ({
-      projectId: application.id,
-      name: application.name,
-      projectType: application.isDefault ? 'homepage' : 'application',
-      icon: 'Box',
-      description: application.description,
-    }))
-  } catch (error) {
-    ElMessage.error(`加载应用失败: ${errorMessage(error)}`)
-    projects.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-async function loadAll(): Promise<void> {
-  await loadTenants()
-  await loadProjects()
+    const dataSet = await loadLowcodeApplicationCatalog()
+    if (!active || own !== generation) {dataSet.destroy(); return}
+    const current = new PageRuntime({pageId: 'platform-applications', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+      loadScenario: async () => dataSet})
+    runtime = current
+    await current.load()
+    if (!active || own !== generation || current.destroyed) {current.dispose(); return}
+    const dataView = dataSet.getView(MODEL, 'default')
+    if (!dataView || dataView.queryConfig.allPages !== true || dataView.queryConfig.distinct !== true) {
+      throw new Error('正式应用目录 DataView 配置无效')
+    }
+    const assertCurrent = () => {
+      if (!active || own !== generation || current.destroyed) return
+      for (const row of dataView.rows) {
+        if (dataView.fieldAccess(row, 'rowid').read !== 'visible' || typeof row['rowid'] !== 'string' || !row['rowid'].trim()) {
+          throw new Error('应用目录缺少可读的应用身份')
+        }
+      }
+    }
+    unsubscribe = dataSet.onAnyViewChange({rowsChanged: () => {
+      try {assertCurrent(); runtimeError.value = ''}
+      catch (cause) {runtimeError.value = cause instanceof Error ? cause.message : String(cause); ready.value = false}
+    }})
+    const result = await dataView.requestRefresh()
+    if (!active || own !== generation || current.destroyed) return
+    if (!result.success) throw new Error(result.message ?? '应用目录查询未成功')
+    assertCurrent()
+    view.value = dataView
+    sparkProvide(PAGE_RUNTIME, current)
+    ready.value = true
+  } catch (cause) {
+    if (active && own === generation) {
+      runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+      unsubscribe?.(); unsubscribe = undefined
+      sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; view.value = undefined
+    }
+  } finally {if (active && own === generation) loading.value = false}
 }
 
 function openCreateDialog(): void {
-  form.projectId = ''
-  form.name = ''
-  form.icon = 'Box'
-  form.description = ''
+  form.projectId = ''; form.name = ''; form.icon = 'Box'; form.description = ''
   dialogVisible.value = true
 }
-
 async function submitProject(): Promise<void> {
-  if (!form.projectId.trim()) {
-    ElMessage.warning('请输入应用 ID')
-    return
-  }
+  if (!form.projectId.trim()) {ElMessage.warning('请输入应用 ID'); return}
   submitting.value = true
-  try {
-    throw new Error('lowcode 现有应用写接口不满足写前镜像、journal、readback 与补偿门禁')
-  } catch (error) {
-    ElMessage.error(`创建失败: ${errorMessage(error)}`)
-  } finally {
-    submitting.value = false
-  }
+  try {throw new Error('lowcode 现有应用写接口不满足写前镜像、journal、readback 与补偿门禁')}
+  catch (cause) {ElMessage.error(`创建失败: ${cause instanceof Error ? cause.message : String(cause)}`)}
+  finally {submitting.value = false}
 }
-
-async function deleteProject(project: ProjectItem): Promise<void> {
+async function enterProject(project: {projectId: string; name: string}): Promise<void> {
   try {
-    await ElMessageBox.confirm(`确定删除应用「${project.name || project.projectId}」？`, '删除应用', { type: 'warning' })
-    throw new Error('lowcode 现有应用删除接口不满足写前镜像、journal、readback 与补偿门禁')
-  } catch (error) {
-    if (error !== 'cancel') ElMessage.error(`删除失败: ${errorMessage(error)}`)
-  }
-}
-
-async function enterProject(project: ProjectItem): Promise<void> {
-  if (!selectedTenantId.value) return
-  try {
+    const principal = readLowcodePrincipal()
+    if (!principal) throw new Error('未登录，无法切换应用')
     if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
     const receipt = await projectSwitch.switchAndReload(project.projectId)
     receipt.assertCurrent()
-    await router.push(buildTenantPath(
-      { tenantId: selectedTenantId.value, projectId: project.projectId },
-      getNavHomePath(),
-    ))
-  } catch (error) {
-    ElMessage.error(`进入应用失败: ${errorMessage(error)}`)
-  }
+    const failure = await router.push(buildTenantPath({tenantId: principal.enterpriseName, projectId: project.projectId}, getNavHomePath()))
+    receipt.assertCurrent()
+    if (failure) throw new Error('应用页面导航未完成')
+  } catch (cause) {ElMessage.error(`进入应用失败: ${cause instanceof Error ? cause.message : String(cause)}`)}
 }
-
-onMounted(() => {
-  void loadAll()
+async function deleteProject(project: {projectId: string; name: string}): Promise<void> {
+  try {
+    await ElMessageBox.confirm(`确定删除应用「${project.name}」？`, '删除应用', {type: 'warning'})
+    throw new Error('lowcode 现有应用删除接口不满足写前镜像、journal、readback 与补偿门禁')
+  } catch (cause) {if (cause !== 'cancel') ElMessage.error(`删除失败: ${cause instanceof Error ? cause.message : String(cause)}`)}
+}
+onMounted(() => {void loadCatalog()})
+onBeforeUnmount(() => {
+  active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; view.value = undefined
 })
 </script>
 
 <style scoped>
-.platform-apps {
-  padding: 20px;
-}
-
-.page-toolbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.page-toolbar h2 {
-  margin: 0 0 6px;
-  font-size: 22px;
-}
-
-.page-toolbar p {
-  margin: 0;
-  color: var(--el-text-color-secondary);
-}
-
-.toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.project-table {
-  width: 100%;
-}
+.platform-apps {display: grid; gap: 16px; padding: 20px; color: var(--el-text-color-primary);}
+.page-toolbar {display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;}
+.page-toolbar h2 {margin: 0 0 6px; font-size: 22px;}
+.page-toolbar p {margin: 0; color: var(--el-text-color-secondary);}
 </style>

@@ -1,5 +1,13 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 平台应用管理复用正式应用目录 DataView
+
+- **实施与复核：**由 `gpt-6-luna` 单一产品写者实施，主控复核。PlatformApps 删除 `listApplications()`、项目数组及手写表格列，复用既有正式目录加载器，经 PageRuntime → DataSet → `7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default`，以 RendererTable 和标准字段子组件绑定。刷新使用标准工具栏 action；当前企业仅作登录信息展示，不再提供只有一个选项的租户选择器，不建立前端租户授权。保留应用切换回执的前后核验及卸载/过期查询隔离。
+- **边界修正：**主控保留原新建表单入口与空 ID 提示，补首次加载失败的同链重试，明确启用标准 DataView 状态/错误栏；正式查询未输出 IsSys 时不显示类型或删除入口，不将缺失值推断为 0。新建/删除仍沿原先明确报错的未实现路径，本批不宣称应用 CRUD 完成，也没有线上写入。页面内原生新建表单尚未迁移标准字段绑定，属于后续写合同切片，不算已统一。
+- **验证与生成：**主控独立复跑 PlatformApps、AppList 和应用切换三套测试，31/31 通过；定向 ESLint、根 typecheck、完整 verify:rules、正式 ClassModel 生成、lowcode 合同生成及 build:fe 通过。规则扫描保留既有 AI model spec 2 warnings/1 info，前端构建保留既有 CodeMirror 动态导入告警。目录/概要/指南沿已有正式组件与目录加载器合同复用，ClassModel 产物由正式生成器刷新，未手改。
+- **真实 SPA：**同一登录态通过原生导航进入平台应用管理，显示 62 条正式记录、首条“数据资产管理”；标准刷新后仍为 62 条且状态 Loaded。新建表单打开后取消，没有提交；选择 D99 元数据管理行“进入”，同一 SPA 到达正式服务器管理页，再通过浏览器返回平台目录并原生导航回应用卡片页。状态栏显式开启后的再刷新已验证 Loaded。细节见 [live-spa.md](evidence/platform-apps-dataview-20261028/live-spa.md)。未修改、启动或部署 Java。
+- **当前剩余范围：**源码中旧 `listApplications()` 消费仍在 lowcode-runtime 的跨应用导航、projectReferences.listProjects，以及 project-settings；LowcodePlatformApi 内部旧目录适配尚存。后续逐个沿真实语义收敛，不以本次两个可见目录已统一外推整仓完成。暂存仅本页、相关测试、正式生成物、本台账及本批证据；不自动混入其他业务修改。
+
 ### 2026-10-28 用户反馈：卡片字段不可见的暗色主题修复
 
 - **现场定位：**用户反馈“卡片上字段没绑定数据”。本轮直接读取真实 SPA DOM，目录仍有 62 条，首卡 `.field-value` 的值为“数据资产管理”，但计算文字色为 `rgb(48,49,51)`，暗主题主文字变量为 `#edf2f7`。绑定值存在，标准 FieldContextRenderer 的固定深色字体导致视觉上近似空白；上批验收只确认值和导航，遗漏了暗色卡片的文字对比度。

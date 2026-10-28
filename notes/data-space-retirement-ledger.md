@@ -2886,3 +2886,10 @@ flowchart TD
 - **测试修复及运行绑定证明：**原 route 测试的假 PageRuntime 被真实 `RendererList` 的 `PAGE_RUNTIME` capability 正确拒绝；route 生命周期测试现 stub 列表并断言初次/切换后的完整 key，另增真实 `PageRuntime + 两个 DataSet + 两个 RendererList` 运行测试，证明 A/B 场景各只渲染所属 DataView 行。4 个受影响测试文件 19/19 通过。源码 RED、字段权限/行作用域反例及官方 ClassModel 生成日志/哈希归档于 [`app-list-dataview-binding`](evidence/app-list-dataview-binding)。
 - **正式生成及工程门禁：**ClassModel 按七个变更公开合同以官方 incremental `--source` 生成；DTS dependency closure 为 705，连续三次生成退出 0，pass 2→3 规范化全产物 SHA-256 差异为 0；`verify:class-model` 49/49。主控复跑 typecheck、目标 ESLint（`--max-warnings=0`）、production build、完整 `verify:rules` 均退出 0。规则扫描保留既有 AI model spec 2 warnings/1 info；构建保留已有 CodeMirror ineffective dynamic import/依赖 chunk 警告。目标 ESLint、测试、`git diff --check` 复跑均通过。
 - **SPA 验收与差距：**本轮没有当前登录会话，未调用真实 DataView 或写配置/业务数据；测试账号已由用户提供，不再次索取或盲目重试此前凭据错误。真实服务读回、字段权限 payload、SPA 路由与视觉验收待有效会话。`RendererList` 此页使用固定 4 列，尚未复现旧布局在不同视口的响应式列数；列布局及根 fallback 待后续处理。未改/启动/部署 Java。SPARK data 唯一数据交互目标继续 active，不能把本切片写成全局统一完成。
+
+### 2026-10-28 应用目录剩余消费者调用图复核
+
+- **复核范围：**按当前 HEAD 重新追踪 `listApplications()` 与跨应用运行时入口，并由低价模型独立只读盘点。`AppList.vue` 的正式 `blueprintScenarioId` 分支已由前一切片改为 DataView；无场景身份的 `/app-list` fallback 仍调用目录 API。`PlatformApps.vue:141` 直接读取后投影页面列表；`project-settings.ts:110` 校验企业后查找目标应用；`lowcode-runtime.ts:354-359` 在显式目标项目与当前上下文不同时查询应用目录并解析导航根。这些都是实际调用点，仍需分别确定其宿主身份和数据范围。
+- **可达但未证实活跃的接口：**`lowcode-runtime.ts:597-603` 还定义 `projectReferences.listProjects`，其实现复用 `listApplications()`；当前源码未找到页面调用点，故登记为可达适配定义，不计为已证实的活跃页面消费者，也不据此删除公共能力。
+- **DataSpace 设计可补齐的部分及其边界：**正式 `Base_AppSystemList`/7AB 模型与空间已存在，允许通过数据空间设计维护 DataView；但旧调用历史返回 61 行，而当前目录 DataView 曾返回 1 行。仍未取得同一服务端范围下逐行身份、所需字段和行/字段授权投影的对照，也未证明根路由或跨应用设置拥有受服务端承认的 DataSpace 请求身份。仅新增 DataView、包装原接口或把 7AB 指定给 `homepage` 都不能填补这些合同。
+- **当前实施裁定：**本轮源码与台账审查没有发现可脱离上述缺口、又能安全迁移并移除旧消费者的代码切片；没有修改产品代码、测试、DataSpace 配置或业务数据，没有调用写接口，也没有改动 Java。下一步先取证各真实调用点的宿主/请求 scope，并在可复用的正式 DataView 上只读核对结果和授权；结果等价后再切换标准组件消费者并删除对应 direct API。唯一总账继续 active。

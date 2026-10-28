@@ -1,0 +1,36 @@
+RED command (before production edit; original textarea implementation):
+pnpm exec vitest run tests/ui/views/workflow-designs.test.ts -t "opens, edits, and saves definition.json"
+
+Original failure output:
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > opens, edits, and saves definition.json
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside of a component child of <router-view>. Maybe you called it inside of App.vue?
+
+ ❯ tests/ui/views/workflow-designs.test.ts (25 tests | 1 failed | 24 skipped) 166ms
+     × opens, edits, and saves definition.json 165ms
+
+ FAIL  tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > opens, edits, and saves definition.json
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/ui/views/workflow-designs.test.ts:1278:69
+    1276|
+    1277|     expect(mocks.readWorkflowDefinition).toHaveBeenCalledWith('agent.workflow.demo', '')
+    1278|     expect(wrapper.find('textarea.definition-json-input').exists()).toBe(false)
+       |                                                                     ^
+    1279|     expect(wrapper.find('r-json.definition-json-input').attributes('data-view-key')).toBe('TEST-SPACE@AgentWorkflowFiles@definition')
+    1280|     expect(wrapper.find('r-json.definition-json-input').attributes('data-member')).toBe('currentRow')
+
+ ❯❯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯⯯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 skipped (25)
+   Start at 14:01:34
+   Duration 10.45s (transform 7.49s, setup 179ms, import 8.71s, tests 166ms, environment 1.09s)

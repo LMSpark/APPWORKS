@@ -1668,14 +1668,14 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
             {{ definitionDirty ? 'unsaved' : 'saved' }}
           </el-tag>
         </div>
-        <el-input
-          v-model="definitionJsonText"
-          class="definition-json-input"
-          type="textarea"
-          :rows="22"
-          :disabled="definitionPendingVerification"
-          @input="markDefinitionDirty"
-        />
+        <RendererForm v-if="definitionHasDataViewRow" :data-view-key="definitionViewKey" context-data-member="currentRow"
+          :auto-columns="false" :show-data-view-meta="false">
+          <FieldJson class="definition-json-input" :data-view-key="definitionViewKey" data-member="currentRow" data-field="content"
+            mode="text" value-format="text" height="460px" :readonly="definitionPendingVerification"
+            :on-editing-change="onDefinitionFieldEditingChange" />
+        </RendererForm>
+        <el-input v-else v-model="definitionJsonText" class="definition-json-input" type="textarea" :rows="22"
+          :disabled="definitionPendingVerification" @input="markDefinitionDirty" />
       </div>
       <template #footer>
         <el-button @click="closeDefinitionEditor">关闭</el-button>
@@ -1728,7 +1728,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldJson, PAGE_RUNTIME, RendererForm, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/shared/agent-workflow-file-owner'
 import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 import '@vue-flow/minimap/dist/style.css'
@@ -1924,6 +1924,7 @@ const editorDirty = ref(false)
 const definitionTimestamp = ref('')
 const definitionJsonText = ref('{}')
 const definitionDirty = ref(false)
+const definitionViewRevision = ref(0)
 
 const nodeTypeText = ref('')
 const nodeTitleText = ref('')
@@ -2239,23 +2240,58 @@ const canSave = computed(() => currentDocument.value !== null && currentWorkflow
 const canAutoLayout = computed(() => canSave.value && !saving.value && !autoLayoutSaving.value)
 const canPublish = computed(() => canSave.value && !saving.value && !publishing.value)
 const canOpenDefinition = computed(() => canSave.value && !openingDefinition.value)
+const definitionViewKey = computed(() => {
+  const owner = dataOwner.value
+  return owner ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.dataSet.scenarioId) : ''
+})
+const definitionHasDataViewRow = computed(() => {
+  definitionViewRevision.value
+  const owner = dataOwner.value
+  const row = owner?.definitionView.currentRow
+  return Boolean(row && row['workflowId'] === currentWorkflowId.value && row['fileName'] === 'definition.json'
+    && owner.definitionView.fieldAccess(row, 'content').read === 'visible'
+    && typeof row['content'] === 'string')
+})
 const canSaveDefinition = computed(() => (
   currentWorkflowId.value.length > 0
-  && definitionJsonText.value.trim().length > 0
+  && (definitionHasDataViewRow.value || definitionJsonText.value.trim().length > 0)
   && !savingDefinition.value
 ))
-const definitionPendingVerification = computed(() => dataOwner.value?.definitionView.hasUnconfirmedSave ?? false)
+const definitionPendingVerification = computed(() => {
+  definitionViewRevision.value
+  savingDefinition.value
+  return dataOwner.value?.definitionView.hasUnconfirmedSave ?? false
+})
 const hasDesignChanges = computed(() => {
   const view = dataOwner.value?.designView
   return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
     || editorDirty.value
 })
 const hasDefinitionChanges = computed(() => {
+  definitionViewRevision.value
   const view = dataOwner.value?.definitionView
   return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
     || definitionDirty.value
 })
 const hasUnsavedChanges = computed(() => hasDesignChanges.value || hasDefinitionChanges.value)
+
+watch(() => dataOwner.value?.definitionView, (view, _previous, cleanup) => {
+  if (!view) return
+  const refreshDefinitionState = () => {
+    definitionViewRevision.value++
+    definitionDirty.value = Boolean(view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+  }
+  view.events.on('editingChanged', refreshDefinitionState)
+  view.events.on('rowsChanged', refreshDefinitionState)
+  view.events.on('currentRowChanged', refreshDefinitionState)
+  view.events.on('requestStateChanged', refreshDefinitionState)
+  cleanup(() => {
+    view.events.off('editingChanged', refreshDefinitionState)
+    view.events.off('rowsChanged', refreshDefinitionState)
+    view.events.off('currentRowChanged', refreshDefinitionState)
+    view.events.off('requestStateChanged', refreshDefinitionState)
+  })
+}, {immediate: true, flush: 'sync'})
 
 function stageDocumentInDataView(document: WorkflowDesignDocument): void {
   const owner = dataOwner.value
@@ -4291,7 +4327,7 @@ async function openDefinitionEditor(): Promise<void> {
       throw new Error('definition.json DataView 当前行不可读')
     }
     definitionTimestamp.value = String(row['timestamp'] ?? '')
-    definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(row['content']))
+    parseAgentWorkflowDefinitionJson(row['content'])
     definitionDirty.value = false
     definitionDialogVisible.value = true
   } catch (error: unknown) {
@@ -4313,14 +4349,11 @@ async function openDefinitionEditor(): Promise<void> {
 
 function markDefinitionDirty(): void {
   definitionDirty.value = true
+}
+
+function onDefinitionFieldEditingChange(editing: boolean): void {
   const view = dataOwner.value?.definitionView
-  if (view?.hasUnconfirmedSave) return
-  const row = view?.currentRow
-  const id = row ? view?.getPkKey(row) : undefined
-  if (view && row && id !== null && id !== undefined && row['workflowId'] === currentWorkflowId.value
-    && row['fileName'] === 'definition.json' && view.fieldAccess(row, 'content').write === 'allowed') {
-    view.updateEditingValue(id, 'content', definitionJsonText.value)
-  }
+  definitionDirty.value = editing || Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
 }
 
 async function readFreshDesignForDefinitionDraft(workflowId: string): Promise<WorkflowDesignDocument> {
@@ -4361,7 +4394,11 @@ async function saveCurrentDefinition(): Promise<void> {
   let definition: ReturnType<typeof parseAgentWorkflowDefinitionJson> | undefined
   if (!recovering) {
     try {
-      definition = parseAgentWorkflowDefinitionJson(definitionJsonText.value)
+      const row = view.currentRow
+      const id = row ? view.getPkKey(row) : undefined
+      const source = id === null || id === undefined ? definitionJsonText.value
+        : view.getEditingRow(id)?.['content'] ?? row?.['content'] ?? definitionJsonText.value
+      definition = parseAgentWorkflowDefinitionJson(String(source))
     } catch (error: unknown) {
       ElMessage.error(`Definition JSON 无效: ${errorMessage(error)}`)
       return
@@ -4378,6 +4415,9 @@ async function saveCurrentDefinition(): Promise<void> {
     if (id === null || id === undefined || view.fieldAccess(row, 'content').write !== 'allowed') {
       throw new Error('definition.json DataView 当前行不可编辑')
     }
+    if (!definitionHasDataViewRow.value && !recovering) {
+      throw new Error('definition.json 不存在；本页面不创建文件')
+    }
     if (!recovering && definition !== undefined) view.updateEditingValue(id, 'content', formatJson(definition))
     const result = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'definition', ids: [id]}]})
     if (!result.success || view.hasUnconfirmedSave || view.dirtyTracking.hasPendingChanges(id)) {
@@ -4388,7 +4428,6 @@ async function saveCurrentDefinition(): Promise<void> {
     if (!confirmed || confirmed['workflowId'] !== workflowId || typeof confirmed['content'] !== 'string') {
       throw new Error('definition.json 保存回执缺少已确认的 DataView 行')
     }
-    definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(confirmed['content']))
     definitionDirty.value = false
     ElMessage.success('definition.json 已保存')
   } catch (error: unknown) {
@@ -4504,7 +4543,7 @@ async function confirmDiscardDefinitionDraft(): Promise<boolean> {
       view.discardPendingChanges([id])
       if (owner && currentWorkflowId.value) await owner.loadDocument(currentWorkflowId.value, 'definition.json')
       const baseline = view.currentRow
-      if (baseline && typeof baseline['content'] === 'string') definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(baseline['content']))
+      if (baseline && typeof baseline['content'] === 'string') parseAgentWorkflowDefinitionJson(baseline['content'])
     }
     definitionDirty.value = false
     definitionDialogVisible.value = false

@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {FieldJson, SparkJsonEditor} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
@@ -35,7 +36,8 @@ const mocks = vi.hoisted(() => ({
   createWorkerDtsClassModelKnowledgeProvider: vi.fn(),
 }))
 
-vi.mock('element-plus', () => ({
+vi.mock('element-plus', async importOriginal => ({
+  ...await importOriginal<typeof import('element-plus')>(),
   ElMessage: mocks.message,
   ElMessageBox: mocks.messageBox,
 }))
@@ -184,7 +186,6 @@ const RendererTableStub = defineComponent({
     }, String(row['workflowId'] ?? ''))))
   },
 })
-
 const BaseEdgeStub = defineComponent({
   props: {
     id: String,
@@ -1275,12 +1276,27 @@ describe('WorkflowDesigns visual editor', () => {
     await flushPromises()
 
     expect(mocks.readWorkflowDefinition).toHaveBeenCalledWith('agent.workflow.demo', '')
-    const definitionEditor = wrapper.find('textarea.definition-json-input')
+    const boundDefinitionField = wrapper.findComponent(FieldJson)
+    expect(boundDefinitionField.exists()).toBe(true)
+    expect(boundDefinitionField.props()).toMatchObject({
+      dataViewKey: 'TEST-SPACE@AgentWorkflowFiles@definition',
+      dataMember: 'currentRow',
+      dataField: 'content',
+      mode: 'text',
+      valueFormat: 'text',
+      readonly: false,
+    })
+    const definitionEditor = wrapper.findComponent(SparkJsonEditor)
     expect(definitionEditor.exists()).toBe(true)
-    expect((definitionEditor.element as HTMLTextAreaElement).value).toContain('"kind": "agent.workflow"')
-
-    await definitionEditor.setValue('{"kind":"agent.workflow"}')
+    expect(definitionEditor.props('mode')).toBe('text')
+    expect(definitionEditor.props('modelValue')).toBe(pageDefinitionView?.currentRow?.['content'])
+    expect(pageDefinitionView?.hasEditingChanges()).toBe(false)
+    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
+    definitionEditor.vm.$emit('update:modelValue', '{"kind":"agent.workflow"}')
+    await flushPromises()
     expect(pageDefinitionView?.hasEditingChanges()).toBe(true)
+    const edited = pageDefinitionView?.getEditingRow(pageDefinitionView.currentRow ? pageDefinitionView.getPkKey(pageDefinitionView.currentRow)! : '')
+    expect(edited?.['content']).toBe('{"kind":"agent.workflow"}')
     await findButton(wrapper, '保存 Definition').trigger('click')
     await flushPromises()
 
@@ -1289,6 +1305,48 @@ describe('WorkflowDesigns visual editor', () => {
     expect(pageSaveViews).toEqual(['definition'])
     expect(readSavedDocument('definition.json')).toMatchObject({kind: 'agent.workflow', workflowId: 'agent.workflow.demo'})
     expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已保存')
+  })
+
+  it('keeps an unknown definition save locked and retries verification without uploading again', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    await findButton(wrapper, 'Definition').trigger('click')
+    await flushPromises()
+    const editor = wrapper.findComponent(SparkJsonEditor)
+    editor.vm.$emit('update:modelValue', '{"kind":"agent.workflow","retry":true}')
+    await flushPromises()
+    unknownNextPageSave = true
+
+    await findButton(wrapper, '保存 Definition').trigger('click')
+    await flushPromises()
+    expect(pageDefinitionView?.hasUnconfirmedSave).toBe(true)
+    expect(wrapper.findComponent(FieldJson).props('readonly')).toBe(true)
+    expect(wrapper.findComponent(SparkJsonEditor).props('readOnly')).toBe(true)
+
+    await findButton(wrapper, '保存 Definition').trigger('click')
+    await flushPromises()
+
+    expect(pageUploadCount).toBe(1)
+    expect(pageSaveViews).toEqual(['definition', 'definition'])
+    expect(pageDefinitionView?.hasUnconfirmedSave).toBe(false)
+    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('discards a definition DataView overlay when the user confirms close', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    await findButton(wrapper, 'Definition').trigger('click')
+    await flushPromises()
+    wrapper.findComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"kind":"agent.workflow","discard":true}')
+    await flushPromises()
+    expect(pageDefinitionView?.hasEditingChanges()).toBe(true)
+
+    await findButton(wrapper, '关闭').trigger('click')
+    await flushPromises()
+
+    expect(mocks.messageBox.confirm).toHaveBeenCalled()
+    expect(pageDefinitionView?.hasEditingChanges()).toBe(false)
+    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
   })
 
   it('creates a local definition draft when the backend definition endpoint is missing', async () => {
@@ -1307,5 +1365,10 @@ describe('WorkflowDesigns visual editor', () => {
     expect((definitionEditor.element as HTMLTextAreaElement).value).toContain('"kind": "agent.workflow"')
     expect(mocks.message.info).toHaveBeenCalledWith('definition.json 不存在，已根据当前设计生成本地草稿')
     expect(mocks.message.error).not.toHaveBeenCalled()
+    await findButton(wrapper, '保存 Definition').trigger('click')
+    await flushPromises()
+    expect(pageSaveViews).toEqual([])
+    expect(pageUploadCount).toBe(0)
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('definition.json DataView 当前行不存在'))
   })
 })

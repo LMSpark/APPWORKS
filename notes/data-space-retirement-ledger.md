@@ -2893,3 +2893,10 @@ flowchart TD
 - **可达但未证实活跃的接口：**`lowcode-runtime.ts:597-603` 还定义 `projectReferences.listProjects`，其实现复用 `listApplications()`；当前源码未找到页面调用点，故登记为可达适配定义，不计为已证实的活跃页面消费者，也不据此删除公共能力。
 - **DataSpace 设计可补齐的部分及其边界：**正式 `Base_AppSystemList`/7AB 模型与空间已存在，允许通过数据空间设计维护 DataView；但旧调用历史返回 61 行，而当前目录 DataView 曾返回 1 行。仍未取得同一服务端范围下逐行身份、所需字段和行/字段授权投影的对照，也未证明根路由或跨应用设置拥有受服务端承认的 DataSpace 请求身份。仅新增 DataView、包装原接口或把 7AB 指定给 `homepage` 都不能填补这些合同。
 - **当前实施裁定：**本轮源码与台账审查没有发现可脱离上述缺口、又能安全迁移并移除旧消费者的代码切片；没有修改产品代码、测试、DataSpace 配置或业务数据，没有调用写接口，也没有改动 Java。下一步先取证各真实调用点的宿主/请求 scope，并在可复用的正式 DataView 上只读核对结果和授权；结果等价后再切换标准组件消费者并删除对应 direct API。唯一总账继续 active。
+
+### 2026-10-28 导航根查询 DataView 迁移时序复核
+
+- **已确认的可映射语义：**`resolveNavigationRootId()` 读取正式 `Base_NavigationInfo`，以 `SysId = 目标应用 ID` 且 `prowId = '000000'` 查询根行，并要求结果恰好一条。正式 7AB `Base_NavigationInfo` DataTable 与 `default`、`catalogBindings` 视图存在；目录及 DevSystem 已证明原 DataView 能派生查询视图、沿用原过滤并核字段权限。这说明过滤表达式和视图查询能力可由 SPARK data 表达。
+- **本轮查明的真实阻断：**应用激活在 `LowcodePlatformApi.commitApplicationSelection()` 中先调用根解析，只有解析成功后才 `application.save()`；而 `loadLowcodeRuntimeScenario()` 要求当前正式请求 `X-AppId` 与传入 `projectId` 一致。现源码没有证明激活前可用的目标应用 DataSet owner/scope。把 7AB DataView 直接插入根解析会借用未经证实的请求身份，或要求提前改写应用上下文，从而改变“根解析失败时不切换当前应用”的既有状态语义。
+- **迁移门槛：**先确认服务端认可、可在应用选择提交前使用的导航 DataSet owner、`X-AppId` 规则和行/字段授权投影；再以真实 DataView 查询核对当前 root 查询结果。通过后实施 DataView resolver，保留 DataView 原有过滤并叠加两项条件；验收零根/多根、主键与目标应用归属、字段不可读、过期请求和失败时原应用上下文不变。不得只加 mock 测试或补一个 7AB 视图就声称迁移完成。
+- **本轮交付：**只读源码追踪及低价模型独立复核，无认证、正式查询/写入、产品代码或测试变更，也未修改/启动/部署 Java。当前未找到满足上述门槛的安全实现切片；唯一总账保持 active，下一步由真实 bootstrap owner/scope 合同取证解锁。

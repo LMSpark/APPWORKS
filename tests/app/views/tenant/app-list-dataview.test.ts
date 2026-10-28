@@ -52,16 +52,40 @@ vi.mock('@/services/tenant-scope', () => ({
 const EmptyPage = defineComponent({setup: () => () => h('div')})
 const RendererListStub = defineComponent({
   name: 'RendererList',
-  props: {dataViewKey: {type: String, default: ''}, children: {type: Array, default: () => []}},
+  props: {
+    dataViewKey: {type: String, default: ''},
+    gridGap: {type: [Number, String], default: undefined},
+    itemGridGap: {type: [Number, String], default: undefined},
+    columns: {type: Number, default: undefined},
+    children: {type: Array, default: () => []},
+  },
   setup(props) {
     return () => {
       const row = state.rows[0]
       const dataSource = {fieldAccess: () => ({read: 'visible'})}
-      const visible = (props.children as Array<{id: string; props?: Record<string, unknown>}>).filter(child => {
+      const children = props.children as Array<{id: string; type: string; props?: Record<string, unknown>; children?: Array<{id: string; props?: Record<string, unknown>}>}>
+      const toolbar = children.find(child => child.type === 'r-toolbar')
+      const switchAction = toolbar?.children?.find(child => child.id === 'app-switch')
+      const visible = children.flatMap(child => child.type === 'r-toolbar' ? child.children ?? [] : [child]).filter(child => {
         const condition = child.props?.['onBeforeRender']
         return typeof condition !== 'function' || condition({row, dataSource})
       }).map(child => child.id).join(',')
-      return h('div', {'data-testid': 'scenario-list', 'data-view-key': props.dataViewKey, 'data-visible-children': visible}, state.rows.map(item => item.AppDesc).join(' '))
+      return h('div', {
+        'data-testid': 'scenario-list',
+        'data-view-key': props.dataViewKey,
+        'data-grid-gap': String(props.gridGap ?? ''),
+        'data-item-grid-gap': String(props.itemGridGap ?? ''),
+        'data-columns': String(props.columns ?? ''),
+        'data-visible-children': visible,
+        'data-toolbar-id': toolbar?.id ?? '',
+        'data-toolbar-wrap': String(toolbar?.props?.['wrap'] ?? ''),
+        'data-toolbar-span': String(toolbar?.props?.['gridColSpan'] ?? ''),
+        'data-toolbar-has-explicit-binding': String(['dataSource', 'dataViewKey', 'dataMember', 'dataField']
+          .some(key => Object.hasOwn(toolbar?.props ?? {}, key))),
+        'data-toolbar-children': toolbar?.children?.map(child => child.id).join(',') ?? '',
+        'data-switch-has-handler': String(typeof switchAction?.props?.['onClick'] === 'function'),
+        'data-switch-view-key': String(switchAction?.props?.['dataViewKey'] ?? ''),
+      }, state.rows.map(item => item.AppDesc).join(' '))
     }
   },
 })
@@ -106,6 +130,17 @@ describe('AppList DataView routing', () => {
     expect(visible).not.toContain('app-home-tag')
     expect(visible).not.toContain('app-standard-tag')
     expect(visible).not.toContain('app-delete')
+    const list = wrapper.get('[data-testid="scenario-list"]')
+    expect(list.attributes('data-grid-gap')).toBe('20')
+    expect(list.attributes('data-item-grid-gap')).toBe('0')
+    expect(list.attributes('data-columns')).toBe('4')
+    expect(list.attributes('data-toolbar-id')).toBe('app-actions')
+    expect(list.attributes('data-toolbar-wrap')).toBe('true')
+    expect(list.attributes('data-toolbar-span')).toBe('24')
+    expect(list.attributes('data-toolbar-has-explicit-binding')).toBe('false')
+    expect(list.attributes('data-toolbar-children')).toBe('app-home-tag,app-standard-tag,app-switch,app-current-tag,app-settings,app-delete')
+    expect(list.attributes('data-switch-has-handler')).toBe('true')
+    expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
   })
 
   it('fails closed when the formal view does not request the full directory', async () => {

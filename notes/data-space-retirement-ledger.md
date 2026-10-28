@@ -1,6 +1,14 @@
 # 数据空间旧方案删除记录
 
-### 2026-10-28 活跃应用选择统一目录合同（实施中）
+### 2026-10-28 标准列表卡片覆盖修复与 SPA 验收收口
+
+- **已实施：**低价模型为 RList 增加独立 `itemGridGap`，缺省仍继承 `gridGap`，没有改共享 Grid 合同；内容/card wrapper 可收缩到实际分配宽度。AppList 外层间距 20、项内间距 0，原动作改为全宽标准 `r-toolbar` 并按正式合同继承列表行，不显式绑定到全局 currentRow；隐藏动作不再留下空 grid 包装，旧按钮跨度配置已删除，原字段、操作回调及 DataView 保留。
+- **主控复核：**初版 helper 新增第四参数被主控交回，保留原三参 helper，toolbar 直接用标准 SparkNode 表达。独立复审 PASS，保留执行应用与目标应用隔离、第二卡操作仍读取第二行等断言。实施者布局 68 项/typecheck/lint 通过；主控独立列表、toolbar、AppList、切换和平台目录五文件 70/70、六文件 ESLint、正式生成、完整 build、verify:rules 与 diff check 通过。ClassModel 已生成 itemGridGap 指南，未手改产物；保留既有 AI model spec 2 warnings/1 info 和 CodeMirror 动态导入告警。
+- **真实 SPA 通过：**修复后 D99 卡片 card/cell 同为 192.5px、body 150.5px，内 gap 0、外 gap 20，按钮中心命中按钮自身；返回目录后 62 张 card 均在所属 cell 边界内。先由标准表格进入 D99，再经原生菜单回工场，通过标准卡片再次进入 D99 服务器管理，最后原生返回工场，登录态保留。没有整页刷新、业务/元数据写入或 Java 修改。窄卡片长名称沿既有详情字段标题轨道换行；本批没有改公共详情字段布局。
+- **请求/回执：**最终稳定源码后的观察未截断，一次目录 DataView 刷新以 20 条分页执行 4 次正式查询，回读 20/20/20/2、Count=62，HTTP 200 / Code 200；请求具有正式 Fields、OutputFieldMode=REQUEST、DISTINCT=true、rowid 升序，只有目录 FormKey、没有客户端应用/租户请求头；实际回包无 IsSys。正常选择段 Document 请求为 0。脱敏摘要见 [network.json](evidence/application-activation-dataview-20261028/spa-activation-catalog-network.json)，按钮/全部卡片几何及截图见同目录 [summary.md](evidence/application-activation-dataview-20261028/summary.md)。不保存密码、Bearer 或完整权限凭据。
+- **交付与剩余：**目录 reader 核心 `702cf6c90` 已推送。本次只提交标准列表、AppList 配置、相关测试、正式生成物、本台账与证据；导航根 resolveNavigationRootId 直接 GetData、projectReferences/project-settings 旧目录读取及公开 selectApplication 对象入口继续按真实合同收敛，不宣称整条应用选择或全仓数据架构已完成。
+
+### 2026-10-28 活跃应用选择统一目录合同（本批目录接入已验证）
 
 - **授权与顺序：**沿用户持续授权的统一数据架构计划推进，低价模型 `gpt-6-luna` 单一实施，主控复核、SPA 烟测和实时提交推送。上轮已推送 `e686dff5a`；本轮开始工作树干净。先补有效 RED，主控核对后再改产品源；不改、启动或部署 Java。
 - **已核源码与方案：**活跃 `activateLowcodeApplication → LowcodePlatformApi.activateApplication` 仍私下调用旧 `listApplications`。以 LowcodeApi 构造注入单个按 ID 读取合同，将既有正式目录 DataSet/DataView 查询放进原 application selection fence；目录等待、导航根、abort、最新 intent、提交和 receipt 仍由原责任方承接，缺读取器明确失败，禁止旧 HTTP 回退。LowcodeApplication 保留 id/name 必需，其余正式元信息可缺省；store 兼容旧完整快照并拒绝已提供非法值，不从会话伪造应用归属，不把缺失 IsSys 写为 false。
@@ -13,7 +21,7 @@
 | 显式导航与活跃选择 | 两者查询同一目录，直接复制将形成重复算法 | 共用一份按 ID 读取；显式导航原自动化覆盖保留，不外推真实 SPA |
 | 旧目录其余消费者 | projectReferences、project-settings 仍有不同摘要/类型语义 | 本批登记保留，不将活跃选择迁移外推全仓统一；后续按消费合同清除 |
 
-- **验证计划：**真实 DataView 夹具覆盖缺 provider、错 ID、缺失/重复/不可读目标、查询失败、元数据与查询等待时取消/更新意图、资源释放及字段权限；保留平台选择/导航原 abort、稳定错误与 receipt 断言。字段缺省及旧快照重开、非法可选值单独验证。主控独立复跑相关域/目录/工作区测试、typecheck、定向 lint、正式生成、verify:rules 和 build；真实 SPA 验证目录→进入应用→返回目录→再切应用，无整页刷新，不写业务数据。当前尚未宣称实施或烟测通过。
+- **验证计划与结果定位：**真实 DataView 夹具覆盖缺 provider、错 ID、缺失/重复/不可读目标、查询失败、元数据与查询等待时取消/更新意图、资源释放及字段权限；保留平台选择/导航原 abort、稳定错误与 receipt 断言。字段缺省及旧快照重开、非法可选值单独验证。相关域/目录/工作区测试、typecheck、定向 lint、正式生成、verify:rules 和 build，以及真实 SPA 的目录→应用→工场→再次选择，结果见本节后续冻结记录和上方最新收口条目。
 - **RED 与必要消费修正：**源码未改时 typecheck 基线通过。主控已核包级 RED 7 fail/58 pass，以及目录 helper RED 7 fail/2 pass；后者明确失败于新导出合同缺失，不能称为已运行 helper 的行为证明，GREEN 后须用真实 DataView 断言兑现。归一化不再伪造 IsSys 后，旧 project-settings 会用真假判断把 unknown 又解释为普通应用，故本批同步让 ProjectDetail.projectType 可缺省，仅在分类为已知 boolean 时提供；加 unknown 省略及已知 true/false 回归，不改其查询、保存或只读入口。导航根 resolveNavigationRootId 原直接 GetData 仍是后续数据旁路，本批目录统一不等于整条激活链完成。
 - **冻结复核与实际烟测缺口：**主控独立 API 70/70、应用侧六文件 82/82 通过，独立复审 PASS；主控 app lint 发现可选名称 `||` 及未用导入三项问题，交回实施者修正，空字符串回退语义保留，窄复审 ADDRESSED。正式生成、完整 build 与 verify:rules 已通过，最终交付仍待后续烟测问题修复后的门禁。真实 SPA 标准表格进入 D99 成功，经原生菜单返回工场保留登录态，但卡片再次“进入”没有请求/导航。
 - **烟测裁决与新增必要范围：**现场 DOM/截图证明不是数据读取或 fence 失败：RendererList 外部 24 列/20px 间距同时用于卡片内部，元数据卡片内部 24 轨道均为 0px、间距合计 460px，卡片宽 502px，外层仅分配 192.5px；“进入”中心命中相邻“世纪楚风-合同管理”的 body，未命中按钮。证据为 [before.json](evidence/application-activation-dataview-20261028/spa-card-overflow-before.json) 与 [before.png](evidence/application-activation-dataview-20261028/spa-card-overflow-before.png)。该既有布局问题直接阻断本阶段真实卡片验收，故纳入必要范围：先核 ClassModel 与标准列表能力，补可区分内外间距/可收缩内容的标准能力，再由 AppList 配置复用；不以表格成功替代卡片通过，不用页面 CSS 或直接派发 click 绕过可见入口。首轮请求观察缓冲曾被开发模块流量挤出，标记 truncated，不作为完整选择目录请求证据；最终稳定源码后重采。

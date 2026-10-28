@@ -51,7 +51,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
                 </RendererHostScope>
               </div>
 
-              <div :class="itemClass" :style="itemStyle">
+              <div :class="['renderer-list-item-content', itemClass]" :style="itemStyle">
                 <component :is="itemBodyWrapperTag" v-bind="itemBodyWrapperAttrs">
                   <div class="renderer-list-item-body" :style="itemContentGridStyle">
                     <RendererHostScope :row="row">
@@ -245,7 +245,7 @@ const {
 } = useContainerGrid({
   children: () => mergedChildren.value,
   columns: () => props.gridColumns,
-  gap: () => props.gridGap,
+  gap: () => props.itemGridGap ?? props.gridGap,
   autoRows: () => props.gridAutoRows,
 })
 
@@ -366,6 +366,13 @@ function getDefaultScope() {
   flex-direction: row-reverse;
 }
 
+.renderer-list-item-content {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 0;
+  box-sizing: border-box;
+}
+
 .renderer-list-item-actions {
   display: inline-flex;
   flex-direction: column;
@@ -376,7 +383,10 @@ function getDefaultScope() {
 }
 
 .renderer-list-card {
+  width: 100%;
+  min-width: 0;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .renderer-list-item-body {

@@ -110,7 +110,8 @@ const RendererListProbe = defineComponent({
     return () => {
       const row = appListData.rows[0]!
       const dataSource = {fieldAccess: () => ({read: 'visible'})}
-      const children = (props.children as Array<{type: string; props?: Record<string, unknown>}>).filter(child => {
+      const nodes = props.children as Array<{type: string; props?: Record<string, unknown>; children?: Array<{type: string; props?: Record<string, unknown>}>}>
+      const children = nodes.flatMap(child => child.type === 'r-toolbar' ? child.children ?? [] : [child]).filter(child => {
         const condition = child.props?.['onBeforeRender']
         return typeof condition !== 'function' || condition({row, dataSource})
       })

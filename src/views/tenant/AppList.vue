@@ -27,6 +27,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         :columns="4"
         :grid-columns="24"
         :grid-gap="20"
+        :item-grid-gap="0"
         :show-pagination="false"
         :use-card="true"
         card-shadow="hover"
@@ -145,12 +146,19 @@ const scenarioRowChildren = computed<SparkNode[]>(() => {
     rowButton('display-icon', 'app-icon', { icon: 'Box', iconSize: 32 }),
     field('app-name', 'AppDesc', { displayFallbackFields: ['AppName', 'rowid'], label: '应用名称' }),
     field('app-description', 'AppDesc', { emptyText: '暂无描述', label: '描述' }),
-    button('app-home-tag', '应用工场', { disabled: true, buttonType: 'warning', gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) === 1) }),
-    button('app-standard-tag', '应用', { disabled: true, buttonType: 'info', gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1) }),
-    button('app-switch', '进入应用', { buttonType: 'primary', gridColSpan: 8, onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') !== currentProjectId.value), onClick: (row: DataRow) => handleSwitch(projectFromRow(row)) }),
-    button('app-current-tag', '当前应用', { disabled: true, buttonType: 'success', gridColSpan: 8, onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') === currentProjectId.value) }),
-    button('app-settings', '设置', { gridColSpan: 8, onClick: (row: DataRow) => openSettings(projectFromRow(row)) }),
-    button('app-delete', '删除', { buttonType: 'danger', text: true, gridColSpan: 8, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1), onClick: (row: DataRow) => handleDelete(projectFromRow(row)) }),
+    {
+      type: 'r-toolbar',
+      id: 'app-actions',
+      props: {wrap: true, gridColSpan: 24},
+      children: [
+      button('app-home-tag', '应用工场', { disabled: true, buttonType: 'warning', onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) === 1) }),
+      button('app-standard-tag', '应用', { disabled: true, buttonType: 'info', onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1) }),
+      button('app-switch', '进入应用', { buttonType: 'primary', onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') !== currentProjectId.value), onClick: (row: DataRow) => handleSwitch(projectFromRow(row)) }),
+      button('app-current-tag', '当前应用', { disabled: true, buttonType: 'success', onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') === currentProjectId.value) }),
+      button('app-settings', '设置', { onClick: (row: DataRow) => openSettings(projectFromRow(row)) }),
+      button('app-delete', '删除', { buttonType: 'danger', text: true, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1), onClick: (row: DataRow) => handleDelete(projectFromRow(row)) }),
+      ],
+    },
   ]
 })
 

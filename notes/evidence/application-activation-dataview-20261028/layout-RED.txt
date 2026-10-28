@@ -2,19 +2,11 @@ Both esbuild and oxc options were set. oxc options will be used and esbuild opti
 
  RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
 
-stderr | tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > separates outer list spacing from item content spacing and updates inherited defaults
-[Vue warn]: Failed to resolve component: el-pagination
-If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
-  at <RendererList dataViewKey="Users@default" gridColumns=24 gridGap=20  ... >
-  at <Anonymous ref="VTU_COMPONENT" >
-  at <VTUROOT>
+stdout | tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > separates outer list spacing from item content spacing and updates inherited defaults
+🐛 [DataView] 销毁 DataView: Users:default
 
-stdout | tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > keeps a full-width item toolbar button bound to its rendered row, not DataView currentRow
-🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
-
- ❯ tests/ui/renderer/renderer-list-section.test.ts (14 tests | 2 failed) 578ms
-     × separates outer list spacing from item content spacing and updates inherited defaults 85ms
-     × keeps a full-width item toolbar button bound to its rendered row, not DataView currentRow 21ms
+ ❯ tests/ui/renderer/renderer-list-section.test.ts (14 tests | 1 failed) 569ms
+     × separates outer list spacing from item content spacing and updates inherited defaults 81ms
 stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the default catalog through its formal DataView without requiring an app selection
 [Vue warn]: injection "Symbol(project-switch)" not found.
   at <AppList ref="VTU_COMPONENT" >
@@ -62,36 +54,26 @@ If this is a native custom element, make sure to exclude it from component resol
   at <AppList ref="VTU_COMPONENT" >
   at <VTUROOT>
 
- ❯ tests/app/views/tenant/app-list-dataview.test.ts (8 tests | 1 failed) 166ms
-     × loads the default catalog through its formal DataView without requiring an app selection 13ms
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts (8 tests | 1 failed) 170ms
+     × loads the default catalog through its formal DataView without requiring an app selection 14ms
 
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > separates outer list spacing from item content spacing and updates inherited defaults
-Error: wrapper.unmount() can only be called by the root wrapper
- ❯ VueWrapper.unmount node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:7860:19
- ❯ tests/ui/renderer/renderer-list-section.test.ts:97:24
-     95|       expect(wrapper.find('.renderer-list').attributes('style')).toCon…
-     96|       expect(wrapper.find('.renderer-list-item-body').attributes('styl…
-     97|     } finally {wrapper.unmount(); ds.destroy()}
-       |                        ^
-     98|   })
-     99|
+AssertionError: expected 'display: grid; grid-template-columns:…' to contain 'gap: 0px;'
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+Expected: "gap: 0px;"
+Received: "display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 20px; grid-auto-rows: minmax(32px, auto); align-items: start;"
 
- FAIL  tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > keeps a full-width item toolbar button bound to its rendered row, not DataView currentRow
-Error: Cannot call trigger on an empty DOMWrapper.
- ❯ Object.get node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1488:27
- ❯ tests/ui/renderer/renderer-list-section.test.ts:132:35
-    130|       const rows = wrapper.findAll('.renderer-list-item-shell')
-    131|       expect(rows).toHaveLength(2)
-    132|       await rows[1]!.find('button').trigger('click')
-       |                                   ^
-    133|
-    134|       expect(clickedRows).toEqual(['APP-B'])
+ ❯ tests/ui/renderer/renderer-list-section.test.ts:85:76
+     83|     try {
+     84|       expect(wrapper.find('.renderer-list').attributes('style')).toCon…
+     85|       expect(wrapper.find('.renderer-list-item-body').attributes('styl…
+       |                                                                            ^
+     86|       expect(wrapper.findAll('.renderer-list-cell')).toHaveLength(2)
+     87|
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
 
  FAIL  tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the default catalog through its formal DataView without requiring an app selection
 AssertionError: expected '' to be '0' // Object.is equality
@@ -109,10 +91,10 @@ AssertionError: expected '' to be '0' // Object.is equality
     136|     expect(list.attributes('data-columns')).toBe('4')
     137|     expect(list.attributes('data-toolbar-id')).toBe('app-actions')
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
 
 
  Test Files  2 failed (2)
-      Tests  3 failed | 19 passed (22)
-   Start at  22:23:01
-   Duration  11.66s (transform 13.95s, setup 236ms, import 18.78s, tests 744ms, environment 1.89s)
+      Tests  2 failed | 20 passed (22)
+   Start at  22:25:04
+   Duration  11.59s (transform 13.77s, setup 258ms, import 18.59s, tests 739ms, environment 1.93s)

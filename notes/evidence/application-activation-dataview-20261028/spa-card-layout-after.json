@@ -1,0 +1,16 @@
+{
+  "bodyWidth": 150.5,
+  "buttonRect": {
+    "height": 28,
+    "width": 74,
+    "x": 482,
+    "y": 608.46875
+  },
+  "cardWidth": 192.5,
+  "cellWidth": 192.5,
+  "hitIsButton": true,
+  "hitTag": "SPAN",
+  "hitText": "进入应用 ",
+  "innerGap": "0px",
+  "outerGap": "20px"
+}

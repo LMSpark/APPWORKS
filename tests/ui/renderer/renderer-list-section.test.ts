@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { config, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, markRaw } from 'vue'
 import ElementPlus from 'element-plus'
-import { RendererToolbar, RendererList, RendererTable, RendererSection, FieldText, PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { RendererToolbar, RendererList, RendererTable, RendererSection, RendererButton, FieldText, PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import { defineCapability } from '@spark-appworks/spark-utils'
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
-import type { DataView, SparkNode } from '@spark-appworks/spark-data'
+import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
@@ -61,6 +61,91 @@ const ElCardStub = defineComponent({
 })
 
 describe('RendererList and RendererSection container integration', () => {
+  it('separates outer list spacing from item content spacing and updates inherited defaults', async () => {
+    const ds = SparkData.createDataSet({scenarioId: 'SCENE', dataSetName: 'ListItemGridGap', tables: {Users: {
+      tableName: 'Users',
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}],
+      views: {default: {rows: [{id: 'APP-A'}, {id: 'APP-B'}]}},
+    }}})
+    const runtime = new PageRuntime({pageId: 'list-item-gap-test', scenarioIds: ['SCENE'], mainScenarioId: 'SCENE', loadScenario: async () => ds})
+    await runtime.load()
+    const Host = defineComponent({setup() {
+      const {sparkProvide} = useSparkComponent({type: 'list-item-gap-test-root'})
+      sparkProvide(PAGE_RUNTIME, runtime)
+      const listProps = {dataViewKey: 'Users@default', gridColumns: 24, gridGap: 20, itemGridGap: 0,
+        columns: 4, itemColSpan: 6, useCard: true, showPagination: false, children: [{type: 'list-card-content'}]}
+      return () => h(RendererList, listProps as never)
+    }})
+    const previousStubs = config.global.stubs
+    const stubs = {...previousStubs}
+    delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+    config.global.stubs = stubs
+    const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {'el-card': ElCardStub}}})
+    try {
+      expect(wrapper.find('.renderer-list').attributes('style')).toContain('gap: 20px;')
+      expect(wrapper.find('.renderer-list-item-body').attributes('style')).toContain('gap: 0px;')
+      expect(wrapper.findAll('.renderer-list-cell')).toHaveLength(2)
+
+      await wrapper.setProps({itemGridGap: undefined} as never)
+      expect(wrapper.find('.renderer-list').attributes('style')).toContain('gap: 20px;')
+      expect(wrapper.find('.renderer-list-item-body').attributes('style')).toContain('gap: 20px;')
+
+      await wrapper.setProps({itemGridGap: 6} as never)
+      expect(wrapper.find('.renderer-list').attributes('style')).toContain('gap: 20px;')
+      expect(wrapper.find('.renderer-list-item-body').attributes('style')).toContain('gap: 6px;')
+    } finally {config.global.stubs = previousStubs; wrapper.unmount(); runtime.dispose(); ds.destroy()}
+  })
+
+  it('keeps a full-width item toolbar button bound to its rendered row, not DataView currentRow', async () => {
+    const scenarioId = 'APP-CATALOG'
+    const dataViewKey = `${scenarioId}@Base_AppSystemList@default`
+    const ds = SparkData.createDataSet({scenarioId, dataSetName: 'ToolbarItemRows', tables: {Base_AppSystemList: {
+      tableName: 'Base_AppSystemList', modelBinding: {modelId: 'APP-MODEL', modelName: 'Base_AppSystemList'},
+      columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
+      views: {default: {rows: [{rowid: 'APP-A'}, {rowid: 'APP-B'}]}},
+    }}})
+    const view = ds.getView('Base_AppSystemList', 'default')!
+    view.setCurrentRowById('APP-A')
+    const runtime = new PageRuntime({pageId: 'list-item-toolbar-context', scenarioIds: [scenarioId], mainScenarioId: scenarioId,
+      loadScenario: async () => ds})
+    const clickedRows: Array<{clickedId: string; currentId: string | null}> = []
+    const originalStubs = config.global.stubs
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      await runtime.load()
+      const registry = Spark.createRegistry()
+      registry.register({type: 'r-toolbar', component: RendererToolbar})
+      registry.register({type: 'r-button', component: RendererButton})
+      const children: SparkNode[] = [{type: 'r-toolbar', id: 'app-actions', props: {wrap: true, gridColSpan: 24}, children: [
+        {type: 'r-button', id: 'hidden-action', props: {label: '隐藏动作', onBeforeRender: () => false}},
+        {type: 'r-button', id: 'enter', props: {dataViewKey, label: '进入应用', onClick: (row: DataRow) => clickedRows.push({
+          clickedId: String(row['rowid']), currentId: String(view.currentRow?.['rowid'] ?? '') || null,
+        })}},
+      ]}]
+      const Host = defineComponent({setup() {
+        const {sparkProvide} = useSparkComponent({type: 'list-item-toolbar-context-test'})
+        sparkProvide(PAGE_RUNTIME, runtime)
+        return () => h(RendererList, {dataViewKey, children, gridColumns: 24, gridGap: 20, itemGridGap: 0,
+          columns: 4, itemColSpan: 6, useCard: true, showPagination: false} as never)
+      }})
+      const stubs = {...originalStubs}
+      delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+      config.global.stubs = stubs
+      wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs: {'el-card': ElCardStub}}})
+
+      const rows = wrapper.findAll('.renderer-list-item-shell')
+      expect(rows).toHaveLength(2)
+      expect(wrapper.findAll('.renderer-list-grid-item')).toHaveLength(2)
+      expect(wrapper.findAll('button').map(button => button.text())).toEqual(['进入应用', '进入应用'])
+      await rows[1]!.find('button').trigger('click')
+
+      expect(clickedRows).toEqual([{clickedId: 'APP-B', currentId: 'APP-A'}])
+    } finally {
+      config.global.stubs = originalStubs
+      wrapper?.unmount(); runtime.dispose(); ds.destroy()
+    }
+  })
+
   it('binds each FieldText card to its own row independently of the view currentRow', async () => {
     const scenarioId = 'APP-CATALOG'
     const dataViewKey = `${scenarioId}@Base_AppSystemList@default`

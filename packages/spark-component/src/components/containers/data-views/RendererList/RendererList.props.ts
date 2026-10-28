@@ -28,6 +28,8 @@ export type RListProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGri
     actions?: RToolbarProps
     /** 列数 */
     columns?: number
+    /** 项内容网格间距；缺省继承列表外层 gridGap。 */
+    itemGridGap?: number | string
     /** 最小项宽度 */
     minItemWidth?: string
     /** 行唯一键字段 */

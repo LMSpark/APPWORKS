@@ -1,0 +1,7 @@
+$ tsc -p tsconfig.json --noEmit
+src/platform/resources/dictionary/dictionary-workspace.test.ts(1,31): error TS6133: 'vi' is declared but its value is never read.
+src/platform/resources/dictionary/dictionary-workspace.test.ts(193,22): error TS4111: Property 'C' comes from an index signature, so it must be accessed with ['C'].
+src/platform/resources/dictionary/dictionary-workspace.test.ts(358,57): error TS2412: Type 'undefined' is not assignable to type '(config: RequestConfig) => Promise<void>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+src/platform/resources/dictionary/dictionary-workspace.test.ts(378,9): error TS2412: Type 'undefined' is not assignable to type '(config: RequestConfig) => Promise<void>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+src/platform/resources/dictionary/dictionary-workspace.test.ts(681,5): error TS2412: Type 'undefined' is not assignable to type '{ code: number; message: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+[ELIFECYCLE] Command failed with exit code 2.

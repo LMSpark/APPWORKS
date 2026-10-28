@@ -1,0 +1,56 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+ ❯ src/lowcode-api.test.ts (4 tests | 3 failed) 18ms
+     × provides an authenticated session scope without requiring or adding an application 5ms
+     × rejects a missing or expired authenticated session 10ms
+     × stays stable across application selection and changes with session identity or revision 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lowcode-api.test.ts > LowcodeApi request scopes > provides an authenticated session scope without requiring or adding an application
+TypeError: api.readAuthenticatedRequestScope is not a function
+ ❯ src/lowcode-api.test.ts:36:23
+     34|     api.session.save(session())
+     35|
+     36|     const scope = api.readAuthenticatedRequestScope()
+       |                       ^
+     37|
+     38|     expect(scope.headers).toEqual({})
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/lowcode-api.test.ts > LowcodeApi request scopes > rejects a missing or expired authenticated session
+AssertionError: expected [Function] to throw error including 'SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请…' but got 'missing.readAuthenticatedRequestScope…'
+
+Expected: "SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份"
+Received: "missing.readAuthenticatedRequestScope is not a function"
+
+ ❯ src/lowcode-api.test.ts:48:59
+     46|   it('rejects a missing or expired authenticated session', () => {
+     47|     const missing = createApi()
+     48|     expect(() => missing.readAuthenticatedRequestScope()).toThrow('SPA…
+       |                                                           ^
+     49|
+     50|     const expired = createApi()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/lowcode-api.test.ts > LowcodeApi request scopes > stays stable across application selection and changes with session identity or revision
+TypeError: api.readAuthenticatedRequestScope is not a function
+ ❯ src/lowcode-api.test.ts:58:25
+     56|     const api = createApi()
+     57|     api.session.save(session())
+     58|     const initial = api.readAuthenticatedRequestScope()
+       |                         ^
+     59|
+     60|     api.application.save({application: {id: 'APP-1', code: 'APP', name…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  20:11:38
+   Duration  2.13s (transform 1.39s, setup 0ms, import 1.78s, tests 18ms, environment 0ms)
+

@@ -86,13 +86,19 @@ export class LowcodeApi {
     })
   }
 
+  /** 已认证登录身份的请求范围；Bearer 由共享 HTTP 拦截器注入，不包含应用头或凭据。 */
+  public readAuthenticatedRequestScope(): DataSpaceRequestScope {
+    const session = this.authenticatedSession()
+    return {
+      token: JSON.stringify([session.identity.userId, session.identity.enterpriseId, session.enterprise.id, this.session.revision]),
+      headers: {},
+    }
+  }
+
   /** 请求层统一提供选中应用 appId、租户头与身份代次；不写入数据实体或场景 JSON。 */
   public readRequestScope(): DataSpaceRequestScope {
-    const session = this.session.get()
+    const session = this.authenticatedSession()
     const context = this.application.get()
-    if (session === null || session.refreshExpiresAt <= Date.now()) {
-      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份')
-    }
     if (context === null) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要明确选中应用')
     const tenant = session.enterprise.shortName.trim()
     if (!tenant) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求缺少租户身份')
@@ -103,5 +109,13 @@ export class LowcodeApi {
       headers: { 'tenant-id': tenant, 'visit-tenant-id': tenant, 'x-FirstFolder': tenant,
         'X-AppId': context.application.id },
     }
+  }
+
+  private authenticatedSession() {
+    const session = this.session.get()
+    if (session === null || session.refreshExpiresAt <= Date.now()) {
+      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份')
+    }
+    return session
   }
 }

@@ -1,5 +1,11 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 登录态查询上下文公共能力
+
+- **已实施：**低价模型新增 `LowcodeApi.readAuthenticatedRequestScope()`，只要求有效登录，返回不含应用/租户头或凭据的上下文；身份标识与 session revision 用于识别旧异步请求。Bearer 仍由同一 HTTP 拦截器注入，数据范围与授权交后端。原 `readRequestScope()` 共用登录校验，原应用身份、token 和请求头保持既有合同。
+- **主控复核：**纠正了失败用例中未绑定类方法会丢失 this 的问题；有效 RED 为方法缺失时 3 失败/1 通过，GREEN 为 4/4。低价模型相关回归 176/176，主控独立 API/平台/应用查询回归 50/50、根 typecheck、定向 ESLint、lowcode contracts check 和 diff check 通过。公开 ClassModel 使用正式生成器刷新，仅保留根 API 的合同产物。包 typecheck 仍有未改 `dictionary-workspace.test.ts` 的既有诊断。证据见 [`authenticated-query-scope-20261028`](evidence/authenticated-query-scope-20261028/summary.md)。
+- **后续接线：**该能力是选择应用前目录查询的已知前置，当前尚未由应用目录 DataView 使用；未宣称目录 consumer 已迁移或真实 SPA 已验收。下一步将同一登录上下文接入原目录 FormKey 的正式模型查询，核对 DISTINCT/输出字段/总数和权限回包，再让目录组件绑定 DataView，删除旧读取链。本批没有业务/设计数据写入或 Java 修改；总体目标继续 active。
+
 ### 2026-10-28 用户纠偏：租户判断归后端，重新审视目录迁移前置
 
 - **当前原则：**用户明确“前端不管租户，后端会按登录判断”。租户隔离、数据范围和授权由后端依据登录态执行；前端消费正式查询回包，不建立 tenant/root 权限模型。此前多条记录把“独立 tenant/root DataSpace owner 合同”当作继续迁移的必备外部前置，属于过度推论，现撤销该前置结论；历史请求和行数观察仍保留。

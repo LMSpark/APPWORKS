@@ -86,6 +86,14 @@
           },
           "additionalProperties": false
         },
+        "method.readAuthenticatedRequestScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readAuthenticatedRequestScope.return": {
+          "$ref": "platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        },
         "method.readRequestScope.params": {
           "type": "object",
           "properties": {},
@@ -97,7 +105,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T07:17:20.315Z",
+  "generatedAt": "2026-10-28T12:11:58.813Z",
   "models": {
     "LowcodeApiOptions": {
       "name": "LowcodeApiOptions",
@@ -210,6 +218,16 @@
             }
           ],
           "methods": [
+            {
+              "name": "readAuthenticatedRequestScope",
+              "jsdoc": "已认证登录身份的请求范围；Bearer 由共享 HTTP 拦截器注入，不包含应用头或凭据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            },
             {
               "name": "readRequestScope",
               "jsdoc": "请求层统一提供选中应用 appId、租户头与身份代次；不写入数据实体或场景 JSON。",

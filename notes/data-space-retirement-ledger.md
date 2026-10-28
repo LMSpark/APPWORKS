@@ -2956,3 +2956,9 @@ flowchart TD
 - **真实 SPA 只读核验：**进入 `D99A1DCE9894698799101EFD70F8FC76` 元数据管理应用，打开用户先前给出的数据空间目录路由；按 7AB ID 的正式 DataView 目录过滤返回唯一“功能管理”空间（ID `7AB874097A1E8711A42FD845939A6E05`）。设计器显示 24 个模型，其中 `Base_AppSystemList` 绑定 `QYVirtualPlat.Base_AppSystemList`；其“数据视图”页当前没有已登记的命名视图，提示需选择或新增视图。没有新增/保存视图、修改模型输出、保存业务记录或调用 Java。
 - **切片裁定：**该现场确认 7AB 模型/空间 owner 存在且设计页可通过正式 SPARK data 打开，但不解决静态 `/app-list` 的 homepage/app-less 请求 scope，也未取得根目录服务端行字段授权；因此不能把 7AB 借给根目录，也不能以新增命名视图代替缺失的 root owner。后续要么先取得平台正式 root scope/授权合同，要么按另一个真实、已具备 7AB scope 的消费者评估视图用途；本次没有证据允许保存共享定义。
 - **继续状态：**当前 IAB 的已认证 SPA 标签已标记留存供后续烟测。本轮只读登录及设计核验；Workflow 两组测试仍为 51/51；唯一台账已提交推送 `2e415370f` 后追加本条更正，待本条再次收口提交。整体 DataSet/DataView 唯一通道目标继续 active。
+
+### 2026-10-28 Base_AppSystemList DataView 正式预览结果
+
+- **查询与结果：**在 D99 数据空间设计器中打开正式 7AB `Base_AppSystemList` 模型的“预览”，执行未加过滤条件的单表 DataView 查询。SPA 预览正式返回 1 行：`rowid=D99A1DCE9894698799101EFD70F8FC76`、`AppName=元数据管理`，总数 1。模型绑定源为 `QYVirtualPlat.Base_AppSystemList`；DataView 页仍提示当前没有已登记的命名视图。
+- **结论：**这是 D99 当前应用 scope 内的真实只读结果，不等于 root `/app-list` 的全局应用目录；与此前根目录 61 个应用的服务范围不可替代。保留 7AB 模型与现有 API，不将它绑定给 `homepage`，不添加没有真实 D99 消费者的共享视图，不改 `IsSys` 等模型输出。此处实际证明“模型 owner 已有、视图配置缺失”，同时证明单靠 DataSpace 设计无法创建 root owner/scope/权限。
+- **状态：**只执行 DataView 查询，未保存设计、修改模型字段、写业务记录或触碰 Java。工作流 DataView 测试 51/51 通过；当前代码与 `origin/codex/ai-data-entry` 同步到 `770cad2225ac706ac16ce5e789e6ba6e87cd9e40`，本条待提交推送。后续仍须取得平台正式 root owner、scope 与权限合同，或切换到明确的 D99 范围消费者后再补视图并实施迁移。

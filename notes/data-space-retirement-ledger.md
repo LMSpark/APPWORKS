@@ -2869,3 +2869,12 @@ flowchart TD
 - **高推理独立复核：**高推理模型对当前源码和低价审计反向检查，确认没有现成可在缺正式权限/资源身份合同下安全闭环的迁移切片。它进一步澄清数据库物理预览 executor 的 GetData 可作为 DataView 的内部存储适配；缺口是动态物理身份、首个主键/rowid 回退、目录推导投影、本地合成 `fieldAccess` 与服务端授权合同，而不是单因内部 HTTP 就判定绕过。建议的最小正式取证仍是同一 dbId/表或视图的后端行/字段权限、稳定主键、分页/过滤和拒绝语义。
 - **A2/ProjectReference 事实修订：**当前 `createLowcodeProjectGateways()` 确实返回 `blueprint: {}`，不能再把较早台账中的 A2 蓝图 CRUD gateway 计为当前生产入口。另有 `projectReferences.listProjects/loadProjectBlueprint` 适配定义，低层分别调用 `listApplications()` 与 `lowcodeApi.blueprint.readRecords()`；源码搜索显示该方法通过 `useDevState` 暴露，但未找到页面调用点。它是可达潜在能力，不足以证明活跃生产消费者，也不足以因“未搜到页面调用”就删去整个跨项目引用能力。
 - **本轮状态及队列：**高低价模型和主控结论一致：根应用目录的正式 owner `7AB874097A1E8711A42FD845939A6E05` 已存在，但同 scope DataView 的 61 行及字段授权尚未验；下一项最小只读取证是用现有命名视图草稿在真实 SPA 预览并比对旧 61 行/字段。当前 SPA 未认证；没有正式数据写入或 Java 改动。本轮只更新台账和记录公开登录页只读展示，未改产品代码、未运行测试；总体唯一 SPARK data 目标继续 active。
+
+### 2026-10-28 根应用目录 owner/scope 最终合同复核
+
+- **认证上下文纠正：**用户已在本任务提供 `领码科技 / wangtao / 666666`；后续不再要求用户重复提供。服务端此前对该账号返回凭据错误并提示剩余 4 次机会，禁止盲目重试；本机 DPAPI 中另有用户此前授权的 `NewApp/admin` 凭据，但它是不同身份，不自动切换或提交登录。当前 SPA 无可复用认证会话；本轮没有尝试认证。
+- **根路由 scope：**源码确认 `homepage` 是未选中应用时的路由哨兵；`enterLowcodeApplicationCatalog()` 清除当前 application context，而 `LowcodeApi.readRequestScope()` 在无明确应用时直接拒绝，正式 DataSpace runtime 也要求请求 `X-AppId` 与 `projectId` 一致。因此给静态 `/app-list` 配 7AB 场景 ID 或在数据空间设计增加 DataView，仍不能创建根目录所需的服务端请求身份、租户范围或授权。不能把通用请求构造器能接收任意 header 当作平台授权证明。
+- **7AB 已知边界：**7AB 是正式“功能管理”DataSpace owner，且包含 `Base_AppSystemList`，但 61 行比较仍不能只看总数：旧请求使用 `DISTINCT:true`、`PrimaryKeyFields=rowid`、无分页并跳过空主键/按 rowid 去重；DataView 用正式列投影和分页，`allPages` 依赖服务端 Count/稳定分页。需同一有效授权会话及同一服务端请求范围逐行比较身份、旧消费者字段、顺序、去重与应用切换行为。`IsSys` 当前输出关闭，命名视图不能绕过模型字段输出合同；任何共享字段输出修改均须先核影响与权限。
+- **权限证明边界：**`DataSpaceRowPermission` 源码默认 `missingAuthPolicy='allow'`；已观察到缺少 `lingma_sys_params` 的响应行时，DataView 的 `visible/allowed` 不能单独证明服务端实际发出字段授权。当前不改全局默认值，以免扩大行为影响；将服务端权限快照缺失登记为独立合同缺口，在线验收须记录原始授权字段是否存在。
+- **组件绑定差距：**`AppList.vue` 的正式 DataView 分支目前把 `view.rows` 投影到页面数组后用自建卡片循环；虽查询通过 DataView，仍没有标准容器直接绑定 DataView。若后续迁移该已确认场景，先按 ClassModel 核 `RendererList` 的 `dataViewKey`、条目动作与权限合同，再保留项目切换和运行实例生命周期；不得把数组转手给标准组件伪称完成绑定。
+- **下一步与本轮状态：**根目录先取得受服务端承认的 app-less/root owner、scope 及权限合同，再谈在该 owner 下补 DataView 和迁移消费者；单纯数据空间设计不能代替这项合同。根请求比较、命名视图真实预览、逐消费者 SPARK data 接线和标准组件绑定烟测仍未完成。本轮仅做只读源码复核及本台账更新；无产品代码、认证请求、正式配置/业务写入、测试或 Java 改动。总体目标继续 active。

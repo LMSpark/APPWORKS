@@ -1,5 +1,11 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 认证会话恢复与真实 SPA 复核
+
+- **账号上下文纠正：**用户已在本任务明确提供并授权使用测试账号；本轮不再索取账号。通过当前登录页认证成功，进入 SPARK 应用列表，导航栏显示已登录用户。密码未写入台账、命令输出或代码。
+- **真实 SPA 发现：**登录后直接打开先前残留的 `/t/NewApp/homepage/app-list` 路径，页面提示原页面身份已失效；SPA 同时显示 `SCENARIO_VIEW_FILE_MISSING`，指出正式场景 `7AB874097A1E8711A42FD845939A6E05` 尚未建立视图配置。经应用导航重新选择“应用列表”后目录卡片可见；没有创建、切换、设置或删除应用，也没有保存数据。该证据只确认登录和目录页错误提示，不证明 7AB DataView 查询已成功。
+- **验收状态：**登录不再是阻塞项；7AB 场景缺少视图配置是当前可复现的 SPA 缺口。后续须通过正式数据空间设计绑定/建立 DataView，并用 DataView 真实查询验证响应范围与字段权限；未完成之前保留原目录路径，不宣称 DataView 迁移完成。未改产品代码、正式数据或 Java。
+
 ### 2026-10-28 Workflow 文件编辑保存走 DataView
 
 - **RED 与实施：**先提交的失败用例及原始输出见 [`agent-workflow-file-dataview-save-red-20261028.txt`](evidence/agent-workflow-file-dataview-save-red-20261028.txt)。实施后 design.json / definition.json 的既有行只允许改 `content`；页面草稿镜像到原 DataView 编辑值，通过 `DataSet.saveChanges({views:[...]})` 提交。资源 executor 校验原查询身份与远端基线，再复用既有 `LowcodeDesignFileUpload` 文件存储适配并按字节读回；结果未知时保留原 DataView 捕获，重试只核对原文件字节、不重发上传。取消从 DataView 基线恢复。未扩展创建、删除、发布。

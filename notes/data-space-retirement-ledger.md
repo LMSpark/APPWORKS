@@ -3047,4 +3047,4 @@ flowchart TD
 
 - **真实 SPA DataView 烟测：**沿用 D99 已认证会话，在正式 `01000B6C7F84B4F1A85C91C4FC28E875@AgentWorkflowFiles@directory` 数据视图预览中执行只读查询。界面显示 `[1003] 文件夹路径不存在`、无有效查询结果及暂无结果数据；这是可见 UI 回执，不是保存下来的原始 HTTP payload。结构化观察见 [`agent-workflow-directory-query-ui-error-20261028.json`](evidence/agent-workflow-directory-query-ui-error-20261028.json)。本次没有增加过滤条件，没有选择/猜造 workflowId，没有编辑或保存。
 - **状态更新：**本次失败与此前 SPA 上同视图 `Loaded, 0/0` 的空集合结果不同，二者都是各自时点的真实回执；当前以本次 `[1003]` 为最新状态。不能把缺失目录折算为空集，也不能新建/上传测试文件掩盖 owner 目录未建立的问题。原始历史 0/0 证据 [`data-space-workflow-directory-live-20261028.json`](evidence/data-space-workflow-directory-live-20261028.json) 保留为历史状态，不再代表当前服务结果。
-- **后续：**需由正式工作流文件资源生命周期提供被授权的目录/真实工作流身份，或明确当前应用的正式文件路径及访问控制合同；然后再用同一 DataView 核验非空目录、正文读取与拒绝回执。服务端行/字段权限投影仍缺（见上一条），不得通过前端本地 `fieldAccess` 推断。没有后端 Java 或产品代码变更；本条记录需与台账同步提交推送。
+- **后续与验证：**需由正式工作流文件资源生命周期提供被授权的目录/真实工作流身份，或明确当前应用的正式文件路径及访问控制合同；然后再用同一 DataView 核验非空目录、正文读取与拒绝回执。服务端行/字段权限投影仍缺（见上一条），不得通过前端本地 `fieldAccess` 推断。证据 JSON 解析与 `git diff --check` 通过；本轮只改台账和观察证据，没有运行产品测试，没有 Java 或产品代码变更。

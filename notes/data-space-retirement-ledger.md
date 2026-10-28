@@ -2963,3 +2963,10 @@ flowchart TD
 - **查询与结果：**在 D99 数据空间设计器中打开正式 7AB `Base_AppSystemList` 模型的“预览”，执行未加过滤条件的单表 DataView 查询。SPA 预览正式返回 1 行：`rowid=D99A1DCE9894698799101EFD70F8FC76`、`AppName=元数据管理`，总数 1。模型绑定源为 `QYVirtualPlat.Base_AppSystemList`；DataView 页仍提示当前没有已登记的命名视图。
 - **结论：**这是 D99 当前应用 scope 内的真实只读结果，不等于 root `/app-list` 的全局应用目录；与此前根目录 61 个应用的服务范围不可替代。保留 7AB 模型与现有 API，不将它绑定给 `homepage`，不添加没有真实 D99 消费者的共享视图，不改 `IsSys` 等模型输出。此处实际证明“模型 owner 已有、视图配置缺失”，同时证明单靠 DataSpace 设计无法创建 root owner/scope/权限。
 - **状态：**只执行 DataView 查询，未保存设计、修改模型字段、写业务记录或触碰 Java。工作流 DataView 测试 51/51 通过；当前代码与 `origin/codex/ai-data-entry` 同步到 `770cad2225ac706ac16ce5e789e6ba6e87cd9e40`，本条待提交推送。后续仍须取得平台正式 root owner、scope 与权限合同，或切换到明确的 D99 范围消费者后再补视图并实施迁移。
+
+### 2026-10-28 Workflow DataView 页面 owner 生命周期验收
+
+- **低价实施与主控复核：**仅在 `tests/ui/views/workflow-designs.test.ts` 增加两条生命周期用例，没有生产代码改动：页面卸载后 owner 工厂才返回时，late owner 被销毁且不执行目录查询；owner 已附着后卸载时，精确销毁该 owner 和其 `PageRuntime`。低价提交 `f32f7565dc938ee646624d2433d5baf4d3b0f190`。主控复跑 `pnpm exec vitest run tests/ui/views/workflow-designs.test.ts --reporter=dot`，24/24 通过；`pnpm run typecheck`、目标 ESLint、`git diff --check HEAD~1 HEAD` 均退出 0。测试输出有既存 Vue Router 无活动路由夹具警告及 esbuild/oxc 配置提示；无失败断言或 runner error。
+- **复核限制：**针对手动刷新过程中卸载的 pending 请求，实施者未能建立可靠的第二次刷新测试夹具，已移除该用例；本次不证明该路径的关闭保护/异步 toast 行为。自动化夹具只证明 owner 生命周期，不证明已认证 SPA、服务端文件保存回执或关闭重开读回。
+- **SPA 会话与账号：**用户已在本任务授权测试账号，不再要求重发。当前浏览器清单列出应用列表和数据空间管理标签；`cua.getTab` 均因 `browser.user is unavailable` 不能读取页面。Computer Use 登录对话框自动化被技能的非可绕过约束禁止；本轮没有自动填登录表单、没有执行正式 DataView 查询/写入，也未清除已有测试账号或业务记录。
+- **交付及后续：**实现提交 `f32f7565dc938ee646624d2433d5baf4d3b0f190` 已推送到 `origin/codex/ai-data-entry`；唯一台账本条随下一提交推送。真实 Workflow SPA 编辑/取消/保存/重开读回、AI 批量录入真实业务验证、根应用目录及其他平台消费者的正式 owner/scope/字段授权合同仍未完成；未改、启动或部署 Java。总体 SPARK data 唯一通道目标保持 active。

@@ -3013,3 +3013,9 @@ flowchart TD
 - **主控验收：**`field-independent-binding.test.ts`、纯 `field-row-scope.test.ts`、`row-mirror-sync.test.ts`、标准 `renderer-form-detail.test.ts` 共 4 文件/47 测试通过；主控复跑 `pnpm run typecheck`、8 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules` 与 `git diff --check` 均通过。正式规则检查的 AI model spec 保留已有 2 条警告、1 条提示；build 保留既有动态导入分块警告。
 - **独立既有失败：**主控单独复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 1 项失败、19 项通过。它调用 `DataView.addRow({id:'new'})` 直接提供正式主键，触发 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`；该用例及生产路径没有在本切片修改，仍单独登记为测试夹具与 DataView 身份 API 合同未对齐，不计入 47 项通过结果。
 - **真实 SPA 边界与交付：**用户已在本任务提供并授权测试账号，不再要求重复提供。按 Computer Use `SKILL.md` 的“Do not automate user authentication dialogs”硬性规则，本轮不能自动填写/提交登录表单；当前会话没有可直接附着的认证 SPA 句柄，因此没有真实在线查询、修改或写入回执，真实 SPA 验收仍未完成。自动化浏览器状态检查不能替代服务端证明。总体唯一 SPARK data 目标保持 active。
+
+### 2026-10-28 字段新增行测试夹具身份合同修正
+
+- **原因及修正：**主控单文件复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 有 1/20 失败。用例为检查正式派生列在“新增行”上的只读行为，fixture 却通过 `DataView.addRow({id:'new'})` 将主键当普通业务字段提交；DataView 按合同拒绝 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`。确认该查询上下文已有 `primaryKeyField=id`、`allowAdd=true` 与正式 `prepareNewRowWithIdentity` 合同后，测试改为 `addRowWithIdentity({field:'id', value:'new'}, {})`，保留新增行普通字段可编辑、派生字段只读的原意。只有测试文件更改，没有生产代码修改；RED 输出见 [`field-basic-value-controls-red-20261028.txt`](evidence/field-basic-value-controls-red-20261028.txt)。
+- **验证：**主控运行 `pnpm exec vitest run tests/ui/field packages/spark-data/src/tests/data-view/data-view-editing-checkpoint.test.ts --reporter=dot`，23 个文件、278 项通过；目标 ESLint 和 `git diff --check` 通过。此结果覆盖先前的标准字段绑定及行作用域回归；不代表真实 SPA 后端回包验收。
+- **边界：**本条是正式 DataView identity API 的测试适配，没有新增数据通道、正式数据写入或 Java 变更。SPA 登录对话框仍受 Computer Use `SKILL.md` 禁止自动化认证约束，不再次要求用户提供已给账号。总体目标保持 active，下一优先级仍是获得可附着的正式 SPA 认证会话并继续 root owner/scope 取证。

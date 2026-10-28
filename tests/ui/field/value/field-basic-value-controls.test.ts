@@ -205,7 +205,7 @@ describe('基础值字段组件', () => {
     ], 'id')
     const view = await createCurrentRowDataView({name: 'Server output', assignee: ''}, false, formal)
     if (kind === 'new') {
-      await view.addRow({id: 'new'})
+      await view.addRowWithIdentity({field: 'id', value: 'new'}, {})
       view.setCurrentRow(view.rows.find(row => row['id'] === 'new')!)
     }
     const {registry, rootContext} = Spark.createSystem()

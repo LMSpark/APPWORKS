@@ -1,0 +1,27 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+---x----------------
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/field/value/field-basic-value-controls.test.ts > 基础值字段组件 > FieldText consumes formal derived output constraints for new rows without disabling ordinary inputs
+Error: DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须通过 addRowWithIdentity 独立提交
+ ❯ DataView.addRow packages/spark-data/src/data-view.ts:2688:17
+    2686|         const keyField = context.resultPrimaryKey
+    2687|         if (keyField !== '' && Object.hasOwn(data, keyField)) {
+    2688|           throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须…
+       |                 ^
+    2689|         }
+    2690|         this.preflightNewRowFields(context, data)
+ ❯ tests/ui/field/value/field-basic-value-controls.test.ts:208:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 skipped (20)
+   Start at  14:28:48
+   Duration  8.59s (transform 5.14s, setup 124ms, import 7.13s, tests 19ms, environment 1.03s)
+

@@ -2942,3 +2942,10 @@ flowchart TD
 - **候选及现状：**Workflow 文件读取已沿正式文件 DataView 和 PageRuntime 运行；现有 `LowcodeDesignFileUpload.uploadWorkingText` 可执行工作文件上传并对原字节读回，`PageToolFilesDataView` 已有 DataView 保存、基线冲突与未知回执核验模式。Workflow 的 DataView 目前将 `content` 设为只读且没有 `save` executor；`WorkflowDesigns.vue` 的已应用设计/Definition 草稿仍保存在 `currentDocument`/本地 JSON 文本，服务保存函数硬拒绝。可实施前提是同时接入 DataSet 保存并同步已应用编辑状态，不接受只给原 API 加 DataView 外壳。
 - **RED 验收：**新增 `tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts` 的既有 design/definition 单文件提交合同用例及原始输出 `evidence/agent-workflow-file-dataview-save-red-20261028.txt`。主控复跑结果 25 项、16 通过、9 失败、退出码 1；失败明确落在 `content` 当前拒写及缺少 DataView 保存 owner。夹具用正式 `LowcodeDesignApi` 与独立 `LowcodeDesignFileUpload` 类型，包含匹配的读取/回读基线、冲突、scope 改变、未知结果不重传和 dirty 保留断言。RED 仅证明目标当前尚未实现，不证明后端真实上传验收。
 - **实施范围：**低价实施者已获准实现仅限已有 design.json/definition.json 行的 DataView 内容更新；须把 DataView 未提交状态作为持久化草稿真源，按原 DataView 目标提交，冲突/未知/回读错误保留 dirty；不实现 create/delete/publish。主控接手独立复核、页面生命周期测试、目标门禁、SPA 验收与交付台账。当前测试与证据尚未提交；本条没有产品代码、正式文件、业务数据、浏览器请求或 Java 改动。
+
+### 2026-10-28 当前会话复核与 Workflow DataView 回归
+
+- **当前代码核对：**当前 `HEAD=ac3d0ac5c3aa291e58769b261ae28d981ef45b90`，上游一致，工作树干净。较早的 Workflow 保存 RED 段落已被前置的 `55ad0a6f3` 实施及状态说明取代；重复实现已停止。`WorkflowDesigns.vue` 将 design/definition 内容写入原 DataView 编辑覆盖，并通过 `DataSet.saveChanges({views})` 提交，文件上传只留在正式 DataView executor 存储适配层。
+- **主控复验：**重新运行 `pnpm exec vitest run tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts tests/ui/views/workflow-designs.test.ts --reporter=dot`，2 个测试文件、51/51 通过。输出含测试夹具的 Vue Router “无 active route record”警告，不影响退出码；本轮未修改产品代码，也未运行 Java。
+- **本次 SPA 会话边界：**为检查会话状态，新建 IAB 标签访问应用目录路径后被重定向到公开平台首页，页面显示登录链接；这只证明新标签没有可用登录态。旧 SPA 标签仍无法由自动化附着（`browser.user is unavailable`）。本轮没有再次提交凭据，没有业务数据查询/写入或正式 DataSpace 保存；不将前述自动化回归当作真实 SPA 烟测。继续沿用用户已提供的账号授权，不要求重复提供；此前账号认证失败及剩余尝试次数记录仍然有效，不盲目重试。
+- **后续队列：**Workflow 编辑保存仍需 authenticated SPA 对真实文件进行查询、编辑、DataView/DataSet 提交并关闭重开读回；旧标签附着恢复或获得有效 SPA 会话后继续。其它尚存目录及物理资源旁路，仍必须先取得各自正式 owner、scope 与服务端行/字段权限合同，再迁移并移除旧业务入口。总体 SPARK data 唯一通道整合保持 active。

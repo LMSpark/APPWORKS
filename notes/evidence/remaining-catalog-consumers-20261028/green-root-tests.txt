@@ -1,0 +1,35 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts (42 tests | 1 failed) 814ms
+     × preserves target-project blueprint reads behind the project reference gateway 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > project reference application catalog owner > preserves target-project blueprint reads behind the project reference gateway
+AssertionError: expected [] to deeply equal [ 'TARGET-PAGE' ]
+
+- Expected
++ Received
+
+- [
+-   "TARGET-PAGE",
+- ]
++ []
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:186:60
+    184|     expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
+    185|     expect(blueprint.projectId).toBe('PROJECT-1')
+    186|     expect(blueprint.children?.map(child => child.nodeId)).toEqual(['T…
+       |                                                            ^
+    187|   })
+    188| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 199 passed (200)
+   Start at  23:51:55
+   Duration  22.73s (transform 61.58s, setup 3.14s, import 101.69s, tests 4.29s, environment 29.63s)

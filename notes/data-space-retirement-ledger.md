@@ -1,5 +1,22 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-29 用户纠偏：使用现有数据资源与数据空间管理实现配置驱动
+
+- **裁决：**数据 API 收敛不等于配置驱动完成。当前 `loadFormalHostDataView` 仍在 host 中拼装 ScenarioViewConfig（模型选择、默认视图、分页、排序及投影），这是尚存实现差距；不能继续把硬编码迁到另一个 helper 就称为配置化。正式模型/字段继续来自数据库；视图与查询配置应由现有数据空间设计管理、保存为正式配置，运行消费复用同一 DataSet/DataView 装配链。
+- **下一切片：**先核数据资源管理、空间管理、pagedata 保存、配置加载及未选应用时目录查询的真实身份合同；宿主仅传正式空间/资源目标与绑定，不另造 owner、模型副本或第二条读写链。当前 `readSpaceDefinition` 只投影 rowid/Name，现有 `loadLowcodeRuntimeScenario` 从已选应用工作区读取 pagedata；需要按实际来源补齐配置定位与认证 scope 承接，不能硬编码另一应用路径或把前端现有限制当后端权限。低价模型已转只读诊断，待主控按证据确定实现合同。
+- **中间成果边界：**下方目录 API 收敛片可独立审查、保存，移除了两处旧 HTTP 旁路并统一了摘要权限/身份合同，但仍不作为“数据空间配置驱动完成”的证据。总体目标继续 active，不改 Java。
+
+### 2026-10-28—29 剩余应用目录摘要消费者收敛（API 已实施，配置驱动仍待补齐）
+
+- **复核与验证：**低价模型最终定向 9 文件 205 项通过，typecheck/定向 ESLint 通过。主控独立源码审查及独立模型复审 PASS；新增蓝图测试从错误 children 断言修为既有单根合同后，窄复审 ADDRESSED。正式 ClassModel/consumer ledger 已生成，完整 verify:rules 和生产 build 通过；保留既有 AI model 2 warnings/1 info 与 CodeMirror 告警。
+- **失败边界：**完整 lowcode-api 包回归 1200 通过/4 失败；别名主键 3 项和字典显式拒绝后重试 1 项已在隔离 `3e182b62d` 基线复现（两个文件 142 通过/4 失败）。历史面板文件当前 5 项失败，基线同样 13 通过/5 失败。它们仍是待处理缺口，未静默删测或宣称全仓全绿。root 会话两项后补回归在基线也通过，只记共同 guard 一致性增强，不充作有效 RED。证据见 [`remaining-catalog-consumers-20261028`](evidence/remaining-catalog-consumers-20261028/outcome.md)。
+- **真实 SPA：**同一授权会话标准卡片进入 D99 服务器管理，再经原生菜单返回 62 卡目录；目录按 20/20/20/2 正式回读，Count=62，Memo 有值/空值均实际返回，根三字段查询 Count=1，业务 Code=200；未截断的激活采集窗口 Document 请求为 0。设置与引用能力本身无可达业务 UI，未声称它们完成真实页面验收；无线上保存或 Java 操作。
+
+- **实施前核对：**`3e182b62d` 已推送且当时工作树干净。生产旧 `listApplications()` 仅余 `loadProjectRuntimeSettings` 与 `createLowcodeProjectGateways().projectReferences.listProjects`。设置弹窗目前因 AppList 仅提示写入合同未就绪而不可达；引用能力经 ProjectWorkspace/useDevState 暴露，未发现当前业务 Vue 调用。保留具有领域合同的公开只读能力，不能把这些接口回归当真实页面已验收，也不为了烟测开放未知写入。
+- **方案与范围：**两消费者复用 host 的正式目录 DataSet/DataView reader 与唯一摘要投影；按 ID 与列表查询共用权限、身份校验和 finally 释放，不新增缓存或页面数据真源。清除全部调用后删除旧平台列表 API、裸 GetData 构造与旧响应去重/归一化，不留第二通道。原引用排除当前项目及蓝图读取语义保留；设置的导航结果和未知分类语义保留。
+- **字段裁决：**正式字段定义已确认 AppDesc=中文名称、AppName=代码、Memo=系统描述；公共 `LowcodeApplication.description` 本片纠正为当次可读 Memo，缺失/不可读省略、空字符串保持，名称独立回退，不用 AppDesc 伪造描述。当前生产消费仅设置/引用摘要，选择层只复制，store 仅保存可选字符串；旧快照及对象选择的历史描述不做推测迁移。
+- **作用域与预检：**旧设置 tenantId 对 session.enterprise.shortName 的比较只作当前路由/登录上下文一致性检查，不表示应用归属或授权；守卫与旧异步隔离需按实际合同核对。目录查询继续认证 scope、后端正式字段权限与完整结果身份；不得按账号放行或借租户推导权限。低价模型先补有效 RED，主控核对后开放产品实现；正式生成、工程门禁、只读 SPA 与状态收口由主控负责。
+
 ### 2026-10-28 应用卡片描述字段错绑修正
 
 - **根因与正式依据：**用户反馈卡片字段未绑定。主控真实 SPA 复核发现名称、描述有逐行值，但两者均绑定 `AppDesc`。同次正式模型字段回包确认 `AppDesc` 是“系统中文名称”、`AppName` 是“应用代码”、`Memo` 是“系统描述”，均为输出字段；不是 DataView 行上下文失效。正式字段摘要与修改前后截图见 [`application-card-field-binding-20261028`](evidence/application-card-field-binding-20261028/summary.md)。
@@ -148,7 +165,7 @@
 
 > **当前入口（2026-10-28；产品代码基线 `008af6b36`，台账最新提交 `1965b9e0c`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；适用于已识别且由服务端承认的 DataSet owner，可补模型/字段/视图/参数/executor 注册，不能自行制造 owner、scope 或权限。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前代码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 
-## 当前源码状态（2026-10-28，产品代码基线 `008af6b36`，台账最新提交 `1965b9e0c`；AppList 正式场景 DataView 标准组件、Workflow 文件 DataView 提交及 DevSystem 版本恢复链已推送；root owner 和其他游离消费者仍待处理）
+## 2026-10-28 领域审计索引（未重验领域保留其历史基线；各切片的当前状态以前方最新证据为准）
 
 | 领域 | 当前代码事实 | 当前验收与下一步 |
 | --- | --- | --- |
@@ -161,7 +178,7 @@
 | SPA 认证入口 | `LoginView` 的企业选项显示企业名，提交值使用目录正式 `ShortName`；唯一显示名匹配才自动选择正式简称，不覆盖手动输入。 | 产品提交 `95cc4d1cb`；目标测试 8/8、ESLint、typecheck 通过。本会话用用户提供的 `领码科技/wangtao` 登录成功，SPA 显示用户“王涛”；此前认证失败为历史尝试，不覆盖当前成功会话。密码未写入台账。本标签已标记留存。 |
 | DevSystem 项目切换 | `NavHostProjectPicker` 通过当前 `__sparkNavigationId` 查询 `Base_Navigation_DataRelation@default`，按正式关系绑定候选 DataView；满足可读主键/值字段条件后才允许切换当前编辑的 ProjectWorkspace。 | 本会话认证 SPA 打开 D99 `/dev?__sparkNavigationId=appworks-tool-dev`，蓝图树加载 41 个页面；当前导航关系 DataView 查询为 0 行、picker fail closed。7AB 关系模型无过滤只读预览共 9 行，但没有当前 NavHost 记录。既有“应用系统选择”DataSpace `03D8E17A88BC6E0AB1B2DF6787F8E779` 的 `Base_AppSystemList` 正式预览也只返回 D99 当前项目一行，因此不能作为跨项目候选源；未复制关系、未写配置或切换。关系暂存命令的 3 个测试文件 23/23 通过。仍需正式的跨项目候选 DataSet/scope/授权后再配置宿主关系并验证目标读回。 |
 | 静态 Vue 页面 DataSpace 身份投影 | `vue-pages.json` 可选 `dataSpaceId` 经页面注册表校验/规范化，并由 `lowcodeApplicationCatalogNavigation()` 投影为既有 `RuntimeNavigationItem.blueprintScenarioId`；后续由现有 `SystemPageIdentityResolver` 注入 route meta，业务页仍通过 PageRuntime/DataSet 消费。 | 56 项注册表/导航定向测试和 49 项路由/导航回归通过；ClassModel 正式生成、typecheck、目标 ESLint、`verify:rules`、production build、`verify:docs` 通过。没有给任何正式页面配置该值，也没有改变当前运行页身份。该投影只传递场景标识，不创建正式 DataSet，也不提供无应用上下文时的请求范围。 |
-| 平台应用目录读 | 根 `/app-list` fallback、PlatformApps、项目设置、显式跨应用导航共四处确认调用 `listApplications()`；应用根查询 `resolveNavigationRootId()` 是另一条独立 raw GetData。AppList 正式蓝图场景分支已迁到 DataView + RendererList。`projectReferences.listProjects` 仅为未找到页面调用者的可达 gateway 定义。 | 根 `/t/NewApp/homepage/app-list` 旧目录请求使用固定 FormKey `7AB...`、无 `X-AppId`/租户头、`Filter:null`，历史返回 61 行/61 卡片。7AB 正式 DataSpace “功能管理”有 `Base_AppSystemList` 模型绑定但没有命名视图；尚未证明 DataView 在相同请求范围返回同样 61 行/字段权限。`resolveNavigationRootId()` 的过滤可表达为 DataView，但切换新应用前当前 `X-AppId` 尚未切换；需先取得可在激活前使用的受服务端认可 owner/scope。此前 0C70 在 D99 scope 的 1 行只说明它是不同 owner/范围。脱敏旧响应汇总见 [`application-catalog-scope-live-20261028.json`](evidence/application-catalog-scope-live-20261028.json)；源码时序与迁移门槛见末尾“导航根查询 DataView 迁移时序复核”。不改 Java 或正式业务行。 |
+| 平台应用目录读 | 当前源码旧 listApplications 及其生产消费者已删除；默认 AppList、PlatformApps、选择、显式导航、导航根、设置与引用均经正式 DataView 读取。host 仍拼装默认视图配置，配置驱动未完成。 | 真实目录 62 条与 D99 激活/原生返回已验；9 文件 205 项定向通过，完整包及历史面板的 9 项失败在基线复现。下一步用已有数据资源/空间管理维护正式视图配置，复用加载装配并删除 host 硬编码。设置/引用真实 UI 仍未接通，不作为已验页面。 |
 
 ### 2026-10-28 认证 SPA 根应用目录路由与数据空间身份复核
 
@@ -188,7 +205,7 @@
 | PageDesign AI 与参考蓝图范围 | 活跃 DevSystem 内联链使用当前编辑器；蓝图输入来自 DevSystem DataView 树，场景定义读写经正式 metadata DataSet/DataView，页面正文交付走 `PageToolFiles` DataView。PageDesign workflow 的 `ProjectWorkspace` 代理现已拒绝直调蓝图 CRUD/保存及 PageTool/远端版本写入口；蓝图读取、本地 PageTool 草稿仍可用。`preparePageDesignAgentRun` 仍是单独 headless preparer，源码无已核实生产调用点；其写入保持 fail closed，不能由此推断所有 headless 消费者都已统一。当前 UI 不传 `allowedOperations`，操作域未由该入口显式限缩；桌面显示关联、AI 填表、原型预览和可靠 SRS 导出仍要按真实消费者核实。 | PageDesign guard 的 spy 回归、专项测试、typecheck、ESLint、规则及 build 结果见最近历史条目并已通过；只证明拒绝 raw gateway 写入，不证明正式服务 AI 运行。新增源码审计确认 headless preparer 暂无生产调用点；后续若发现调用者，再核对其 owner 与保存链，不把所有 headless 消费者推定为已统一。 |
 | 数据空间布局文件资源 | `DataSpaceLayoutEdit` 会话通过绑定的只读 `DataSpaceReferenceLayoutResource` DataView `refresh()` 读取布局；其 executor 内部调用 `LowcodeDesignApi.readTextFile` 作为文件资源适配实现，页面/会话没有独立文件读取入口。 | `data-space-layout-edit.test.ts` 已覆盖正式只读 DataView 发起读取及 unknown/save 行为。源码复核未发现“legacy layout”绕过；保持现有单一 DataView 消费链，不为消除适配器内部 owner 调用而重复封装。 |
 | DevSystem NavHost 关系维护 | `BlueprintWorkspace.vue` 的“导航宿主”页签仍用 `BlueprintReadonlyInfo` 展示 `LOWCODE_APPLICATION_CATALOG_FORM_KEY@Base_Navigation_DataRelation@default`；查询按当前导航 `prowid` 过滤并校验身份、行归属和主键。`NavHostProjectPicker` 是独立只读读取 owner，不承担关系编辑。 | 当前 UI 没有关系新增/修改/删除工作流。源码、pagedata 和测试未证明关系行/字段写权限、必填/默认/类型合同或此模型的正式 SPARK data CRUD owner/readback。不得复用节点保存按钮、猜关系字段或以 DataSet 有 `saveChanges` 就推定服务端可写。先取得正式查询权限投影与写回执/owner 合同，再设计独立 DataView 会话；在此前维持只读与 fail closed。 |
-| 平台应用目录读 | `listApplications()` 仍由 `AppList.vue`、`PlatformApps.vue`、`project-settings.ts` 与 `lowcode-runtime.ts` 多个生产调用者通过 `LOWCODE_APPLICATION_CATALOG_FORM_KEY` 直接 GetData；两路 Vue 路由均未创建 `PageRuntime` 或绑定 DataView。正式绑定并非缺失：`config/pages/data-platform/data-space-catalog/pagedata.json` 以模型 ID `acb04903-043f-4c99-9a57-a8e9bc95ce72` 绑定 `Base_AppSystemList`，含 `default`/`catalogApps` 视图，归数据空间目录场景所有。FormKey `7AB874097A1E8711A42FD845939A6E05` 同时是项目蓝图场景；其 pagedata 绑定导航模型、没有 `Base_AppSystemList`，所以不能据此推导平台目录 DataView。 | 已确认的数据游离点；当前缺口是 `/app-list`、`/apps` 等消费者没有各自正式路由 DataSet owner 与场景身份，且查询范围/租户投影/正式权限与现 direct GetData 的等价性未证实。本轮同一认证 SPA 只读打开数据空间目录，`Base_AppSystemList@catalogApps` 的“所属应用”候选仅显示“元数据管理”一个选项；这不是全局租户应用目录的范围证明，也不授权把此 view 借给 `/app-list`。不能借用数据空间目录页的 PageRuntime，也不能从固定 FormKey 推导平台目录 DataView；仍需正式路由 owner、项目/租户过滤与授权合同。 |
+| 平台应用目录读 | 当前源码旧 listApplications 及其生产消费者已删除；默认 AppList、PlatformApps、选择、显式导航、导航根、设置与引用均经正式 DataView 读取。host 仍拼装默认视图配置，配置驱动未完成。 | 真实目录 62 条与 D99 激活/原生返回已验；9 文件 205 项定向通过，完整包及历史面板的 9 项失败在基线复现。下一步用已有数据资源/空间管理维护正式视图配置，复用加载装配并删除 host 硬编码。设置/引用真实 UI 仍未接通，不作为已验页面。 |
 | 物理表/视图数据预览 | `src/lowcode/resources/database/database-catalog-preview-view-ops.ts` 对 `/api/DataOperation/GetData` 传物理表/视图描述符；返回页由资源层解析并本地投影字段、合成只读 `fieldAccess`，再呈现在命令 DataView 中。业务入口为 `table-and-view-page.vue`。 | 确认是 DataView 外观下仍由资源层直接发业务 GetData、权限非正式查询投影的活动旁路。现有 `DataSpaceRuntimeApi` 的正式 `{scenarioId, metaName}` 查询合同不能表达物理 `Type/DbId/DbName/name` 身份；服务端权限与物理主键回执未证实。需先补公共 SPARK data 物理资源只读合同并验证真实服务支持；不在页面重用原始 HTTP、不伪造模型身份。 |
 | 工作流定义文件读取 | `src/services/workflow-designs.ts` 与 `WorkflowDesigns.vue` 的活动读取链通过 `lowcodeApi.design.readTextFile()` 读取 `design.json` / `definition.json`；`saveWorkflowDesign` 当前拒绝写入。该配置文件读不等于业务行查询，但尚未绑定 SPARK data 的 pagedata/文件资源 DataView。 | 登记为配置资源读取旁路；尚无可验证的正式文件资源 DataView 身份、读权限与读取回执合同。先核现有文件资源适配器能否以语义资源注册并沿 DataView `refresh()` 消费；不因“文件 owner 在低层”直接判为合法，也不把当前只读误报成写链。 |
 | 蓝图兼容 gateway | 活动 `src/lowcode/lowcode-runtime.ts::createLowcodeProjectGateways()` 仍将平台/蓝图 CRUD、导航授权及项目列表暴露为 gateway；其中 `lowcodeApi.blueprint` 底层使用 DataSpaceRuntime query/save，但业务消费者没有共享 DataView 编辑覆盖、取消及统一 DataSet 提交状态。DevSystem 当前工作台有单独 DataView owner，不能据此推断所有 ProjectWorkspace/headless consumer 已迁完。 | 这是“末端有 DataSpace API”但尚未统一 SPARK data 编辑/保存生命周期的兼容链。需按生产调用者和写操作逐一收窄或迁移；保留权限、发布文件和数据库两种持久边界，禁止通过套 `DataView` 名称掩盖现存 gateway 写入口。无生产调用者的 headless provider 不单独造 owner。 |

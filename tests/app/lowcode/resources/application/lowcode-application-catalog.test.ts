@@ -50,7 +50,10 @@ function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prow
     businessMain: true, fields: rootFields, raw: {}} satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 }
 
-function mockNavigationMetadata(model = makeNavigationModel(), spaceId = LOWCODE_APPLICATION_CATALOG_FORM_KEY): void {
+function mockNavigationMetadata(
+  model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = makeNavigationModel(),
+  spaceId = LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+): void {
   vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({dataSpaceId: spaceId, name: '功能管理'})
   vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(model)
 }
@@ -116,6 +119,188 @@ afterEach(() => {
 })
 
 describe('authenticated application catalog DataView', () => {
+  it('projects every visible application through one formal DataView and releases the owner', async () => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryRows = [
+      {rowid: 'APP-1', AppDesc: '财务管理', AppName: 'finance', Memo: '财务模块'},
+      {rowid: 'APP-2', AppDesc: '采购管理', AppName: 'procurement', Memo: ''},
+    ]
+    const readerModel = {...formalModel, fields: [...fields, {
+      id: 'Memo', modelId: 'APP-MODEL', name: 'Memo', canonicalName: 'Memo', type: 'string',
+      description: 'Memo', primaryKey: false, output: true, computed: false, order: 3, orderType: '', raw: {},
+    }]}
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(readerModel)
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    const applications = await catalog.readLowcodeApplications(() => undefined)
+
+    expect(applications).toEqual([
+      {id: 'APP-1', name: '财务管理', code: 'finance', description: '财务模块'},
+      {id: 'APP-2', name: '采购管理', code: 'procurement', description: ''},
+    ])
+    expect(formalQueryRequests()).toHaveLength(1)
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('projects readable enterprise metadata and explicit system defaults from the canonical columns', async () => {
+    saveNavigationRootSession()
+    queryRows = [{rowid: 'APP-1', AppDesc: '财务管理', AppName: 'finance', Memo: '财务系统说明',
+      EntId: 'ENT-1', EntShortName: 'enterprise-one', IsSys: 1}]
+    const metadataNames = ['Memo', 'EntId', 'EntShortName', 'IsSys']
+    const readerModel = {...formalModel, fields: [...fields, ...metadataNames.map((name, index) => ({
+      id: name, modelId: 'APP-MODEL', name, canonicalName: name, type: 'string', description: name,
+      primaryKey: false, output: true, computed: false, order: fields.length + index, orderType: '', raw: {},
+    }))]}
+    mockNavigationMetadata(readerModel)
+    const catalog = await import('@/lowcode/lowcode-application-catalog')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).resolves.toEqual([{
+      id: 'APP-1', name: '财务管理', code: 'finance', description: '财务系统说明',
+      enterpriseId: 'ENT-1', enterpriseShortName: 'enterprise-one', isDefault: true,
+    }])
+  })
+
+  it('omits application description when Memo is unavailable or unreadable', async () => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryRows = [{rowid: 'APP-1', AppDesc: '财务管理', AppName: 'finance'}]
+    hiddenFields = ['Memo']
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(formalModel)
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).resolves.toEqual([
+      {id: 'APP-1', name: '财务管理', code: 'finance'},
+    ])
+  })
+
+  it.each(['hidden', 'masked'] as const)('omits Memo when its DataView field is %s', async (permissionState) => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryRows = [{rowid: 'APP-1', AppDesc: '财务管理', AppName: 'finance', Memo: '不可见描述'}]
+    if (permissionState === 'hidden') hiddenFields = ['Memo']
+    else maskedFields = ['Memo']
+    const readerModel = {...formalModel, fields: [...fields, {
+      id: 'Memo', modelId: 'APP-MODEL', name: 'Memo', canonicalName: 'Memo', type: 'string',
+      description: 'Memo', primaryKey: false, output: true, computed: false, order: 3, orderType: '', raw: {},
+    }]}
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(readerModel)
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).resolves.toEqual([
+      {id: 'APP-1', name: '财务管理', code: 'finance'},
+    ])
+  })
+
+  it('uses formal AppDesc, then AppName, then rowid for the application name without inferring metadata', async () => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryRows = [
+      {rowid: 'APP-1', AppDesc: '', AppName: 'finance'},
+      {rowid: 'APP-2'},
+    ]
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(formalModel)
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).resolves.toEqual([
+      {id: 'APP-1', name: 'finance', code: 'finance'},
+      {id: 'APP-2', name: 'APP-2'},
+    ])
+  })
+
+  it('releases the formal DataView owner when full application catalog query fails', async () => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryFailure = new Error('catalog query failed')
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(formalModel)
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).rejects.toThrow('catalog query failed')
+
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it.each(['query-success', 'query-failure'] as const)(
+    'releases the list reader DataSet when the authenticated session changes during %s', async (queryOutcome) => {
+      lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+        accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+        identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+        enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+      })
+      if (queryOutcome === 'query-failure') queryFailure = new Error('late query failure')
+      onQueryRequest = () => {
+        const session = lowcodeApi.session.get()
+        if (session) lowcodeApi.session.save({...session, identity: {...session.identity}})
+      }
+      vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+        dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+      })
+      vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(formalModel)
+      const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+      const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+        readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+      }
+      expect(typeof catalog.readLowcodeApplications).toBe('function')
+      if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+      await expect(catalog.readLowcodeApplications(() => undefined)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+
+      expect(destroy).toHaveBeenCalledOnce()
+    },
+  )
+
   it('reads an exact application id through the shared formal DataView and destroys its DataSet', async () => {
     lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
       accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
@@ -134,7 +319,7 @@ describe('authenticated application catalog DataView', () => {
 
     const application = await catalog.readLowcodeApplicationById('APP-1', () => undefined)
 
-    expect(application).toEqual({id: 'APP-1', name: 'Alpha', code: 'alpha', description: 'Alpha'})
+    expect(application).toEqual({id: 'APP-1', name: 'Alpha', code: 'alpha'})
     expect(application).not.toHaveProperty('isDefault')
     expect(readSpace).toHaveBeenCalledOnce()
     expect(readModel).toHaveBeenCalledOnce()
@@ -162,7 +347,7 @@ describe('authenticated application catalog DataView', () => {
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
 
-    await expect(catalog.readLowcodeApplicationById('APP-1', () => undefined)).rejects.toThrow(/unique|duplicate|唯一|重复|权限|无权|inaccessible|不存在/i)
+    await expect(catalog.readLowcodeApplicationById('APP-1', () => undefined)).rejects.toThrow(/identity|身份|duplicate|重复|主键|权限|无权|inaccessible|不存在/i)
 
     expect(destroy).toHaveBeenCalledOnce()
   })
@@ -183,7 +368,7 @@ describe('authenticated application catalog DataView', () => {
     }
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
 
-    await expect(catalog.readLowcodeApplicationById('APP-1', () => undefined)).rejects.toThrow(/inaccessible|not exist|不存在|无权/i)
+    await expect(catalog.readLowcodeApplicationById('APP-1', () => undefined)).rejects.toThrow(/identity|身份|inaccessible|not exist|不存在|无权/i)
   })
 
   it('omits unreadable application name metadata and falls back to the readable rowid', async () => {
@@ -298,6 +483,39 @@ describe('authenticated application catalog DataView', () => {
     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
 
     await expect(catalog.readLowcodeApplicationById('APP-1', () => undefined)).rejects.toThrow('catalog query failed')
+
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['missing rowid', [{AppDesc: 'Alpha', AppName: 'alpha'}], []],
+    ['non-string rowid', [{rowid: 17, AppDesc: 'Alpha', AppName: 'alpha'}], []],
+    ['empty rowid', [{rowid: '   ', AppDesc: 'Alpha', AppName: 'alpha'}], []],
+    ['unreadable rowid', [{rowid: 'APP-1', AppDesc: 'Alpha', AppName: 'alpha'}], ['rowid']],
+    ['duplicate rowid', [
+      {rowid: 'APP-1', AppDesc: 'Alpha', AppName: 'alpha'},
+      {rowid: 'APP-1', AppDesc: 'Duplicate', AppName: 'duplicate'},
+    ], []],
+  ] as const)('rejects the complete catalog when it contains an invalid identity: %s', async (_caseName, rows, hidden) => {
+    lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    queryRows = [...rows] as Array<Record<string, unknown>>
+    hiddenFields = [...hidden]
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '应用目录',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(formalModel)
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeApplications?: (assertCurrent: () => void) => Promise<Array<Record<string, unknown>>>
+    }
+    expect(typeof catalog.readLowcodeApplications).toBe('function')
+    if (!catalog.readLowcodeApplications) throw new Error('readLowcodeApplications export missing')
+
+    await expect(catalog.readLowcodeApplications(() => undefined)).rejects.toThrow(/identity|身份|主键|应用/)
 
     expect(destroy).toHaveBeenCalledOnce()
   })
@@ -534,6 +752,25 @@ describe('authenticated application catalog DataView', () => {
     expect(destroy).toHaveBeenCalledOnce()
   })
 
+  it.each(['query-success', 'query-failure'] as const)(
+    'rejects a root result from a changed session and releases the DataSet during %s', async (queryOutcome) => {
+      saveNavigationRootSession()
+      lowcodeApi.application.clear()
+      queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+      if (queryOutcome === 'query-failure') queryFailure = new Error('late root query failure')
+      onQueryRequest = () => {
+        const session = lowcodeApi.session.get()
+        if (session) lowcodeApi.session.save({...session, identity: {...session.identity}})
+      }
+      mockNavigationMetadata()
+      const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+      const reader = await requireNavigationRootReader()
+
+      await expect(reader('APP-1', () => undefined)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+
+      expect(destroy).toHaveBeenCalledOnce()
+    })
+
   it('rejects an all-pages query without a backend Count instead of deriving completeness from loaded rows', async () => {
     saveNavigationRootSession()
     lowcodeApi.application.clear()
@@ -612,6 +849,31 @@ describe('authenticated application catalog DataView', () => {
     const reader = await requireNavigationRootReader()
 
     await expect(reader('APP-1', assertCurrent)).rejects.toThrow('ROOT_READER_STALE')
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('rejects a root query when the authenticated session changes during a successful DataView response', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    onQueryRequest = () => {lowcodeApi.session.clear()}
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('prefers stale authentication scope over a root DataView query error', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryFailure = new Error('late navigation root query failure')
+    onQueryRequest = () => {lowcodeApi.session.clear()}
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(destroy).toHaveBeenCalledOnce()
   })
 })

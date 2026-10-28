@@ -95,9 +95,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   readLowcodePrincipal: () => null,
   lowcodeApi: {
     readRequestScope: () => ({token:httpFns.scopeToken,headers:{'X-AppId':'APP-A'}}),
-    platform: {
-      listApplications: async () => httpFns.get('application-catalog:tenant-b'),
-    },
   },
   createLowcodeProjectGateways: (projectId: string) => {
     const blueprintKey = `project-blueprint:${projectId}`

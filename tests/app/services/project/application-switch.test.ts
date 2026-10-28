@@ -41,7 +41,6 @@ vi.mock('@/lowcode/lowcode-runtime', () => {
       session: { get: () => ({ enterprise: { shortName: 'acme' }, identity: { account: 'admin' } }) },
       platform: {
         logout: vi.fn(async () => undefined),
-        listApplications: vi.fn(async () => [{ id: 'APP-A', name: 'App A', description: 'A' }]),
         getEnterpriseInfo: vi.fn(async () => ({ domainKey: 'acme', chineseName: 'Acme', administratorAccount: 'admin', checkState: 1 })),
       },
     },

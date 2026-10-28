@@ -26,23 +26,28 @@ type FormalViewSpec = Readonly<{
   sortExpression: DataView['sortExpression']
 }>
 
-/** Shared only by the two host-owned formal DataViews: application catalog and navigation root. */
-async function loadFormalHostDataView(
-  spec: FormalViewSpec,
-  assertCallerCurrent: () => void,
-): Promise<DataSet> {
+function captureAuthenticatedScope(assertCallerCurrent: () => void): () => void {
   assertCallerCurrent()
   const scope = lowcodeApi.readAuthenticatedRequestScope()
   const assertCurrent = (): void => {
-    assertCallerCurrent()
     let currentToken: string
     try {currentToken = lowcodeApi.readAuthenticatedRequestScope().token}
     catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式数据空间视图所属登录会话已变化')}
     if (currentToken !== scope.token) {
       throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式数据空间视图所属登录会话已变化')
     }
+    assertCallerCurrent()
   }
   assertCurrent()
+  return assertCurrent
+}
+
+/** Shared only by the two host-owned formal DataViews: application catalog and navigation root. */
+async function loadFormalHostDataView(
+  spec: FormalViewSpec,
+  assertCallerCurrent: () => void,
+): Promise<DataSet> {
+  const assertCurrent = captureAuthenticatedScope(assertCallerCurrent)
   const api = new DataSpaceApi({http: lowcodeHttp, readScope: () => lowcodeApi.readAuthenticatedRequestScope()})
   const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: spec.dataSpaceId, assertCurrent}
   try {
@@ -109,14 +114,14 @@ export async function readLowcodeNavigationRootId(
 ): Promise<string> {
   const normalizedSystemId = systemId.trim()
   if (!normalizedSystemId) throw new Error('应用导航根查询缺少有效 systemId')
-  assertCallerCurrent()
+  const assertScopeCurrent = captureAuthenticatedScope(assertCallerCurrent)
   const dataSet = await loadFormalHostDataView({dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
     modelName: NAVIGATION_MODEL_NAME, requiredOutputFields: NAVIGATION_ROOT_OUTPUTS,
     pageSize: 1, queryConfig: {fields: NAVIGATION_ROOT_OUTPUTS, allPages: true,
       distinct: true, maxRows: NAVIGATION_ROOT_MAX_ROWS},
-    sortExpression: [{field: 'rowid', direction: 'asc'}]}, assertCallerCurrent)
+    sortExpression: [{field: 'rowid', direction: 'asc'}]}, assertScopeCurrent)
   try {
-    assertCallerCurrent()
+    assertScopeCurrent()
     const view = dataSet.getView(NAVIGATION_MODEL_NAME, 'default')
     if (view?.primaryKey !== 'rowid' || view.queryConfig.allPages !== true
       || view.queryConfig.maxRows !== NAVIGATION_ROOT_MAX_ROWS
@@ -128,7 +133,7 @@ export async function readLowcodeNavigationRootId(
       DataViewFilter.condition({field: 'prowid', operator: 'eq', value: '000000'}).toJSON(),
     ]}).toJSON()
     const result = await view.requestRefresh()
-    assertCallerCurrent()
+    assertScopeCurrent()
     if (!result.success) throw new Error(result.message ?? '正式导航根 DataView 查询失败')
     if (!Number.isSafeInteger(view.total) || view.total < 0 || view.total !== view.rows.length) {
       throw new Error(`正式导航根 DataView 总数未确认：total=${view.total} rows=${view.rows.length}`)
@@ -148,6 +153,9 @@ export async function readLowcodeNavigationRootId(
       throw new Error('正式导航根 DataView 返回了身份不匹配的根节点')
     }
     return id.trim()
+  } catch (error) {
+    assertScopeCurrent()
+    throw error
   } finally {
     dataSet.destroy()
   }
@@ -167,54 +175,84 @@ function readableDefault(view: DataView, row: DataRow): boolean | undefined {
   return undefined
 }
 
-/** Read one application from the formal DataView, retaining only visible metadata and releasing its DataSet. */
+/** Project one formal catalog row through its returned DataView field permissions. */
+function projectLowcodeApplication(view: DataView, row: DataRow): LowcodeApplication {
+  if (!Object.hasOwn(row, 'rowid') || view.fieldAccess(row, 'rowid').read !== 'visible') {
+    throw new Error('正式应用目录 DataView 返回了不可读的应用身份')
+  }
+  const id = row['rowid']
+  if (typeof id !== 'string' || !id.trim() || id !== id.trim()) {
+    throw new Error('正式应用目录 DataView 返回了无效应用主键')
+  }
+  const code = readableText(view, row, 'AppName')
+  const applicationName = readableText(view, row, 'AppDesc')
+  const description = readableText(view, row, 'Memo')
+  const enterpriseId = readableText(view, row, 'EntId')
+  const enterpriseShortName = readableText(view, row, 'EntShortName')
+  const name = applicationName !== undefined && applicationName.length > 0
+    ? applicationName
+    : code !== undefined && code.length > 0 ? code : id
+  const isDefault = readableDefault(view, row)
+  return {
+    id,
+    name,
+    ...(code === undefined ? {} : {code}),
+    ...(description === undefined ? {} : {description}),
+    ...(enterpriseId === undefined ? {} : {enterpriseId}),
+    ...(enterpriseShortName === undefined ? {} : {enterpriseShortName}),
+    ...(isDefault === undefined ? {} : {isDefault}),
+  }
+}
+
+/** Read and project the complete authorized catalog through its formal DataView. */
+export async function readLowcodeApplications(
+  assertCurrent: () => void,
+): Promise<readonly LowcodeApplication[]> {
+  const assertScopeCurrent = captureAuthenticatedScope(assertCurrent)
+  const dataSet = await loadLowcodeApplicationCatalog(assertScopeCurrent)
+  try {
+    assertScopeCurrent()
+    const view = dataSet.getView(MODEL_NAME, 'default')
+    if (view?.primaryKey !== 'rowid' || view.queryConfig.allPages !== true || view.queryConfig.distinct !== true) {
+      throw new Error('正式应用目录 DataView 配置或身份无效')
+    }
+    const result = await view.requestRefresh()
+    assertScopeCurrent()
+    if (!result.success) throw new Error(result.message ?? '正式应用目录 DataView 查询失败')
+
+    const applications: LowcodeApplication[] = []
+    const seenIds = new Set<string>()
+    for (const row of view.rows) {
+      const application = projectLowcodeApplication(view, row)
+      if (seenIds.has(application.id)) throw new Error(`正式应用目录包含重复应用 ID：${application.id}`)
+      seenIds.add(application.id)
+      applications.push(application)
+    }
+    return applications
+  } catch (error) {
+    assertScopeCurrent()
+    throw error
+  } finally {
+    dataSet.destroy()
+  }
+}
+
+/** Read one exact application through the shared formal catalog projection. */
 export async function readLowcodeApplicationById(
   applicationId: string,
   assertCurrent: () => void,
 ): Promise<LowcodeApplication> {
   const normalizedId = applicationId.trim()
   if (!normalizedId) throw new Error('应用 ID 不能为空')
-  assertCurrent()
-  const dataSet = await loadLowcodeApplicationCatalog(assertCurrent)
+  const assertScopeCurrent = captureAuthenticatedScope(assertCurrent)
   try {
-    assertCurrent()
-    const view = dataSet.getView(MODEL_NAME, 'default')
-    if (view?.primaryKey !== 'rowid' || view.queryConfig.allPages !== true || view.queryConfig.distinct !== true) {
-      throw new Error('正式应用目录 DataView 配置或身份无效')
-    }
-    const result = await view.requestRefresh()
-    assertCurrent()
-    if (!result.success) throw new Error(result.message ?? '正式应用目录 DataView 查询失败')
-
-    const matchingRows = view.rows.filter((row: DataRow) => (
-      Object.hasOwn(row, 'rowid')
-      && view.fieldAccess(row, 'rowid').read === 'visible'
-      && row['rowid'] === normalizedId
-    ))
-    if (matchingRows.length === 0) throw new Error(`lowcode 应用不存在或无权访问：${normalizedId}`)
-    if (matchingRows.length !== 1) throw new Error(`正式应用目录包含重复应用 ID：${normalizedId}`)
-    const row = matchingRows[0]
-    if (!row) throw new Error('正式应用目录缺少可读的应用身份')
-    const id = readableText(view, row, 'rowid')
-    if (id === undefined || id !== normalizedId) throw new Error('正式应用目录缺少可读的应用身份')
-    const code = readableText(view, row, 'AppName')
-    const description = readableText(view, row, 'AppDesc')
-    const enterpriseId = readableText(view, row, 'EntId')
-    const enterpriseShortName = readableText(view, row, 'EntShortName')
-    const name = description !== undefined && description.length > 0
-      ? description
-      : code !== undefined && code.length > 0 ? code : id
-    const isDefault = readableDefault(view, row)
-    return {
-      id,
-      name,
-      ...(code === undefined ? {} : {code}),
-      ...(description === undefined ? {} : {description}),
-      ...(enterpriseId === undefined ? {} : {enterpriseId}),
-      ...(enterpriseShortName === undefined ? {} : {enterpriseShortName}),
-      ...(isDefault === undefined ? {} : {isDefault}),
-    }
-  } finally {
-    dataSet.destroy()
+    const applications = await readLowcodeApplications(assertScopeCurrent)
+    assertScopeCurrent()
+    const application = applications.find(item => item.id === normalizedId)
+    if (!application) throw new Error(`lowcode 应用不存在或无权访问：${normalizedId}`)
+    return application
+  } catch (error) {
+    assertScopeCurrent()
+    throw error
   }
 }

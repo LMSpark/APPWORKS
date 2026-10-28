@@ -1,0 +1,27 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/catalog-baseline-audit/SPARK_AppWorks/packages/spark-lowcode-api
+
+ ❯ src/platform/data-space/runtime/tests/data-space-model-alias.test.ts (0 test)
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts [ src/platform/resources/dictionary/dictionary-workspace.test.ts ]
+ FAIL  src/platform/data-space/runtime/tests/data-space-model-alias.test.ts [ src/platform/data-space/runtime/tests/data-space-model-alias.test.ts ]
+Error: Cannot find package 'axios' imported from C:/Users/lgf22/.codex/worktrees/catalog-baseline-audit/SPARK_AppWorks/packages/spark-utils/src/http/Request.ts
+ ❯ ../spark-utils/src/http/Request.ts:14:1
+     12|  */
+     13|
+     14| import axios from 'axios'
+       | ^
+     15| import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from …
+     16| import { isRecord } from '../internal/guards.js'
+ ❯ ../spark-utils/src/http/index.ts:19:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  23:55:10
+   Duration  1.05s (transform 986ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

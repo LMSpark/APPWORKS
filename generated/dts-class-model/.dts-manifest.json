@@ -3124,7 +3124,7 @@
     "packages/spark-lowcode-api/src/platform/lowcode-application.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-application.ts.json",
-      "sourceModifiedAt": "2026-10-28T15:19:03.318Z"
+      "sourceModifiedAt": "2026-10-28T15:41:37.137Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
@@ -3139,7 +3139,7 @@
     "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
-      "sourceModifiedAt": "2026-10-28T14:58:05.346Z"
+      "sourceModifiedAt": "2026-10-28T15:41:40.125Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
@@ -3844,12 +3844,12 @@
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
       "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-28T15:13:59.019Z"
+      "sourceModifiedAt": "2026-10-28T15:46:34.978Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T14:59:18.146Z"
+      "sourceModifiedAt": "2026-10-28T15:41:26.029Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4194,7 +4194,7 @@
     "src/services/project/project-settings.ts": {
       "sourceFile": "src/services/project/project-settings.ts",
       "shardFile": "files/src/services/project/project-settings.ts.json",
-      "sourceModifiedAt": "2026-10-28T14:00:41.096Z"
+      "sourceModifiedAt": "2026-10-28T15:42:42.245Z"
     },
     "src/services/project/project-shell.ts": {
       "sourceFile": "src/services/project/project-shell.ts",
@@ -4874,7 +4874,7 @@
     "src/views/platform/PlatformApps.vue": {
       "sourceFile": "src/views/platform/PlatformApps.vue",
       "shardFile": "files/src/views/platform/PlatformApps.vue.json",
-      "sourceModifiedAt": "2026-10-28T13:14:55.379Z"
+      "sourceModifiedAt": "2026-10-28T15:25:40.028Z"
     },
     "src/views/platform/PlatformTenantManagement.vue": {
       "sourceFile": "src/views/platform/PlatformTenantManagement.vue",
@@ -4889,7 +4889,7 @@
     "src/views/tenant/AppList.vue": {
       "sourceFile": "src/views/tenant/AppList.vue",
       "shardFile": "files/src/views/tenant/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-28T14:29:34.911Z"
+      "sourceModifiedAt": "2026-10-28T15:25:40.028Z"
     },
     "src/views/tenant/AppProjectSettingsDialog.vue": {
       "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",

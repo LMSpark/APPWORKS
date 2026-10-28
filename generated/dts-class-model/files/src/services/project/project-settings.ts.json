@@ -204,7 +204,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T14:00:41.096Z",
+  "generatedAt": "2026-10-28T15:42:42.245Z",
   "models": {
     "ProjectDetail": {
       "name": "ProjectDetail",

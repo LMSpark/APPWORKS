@@ -7,12 +7,7 @@ import type { HttpClientBase } from '@spark-appworks/spark-utils'
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
-import {
-  applicationCatalogQuery,
-  LOWCODE_APPLICATION_CATALOG_FORM_KEY,
-  normalizeApplications,
-  type LowcodeApplication,
-} from './lowcode-application.js'
+import type { LowcodeApplication } from './lowcode-application.js'
 import type { LowcodeApplicationStore } from './lowcode-application-store.js'
 import {
   enterpriseCatalogQuery,
@@ -454,17 +449,6 @@ export class LowcodePlatformApi {
       this.application.clear()
       this.session.clear()
     }
-  }
-
-  /** 列出当前企业可访问应用；请求头 x-FormKey 固定为应用目录表单键。 */
-  public async listApplications(): Promise<readonly LowcodeApplication[]> {
-    const result = await this.client.requestResult({
-      path: '/api/DataOperation/GetData',
-      method: 'POST',
-      data: applicationCatalogQuery(),
-      headers: { 'x-FormKey': LOWCODE_APPLICATION_CATALOG_FORM_KEY },
-    })
-    return normalizeApplications(result)
   }
 
   /** 选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。 */

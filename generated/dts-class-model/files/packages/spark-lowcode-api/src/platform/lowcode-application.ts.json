@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-application",
-    "jsdoc": "低代码应用目录查询的请求体构造与响应归一化。",
+    "jsdoc": "应用目录 GetData 请求头 x-FormKey 固定值。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeApplication"
@@ -51,18 +51,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T15:19:03.318Z",
+  "generatedAt": "2026-10-28T15:41:37.137Z",
   "models": {
     "LowcodeApplication": {
       "name": "LowcodeApplication",
-      "jsdoc": "归一化后的应用条目；id 为 Base_AppSystemList.rowid。\n可选目录元信息仅在正式来源返回且当前调用可读时提供；缺省表示未知/不可用，不从登录会话补造归属。",
+      "jsdoc": "通过正式 Base_AppSystemList DataView 投影的应用条目；id 为 rowid。\n可选目录元信息仅在正式来源返回且当前调用可读时提供；缺省表示未知/不可用，不从登录会话补造归属。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    /** Formal AppName value when returned and readable. */\n    code?: string;\n    /** Formal AppDesc value when returned and readable. */\n    description?: string;\n    /** Formal EntId value when returned and readable; never inferred from session identity. */\n    enterpriseId?: string;\n    /** Formal EntShortName value when returned and readable; never inferred from session identity. */\n    enterpriseShortName?: string;\n    /** True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false. */\n    isDefault?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    /** 可读的正式 AppName 代码。 */\n    code?: string;\n    /** 可读的正式 Memo 描述；空值保留为空字符串。 */\n    description?: string;\n    /** 可读的正式 EntId；不会从当前会话推断。 */\n    enterpriseId?: string;\n    /** 可读的正式 EntShortName；不会从当前会话推断。 */\n    enterpriseShortName?: string;\n    /** 仅可读正式 IsSys=1/0 映射为 true/false；undefined 表示未知。 */\n    isDefault?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    /** Formal AppName value when returned and readable. */\n    code?: string;\n    /** Formal AppDesc value when returned and readable. */\n    description?: string;\n    /** Formal EntId value when returned and readable; never inferred from session identity. */\n    enterpriseId?: string;\n    /** Formal EntShortName value when returned and readable; never inferred from session identity. */\n    enterpriseShortName?: string;\n    /** True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false. */\n    isDefault?: boolean;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    /** 可读的正式 AppName 代码。 */\n    code?: string;\n    /** 可读的正式 Memo 描述；空值保留为空字符串。 */\n    description?: string;\n    /** 可读的正式 EntId；不会从当前会话推断。 */\n    enterpriseId?: string;\n    /** 可读的正式 EntShortName；不会从当前会话推断。 */\n    enterpriseShortName?: string;\n    /** 仅可读正式 IsSys=1/0 映射为 true/false；undefined 表示未知。 */\n    isDefault?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -80,31 +80,31 @@
             },
             {
               "name": "code",
-              "jsdoc": "Formal AppName value when returned and readable.",
+              "jsdoc": "可读的正式 AppName 代码。",
               "readable": true,
               "writable": false
             },
             {
               "name": "description",
-              "jsdoc": "Formal AppDesc value when returned and readable.",
+              "jsdoc": "可读的正式 Memo 描述；空值保留为空字符串。",
               "readable": true,
               "writable": false
             },
             {
               "name": "enterpriseId",
-              "jsdoc": "Formal EntId value when returned and readable; never inferred from session identity.",
+              "jsdoc": "可读的正式 EntId；不会从当前会话推断。",
               "readable": true,
               "writable": false
             },
             {
               "name": "enterpriseShortName",
-              "jsdoc": "Formal EntShortName value when returned and readable; never inferred from session identity.",
+              "jsdoc": "可读的正式 EntShortName；不会从当前会话推断。",
               "readable": true,
               "writable": false
             },
             {
               "name": "isDefault",
-              "jsdoc": "True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false.",
+              "jsdoc": "仅可读正式 IsSys=1/0 映射为 true/false；undefined 表示未知。",
               "readable": true,
               "writable": false
             }

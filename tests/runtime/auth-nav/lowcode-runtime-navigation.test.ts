@@ -14,13 +14,16 @@ import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import { PageRuntime } from '@spark-appworks/spark-project-model'
+import { PageRuntime, ProjectWorkspace } from '@spark-appworks/spark-project-model'
+import { createLowcodeProjectGateways } from '@/lowcode/lowcode-runtime'
 import * as VuePageRegistry from '@/registries/vue-page-registry'
 
 const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
+const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
 const navigationRootReader = vi.hoisted(() => ({read: vi.fn<(systemId: string, assertCurrent: () => void) => Promise<string>>()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
 vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+  readLowcodeApplications: applicationListReader.read,
   readLowcodeApplicationById: applicationCatalogReader.read,
   readLowcodeNavigationRootId: navigationRootReader.read,
 }))
@@ -129,7 +132,88 @@ beforeEach(() => {
   lastNavigationDataSet = undefined
   applicationCatalogReader.read.mockReset()
   applicationCatalogReader.read.mockImplementation(async (id) => application(id))
+  applicationListReader.read.mockReset()
+  applicationListReader.read.mockImplementation(async (assertCurrent) => {
+    assertCurrent()
+    return [
+      {id: 'APP-CURRENT', name: '当前应用', code: 'current', description: '财务系统说明'},
+      {id: 'APP-OTHER', name: '其他应用', code: 'other', description: '采购系统说明'},
+    ]
+  })
   vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async () => createNavigationDataSet().dataSet)
+})
+
+describe('project reference application catalog owner', () => {
+  it('does not expose the unscoped legacy application directory API', () => {
+    expect(Reflect.get(lowcodeApi.platform, 'listApplications')).toBeUndefined()
+  })
+
+  it('uses the shared formal catalog reader and preserves reference exclusion and projection', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+      blueprint: {}, projectReferences: gateway.projectReferences})
+    const projects = await workspace.listReferenceProjects()
+
+    expect(applicationListReader.read).toHaveBeenCalledOnce()
+    expect(applicationListReader.read).toHaveBeenCalledWith(expect.any(Function))
+    expect(projects).toEqual([{
+      projectId: 'APP-OTHER', name: '其他应用', icon: '', description: '采购系统说明',
+    }])
+  })
+
+  it('rejects reference candidates when the bound workspace is no longer the request application', async () => {
+    saveExecutionScope('APP-OTHER')
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    await expect(workspace.listReferenceProjects()).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(applicationListReader.read).not.toHaveBeenCalled()
+  })
+
+  it('discards a late reference catalog after the request application changes', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const pending = deferred<unknown[]>()
+    applicationListReader.read.mockReturnValue(pending.promise)
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    const result = workspace.listReferenceProjects()
+    saveExecutionScope('APP-OTHER')
+    pending.resolve([{id: 'APP-THIRD', name: '第三应用'}])
+
+    await expect(result).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('prefers stale scope over a late reference catalog error', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const pending = deferred<unknown[]>()
+    applicationListReader.read.mockReturnValue(pending.promise)
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+      blueprint: {}, projectReferences: gateway.projectReferences})
+
+    const result = workspace.listReferenceProjects()
+    saveExecutionScope('APP-OTHER')
+    pending.reject(new Error('formal catalog request failed'))
+
+    await expect(result).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+
+  it('preserves target-project blueprint reads behind the project reference gateway', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([
+      record({nodeId: 'TARGET-PAGE', name: 'report', title: '目标页面', kind: 'page', target: 'cfg:report', order: 1}),
+    ])
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+
+    const blueprint = await gateway.projectReferences.loadProjectBlueprint('APP-TARGET')
+
+    expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
+    expect(blueprint.nodeId).toBe('TARGET-PAGE')
+  })
 })
 
 type BlueprintFixtureInput = Readonly<{
@@ -259,7 +343,6 @@ describe('lowcode project navigation projection', () => {
   it('keeps an explicit target separate from the stable execution application', async () => {
     saveExecutionScope('APP-A')
     const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(application('APP-B'))
-    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications')
     navigationRootReader.read.mockImplementation(async (systemId, assertCurrent) => {
       assertCurrent()
       return `ROOT-${systemId}`
@@ -271,7 +354,6 @@ describe('lowcode project navigation projection', () => {
 
     expect(readApplication).toHaveBeenCalledOnce()
     expect(readApplication).toHaveBeenCalledWith('APP-B', expect.any(Function))
-    expect(listApplications).not.toHaveBeenCalled()
     expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', expect.any(Function))
     expect(resolveRoot).toHaveBeenCalledOnce()
     expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
@@ -306,13 +388,11 @@ describe('lowcode project navigation projection', () => {
   it('preserves application directory reader errors without a legacy list fallback', async () => {
     saveExecutionScope('APP-A')
     const readApplication = vi.spyOn(applicationCatalogReader, 'read').mockRejectedValue(new Error('formal app catalog query failed'))
-    const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications')
     const resolveRoot = navigationRootReader.read
 
     await expect(readLowcodeRuntimeNavigation('APP-B')).rejects.toThrow('formal app catalog query failed')
 
     expect(readApplication).toHaveBeenCalledOnce()
-    expect(listApplications).not.toHaveBeenCalled()
     expect(resolveRoot).not.toHaveBeenCalled()
   })
 

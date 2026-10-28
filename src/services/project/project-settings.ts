@@ -11,6 +11,7 @@ import {
   lowcodeApi,
   readLowcodeRuntimeNavigation,
 } from '@/lowcode/lowcode-runtime'
+import {readLowcodeApplicationById} from '@/lowcode/lowcode-application-catalog'
 
 /** 项目详情：从后端 API 读取的项目元数据投影 */
 export type ProjectDetail = {
@@ -105,12 +106,33 @@ export async function loadProjectRuntimeSettings(
 ): Promise<ProjectRuntimeSettings> {
   const session = lowcodeApi.session.get()
   if (session?.enterprise.shortName !== tenantId) {
-    throw new Error('lowcode 当前会话无权读取该企业应用设置')
+    throw new Error('lowcode 应用设置路由企业与当前会话不一致')
   }
-  const applications = await lowcodeApi.platform.listApplications()
-  const application = applications.find((item) => item.id === projectId)
-  if (application === undefined) throw new Error(`lowcode 应用不存在或无权访问：${projectId}`)
-  const nav = await readLowcodeRuntimeNavigation(projectId)
+  const initialScope = lowcodeApi.readRequestScope()
+  const assertCurrent = (): void => {
+    const currentSession = lowcodeApi.session.get()
+    if (currentSession?.enterprise.shortName !== tenantId) {
+      throw new Error('lowcode 应用设置路由企业与当前会话不一致')
+    }
+    let currentToken: string
+    try {currentToken = lowcodeApi.readRequestScope().token}
+    catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 应用设置读取身份已失效')}
+    if (currentToken !== initialScope.token) {
+      throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 应用设置读取身份已失效')
+    }
+  }
+  assertCurrent()
+  let application: Awaited<ReturnType<typeof readLowcodeApplicationById>>
+  let nav: RuntimeNavigation
+  try {
+    application = await readLowcodeApplicationById(projectId, assertCurrent)
+    assertCurrent()
+    nav = await readLowcodeRuntimeNavigation(projectId)
+    assertCurrent()
+  } catch (error) {
+    assertCurrent()
+    throw error
+  }
   const project: ProjectDetail = {
     tenantId,
     projectId,

@@ -109,9 +109,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {
     readRequestScope:()=>({token:'scope',headers:{'X-AppId':'homepage'}}),
     dataSpace:{design:{readModels}},
-    platform: {
-      listApplications: async () => [],
-    },
+    platform: {},
   },
   createLowcodeProjectGateways: () => ({
     pageFiles: {

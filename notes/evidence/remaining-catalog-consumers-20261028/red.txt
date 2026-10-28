@@ -1,0 +1,217 @@
+COMMAND: pnpm exec vitest run tests/runtime/project/project-settings-formal-catalog.test.ts tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/project/project-settings-formal-catalog.test.ts (4 tests | 3 failed) 17ms
+     × reads the target application through the authenticated formal catalog reader 8ms
+     × rejects an application result after the authenticated request scope changes 5ms
+     × rejects navigation metadata after the authenticated request scope changes 1ms
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts (34 tests | 3 failed) 100ms
+     × projects every visible application through one formal DataView and releases the owner 9ms
+     × omits application description when Memo is unavailable or unreadable 1ms
+     × releases the formal DataView owner when full application catalog query fails 1ms
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts (41 tests | 3 failed) 697ms
+     × does not expose the unscoped legacy application directory API 9ms
+     × uses the shared formal catalog reader and preserves reference exclusion and projection 3ms
+     × rejects reference candidates when the bound workspace is no longer the request application 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > project reference application catalog owner > does not expose the unscoped legacy application directory API
+AssertionError: expected [AsyncFunction listApplications] to be undefined
+
+- Expected:
+undefined
+
++ Received:
+[Function listApplications]
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:148:66
+    146| describe('project reference application catalog owner', () => {
+    147|   it('does not expose the unscoped legacy application directory API', …
+    148|     expect(Reflect.get(lowcodeApi.platform, 'listApplications')).toBeU…
+       |                                                                  ^
+    149|   })
+    150|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > project reference application catalog owner > uses the shared formal catalog reader and preserves reference exclusion and projection
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:164:40
+    162|     else Reflect.set(platform, 'listApplications', priorLegacyReader)
+    163|
+    164|     expect(applicationListReader.read).toHaveBeenCalledOnce()
+       |                                        ^
+    165|     expect(oldDirectory).not.toHaveBeenCalled()
+    166|     expect(projects).toEqual([{
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > project reference application catalog owner > rejects reference candidates when the bound workspace is no longer the request application
+AssertionError: promise resolved "[ { projectId: 'APP-OTHER', …(3) } ]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[
+  {
+    "description": "",
+    "icon": "",
+    "name": "APP-OTHER",
+    "projectId": "APP-OTHER",
+  },
+]
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:179:51
+    177|       blueprint: {}, projectReferences: gateway.projectReferences})
+    178|
+    179|     await expect(workspace.listReferenceProjects()).rejects.toThrow('S…
+       |                                                   ^
+    180|     expect(applicationListReader.read).not.toHaveBeenCalled()
+    181|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/runtime/project/project-settings-formal-catalog.test.ts > project runtime settings application catalog owner > reads the target application through the authenticated formal catalog reader
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'APP-1', Any<Function> ]
+
+Number of calls: 0
+
+ ❯ tests/runtime/project/project-settings-formal-catalog.test.ts:34:30
+     32|     const settings = await loadProjectRuntimeSettings('Tenant', 'APP-1…
+     33|
+     34|     expect(catalog.readById).toHaveBeenCalledWith('APP-1', expect.any(…
+       |                              ^
+     35|     expect(settings.project).toMatchObject({
+     36|       projectId: 'APP-1', name: '财务管理', description: '财务管理', projectTy…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/runtime/project/project-settings-formal-catalog.test.ts > project runtime settings application catalog owner > rejects an application result after the authenticated request scope changes
+AssertionError: promise resolved "{ project: { …(8) }, …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "homeNodeOptions": [],
++   "project": {
++     "description": "财务管理",
++     "homeNodeId": null,
++     "icon": "",
++     "name": "财务管理",
++     "order": 0,
++     "projectId": "APP-1",
++     "projectType": "application",
++     "tenantId": "Tenant",
++   },
++   "rootModuleId": "ROOT-1",
+  }
+
+ ❯ tests/runtime/project/project-settings-formal-catalog.test.ts:53:63
+     51|     })
+     52|
+     53|     await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+       |                                                               ^
+     54|       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+     55|     expect(runtime.readNavigation).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/runtime/project/project-settings-formal-catalog.test.ts > project runtime settings application catalog owner > rejects navigation metadata after the authenticated request scope changes
+AssertionError: promise resolved "{ project: { …(8) }, …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "childPlacement": "header",
++   "homeNodeOptions": [],
++   "project": {
++     "description": "财务管理",
++     "homeNodeId": null,
++     "icon": "",
++     "name": "财务管理",
++     "order": 0,
++     "projectId": "APP-1",
++     "projectType": "application",
++     "tenantId": "Tenant",
++   },
++   "rootModuleId": "ROOT-1",
+  }
+
+ ❯ tests/runtime/project/project-settings-formal-catalog.test.ts:65:63
+     63|     })
+     64|
+     65|     await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+       |                                                               ^
+     66|       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+     67|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > projects every visible application through one formal DataView and releases the owner
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:141:52
+    139|       readLowcodeApplications?: (assertCurrent: () => void) => Promise…
+    140|     }
+    141|     expect(typeof catalog.readLowcodeApplications).toBe('function')
+       |                                                    ^
+    142|     if (!catalog.readLowcodeApplications) throw new Error('readLowcode…
+    143|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits application description when Memo is unavailable or unreadable
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:169:52
+    167|       readLowcodeApplications?: (assertCurrent: () => void) => Promise…
+    168|     }
+    169|     expect(typeof catalog.readLowcodeApplications).toBe('function')
+       |                                                    ^
+    170|     if (!catalog.readLowcodeApplications) throw new Error('readLowcode…
+    171|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the formal DataView owner when full application catalog query fails
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:192:52
+    190|       readLowcodeApplications?: (assertCurrent: () => void) => Promise…
+    191|     }
+    192|     expect(typeof catalog.readLowcodeApplications).toBe('function')
+       |                                                    ^
+    193|     if (!catalog.readLowcodeApplications) throw new Error('readLowcode…
+    194|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 70 passed (79)
+   Start at  23:38:28
+   Duration  12.30s (transform 14.00s, setup 449ms, import 19.91s, tests 814ms, environment 3.81s)
+
+EXIT_CODE: 1

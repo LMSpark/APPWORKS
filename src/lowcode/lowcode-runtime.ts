@@ -17,7 +17,7 @@ import { getVuePageOptions } from '@/registries/vue-page-registry'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
-import {readLowcodeApplicationById, readLowcodeNavigationRootId} from './lowcode-application-catalog'
+import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
@@ -567,12 +567,34 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     },
     blueprint: {},
     projectReferences: {
-      listProjects: async () => (await lowcodeApi.platform.listApplications()).map((application) => ({
-        projectId: application.id,
-        name: application.name,
-        icon: '',
-        description: application.description ?? '',
-      })),
+      listProjects: async () => {
+        const scope = lowcodeApi.readRequestScope()
+        const assertCurrent = (): void => {
+          let currentScope: ReturnType<typeof lowcodeApi.readRequestScope>
+          try {currentScope = lowcodeApi.readRequestScope()}
+          catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: 项目引用目录所属工作区已失效')}
+          if (currentScope.token !== scope.token || currentScope.headers['X-AppId'] !== normalizedProjectId) {
+            throw new Error('SPARK_EXECUTION_SCOPE_STALE: 项目引用目录所属工作区已失效')
+          }
+        }
+        if (scope.headers['X-AppId'] !== normalizedProjectId) {
+          throw new Error('SPARK_EXECUTION_SCOPE_STALE: 项目引用目录所属工作区与请求应用不一致')
+        }
+        try {
+          assertCurrent()
+          const applications = await readLowcodeApplications(assertCurrent)
+          assertCurrent()
+          return applications.map((application) => ({
+            projectId: application.id,
+            name: application.name,
+            icon: '',
+            description: application.description ?? '',
+          }))
+        } catch (error) {
+          assertCurrent()
+          throw error
+        }
+      },
       loadProjectBlueprint: readLowcodeProjectBlueprintEditorTree,
     },
   }

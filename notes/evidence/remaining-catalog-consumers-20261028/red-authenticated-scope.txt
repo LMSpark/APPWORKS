@@ -1,0 +1,19 @@
+Authenticated-scope regression RED record
+Date: 2026-10-28
+
+No implementation-before RED transcript was captured for the two added
+readLowcodeNavigationRootId tests. Those tests were added after the shared
+authenticated-scope guard had already been implemented. This file is an
+explicit evidence gap record; it is not a failing test transcript and does
+not claim those tests were observed RED.
+
+The tests are now post-implementation regression coverage in:
+tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts
+
+They exercise a real formal DataView query with a no-op caller assertion,
+clear the authenticated session while the successful response is in flight,
+and assert stale-scope rejection plus DataSet release. A paired case rejects
+the query after clearing the session and asserts stale-scope precedence plus
+DataSet release. Current passing output is in
+green-authenticated-readers.txt. The original nine-case RED remains preserved
+unchanged in red.txt.

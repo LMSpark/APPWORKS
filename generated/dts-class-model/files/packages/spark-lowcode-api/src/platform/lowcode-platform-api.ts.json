@@ -568,15 +568,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.listApplications.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.listApplications.return": {
-          "type": "object",
-          "title": "Promise<readonly LowcodeApplication[]>"
-        },
         "method.selectApplication.params": {
           "type": "object",
           "properties": {
@@ -624,7 +615,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T14:58:05.346Z",
+  "generatedAt": "2026-10-28T15:41:40.125Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1461,21 +1452,6 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "listApplications",
-              "jsdoc": "列出当前企业可访问应用；请求头 x-FormKey 固定为应用目录表单键。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "readonly LowcodeApplication[]"
                   }
                 ]
               }

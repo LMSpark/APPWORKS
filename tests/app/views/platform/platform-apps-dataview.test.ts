@@ -10,7 +10,6 @@ const state = vi.hoisted(() => ({
   refresh: vi.fn<() => Promise<{success: boolean; message?: string}>>(async () => ({success: true})),
   dataSet: {} as {getView: () => unknown; onAnyViewChange: () => () => void; destroy: () => void},
   loadCatalog: vi.fn(async () => state.dataSet),
-  listApplications: vi.fn(),
   dispose: vi.fn(),
   projectSwitchKey: Symbol('PROJECT_SWITCH_KEY'),
   staleReceipt: false,
@@ -74,7 +73,7 @@ afterEach(() => {
     onAnyViewChange: () => () => undefined, destroy: vi.fn()}
   state.refresh.mockReset().mockResolvedValue({success: true})
   state.loadCatalog.mockReset().mockResolvedValue(state.dataSet)
-  state.listApplications.mockReset(); state.dispose.mockReset()
+  state.dispose.mockReset()
   state.children = []; state.actions = []; state.viewKey = ''
   state.includeIsSys = false; state.isSysReadable = false
   state.staleReceipt = false; state.assertCurrent.mockReset().mockImplementation(() => {if (state.staleReceipt) throw new Error('selection was superseded')})
@@ -95,7 +94,6 @@ describe('PlatformApps formal application catalog', () => {
   it('binds the standard table to the formal view and refreshes that DataView', async () => {
     const {wrapper} = await mountPage()
     expect(state.loadCatalog).toHaveBeenCalledOnce()
-    expect(state.listApplications).not.toHaveBeenCalled()
     expect(state.viewKey).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
     expect(wrapper.findComponent({name: 'RendererTable'}).props('showDataViewMeta')).toBe(true)
     expect(state.children.map(child => child.props?.['field'])).toEqual(['rowid', 'AppDesc', 'Memo'])

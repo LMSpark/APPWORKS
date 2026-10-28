@@ -1,0 +1,138 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/catalog-baseline-audit/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining visible reads
+🐛 [DataView] 销毁 DataView: Orders:default
+
+stdout | src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining masked reads
+🐛 [DataView] 销毁 DataView: Orders:default
+
+stdout | src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining hidden reads
+🐛 [DataView] 销毁 DataView: Orders:default
+
+ ❯ src/platform/data-space/runtime/tests/data-space-model-alias.test.ts (49 tests | 3 failed) 303ms
+     × presents derived aliases as readonly in existing and new rows while retaining visible reads 19ms
+     × presents derived aliases as readonly in existing and new rows while retaining masked reads 3ms
+     × presents derived aliases as readonly in existing and new rows while retaining hidden reads 2ms
+stdout | src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+🐛 [DataView] 销毁 DataView: _Base_DictType:default
+🐛 [DataView] 销毁 DataView: _Base_DictData:default
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts (97 tests | 1 failed) 849ms
+     × keeps an explicit server rejection editable and allows a later deliberate retry 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:676:55
+    674|     await expect(workspace.saveData()).rejects.toThrow('字典条目业务拒绝')
+    675|
+    676|     expect.soft(workspace.entries.hasUnconfirmedSave).toBe(false)
+       |                                                       ^
+    677|     expect.soft(workspace.requiresVerification).toBe(false)
+    678|     expect.soft(workspace.entries.getEditingRow('E1')?.['exVal_4']).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:677:49
+    675|
+    676|     expect.soft(workspace.entries.hasUnconfirmedSave).toBe(false)
+    677|     expect.soft(workspace.requiresVerification).toBe(false)
+       |                                                 ^
+    678|     expect.soft(workspace.entries.getEditingRow('E1')?.['exVal_4']).to…
+    679|     expect.soft(workspace.pending).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+AssertionError: promise rejected "Error: 字典提交或结果核验尚未结束" instead of resolving
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:683:43
+    681|     http.rejectWrite = undefined
+    682|
+    683|     await expect.soft(workspace.saveData()).resolves.toBeUndefined()
+       |                                           ^
+    684|
+    685|     expect.soft(http.saves).toHaveLength(2)
+
+Caused by: Error: 字典提交或结果核验尚未结束
+ ❯ DictionaryWorkspace.save src/platform/resources/dictionary/dictionary-workspace.ts:266:46
+ ❯ DictionaryWorkspace.saveData src/platform/resources/dictionary/dictionary-workspace.ts:204:16
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:683:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+AssertionError: expected [ { …(7) } ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:685:29
+    683|     await expect.soft(workspace.saveData()).resolves.toBeUndefined()
+    684|
+    685|     expect.soft(http.saves).toHaveLength(2)
+       |                             ^
+    686|     expect.soft(http.records['_Base_DictData']![0]!['exVal_4']).toBe('…
+    687|     dataSet.destroy()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/platform/resources/dictionary/dictionary-workspace.test.ts > Dictionary resource through formal DataViews > keeps an explicit server rejection editable and allows a later deliberate retry
+AssertionError: expected null to be '被拒后保留的草稿' // Object.is equality
+
+- Expected:
+"被拒后保留的草稿"
+
++ Received:
+null
+
+ ❯ src/platform/resources/dictionary/dictionary-workspace.test.ts:686:65
+    684|
+    685|     expect.soft(http.saves).toHaveLength(2)
+    686|     expect.soft(http.records['_Base_DictData']![0]!['exVal_4']).toBe('…
+       |                                                                 ^
+    687|     dataSet.destroy()
+    688|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining visible reads
+ FAIL  src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining masked reads
+ FAIL  src/platform/data-space/runtime/tests/data-space-model-alias.test.ts > formal model alias query ownership > presents derived aliases as readonly in existing and new rows while retaining hidden reads
+Error: DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须通过 addRowWithIdentity 独立提交
+ ❯ DataView.addRow ../spark-data/src/data-view.ts:2688:17
+    2686|         const keyField = context.resultPrimaryKey
+    2687|         if (keyField !== '' && Object.hasOwn(data, keyField)) {
+    2688|           throw new Error('DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED: 正式主键必须…
+       |                 ^
+    2689|         }
+    2690|         this.preflightNewRowFields(context, data)
+ ❯ src/platform/data-space/runtime/tests/data-space-model-alias.test.ts:410:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 142 passed (146)
+   Start at  23:55:45
+   Duration  4.25s (transform 4.02s, setup 0ms, import 5.27s, tests 1.15s, environment 0ms)

@@ -1,0 +1,9 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/catalog-baseline-audit/SPARK_AppWorks
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 47 skipped (49)
+   Start at  23:56:58
+   Duration  20.33s (transform 14.63s, setup 152ms, import 18.24s, tests 69ms, environment 1.49s)

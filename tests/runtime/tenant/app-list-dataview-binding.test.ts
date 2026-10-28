@@ -79,7 +79,7 @@ describe('AppList formal scenario data binding', () => {
   it('uses the authenticated formal catalog by default and preserves explicit-scenario cancellation/disposal guards', () => {
     expect(source).toContain('loadLowcodeApplicationCatalog()')
     expect(source).toContain('blueprintScenarioId.value || LOWCODE_APPLICATION_CATALOG_FORM_KEY')
-    expect(source).not.toContain('lowcodeApi.platform.listApplications()')
+    expect(source).not.toContain('listApplications')
     expect(source).not.toContain('projects.value')
     expect(source).not.toContain('el-row v-else-if')
     expect(source).toContain('own !== generation')

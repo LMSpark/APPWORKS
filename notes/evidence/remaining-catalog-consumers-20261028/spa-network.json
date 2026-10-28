@@ -1,0 +1,123 @@
+{
+  "truncated": false,
+  "documentRequests": 0,
+  "queries": [
+    {
+      "table": "Base_AppSystemList",
+      "page": {
+        "index": 1,
+        "size": 20
+      },
+      "fields": [
+        "AppType",
+        "publisher_ent",
+        "Memo",
+        "AppDesc",
+        "rowid",
+        "EntId",
+        "WebUrl",
+        "EntShortName",
+        "AppName",
+        "isSass"
+      ],
+      "distinct": true,
+      "outputFieldMode": "REQUEST",
+      "code": 200,
+      "total": 62,
+      "returned": 20,
+      "memoPresent": 8
+    },
+    {
+      "table": "Base_AppSystemList",
+      "page": {
+        "index": 2,
+        "size": 20
+      },
+      "fields": [
+        "AppType",
+        "publisher_ent",
+        "Memo",
+        "AppDesc",
+        "rowid",
+        "EntId",
+        "WebUrl",
+        "EntShortName",
+        "AppName",
+        "isSass"
+      ],
+      "distinct": true,
+      "outputFieldMode": "REQUEST",
+      "code": 200,
+      "total": 62,
+      "returned": 20,
+      "memoPresent": 2
+    },
+    {
+      "table": "Base_AppSystemList",
+      "page": {
+        "index": 3,
+        "size": 20
+      },
+      "fields": [
+        "AppType",
+        "publisher_ent",
+        "Memo",
+        "AppDesc",
+        "rowid",
+        "EntId",
+        "WebUrl",
+        "EntShortName",
+        "AppName",
+        "isSass"
+      ],
+      "distinct": true,
+      "outputFieldMode": "REQUEST",
+      "code": 200,
+      "total": 62,
+      "returned": 20,
+      "memoPresent": 8
+    },
+    {
+      "table": "Base_AppSystemList",
+      "page": {
+        "index": 4,
+        "size": 20
+      },
+      "fields": [
+        "AppType",
+        "publisher_ent",
+        "Memo",
+        "AppDesc",
+        "rowid",
+        "EntId",
+        "WebUrl",
+        "EntShortName",
+        "AppName",
+        "isSass"
+      ],
+      "distinct": true,
+      "outputFieldMode": "REQUEST",
+      "code": 200,
+      "total": 62,
+      "returned": 2,
+      "memoPresent": 1
+    },
+    {
+      "table": "Base_NavigationInfo",
+      "page": {
+        "index": 1,
+        "size": 1
+      },
+      "fields": [
+        "rowid",
+        "SysId",
+        "prowid"
+      ],
+      "distinct": true,
+      "outputFieldMode": "REQUEST",
+      "code": 200,
+      "total": 1,
+      "returned": 1
+    }
+  ]
+}

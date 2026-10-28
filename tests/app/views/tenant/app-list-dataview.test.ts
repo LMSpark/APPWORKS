@@ -9,7 +9,6 @@ const state = vi.hoisted(() => ({
   rows: [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}] as Array<{rowid: string; AppName: string; AppDesc: string; IsSys?: number}>,
   dataViewLoad: vi.fn(async () => ({success: true})),
   applicationCatalogLoad: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'})),
-  listApplications: vi.fn(async () => [{id: 'legacy', name: 'Legacy', description: 'legacy'}]),
   listEnterprises: vi.fn(async () => [{id: 'E1', name: '领码科技', shortName: 'Lingma'}]),
   login: vi.fn(async () => ({enterprise: {shortName: 'Lingma'}})),
   disposed: 0,
@@ -41,7 +40,7 @@ vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   loadLowcodeApplicationCatalog: state.applicationCatalogLoad,
 }))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}, platform: {listApplications: state.listApplications, listEnterprises: state.listEnterprises, login: state.login}},
+  lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}, platform: {listEnterprises: state.listEnterprises, login: state.login}},
   readLowcodePrincipal: () => ({enterpriseName: 'acme'}),
 }))
 vi.mock('@/services/tenant-scope', () => ({
@@ -112,7 +111,6 @@ describe('AppList DataView routing', () => {
     state.distinct = undefined
     const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
     expect(state.dataViewLoad).toHaveBeenCalledOnce()
-    expect(state.listApplications).not.toHaveBeenCalled()
     expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('0C70F74793F9E858B71E0DBDEC784D57@Base_AppSystemList@default')
     expect(wrapper.text()).toContain('Alpha')
   })
@@ -124,7 +122,6 @@ describe('AppList DataView routing', () => {
     expect(state.applicationCatalogLoad).toHaveBeenCalledOnce()
     expect(state.loadedScenarioIds).toEqual(['7AB874097A1E8711A42FD845939A6E05'])
     expect(state.dataViewLoad).toHaveBeenCalledOnce()
-    expect(state.listApplications).not.toHaveBeenCalled()
     expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
     expect(wrapper.text()).toContain('Alpha')
     const visible = wrapper.get('[data-testid="scenario-list"]').attributes('data-visible-children')
@@ -149,7 +146,6 @@ describe('AppList DataView routing', () => {
     state.allPages = false
     const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
     expect(state.dataViewLoad).not.toHaveBeenCalled()
-    expect(state.listApplications).not.toHaveBeenCalled()
     expect(state.applicationCatalogLoad).not.toHaveBeenCalled()
     expect(wrapper.get('[role="alert"]').text()).toContain('allPages')
   })

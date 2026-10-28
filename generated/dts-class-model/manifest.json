@@ -10735,7 +10735,7 @@
         "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/lowcode-application",
-        "jsdoc": "低代码应用目录查询的请求体构造与响应归一化。",
+        "jsdoc": "应用目录 GetData 请求头 x-FormKey 固定值。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LowcodeApplication"

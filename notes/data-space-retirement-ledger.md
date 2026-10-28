@@ -2824,3 +2824,10 @@ flowchart TD
 - **实现前置：**关系写入命令已按 DataView 查询完整性、字段 `newRowFieldAccess`、`DataView.addRow` 与 `DataSet.saveChanges` 设计，但自动化夹具不能证明正式字段可写或服务端会接受回执。现有其它关系引用的 `03D8E17A...` 候选 DataSpace 未在 D99 目录确认；不把它或 D99 的元数据目录临时当作候选 owner。
 - **本轮验证边界：**重新尝试只读 SPA 检查时，Computer Use 拒绝以 Windows Chrome 窗口继续，原因是无法足够确定当前浏览器 URL；没有执行 UI 输入或数据写入。后续须在可验证 URL 的现有 SPA 窗口中，先核正式候选 DataSpace、关系字段读写权限及查询/保存回执，再接生产配置入口。
 - **变更状态：**只做源码与台账复核，没有产品代码、正式 DataSpace、关系行或 Java 改动；本条更新应随独立台账提交实时推送。整体 SPARK data 统一目标保持 active。
+
+### 2026-10-28 整合续进与 SPA 会话核验
+
+- **SPA 现场：**确认本 worktree 的前端 Vite 服务已停止；只启动了仓内 `pnpm run dev -- --host 127.0.0.1 --port 5273`，未触碰 Java。IAB 当前可访问本地 SPA，但显示公开平台首页“登录”，没有认证会话，因此本轮没有请求正式 DataView、没有查询/写入正式数据，也没有保存 DataSpace 配置。
+- **认证边界：**用户已提供测试账号，但当前 `computer-use` 技能明确禁止自动化用户认证表单。本轮未填入或提交认证信息。需在当前打开的本地 SPA 由用户手动登录，之后继续 7AB `Base_AppSystemList` 的只读命名视图预览，并对比历史 61 行与正式 DataView 的范围及字段授权。
+- **低价模型候选审计：**低价模型按最新源码/台账只读复核，没有发现可绕开外部合同缺口而安全闭环的实现切片：根应用目录仍缺正式 root/tenant scope 与服务端行/字段投影（旧 API 历史 61 行、DataView 只读 1 行）；导航根缺独立 owner/scope/授权回执；物理表预览 executor 仍 raw GetData 并在前端合成投影/fieldAccess；Workflow 缺有效非空资源目标；DevSystem 关系写入缺字段可写授权、正式回执/读回和候选 DataSpace scope。故未改代码或测试，不用 DataView 包装旧调用冒充统一。总体目标继续 active。
+- **提交状态：**上一批代码、测试与证据已提交推送 `a69352e763ed1c4839cf4f81937e4d4e0595a5cd`；本条仅更新唯一台账并单独推送。无 Java 或正式数据改动。

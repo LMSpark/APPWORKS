@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {SparkData, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {configureNavHostProjectRelation, type NavHostProjectRelationConfig} from '../../src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command'
+import {configureNavHostProjectRelation, type NavHostProjectRelationConfig} from '../../../../src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command'
 
 const relationFields = ['prowid', 'pName', 'ValParamName', 'TextParamName', 'childrowid', 'title', 'location',
   'dataSetId', 'DataName', 'DbName', 'selectValParam', 'selectTextParam', 'dataType', 'selectPid', 'paramType'] as const

@@ -65,9 +65,11 @@ export async function configureNavHostProjectRelation(
   const matches = view.rows.filter(row => row['prowid'] === config.prowid)
   if (matches.length > 1) throw new Error('导航宿主关系已存在多条')
   if (matches.length === 1) throw new Error('导航宿主关系已存在，拒绝重复新增')
-  const values = Object.fromEntries(RELATION_FIELDS
-    .filter(field => config[field] !== '')
-    .map(field => [field, config[field]])) as Partial<DataRow>
+  const values: Partial<DataRow> = {}
+  for (const field of RELATION_FIELDS) {
+    const value = config[field]
+    if (value !== '') values[field] = value
+  }
 
   for (const field of Object.keys(values)) {
     if (view.newRowFieldAccess(field).write !== 'allowed') throw new Error(`导航宿主关系字段不可新增：${field}`)

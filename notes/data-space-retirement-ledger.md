@@ -2989,3 +2989,10 @@ flowchart TD
 - **当前会话证据：**刷新浏览器 inventory 后仍列出原应用列表与 D99 标签；按完整 D99 URL 再次附着仍返回 `browser.user is unavailable`。另经用户可见 IAB 打开同一 SPA 数据空间路由，新标签被重定向到公开“平台首页”，显示登录链接。故本次无法读取原标签页面或确认其认证态，也未取得 NavHost DataView/字段权限回包。
 - **安全边界与继续条件：**computer-use 技能明确禁止自动化用户认证表单。本会话已使用用户提供的测试账号授权上下文，不要求重发、不自动填表或盲目调用登录请求。必须先由平台提供可供当前工具附着的既有认证 SPA 会话/浏览器能力，再继续真实只读 DataView 取证；之后按正式服务范围和授权决定能否接入 DevSystem 项目关系。此技术阻断重复出现，低价源码审计也未找到可绕过它且满足 owner/scope/权限合同的代码切片。
 - **本次操作：**仅打开用户本地 SPA 路由并读取可见首页，未登录、未请求正式 DataView、未执行项目切换/查询/保存或其它业务数据写入；没有代码、正式数据或 Java 变更。总体目标未完成，唯一台账保持 active，现场证据未被历史烟测替代。
+
+### 2026-10-28 ProjectPlanning DataView 输入切片复核与当前会话续查
+
+- **实施候选复核：**低价模型复核 `runProjectPlanningAiSession()` 的真实 inline DevSystem 调用链：它把当前 `BlueprintWorkspaceDataView` 的授权树结果同步进同一个 `ProjectWorkspace`，再通过领域输入投影生成 AI payload；没有第二次远端查询。移除内存投影会失去 DataView 当前未证明提供的项目级 description fallback、projectInfo/root 附件引用优先级，以及导航行 `planningAttachmentRef`。候选当前不满足语义等价门槛，不改源码、不添加通过夹具包装旁路的测试。
+- **后续解锁合同：**先从正式 DataView 元数据、投影与授权回包证明 `planningAttachmentRef` 的可读字段归属，并明确项目级 description 与 `projectInfo.planningAttachmentRef` 的正式 SPARK data 来源；随后逐项验证 root-description 优先级、项目描述 fallback、附件优先级、节点输入投影和 scope 过滤，才可重构输入数据链。详细证据与路径见 [`planning-dataview-slice-current-report.md`](evidence/project-blueprint/planning-dataview-slice-current-report.md)。
+- **当前工具/浏览器证据：**刷新 CUA inventory 后仍可见 SPARK 应用列表标签 `http://127.0.0.1:5273/t/NewApp/homepage/app-list?__sparkNavigationId=appworks-tenant-app-list`；按已知标签 ID 读取页面再次返回 `browser.user is unavailable`。因此没有读取该标签 DOM、执行认证请求、正式 DataView 查询或业务写入。用户已提供账号及继续授权，不再要求重复提供；不自动填写登录表单。
+- **本轮交付边界：**基线 `HEAD=9715f26461ec6222e5bd226101553d3621e03620`，与 `origin/codex/ai-data-entry` 同步、初始工作树干净。仅新增本候选的只读证据报告及本台账记录；未改产品代码、测试、正式数据或 Java，未运行测试。整体 SPARK data 唯一通道目标继续 active；真实 SPA 烟测仍待可附着的认证会话。

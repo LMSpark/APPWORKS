@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
-const fixture = vi.hoisted(() => ({ save: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn() }))
+const fixture = vi.hoisted(() => ({ save: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), text: 'saved file contents' }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
-    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: ref(''),
+    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: ref(fixture.text),
     isFileDirty: () => state.dirty.value, save: fixture.save, refresh: vi.fn(),
   }),
 }))
@@ -41,10 +41,12 @@ function setup(hasFormalVersionBinding = true) {
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
   const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
   const state = {
-    activePageId: ref('page-A'), dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
+    activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
+    selectedNode: ref({nodeId: 'node-A', projectId: 'project-A', navigation: {target: 'cfg:legacy/route'}}),
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
     blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
+    createPageToolSnapshot: vi.fn().mockResolvedValue({version: 3, fileName: '3__script.js'}),
     editor: {
       createRemotePageVersion: vi.fn().mockResolvedValue(undefined),
       restoreRemotePageVersion: vi.fn().mockResolvedValue(undefined),
@@ -66,7 +68,7 @@ function setup(hasFormalVersionBinding = true) {
 }
 
 describe('DevFileEditor snapshot identity', () => {
-  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset() })
+  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset(); fixture.text = 'saved file contents' })
 
   it('queries the formal ProjectToolVersion DataView and binds the standard table to it', async () => {
     const { state, wrapper, click, view } = setup()
@@ -120,7 +122,7 @@ describe('DevFileEditor snapshot identity', () => {
     await click('版本'); await flushPromises(); await click('存档')
     await wrapper.setProps({ activeFile: 'style.css' })
     saved.resolve(); await flushPromises()
-    expect(state.editor.createRemotePageVersion).not.toHaveBeenCalled()
+    expect(state.createPageToolSnapshot).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 
@@ -129,7 +131,25 @@ describe('DevFileEditor snapshot identity', () => {
     const saved = deferred<void>(); fixture.save.mockReturnValueOnce(saved.promise)
     await click('版本'); await flushPromises(); await click('存档')
     state.dirty.value = true; saved.resolve(); await flushPromises()
+    expect(state.createPageToolSnapshot).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('creates the saved file snapshot through the SPARK data command owner', async () => {
+    const { state, wrapper, click } = setup()
+    await click('版本'); await flushPromises(); await click('存档'); await flushPromises()
+    expect(fixture.save).toHaveBeenCalledOnce()
+    expect(state.createPageToolSnapshot).toHaveBeenCalledOnce()
+    const input = state.createPageToolSnapshot.mock.calls[0]![0] as {
+      pageId: string; customPath: string; fileName: string; text: string; assertCurrent: () => void
+    }
+    expect(input).toMatchObject({pageId: 'page-A', customPath: 'project-A/page-A', fileName: 'script.js', text: 'saved file contents'})
+    expect(input.assertCurrent).toBeTypeOf('function')
+    input.assertCurrent()
     expect(state.editor.createRemotePageVersion).not.toHaveBeenCalled()
+    expect(state.addStatus).toHaveBeenCalledWith('script.js 已创建新版本快照', 'success')
+    state.activePageId.value = 'page-B'
+    expect(input.assertCurrent).toThrow('快照期间编辑目标已切换')
     wrapper.unmount()
   })
 

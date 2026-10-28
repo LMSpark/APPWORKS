@@ -3019,3 +3019,10 @@ flowchart TD
 - **原因及修正：**主控单文件复现 `tests/ui/field/value/field-basic-value-controls.test.ts` 有 1/20 失败。用例为检查正式派生列在“新增行”上的只读行为，fixture 却通过 `DataView.addRow({id:'new'})` 将主键当普通业务字段提交；DataView 按合同拒绝 `DATA_VIEW_NEW_ROW_IDENTITY_REQUIRED`。确认该查询上下文已有 `primaryKeyField=id`、`allowAdd=true` 与正式 `prepareNewRowWithIdentity` 合同后，测试改为 `addRowWithIdentity({field:'id', value:'new'}, {})`，保留新增行普通字段可编辑、派生字段只读的原意。只有测试文件更改，没有生产代码修改；RED 输出见 [`field-basic-value-controls-red-20261028.txt`](evidence/field-basic-value-controls-red-20261028.txt)。
 - **验证：**主控运行 `pnpm exec vitest run tests/ui/field packages/spark-data/src/tests/data-view/data-view-editing-checkpoint.test.ts --reporter=dot`，23 个文件、278 项通过；目标 ESLint 和 `git diff --check` 通过。此结果覆盖先前的标准字段绑定及行作用域回归；不代表真实 SPA 后端回包验收。
 - **边界：**本条是正式 DataView identity API 的测试适配，没有新增数据通道、正式数据写入或 Java 变更。SPA 登录对话框仍受 Computer Use `SKILL.md` 禁止自动化认证约束，不再次要求用户提供已给账号。总体目标保持 active，下一优先级仍是获得可附着的正式 SPA 认证会话并继续 root owner/scope 取证。
+
+### 2026-10-28 DevSystem 版本快照创建改走 SPARK data 命令视图
+
+- **实施：**`DevFileEditor` 创建版本快照不再直接调用 `host.createRemotePageVersion`。在工作文件先保存且确认未在保存期间继续编辑后，调用 `useDevState.createPageToolSnapshot`，使用已有 `PageToolFilesDataView` 命令行和 `DataSet.saveChanges`；命令 owner 保持原有未知回执核验、正式回执检查及原文/目录回读。快照路径固定为版本目录读取合同要求的 `${projectId}/${pageId}`，异步期间复核项目、页面、文件、导航节点身份。RED 原始输出为 [`dev-file-version-create-dataview-red-20261028.txt`](evidence/dev-file-version-create-dataview-red-20261028.txt)。
+- **主控验证：**`pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts tests/app/dev/page-tool-files-command.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot` 3 文件、80/80 通过；`pnpm run typecheck`、目标 ESLint、`git diff --check` 退出码均为 0。测试输出包含现有 Vue Test Utils 未注册 Element Plus 组件警告，不影响断言和退出码。没有更改 Java、正式 SPARK 数据或页面工作文件。
+- **未闭环项：**版本恢复仍由 `DevFileEditor` 直接调用 `host.restoreRemotePageVersion`，尚无经 DataView/DataSet 提交并消费恢复回执的正式命令合同；继续列为本项目数据层旁路，不宣称唯一通道已完成。真实 SPA 登录态与版本创建后的关闭/重开读回也未实测。用户已提供并授权测试账号，后续不得要求重复提供。Computer Use 的认证对话框限制下本轮未自动填写认证表单，也没有真实 SPA 请求或写入证据。
+- **总体状态：**SPARK data 唯一数据通道整合继续 active；下一步优先梳理恢复命令的正式 DataView/DataSet 合同，再实施并复核，之后完成可附着认证 SPA 的真实烟测。

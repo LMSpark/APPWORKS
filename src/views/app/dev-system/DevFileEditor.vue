@@ -281,13 +281,25 @@ async function createVersion() {
   if (versionBusy.value) return
   if (!alignActivePage()) return
   const pageId = props.state.activePageId.value
+  const projectId = props.state.projectId
   const fileName = resolvedActiveFile.value
+  const selectedNode = props.state.selectedNode.value
+  const nodeId = selectedNode?.nodeId
+  const navigationTarget = selectedNode?.navigation?.target
+  const customPath = `${projectId}/${pageId}`
   creatingVersion.value = true
   try {
     await fileEditor.save()
-    if (disposed || pageId !== props.state.activePageId.value || fileName !== resolvedActiveFile.value) throw new Error('保存期间编辑目标已切换，未创建快照')
+    const assertCurrent = () => {
+      const currentNode = props.state.selectedNode.value
+      if (disposed || pageId !== props.state.activePageId.value || projectId !== props.state.projectId
+        || fileName !== resolvedActiveFile.value || nodeId !== currentNode?.nodeId
+        || navigationTarget !== currentNode?.navigation?.target) throw new Error('快照期间编辑目标已切换')
+    }
+    assertCurrent()
     if (fileEditor.isFileDirty(fileName)) throw new Error('保存期间文件已修改，请先保存最新修改')
-    await host.value.createRemotePageVersion(fileName)
+    const text = fileEditor.text.value
+    await props.state.createPageToolSnapshot({pageId, customPath, fileName, text, assertCurrent})
     props.state.addStatus(`${fileName} 已创建新版本快照`, 'success')
     if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {

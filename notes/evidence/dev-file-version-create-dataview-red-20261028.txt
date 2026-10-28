@@ -1,0 +1,7 @@
+RED evidence — 2026-10-28
+Command: pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts
+Exit code: 1
+Result: 7 passed, 1 failed.
+Expected: state.createPageToolSnapshot to be called once.
+Actual: call count 0 at tests/app/dev/file-versions/dev-file-editor-versions.test.ts:141.
+This confirms createVersion still bypasses the formal snapshot DataView command owner before the implementation change.

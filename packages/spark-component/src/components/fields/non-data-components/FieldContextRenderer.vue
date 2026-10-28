@@ -286,13 +286,13 @@ defineSlots<{
 }
 .field-label {
   display: inline-block;
-  color: #606266;
+  color: var(--el-text-color-regular, #606266);
   font-weight: 500;
   margin-right: 8px;
 }
 .field-value {
   display: inline-block;
-  color: #303133;
+  color: var(--el-text-color-primary, #303133);
 }
 
 .field-align--left {

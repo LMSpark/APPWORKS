@@ -1,0 +1,9 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  20:46:01
+   Duration  10.50s (transform 6.83s, setup 116ms, import 8.82s, tests 461ms, environment 810ms)

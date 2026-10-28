@@ -1,0 +1,33 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > binds each FieldText card to its own row and uses the active theme text color
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+
+ ❯ tests/ui/renderer/renderer-list-section.test.ts (12 tests | 1 failed) 561ms
+     × binds each FieldText card to its own row and uses the active theme text color 207ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > binds each FieldText card to its own row and uses the active theme text color
+AssertionError: expected 'rgb(0, 0, 0)' to be 'rgb(237, 242, 247)' // Object.is equality
+
+Expected: "rgb(237, 242, 247)"
+Received: "rgb(0, 0, 0)"
+
+ ❯ tests/ui/renderer/renderer-list-section.test.ts:107:75
+    105|       ;(wrapper.element as HTMLElement).style.setProperty('--el-text-c…
+    106|       await nextTick()
+    107|       expect(getComputedStyle(wrapper.get('.field-value').element).col…
+       |                                                                           ^
+    108|     } finally {wrapper.unmount(); runtime.dispose(); ds.destroy()}
+    109|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  20:45:11
+   Duration  10.45s (transform 6.76s, setup 108ms, import 8.70s, tests 561ms, environment 833ms)

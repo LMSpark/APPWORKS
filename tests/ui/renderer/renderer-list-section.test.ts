@@ -1,15 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { config, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, markRaw } from 'vue'
 import ElementPlus from 'element-plus'
-import { RendererToolbar, RendererList, RendererTable, RendererSection, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { RendererToolbar, RendererList, RendererTable, RendererSection, FieldText, PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import { defineCapability } from '@spark-appworks/spark-utils'
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
+import type { DataView, SparkNode } from '@spark-appworks/spark-data'
+import { PageRuntime } from '@spark-appworks/spark-project-model'
+import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import { getMountedComponentApi, mountWithPageDataSet } from '../../support/helpers/mount-with-page-dataset'
 import { requireFunction, requireRecord, requireString } from '../../support/helpers/runtime-guards'
 
 function readConfigType(config: unknown): string {
   return requireString(requireRecord(config, 'action config')['type'], 'action config type')
+}
+
+async function loadListFieldQuery(view: DataView, metaName: string): Promise<void> {
+  const table = new DataSpaceQueryTable({scenarioId: view.dataSet?.scenarioId ?? 'SCENE', metaName})
+  const context = new DataSpaceQueryContext({identity: table.identity, scope: 'form', readScope: () => 'form',
+    snapshot: table.applyResult({Result: {primaryKeyField: 'rowid', data: {Items: view.rows, Count: view.rows.length}}}),
+  })
+  view.bindQueryExecutor({executeQuery: async () => context})
+  await view.loadFromServer()
 }
 
 const SparkActionStub = defineComponent({
@@ -48,6 +61,53 @@ const ElCardStub = defineComponent({
 })
 
 describe('RendererList and RendererSection container integration', () => {
+  it('binds each FieldText card to its own row independently of the view currentRow', async () => {
+    const scenarioId = 'APP-CATALOG'
+    const dataViewKey = `${scenarioId}@Base_AppSystemList@default`
+    const rows = [
+      {rowid: 'APP-A', AppDesc: 'Application Alpha', AppName: 'alpha', lingma_sys_params: {r: ['AppDesc', 'AppName'], e: [], h: [], m: [], d: false}},
+      {rowid: 'APP-B', AppDesc: 'Application Beta', AppName: 'beta', lingma_sys_params: {r: ['AppDesc', 'AppName'], e: [], h: [], m: [], d: false}},
+      {rowid: 'APP-CURRENT', AppDesc: 'Different current row', AppName: 'current', lingma_sys_params: {r: ['AppDesc', 'AppName'], e: [], h: [], m: [], d: false}},
+    ]
+    const ds = SparkData.createDataSet({scenarioId, dataSetName: 'ApplicationCatalog', tables: {Base_AppSystemList: {
+      tableName: 'Base_AppSystemList', modelBinding: {modelId: 'APP-MODEL', modelName: 'Base_AppSystemList'},
+      columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}, {name: 'AppDesc', type: 'string'}, {name: 'AppName', type: 'string'}],
+      views: {default: {autoCurrentFirst: false, rows}},
+    }}})
+    const view = ds.getView('Base_AppSystemList', 'default')!
+    const children: SparkNode[] = [
+      {type: 'r-text', id: 'app-name', props: {dataViewKey, dataMember: 'currentRow', dataField: 'AppDesc', label: '应用名称'}},
+      {type: 'r-text', id: 'app-description', props: {dataViewKey, dataMember: 'currentRow', dataField: 'AppDesc', label: '描述'}},
+    ]
+    const stubs = {...config.global.stubs}
+    delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+    const previousStubs = config.global.stubs
+    let runtime: PageRuntime | undefined
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      await loadListFieldQuery(view, 'Base_AppSystemList')
+      view.setCurrentRowById('APP-CURRENT')
+      config.global.stubs = stubs
+      const currentRuntime = new PageRuntime({pageId: 'app-catalog-list-test', scenarioIds: [scenarioId], mainScenarioId: scenarioId,
+        loadScenario: async () => ds})
+      runtime = currentRuntime
+      await currentRuntime.load()
+      const registry = Spark.createRegistry()
+      registry.register({type: 'r-text', component: FieldText})
+      const Harness = defineComponent({setup() {
+        const {sparkProvide} = useSparkComponent({type: 'app-catalog-list-test-root'})
+        sparkProvide(PAGE_RUNTIME, currentRuntime)
+        return () => h(RendererList, {dataViewKey, children, useCard: true, showPagination: false})
+      }})
+      wrapper = mount(Harness, {global: {plugins: [Spark.createPlugin({registry}), ElementPlus], stubs: {'el-card': ElCardStub}}})
+      const cards = wrapper.findAll('.renderer-list-cell')
+      expect(cards).toHaveLength(3)
+      expect(cards.map(card => card.find('.field-value').text())).toEqual([
+        'Application Alpha', 'Application Beta', 'Different current row',
+      ])
+    } finally {config.global.stubs = previousStubs; wrapper?.unmount(); runtime?.dispose(); ds.destroy()}
+  })
+
   it.each([['table', RendererTable], ['list', RendererList]] as const)('%s follows DataView pagination and preserves an explicit opt-out', async (kind, component) => {
     const ds = SparkData.createDataSet({dataSetName: 'Paging', tables: {Nodes: {tableName: 'Nodes',
       columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {}}}}})

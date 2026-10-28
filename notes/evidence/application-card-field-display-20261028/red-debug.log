@@ -1,0 +1,123 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > binds each FieldText card to its own row and uses the active theme text color
+<div data-v-de256dd1="" class="renderer-list-layout renderer-list-layout--top">
+  <!--v-if-->
+  <!--v-if-->
+  <!--v-if-->
+  <div data-v-de256dd1="" class="renderer-list-main renderer-list" style="display: grid; gap: 0px; grid-template-columns: repeat(24, minmax(0, 1fr)); grid-auto-rows: minmax(32px, auto); align-items: start;">
+    <div data-v-de256dd1="" class="renderer-list-cell" style="grid-column: span 24 / span 24; grid-row: span 1 / span 1; min-width: 0px;">
+      <div data-v-de256dd1="" class="renderer-list-item-shell renderer-list-item-shell--right">
+        <!--v-if-->
+        <div data-v-de256dd1="" class="">
+          <div data-v-de256dd1="" class="el-card-stub renderer-list-card" shadow="hover">
+            <!---->
+            <div data-v-de256dd1="" class="renderer-list-item-body" style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 0px; grid-auto-rows: minmax(32px, auto); align-items: start;">
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+        </div>
+        <!--v-if-->
+      </div>
+    </div>
+    <div data-v-de256dd1="" class="renderer-list-cell" style="grid-column: span 24 / span 24; grid-row: span 1 / span 1; min-width: 0px;">
+      <div data-v-de256dd1="" class="renderer-list-item-shell renderer-list-item-shell--right">
+        <!--v-if-->
+        <div data-v-de256dd1="" class="">
+          <div data-v-de256dd1="" class="el-card-stub renderer-list-card" shadow="hover">
+            <!---->
+            <div data-v-de256dd1="" class="renderer-list-item-body" style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 0px; grid-auto-rows: minmax(32px, auto); align-items: start;">
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+        </div>
+        <!--v-if-->
+      </div>
+    </div>
+    <div data-v-de256dd1="" class="renderer-list-cell" style="grid-column: span 24 / span 24; grid-row: span 1 / span 1; min-width: 0px;">
+      <div data-v-de256dd1="" class="renderer-list-item-shell renderer-list-item-shell--right">
+        <!--v-if-->
+        <div data-v-de256dd1="" class="">
+          <div data-v-de256dd1="" class="el-card-stub renderer-list-card" shadow="hover">
+            <!---->
+            <div data-v-de256dd1="" class="renderer-list-item-body" style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 0px; grid-auto-rows: minmax(32px, auto); align-items: start;">
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <div data-v-de256dd1="" class="renderer-list-grid-item" style="grid-row: span 1 / span 1; min-width: 0px; grid-column: span 24 / span 24;">
+                <!-- 已注册：SparkNode 运行时输入 + 事件处理器 → 统一作为 Vue Props 传递 -->
+                <!--v-if-->
+                <!-- table 模式：el-table-column -->
+                <!-- detail 模式（含 list 等只读宿主）：只读展示 -->
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+        </div>
+        <!--v-if-->
+      </div>
+    </div>
+  </div>
+  <!--v-if-->
+</div>
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+
+ ❯ tests/ui/renderer/renderer-list-section.test.ts (12 tests | 1 failed) 548ms
+     × binds each FieldText card to its own row and uses the active theme text color 102ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui/renderer/renderer-list-section.test.ts > RendererList and RendererSection container integration > binds each FieldText card to its own row and uses the active theme text color
+Error: Cannot call text on an empty DOMWrapper.
+ ❯ Object.get node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1488:27
+ ❯ tests/ui/renderer/renderer-list-section.test.ts:90:56
+     88|       console.log(wrapper.html())
+     89|       expect(cards).toHaveLength(3)
+     90|       expect(cards.map(card => card.find('.field-value').text())).toEq…
+       |                                                        ^
+     91|         'Application Alpha', 'Application Beta', 'Different current ro…
+     92|       ])
+ ❯ tests/ui/renderer/renderer-list-section.test.ts:90:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  20:44:44
+   Duration  10.34s (transform 6.51s, setup 116ms, import 8.62s, tests 548ms, environment 801ms)

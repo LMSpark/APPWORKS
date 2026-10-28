@@ -1,5 +1,11 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 用户反馈：卡片字段不可见的暗色主题修复
+
+- **现场定位：**用户反馈“卡片上字段没绑定数据”。本轮直接读取真实 SPA DOM，目录仍有 62 条，首卡 `.field-value` 的值为“数据资产管理”，但计算文字色为 `rgb(48,49,51)`，暗主题主文字变量为 `#edf2f7`。绑定值存在，标准 FieldContextRenderer 的固定深色字体导致视觉上近似空白；上批验收只确认值和导航，遗漏了暗色卡片的文字对比度。
+- **修复与回归：**低价模型将标准字段标题/值分别改为 Element Plus regular/primary 主题文字变量，保留无主题时的原亮色 fallback。未在页面手传值、创建数组或重建数据绑定。新增真实 RendererList/RendererHostScope/FieldText 与 PageRuntime/DataView 回归，currentRow 指向第三行时，前两张卡片仍显示各自行的不同字段值。测试环境不加载 SFC 样式，已删除无效的 JSDOM 颜色断言；真实颜色由浏览器验证，调查失败日志不冒充有效产品 RED。
+- **真实 SPA 复核与门禁：**修复后同一值“数据资产管理”的计算文字色为 `rgb(237,242,247)`，与当前主题变量一致；截图可见首两行卡片的应用名称、描述恢复清晰，目录仍为 62 条。主控独立复跑列表/表单/详情 39 项通过，根 typecheck、定向 ESLint、完整 verify:rules、build:fe 及 diff check 通过；保留既有 AI model 2 warnings/1 info 和 CodeMirror 构建告警。没有公开属性或声明变化，ClassModel 校验通过，未手改产物。没有配置/数据写入或 Java 修改。验证范围及结果见 [`summary.md`](evidence/application-card-field-display-20261028/summary.md)。
+
 ### 2026-10-28 默认应用目录接入 SPARK data 与标准列表
 
 - **实现：**低价模型为 DataView 查询配置补齐 `distinct` 的布尔校验、序列化、请求捕获和后端 DISTINCT 编码，省略继续为 false；没有浏览器本地去重。默认 AppList 以现有正式目录空间 `7AB874097A1E8711A42FD845939A6E05` 和 `Base_AppSystemList` 装配 PageRuntime/DataSet/DataView，元数据从正式设计 API 读取，执行器复用 DataSpaceApi、共享 HTTP/Bearer 和登录态上下文。原 AppList 的 `listApplications()`、项目数组和手写卡片分支已删除，使用原标准 RendererList 绑定；显式蓝图场景入口仍按其正式场景加载。

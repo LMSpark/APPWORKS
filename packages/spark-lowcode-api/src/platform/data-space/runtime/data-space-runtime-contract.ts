@@ -44,6 +44,7 @@ export type DataSpaceQueryOptions = Readonly<{
   sort?: readonly DataSpaceQuerySort[]
   page?: DataSpaceQueryPage
   allPages?: boolean
+  distinct?: boolean
   maxRows?: number
   tree?: DataSpaceQueryTree
   inputParams?: readonly DataSpaceQueryInput[]

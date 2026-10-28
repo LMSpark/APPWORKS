@@ -81,7 +81,7 @@ function viewQuerySort(value: string | undefined, fields: readonly DataSpaceView
 /** DataView 是 GetData 的查询输入；本地组织配置不推导服务器节点或业务身份。 */
 export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): DataSpaceViewQueryCommand {
   const allowed = ['page', 'pageSize', 'sort', 'filter', 'fields', 'viewId', 'viewConfig', 'projection', 'context',
-    'treeMode', 'tree', 'outputType', 'allPages', 'maxRows', 'singleFlight', 'sourceInputMode']
+    'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode']
   for (const key of Object.keys(params)) {
     if (params[key] !== undefined && !allowed.includes(key)) throw new TypeError(`SPARK DataView 不支持查询参数: ${key}`)
   }
@@ -113,6 +113,7 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
 
 /** 原 SPARK 查询输入映射；权限、请求身份与缓存策略不进入 wire 表。 */
 export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): DataSpaceWireQueryOptions {
+  if (options.distinct !== undefined && typeof options.distinct !== 'boolean') throw new TypeError('distinct 必须是布尔值')
   const outputFieldMode: unknown = options.outputFieldMode
   if (outputFieldMode !== undefined && outputFieldMode !== 'MODEL' && outputFieldMode !== 'REQUEST') {
     throw new TypeError('SPARK 查询 outputFieldMode 必须是 MODEL 或 REQUEST')
@@ -120,6 +121,7 @@ export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): Dat
   const sort = options.sort
   return {
     ...(outputFieldMode === undefined ? {} : {outputFieldMode}),
+    ...(options.distinct === undefined ? {} : {distinct: options.distinct}),
     ...(options.filter ? { filter: DataViewFilterCodec.encode(options.filter) } : {}),
     ...(sort?.length ? { sortFields: sort.map((item, order) => ({
       Field: item.field, OrderType: item.direction === 'asc' ? 'ascending' as const : 'descending' as const, Order: sort.length - order,

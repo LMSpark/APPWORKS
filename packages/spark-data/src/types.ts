@@ -684,7 +684,7 @@ export type ViewMetadata = {
   /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
   queryContext?: DataViewQueryContext
   /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */
-  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'maxRows' | 'fields' | 'sourceInputMode'> & {
+  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'sourceInputMode'> & {
     /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */
     cacheType?: 'none' | 'page' | 'browser'
     /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */
@@ -1590,6 +1590,8 @@ export type QueryParams = {
   pageSize?: number
   /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */
   allPages?: boolean
+  /** 请求服务器在查询结果上应用 DISTINCT，不在前端对已返回行去重；省略时由责任方按false处理。 */
+  distinct?: boolean
   /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */
   maxRows?: number
   /**

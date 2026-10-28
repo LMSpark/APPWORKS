@@ -72,6 +72,19 @@
           "additionalProperties": false
         },
         "method.assertClean.return": true,
+        "method.assertCleanExceptNewViewDraft.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCleanExceptNewViewDraft.return": true,
         "method.assertViewsClean.params": {
           "type": "object",
           "properties": {},
@@ -90,7 +103,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-17T17:14:09.680Z",
+  "generatedAt": "2026-10-28T00:53:10.222Z",
   "models": {
     "LowcodeDataSpaceViewMetadata": {
       "name": "LowcodeDataSpaceViewMetadata",
@@ -186,6 +199,30 @@
             {
               "name": "assertClean",
               "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertCleanExceptNewViewDraft",
+              "jsdoc": "Permit one newly inserted view definition while a disposable read preview consumes it.",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

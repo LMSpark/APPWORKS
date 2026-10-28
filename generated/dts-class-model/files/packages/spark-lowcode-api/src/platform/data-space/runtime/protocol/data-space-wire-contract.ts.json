@@ -251,6 +251,12 @@
             true
           ]
         },
+        "distinct": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "maxRows": {
           "type": "number"
         },
@@ -346,7 +352,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-23T06:59:03.913Z",
+  "generatedAt": "2026-10-28T12:17:34.539Z",
   "models": {
     "DataSpaceValueFunction": {
       "name": "DataSpaceValueFunction",
@@ -543,11 +549,11 @@
       "jsdoc": "已转换的内部查询选项，供查询表组装 SPARK 封包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+            "typeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -575,6 +581,11 @@
             },
             {
               "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
               "readable": true,
               "writable": false
             },

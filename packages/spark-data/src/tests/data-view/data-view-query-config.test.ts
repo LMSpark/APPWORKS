@@ -28,6 +28,16 @@ describe('DataView owns query configuration', () => {
     }
     expect(() => DataViewQuery.parse({cacheType: 'localStorage'})).toThrow('cacheType')
   })
+  it('validates and serializes the explicit distinct query setting', () => {
+    const {view} = fixture()
+    view.queryConfig = {distinct: true}
+    expect(view.queryConfig).toEqual({distinct: true})
+    const restored = DataView.fromJson(view.toJson(), 'Nodes', 'restored')
+    expect(restored.queryConfig).toEqual({distinct: true})
+    restored.destroy()
+    expect(DataViewQuery.parse({distinct: false})).toEqual({distinct: false})
+    expect(() => DataViewQuery.parse({distinct: 'true'})).toThrow('distinct')
+  })
   it('rejects enabling result cache on an executor or tree API without the cache protocol', async () => {
     const {view, load} = fixture()
     load.mockRestore()

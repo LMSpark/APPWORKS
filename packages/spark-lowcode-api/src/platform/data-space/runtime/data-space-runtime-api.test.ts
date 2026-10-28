@@ -1015,6 +1015,22 @@ describe('DataSet actual SPARK batch save', () => {
 })
 
 describe('DataView original query execution boundary', () => {
+  it('serializes DataView distinct configuration and explicit false overrides through the runtime query', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      view.queryConfig = {distinct: true}
+      await view.loadFromServer()
+      expect((http.queryRequests[0]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(true)
+
+      await view.loadFromServer({distinct: false})
+      expect((http.queryRequests[1]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(false)
+
+      view.queryConfig = {}
+      await view.loadFromServer()
+      expect((http.queryRequests[2]?.data as {Table: Array<{DISTINCT: boolean}>}).Table[0]?.DISTINCT).toBe(false)
+    } finally {ds.destroy()}
+  })
+
   it.each(['original', 'derived', 'sibling'] as const)('rejects an old formal-model %s view after an application round trip, while a fresh table can query', async kind => {
     const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
     const model = DataSpaceDesignApi.projectModel({rowid: 'MODEL-1', Name: 'Payroll', Type: '数据库表', MetaName: 'PayrollSalary'}, [

@@ -20,7 +20,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 
     <div class="app-list-content">
       <RendererList
-        v-if="scenarioId && scenarioView && !runtimeError"
+        v-if="scenarioView && !runtimeError"
         class="app-scenario-list"
         :data-view-key="scenarioDataViewKey"
         :children="scenarioRowChildren"
@@ -32,25 +32,6 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         card-shadow="hover"
         row-key="rowid"
       />
-      <el-row v-else-if="!scenarioId" :gutter="20">
-        <el-col v-for="project in projects" :key="project.projectId" :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card class="app-card" :class="{ 'is-active': project.projectId === currentProjectId }" shadow="hover">
-            <div class="app-card-header">
-              <span class="app-icon"><NavIcon :name="project.icon" :size="32" /></span>
-              <el-tag v-if="project.projectType === 'homepage'" type="warning" size="small">应用工场</el-tag>
-              <el-tag v-else type="info" size="small">应用</el-tag>
-            </div>
-            <h3 class="app-name">{{ project.name }}</h3>
-            <p class="app-desc">{{ project.description || '暂无描述' }}</p>
-            <div class="app-actions">
-              <el-button v-if="project.projectId !== currentProjectId" type="primary" size="small" @click="handleSwitch(project)">进入应用</el-button>
-              <el-tag v-else type="success" size="small">当前应用</el-tag>
-              <el-button size="small" @click="openSettings(project)">设置</el-button>
-              <el-button v-if="project.projectType !== 'homepage'" type="danger" size="small" text @click="handleDelete(project)">删除</el-button>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
     </div>
 
     <AppProjectSettingsDialog
@@ -96,29 +77,25 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
-import NavIcon from '@/components/NavIcon.vue'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, RendererList, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { loadLowcodeApplicationCatalog } from '@/lowcode/lowcode-application-catalog'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
 
 type ProjectItem = {
   projectId: string
   name: string
-  projectType: string
-  icon: string
   description: string
-  order: number
-  homeNodeId?: string | null
 }
 
 const router = useRouter()
 const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const { sparkProvide } = useSparkComponent({ type: 'tenant-app-list' })
-const projects = ref<ProjectItem[]>([])
 const showCreateDialog = ref(false)
 const creating = ref(false)
 const settingsVisible = ref(false)
@@ -134,7 +111,8 @@ const tenantId = computed(() => {
   const fromRoute = parseTenantScope(route.path)?.tenantId
   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
 })
-const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
+const blueprintScenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
+const scenarioId = computed(() => blueprintScenarioId.value || LOWCODE_APPLICATION_CATALOG_FORM_KEY)
 const scenarioDataViewKey = computed(() => `${scenarioId.value}@Base_AppSystemList@default`)
 
 function projectFromRow(row: DataRow): ProjectItem {
@@ -144,8 +122,7 @@ function projectFromRow(row: DataRow): ProjectItem {
   if (typeof id !== 'string' || !id.trim()) throw new Error('应用目录 DataView 返回了无效主键')
   const description = view.fieldAccess(row, 'AppDesc').read === 'visible' ? String(row['AppDesc'] ?? '') : ''
   const code = view.fieldAccess(row, 'AppName').read === 'visible' ? String(row['AppName'] ?? '') : ''
-  const isHomepage = view.fieldAccess(row, 'IsSys').read === 'visible' && Number(row['IsSys'] ?? 0) === 1
-  return {projectId: id, name: description || code || id, description, projectType: isHomepage ? 'homepage' : 'application', icon: 'Box', order: 0}
+  return {projectId: id, name: description || code || id, description}
 }
 
 function rowButton(type: string, id: string, props: Record<string, unknown>): SparkNode {
@@ -162,7 +139,7 @@ const scenarioRowChildren = computed<SparkNode[]>(() => {
   })
   const condition = (fieldName: string, predicate: (row: DataRow) => boolean) => (
     ({ row, dataSource }: { row?: DataRow | null; dataSource?: DataView | null }) => Boolean(row && dataSource
-      && dataSource.fieldAccess(row, fieldName).read === 'visible' && predicate(row))
+      && Object.hasOwn(row, fieldName) && dataSource.fieldAccess(row, fieldName).read === 'visible' && predicate(row))
   )
   return [
     rowButton('display-icon', 'app-icon', { icon: 'Box', iconSize: 32 }),
@@ -187,37 +164,22 @@ const createForm = ref({
 })
 
 async function loadProjects() {
-  const scenarioId = typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : ''
-  if (scenarioId) {
-    runtimeError.value = ''
-    return loadScenarioProjects(scenarioId)
-  }
-  const own = ++generation
-  projects.value = []
-  runtimeError.value = ''
-  const data = await lowcodeApi.platform.listApplications()
-  if (!active || own !== generation) return
-  projects.value = data.map((application, order) => ({
-    projectId: application.id,
-    name: application.name,
-    projectType: 'application',
-    icon: 'Box',
-    description: application.description,
-    order,
-  }))
+  return loadScenarioProjects(scenarioId.value)
 }
 
 async function loadScenarioProjects(scenarioId: string): Promise<void> {
   const own = ++generation
-  projects.value = []
   runtimeError.value = ''
   scenarioView.value = null
   runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
+  const isBlueprintScenario = Boolean(blueprintScenarioId.value)
   const projectId = parseTenantScope(route.path)?.projectId ?? ''
-  if (!projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
+  if (isBlueprintScenario && !projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
   try {
     const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
+      loadScenario: id => isBlueprintScenario
+        ? loadLowcodeRuntimeScenario({projectId, scenarioId: id})
+        : loadLowcodeApplicationCatalog()})
     runtime = current
     sparkProvide(PAGE_RUNTIME, current)
     await current.load()
@@ -242,7 +204,11 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
     validateScenarioView(view)
     scenarioView.value = view
   } catch (cause) {
-    if (active && own === generation) runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+    if (active && own === generation) {
+      runtimeError.value = cause instanceof Error ? cause.message : String(cause)
+      unsubscribe?.(); unsubscribe = undefined
+      runtime?.dispose(); runtime = undefined; scenarioView.value = null
+    }
   }
 }
 
@@ -320,11 +286,7 @@ async function handleDelete(project: ProjectItem) {
 onMounted(async () => {
   await loadProjects()
 })
-watch(() => route.meta['blueprintScenarioId'], value => {
-  if (typeof value === 'string' && value.trim()) {
-    void loadScenarioProjects(value.trim())
-    return
-  }
+watch(() => route.meta['blueprintScenarioId'], () => {
   generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined; scenarioView.value = null
   runtimeError.value = ''
   void loadProjects()
@@ -341,42 +303,4 @@ onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); runtime?.
   margin-top: 20px;
 }
 
-.app-card {
-  margin-bottom: 20px;
-  transition: border-color 0.3s;
-}
-
-.app-card.is-active {
-  border-color: var(--el-color-primary);
-}
-
-.app-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.app-icon {
-  font-size: 32px;
-}
-
-.app-name {
-  margin: 8px 0 4px;
-  font-size: 16px;
-}
-
-.app-desc {
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-  margin-bottom: 12px;
-  min-height: 36px;
-}
-
-.app-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 </style>

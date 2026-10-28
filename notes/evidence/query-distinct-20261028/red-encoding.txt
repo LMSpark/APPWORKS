@@ -1,0 +1,32 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+ ❯ src/platform/data-space/runtime/tests/data-space-query-parity.test.ts (103 tests | 1 failed) 62ms
+     × preserves the distinct option and rejects a malformed value 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/data-space/runtime/tests/data-space-query-parity.test.ts > SPARK model query execution owner > preserves the distinct option and rejects a malformed value
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/platform/data-space/runtime/tests/data-space-query-parity.test.ts:112:84
+    110|     expect(encodeDataSpaceQueryOptions({distinct: false})).toEqual({di…
+    111|     const invalid: unknown = {distinct: 'true'}
+    112|     expect(() => Reflect.apply(encodeDataSpaceQueryOptions, undefined,…
+       |                                                                                    ^
+    113|   })
+    114|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 102 passed (103)
+   Start at  20:18:14
+   Duration  2.00s (transform 1.14s, setup 0ms, import 1.52s, tests 62ms, environment 0ms)

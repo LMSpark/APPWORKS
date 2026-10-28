@@ -563,7 +563,7 @@
         },
         "persistedDataSpaceId": {
           "type": "object",
-          "title": "import(\"vue\").ComputedRef<string>"
+          "title": "UseDateFormatReturn"
         },
         "sceneBindingPending": {
           "type": "object",
@@ -590,7 +590,7 @@
         },
         "activePageId": {
           "type": "object",
-          "title": "import(\"vue\").ComputedRef<string>"
+          "title": "UseDateFormatReturn"
         },
         "pageIoBusy": {
           "type": "object",
@@ -670,7 +670,7 @@
         },
         "autoSaveStatus": {
           "type": "object",
-          "title": "import(\"vue\").Ref<\"error\" | \"pending\" | \"idle\" | \"saved\" | \"saving\", \"error\" | \"pending\" | \"idle\" | \"saved\" | \"saving\">"
+          "title": "import(\"vue\").Ref<\"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\", \"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\">"
         },
         "pageDesignAiRunning": {
           "type": "object",

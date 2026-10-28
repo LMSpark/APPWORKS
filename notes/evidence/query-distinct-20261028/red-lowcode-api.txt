@@ -1,0 +1,32 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+stdout | src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > serializes DataView distinct configuration and explicit false overrides through the runtime query
+🐛 [DataView] 销毁 DataView: Payroll:default
+🐛 [DataView] 销毁 DataView: Payroll:list
+
+ ❯ src/platform/data-space/runtime/data-space-runtime-api.test.ts (129 tests | 1 failed) 305ms
+     × serializes DataView distinct configuration and explicit false overrides through the runtime query 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/data-space/runtime/data-space-runtime-api.test.ts > DataView original query execution boundary > serializes DataView distinct configuration and explicit false overrides through the runtime query
+TypeError: queryConfig 包含未知参数
+ ❯ DataViewQuery.object ../spark-data/src/query/data-view-query.ts:126:71
+    124|   private static object(value: unknown, allowed: readonly string[], pa…
+    125|     if (!isRecord(value)) throw new TypeError(`${path} 必须是对象`)
+    126|     if (Object.keys(value).some(key => !allowed.includes(key))) throw …
+       |                                                                       ^
+    127|     return value
+    128|   }
+ ❯ DataViewQuery.parse ../spark-data/src/query/data-view-query.ts:43:24
+ ❯ DataView.set queryConfig [as queryConfig] ../spark-data/src/data-view.ts:396:34
+ ❯ src/platform/data-space/runtime/data-space-runtime-api.test.ts:1021:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 128 passed (129)
+   Start at  20:16:58
+   Duration  2.10s (transform 1.20s, setup 0ms, import 1.53s, tests 305ms, environment 0ms)

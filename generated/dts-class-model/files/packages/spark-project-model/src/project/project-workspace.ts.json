@@ -369,14 +369,11 @@
           "additionalProperties": false
         },
         "method.getScenarioDefinitions.return": {
-          "anyOf": [
-            {
-              "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSet"
         },
         "method.loadScenarioDefinitions.params": {
           "type": "object",

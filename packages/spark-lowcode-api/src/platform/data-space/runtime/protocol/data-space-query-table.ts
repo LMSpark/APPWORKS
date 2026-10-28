@@ -170,7 +170,7 @@ export class DataSpaceQueryTable {
       OutputType: options.outputType ?? 'Table',
       Filter: options.filter ?? null,
       inputParams: options.inputParams ?? [],
-      DISTINCT: false,
+      DISTINCT: options.distinct ?? false,
       IsBusinessMain: 1,
       ...(options.outputType === 'Join' ? { ChildTables: [] } : {}),
       ...(fields === undefined ? {} : { Fields: fields }),

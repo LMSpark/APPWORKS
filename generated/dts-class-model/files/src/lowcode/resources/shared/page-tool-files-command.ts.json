@@ -406,7 +406,8 @@
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "ownerDataSet": {
-          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "saveView": {
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -436,7 +437,8 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "type": "object",
+              "title": "DataSet"
             },
             "appId": {
               "type": "string"

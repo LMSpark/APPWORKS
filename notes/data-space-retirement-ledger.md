@@ -1,5 +1,13 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 默认应用目录接入 SPARK data 与标准列表
+
+- **实现：**低价模型为 DataView 查询配置补齐 `distinct` 的布尔校验、序列化、请求捕获和后端 DISTINCT 编码，省略继续为 false；没有浏览器本地去重。默认 AppList 以现有正式目录空间 `7AB874097A1E8711A42FD845939A6E05` 和 `Base_AppSystemList` 装配 PageRuntime/DataSet/DataView，元数据从正式设计 API 读取，执行器复用 DataSpaceApi、共享 HTTP/Bearer 和登录态上下文。原 AppList 的 `listApplications()`、项目数组和手写卡片分支已删除，使用原标准 RendererList 绑定；显式蓝图场景入口仍按其正式场景加载。
+- **主控复核与线上修正：**首次查询由页面统一触发，删除了装配器重复查询。服务端正式模型不输出 IsSys，原“必须输出该字段”检查会阻断目录，现改为只要求主键与名称合同；缺失/不可读的 IsSys 不推导为非系统应用，依赖标签与删除操作隐藏，不扩大权限或更改模型定义。租户范围继续交后端登录态判断，未建立 tenant/root owner。旧请求中 Type/PrimaryKeyFields/RelationFilterType 未机械加入协议；使用正式模型绑定和原 SPARK 查询合同的真实读回已成功。
+- **自动化与生成：**主控独立复跑 spark-data 查询配置 37/37、SPARK 查询执行/协议 232/232、目录装配/页面/绑定 15/15 通过；原始 RED/GREEN 和测试范围分别见 [`query-distinct`](evidence/query-distinct-20261028/summary.md)、[`catalog`](evidence/application-catalog-dataview-20261028/summary.md)。页面最初过时断言失败记录为迁移日志，不伪称有效 TDD RED。主控发现并交回修复 IsSys 测试夹具必填类型、资源子目录超限，以及不能将默认目录 distinct 要求强加给已部署显式场景的问题；最终根 typecheck、定向 ESLint、完整 verify:rules、生产 build 和移动模块后的 build:fe 均通过。规则保留既有 AI model spec 2 warnings/1 info、构建保留 CodeMirror 动态导入告警。ClassModel 及 consumer ledger 均使用正式生成器，保留当前源码派生合同和相应索引更新；生成器同时刷新当前源码中已有但旧清册未收录的声明。
+- **真实 SPA：**最终代码新会话下，默认目录标准列表读回 62 条，包含元数据管理；IsSys 缺失时 0 个删除按钮。通过标准卡片点击进入元数据管理后，在同一 SPA 到达 D99“服务器管理”，无整页刷新、无正式数据写入。热更新旧会话的切换服务缺失单独登记，新启动会话未复现。详情见 [`live-spa.md`](evidence/application-catalog-dataview-20261028/live-spa.md)。
+- **剩余与状态：**仅默认 AppList 显示消费者完成迁移；PlatformApps、project-settings、运行导航跨应用及 projectReferences 的其它目录调用尚在队列，不能把它们当已统一。默认 AppList 的创建/设置写入仍沿原有不可用提示；本批不扩展写业务。继续推进 SPARK data 唯一通道总体目标，不修改/启动/部署 Java。
+
 ### 2026-10-28 登录态查询上下文公共能力
 
 - **已实施：**低价模型新增 `LowcodeApi.readAuthenticatedRequestScope()`，只要求有效登录，返回不含应用/租户头或凭据的上下文；身份标识与 session revision 用于识别旧异步请求。Bearer 仍由同一 HTTP 拦截器注入，数据范围与授权交后端。原 `readRequestScope()` 共用登录校验，原应用身份、token 和请求头保持既有合同。

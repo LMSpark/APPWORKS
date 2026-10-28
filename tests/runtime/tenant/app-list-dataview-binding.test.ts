@@ -10,7 +10,7 @@ import { PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererList, Spark, useSparkCompo
 
 const source = readFileSync(resolve(process.cwd(), 'src/views/tenant/AppList.vue'), 'utf8')
 const buttonProps = readFileSync(resolve(process.cwd(), 'packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts'), 'utf8')
-const scenarioTemplate = source.split('<el-row v-else-if="!scenarioId"')[0] ?? source
+const scenarioTemplate = source
 const runtimes: PageRuntime[] = []
 const dataSets: DataSet[] = []
 const wrappers: VueWrapper[] = []
@@ -72,11 +72,16 @@ describe('AppList formal scenario data binding', () => {
     const projectFromRow = source.slice(projectStart, projectEnd)
     expect(projectFromRow).toContain("view.fieldAccess(row, 'AppDesc').read === 'visible'")
     expect(projectFromRow).toContain("view.fieldAccess(row, 'AppName').read === 'visible'")
-    expect(projectFromRow).toContain("view.fieldAccess(row, 'IsSys').read === 'visible'")
+    expect(projectFromRow).not.toContain('IsSys')
+    expect(source).toContain("Object.hasOwn(row, fieldName) && dataSource.fieldAccess(row, fieldName).read === 'visible'")
   })
 
-  it('preserves the route root fallback and runtime cancellation and disposal guards', () => {
-    expect(source).toContain('lowcodeApi.platform.listApplications()')
+  it('uses the authenticated formal catalog by default and preserves explicit-scenario cancellation/disposal guards', () => {
+    expect(source).toContain('loadLowcodeApplicationCatalog()')
+    expect(source).toContain('blueprintScenarioId.value || LOWCODE_APPLICATION_CATALOG_FORM_KEY')
+    expect(source).not.toContain('lowcodeApi.platform.listApplications()')
+    expect(source).not.toContain('projects.value')
+    expect(source).not.toContain('el-row v-else-if')
     expect(source).toContain('own !== generation')
     expect(source).toContain('current.dispose()')
     expect(source).toContain('runtime?.dispose()')

@@ -89,7 +89,7 @@
             },
             {
               "type": "object",
-              "title": "ComputedRef<string>"
+              "title": "UseDateFormatReturn"
             },
             {
               "type": "object",
@@ -116,7 +116,7 @@
             },
             {
               "type": "object",
-              "title": "ComputedRef<string>"
+              "title": "UseDateFormatReturn"
             },
             {
               "type": "object",

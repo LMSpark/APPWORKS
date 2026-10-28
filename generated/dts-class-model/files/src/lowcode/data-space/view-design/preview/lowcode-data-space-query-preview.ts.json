@@ -46,6 +46,12 @@
                 true
               ]
             },
+            "distinct": {
+              "enum": [
+                false,
+                true
+              ]
+            },
             "maxRows": {
               "type": "number"
             },

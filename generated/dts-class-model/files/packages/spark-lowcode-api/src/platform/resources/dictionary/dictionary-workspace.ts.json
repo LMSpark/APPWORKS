@@ -20,7 +20,8 @@
       "title": "DictionaryWorkspaceInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "dictionaryId": {
           "type": "string"

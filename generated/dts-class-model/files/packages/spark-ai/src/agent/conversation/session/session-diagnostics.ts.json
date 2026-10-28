@@ -83,8 +83,8 @@
         "kind": {
           "enum": [
             "message",
-            "functionCall",
-            "unknown"
+            "unknown",
+            "functionCall"
           ]
         },
         "direction": {

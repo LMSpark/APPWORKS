@@ -48,11 +48,16 @@
         "readTextFile": {
           "type": "object",
           "title": "(locator: LowcodeFileLocator) => Promise<string>"
+        },
+        "readFileBytes": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
         }
       },
       "required": [
         "listFiles",
-        "readTextFile"
+        "readTextFile",
+        "readFileBytes"
       ],
       "additionalProperties": false
     },
@@ -170,6 +175,10 @@
         "api": {
           "$ref": "#/$defs/WorkflowFileApi"
         },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>"
+        },
         "catalogScenarioId": {
           "type": "string"
         }
@@ -213,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T18:31:22.738Z",
+  "generatedAt": "2026-10-28T03:51:28.345Z",
   "models": {
     "RequestScope": {
       "name": "RequestScope",
@@ -236,11 +245,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile'>",
+        "declarationTypeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile'>",
+            "typeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
             "targetName": "Pick"
           }
         ],
@@ -443,11 +452,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+            "typeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -460,6 +469,11 @@
             },
             {
               "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
               "readable": true,
               "writable": false
             },

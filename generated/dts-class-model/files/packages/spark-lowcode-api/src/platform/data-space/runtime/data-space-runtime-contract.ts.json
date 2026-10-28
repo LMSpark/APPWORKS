@@ -240,6 +240,12 @@
             true
           ]
         },
+        "distinct": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "maxRows": {
           "type": "number"
         },
@@ -284,7 +290,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-14T20:34:23.237Z",
+  "generatedAt": "2026-10-28T12:17:34.531Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",
@@ -535,11 +541,11 @@
       "jsdoc": "查询输入独立于结果权限；singleFlight 由请求生命周期所有者处理。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
+            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -562,6 +568,11 @@
             },
             {
               "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
               "readable": true,
               "writable": false
             },

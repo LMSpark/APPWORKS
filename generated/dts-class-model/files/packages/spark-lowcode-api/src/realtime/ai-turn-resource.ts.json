@@ -20,7 +20,8 @@
       "title": "AiTurnResourceInput",
       "properties": {
         "dataSet": {
-          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+          "type": "object",
+          "title": "DataSet"
         },
         "http": {
           "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"

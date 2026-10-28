@@ -40,7 +40,7 @@ export class DataViewQuery {
 
   /** 校验配置并复制冻结；拒绝未知属性，空对象恢复默认查询。 */
   static parse(input: unknown, path = 'queryConfig'): NonNullable<ViewMetadata['queryConfig']> {
-    const value = this.object(input, ['outputType', 'tree', 'allPages', 'maxRows', 'fields', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
+    const value = this.object(input, ['outputType', 'tree', 'allPages', 'distinct', 'maxRows', 'fields', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
     const result: { -readonly [K in keyof NonNullable<ViewMetadata['queryConfig']>]: NonNullable<ViewMetadata['queryConfig']>[K] } = {}
     if (value['cacheType'] !== undefined) {
       const type = value['cacheType']
@@ -66,6 +66,10 @@ export class DataViewQuery {
       if (typeof value['allPages'] !== 'boolean') throw new TypeError(`${path}.allPages 必须是布尔值`)
       result.allPages = value['allPages']
     }
+    if (value['distinct'] !== undefined) {
+      if (typeof value['distinct'] !== 'boolean') throw new TypeError(`${path}.distinct 必须是布尔值`)
+      result.distinct = value['distinct']
+    }
     if (value['maxRows'] !== undefined) {
       const maxRows = value['maxRows']
       if (typeof maxRows !== 'number' || !Number.isSafeInteger(maxRows) || maxRows <= 0) throw new TypeError(`${path}.maxRows 必须是正整数`)
@@ -89,7 +93,8 @@ export class DataViewQuery {
 
   /** 从完整请求中只捕获查询配置；分页、过滤、身份等继续使用原请求合同。 */
   static capture(params: QueryParams): NonNullable<ViewMetadata['queryConfig']> {
-    return this.parse({outputType: params.outputType, tree: params.tree, allPages: params.allPages, maxRows: params.maxRows, fields: params.fields, sourceInputMode: params.sourceInputMode})
+    return this.parse({outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
+      maxRows: params.maxRows, fields: params.fields, sourceInputMode: params.sourceInputMode})
   }
 
   /** 仅 autoQuery 不同不算查询语义变更，不应使已加载结果 stale。 */

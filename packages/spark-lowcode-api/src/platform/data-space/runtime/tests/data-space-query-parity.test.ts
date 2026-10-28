@@ -105,6 +105,13 @@ describe('SPARK model query flight cache', () => {
 })
 
 describe('SPARK model query execution owner', () => {
+  it('preserves the distinct option and rejects a malformed value', () => {
+    expect(encodeDataSpaceQueryOptions({distinct: true})).toEqual({distinct: true})
+    expect(encodeDataSpaceQueryOptions({distinct: false})).toEqual({distinct: false})
+    const invalid: unknown = {distinct: 'true'}
+    expect(() => Reflect.apply(encodeDataSpaceQueryOptions, undefined, [invalid])).toThrow('distinct')
+  })
+
   it('executes model GetData and publishes data together with its private permission context', async () => {
     const http = new DataSpaceRequestFixtureHttp()
     http.response = { Code: 0, Result: { primaryKeyField: 'OrderKey', allowAdd: true,

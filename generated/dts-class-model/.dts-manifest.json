@@ -2674,7 +2674,7 @@
     "packages/spark-data/src/query/data-view-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-query.ts.json",
-      "sourceModifiedAt": "2026-10-20T08:56:03.253Z"
+      "sourceModifiedAt": "2026-10-28T12:17:34.515Z"
     },
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
@@ -2809,7 +2809,7 @@
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",
       "shardFile": "files/packages/spark-data/src/types.ts.json",
-      "sourceModifiedAt": "2026-10-24T18:23:43.745Z"
+      "sourceModifiedAt": "2026-10-28T12:18:19.675Z"
     },
     "packages/spark-data/src/validation/column-validation.ts": {
       "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
@@ -2994,7 +2994,7 @@
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json",
-      "sourceModifiedAt": "2026-10-20T07:17:20.315Z"
+      "sourceModifiedAt": "2026-10-28T12:11:58.813Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
@@ -3014,7 +3014,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-10-24T17:08:58.101Z"
+      "sourceModifiedAt": "2026-10-28T11:55:24.713Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
@@ -3029,7 +3029,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json",
-      "sourceModifiedAt": "2026-10-14T20:34:23.237Z"
+      "sourceModifiedAt": "2026-10-28T12:17:34.531Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts",
@@ -3044,7 +3044,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts.json",
-      "sourceModifiedAt": "2026-10-14T20:34:23.239Z"
+      "sourceModifiedAt": "2026-10-28T12:17:34.559Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
@@ -3064,7 +3064,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:59:03.913Z"
+      "sourceModifiedAt": "2026-10-28T12:17:34.539Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-aggregation.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-aggregation.ts",
@@ -3084,7 +3084,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts.json",
-      "sourceModifiedAt": "2026-10-26T17:21:54.191Z"
+      "sourceModifiedAt": "2026-10-28T12:18:19.695Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
@@ -3649,7 +3649,7 @@
     "src/lowcode/data-space/lowcode-data-space-design.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-design.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-design.ts.json",
-      "sourceModifiedAt": "2026-10-28T03:51:43.698Z"
+      "sourceModifiedAt": "2026-10-28T11:49:46.895Z"
     },
     "src/lowcode/data-space/lowcode-data-space-layout.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-layout.ts",
@@ -3664,7 +3664,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T03:51:32.256Z"
+      "sourceModifiedAt": "2026-10-28T11:47:41.828Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -3819,7 +3819,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-28T01:27:12.032Z"
+      "sourceModifiedAt": "2026-10-28T11:55:24.716Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -3840,6 +3840,11 @@
       "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts.json",
       "sourceModifiedAt": "2026-10-18T13:20:42.315Z"
+    },
+    "src/lowcode/lowcode-application-catalog.ts": {
+      "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
+      "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
+      "sourceModifiedAt": "2026-10-28T12:34:55.562Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
@@ -3894,7 +3899,7 @@
     "src/lowcode/resources/database/database-catalog-preview-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/database-catalog-preview-view-ops.ts.json",
-      "sourceModifiedAt": "2026-10-28T02:05:33.235Z"
+      "sourceModifiedAt": "2026-10-28T08:26:14.101Z"
     },
     "src/lowcode/resources/database/database-catalog-register-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
@@ -4341,10 +4346,15 @@
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-picker-contract.ts.json",
       "sourceModifiedAt": "2026-10-27T04:56:13.667Z"
     },
+    "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts": {
+      "sourceFile": "src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts",
+      "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts.json",
+      "sourceModifiedAt": "2026-10-28T00:24:31.575Z"
+    },
     "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
-      "sourceModifiedAt": "2026-10-27T04:51:21.675Z"
+      "sourceModifiedAt": "2026-10-28T11:30:34.625Z"
     },
     "src/views/app/dev-system/ProjectBlueprintTree.vue": {
       "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
@@ -4879,7 +4889,7 @@
     "src/views/tenant/AppList.vue": {
       "sourceFile": "src/views/tenant/AppList.vue",
       "shardFile": "files/src/views/tenant/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-28T02:49:53.482Z"
+      "sourceModifiedAt": "2026-10-28T12:36:49.446Z"
     },
     "src/views/tenant/AppProjectSettingsDialog.vue": {
       "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",

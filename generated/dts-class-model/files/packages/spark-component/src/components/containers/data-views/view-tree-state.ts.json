@@ -25,7 +25,7 @@
       "properties": {
         "tableName": {
           "type": "object",
-          "title": "ComputedRef<string>"
+          "title": "UseDateFormatReturn"
         },
         "viewId": {
           "type": "object",
@@ -65,7 +65,7 @@
         },
         "value": {
           "type": "object",
-          "title": "ComputedRef<string>"
+          "title": "UseDateFormatReturn"
         },
         "label": {
           "type": "object",
@@ -133,7 +133,7 @@
         },
         "treeIdField": {
           "type": "object",
-          "title": "ComputedRef<string>"
+          "title": "UseDateFormatReturn"
         }
       },
       "required": [

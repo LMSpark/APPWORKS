@@ -604,6 +604,10 @@
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
             },
+            "restorePageToolVersion": {
+              "type": "object",
+              "title": "(input: Omit<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolRestoreInput, \"baselineText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
+            },
             "loadNavigationDictionaryOptions": {
               "type": "object",
               "title": "() => Promise<void>"
@@ -800,6 +804,7 @@
             "blueprintPageRuntime",
             "loadBlueprintWorkspaceDataView",
             "savePageToolFile",
+            "restorePageToolVersion",
             "loadNavigationDictionaryOptions",
             "createPageToolSnapshot",
             "editor",

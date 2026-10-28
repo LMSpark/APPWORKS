@@ -1,0 +1,87 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > keeps the homepage route on the existing list path when it has no formal scenario identity
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > keeps the homepage route on the existing list path when it has no formal scenario identity
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed setting prop "children" on <div>: value [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object] is invalid. TypeError: Cannot set property children of [object Element] which has only a getter
+    at patchDOMProp (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-dom@3.5.38\node_modules\@vue\runtime-dom\dist\runtime-dom.cjs.js:618:13)
+    at patchProp (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-dom@3.5.38\node_modules\@vue\runtime-dom\dist\runtime-dom.cjs.js:740:5)
+    at mountElement (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:5639:11)
+    at processElement (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:5576:7)
+    at patch (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:5442:11)
+    at ReactiveEffect.componentUpdateFn [as fn] (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:6092:11)
+    at ReactiveEffect.run (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+reactivity@3.5.38\node_modules\@vue\reactivity\dist\reactivity.cjs.js:264:19)
+    at setupRenderEffect (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:6220:5)
+    at mountComponent (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:5992:7)
+    at processComponent (C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\node_modules\.pnpm\@vue+runtime-core@3.5.38\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:5944:9)
+  at <RendererList key=0 class="app-scenario-list" data-view-key="7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default"  ... >
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts (8 tests | 1 failed) 145ms
+     × keeps the homepage route on the existing list path when it has no formal scenario identity 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > keeps the homepage route on the existing list path when it has no formal scenario identity
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts:81:36
+     79|   it('keeps the homepage route on the existing list path when it has n…
+     80|     const {wrapper} = await mountAt('/app-list')
+     81|     expect(state.listApplications).toHaveBeenCalledOnce()
+       |                                    ^
+     82|     expect(state.dataViewLoad).not.toHaveBeenCalled()
+     83|     expect(wrapper.text()).toContain('Legacy')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  20:21:43
+   Duration  10.68s (transform 6.85s, setup 123ms, import 9.19s, tests 145ms, environment 938ms)

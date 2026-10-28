@@ -1,0 +1,32 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data
+
+stdout | src/tests/data-view/data-view-query-config.test.ts > DataView owns query configuration > validates and serializes the explicit distinct query setting
+🐛 [DataView] 销毁 DataView: Nodes:default
+🐛 [DataView] 销毁 DataView: Nodes:other
+
+ ❯ src/tests/data-view/data-view-query-config.test.ts (37 tests | 1 failed) 63ms
+     × validates and serializes the explicit distinct query setting 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/data-view/data-view-query-config.test.ts > DataView owns query configuration > validates and serializes the explicit distinct query setting
+TypeError: queryConfig 包含未知参数
+ ❯ DataViewQuery.object src/query/data-view-query.ts:126:71
+    124|   private static object(value: unknown, allowed: readonly string[], pa…
+    125|     if (!isRecord(value)) throw new TypeError(`${path} 必须是对象`)
+    126|     if (Object.keys(value).some(key => !allowed.includes(key))) throw …
+       |                                                                       ^
+    127|     return value
+    128|   }
+ ❯ DataViewQuery.parse src/query/data-view-query.ts:43:24
+ ❯ DataView.set queryConfig [as queryConfig] src/data-view.ts:396:34
+ ❯ src/tests/data-view/data-view-query-config.test.ts:33:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 36 passed (37)
+   Start at  20:16:54
+   Duration  2.31s (transform 693ms, setup 0ms, import 932ms, tests 63ms, environment 1.02s)

@@ -199,6 +199,10 @@
         "config": {
           "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
         },
+        "metadataDataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
         "fileExecutors": {
           "type": "object",
           "properties": {},
@@ -1154,6 +1158,31 @@
         "method.inspectInputParameters.return": {
           "$ref": "../input-parameters/lowcode-data-space-input-parameter-references.ts.json#/$defs/InputParameterInspection"
         },
+        "method.canOpenPreview.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canOpenPreview.return": {
+          "type": "boolean"
+        },
+        "method.preparePreviewEligibility.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preparePreviewEligibility.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
         "method.openPreview.params": {
           "type": "object",
           "properties": {
@@ -1307,13 +1336,16 @@
                 }
               ]
             },
-            "assertCurrent": {
-              "type": "object",
-              "title": "() => void"
-            },
             "options": {
               "type": "object",
               "properties": {
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                },
+                "configOverride": {
+                  "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                },
                 "subscribe": {
                   "type": "object",
                   "title": "(listener: () => void) => () => void"
@@ -1366,7 +1398,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T22:24:16.107Z",
+  "generatedAt": "2026-10-28T11:55:24.716Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1526,11 +1558,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    /** 当前设计会话的正式元数据DataSet；仅设计预览/装配读取复用此查询owner。 */\n    metadataDataSet?: SparkData.DataSet;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    /** 当前设计会话的正式元数据DataSet；仅设计预览/装配读取复用此查询owner。 */\n    metadataDataSet?: SparkData.DataSet;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1543,6 +1575,12 @@
             },
             {
               "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadataDataSet",
+              "jsdoc": "当前设计会话的正式元数据DataSet；仅设计预览/装配读取复用此查询owner。",
               "readable": true,
               "writable": false
             },
@@ -2969,6 +3007,48 @@
               }
             },
             {
+              "name": "canOpenPreview",
+              "jsdoc": "Shared synchronous eligibility check for the preview action; the actual open repeats this guard.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "preparePreviewEligibility",
+              "jsdoc": "Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
               "name": "openPreview",
               "jsdoc": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
               "parameters": [
@@ -3274,26 +3354,6 @@
                   }
                 },
                 {
-                  "name": "assertCurrent",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "void"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
                   "name": "options",
                   "type": {
                     "type": "reference",
@@ -3301,7 +3361,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        subscribe?: (listener: () => void) => () => void;\n        blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection'];\n    }"
+                        "name": "{\n        assertCurrent?: () => void;\n        configOverride?: ScenarioViewConfig;\n        subscribe?: (listener: () => void) => () => void;\n        blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection'];\n    }"
                       }
                     ]
                   },

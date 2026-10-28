@@ -41,6 +41,7 @@ export type DataSpaceWireQueryOptions = Readonly<{
   pageIndex?: number
   pageSize?: number
   allPages?: boolean
+  distinct?: boolean
   maxRows?: number
   outputType?: string
   outputFieldMode?: DataSpaceQueryOptions['outputFieldMode']

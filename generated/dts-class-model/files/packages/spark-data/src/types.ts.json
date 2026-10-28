@@ -396,7 +396,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@138649": {
+            "__@iterator@215602": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -451,7 +451,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@138649"
+            "__@iterator@215602"
           ],
           "additionalProperties": false
         },
@@ -1022,7 +1022,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@138649": {
+            "__@iterator@215602": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1077,7 +1077,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@138649"
+            "__@iterator@215602"
           ],
           "additionalProperties": false
         },
@@ -1303,7 +1303,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@138649": {
+            "__@iterator@215602": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1358,7 +1358,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@138649"
+            "__@iterator@215602"
           ],
           "additionalProperties": false
         },
@@ -1596,7 +1596,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@138649": {
+                "__@iterator@215602": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1651,7 +1651,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@138649"
+                "__@iterator@215602"
               ],
               "additionalProperties": false
             },
@@ -1881,7 +1881,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@138649": {
+                "__@iterator@215602": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1936,7 +1936,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@138649"
+                "__@iterator@215602"
               ],
               "additionalProperties": false
             },
@@ -2872,7 +2872,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@138649": {
+                "__@iterator@215602": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2927,7 +2927,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@138649"
+                "__@iterator@215602"
               ],
               "additionalProperties": false
             },
@@ -3157,7 +3157,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@138649": {
+                "__@iterator@215602": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3212,7 +3212,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@138649"
+                "__@iterator@215602"
               ],
               "additionalProperties": false
             },
@@ -3523,6 +3523,12 @@
               "type": "string"
             },
             "allPages": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "distinct": {
               "enum": [
                 false,
                 true
@@ -4354,8 +4360,8 @@
         "status": {
           "enum": [
             "error",
-            "loading",
             "idle",
+            "loading",
             "ready"
           ]
         },
@@ -5967,6 +5973,12 @@
             true
           ]
         },
+        "distinct": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "maxRows": {
           "type": "number"
         },
@@ -6189,7 +6201,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-24T18:23:43.745Z",
+  "generatedAt": "2026-10-28T12:18:19.675Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -7595,7 +7607,7 @@
       "jsdoc": "数据视图元数据\n视图层关注点：行数据、过滤、排序、分页、树配置、聚合、序列化字段。\n当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * 查询成功接纳结果后的页面script.js函数名；省略或空字符串禁用。不存脚本体。\n     * 页面宿主以{view, dataViewKey, signal}调用；非页面消费者可订阅requestCompleted。\n     * 失败、过期响应、初始灌入及普通编辑不触发；函数异常不撤销已接纳的查询结果。\n     */\n    onRequestComplete?: string;\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */\n    queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'maxRows' | 'fields' | 'sourceInputMode'> & {\n        /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */\n        cacheType?: 'none' | 'page' | 'browser';\n        /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */\n        autoQuery?: boolean;\n        /** 文本条件的辅助值查询配置；完整取值并核权限，不修改来源视图状态。仅支持一级辅助查询；来源不得有查询级联依赖。 */\n        filterLookups?: readonly DataViewFilterLookupConfig[];\n    }>;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: DataViewFilterTree;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * DataSet.triggerAutoLoad 遍历所有表的视图，仅对空闲且启用 autoLoad 的视图发起请求；\n     * 请求由各视图绑定的数据源执行，父值依赖与在途请求复用由 requestData 处理。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /** false 时禁止删除既有记录：删除呈现为 disabled，removeRow 及保存拒绝；撤销本地新增不受影响。 */\n    allowDelete?: boolean;\n    /** 本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。 */\n    lockCurrentWhilePending?: boolean;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     * 正式远程owner禁止该本地算法；原配置保留，读取汇总成员抛出aggregateError，不自动转换为fieldProjection。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
+        "declarationTypeText": "{\n    /**\n     * 查询成功接纳结果后的页面script.js函数名；省略或空字符串禁用。不存脚本体。\n     * 页面宿主以{view, dataViewKey, signal}调用；非页面消费者可订阅requestCompleted。\n     * 失败、过期响应、初始灌入及普通编辑不触发；函数异常不撤销已接纳的查询结果。\n     */\n    onRequestComplete?: string;\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */\n    queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'sourceInputMode'> & {\n        /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */\n        cacheType?: 'none' | 'page' | 'browser';\n        /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */\n        autoQuery?: boolean;\n        /** 文本条件的辅助值查询配置；完整取值并核权限，不修改来源视图状态。仅支持一级辅助查询；来源不得有查询级联依赖。 */\n        filterLookups?: readonly DataViewFilterLookupConfig[];\n    }>;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: DataViewFilterTree;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * DataSet.triggerAutoLoad 遍历所有表的视图，仅对空闲且启用 autoLoad 的视图发起请求；\n     * 请求由各视图绑定的数据源执行，父值依赖与在途请求复用由 requestData 处理。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /** false 时禁止删除既有记录：删除呈现为 disabled，removeRow 及保存拒绝；撤销本地新增不受影响。 */\n    allowDelete?: boolean;\n    /** 本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。 */\n    lockCurrentWhilePending?: boolean;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     * 正式远程owner禁止该本地算法；原配置保留，读取汇总成员抛出aggregateError，不自动转换为fieldProjection。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
         "members": {
           "attributes": [
             {
@@ -10577,7 +10589,7 @@
       "jsdoc": "分页查询参数 - 支持权限快照传递",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */\n    allPages?: boolean;\n    /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */\n    maxRows?: number;\n    /**\n     * 查询责任方的输出模式。SPARK API默认Table；SelfRefData表示完整节点集合。\n     * JSON来源可直接返回节点集合；需要定位节点时另配tree，来源要求由正式查询责任方校验。\n     * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。\n     */\n    outputType?: string;\n    /**\n     * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。\n     * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。\n     * 由支持正式来源绑定的查询责任方执行，不能把此属性作为后端协议字段透传。\n     */\n    sourceInputMode?: 'mapped' | 'direct';\n    /**\n     * 显式服务器节点查询参数，交由正式查询owner执行；不同于DataView.treeConfig的树呈现结构。\n     * 字段使用视图输出名，由正式模型绑定owner映射到模型Name；不从当前行或模型关系猜测节点。\n     */\n    tree?: Readonly<{\n        /** 节点主键字段，非空。 */\n        keyField: string;\n        /** 父节点字段，非空。 */\n        parentField: string;\n        /** 本次查询的节点ID，非空字符串；根值也须显式提供。 */\n        nodeId: string;\n        /** 子节点存在标志字段；省略时SPARK API使用hasChild。 */\n        hasChildrenField?: string;\n        /** child查询直接子节点；parent定位祖先及各级同级节点；省略时为child。 */\n        mode?: 'child' | 'parent';\n    }>;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: DataViewFilterTree;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的输出字段名；可由queryConfig持久声明，省略时使用视图投影。身份及依赖字段由查询适配器补齐。 */\n    fields?: readonly string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */\n    allPages?: boolean;\n    /** 请求服务器在查询结果上应用 DISTINCT，不在前端对已返回行去重；省略时由责任方按false处理。 */\n    distinct?: boolean;\n    /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */\n    maxRows?: number;\n    /**\n     * 查询责任方的输出模式。SPARK API默认Table；SelfRefData表示完整节点集合。\n     * JSON来源可直接返回节点集合；需要定位节点时另配tree，来源要求由正式查询责任方校验。\n     * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。\n     */\n    outputType?: string;\n    /**\n     * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。\n     * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。\n     * 由支持正式来源绑定的查询责任方执行，不能把此属性作为后端协议字段透传。\n     */\n    sourceInputMode?: 'mapped' | 'direct';\n    /**\n     * 显式服务器节点查询参数，交由正式查询owner执行；不同于DataView.treeConfig的树呈现结构。\n     * 字段使用视图输出名，由正式模型绑定owner映射到模型Name；不从当前行或模型关系猜测节点。\n     */\n    tree?: Readonly<{\n        /** 节点主键字段，非空。 */\n        keyField: string;\n        /** 父节点字段，非空。 */\n        parentField: string;\n        /** 本次查询的节点ID，非空字符串；根值也须显式提供。 */\n        nodeId: string;\n        /** 子节点存在标志字段；省略时SPARK API使用hasChild。 */\n        hasChildrenField?: string;\n        /** child查询直接子节点；parent定位祖先及各级同级节点；省略时为child。 */\n        mode?: 'child' | 'parent';\n    }>;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: DataViewFilterTree;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的输出字段名；可由queryConfig持久声明，省略时使用视图投影。身份及依赖字段由查询适配器补齐。 */\n    fields?: readonly string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -10595,6 +10607,12 @@
             {
               "name": "allPages",
               "jsdoc": "请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "jsdoc": "请求服务器在查询结果上应用 DISTINCT，不在前端对已返回行去重；省略时由责任方按false处理。",
               "readable": true,
               "writable": false
             },

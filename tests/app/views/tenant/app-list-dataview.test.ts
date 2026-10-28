@@ -6,23 +6,27 @@ import AppList from '@/views/tenant/AppList.vue'
 import LoginView from '@/views/platform/LoginView.vue'
 
 const state = vi.hoisted(() => ({
-  rows: [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}],
+  rows: [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}] as Array<{rowid: string; AppName: string; AppDesc: string; IsSys?: number}>,
   dataViewLoad: vi.fn(async () => ({success: true})),
+  applicationCatalogLoad: vi.fn(async () => ({scenarioId: '7AB874097A1E8711A42FD845939A6E05'})),
   listApplications: vi.fn(async () => [{id: 'legacy', name: 'Legacy', description: 'legacy'}]),
   listEnterprises: vi.fn(async () => [{id: 'E1', name: '领码科技', shortName: 'Lingma'}]),
   login: vi.fn(async () => ({enterprise: {shortName: 'Lingma'}})),
   disposed: 0,
   allPages: true,
+  distinct: true as boolean | undefined,
+  projectId: 'APP',
+  loadedScenarioIds: [] as string[],
 }))
 
 vi.mock('@spark-appworks/spark-project-model', () => ({
   PageRuntime: class {
     destroyed = false
-    constructor(readonly options: {scenarioIds: string[]}) {}
-    async load() {}
+    constructor(readonly options: {scenarioIds: string[]; loadScenario: (id: string) => Promise<unknown>}) {}
+    async load() { for (const id of this.options.scenarioIds) { state.loadedScenarioIds.push(id); await this.options.loadScenario(id) } }
     getDataSet() {
       return {
-        getView: () => ({primaryKey: 'rowid', queryConfig: {allPages: state.allPages}, dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}},
+        getView: () => ({primaryKey: 'rowid', queryConfig: {allPages: state.allPages, distinct: state.distinct}, dataTable: {modelBinding: {modelName: 'Base_AppSystemList'}},
           get rows() { return state.rows }, fieldAccess: () => ({read: 'visible'}), requestRefresh: state.dataViewLoad}),
         onAnyViewChange: () => () => undefined,
       }
@@ -33,25 +37,36 @@ vi.mock('@spark-appworks/spark-project-model', () => ({
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   loadLowcodeRuntimeScenario: vi.fn(async () => ({scenarioId: '0C70F74793F9E858B71E0DBDEC784D57'})),
 }))
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+  loadLowcodeApplicationCatalog: state.applicationCatalogLoad,
+}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}, platform: {listApplications: state.listApplications, listEnterprises: state.listEnterprises, login: state.login}},
   readLowcodePrincipal: () => ({enterpriseName: 'acme'}),
 }))
 vi.mock('@/services/tenant-scope', () => ({
-  parseTenantScope: () => ({tenantId: 'acme', projectId: 'APP'}),
+  parseTenantScope: () => ({tenantId: 'acme', projectId: state.projectId}),
   buildTenantPath: () => '/target', APPLICATION_CATALOG_PROJECT_ID: 'homepage',
 }))
 
 const EmptyPage = defineComponent({setup: () => () => h('div')})
 const RendererListStub = defineComponent({
   name: 'RendererList',
-  props: {dataViewKey: {type: String, default: ''}},
+  props: {dataViewKey: {type: String, default: ''}, children: {type: Array, default: () => []}},
   setup(props) {
-    return () => h('div', {'data-testid': 'scenario-list', 'data-view-key': props.dataViewKey}, state.rows.map(row => row.AppDesc).join(' '))
+    return () => {
+      const row = state.rows[0]
+      const dataSource = {fieldAccess: () => ({read: 'visible'})}
+      const visible = (props.children as Array<{id: string; props?: Record<string, unknown>}>).filter(child => {
+        const condition = child.props?.['onBeforeRender']
+        return typeof condition !== 'function' || condition({row, dataSource})
+      }).map(child => child.id).join(',')
+      return h('div', {'data-testid': 'scenario-list', 'data-view-key': props.dataViewKey, 'data-visible-children': visible}, state.rows.map(item => item.AppDesc).join(' '))
+    }
   },
 })
 const mounted: Array<{unmount: () => void}> = []
-afterEach(() => { mounted.splice(0).forEach(item => item.unmount()); state.allPages = true; state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}]; vi.clearAllMocks() })
+afterEach(() => { mounted.splice(0).forEach(item => item.unmount()); state.allPages = true; state.distinct = true; state.projectId = 'APP'; state.loadedScenarioIds = []; state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}]; vi.clearAllMocks() })
 
 async function mountAt(path: string, blueprintScenarioId?: string) {
   const router = createRouter({history: createMemoryHistory(), routes: [
@@ -69,6 +84,7 @@ async function mountAt(path: string, blueprintScenarioId?: string) {
 
 describe('AppList DataView routing', () => {
   it('loads the formal application-manager scenario through its own DataView', async () => {
+    state.distinct = undefined
     const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
     expect(state.dataViewLoad).toHaveBeenCalledOnce()
     expect(state.listApplications).not.toHaveBeenCalled()
@@ -76,11 +92,20 @@ describe('AppList DataView routing', () => {
     expect(wrapper.text()).toContain('Alpha')
   })
 
-  it('keeps the homepage route on the existing list path when it has no formal scenario identity', async () => {
+  it('loads the default catalog through its formal DataView without requiring an app selection', async () => {
+    state.projectId = ''
+    state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha'}]
     const {wrapper} = await mountAt('/app-list')
-    expect(state.listApplications).toHaveBeenCalledOnce()
-    expect(state.dataViewLoad).not.toHaveBeenCalled()
-    expect(wrapper.text()).toContain('Legacy')
+    expect(state.applicationCatalogLoad).toHaveBeenCalledOnce()
+    expect(state.loadedScenarioIds).toEqual(['7AB874097A1E8711A42FD845939A6E05'])
+    expect(state.dataViewLoad).toHaveBeenCalledOnce()
+    expect(state.listApplications).not.toHaveBeenCalled()
+    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
+    expect(wrapper.text()).toContain('Alpha')
+    const visible = wrapper.get('[data-testid="scenario-list"]').attributes('data-visible-children')
+    expect(visible).not.toContain('app-home-tag')
+    expect(visible).not.toContain('app-standard-tag')
+    expect(visible).not.toContain('app-delete')
   })
 
   it('fails closed when the formal view does not request the full directory', async () => {
@@ -88,6 +113,7 @@ describe('AppList DataView routing', () => {
     const {wrapper} = await mountAt('/application-manager', '0C70F74793F9E858B71E0DBDEC784D57')
     expect(state.dataViewLoad).not.toHaveBeenCalled()
     expect(state.listApplications).not.toHaveBeenCalled()
+    expect(state.applicationCatalogLoad).not.toHaveBeenCalled()
     expect(wrapper.get('[role="alert"]').text()).toContain('allPages')
   })
 

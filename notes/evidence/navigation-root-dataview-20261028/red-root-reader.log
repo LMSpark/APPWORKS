@@ -1,0 +1,199 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads an exact application id through the shared formal DataView and destroys its DataSet
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects duplicate identities from the formal query response and destroys its DataSet
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an application whose id is not readable in the DataView result
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits unreadable application name metadata and falls back to the readable rowid
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an id that is absent from the DataView result
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops after metadata becomes stale before the DataView query
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a result that became stale during the DataView query and releases its DataSet
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet and preserves query failure from the DataView reader
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > loads the fixed formal space/model and queries through the shared session-only SPARK DataView
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects stale metadata completion before creating or querying a DataSet
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads the unique navigation root through the formal three-field DataView with backend permissions 12ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects zero roots rather than choosing the first navigation root 2ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects two roots rather than choosing the first navigation root 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects three roots above the DataView cap rather than choosing the first navigation root 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is hidden in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is masked in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is hidden in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is masked in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is hidden in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is masked in the real query response 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with wrong system identity 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with non-root parent identity 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong model name before returning a root identity 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ ↓ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects missing formal parent field before returning a root identity
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong formal data space before returning a root identity 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a failed root query and releases the assembled DataSet 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops on a stale metadata result before the root query 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet when the root query completes after its caller guard becomes stale 0ms
+   → expected 'undefined' to be 'function' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads the unique navigation root through the formal three-field DataView with backend permissions
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:360:56
+    358|       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: …
+    359|     }
+    360|     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                        ^
+    361|     if (!catalog.readLowcodeNavigationRootId) return
+    362|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects zero roots rather than choosing the first navigation root
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects two roots rather than choosing the first navigation root
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects three roots above the DataView cap rather than choosing the first navigation root
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:416:56
+    414|       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: …
+    415|     }
+    416|     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                        ^
+    417|     if (!catalog.readLowcodeNavigationRootId) return
+    418|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is hidden in the real query response
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is masked in the real query response
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is hidden in the real query response
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is masked in the real query response
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is hidden in the real query response
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is masked in the real query response
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:450:56
+    448|       readLowcodeNavigationRootId?: (systemId: string, assertCurrent: …
+    449|     }
+    450|     expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                        ^
+    451|     if (!catalog.readLowcodeNavigationRootId) return
+    452|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with wrong system identity
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with non-root parent identity
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ requireNavigationRootReader tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:54:54
+     52|     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: ()…
+     53|   }
+     54|   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                      ^
+     55|   if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowco…
+     56|   return catalog.readLowcodeNavigationRootId
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:464:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong model name before returning a root identity
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong formal data space before returning a root identity
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ requireNavigationRootReader tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:54:54
+     52|     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: ()…
+     53|   }
+     54|   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                      ^
+     55|   if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowco…
+     56|   return catalog.readLowcodeNavigationRootId
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:481:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a failed root query and releases the assembled DataSet
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ requireNavigationRootReader tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:54:54
+     52|     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: ()…
+     53|   }
+     54|   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                      ^
+     55|   if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowco…
+     56|   return catalog.readLowcodeNavigationRootId
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:493:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops on a stale metadata result before the root query
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ requireNavigationRootReader tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:54:54
+     52|     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: ()…
+     53|   }
+     54|   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                      ^
+     55|   if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowco…
+     56|   return catalog.readLowcodeNavigationRootId
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:511:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet when the root query completes after its caller guard becomes stale
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ requireNavigationRootReader tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:54:54
+     52|     readLowcodeNavigationRootId?: (systemId: string, assertCurrent: ()…
+     53|   }
+     54|   expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+       |                                                      ^
+     55|   if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowco…
+     56|   return catalog.readLowcodeNavigationRootId
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:525:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  17 failed | 11 skipped (28)
+   Start at  22:49:33
+   Duration  12.85s (transform 8.31s, setup 126ms, import 11.48s, tests 29ms, environment 910ms)

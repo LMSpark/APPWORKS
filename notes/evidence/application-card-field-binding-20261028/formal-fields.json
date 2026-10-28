@@ -1,0 +1,26 @@
+[
+  {
+    "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+    "field": "AppType",
+    "title": "应用状态",
+    "output": 1
+  },
+  {
+    "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+    "field": "Memo",
+    "title": "系统描述",
+    "output": 1
+  },
+  {
+    "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+    "field": "AppDesc",
+    "title": "系统中文名称",
+    "output": 1
+  },
+  {
+    "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+    "field": "AppName",
+    "title": "应用代码",
+    "output": 1
+  }
+]

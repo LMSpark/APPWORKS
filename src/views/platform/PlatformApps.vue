@@ -71,7 +71,7 @@ const fields = computed<SparkNode[]>(() => [
     ? [{type: 'r-text', props: {dataViewKey: catalogKey, field: 'IsSys', label: '类型', width: 120,
       displayFormatter: (value: unknown) => value === 1 || value === '1' ? '应用工场' : value === 0 || value === '0' ? '应用' : ''}} satisfies SparkNode]
     : []),
-  {type: 'r-text', props: {dataViewKey: catalogKey, field: 'AppDesc', label: '描述', emptyText: '暂无描述', showOverflowTooltip: true}},
+  {type: 'r-text', props: {dataViewKey: catalogKey, field: 'Memo', label: '描述', emptyText: '暂无描述', showOverflowTooltip: true}},
 ])
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {dataViewKey: catalogKey, label: '刷新', action: 'refresh', disabled: loading.value}},

@@ -1,0 +1,91 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > returns a current receipt for the application catalog state
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > returns the platform activation receipt unchanged
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > forwards an aborted navigation signal to the real platform selection fence
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > exports the reserved system-page identity key through the spark-app package root
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when the execution application changes during authorization read
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when session-reset changes while authorization is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when application-round-trip changes while authorization is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when navigation-root-change changes while authorization is pending
+ × tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application 21ms
+   → expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reads explicit target navigation through its scoped DataView while authorization stays independent
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > preserves application directory reader errors without a legacy list fallback
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects an execution-app change while the by-ID directory reader is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > waits for the DataView read before disposal when authorization fails and execution scope changes
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > does not let a late application catalog overwrite a newer activation intent
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the active URL, platform application, and native page instance aligned after same-app navigation supersedes activation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps a committed application receipt current through an ordinary same-app query navigation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks the activation receipt after the runtime await continuation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops a pending application selection after application-clear
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops a pending application selection after session-replacement
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh while an application selection is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops after a pending target lookup invalidates the execution scope
+ × tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops before blueprint reads when navigation-root resolution becomes stale 70ms
+   → expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks immediately after application lookup before resolving the target root
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks after the final parallel response before assembling navigation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > turns a late request failure into stale-scope failure after the execution application changes
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses the local catalog without reading a request scope when no application is selected
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > renders lowcode legacy icon classes as icons instead of raw class text
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > normalizes application icon aliases instead of rendering icon names as text
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses the Chinese enterprise short name as the AppWorks display label
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps every AppWorks tenant page reachable from the application catalog
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > passes only a configured Vue page dataSpaceId to the system-page navigation item
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the menu title and nested home path for capability Payroll.Calculate
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the menu title and nested home path for capability Payroll.Calculate.Renamed
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the cfg tool target separate from the scenario call parameter
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > preserves native scene call parameters and hash while projecting the Vue resource
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:275:39
+    273|     expect(readApplication).toHaveBeenCalledWith('APP-B', expect.any(F…
+    274|     expect(listApplications).not.toHaveBeenCalled()
+    275|     expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', ex…
+       |                                       ^
+    276|     expect(resolveRoot).not.toHaveBeenCalled()
+    277|     expect(authorization).toHaveBeenCalledWith('APP-B', 'ROOT-B')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops before blueprint reads when navigation-root resolution becomes stale
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:682:39
+    680|
+    681|     await expect(navigation).rejects.toThrow('SPARK_EXECUTION_SCOPE_ST…
+    682|     expect(navigationRootReader.read).toHaveBeenCalledWith('APP-B', ex…
+       |                                       ^
+    683|     expect(records).not.toHaveBeenCalled()
+    684|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 36 skipped (38)
+   Start at  22:49:52
+   Duration  14.77s (transform 9.13s, setup 274ms, import 12.53s, tests 93ms, environment 1.52s)

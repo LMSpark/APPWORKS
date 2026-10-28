@@ -392,6 +392,23 @@
         "method.readApplicationById.return": {
           "type": "object",
           "title": "Promise<LowcodeApplication>"
+        },
+        "method.readNavigationRootId.params": {
+          "type": "object",
+          "properties": {
+            "systemId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readNavigationRootId.return": {
+          "type": "object",
+          "title": "Promise<string>"
         }
       }
     },
@@ -560,19 +577,6 @@
           "type": "object",
           "title": "Promise<readonly LowcodeApplication[]>"
         },
-        "method.resolveNavigationRootId.params": {
-          "type": "object",
-          "properties": {
-            "systemId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.resolveNavigationRootId.return": {
-          "type": "object",
-          "title": "Promise<string>"
-        },
         "method.selectApplication.params": {
           "type": "object",
           "properties": {
@@ -620,7 +624,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T13:59:09.414Z",
+  "generatedAt": "2026-10-28T14:58:05.346Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1079,11 +1083,11 @@
       "jsdoc": "Dependencies owned by the host for platform APIs; application lookup is supplied by the SPARK DataView layer.\n`readApplicationById` runs inside the platform selection fence and must call `assertCurrent` before and after\nasynchronous metadata/query work. Omitting it makes activation fail closed; activation never falls back to HTTP.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n}>",
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n    /** Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed. */\n    readNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n}>",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n    /** Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed. */\n    readNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1143,6 +1147,46 @@
                     "type": "reference",
                     "name": "LowcodeApplication",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readNavigationRootId",
+              "jsdoc": "Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed.",
+              "parameters": [
+                {
+                  "name": "systemId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 ]
               }
@@ -1432,29 +1476,6 @@
                   {
                     "type": "unknown",
                     "name": "readonly LowcodeApplication[]"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "resolveNavigationRootId",
-              "jsdoc": "按应用 systemId 解析唯一导航根 rowid；0 或 多个根节点时抛错。",
-              "parameters": [
-                {
-                  "name": "systemId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
                   }
                 ]
               }

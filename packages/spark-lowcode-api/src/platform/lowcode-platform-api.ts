@@ -10,9 +10,7 @@ import { LowcodeClient } from '../core/lowcode-client.js'
 import {
   applicationCatalogQuery,
   LOWCODE_APPLICATION_CATALOG_FORM_KEY,
-  navigationRootQuery,
   normalizeApplications,
-  normalizeNavigationRootId,
   type LowcodeApplication,
 } from './lowcode-application.js'
 import type { LowcodeApplicationStore } from './lowcode-application-store.js'
@@ -144,6 +142,8 @@ export type LowcodePlatformApiOptions = Readonly<{
   application: LowcodeApplicationStore
   /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */
   readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>
+  /** Formal host-owned Base_NavigationInfo DataView reader; missing configuration fails closed. */
+  readNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
 }>
 
 /** 同步校验某次应用选择或目录选择是否仍是平台当前意图。 */
@@ -257,6 +257,7 @@ function parseEnterprise(
 export class LowcodePlatformApi {
   private readonly client: LowcodeClient
   private readonly readApplicationById: LowcodePlatformApiOptions['readApplicationById']
+  private readonly readNavigationRootId: LowcodePlatformApiOptions['readNavigationRootId']
   private refreshPromise: Promise<LowcodeSession> | null = null
   private applicationSelectionIntent = 0
   private pendingApplicationSelectionIntent: number | null = null
@@ -266,6 +267,7 @@ export class LowcodePlatformApi {
     this.session = options.session
     this.application = options.application
     this.readApplicationById = options.readApplicationById
+    this.readNavigationRootId = options.readNavigationRootId
   }
 
   public readonly session: LowcodeSessionStore
@@ -465,19 +467,6 @@ export class LowcodePlatformApi {
     return normalizeApplications(result)
   }
 
-  /** 按应用 systemId 解析唯一导航根 rowid；0 或 多个根节点时抛错。 */
-  public async resolveNavigationRootId(systemId: string): Promise<string> {
-    const normalizedSystemId = systemId.trim()
-    if (!normalizedSystemId) throw new LowcodeApiError(0, 'systemId 不能为空')
-    const result = await this.client.requestResult({
-      path: '/api/DataOperation/GetData',
-      method: 'POST',
-      data: navigationRootQuery(normalizedSystemId),
-      headers: { 'x-FormKey': LOWCODE_APPLICATION_CATALOG_FORM_KEY },
-    })
-    return normalizeNavigationRootId(result)
-  }
-
   /** 选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。 */
   public async selectApplication(application: LowcodeApplication): Promise<string> {
     const fence = this.beginApplicationSelection()
@@ -600,7 +589,19 @@ export class LowcodePlatformApi {
     })
     let navigationRootId: string
     try {
-      navigationRootId = await this.resolveNavigationRootId(selectedApplication.id)
+      const readNavigationRootId = this.readNavigationRootId
+      if (readNavigationRootId === undefined) {
+        throw new LowcodeApiError(0, '应用选择未配置正式 DataView 导航根读取器')
+      }
+      const value = await readNavigationRootId(
+        selectedApplication.id,
+        () => this.assertApplicationSelectionCurrent(fence),
+      )
+      this.assertApplicationSelectionCurrent(fence)
+      if (typeof value !== 'string' || !value.trim()) {
+        throw new LowcodeApiError(0, '正式 DataView 导航根 ID 缺少有效字符串')
+      }
+      navigationRootId = value.trim()
     } catch (error: unknown) {
       this.assertApplicationSelectionCurrent(fence)
       throw error

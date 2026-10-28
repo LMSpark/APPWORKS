@@ -17,27 +17,91 @@ const formalModel = {
 } satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 
 type TransportSpy = {mock: {calls: Array<[RequestConfig]>}; mockClear: () => unknown}
+type QueryWire = Readonly<{
+  Table?: readonly Readonly<{Fields?: readonly Readonly<{Name?: string}>[]; Filter?: unknown}>[]
+  PageParam?: Readonly<{index?: number; size?: number}>
+}>
 let transport: TransportSpy
 let queryRows: Array<Record<string, unknown>>
 let hiddenFields: string[]
+let maskedFields: string[]
+let requiredFields: string[]
 let queryFailure: Error | undefined
 let onQueryRequest: (() => void) | undefined
+let queryCountOverride: number | undefined
+let queryCountSequence: readonly number[] | undefined
+let omitQueryCount = false
+let queryRequestOrdinal: number
+
+function saveNavigationRootSession(): void {
+  lowcodeApi.session.save({accessToken: 'root-test-access', refreshToken: 'root-test-refresh',
+    accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+    identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+    enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+  })
+}
+
+function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prowid']) {
+  const rootFields = names.map((name, order) => ({id: name, modelId: 'NAVIGATION-MODEL', name,
+    canonicalName: name, type: 'string', description: name, primaryKey: name === 'rowid', output: true,
+    computed: false, order, orderType: '', raw: {}}))
+  return {id: 'NAVIGATION-MODEL', name: 'Base_NavigationInfo', metaName: 'Base_NavigationInfo',
+    sourceType: '数据库表', sourceId: 'DB', sourceName: 'Base_NavigationInfo', primaryKey: 'rowid',
+    businessMain: true, fields: rootFields, raw: {}} satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+}
+
+function mockNavigationMetadata(model = makeNavigationModel(), spaceId = LOWCODE_APPLICATION_CATALOG_FORM_KEY): void {
+  vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({dataSpaceId: spaceId, name: '功能管理'})
+  vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(model)
+}
+
+function formalQueryRequests(): Array<{config: RequestConfig; body: QueryWire}> {
+  return transport.mock.calls.flatMap(([config]) => config.url === '/api/DataOperation/GetData'
+    ? [{config, body: config.data as QueryWire}] : [])
+}
+
+async function requireNavigationRootReader(): Promise<(systemId: string, assertCurrent: () => void) => Promise<string>> {
+  const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+    readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
+  }
+  expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+  if (!catalog.readLowcodeNavigationRootId) throw new Error('readLowcodeNavigationRootId export missing')
+  return catalog.readLowcodeNavigationRootId
+}
 
 beforeEach(() => {
   lowcodeApi.application.clear()
   queryRows = [{rowid: 'APP-1', AppDesc: 'Alpha', AppName: 'alpha'}]
   hiddenFields = []
+  maskedFields = []
+  requiredFields = []
   queryFailure = undefined
   onQueryRequest = undefined
+  queryCountOverride = undefined
+  queryCountSequence = undefined
+  omitQueryCount = false
+  queryRequestOrdinal = 0
   transport = vi.spyOn(Request.prototype as unknown as {executeRequest: (config: RequestConfig) => Promise<HttpResponse<unknown>>}, 'executeRequest')
     .mockImplementation(async config => {
     if (config.url === '/api/DataOperation/GetData') {
       onQueryRequest?.()
       if (queryFailure !== undefined) throw queryFailure
+      const ordinal = queryRequestOrdinal++
+      const body = config.data as {PageParam?: {index?: number; size?: number}} | undefined
+      const pageIndex = Number(body?.PageParam?.index ?? 1)
+      const pageSize = Number(body?.PageParam?.size ?? Math.max(queryRows.length, 1))
+      const pageRows = queryRows.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
+      const count = queryCountSequence?.[ordinal] ?? queryCountOverride ?? queryRows.length
+      const resultData = {Items: pageRows.map(row => ({...row,
+        lingma_sys_key: 'ROW-KEY', lingma_sys_params: {r: requiredFields, e: requiredFields, h: hiddenFields, m: maskedFields, d: false}})),
+        ...(omitQueryCount ? {} : {Count: count})}
+      return {
+        data: {Code: 200, Result: {primaryKeyField: 'rowid', data: resultData, allowAdd: false, lingma_sys_key: 'TABLE-KEY'}},
+        status: 200, statusText: 'OK', headers: {},
+      }
     }
     return {
-    data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: queryRows.map(row => ({...row,
-      lingma_sys_key: 'ROW-KEY', lingma_sys_params: {r: [], e: [], h: hiddenFields, m: [], d: false}})), Count: queryRows.length}, allowAdd: false, lingma_sys_key: 'TABLE-KEY'}},
+      data: {Code: 200, Result: {primaryKeyField: 'rowid', data: {Items: queryRows, Count: queryRows.length}, allowAdd: false, lingma_sys_key: 'TABLE-KEY'}},
     status: 200, statusText: 'OK', headers: {},
     }
     })
@@ -293,5 +357,261 @@ describe('authenticated application catalog DataView', () => {
     })
     await expect(loadLowcodeApplicationCatalog()).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(transport).not.toHaveBeenCalled()
+  })
+
+  it('reads the unique navigation root through the formal three-field DataView with backend permissions', async () => {
+    lowcodeApi.session.save({accessToken: 'root-test-access', refreshToken: 'root-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    lowcodeApi.application.clear()
+    const rootFields = ['rowid', 'SysId', 'prowid', 'FunName', 'NavigationUrl'].map((name, order) => ({
+      id: name, modelId: 'NAVIGATION-MODEL', name, canonicalName: name, type: 'string', description: name,
+      primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
+    }))
+    const rootModel = {
+      id: 'NAVIGATION-MODEL', name: 'Base_NavigationInfo', metaName: 'Base_NavigationInfo', sourceType: '数据库表',
+      sourceId: 'DB', sourceName: 'Base_NavigationInfo', primaryKey: 'rowid', businessMain: true, fields: rootFields, raw: {},
+    } satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+    queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+    requiredFields = ['rowid']
+    hiddenFields = ['FunName']
+    maskedFields = ['NavigationUrl']
+    const readSpace = vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '功能管理',
+    })
+    const readModel = vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(rootModel)
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
+    }
+    expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+    if (!catalog.readLowcodeNavigationRootId) return
+
+    await expect(catalog.readLowcodeNavigationRootId('APP-1', () => undefined)).resolves.toBe('ROOT-APP-1')
+
+    expect(readSpace).toHaveBeenCalledWith(expect.objectContaining({
+      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    }))
+    expect(readModel).toHaveBeenCalledWith(expect.objectContaining({
+      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, metaName: 'Base_NavigationInfo',
+    }))
+    const requests = formalQueryRequests()
+    expect(requests).toHaveLength(1)
+    const request = requests[0]
+    expect(request?.config.headers?.['x-FormKey']).toBe(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    expect(request?.config.headers?.['X-AppId']).toBeUndefined()
+    expect(request?.config.headers?.['tenant-id']).toBeUndefined()
+    expect(request?.body.Table?.[0]?.Fields?.map(field => field.Name).sort()).toEqual(['SysId', 'prowid', 'rowid'])
+    expect(request?.body.Table?.[0]?.Filter).toMatchObject({Type: 'and', Filters: [
+      expect.objectContaining({Field: 'SysId', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 'APP-1'}}),
+      expect.objectContaining({Field: 'prowid', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: '000000'}}),
+    ]})
+    expect(request?.body.PageParam).toEqual({index: 1, size: 1})
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['zero roots', []],
+    ['two roots', [
+      {rowid: 'ROOT-1', SysId: 'APP-1', prowid: '000000'},
+      {rowid: 'ROOT-2', SysId: 'APP-1', prowid: '000000'},
+    ]],
+    ['three roots above the DataView cap', [
+      {rowid: 'ROOT-1', SysId: 'APP-1', prowid: '000000'},
+      {rowid: 'ROOT-2', SysId: 'APP-1', prowid: '000000'},
+      {rowid: 'ROOT-3', SysId: 'APP-1', prowid: '000000'},
+    ]],
+  ])('rejects %s rather than choosing the first navigation root', async (_label, rows) => {
+    lowcodeApi.session.save({accessToken: 'root-test-access', refreshToken: 'root-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    lowcodeApi.application.clear()
+    queryRows = rows
+    const rootFields = ['rowid', 'SysId', 'prowid'].map((name, order) => ({
+      id: name, modelId: 'NAVIGATION-MODEL', name, canonicalName: name, type: 'string', description: name,
+      primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
+    }))
+    const rootModel = {id: 'NAVIGATION-MODEL', name: 'Base_NavigationInfo', metaName: 'Base_NavigationInfo',
+      sourceType: '数据库表', sourceId: 'DB', sourceName: 'Base_NavigationInfo', primaryKey: 'rowid',
+      businessMain: true, fields: rootFields, raw: {}} satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '功能管理',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(rootModel)
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
+    }
+    expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+    if (!catalog.readLowcodeNavigationRootId) return
+
+    await expect(catalog.readLowcodeNavigationRootId('APP-1', () => undefined)).rejects.toThrow()
+    if (_label === 'two roots') {
+      expect(formalQueryRequests().map(item => item.body.PageParam)).toEqual([
+        {index: 1, size: 1}, {index: 2, size: 1},
+      ])
+    }
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['rowid', 'hidden'], ['rowid', 'masked'], ['SysId', 'hidden'], ['SysId', 'masked'],
+    ['prowid', 'hidden'], ['prowid', 'masked'],
+  ] as const)('rejects a root whose %s permission is %s in the real query response', async (field, permission) => {
+    lowcodeApi.session.save({accessToken: 'root-test-access', refreshToken: 'root-test-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
+      enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
+    })
+    lowcodeApi.application.clear()
+    queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+    if (permission === 'hidden') hiddenFields = [field]
+    else maskedFields = [field]
+    const rootFields = ['rowid', 'SysId', 'prowid'].map((name, order) => ({
+      id: name, modelId: 'NAVIGATION-MODEL', name, canonicalName: name, type: 'string', description: name,
+      primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
+    }))
+    const rootModel = {id: 'NAVIGATION-MODEL', name: 'Base_NavigationInfo', metaName: 'Base_NavigationInfo',
+      sourceType: '数据库表', sourceId: 'DB', sourceName: 'Base_NavigationInfo', primaryKey: 'rowid',
+      businessMain: true, fields: rootFields, raw: {}} satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '功能管理',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockResolvedValue(rootModel)
+    const catalog = await import('@/lowcode/lowcode-application-catalog') as unknown as {
+      readLowcodeNavigationRootId?: (systemId: string, assertCurrent: () => void) => Promise<string>
+    }
+    expect(typeof catalog.readLowcodeNavigationRootId).toBe('function')
+    if (!catalog.readLowcodeNavigationRootId) return
+
+    await expect(catalog.readLowcodeNavigationRootId('APP-1', () => undefined)).rejects.toThrow()
+  })
+
+  it.each([
+    ['wrong system identity', {rowid: 'ROOT-APP-2', SysId: 'APP-2', prowid: '000000'}],
+    ['non-root parent identity', {rowid: 'CHILD-1', SysId: 'APP-1', prowid: 'PARENT-1'}],
+  ])('rejects a returned row with %s', async (_label, row) => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryRows = [row]
+    mockNavigationMetadata()
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow()
+  })
+
+  it.each([
+    ['wrong model name', makeNavigationModel(), LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+    ['missing formal parent field', makeNavigationModel(['rowid', 'SysId']), LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+    ['wrong formal data space', makeNavigationModel(), 'OTHER-SPACE'],
+  ])('rejects %s before returning a root identity', async (_label, model, spaceId) => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+    const selectedModel = _label === 'wrong model name'
+      ? {...model, name: 'Different_Model', metaName: 'Different_Model'}
+      : model
+    mockNavigationMetadata(selectedModel, spaceId)
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow()
+    expect(transport.mock.calls.some(([config]) => config.url === '/api/DataOperation/GetData')).toBe(false)
+  })
+
+  it('rejects a failed root query and releases the assembled DataSet', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryFailure = new Error('navigation root query failed')
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow('navigation root query failed')
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('rejects an all-pages query without a backend Count instead of deriving completeness from loaded rows', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+    omitQueryCount = true
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow(/total|总数/i)
+    expect(formalQueryRequests()).toHaveLength(1)
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('rejects a backend Count of two when only one matching row is returned across all pages', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryRows = [{rowid: 'ROOT-APP-1', SysId: 'APP-1', prowid: '000000'}]
+    queryCountOverride = 2
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow(/page|分页|records|记录/i)
+    expect(formalQueryRequests().map(item => item.body.PageParam)).toEqual([
+      {index: 1, size: 1}, {index: 2, size: 1},
+    ])
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('rejects a backend Count that changes between all-pages reads', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    queryRows = [
+      {rowid: 'ROOT-1', SysId: 'APP-1', prowid: '000000'},
+      {rowid: 'ROOT-2', SysId: 'APP-1', prowid: '000000'},
+    ]
+    queryCountSequence = [2, 1]
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', () => undefined)).rejects.toThrow(/total|总数/i)
+    expect(formalQueryRequests().map(item => item.body.PageParam)).toEqual([
+      {index: 1, size: 1}, {index: 2, size: 1},
+    ])
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it('stops on a stale metadata result before the root query', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    let current = true
+    const assertCurrent = (): void => {if (!current) throw new Error('ROOT_READER_STALE')}
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition').mockResolvedValue({
+      dataSpaceId: LOWCODE_APPLICATION_CATALOG_FORM_KEY, name: '功能管理',
+    })
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModel').mockImplementation(async () => {
+      current = false
+      return makeNavigationModel()
+    })
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', assertCurrent)).rejects.toThrow('ROOT_READER_STALE')
+    expect(transport.mock.calls.some(([config]) => config.url === '/api/DataOperation/GetData')).toBe(false)
+  })
+
+  it('releases the DataSet when the root query completes after its caller guard becomes stale', async () => {
+    saveNavigationRootSession()
+    lowcodeApi.application.clear()
+    let current = true
+    const assertCurrent = (): void => {if (!current) throw new Error('ROOT_READER_STALE')}
+    onQueryRequest = () => {current = false}
+    mockNavigationMetadata()
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    const reader = await requireNavigationRootReader()
+
+    await expect(reader('APP-1', assertCurrent)).rejects.toThrow('ROOT_READER_STALE')
+    expect(destroy).toHaveBeenCalledOnce()
   })
 })

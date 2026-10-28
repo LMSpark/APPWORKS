@@ -1,0 +1,186 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > uses the host-injected navigation-root DataView reader during object selection 12ms
+   → expected 'LEGACY-ROOT' to be 'ROOT-APP-B' // Object.is equality
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id undefined without replacing the selected application 2ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id null without replacing the selected application 1ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id 0 without replacing the selected application 1ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id {} without replacing the selected application 0ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id  without replacing the selected application 0ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id     without replacing the selected application 1ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > trims a valid host-injected root row id without confusing it with the application id 1ms
+   → expected 'LEGACY-ROOT' to be 'ROOT-B' // Object.is equality
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > selectApplication fails explicitly without a root DataView reader and never falls back to HTTP 1ms
+   → promise resolved "'LEGACY-ROOT'" instead of rejecting
+ × src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > activateApplication fails explicitly without a root DataView reader and never falls back to HTTP 3ms
+   → promise resolved "{ …(3) }" instead of rejecting
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > fails closed when application activation has no DataView directory reader
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > uses the injected by-id directory reader inside the activation selection fence
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects a DataView directory reader result whose id differs from the requested id
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not resolve a navigation root when a pending directory reader is superseded
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not commit a directory reader result after cancellation during its wait
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not let an older selectApplication late-success overwrite a newer choice
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not let an older selectApplication late-failure overwrite a newer choice
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates mixed application selection entries for select-then-activate
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates mixed application selection entries for activate-then-select
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > activates one trimmed catalog id, commits its root, and returns a current receipt
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > cancels an uncommitted activation during directory-reader without changing the selected application
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > cancels an uncommitted activation during navigation-root without changing the selected application
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not invalidate a committed receipt when there is no pending selection
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > keeps a receipt valid when route cancellation runs between commit and public return
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not let a failed older selection cleanup remove the newer pending owner
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not resolve a navigation root after activation is aborted during application lookup
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not commit an application after activation is aborted during root lookup
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not let an already-aborted activation revoke the prior valid receipt
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates an activation receipt on abort without rolling back its committed application
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > exposes the selection receipt type through the package index for catalog and activation consumers
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > revokes catalog receipts when a later application intent begins before its first await resolves
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates an in-flight activation when the catalog intent starts
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates catalog receipts on replacement, explicit clear, and an application commit while allowing token refresh
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates an activation receipt on clear, replacement, and a same-app root change while allowing token refresh
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > preserves a stable root error and the previously selected application
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > preserves current directory errors and rejects stale directory errors (stable-error)
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > preserves current directory errors and rejects stale directory errors (superseded-error)
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > fails explicitly for an inaccessible application without clearing the current choice
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > requires a live lowcode session for both application selection entries
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > copies a selectApplication input before waiting for its navigation root
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rechecks selectApplication after its awaited commit before returning
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rechecks activateApplication after its awaited commit before returning
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rechecks selectApplication failures after its awaited commit before returning
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rechecks activateApplication failures after its awaited commit before returning
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > invalidates an activation receipt as soon as login or logout begins
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not commit a pending root after login begins but before its network response
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not commit a pending root after logout begins but before its network response
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > maps semantic login credentials and normalizes the login session
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > lists public enterprises by display name while preserving the login ShortName
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > reads a password-free projection from the authenticated enterprise snapshot
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > refreshes access credentials with both source-defined token headers
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > logs out through the real GET endpoint with the access token
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > injects the stored access token into authenticated platform requests
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > refreshes an expired access token before an authenticated request
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > reads tenant-scoped cache counts without enumerating keys or values
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > fails closed when lowcode reports an application error
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > fails closed when the response is not an AjaxResult
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > maps user registration to the source DTO without inventing a session
+ ↓ src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > maps enterprise registration to AddEntRequest and BaseEnterpriseInfo
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > uses the host-injected navigation-root DataView reader during object selection
+AssertionError: expected 'LEGACY-ROOT' to be 'ROOT-APP-B' // Object.is equality
+
+Expected: "ROOT-APP-B"
+Received: "LEGACY-ROOT"
+
+ ❯ src/platform/lowcode-platform-api.test.ts:130:77
+    128|     })
+    129|
+    130|     await expect(api.platform.selectApplication({id: 'APP-B', name: 'B…
+       |                                                                             ^
+    131|
+    132|     expect(readNavigationRootId).toHaveBeenCalledOnce()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id undefined without replacing the selected application
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id null without replacing the selected application
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id 0 without replacing the selected application
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id {} without replacing the selected application
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id  without replacing the selected application
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects an invalid injected root id     without replacing the selected application
+AssertionError: promise resolved "'LEGACY-ROOT'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"LEGACY-ROOT"
+
+ ❯ src/platform/lowcode-platform-api.test.ts:150:77
+    148|     api.application.save({application: {id: 'APP-A', name: 'Alpha'}, n…
+    149|
+    150|     await expect(api.platform.selectApplication({id: 'APP-B', name: 'B…
+       |                                                                             ^
+    151|
+    152|     expect(api.application.get()).toMatchObject({application: {id: 'AP…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > trims a valid host-injected root row id without confusing it with the application id
+AssertionError: expected 'LEGACY-ROOT' to be 'ROOT-B' // Object.is equality
+
+Expected: "ROOT-B"
+Received: "LEGACY-ROOT"
+
+ ❯ src/platform/lowcode-platform-api.test.ts:171:77
+    169|     })
+    170|
+    171|     await expect(api.platform.selectApplication({id: 'APP-B', name: 'B…
+       |                                                                             ^
+    172|
+    173|     expect(api.application.get()).toMatchObject({application: {id: 'AP…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > selectApplication fails explicitly without a root DataView reader and never falls back to HTTP
+AssertionError: promise resolved "'LEGACY-ROOT'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"LEGACY-ROOT"
+
+ ❯ src/platform/lowcode-platform-api.test.ts:194:29
+    192|         : api.platform.activateApplication('APP-B')
+    193|
+    194|       await expect(selection).rejects.toThrow(/导航根.*DataView|DataView.…
+       |                             ^
+    195|       expect(http.requestConfigs).toHaveLength(0)
+    196|       expect(api.application.get()).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > activateApplication fails explicitly without a root DataView reader and never falls back to HTTP
+AssertionError: promise resolved "{ …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "application": {
++     "id": "APP-B",
++     "name": "APP-B",
++   },
++   "assertCurrent": [Function assertCurrent],
++   "navigationRootId": "LEGACY-ROOT",
+  }
+
+ ❯ src/platform/lowcode-platform-api.test.ts:194:29
+    192|         : api.platform.activateApplication('APP-B')
+    193|
+    194|       await expect(selection).rejects.toThrow(/导航根.*DataView|DataView.…
+       |                             ^
+    195|       expect(http.requestConfigs).toHaveLength(0)
+    196|       expect(api.application.get()).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 49 skipped (59)
+   Start at  22:54:00
+   Duration  1.81s (transform 1.14s, setup 0ms, import 1.46s, tests 23ms, environment 0ms)

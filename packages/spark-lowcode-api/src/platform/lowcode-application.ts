@@ -1,7 +1,4 @@
-/**
- * 低代码应用目录与导航根查询：DataOperation.GetData 请求体构造与响应归一化。
- * wire 行字段大小写混用（rowid/ROWID、AppName/appName 等），归一化层负责别名兼容。
- */
+/** 低代码应用目录查询的请求体构造与响应归一化。 */
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 
 /** 应用目录 GetData 请求头 x-FormKey 固定值。 */
@@ -84,41 +81,6 @@ export function applicationCatalogQuery(): Readonly<Record<string, unknown>> {
   }
 }
 
-/** 构造导航根查询体；Filter 固定 SysId + prowId=000000，ValueFun 键 Type 大写。 */
-export function navigationRootQuery(systemId: string): Readonly<Record<string, unknown>> {
-  return {
-    Table: [{
-      Name: 'Base_NavigationInfo',
-      PrimaryKeyFields: 'rowid',
-      OutputType: 'Table',
-      Type: '数据库表',
-      Filter: {
-        Type: 'and',
-        Filters: [
-          {
-            Type: 'cond',
-            Field: 'SysId',
-            Operator: 'equal',
-            Value: null,
-            ValueFun: { Type: 'GetConstValue', Value: systemId },
-          },
-          {
-            Type: 'cond',
-            Field: 'prowId',
-            Operator: 'equal',
-            Value: null,
-            ValueFun: { Type: 'GetConstValue', Value: '000000' },
-          },
-        ],
-      },
-      inputParams: [],
-      DISTINCT: true,
-      IsBusinessMain: 1,
-      RelationFilterType: 'and',
-    }],
-  }
-}
-
 /** 归一化应用列表；按 rowid 去重，IsSys=1 映射为 isDefault。 */
 export function normalizeApplications(value: unknown): readonly LowcodeApplication[] {
   const seen = new Set<string>()
@@ -142,17 +104,4 @@ export function normalizeApplications(value: unknown): readonly LowcodeApplicati
       ...(isDefault === undefined ? {} : {isDefault}),
     }]
   })
-}
-
-/** 从导航查询结果提取唯一根 rowid；非 1 条根节点时 fail-fast。 */
-export function normalizeNavigationRootId(value: unknown): string {
-  const roots = queryItems(value).flatMap((item) => {
-    if (!isRecord(item)) return []
-    const id = firstText(item, ['rowid', 'ROWID', 'rowId'])
-    return id ? [id] : []
-  })
-  if (roots.length !== 1) {
-    throw new LowcodeApiError(0, `应用导航根节点应唯一，实际 ${roots.length} 个`)
-  }
-  return roots[0] ?? ''
 }

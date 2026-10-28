@@ -39,6 +39,10 @@
         "readApplicationById": {
           "type": "object",
           "title": "(applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>"
+        },
+        "readNavigationRootId": {
+          "type": "object",
+          "title": "(systemId: string, assertCurrent: () => void) => Promise<string>"
         }
       },
       "required": [
@@ -109,18 +113,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T13:59:11.740Z",
+  "generatedAt": "2026-10-28T14:58:11.413Z",
   "models": {
     "LowcodeApiOptions": {
       "name": "LowcodeApiOptions",
       "jsdoc": "根门面构造选项；`http` 为唯一必填项，会话与应用存储键可覆盖默认值以支持多租户隔离。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n    /**\n     * Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence\n     * assertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;\n     * activation does not fall back to the legacy list API.\n     */\n    readApplicationById?: LowcodePlatformApiOptions['readApplicationById'];\n}>",
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n    /**\n     * Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence\n     * assertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;\n     * activation does not fall back to the legacy list API.\n     */\n    readApplicationById?: LowcodePlatformApiOptions['readApplicationById'];\n    /** Host-owned formal Base_NavigationInfo DataView reader; application selection never falls back to HTTP. */\n    readNavigationRootId?: LowcodePlatformApiOptions['readNavigationRootId'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n    /**\n     * Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence\n     * assertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;\n     * activation does not fall back to the legacy list API.\n     */\n    readApplicationById?: LowcodePlatformApiOptions['readApplicationById'];\n}>",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n    /**\n     * Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence\n     * assertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;\n     * activation does not fall back to the legacy list API.\n     */\n    readApplicationById?: LowcodePlatformApiOptions['readApplicationById'];\n    /** Host-owned formal Base_NavigationInfo DataView reader; application selection never falls back to HTTP. */\n    readNavigationRootId?: LowcodePlatformApiOptions['readNavigationRootId'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -154,6 +158,12 @@
             {
               "name": "readApplicationById",
               "jsdoc": "Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence\nassertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;\nactivation does not fall back to the legacy list API.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readNavigationRootId",
+              "jsdoc": "Host-owned formal Base_NavigationInfo DataView reader; application selection never falls back to HTTP.",
               "readable": true,
               "writable": false
             }

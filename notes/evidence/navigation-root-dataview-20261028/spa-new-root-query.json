@@ -1,0 +1,77 @@
+{
+  "truncated": false,
+  "request": {
+    "Table": [
+      {
+        "Name": "Base_NavigationInfo",
+        "OutputType": "Table",
+        "Filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "SysId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "prowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "000000"
+              }
+            }
+          ]
+        },
+        "inputParams": [],
+        "DISTINCT": true,
+        "IsBusinessMain": 1,
+        "Fields": [
+          {
+            "Name": "rowid",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 1,
+            "OrderType": "ascending"
+          },
+          {
+            "Name": "SysId",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          },
+          {
+            "Name": "prowid",
+            "IsOutput": true,
+            "Group": 0,
+            "Order": 0,
+            "OrderType": null
+          }
+        ]
+      }
+    ],
+    "OutputFieldMode": "REQUEST",
+    "PageParam": {
+      "index": 1,
+      "size": 1
+    }
+  },
+  "code": 200,
+  "total": 1,
+  "rows": [
+    {
+      "rowid": "D99A1DCE9894698799101EFD70F8FC76",
+      "SysId": "D99A1DCE9894698799101EFD70F8FC76",
+      "prowid": "000000"
+    }
+  ],
+  "documentRequests": 0
+}

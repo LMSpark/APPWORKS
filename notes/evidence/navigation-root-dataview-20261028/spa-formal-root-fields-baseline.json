@@ -1,0 +1,33 @@
+{
+  "model": [
+    {
+      "id": "7AB874097A1E8711A42FD845939A6E05p000",
+      "name": "Base_NavigationInfo",
+      "metaName": "Base_NavigationInfo",
+      "dataSetId": "7AB874097A1E8711A42FD845939A6E05"
+    }
+  ],
+  "fields": [
+    {
+      "id": "7327F44008FD4A01B6F3F3B75217F6D4",
+      "name": "SysId",
+      "canonicalName": "SysId",
+      "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+      "isOutput": 1
+    },
+    {
+      "id": "A5A69E95A8664DE28C3F2E64890835D7",
+      "name": "rowid",
+      "canonicalName": "rowid",
+      "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+      "isOutput": 1
+    },
+    {
+      "id": "E8F071814E0F4CB7917838747F1B2791",
+      "name": "prowid",
+      "canonicalName": "prowid",
+      "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+      "isOutput": 1
+    }
+  ]
+}

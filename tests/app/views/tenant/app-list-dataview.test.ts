@@ -85,6 +85,7 @@ const RendererListStub = defineComponent({
         'data-toolbar-children': toolbar?.children?.map(child => child.id).join(',') ?? '',
         'data-switch-has-handler': String(typeof switchAction?.props?.['onClick'] === 'function'),
         'data-switch-view-key': String(switchAction?.props?.['dataViewKey'] ?? ''),
+        'data-description-field': String(children.find(child => child.id === 'app-description')?.props?.['dataField'] ?? ''),
       }, state.rows.map(item => item.AppDesc).join(' '))
     }
   },
@@ -141,6 +142,7 @@ describe('AppList DataView routing', () => {
     expect(list.attributes('data-toolbar-children')).toBe('app-home-tag,app-standard-tag,app-switch,app-current-tag,app-settings,app-delete')
     expect(list.attributes('data-switch-has-handler')).toBe('true')
     expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
+    expect(list.attributes('data-description-field')).toBe('Memo')
   })
 
   it('fails closed when the formal view does not request the full directory', async () => {

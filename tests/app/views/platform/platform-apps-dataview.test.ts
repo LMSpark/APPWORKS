@@ -98,7 +98,7 @@ describe('PlatformApps formal application catalog', () => {
     expect(state.listApplications).not.toHaveBeenCalled()
     expect(state.viewKey).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
     expect(wrapper.findComponent({name: 'RendererTable'}).props('showDataViewMeta')).toBe(true)
-    expect(state.children.map(child => child.props?.['field'])).toEqual(['rowid', 'AppDesc', 'AppDesc'])
+    expect(state.children.map(child => child.props?.['field'])).toEqual(['rowid', 'AppDesc', 'Memo'])
     expect(state.refresh).toHaveBeenCalledOnce()
     await wrapper.get('button').trigger('click')
     expect(state.refresh).toHaveBeenCalledTimes(2)

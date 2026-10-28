@@ -32,6 +32,8 @@ export type LowcodeApiOptions = Readonly<{
    * activation does not fall back to the legacy list API.
    */
   readApplicationById?: LowcodePlatformApiOptions['readApplicationById']
+  /** Host-owned formal Base_NavigationInfo DataView reader; application selection never falls back to HTTP. */
+  readNavigationRootId?: LowcodePlatformApiOptions['readNavigationRootId']
 }>
 
 /** lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。 */
@@ -68,6 +70,7 @@ export class LowcodeApi {
       session: this.session,
       application: this.application,
       ...(options.readApplicationById === undefined ? {} : {readApplicationById: options.readApplicationById}),
+      ...(options.readNavigationRootId === undefined ? {} : {readNavigationRootId: options.readNavigationRootId}),
     })
     this.permission = new PermissionApi(options.http)
     options.http.interceptors.request.use({

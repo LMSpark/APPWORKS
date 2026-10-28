@@ -62,7 +62,11 @@ function selectFixtureApplication(api: LowcodeApi): void {
 }
 
 type TestApplicationReader = (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>
-type TestLowcodeApi = LowcodeApi & {applicationDirectoryReader: ReturnType<typeof vi.fn<TestApplicationReader>>}
+type TestNavigationRootReader = (systemId: string, assertCurrent: () => void) => Promise<string>
+type TestLowcodeApi = LowcodeApi & {
+  applicationDirectoryReader: ReturnType<typeof vi.fn<TestApplicationReader>>
+  navigationRootReader: ReturnType<typeof vi.fn<TestNavigationRootReader>>
+}
 
 function authenticatedFileApi(http: FixtureHttpClient): TestLowcodeApi {
   const apiReference: {value?: LowcodeApi} = {}
@@ -72,7 +76,12 @@ function authenticatedFileApi(http: FixtureHttpClient): TestLowcodeApi {
     if (current === null) throw new Error('application fixture missing')
     return {...current.application, id: applicationId}
   })
-  const api = new LowcodeApi({http, sessionStorage: new FixtureStorage(), readApplicationById: reader})
+  const rootReader = vi.fn<TestNavigationRootReader>(async (systemId, assertCurrent) => {
+    assertCurrent()
+    return `ROOT-${systemId}`
+  })
+  const api = new LowcodeApi({http, sessionStorage: new FixtureStorage(), readApplicationById: reader,
+    readNavigationRootId: rootReader})
   apiReference.value = api
   api.session.save({ accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
     accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
@@ -81,14 +90,19 @@ function authenticatedFileApi(http: FixtureHttpClient): TestLowcodeApi {
     enterprise: { id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {} },
   })
   selectFixtureApplication(api)
-  return Object.assign(api, {applicationDirectoryReader: reader}) as TestLowcodeApi
+  return Object.assign(api, {applicationDirectoryReader: reader, navigationRootReader: rootReader}) as TestLowcodeApi
 }
 
 function authenticatedReaderApi(
   http: FixtureHttpClient,
   readApplicationById: TestApplicationReader,
 ): TestLowcodeApi {
-  const options = {http, sessionStorage: new FixtureStorage(), readApplicationById}
+  const rootReader = vi.fn<TestNavigationRootReader>(async (systemId, assertCurrent) => {
+    assertCurrent()
+    return `ROOT-${systemId}`
+  })
+  const options = {http, sessionStorage: new FixtureStorage(), readApplicationById,
+    readNavigationRootId: rootReader}
   const api = new LowcodeApi(options as ConstructorParameters<typeof LowcodeApi>[0])
   api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
     accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
@@ -97,7 +111,7 @@ function authenticatedReaderApi(
     enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
   })
   selectFixtureApplication(api)
-  return Object.assign(api, {applicationDirectoryReader: readApplicationById}) as TestLowcodeApi
+  return Object.assign(api, {applicationDirectoryReader: readApplicationById, navigationRootReader: rootReader}) as TestLowcodeApi
 }
 
 function deferred<T>(): Readonly<{
@@ -112,6 +126,91 @@ function deferred<T>(): Readonly<{
 }
 
 describe('LowcodePlatformApi', () => {
+  it('uses the host-injected navigation-root DataView reader during object selection', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: {Items: [{rowid: 'LEGACY-ROOT'}]}})
+    const readNavigationRootId = vi.fn(async (systemId: string, assertCurrent: () => void) => {
+      assertCurrent()
+      return `ROOT-${systemId}`
+    })
+    const api = new LowcodeApi({http, sessionStorage: new FixtureStorage(),
+      readNavigationRootId} as unknown as ConstructorParameters<typeof LowcodeApi>[0])
+    api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'U1', account: 'fixture', displayName: 'fixture', enterpriseId: 'E1',
+        enterpriseShortName: 'Lingma', role: null, raw: {}},
+      enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
+    })
+
+    await expect(api.platform.selectApplication({id: 'APP-B', name: 'Beta'})).resolves.toBe('ROOT-APP-B')
+
+    expect(readNavigationRootId).toHaveBeenCalledOnce()
+    expect(readNavigationRootId).toHaveBeenCalledWith('APP-B', expect.any(Function))
+    expect(http.requestConfigs).toHaveLength(0)
+  })
+
+  it.each([undefined, null, 0, {}, '', '   '])('rejects an invalid injected root id %s without replacing the selected application', async rootId => {
+    const http = new FixtureHttpClient({Code: 200, Result: {Items: [{rowid: 'LEGACY-ROOT'}]}})
+    const readNavigationRootId = vi.fn(async () => rootId as unknown as string)
+    const options = {http, sessionStorage: new FixtureStorage(), readNavigationRootId} as unknown as ConstructorParameters<typeof LowcodeApi>[0]
+    const api = new LowcodeApi(options)
+    api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'U1', account: 'fixture', displayName: 'fixture', enterpriseId: 'E1',
+        enterpriseShortName: 'Lingma', role: null, raw: {}},
+      enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
+    })
+    api.application.save({application: {id: 'APP-A', name: 'Alpha'}, navigationRootId: 'ROOT-A'})
+
+    await expect(api.platform.selectApplication({id: 'APP-B', name: 'Beta'})).rejects.toThrow(/导航根.*(无效|有效字符串)/i)
+
+    expect(api.application.get()).toMatchObject({application: {id: 'APP-A'}, navigationRootId: 'ROOT-A'})
+    expect(http.requestConfigs).toHaveLength(0)
+  })
+
+  it('trims a valid host-injected root row id without confusing it with the application id', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: {Items: [{rowid: 'LEGACY-ROOT'}]}})
+    const readNavigationRootId = vi.fn(async (_systemId: string, assertCurrent: () => void) => {
+      assertCurrent()
+      return '  ROOT-B  '
+    })
+    const options = {http, sessionStorage: new FixtureStorage(), readNavigationRootId} as unknown as ConstructorParameters<typeof LowcodeApi>[0]
+    const api = new LowcodeApi(options)
+    api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+      accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+      identity: {userId: 'U1', account: 'fixture', displayName: 'fixture', enterpriseId: 'E1',
+        enterpriseShortName: 'Lingma', role: null, raw: {}},
+      enterprise: {id: 'E1', name: 'fixture', code: 'E1', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
+    })
+
+    await expect(api.platform.selectApplication({id: 'APP-B', name: 'Beta'})).resolves.toBe('ROOT-B')
+
+    expect(api.application.get()).toMatchObject({application: {id: 'APP-B'}, navigationRootId: 'ROOT-B'})
+    expect(api.application.get()?.navigationRootId).not.toBe('APP-B')
+    expect(http.requestConfigs).toHaveLength(0)
+  })
+
+  it.each(['selectApplication', 'activateApplication'] as const)(
+    '%s fails explicitly without a root DataView reader and never falls back to HTTP', async entry => {
+      const http = new FixtureHttpClient({Code: 200, Result: {Items: [{rowid: 'LEGACY-ROOT'}]}})
+      const readApplicationById = vi.fn(async (id: string) => ({id, name: id}))
+      const options = {http, sessionStorage: new FixtureStorage(), readApplicationById} as unknown as ConstructorParameters<typeof LowcodeApi>[0]
+      const api = new LowcodeApi(options)
+      api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
+        accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
+        identity: {userId: 'U1', account: 'fixture', displayName: 'fixture', enterpriseId: 'E1',
+          enterpriseShortName: 'Lingma', role: null, raw: {}},
+        enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
+      })
+      const selection = entry === 'selectApplication'
+        ? api.platform.selectApplication({id: 'APP-B', name: 'Beta'})
+        : api.platform.activateApplication('APP-B')
+
+      await expect(selection).rejects.toThrow(/导航根.*DataView|DataView.*导航根/i)
+      expect(http.requestConfigs).toHaveLength(0)
+      expect(api.application.get()).toBeNull()
+    },
+  )
+
   it('fails closed when application activation has no DataView directory reader', async () => {
     const http = new FixtureHttpClient({Code: 200, Result: {Items: [
       {rowid: 'APP-B', AppName: 'beta', AppDesc: 'Beta'},
@@ -138,7 +237,9 @@ describe('LowcodePlatformApi', () => {
       assertCurrent()
       return {id, name: 'Beta'}
     })
-    const options = {http, sessionStorage: new FixtureStorage(), readApplicationById: reader}
+    const rootReader = vi.fn<TestNavigationRootReader>(async () => 'ROOT-B')
+    const options = {http, sessionStorage: new FixtureStorage(), readApplicationById: reader,
+      readNavigationRootId: rootReader}
     const api = new LowcodeApi(options as ConstructorParameters<typeof LowcodeApi>[0])
     api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
       accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
@@ -146,14 +247,14 @@ describe('LowcodePlatformApi', () => {
         enterpriseShortName: 'Lingma', role: null, raw: {}},
       enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
     })
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    const root = rootReader
 
     const receipt = await api.platform.activateApplication(' APP-B ')
 
     expect(reader).toHaveBeenCalledOnce()
     expect(reader.mock.calls[0]?.[0]).toBe('APP-B')
     expect(reader.mock.calls[0]?.[1]).toEqual(expect.any(Function))
-    expect(root).toHaveBeenCalledWith('APP-B')
+    expect(root).toHaveBeenCalledWith('APP-B', expect.any(Function))
     expect(receipt.application).toEqual({id: 'APP-B', name: 'Beta'})
     expect(api.application.get()?.application).toEqual({id: 'APP-B', name: 'Beta'})
     expect(http.requestConfigs).toEqual([])
@@ -164,7 +265,9 @@ describe('LowcodePlatformApi', () => {
       {rowid: 'APP-B', AppName: 'beta', AppDesc: 'Legacy HTTP result'},
     ]}})
     const reader = async () => ({id: 'APP-C', name: 'Gamma'})
-    const options = {http, sessionStorage: new FixtureStorage(), readApplicationById: reader}
+    const rootReader = vi.fn<TestNavigationRootReader>(async () => 'ROOT-B')
+    const options = {http, sessionStorage: new FixtureStorage(), readApplicationById: reader,
+      readNavigationRootId: rootReader}
     const api = new LowcodeApi(options as ConstructorParameters<typeof LowcodeApi>[0])
     api.session.save({accessToken: 'fixture-access', refreshToken: 'fixture-refresh',
       accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
@@ -172,7 +275,7 @@ describe('LowcodePlatformApi', () => {
         enterpriseShortName: 'Lingma', role: null, raw: {}},
       enterprise: {id: 'E1', name: 'fixture', code: 'fixture', shortName: 'Lingma', shortCode: 'fixture', raw: {}},
     })
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    const root = rootReader
 
     await expect(api.platform.activateApplication('APP-B')).rejects.toThrow('应用目录读取器返回的应用 ID 与请求不匹配：APP-B')
 
@@ -193,7 +296,7 @@ describe('LowcodePlatformApi', () => {
       {rowid: 'APP-B', AppName: 'beta', AppDesc: 'Beta'},
       {rowid: 'APP-C', AppName: 'gamma', AppDesc: 'Gamma'},
     ]}}), reader)
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-C')
+    const root = api.navigationRootReader.mockResolvedValue('ROOT-C')
 
     const older = api.platform.activateApplication('APP-B')
     await Promise.resolve()
@@ -208,7 +311,7 @@ describe('LowcodePlatformApi', () => {
 
     await expect(older).rejects.toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
     expect(root).toHaveBeenCalledTimes(1)
-    expect(root).toHaveBeenCalledWith('APP-C')
+    expect(root).toHaveBeenCalledWith('APP-C', expect.any(Function))
     expect(api.application.get()?.application.id).toBe('APP-C')
   })
 
@@ -223,7 +326,7 @@ describe('LowcodePlatformApi', () => {
     const api = authenticatedReaderApi(new FixtureHttpClient({Code: 200, Result: {Items: [
       {rowid: 'APP-B', AppName: 'beta', AppDesc: 'Beta'},
     ]}}), reader)
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId')
+    const root = api.navigationRootReader
     const previous = api.application.get()
 
     const selecting = api.platform.activateApplication('APP-B')
@@ -241,7 +344,7 @@ describe('LowcodePlatformApi', () => {
     const api = authenticatedFileApi(new FixtureHttpClient({ Code: 200, Result: null }))
     const rootA = deferred<string>()
     const rootB = deferred<string>()
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockImplementation((id) => (
+    api.navigationRootReader.mockImplementation((id) => (
       id === 'APP-A' ? rootA.promise : rootB.promise
     ))
     const current = api.application.get()
@@ -269,7 +372,7 @@ describe('LowcodePlatformApi', () => {
       const rootA = deferred<string>()
       const rootB = deferred<string>()
       api.applicationDirectoryReader.mockResolvedValue(appB)
-      vi.spyOn(api.platform, 'resolveNavigationRootId').mockImplementation((id) => (
+      api.navigationRootReader.mockImplementation((id) => (
         id === 'APP-A' ? rootA.promise : rootB.promise
       ))
 
@@ -279,7 +382,7 @@ describe('LowcodePlatformApi', () => {
       const second = order === 'select-then-activate'
         ? api.platform.activateApplication('APP-B')
         : api.platform.selectApplication(appB)
-      await vi.waitFor(() => expect(api.platform.resolveNavigationRootId).toHaveBeenCalledWith('APP-B'))
+      await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledWith('APP-B', expect.any(Function)))
       rootB.resolve('ROOT-B')
       if (order === 'select-then-activate') {
         await expect(second).resolves.toMatchObject({ navigationRootId: 'ROOT-B' })
@@ -297,12 +400,12 @@ describe('LowcodePlatformApi', () => {
     const appB = { ...current.application, id: 'APP-B' }
     const list = api.applicationDirectoryReader
     list.mockResolvedValue(appB)
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    const root = api.navigationRootReader.mockResolvedValue('ROOT-B')
 
     const receipt = await api.platform.activateApplication(' APP-B ')
 
     expect(list).toHaveBeenCalledOnce()
-    expect(root).toHaveBeenCalledWith('APP-B')
+    expect(root).toHaveBeenCalledWith('APP-B', expect.any(Function))
     expect(receipt).toMatchObject({ application: appB, navigationRootId: 'ROOT-B' })
     expect(api.application.get()).toEqual({ application: appB, navigationRootId: 'ROOT-B' })
     expect(() => receipt.assertCurrent()).not.toThrow()
@@ -321,13 +424,13 @@ describe('LowcodePlatformApi', () => {
       list.mockReturnValue(
         stage === 'directory-reader' ? applications.promise : Promise.resolve(appB),
       )
-      const resolveRoot = vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
+      const resolveRoot = api.navigationRootReader.mockReturnValue(root.promise)
 
       const activation = api.platform.activateApplication('APP-B')
       if (stage === 'directory-reader') {
         await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
       } else {
-        await vi.waitFor(() => expect(resolveRoot).toHaveBeenCalledWith('APP-B'))
+        await vi.waitFor(() => expect(resolveRoot).toHaveBeenCalledWith('APP-B', expect.any(Function)))
       }
       api.platform.cancelPendingApplicationSelection()
       if (stage === 'directory-reader') applications.resolve(appB)
@@ -344,7 +447,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const receipt = await api.platform.activateApplication('APP-B')
 
     api.platform.cancelPendingApplicationSelection()
@@ -358,7 +461,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const originalSave = api.application.save.bind(api.application)
     const save = vi.spyOn(api.application, 'save').mockImplementation((selection) => {
       originalSave(selection)
@@ -380,12 +483,12 @@ describe('LowcodePlatformApi', () => {
     const appB = { ...current.application, id: 'APP-B' }
     const rootA = deferred<string>()
     const applicationsB = deferred<LowcodeApplication>()
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(rootA.promise)
+    api.navigationRootReader.mockReturnValue(rootA.promise)
     const list = api.applicationDirectoryReader
     list.mockReturnValue(applicationsB.promise)
 
     const older = api.platform.selectApplication(appA)
-    await vi.waitFor(() => expect(api.platform.resolveNavigationRootId).toHaveBeenCalledWith('APP-A'))
+    await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledWith('APP-A', expect.any(Function)))
     api.platform.cancelPendingApplicationSelection()
     const newer = api.platform.activateApplication('APP-B')
     await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
@@ -405,7 +508,7 @@ describe('LowcodePlatformApi', () => {
     const applications = deferred<LowcodeApplication>()
     const list = api.applicationDirectoryReader
     list.mockReturnValue(applications.promise)
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    const root = api.navigationRootReader.mockResolvedValue('ROOT-B')
     const controller = new AbortController()
     const reason = new Error('navigation intent superseded')
     const activation = api.platform.activateApplication('APP-B', controller.signal)
@@ -428,11 +531,11 @@ describe('LowcodePlatformApi', () => {
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     const list = api.applicationDirectoryReader.mockResolvedValue(appB)
     const root = deferred<string>()
-    const resolveRoot = vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
+    const resolveRoot = api.navigationRootReader.mockReturnValue(root.promise)
     const controller = new AbortController()
     const reason = new Error('navigation intent superseded')
     const activation = api.platform.activateApplication('APP-B', controller.signal)
-    await vi.waitFor(() => expect(resolveRoot).toHaveBeenCalledWith('APP-B'))
+    await vi.waitFor(() => expect(resolveRoot).toHaveBeenCalledWith('APP-B', expect.any(Function)))
 
     controller.abort(reason)
     root.resolve('ROOT-B')
@@ -447,7 +550,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     const list = api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const priorReceipt = await api.platform.activateApplication('APP-B')
     const controller = new AbortController()
     const reason = new Error('navigation intent already superseded')
@@ -465,7 +568,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const controller = new AbortController()
     const reason = new Error('navigation intent superseded after commit')
     const receipt = await api.platform.activateApplication('APP-B', controller.signal)
@@ -485,7 +588,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
     api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const activationReceipt = await api.platform.activateApplication('APP-B')
     assertCurrentReceipt(activationReceipt)
     expect(() => catalogReceipt.assertCurrent()).toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
@@ -501,7 +604,7 @@ describe('LowcodePlatformApi', () => {
     expect(() => catalogReceipt.assertCurrent()).toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
     applications.resolve({ id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false })
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     await expect(activation).resolves.toMatchObject({ application: { id: 'APP-B' }, navigationRootId: 'ROOT-B' })
   })
 
@@ -556,7 +659,7 @@ describe('LowcodePlatformApi', () => {
     if (current === null) throw new Error('application fixture missing')
     const appB = { ...current.application, id: 'APP-B' }
     api.applicationDirectoryReader.mockResolvedValue(appB)
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    api.navigationRootReader.mockResolvedValue('ROOT-B')
     const first = await api.platform.activateApplication('APP-B')
     const session = api.session.get()
     if (session === null) throw new Error('session fixture missing')
@@ -585,7 +688,7 @@ describe('LowcodePlatformApi', () => {
     const appB = { ...current.application, id: 'APP-B' }
     api.applicationDirectoryReader.mockResolvedValue(appB)
     const rootError = new Error('root unavailable')
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockRejectedValue(rootError)
+    api.navigationRootReader.mockRejectedValue(rootError)
 
     await expect(api.platform.activateApplication('APP-B')).rejects.toBe(rootError)
     expect(api.application.get()?.application.id).toBe('APP-1')
@@ -602,7 +705,7 @@ describe('LowcodePlatformApi', () => {
       if (mode === 'superseded-error') {
         const current = api.application.get()
         if (current === null) throw new Error('application fixture missing')
-        vi.spyOn(api.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-C')
+        api.navigationRootReader.mockResolvedValue('ROOT-C')
         const newer = api.platform.selectApplication({ ...current.application, id: 'APP-C' })
         await expect(newer).resolves.toBe('ROOT-C')
       }
@@ -616,7 +719,7 @@ describe('LowcodePlatformApi', () => {
   it('fails explicitly for an inaccessible application without clearing the current choice', async () => {
     const api = authenticatedFileApi(new FixtureHttpClient({ Code: 200, Result: null }))
     api.applicationDirectoryReader.mockRejectedValue(new Error('lowcode 应用不存在或无权访问：APP-MISSING'))
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId')
+    const root = api.navigationRootReader
 
     await expect(api.platform.activateApplication('APP-MISSING')).rejects.toThrow('lowcode 应用不存在或无权访问：APP-MISSING')
     expect(api.application.get()?.application.id).toBe('APP-1')
@@ -624,10 +727,12 @@ describe('LowcodePlatformApi', () => {
   })
 
   it('requires a live lowcode session for both application selection entries', async () => {
-    const api = new LowcodeApi({ http: new FixtureHttpClient({ Code: 200, Result: null }) })
+    const rootReader = vi.fn<TestNavigationRootReader>(async () => 'ROOT-B')
+    const api = new LowcodeApi({ http: new FixtureHttpClient({ Code: 200, Result: null }),
+      readNavigationRootId: rootReader })
     const application = { id: 'APP-B', code: 'APP-B', name: 'APP-B', description: '',
       enterpriseId: 'E1', enterpriseShortName: 'Lingma', isDefault: false }
-    const root = vi.spyOn(api.platform, 'resolveNavigationRootId')
+    const root = rootReader
 
     await expect(api.platform.selectApplication(application)).rejects.toThrow('应用选择需要有效的 lowcode 会话')
     await expect(api.platform.activateApplication('APP-B')).rejects.toThrow('应用选择需要有效的 lowcode 会话')
@@ -640,7 +745,7 @@ describe('LowcodePlatformApi', () => {
     if (current === null) throw new Error('application fixture missing')
     const input = { ...current.application, id: 'APP-B' }
     const root = deferred<string>()
-    vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
+    api.navigationRootReader.mockReturnValue(root.promise)
 
     const selecting = api.platform.selectApplication(input)
     input.id = 'APP-C'
@@ -658,12 +763,12 @@ describe('LowcodePlatformApi', () => {
       const appB = { ...current.application, id: 'APP-B' }
       const root = deferred<string>()
       api.applicationDirectoryReader.mockResolvedValue(appB)
-      vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
+      api.navigationRootReader.mockReturnValue(root.promise)
 
       const selection = entry === 'selectApplication'
         ? api.platform.selectApplication(appB)
         : api.platform.activateApplication('APP-B')
-      await vi.waitFor(() => expect(api.platform.resolveNavigationRootId).toHaveBeenCalledWith('APP-B'))
+      await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledWith('APP-B', expect.any(Function)))
       root.resolve('ROOT-B')
       queueMicrotask(() => {
         api.application.save({ application: { ...current.application, id: 'APP-C' }, navigationRootId: 'ROOT-C' })
@@ -683,14 +788,14 @@ describe('LowcodePlatformApi', () => {
       const root = deferred<string>()
       const rootError = new Error('root unavailable')
       api.applicationDirectoryReader.mockResolvedValue(appB)
-      vi.spyOn(api.platform, 'resolveNavigationRootId').mockImplementation((id) => (
+      api.navigationRootReader.mockImplementation((id) => (
         id === 'APP-C' ? Promise.resolve('ROOT-C') : root.promise
       ))
 
       const selection = entry === 'selectApplication'
         ? api.platform.selectApplication(appB)
         : api.platform.activateApplication('APP-B')
-      await vi.waitFor(() => expect(api.platform.resolveNavigationRootId).toHaveBeenCalledWith('APP-B'))
+      await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledWith('APP-B', expect.any(Function)))
       root.reject(rootError)
       queueMicrotask(() => { void api.platform.selectApplication({ ...appB, id: 'APP-C' }) })
 
@@ -709,7 +814,7 @@ describe('LowcodePlatformApi', () => {
     if (loginContext === null) throw new Error('application fixture missing')
     const loginApp = { ...loginContext.application, id: 'APP-B' }
     loginApi.applicationDirectoryReader.mockResolvedValue(loginApp)
-    vi.spyOn(loginApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    loginApi.navigationRootReader.mockResolvedValue('ROOT-B')
     const loginReceipt = await loginApi.platform.activateApplication('APP-B')
     const login = loginApi.platform.login({ enterpriseName: 'Next', account: 'next', password: 'secret' })
     expect(() => loginReceipt.assertCurrent()).toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
@@ -720,7 +825,7 @@ describe('LowcodePlatformApi', () => {
     if (logoutContext === null) throw new Error('application fixture missing')
     const logoutApp = { ...logoutContext.application, id: 'APP-B' }
     logoutApi.applicationDirectoryReader.mockResolvedValue(logoutApp)
-    vi.spyOn(logoutApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-B')
+    logoutApi.navigationRootReader.mockResolvedValue('ROOT-B')
     const logoutReceipt = await logoutApi.platform.activateApplication('APP-B')
     const logout = logoutApi.platform.logout()
     expect(() => logoutReceipt.assertCurrent()).toThrow('LOWCODE_APPLICATION_SELECTION_STALE')
@@ -734,9 +839,9 @@ describe('LowcodePlatformApi', () => {
       const current = api.application.get()
       if (current === null) throw new Error('application fixture missing')
       const root = deferred<string>()
-      vi.spyOn(api.platform, 'resolveNavigationRootId').mockReturnValue(root.promise)
+      api.navigationRootReader.mockReturnValue(root.promise)
       const selection = api.platform.selectApplication({ ...current.application, id: 'APP-B' })
-      await vi.waitFor(() => expect(api.platform.resolveNavigationRootId).toHaveBeenCalledWith('APP-B'))
+      await vi.waitFor(() => expect(api.navigationRootReader).toHaveBeenCalledWith('APP-B', expect.any(Function)))
 
       const transition = operation === 'login'
         ? api.platform.login({ enterpriseName: 'Next', account: 'next', password: 'secret' })

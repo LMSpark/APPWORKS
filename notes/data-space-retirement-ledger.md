@@ -1,5 +1,29 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 应用卡片描述字段错绑修正
+
+- **根因与正式依据：**用户反馈卡片字段未绑定。主控真实 SPA 复核发现名称、描述有逐行值，但两者均绑定 `AppDesc`。同次正式模型字段回包确认 `AppDesc` 是“系统中文名称”、`AppName` 是“应用代码”、`Memo` 是“系统描述”，均为输出字段；不是 DataView 行上下文失效。正式字段摘要与修改前后截图见 [`application-card-field-binding-20261028`](evidence/application-card-field-binding-20261028/summary.md)。
+- **实施与复核：**低价模型将 AppList 卡片及 PlatformApps 标准表格的描述绑定改为 `Memo`；仍由标准字段组件绑定原 DataView，不新增行数组、查询或权限逻辑。名称保留 `AppDesc → AppName → rowid` 回退。两处绑定反例先失败，再通过 15 项测试及定向 ESLint。主控检查生产差异仅两处字段名及相应断言。
+- **真实结果：**修复后重新登录授权 SPA，目录仍显示 62 个应用；数据资产管理显示实际系统描述，SPARK 薪酬管理显示薪酬业务描述，空 Memo 显示“暂无描述”。未修改正式业务数据或 Java。当前正式模型无图标输出字段，保留通用 Box；不猜字段、不额外查询。公开 `LowcodeApplication.description` 仍映射 AppDesc，作为独立语义核对项，不在这次展示修复中改变公共合同。
+
+### 2026-10-28 导航根读取接入正式 DataView（已实施并回归）
+
+- **收口结果：**低价模型包侧 4 文件 79 项、宿主核心 2 文件 69 项通过；主控额外目录/切换/设置回归 4 文件 34 项通过。根 typecheck、定向与包 lint 通过；正式 ClassModel、consumer ledger 已由生成器刷新，完整 verify:rules 与生产 build 通过，保留原 AI model 2 warnings/1 info 及 CodeMirror 构建告警。以下分析是本片实施前的范围记录。
+- **真实 SPA：**新查询投影仅 rowid/SysId/prowid，按目标 SysId 和 prowid=000000 查询，pageSize=1、DISTINCT、REQUEST 输出；HTTP/业务成功，Count=1，目标与根身份正式读回。标准卡片进入 D99 服务器管理，随后从原生菜单返回应用目录；采集窗口无 Document 请求，无数据保存。新旧根查询证据分开保存在 [`navigation-root-dataview-20261028`](evidence/navigation-root-dataview-20261028/green-summary.md)。其余目录 consumer 迁移仍留在原队列，不代表总体已完成。
+
+- **当前切片与授权：**上批 `702cf6c90`、`a541e4b0f` 已推送，开始时工作树干净。沿用户持续授权收敛应用选择/显式导航的导航根裸 GetData；低价模型 `gpt-6-luna` 实施，主控核对 RED、复核、烟测和实时提交推送。不会修改、启动或部署 Java，不新增角色/租户判断，不另建总计划。
+- **已核合同：**根来自正式空间 `7AB874097A1E8711A42FD845939A6E05` 的 `Base_NavigationInfo`，只消费正式输出 `rowid / SysId / prowid`；按 `SysId=目标`、`prowid='000000'` 查询，只允许完整查询中唯一且三列当次可读的根，根 rowid 不要求等于应用 ID。旧请求使用 `prowId` 大小写，正式蓝图 DataView 使用 `prowid`，新实现必须按正式模型 canonical 字段验证，不能机械抄旧请求或将 null/0 猜为根。
+- **方案与裁决：**LowcodeApi 构造注入 `readNavigationRootId(systemId, assertCurrent)`，host 以登录态 headers={} 装配原生 DataSet/DataView；在原 application selection fence 内读取，保存选中上下文与 receipt 算法保持。显式导航共用 host helper，仍将执行应用与目标应用分离；selectApplication 保留原对象入口，但根读取也消费同一 provider/fence。缺配置明确失败，无旧请求回退。删除被替代的 resolveNavigationRootId、navigationRootQuery、normalizeNavigationRootId 及活动引用/生成合同。
+
+| 关联项 | 生产/消费合同及冲突检查 | 裁决与验证 |
+| --- | --- | --- |
+| 应用目录与根模型装配 | 都使用同一正式目录空间与登录态；根模型不具备 AppDesc/AppName 必需条件 | 抽窄私有复用实际两种资源的装配/guard/finally，不造模型字段、不建通用新框架 |
+| 原选择 fence 与根等待 | 目录、根等待和提交不得出现第二套 intent 或旧回退 | provider 沿原 assertCurrent，元数据/查询前后核验；迟到成功/失败不覆盖新选择 |
+| 根唯一性与分页/权限 | 必须看到所有匹配范围，不能把当前页或缺总数的 fallback 当唯一证明 | fields 严格三列，复用正式 allPages/总数要求；可按只需区分至多两个候选设读取上限，超限直接拒绝 |
+| 旧根接口与调用方 | 仅激活、对象选择、显式导航及相关测试使用旧根入口 | 同步切换并删除旧 API/请求构造/归一化，不保留兼容旁路；原 scope/abort/receipt 断言继续验证 |
+
+- **验证状态：**先补真实 SPARK 回包夹具和有效 RED，隐藏/脱敏用 h/m，r 保持必填语义；成功、无/多根、错误身份、缺输出字段、查询失败、scope/abort/新意图与资源释放均须覆盖。线上实时授权和请求/回执尚待本批 SPA 只读验证，不以旧源码、旧截图或夹具外推。其余 projectReferences/project-settings 旧目录读取继续留队。
+
 ### 2026-10-28 标准列表卡片覆盖修复与 SPA 验收收口
 
 - **已实施：**低价模型为 RList 增加独立 `itemGridGap`，缺省仍继承 `gridGap`，没有改共享 Grid 合同；内容/card wrapper 可收缩到实际分配宽度。AppList 外层间距 20、项内间距 0，原动作改为全宽标准 `r-toolbar` 并按正式合同继承列表行，不显式绑定到全局 currentRow；隐藏动作不再留下空 grid 包装，旧按钮跨度配置已删除，原字段、操作回调及 DataView 保留。

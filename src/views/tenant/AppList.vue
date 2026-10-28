@@ -145,7 +145,7 @@ const scenarioRowChildren = computed<SparkNode[]>(() => {
   return [
     rowButton('display-icon', 'app-icon', { icon: 'Box', iconSize: 32 }),
     field('app-name', 'AppDesc', { displayFallbackFields: ['AppName', 'rowid'], label: '应用名称' }),
-    field('app-description', 'AppDesc', { emptyText: '暂无描述', label: '描述' }),
+    field('app-description', 'Memo', { emptyText: '暂无描述', label: '描述' }),
     {
       type: 'r-toolbar',
       id: 'app-actions',

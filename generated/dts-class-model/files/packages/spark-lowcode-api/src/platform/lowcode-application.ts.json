@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/lowcode-application",
-    "jsdoc": "低代码应用目录与导航根查询：DataOperation.GetData 请求体构造与响应归一化。\nwire 行字段大小写混用（rowid/ROWID、AppName/appName 等），归一化层负责别名兼容。",
+    "jsdoc": "低代码应用目录查询的请求体构造与响应归一化。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LowcodeApplication"
@@ -51,7 +51,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T14:01:35.616Z",
+  "generatedAt": "2026-10-28T15:19:03.318Z",
   "models": {
     "LowcodeApplication": {
       "name": "LowcodeApplication",

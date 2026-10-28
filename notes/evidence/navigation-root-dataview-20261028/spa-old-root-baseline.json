@@ -1,0 +1,52 @@
+{
+  "truncated": false,
+  "code": 200,
+  "request": {
+    "Table": [
+      {
+        "Name": "Base_NavigationInfo",
+        "PrimaryKeyFields": "rowid",
+        "OutputType": "Table",
+        "Type": "数据库表",
+        "Filter": {
+          "Type": "and",
+          "Filters": [
+            {
+              "Type": "cond",
+              "Field": "SysId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              }
+            },
+            {
+              "Type": "cond",
+              "Field": "prowId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "000000"
+              }
+            }
+          ]
+        },
+        "inputParams": [],
+        "DISTINCT": true,
+        "IsBusinessMain": 1,
+        "RelationFilterType": "and"
+      }
+    ]
+  },
+  "count": 1,
+  "rowCount": 1,
+  "roots": [
+    {
+      "rowid": "D99A1DCE9894698799101EFD70F8FC76",
+      "SysId": "D99A1DCE9894698799101EFD70F8FC76",
+      "prowid": "000000"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ import { getVuePageOptions } from '@/registries/vue-page-registry'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
-import {readLowcodeApplicationById} from './lowcode-application-catalog'
+import {readLowcodeApplicationById, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
@@ -35,6 +35,7 @@ export const lowcodeApi = new LowcodePlatform.LowcodeApi({
   http: lowcodeHttp,
   ...(typeof window === 'undefined' ? {} : { sessionStorage: window.sessionStorage }),
   readApplicationById: (applicationId, assertCurrent) => readLowcodeApplicationById(applicationId, assertCurrent),
+  readNavigationRootId: (systemId, assertCurrent) => readLowcodeNavigationRootId(systemId, assertCurrent),
 })
 
 const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
@@ -355,7 +356,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   try {
     if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
       application = await readWithinExecutionScope(readLowcodeApplicationById(explicitProjectId, assertExecutionScope))
-      navigationRootId = await readWithinExecutionScope(lowcodeApi.platform.resolveNavigationRootId(application.id))
+      navigationRootId = await readWithinExecutionScope(readLowcodeNavigationRootId(application.id, assertExecutionScope))
       assertExecutionScope()
     } else if (activeContext !== null) {
       application = activeContext.application

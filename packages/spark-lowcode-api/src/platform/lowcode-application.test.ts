@@ -86,17 +86,4 @@ describe('lowcode applications', () => {
     }])
   })
 
-  it('resolves the unique persisted navigation root instead of inventing an identity', async () => {
-    const http = new ApplicationFixtureHttpClient({
-      Code: 200,
-      Result: { Items: [{ rowid: 'ROOT-1', SysId: 'APP-1', prowId: '000000' }] },
-    })
-
-    const rootId = await new LowcodeApi({ http }).platform.resolveNavigationRootId('APP-1')
-
-    expect(rootId).toBe('ROOT-1')
-    expect(http.requests[0]?.data).toMatchObject({
-      Table: [expect.objectContaining({ Name: 'Base_NavigationInfo' })],
-    })
-  })
 })

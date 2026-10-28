@@ -1,0 +1,700 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > binds the standard table to the formal view and refreshes that DataView
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > binds the standard table to the formal view and refreshes that DataView
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > binds the standard table to the formal view and refreshes that DataView
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > hides the delete action when IsSys is absent or unreadable
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > hides the delete action when IsSys is absent or unreadable
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > hides the delete action when IsSys is absent or unreadable
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > renders the type field only when formally projected and formats known values
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > renders the type field only when formally projected and formats known values
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > renders the type field only when formally projected and formats known values
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > enters the row identity using the logged-in enterprise in the tenant route
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > enters the row identity using the logged-in enterprise in the tenant route
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > enters the row identity using the logged-in enterprise in the tenant route
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > does not navigate when the project switch receipt is stale
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > does not navigate when the project switch receipt is stale
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > does not navigate when the project switch receipt is stale
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > disposes the runtime and ignores a late catalog read after unmount
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > disposes the runtime and ignores a late catalog read after unmount
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > shows an initial DataView query failure instead of rendering stale rows
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > shows an initial DataView query failure instead of rendering stale rows
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > shows an initial DataView query failure instead of rendering stale rows
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <PlatformApps ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the formal application-manager scenario through its own DataView
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the formal application-manager scenario through its own DataView
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the default catalog through its formal DataView without requiring an app selection
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the default catalog through its formal DataView without requiring an app selection
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > fails closed when the formal view does not request the full directory
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > fails closed when the formal view does not request the full directory
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > ignores a late read after the route switches to another scenario
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > ignores a late read after the route switches to another scenario
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > clears rows immediately on scenario switch and does not restore them on query failure
+[Vue warn]: injection "Symbol(project-switch)" not found.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > clears rows immediately on scenario switch and does not restore them on query failure
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > clears rows immediately on scenario switch and does not restore them on query failure
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > clears rows immediately on scenario switch and does not restore them on query failure
+[Vue warn]: Failed to resolve component: el-page-header
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-input
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form-item
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-form
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: el-dialog
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+  at <AppList ref="VTU_COMPONENT" >
+  at <VTUROOT>
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > LoginView enterprise selection > submits the catalog shortName when the preferred display label matches one enterprise
+[Vue Router warn]: No match found for location with path "/target"
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > LoginView enterprise selection > leaves enterprise empty when the display label is ambiguous
+[Vue Router warn]: No match found for location with path "/target"
+
+stderr | tests/app/views/tenant/app-list-dataview.test.ts > LoginView enterprise selection > preserves an enterprise entered while the catalog request is pending
+[Vue Router warn]: No match found for location with path "/target"
+
+x·······x······
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/views/platform/platform-apps-dataview.test.ts > PlatformApps formal application catalog > binds the standard table to the formal view and refreshes that DataView
+AssertionError: expected [ 'rowid', 'AppDesc', 'AppDesc' ] to deeply equal [ 'rowid', 'AppDesc', 'Memo' ]
+
+- Expected
++ Received
+
+  [
+    "rowid",
+    "AppDesc",
+-   "Memo",
++   "AppDesc",
+  ]
+
+ ❯ tests/app/views/platform/platform-apps-dataview.test.ts:101:65
+     99|     expect(state.viewKey).toBe('7AB874097A1E8711A42FD845939A6E05@Base_…
+    100|     expect(wrapper.findComponent({name: 'RendererTable'}).props('showD…
+    101|     expect(state.children.map(child => child.props?.['field'])).toEqua…
+       |                                                                 ^
+    102|     expect(state.refresh).toHaveBeenCalledOnce()
+    103|     await wrapper.get('button').trigger('click')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/app/views/tenant/app-list-dataview.test.ts > AppList DataView routing > loads the default catalog through its formal DataView without requiring an app selection
+AssertionError: expected 'AppDesc' to be 'Memo' // Object.is equality
+
+Expected: "Memo"
+Received: "AppDesc"
+
+ ❯ tests/app/views/tenant/app-list-dataview.test.ts:145:55
+    143|     expect(list.attributes('data-switch-has-handler')).toBe('true')
+    144|     expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E…
+    145|     expect(list.attributes('data-description-field')).toBe('Memo')
+       |                                                       ^
+    146|   })
+    147|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 13 passed (15)
+   Start at  23:25:18
+   Duration  10.67s (transform 8.38s, setup 232ms, import 12.79s, tests 296ms, environment 1.98s)

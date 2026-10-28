@@ -1,5 +1,6 @@
 import {DataSet, RequestState} from '@spark-appworks/spark-data'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import type {LowcodeDesignApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
 const columns = [
@@ -153,6 +154,131 @@ describe('Agent Workflow file DataView resource', () => {
       stale()
       expect(() => result.readFieldAccess(row, 'workflowId')).toThrow('SPARK_EXECUTION_SCOPE_STALE')
       expect(() => result.viewActionState(row['workflowId'])).toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    } finally {dataSet.destroy()}
+  })
+})
+
+describe('Agent Workflow file DataView save contract', () => {
+  function writableFixture(options: Readonly<{
+    upload?: LowcodeDesignFileUpload['uploadWorkingText']
+    readback?: LowcodeDesignApi['readFileBytes']
+    readText?: LowcodeDesignApi['readTextFile']
+    assertCurrent?: () => void
+  }> = {}) {
+    const remote = new Map<string, string>([
+      ['agent.workflow.alpha/design.json', '{"kind":"agent.workflow.design","version":1}'],
+      ['agent.workflow.alpha/definition.json', '{"kind":"agent.workflow","version":1}'],
+    ])
+    const readApi = {
+      listFiles: vi.fn<LowcodeDesignApi['listFiles']>(async () => [{name: 'agent.workflow.alpha', lastModified: 1}]),
+      readTextFile: vi.fn<LowcodeDesignApi['readTextFile']>(async input => options.readText
+        ? options.readText(input)
+        : remote.get(`${input.customPath.split('/').at(-1)}/${input.fileName}`) ?? ''),
+      readFileBytes: vi.fn<LowcodeDesignApi['readFileBytes']>(async input => options.readback
+        ? options.readback(input)
+        : new TextEncoder().encode(remote.get(`${input.customPath.split('/').at(-1)}/${input.fileName}`) ?? '')),
+    } satisfies Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes'>
+    const fileUpload = {
+      uploadWorkingText: vi.fn<LowcodeDesignFileUpload['uploadWorkingText']>(async input => {
+        if (options.upload) return options.upload(input)
+        remote.set(`${input.customPath.split('/').at(-1)}/${input.fileName}`, input.text)
+        return {fileName: input.fileName, state: 'success'}
+      }),
+    } satisfies Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>
+    const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {
+      [AGENT_WORKFLOW_FILE_TABLE]: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID,
+        columns, views: {default: {}, directory: {}, design: {}, definition: {}}},
+    }})
+    const resourcePorts = {applicationId: 'APP', api: readApi, fileUpload, assertCurrent: options.assertCurrent ?? (() => undefined)}
+    const resource = new AgentWorkflowFileResource(resourcePorts)
+    const table = dataSet.getTable(AGENT_WORKFLOW_FILE_TABLE)!
+    for (const view of table.viewList) view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'design')!
+    view.queryContext = {...view.queryContext, workflowId: 'agent.workflow.alpha'}
+    return {api: readApi, fileUpload, dataSet, resource, view}
+  }
+
+  it.each(['workflowId', 'fileName', 'timestamp'])('keeps %s read-only while allowing only document content edits', async field => {
+    const {dataSet, view} = writableFixture()
+    try {
+      const loaded = await view.requestRefresh()
+      expect(loaded.success).toBe(true)
+      const row = view.rows[0]!
+      expect(view.fieldAccess(row, field)).toMatchObject({write: 'denied'})
+      expect(view.fieldAccess(row, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+    } finally {dataSet.destroy()}
+  })
+
+  it.each([['design', 'design.json'], ['definition', 'definition.json']] as const)(
+    'saves only the selected %s row through DataSet and confirms exact working-file bytes', async (viewId, fileName) => {
+    const {api, fileUpload, dataSet} = writableFixture()
+    const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, viewId)!
+    view.queryContext = {...view.queryContext, workflowId: 'agent.workflow.alpha'}
+    try {
+      await view.requestRefresh()
+      const row = view.rows[0]!
+      const id = view.getPkKey(row)!
+      await view.editRowById(id, {content: '{"version":2}'})
+      const saved = await dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId, ids: [id]}]})
+      expect(saved.success).toBe(true)
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledOnce()
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledWith({customPath: 'APP/workflow-designs/agent.workflow.alpha', fileName, text: '{"version":2}'})
+      expect(api.readFileBytes).toHaveBeenCalledWith({appType: 'designfile', customPath: 'APP/workflow-designs/agent.workflow.alpha', fileName})
+      expect(view.dirtyTracking.hasPendingChanges(id)).toBe(false)
+      expect(view.hasUnconfirmedSave).toBe(false)
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects a changed remote baseline before upload and retains the DataView edit', async () => {
+    let reads = 0
+    const {fileUpload, dataSet, view} = writableFixture({readText: async _input => {
+      reads++
+      return reads === 1 ? '{"kind":"agent.workflow.design","version":1}' : '{"kind":"agent.workflow.design","version":"remote"}'
+    }})
+    try {
+      await view.requestRefresh()
+      const row = view.rows[0]!
+      const id = view.getPkKey(row)!
+      await view.editRowById(id, {content: '{"version":2}'})
+      await expect(dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]})).rejects.toThrow(/CONFLICT|冲突/)
+      expect(reads).toBe(2)
+      expect(fileUpload.uploadWorkingText).not.toHaveBeenCalled()
+      expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    } finally {dataSet.destroy()}
+  })
+
+  it('keeps the original save unconfirmed when upload outcome is unknown and verifies without replay', async () => {
+    const {api, fileUpload, dataSet, view} = writableFixture({upload: async () => {throw new Error('response lost')}})
+    try {
+      await view.requestRefresh()
+      const id = view.getPkKey(view.rows[0]!)!
+      await view.editRowById(id, {content: '{"version":2}'})
+      const target = {views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]}
+      await expect(dataSet.saveChanges(target)).rejects.toThrow('response lost')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      const readbacksBeforeVerification = api.readFileBytes.mock.calls.length
+      await expect(dataSet.saveChanges(target)).rejects.toThrow(/未应用|未确认|unknown/i)
+      expect(api.readFileBytes.mock.calls.length).toBeGreaterThan(readbacksBeforeVerification)
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledOnce()
+      expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    } finally {dataSet.destroy()}
+  })
+
+  it.each(['scope', 'readback'])('does not accept or clean the edit when %s changes during save', async kind => {
+    let current = true
+    const {fileUpload, dataSet, view} = writableFixture({
+      assertCurrent: () => {if (!current) throw new Error('SPARK_EXECUTION_SCOPE_STALE')},
+      ...(kind === 'readback' ? {readback: async () => new TextEncoder().encode('different')} : {}),
+    })
+    try {
+      await view.requestRefresh()
+      const id = view.getPkKey(view.rows[0]!)!
+      await view.editRowById(id, {content: '{"version":2}'})
+      if (kind === 'scope') vi.mocked(fileUpload.uploadWorkingText).mockImplementationOnce(async () => {current = false; return {state: 'success'}})
+      await expect(dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]})).rejects.toThrow(kind === 'scope' ? 'SPARK_EXECUTION_SCOPE_STALE' : /回读不一致/)
+      expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(view.rows[0]?.['content']).toBe('{"version":2}')
     } finally {dataSet.destroy()}
   })
 })

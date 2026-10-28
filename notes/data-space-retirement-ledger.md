@@ -2921,3 +2921,9 @@ flowchart TD
 - **平台面数据分类：**尚存 `listApplications()` 的根首页、PlatformApps、项目设置及跨项目运行时消费者均是实际目录读取，但各自缺同一宿主可用的 DataView owner/scope/字段授权合同，不能借用隐藏应用管理页或数据空间目录的视图。`getEnterpriseInfo()` 只归一化当前 session 的 `enterprise.raw`，企业列表/登录/注册调用属于认证或会话投影；CacheManager 的服务端缓存计数和浏览器本地文件缓存属于运维状态/本地存储，不据此强行改成业务 DataSet。PlatformTenantManagement 当前展示的是单一登录企业投影，其写操作被治理门禁拒绝，不证明存在平台租户 CRUD 业务表。
 - **实施裁定及后续：**本次全域追加盘点仍未找到具备已确认 owner、scope、授权和真实提交合同的立即可迁移切片；不通过 fail-fast、DataView 包装或删除页面入口伪造统一成果。首要解锁项仍是正式 app-less/root DataSpace 身份及服务端授权投影；取得后逐消费者恢复标准组件直接绑定、消除旧旁路并做完整 SPA 烟测。当前 Feature 资源适配器保留，不能因为 executor 内最终需要 HTTP/文件 owner 而被误判为页面直连。
 - **本轮变更与验证：**只追加本台账；低价模型及主控均未访问网络/浏览器/正式服务，未修改产品代码、测试、正式配置、业务数据或 Java。前一轮针对 `app-list-dataview.test.ts` 的 8/8 自动化结果仍只覆盖 AppList 生命周期/映射，不构成本次 Feature 整体验收。总体唯一 SPARK data 目标保持 active。
+
+### 2026-10-28 Workflow 文件编辑经 DataView 保存 RED
+
+- **候选及现状：**Workflow 文件读取已沿正式文件 DataView 和 PageRuntime 运行；现有 `LowcodeDesignFileUpload.uploadWorkingText` 可执行工作文件上传并对原字节读回，`PageToolFilesDataView` 已有 DataView 保存、基线冲突与未知回执核验模式。Workflow 的 DataView 目前将 `content` 设为只读且没有 `save` executor；`WorkflowDesigns.vue` 的已应用设计/Definition 草稿仍保存在 `currentDocument`/本地 JSON 文本，服务保存函数硬拒绝。可实施前提是同时接入 DataSet 保存并同步已应用编辑状态，不接受只给原 API 加 DataView 外壳。
+- **RED 验收：**新增 `tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts` 的既有 design/definition 单文件提交合同用例及原始输出 `evidence/agent-workflow-file-dataview-save-red-20261028.txt`。主控复跑结果 25 项、16 通过、9 失败、退出码 1；失败明确落在 `content` 当前拒写及缺少 DataView 保存 owner。夹具用正式 `LowcodeDesignApi` 与独立 `LowcodeDesignFileUpload` 类型，包含匹配的读取/回读基线、冲突、scope 改变、未知结果不重传和 dirty 保留断言。RED 仅证明目标当前尚未实现，不证明后端真实上传验收。
+- **实施范围：**低价实施者已获准实现仅限已有 design.json/definition.json 行的 DataView 内容更新；须把 DataView 未提交状态作为持久化草稿真源，按原 DataView 目标提交，冲突/未知/回读错误保留 dirty；不实现 create/delete/publish。主控接手独立复核、页面生命周期测试、目标门禁、SPA 验收与交付台账。当前测试与证据尚未提交；本条没有产品代码、正式文件、业务数据、浏览器请求或 Java 改动。

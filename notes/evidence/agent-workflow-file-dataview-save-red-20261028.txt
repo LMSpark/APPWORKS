@@ -1,0 +1,335 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > lists directory entries through the resource DataView with read-only query grants
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:58:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:72:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: [1003] 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:86:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for different message
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > loads an empty directory when listFiles successfully returns no entries
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 其他数据错误 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:116:22
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for different message
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for authorization denial
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for authorization denial
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:116:22
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects a stale application scope before returning file data
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: SPARK_EXECUTION_SCOPE_STALE Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:142:22
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > reads design and definition only for the selected workflow and grants no writes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects a stale application scope before returning file data
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects cached field and action authorization after the scope becomes stale
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps workflowId read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps fileName read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps timestamp read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected design row through DataSet and confirms exact working-file bytes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected definition row through DataSet and confirms exact working-file bytes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > rejects a changed remote baseline before upload and retains the DataView edit
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps the original save unconfirmed when upload outcome is unknown and verifies without replay
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when scope changes during save
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when readback changes during save
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow target space resolution > resolves only one exact-name row with readable formal rowid and Name
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow target space resolution > fails closed when the exact name is duplicated or its identity fields are unreadable
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > loads the target from the formal catalog and serves page/AI definitions through its DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > loads the target from the formal catalog and serves page/AI definitions through its DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > does not load any target when the formal catalog name is ambiguous
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > rejects scope changes before exposing the target DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > keeps selected document content on the page-owned bound DataView currentRow
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > keeps selected document content on the page-owned bound DataView currentRow
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+··········xxxxxxxxx······
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps workflowId read-only while allowing only document content edits
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps fileName read-only while allowing only document content edits
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps timestamp read-only while allowing only document content edits
+AssertionError: expected { read: 'visible', …(4) } to match object { read: 'visible', write: 'allowed' }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "read": "visible",
+-   "write": "allowed",
++   "write": "denied",
+  }
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:208:48
+    206|       const row = view.rows[0]!
+    207|       expect(view.fieldAccess(row, field)).toMatchObject({write: 'deni…
+    208|       expect(view.fieldAccess(row, 'content')).toMatchObject({read: 'v…
+       |                                                ^
+    209|     } finally {dataSet.destroy()}
+    210|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected design row through DataSet and confirms exact working-file bytes
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected definition row through DataSet and confirms exact working-file bytes
+Error: DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner
+ ❯ DataView.previewQuerySave packages/spark-data/src/data-view.ts:3268:70
+    3266|     const executor = this.#queryExecutor
+    3267|     const context = this.currentQueryResult()
+    3268|     if (executor?.save === undefined || context === undefined) throw n…
+       |                                                                      ^
+    3269|     const selected = input.ids === undefined ? undefined : new Set(inp…
+    3270|     const accepts = (id: string | number): boolean => selected === und…
+ ❯ DataView.assertQuerySaveColumns packages/spark-data/src/data-view.ts:3260:40
+ ❯ DataSet.saveChanges packages/spark-data/src/dataset.ts:1479:21
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:222:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > rejects a changed remote baseline before upload and retains the DataView edit
+AssertionError: expected [Function] to throw error matching /CONFLICT|冲突/ but got 'DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 o…'
+
+- Expected:
+/CONFLICT|冲突/
+
++ Received:
+"DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner"
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:243:119
+    241|       const id = view.getPkKey(row)!
+    242|       await view.editRowById(id, {content: '{"version":2}'})
+    243|       await expect(dataSet.saveChanges({views: [{tableName: AGENT_WORK…
+       |                                                                                                                       ^
+    244|       expect(reads).toBe(2)
+    245|       expect(fileUpload.uploadWorkingText).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps the original save unconfirmed when upload outcome is unknown and verifies without replay
+AssertionError: expected [Function] to throw error including 'response lost' but got 'DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 o…'
+
+Expected: "response lost"
+Received: "DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner"
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:257:47
+    255|       await view.editRowById(id, {content: '{"version":2}'})
+    256|       const target = {views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, v…
+    257|       await expect(dataSet.saveChanges(target)).rejects.toThrow('respo…
+       |                                               ^
+    258|       expect(view.hasUnconfirmedSave).toBe(true)
+    259|       const readbacksBeforeVerification = api.readFileBytes.mock.calls…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when scope changes during save
+AssertionError: expected [Function] to throw error including 'SPARK_EXECUTION_SCOPE_STALE' but got 'DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 o…'
+
+Expected: "SPARK_EXECUTION_SCOPE_STALE"
+Received: "DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner"
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:278:119
+    276|       await view.editRowById(id, {content: '{"version":2}'})
+    277|       if (kind === 'scope') vi.mocked(fileUpload.uploadWorkingText).mo…
+    278|       await expect(dataSet.saveChanges({views: [{tableName: AGENT_WORK…
+       |                                                                                                                       ^
+    279|       expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    280|       expect(view.hasUnconfirmedSave).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when readback changes during save
+AssertionError: expected [Function] to throw error matching /回读不一致/ but got 'DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 o…'
+
+- Expected:
+/回读不一致/
+
++ Received:
+"DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner"
+
+ ❯ tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:278:119
+    276|       await view.editRowById(id, {content: '{"version":2}'})
+    277|       if (kind === 'scope') vi.mocked(fileUpload.uploadWorkingText).mo…
+    278|       await expect(dataSet.saveChanges({views: [{tableName: AGENT_WORK…
+       |                                                                                                                       ^
+    279|       expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    280|       expect(view.hasUnconfirmedSave).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 16 passed (25)
+   Start at  11:44:52
+   Duration  10.38s (transform 6.72s, setup 252ms, import 8.79s, tests 78ms, environment 965ms)
+
+
+RED_EXIT_CODE=1
+

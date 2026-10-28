@@ -6,6 +6,22 @@
 - **下一切片：**先核数据资源管理、空间管理、pagedata 保存、配置加载及未选应用时目录查询的真实身份合同；宿主仅传正式空间/资源目标与绑定，不另造 owner、模型副本或第二条读写链。当前 `readSpaceDefinition` 只投影 rowid/Name，现有 `loadLowcodeRuntimeScenario` 从已选应用工作区读取 pagedata；需要按实际来源补齐配置定位与认证 scope 承接，不能硬编码另一应用路径或把前端现有限制当后端权限。低价模型已转只读诊断，待主控按证据确定实现合同。
 - **中间成果边界：**下方目录 API 收敛片可独立审查、保存，移除了两处旧 HTTP 旁路并统一了摘要权限/身份合同，但仍不作为“数据空间配置驱动完成”的证据。总体目标继续 active，不改 Java。
 
+- **正式 UI 新证据：**本轮在数据空间目录通过名称/ID 精确查询 7AB，正式 DataView 回包 Code=200、Count=1，`sysid=D99A1DCE9894698799101EFD70F8FC76`，隐藏/脱敏字段列表为空；UI 显示“元数据管理 / 功能管理”。设计器读取该正式来源的 pagedata 成功；当前只含 NavigationInfo（default/catalogBindings）、Navigation_Desc_Version、Navigation_DataRelation、ProjectToolVersion 四个绑定，无 AppSystemList 绑定。证据明确是当前 D99 执行作用域，不冒充未激活应用的认证文件读取已验。详见 [`spa-formal-config-source.json`](evidence/configuration-driven-architecture-20261029/spa-formal-config-source.json)。
+- **现有创建能力复核：**AppSystemList 的数据视图页已有绑定表名/视图名称与“新增视图草稿”入口；源码 `DataSpaceViewEditor.add()` 经定义视图 `addRow` 暂存。初始禁用包含空输入条件，不证明首个视图能力缺失。本轮未填入、暂存或保存任何正式配置。后续先用实际合同与测试复用，不预造另一套创建器。
+- **高阶分析复核完成：**`gpt-6-astra` 完成当前源码、参考仓及正式证据核对，主控采纳最小补链方案。完整依据见 [`architecture-review.md`](evidence/configuration-driven-architecture-20261029/architecture-review.md)，该报告是本台账的分析证据，不另立执行计划。允许固定平台元协议入口、资源 adapter 与正式空间定位身份；模型绑定/业务视图/字段投影/分页/排序/过滤/级联必须来自正式配置。配置来源应用、登录查询范围、执行应用/目标分别承接，不再提出“缺少全局 owner”外部前置。
+- **首片具体合同：**在首次 IO 前建立原生元定义语义资源 DataSet/DataTable/DataView，executor 内复用既有元定义协议及权限解析，正式读取唯一可读 `Base_DataSet.sysid`。场景配置读取复用并补齐 ScenarioViewData/ScenarioDefinitionResource 的读取能力，低层 file API 留在 executor；不能由 host 先读文本再包 DataSet。复用现装配器并注入本次元定义/读取上下文，按正式模型名称唯一解析内部表键，再按关系依赖选择消费范围。不得递归依赖尚未读取的自身 pagedata、伪造 DB modelBinding 或另造 BootstrapManager/缓存/保存器。
+- **首批正式配置边界：**通过现有设计器为 AppSystemList 首先建立真实模型绑定与 default，再新增目录命名视图；在原 NavigationInfo 绑定新增根命名视图，根 systemId 是明确输入参数，prowid=000000 等条件保存在配置。保留原四个绑定和 legacy 关系模式。视图名称以本次正式保存结果为准，所有调用者用同一完整键，不做别名或 default 回退。NavHost 现关联表没有独立 viewId 字段，不发明后端列、不把完整键塞进 DataName；优先消费正式 default，命名视图选择按已有页面/场景配置承接。
+
+| 配置驱动实施顺序 | 正式输入与目标结果 | 验收门槛与当前状态 |
+| --- | --- | --- |
+| 1. 读取闭环合同 | 在任何元定义/配置 IO 前已有 SPARK data 的语义资源/DataSet/DataView；沿正式空间记录读取配置来源，再由配置资源读取 pagedata。低层 HTTP/文件 API 只在 executor 内适配。 | 认证 scope、执行应用及配置来源分别验证；不存在应用选择也能合法读取获准配置，不改全局应用上下文、不硬编码 D99；缺源/不可读/未知回执明确失败。高阶模型正在核实最小公共扩展。 |
+| 2. 定义管理补齐 | 复用原空间正式模型、定义视图与保存链，为 AppSystemList 补绑定、default/目录视图，为 NavigationInfo 补导航根消费视图和明确调用参数。 | 从 ClassModel/实际合同确认字段后，通过现有设计器暂存/取消/保存/重开；保留四个已有绑定及 legacy 关系模式，不重造表、不整文件覆盖未改部分、不夹带业务行。 |
+| 3. 运行配置装配 | 正式 pagedata 经 ScenarioViewConfig 校验并按消费模型范围装配，组件绑定完整键；宿主只提供正式资源/空间/视图及当次参数。 | 删除 host 拼模型绑定、fields、分页、排序、过滤及默认视图回退；目录 bootstrap 不装入无关 ProjectToolVersion 文件资源；修改正式查询配置后无需改 host 源码即可生效。 |
+| 4. 消费者逐项替换 | 默认目录、平台目录、应用选择、导航根、设置和引用统一消费上述正式视图；随后复用到 DevSystem NavHost 项目候选及其现有导航关系。 | 目录 62 条范围、根唯一性、字段权限、scope 变化、选择 fence、跨空间身份、关闭/重开和释放逐项验证；未接通 UI 不以接口夹具替代验收。每片删除被替代逻辑并提交推送。 |
+| 5. 资源专题逐页配置化 | 数据库服务器/目录、表视图注册、字典、结构化/API/逻辑与文件资源依实际语义复用正式配置；旧 host builders 和运行时 bundled fallback 在被替代时删除。 | 每页读/编辑/取消/保存/未知回执/重开及下游消费分别验证；注册、测试连接及外部接口等领域命令保留真实语义，设计与业务数据分开，不假装通用 CRUD 或跨源事务。 |
+| 6. 页面流程与第二页复用 | 数据合同成立后按原业务路径、蓝图 URL 恢复四文件编排与标准组件；公共逻辑留在同一 SPARK data 链。 | 查 ClassModel 目录/概要/指南，再生成；至少两页证明同一配置/公共能力可复用并删除重复算法/状态，不用整页 Vue 包装称完成。 |
+| 7. 全链交付 | 高阶模型分析/主控复核，低价模型单一产品写者；维护同一台账与正式生成物。 | 每片有效 RED → 实现 → 主控/独立复审 → 受影响测试/typecheck/lint/正式生成/规则/build → 同 SPA 请求回执与读回截图；9 项基线失败继续登记，不冒称全仓全绿。整体尚未完成。 |
+
 ### 2026-10-28—29 剩余应用目录摘要消费者收敛（API 已实施，配置驱动仍待补齐）
 
 - **复核与验证：**低价模型最终定向 9 文件 205 项通过，typecheck/定向 ESLint 通过。主控独立源码审查及独立模型复审 PASS；新增蓝图测试从错误 children 断言修为既有单根合同后，窄复审 ADDRESSED。正式 ClassModel/consumer ledger 已生成，完整 verify:rules 和生产 build 通过；保留既有 AI model 2 warnings/1 info 与 CodeMirror 告警。

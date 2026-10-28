@@ -2907,3 +2907,10 @@ flowchart TD
 - **根目录合同缺口：**旧 `listApplications()` 仅传 `x-FormKey: 7AB...`，历史根请求 61 行；D99 DataView 1 行来自另一应用 scope，不能当成同范围等价或权限证据。现有源码没有可获取平台/app-less `DataSpaceRequestScope` 的正式 API，也没有该根目录的 pagedata/DataSet owner。`LowcodeDataSpaceAssembler` 只装配已有身份，不创建请求授权。
 - **实现门槛：**服务端或正式平台合同须提供可验证的根 owner、认证 scope、pagedata 身份及行/字段授权投影后，才可在该 owner 下绑定 `Base_AppSystemList` 并以 `PageRuntime → DataSet → DataView` 迁移根目录。不得自行构造无 `X-AppId` scope、借用 7AB/D99/0C70，或把旧 API 包入 DataView executor。
 - **状态：**当前 SPA browser inventory 无可复用标签；此前用户给出的 `领码科技/wangtao` 已尝试并收到凭据错误及剩余次数提示，本轮未再次发送凭据。最近连续源码复核均受同一正式 bootstrap owner/scope/授权合同缺失限制；本轮不改产品代码、正式数据、测试或 Java，不以 mock 证明服务端支持。总体目标未完成；后续需有正式 owner/scope 合同，或有效认证会话可供只读取得该合同证据后继续。
+
+### 2026-10-28 数据游离下一切片复核与 SPA 状态复查
+
+- **低价模型盘点及主控复核：**独立只读审计当前 HEAD `8b21dd5d9`，确认仍有真实 `listApplications()` 消费者：根 `AppList.vue` 无 `blueprintScenarioId` 时回退至该 API，`PlatformApps.vue` 投影应用列表，`project-settings.ts` 用它校验目标应用，运行时跨项目路径也会调用。当前没有正式 app-less DataSet owner、scope 与服务端行/字段授权合同；7AB 与 D99 的查询不等范围。不能将这些调用包装进 DataView 或借用应用 owner 伪造统一。物理数据库预览的 GetData 位于 DataView executor 存储适配内，不能仅因内部 HTTP 就删掉；其资源身份、稳定主键与服务端授权合同仍是独立缺口。未找到能脱离外部合同缺口而安全闭环的代码实施切片。
+- **自动化回归：**主控执行 `pnpm exec vitest run tests/app/views/tenant/app-list-dataview.test.ts --reporter=dot`，1 个文件、8/8 测试通过。运行时输出了 Vue Test Utils 未注册 Element Plus 组件及路由无 `/target` 匹配等夹具警告；不影响用例退出状态，也不作为真实 SPA 交互证明。
+- **SPA 观察边界：**IAB 清单当前显示标签标题“应用列表 - SPARK”、路径 `/t/NewApp/homepage/app-list`。尝试按标签 URL 附着时 `cua.getTab` 返回 `browser.user is unavailable`；因此本轮只确认浏览器清单所示页面位置，未读取 DOM、网络请求、正式 DataView 回包或授权字段，也未证明该状态可执行后端查询。没有通过当前标签执行数据读写。
+- **本轮交付：**只更新本台账；工作树开始时干净，未改产品代码、测试、正式 DataSpace/业务数据或 Java，未发起登录或服务端写入。用户已提供的测试账号不再要求重复提供；此前凭据失败与剩余次数记录保持有效，不盲目重试或自动切换另一账号。整体 SPARK data 唯一通道目标继续 active；优先解锁正式 root owner/scope/权限合同，获得有效 SPA 数据证据后再迁移真实消费者。

@@ -20,6 +20,7 @@
       "LowcodeEnterprise",
       "LowcodeCacheStats",
       "LowcodeSession",
+      "LowcodePlatformApiOptions",
       "LowcodeApplicationSelectionReceipt",
       "LowcodePlatformApi"
     ]
@@ -358,6 +359,42 @@
       ],
       "additionalProperties": false
     },
+    "LowcodePlatformApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePlatformApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "session": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        },
+        "application": {
+          "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readApplicationById.params": {
+          "type": "object",
+          "properties": {
+            "applicationId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readApplicationById.return": {
+          "type": "object",
+          "title": "Promise<LowcodeApplication>"
+        }
+      }
+    },
     "LowcodeApplicationSelectionReceipt": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -411,14 +448,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "http": {
-              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
-            },
-            "session": {
-              "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
-            },
-            "application": {
-              "$ref": "lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+            "options": {
+              "$ref": "#/$defs/LowcodePlatformApiOptions"
             }
           },
           "additionalProperties": false
@@ -589,7 +620,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T09:28:44.383Z",
+  "generatedAt": "2026-10-28T13:59:09.414Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1043,6 +1074,83 @@
         }
       }
     },
+    "LowcodePlatformApiOptions": {
+      "name": "LowcodePlatformApiOptions",
+      "jsdoc": "Dependencies owned by the host for platform APIs; application lookup is supplied by the SPARK DataView layer.\n`readApplicationById` runs inside the platform selection fence and must call `assertCurrent` before and after\nasynchronous metadata/query work. Omitting it makes activation fail closed; activation never falls back to HTTP.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    session: LowcodeSessionStore;\n    application: LowcodeApplicationStore;\n    /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */\n    readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readApplicationById",
+              "jsdoc": "Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work.",
+              "parameters": [
+                {
+                  "name": "applicationId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplication",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "LowcodeApplicationSelectionReceipt": {
       "name": "LowcodeApplicationSelectionReceipt",
       "jsdoc": "同步校验某次应用选择或目录选择是否仍是平台当前意图。",
@@ -1110,29 +1218,14 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase, session: LowcodeSessionStore, application: LowcodeApplicationStore)",
+          "signatureText": "constructor(options: LowcodePlatformApiOptions)",
           "parameters": [
             {
-              "name": "http",
+              "name": "options",
               "type": {
                 "type": "reference",
-                "name": "HttpClientBase"
-              }
-            },
-            {
-              "name": "session",
-              "type": {
-                "type": "reference",
-                "name": "LowcodeSessionStore",
-                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts"
-              }
-            },
-            {
-              "name": "application",
-              "type": {
-                "type": "reference",
-                "name": "LowcodeApplicationStore",
-                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+                "name": "LowcodePlatformApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
               }
             }
           ]

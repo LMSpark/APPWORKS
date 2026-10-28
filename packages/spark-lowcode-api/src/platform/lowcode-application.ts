@@ -7,15 +7,23 @@ import { LowcodeApiError } from '../core/lowcode-api-error.js'
 /** 应用目录 GetData 请求头 x-FormKey 固定值。 */
 export const LOWCODE_APPLICATION_CATALOG_FORM_KEY = '7AB874097A1E8711A42FD845939A6E05'
 
-/** 归一化后的应用条目；id 为 Base_AppSystemList.rowid。 */
+/**
+ * 归一化后的应用条目；id 为 Base_AppSystemList.rowid。
+ * 可选目录元信息仅在正式来源返回且当前调用可读时提供；缺省表示未知/不可用，不从登录会话补造归属。
+ */
 export type LowcodeApplication = Readonly<{
   id: string
-  code: string
   name: string
-  description: string
-  enterpriseId: string
-  enterpriseShortName: string
-  isDefault: boolean
+  /** Formal AppName value when returned and readable. */
+  code?: string
+  /** Formal AppDesc value when returned and readable. */
+  description?: string
+  /** Formal EntId value when returned and readable; never inferred from session identity. */
+  enterpriseId?: string
+  /** Formal EntShortName value when returned and readable; never inferred from session identity. */
+  enterpriseShortName?: string
+  /** True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false. */
+  isDefault?: boolean
 }>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -28,6 +36,25 @@ function firstText(row: Record<string, unknown>, keys: readonly string[]): strin
     if (value !== undefined && value !== null && String(value).trim()) return String(value).trim()
   }
   return ''
+}
+
+function optionalText(row: Record<string, unknown>, keys: readonly string[]): string | undefined {
+  let emptyValue: string | undefined
+  for (const key of keys) {
+    if (!Object.hasOwn(row, key)) continue
+    const value = row[key]
+    if (typeof value !== 'string') continue
+    const normalized = value.trim()
+    if (normalized) return normalized
+    emptyValue = normalized
+  }
+  return emptyValue ?? undefined
+}
+
+function optionalIsDefault(value: unknown): boolean | undefined {
+  if (value === 1 || value === '1') return true
+  if (value === 0 || value === '0') return false
+  return undefined
 }
 
 function queryItems(value: unknown): readonly unknown[] {
@@ -100,16 +127,19 @@ export function normalizeApplications(value: unknown): readonly LowcodeApplicati
     const id = firstText(item, ['rowid', 'ROWID', 'rowId'])
     if (!id || seen.has(id)) return []
     seen.add(id)
-    const code = firstText(item, ['AppName', 'appName'])
-    const description = firstText(item, ['AppDesc', 'appDesc'])
+    const code = optionalText(item, ['AppName', 'appName'])
+    const description = optionalText(item, ['AppDesc', 'appDesc'])
+    const enterpriseId = optionalText(item, ['EntId', 'entId'])
+    const enterpriseShortName = optionalText(item, ['EntShortName', 'entShortName'])
+    const isDefault = optionalIsDefault(item['IsSys'])
     return [{
       id,
-      code,
-      name: description || code || id,
-      description,
-      enterpriseId: firstText(item, ['EntId', 'entId']),
-      enterpriseShortName: firstText(item, ['EntShortName', 'entShortName']),
-      isDefault: Number(item['IsSys'] ?? 0) === 1,
+      name: description?.trim() ? description : code?.trim() ? code : id,
+      ...(code === undefined ? {} : {code}),
+      ...(description === undefined ? {} : {description}),
+      ...(enterpriseId === undefined ? {} : {enterpriseId}),
+      ...(enterpriseShortName === undefined ? {} : {enterpriseShortName}),
+      ...(isDefault === undefined ? {} : {isDefault}),
     }]
   })
 }

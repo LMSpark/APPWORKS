@@ -10798,6 +10798,7 @@
           "LowcodeEnterprise",
           "LowcodeCacheStats",
           "LowcodeSession",
+          "LowcodePlatformApiOptions",
           "LowcodeApplicationSelectionReceipt",
           "LowcodePlatformApi"
         ]
@@ -19796,6 +19797,10 @@
       "file": "files/src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts.json"
     },
     "LowcodePlatformApi": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
+    },
+    "LowcodePlatformApiOptions": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },

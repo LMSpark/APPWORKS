@@ -56,7 +56,6 @@
         "tenantId",
         "projectId",
         "name",
-        "projectType",
         "icon",
         "description",
         "homeNodeId",
@@ -205,14 +204,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:08:10.560Z",
+  "generatedAt": "2026-10-28T14:00:41.096Z",
   "models": {
     "ProjectDetail": {
       "name": "ProjectDetail",
       "jsdoc": "项目详情：从后端 API 读取的项目元数据投影",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 租户 ID，多租户隔离标识 */\n    tenantId: string;\n    /** 项目 ID，项目唯一标识 */\n    projectId: string;\n    /** 项目名称 */\n    name: string;\n    /** 项目类型（如 lowcode / procode 等） */\n    projectType: string;\n    /** 项目图标资源标识 */\n    icon: string;\n    /** 项目描述 */\n    description: string;\n    /** 首页节点 ID，null 表示未配置首页 */\n    homeNodeId: string | null;\n    /** 项目排序权重，数值越小越靠前 */\n    order: number;\n}",
+        "declarationTypeText": "{\n    /** 租户 ID，多租户隔离标识 */\n    tenantId: string;\n    /** 项目 ID，项目唯一标识 */\n    projectId: string;\n    /** 项目名称 */\n    name: string;\n    /** 应用目录提供可读分类时的项目类型；未返回 IsSys 时缺省。 */\n    projectType?: string;\n    /** 项目图标资源标识 */\n    icon: string;\n    /** 项目描述 */\n    description: string;\n    /** 首页节点 ID，null 表示未配置首页 */\n    homeNodeId: string | null;\n    /** 项目排序权重，数值越小越靠前 */\n    order: number;\n}",
         "members": {
           "attributes": [
             {
@@ -235,9 +234,9 @@
             },
             {
               "name": "projectType",
-              "jsdoc": "项目类型（如 lowcode / procode 等）",
+              "jsdoc": "应用目录提供可读分类时的项目类型；未返回 IsSys 时缺省。",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "icon",

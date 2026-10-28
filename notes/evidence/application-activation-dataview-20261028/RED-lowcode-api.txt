@@ -1,0 +1,173 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-lowcode-api
+
+ ❯ src/platform/lowcode-application-store.test.ts (13 tests | 1 failed) 11ms
+     × accepts and reopens an id/name-only directory application without filling unknown metadata 6ms
+ ❯ src/platform/lowcode-application.test.ts (3 tests | 1 failed) 9ms
+     × does not infer default or tenant metadata when the application row omits those fields 7ms
+ ❯ src/platform/lowcode-platform-api.test.ts (49 tests | 5 failed) 362ms
+     × fails closed when application activation has no DataView directory reader 13ms
+     × uses the injected by-id directory reader inside the activation selection fence 2ms
+     × rejects a DataView directory reader result whose id differs from the requested id 1ms
+     × does not resolve a navigation root when a pending directory reader is superseded 3ms
+     × does not commit a directory reader result after cancellation during its wait 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/platform/lowcode-application-store.test.ts > LowcodeApplicationStore application metadata > accepts and reopens an id/name-only directory application without filling unknown metadata
+AssertionError: expected null to deeply equal { …(2) }
+
+- Expected:
+{
+  "application": {
+    "id": "APP-2",
+    "name": "Beta",
+  },
+  "navigationRootId": "ROOT-2",
+}
+
++ Received:
+null
+
+ ❯ src/platform/lowcode-application-store.test.ts:23:25
+     21|     const store = new LowcodeApplicationStore({storage})
+     22|
+     23|     expect(store.get()).toEqual({application: {id: 'APP-2', name: 'Bet…
+       |                         ^
+     24|     expect(storage.getItem(applicationKey)).toBe(raw)
+     25|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/platform/lowcode-application.test.ts > lowcode applications > does not infer default or tenant metadata when the application row omits those fields
+AssertionError: expected { id: 'APP-2', code: 'beta', …(5) } to not have property "isDefault"
+
+- Expected:
+undefined
+
++ Received:
+false
+
+ ❯ src/platform/lowcode-application.test.ts:37:29
+     35|
+     36|     expect(application).toMatchObject({id: 'APP-2', code: 'beta', name…
+     37|     expect(application).not.toHaveProperty('isDefault')
+       |                             ^
+     38|     expect(application).not.toHaveProperty('enterpriseId')
+     39|     expect(application).not.toHaveProperty('enterpriseShortName')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > fails closed when application activation has no DataView directory reader
+AssertionError: promise resolved "{ …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "application": {
++     "code": "beta",
++     "description": "Beta",
++     "enterpriseId": "",
++     "enterpriseShortName": "",
++     "id": "APP-B",
++     "isDefault": false,
++     "name": "Beta",
++   },
++   "assertCurrent": [Function assertCurrent],
++   "navigationRootId": "APP-B",
+  }
+
+ ❯ src/platform/lowcode-platform-api.test.ts:115:59
+    113|     })
+    114|
+    115|     await expect(api.platform.activateApplication('APP-B')).rejects.to…
+       |                                                           ^
+    116|
+    117|     expect(http.requestConfigs).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > uses the injected by-id directory reader inside the activation selection fence
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ src/platform/lowcode-platform-api.test.ts:141:20
+    139|     const receipt = await api.platform.activateApplication(' APP-B ')
+    140|
+    141|     expect(reader).toHaveBeenCalledOnce()
+       |                    ^
+    142|     expect(reader.mock.calls[0]?.[0]).toBe('APP-B')
+    143|     expect(reader.mock.calls[0]?.[1]).toEqual(expect.any(Function))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > rejects a DataView directory reader result whose id differs from the requested id
+AssertionError: promise resolved "{ …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "application": {
++     "code": "beta",
++     "description": "Legacy HTTP result",
++     "enterpriseId": "",
++     "enterpriseShortName": "",
++     "id": "APP-B",
++     "isDefault": false,
++     "name": "Legacy HTTP result",
++   },
++   "assertCurrent": [Function assertCurrent],
++   "navigationRootId": "ROOT-B",
+  }
+
+ ❯ src/platform/lowcode-platform-api.test.ts:165:59
+    163|     const root = vi.spyOn(api.platform, 'resolveNavigationRootId').moc…
+    164|
+    165|     await expect(api.platform.activateApplication('APP-B')).rejects.to…
+       |                                                           ^
+    166|
+    167|     expect(root).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not resolve a navigation root when a pending directory reader is superseded
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ❯ src/platform/lowcode-platform-api.test.ts:190:22
+    188|     if (reader.mock.calls.length === 0) {
+    189|       await older
+    190|       expect(reader).toHaveBeenCalledWith('APP-B', expect.any(Function…
+       |                      ^
+    191|       return
+    192|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/platform/lowcode-platform-api.test.ts > LowcodePlatformApi > does not commit a directory reader result after cancellation during its wait
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'APP-B', Any<Function> ]
+
+Number of calls: 0
+
+ ❯ src/platform/lowcode-platform-api.test.ts:223:20
+    221|
+    222|     await expect(selecting).rejects.toThrow('LOWCODE_APPLICATION_SELEC…
+    223|     expect(reader).toHaveBeenCalledWith('APP-B', expect.any(Function))
+       |                    ^
+    224|     expect(root).not.toHaveBeenCalled()
+    225|     expect(api.application.get()).toEqual(previous)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  7 failed | 58 passed (65)
+   Start at  21:49:12
+   Duration  2.37s (transform 2.43s, setup 0ms, import 3.22s, tests 383ms, environment 0ms)
+
+exit_code=1

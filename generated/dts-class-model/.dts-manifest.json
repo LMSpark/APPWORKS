@@ -2989,12 +2989,12 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-26T09:14:05.340Z"
+      "sourceModifiedAt": "2026-10-28T13:53:09.084Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json",
-      "sourceModifiedAt": "2026-10-28T12:11:58.813Z"
+      "sourceModifiedAt": "2026-10-28T13:59:11.740Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
@@ -3119,12 +3119,12 @@
     "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json",
-      "sourceModifiedAt": "2026-10-15T05:49:40.714Z"
+      "sourceModifiedAt": "2026-10-28T13:52:45.970Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-application.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-application.ts.json",
-      "sourceModifiedAt": "2026-08-10T07:31:54.146Z"
+      "sourceModifiedAt": "2026-10-28T14:01:35.616Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts",
@@ -3139,7 +3139,7 @@
     "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
-      "sourceModifiedAt": "2026-10-07T09:28:44.383Z"
+      "sourceModifiedAt": "2026-10-28T13:59:09.414Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
@@ -3844,12 +3844,12 @@
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
       "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-28T12:34:55.562Z"
+      "sourceModifiedAt": "2026-10-28T14:10:40.289Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T13:33:32.446Z"
+      "sourceModifiedAt": "2026-10-28T14:10:42.350Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4194,7 +4194,7 @@
     "src/services/project/project-settings.ts": {
       "sourceFile": "src/services/project/project-settings.ts",
       "shardFile": "files/src/services/project/project-settings.ts.json",
-      "sourceModifiedAt": "2026-08-10T12:08:10.560Z"
+      "sourceModifiedAt": "2026-10-28T14:00:41.096Z"
     },
     "src/services/project/project-shell.ts": {
       "sourceFile": "src/services/project/project-shell.ts",

@@ -1,0 +1,35 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/runtime/project/project-settings-application-type.test.ts (3 tests | 1 failed) 6ms
+     × omits projectType when the application directory has no readable classification 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/project/project-settings-application-type.test.ts > project settings with incomplete application classification > omits projectType when the application directory has no readable classification
+AssertionError: expected { tenantId: 'Tenant', …(7) } to not have property "projectType"
+
+- Expected:
+undefined
+
++ Received:
+"application"
+
+ ❯ tests/runtime/project/project-settings-application-type.test.ts:24:34
+     22|     const settings = await loadProjectRuntimeSettings('Tenant', 'APP-1…
+     23|
+     24|     expect(settings.project).not.toHaveProperty('projectType')
+       |                                  ^
+     25|   })
+     26|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:51:32
+   Duration  1.63s (transform 213ms, setup 117ms, import 340ms, tests 6ms, environment 893ms)
+
+exit_code=1

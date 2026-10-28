@@ -25,6 +25,31 @@ class ApplicationFixtureHttpClient extends HttpClientBase {
 }
 
 describe('lowcode applications', () => {
+  it('does not infer default or tenant metadata when the application row omits those fields', async () => {
+    const http = new ApplicationFixtureHttpClient({
+      Code: 200,
+      Result: {Items: [{rowid: 'APP-2', AppName: 'beta', AppDesc: 'Beta'}]},
+    })
+
+    const [application] = await new LowcodeApi({http}).platform.listApplications()
+
+    expect(application).toMatchObject({id: 'APP-2', code: 'beta', name: 'Beta', description: 'Beta'})
+    expect(application).not.toHaveProperty('isDefault')
+    expect(application).not.toHaveProperty('enterpriseId')
+    expect(application).not.toHaveProperty('enterpriseShortName')
+  })
+
+  it('preserves existing lowercase metadata aliases when canonical fields are empty or null', async () => {
+    const http = new ApplicationFixtureHttpClient({
+      Code: 200,
+      Result: {Items: [{rowid: 'APP-3', AppName: '', appName: 'beta', AppDesc: null, appDesc: 'Beta'}]},
+    })
+
+    const [application] = await new LowcodeApi({http}).platform.listApplications()
+
+    expect(application).toMatchObject({id: 'APP-3', code: 'beta', name: 'Beta', description: 'Beta'})
+  })
+
   it('queries the existing application catalog with its established FormKey', async () => {
     const http = new ApplicationFixtureHttpClient({
       Code: 200,

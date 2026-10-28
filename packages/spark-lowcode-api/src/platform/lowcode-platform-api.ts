@@ -133,6 +133,19 @@ type ApplicationSelectionExpectation = Readonly<{
   navigationRootId: string
 }> | null
 
+/**
+ * Dependencies owned by the host for platform APIs; application lookup is supplied by the SPARK DataView layer.
+ * `readApplicationById` runs inside the platform selection fence and must call `assertCurrent` before and after
+ * asynchronous metadata/query work. Omitting it makes activation fail closed; activation never falls back to HTTP.
+ */
+export type LowcodePlatformApiOptions = Readonly<{
+  http: HttpClientBase
+  session: LowcodeSessionStore
+  application: LowcodeApplicationStore
+  /** Formal host-owned DataView reader. Must propagate the supplied fence assertion around async work. */
+  readApplicationById?: (applicationId: string, assertCurrent: () => void) => Promise<LowcodeApplication>
+}>
+
 /** 同步校验某次应用选择或目录选择是否仍是平台当前意图。 */
 export type LowcodeApplicationSelectionReceipt = Readonly<{
   assertCurrent(): void
@@ -243,17 +256,20 @@ function parseEnterprise(
  */
 export class LowcodePlatformApi {
   private readonly client: LowcodeClient
+  private readonly readApplicationById: LowcodePlatformApiOptions['readApplicationById']
   private refreshPromise: Promise<LowcodeSession> | null = null
   private applicationSelectionIntent = 0
   private pendingApplicationSelectionIntent: number | null = null
 
-  public constructor(
-    http: HttpClientBase,
-    public readonly session: LowcodeSessionStore,
-    public readonly application: LowcodeApplicationStore,
-  ) {
-    this.client = new LowcodeClient(http)
+  public constructor(options: LowcodePlatformApiOptions) {
+    this.client = new LowcodeClient(options.http)
+    this.session = options.session
+    this.application = options.application
+    this.readApplicationById = options.readApplicationById
   }
+
+  public readonly session: LowcodeSessionStore
+  public readonly application: LowcodeApplicationStore
 
   /** 企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。 */
   public async login(credentials: LowcodeLoginCredentials): Promise<LowcodeSession> {
@@ -486,19 +502,24 @@ export class LowcodePlatformApi {
     try {
       const normalizedId = applicationId.trim()
       if (!normalizedId) throw new LowcodeApiError(0, '应用 ID 不能为空')
-      let applications: readonly LowcodeApplication[]
+      const readApplicationById = this.readApplicationById
+      if (readApplicationById === undefined) {
+        throw new LowcodeApiError(0, '应用选择未配置正式 DataView 目录读取器')
+      }
+      let application: LowcodeApplication
       try {
-        applications = await this.listApplications()
+        application = await readApplicationById(normalizedId, () => this.assertApplicationSelectionCurrent(fence))
       } catch (error: unknown) {
         this.assertApplicationSelectionCurrent(fence)
         throw error
       }
       this.assertApplicationSelectionCurrent(fence)
-      const matches = applications.filter(application => application.id === normalizedId)
-      if (matches.length === 0) throw new LowcodeApiError(0, `lowcode 应用不存在或无权访问：${normalizedId}`)
-      if (matches.length !== 1) throw new LowcodeApiError(0, `lowcode 应用目录包含重复应用 ID：${normalizedId}`)
-      const application = matches[0]
-      if (application === undefined) throw new LowcodeApiError(0, `lowcode 应用不存在或无权访问：${normalizedId}`)
+      if (application.id !== normalizedId) {
+        throw new LowcodeApiError(0, `应用目录读取器返回的应用 ID 与请求不匹配：${normalizedId}`)
+      }
+      if (typeof application.name !== 'string') {
+        throw new LowcodeApiError(0, `应用目录读取器没有返回有效名称：${normalizedId}`)
+      }
       let activation: LowcodeApplicationActivation
       try {
         activation = await this.commitApplicationSelection(application, fence)
@@ -570,12 +591,12 @@ export class LowcodePlatformApi {
   ): Promise<LowcodeApplicationActivation> {
     const selectedApplication: LowcodeApplication = Object.freeze({
       id: application.id,
-      code: application.code,
       name: application.name,
-      description: application.description,
-      enterpriseId: application.enterpriseId,
-      enterpriseShortName: application.enterpriseShortName,
-      isDefault: application.isDefault,
+      ...(application.code === undefined ? {} : {code: application.code}),
+      ...(application.description === undefined ? {} : {description: application.description}),
+      ...(application.enterpriseId === undefined ? {} : {enterpriseId: application.enterpriseId}),
+      ...(application.enterpriseShortName === undefined ? {} : {enterpriseShortName: application.enterpriseShortName}),
+      ...(application.isDefault === undefined ? {} : {isDefault: application.isDefault}),
     })
     let navigationRootId: string
     try {

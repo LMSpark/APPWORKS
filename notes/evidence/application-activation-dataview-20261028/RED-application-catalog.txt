@@ -1,0 +1,134 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts (9 tests | 7 failed) 74ms
+     × reads an exact application id through the shared formal DataView and destroys its DataSet 20ms
+     × rejects an ambiguous id in the DataView result and still destroys its DataSet 3ms
+     × rejects an application whose id is not readable in the DataView result 7ms
+     × rejects an id that is absent from the DataView result 4ms
+     × stops after metadata becomes stale before the DataView query 2ms
+     × rejects a result that became stale during the DataView query and releases its DataSet 2ms
+     × releases the DataSet and preserves query failure from the DataView reader 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads an exact application id through the shared formal DataView and destroys its DataSet
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:69:55
+     67|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+     68|     }
+     69|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+     70|
+     71|     const application = await catalog.readLowcodeApplicationById('APP-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an ambiguous id in the DataView result and still destroys its DataSet
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:96:55
+     94|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+     95|     }
+     96|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+     97|
+     98|     await expect(catalog.readLowcodeApplicationById('APP-1', () => und…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an application whose id is not readable in the DataView result
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:117:55
+    115|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+    116|     }
+    117|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+    118|
+    119|     await expect(catalog.readLowcodeApplicationById('APP-1', () => und…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an id that is absent from the DataView result
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:136:55
+    134|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+    135|     }
+    136|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+    137|
+    138|     await expect(catalog.readLowcodeApplicationById('APP-1', () => und…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops after metadata becomes stale before the DataView query
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:160:55
+    158|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+    159|     }
+    160|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+    161|
+    162|     await expect(catalog.readLowcodeApplicationById('APP-1', assertCur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a result that became stale during the DataView query and releases its DataSet
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:185:55
+    183|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+    184|     }
+    185|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+    186|
+    187|     await expect(catalog.readLowcodeApplicationById('APP-1', assertCur…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet and preserves query failure from the DataView reader
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:207:55
+    205|       readLowcodeApplicationById: (id: string, assertCurrent: () => vo…
+    206|     }
+    207|     expect(typeof catalog.readLowcodeApplicationById).toBe('function')
+       |                                                       ^
+    208|
+    209|     await expect(catalog.readLowcodeApplicationById('APP-1', () => und…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 2 passed (9)
+   Start at  21:48:45
+   Duration  16.84s (transform 10.52s, setup 225ms, import 14.31s, tests 74ms, environment 1.58s)
+
+exit_code=1

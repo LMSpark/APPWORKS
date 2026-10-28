@@ -1,5 +1,23 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 活跃应用选择统一目录合同（实施中）
+
+- **授权与顺序：**沿用户持续授权的统一数据架构计划推进，低价模型 `gpt-6-luna` 单一实施，主控复核、SPA 烟测和实时提交推送。上轮已推送 `e686dff5a`；本轮开始工作树干净。先补有效 RED，主控核对后再改产品源；不改、启动或部署 Java。
+- **已核源码与方案：**活跃 `activateLowcodeApplication → LowcodePlatformApi.activateApplication` 仍私下调用旧 `listApplications`。以 LowcodeApi 构造注入单个按 ID 读取合同，将既有正式目录 DataSet/DataView 查询放进原 application selection fence；目录等待、导航根、abort、最新 intent、提交和 receipt 仍由原责任方承接，缺读取器明确失败，禁止旧 HTTP 回退。LowcodeApplication 保留 id/name 必需，其余正式元信息可缺省；store 兼容旧完整快照并拒绝已提供非法值，不从会话伪造应用归属，不把缺失 IsSys 写为 false。
+- **裁决：**复用既有 lowcode-application-catalog 中的正式装配器，提取共享按 ID 查询并删除上批显式导航私有同类逻辑；不复制查询、权限投影、身份唯一性或 finally 释放算法。LowcodePlatformApi 使用具名构造 options，避免追加第四参数；读取器仅在激活时执行，构造期不触发目录查询，避免 runtime/catalog 循环初始化。用户已授权整体方向与按计划执行，本次按真实源码细化公开前端合同，不另建总计划或等待重复确认。
+
+| 关联项 | 生产/消费合同及冲突检查 | 裁决与验收 |
+| --- | --- | --- |
+| 活跃选择与共享目录读取 | 原 fence 管选择意图；DataView 管查询/读取权限；不能另建 fence 或旧查询回退 | provider 接收原当前性校验，查询前后复核，成功/失败/过期均释放 DataSet |
+| 应用上下文与正式字段 | store 原来强制完整元信息，但正式目录缺 IsSys；不能用假 false/企业填补 | id/name 必需，缺省元信息保持缺省；旧完整快照兼容，显式错误类型拒绝 |
+| 显式导航与活跃选择 | 两者查询同一目录，直接复制将形成重复算法 | 共用一份按 ID 读取；显式导航原自动化覆盖保留，不外推真实 SPA |
+| 旧目录其余消费者 | projectReferences、project-settings 仍有不同摘要/类型语义 | 本批登记保留，不将活跃选择迁移外推全仓统一；后续按消费合同清除 |
+
+- **验证计划：**真实 DataView 夹具覆盖缺 provider、错 ID、缺失/重复/不可读目标、查询失败、元数据与查询等待时取消/更新意图、资源释放及字段权限；保留平台选择/导航原 abort、稳定错误与 receipt 断言。字段缺省及旧快照重开、非法可选值单独验证。主控独立复跑相关域/目录/工作区测试、typecheck、定向 lint、正式生成、verify:rules 和 build；真实 SPA 验证目录→进入应用→返回目录→再切应用，无整页刷新，不写业务数据。当前尚未宣称实施或烟测通过。
+- **RED 与必要消费修正：**源码未改时 typecheck 基线通过。主控已核包级 RED 7 fail/58 pass，以及目录 helper RED 7 fail/2 pass；后者明确失败于新导出合同缺失，不能称为已运行 helper 的行为证明，GREEN 后须用真实 DataView 断言兑现。归一化不再伪造 IsSys 后，旧 project-settings 会用真假判断把 unknown 又解释为普通应用，故本批同步让 ProjectDetail.projectType 可缺省，仅在分类为已知 boolean 时提供；加 unknown 省略及已知 true/false 回归，不改其查询、保存或只读入口。导航根 resolveNavigationRootId 原直接 GetData 仍是后续数据旁路，本批目录统一不等于整条激活链完成。
+- **冻结复核与实际烟测缺口：**主控独立 API 70/70、应用侧六文件 82/82 通过，独立复审 PASS；主控 app lint 发现可选名称 `||` 及未用导入三项问题，交回实施者修正，空字符串回退语义保留，窄复审 ADDRESSED。正式生成、完整 build 与 verify:rules 已通过，最终交付仍待后续烟测问题修复后的门禁。真实 SPA 标准表格进入 D99 成功，经原生菜单返回工场保留登录态，但卡片再次“进入”没有请求/导航。
+- **烟测裁决与新增必要范围：**现场 DOM/截图证明不是数据读取或 fence 失败：RendererList 外部 24 列/20px 间距同时用于卡片内部，元数据卡片内部 24 轨道均为 0px、间距合计 460px，卡片宽 502px，外层仅分配 192.5px；“进入”中心命中相邻“世纪楚风-合同管理”的 body，未命中按钮。证据为 [before.json](evidence/application-activation-dataview-20261028/spa-card-overflow-before.json) 与 [before.png](evidence/application-activation-dataview-20261028/spa-card-overflow-before.png)。该既有布局问题直接阻断本阶段真实卡片验收，故纳入必要范围：先核 ClassModel 与标准列表能力，补可区分内外间距/可收缩内容的标准能力，再由 AppList 配置复用；不以表格成功替代卡片通过，不用页面 CSS 或直接派发 click 绕过可见入口。首轮请求观察缓冲曾被开发模块流量挤出，标记 truncated，不作为完整选择目录请求证据；最终稳定源码后重采。
+
 ### 2026-10-28 显式跨应用导航的目录查询收敛
 
 - **切片与反例：**主控核对调用链后，开放 `gpt-6-luna` 单一写者将 `readLowcodeRuntimeNavigation(projectId)` 的显式跨应用目标查找替换为既有正式应用目录 DataSet/DataView。先补真实 DataView 夹具：原有 36 项通过，新增 9 项因旧列表旁路失败；主控排除了授权读取未 mock 导致的网络伪 RED，确认重复主键夹具确实返回两行。原始 RED/GREEN 与范围见 [summary.md](evidence/cross-app-catalog-red-20261028/summary.md)。

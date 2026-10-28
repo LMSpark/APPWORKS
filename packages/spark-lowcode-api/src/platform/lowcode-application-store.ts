@@ -30,6 +30,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function optionalString(record: Record<string, unknown>, key: string): string | undefined {
+  if (!Object.hasOwn(record, key)) return undefined
+  const value = record[key]
+  if (typeof value !== 'string') throw new LowcodeApiError(0, `应用上下文字段 ${key} 格式无效`)
+  return value
+}
+
+function optionalBoolean(record: Record<string, unknown>, key: string): boolean | undefined {
+  if (!Object.hasOwn(record, key)) return undefined
+  const value = record[key]
+  if (typeof value !== 'boolean') throw new LowcodeApiError(0, `应用上下文字段 ${key} 格式无效`)
+  return value
+}
+
 function parseContext(value: unknown): LowcodeApplicationContext {
   if (!isRecord(value) || !isRecord(value['application'])) {
     throw new LowcodeApiError(0, '应用上下文格式无效')
@@ -40,24 +54,23 @@ function parseContext(value: unknown): LowcodeApplicationContext {
   if (typeof id !== 'string' || !id || typeof navigationRootId !== 'string' || !navigationRootId) {
     throw new LowcodeApiError(0, '应用上下文缺少应用或导航根身份')
   }
-  const code = application['code']
   const name = application['name']
-  const description = application['description']
-  const enterpriseId = application['enterpriseId']
-  const enterpriseShortName = application['enterpriseShortName']
-  const isDefault = application['isDefault']
-  if (
-    typeof code !== 'string'
-    || typeof name !== 'string'
-    || typeof description !== 'string'
-    || typeof enterpriseId !== 'string'
-    || typeof enterpriseShortName !== 'string'
-    || typeof isDefault !== 'boolean'
-  ) {
-    throw new LowcodeApiError(0, '应用上下文字段格式无效')
-  }
+  if (typeof name !== 'string') throw new LowcodeApiError(0, '应用上下文字段 name 格式无效')
+  const code = optionalString(application, 'code')
+  const description = optionalString(application, 'description')
+  const enterpriseId = optionalString(application, 'enterpriseId')
+  const enterpriseShortName = optionalString(application, 'enterpriseShortName')
+  const isDefault = optionalBoolean(application, 'isDefault')
   return {
-    application: { id, code, name, description, enterpriseId, enterpriseShortName, isDefault },
+    application: {
+      id,
+      name,
+      ...(code === undefined ? {} : {code}),
+      ...(description === undefined ? {} : {description}),
+      ...(enterpriseId === undefined ? {} : {enterpriseId}),
+      ...(enterpriseShortName === undefined ? {} : {enterpriseShortName}),
+      ...(isDefault === undefined ? {} : {isDefault}),
+    },
     navigationRootId,
   }
 }

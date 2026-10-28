@@ -22,10 +22,10 @@
         "id": {
           "type": "string"
         },
-        "code": {
+        "name": {
           "type": "string"
         },
-        "name": {
+        "code": {
           "type": "string"
         },
         "description": {
@@ -46,28 +46,23 @@
       },
       "required": [
         "id",
-        "code",
-        "name",
-        "description",
-        "enterpriseId",
-        "enterpriseShortName",
-        "isDefault"
+        "name"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T07:31:54.146Z",
+  "generatedAt": "2026-10-28T14:01:35.616Z",
   "models": {
     "LowcodeApplication": {
       "name": "LowcodeApplication",
-      "jsdoc": "归一化后的应用条目；id 为 Base_AppSystemList.rowid。",
+      "jsdoc": "归一化后的应用条目；id 为 Base_AppSystemList.rowid。\n可选目录元信息仅在正式来源返回且当前调用可读时提供；缺省表示未知/不可用，不从登录会话补造归属。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    code: string;\n    name: string;\n    description: string;\n    enterpriseId: string;\n    enterpriseShortName: string;\n    isDefault: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    /** Formal AppName value when returned and readable. */\n    code?: string;\n    /** Formal AppDesc value when returned and readable. */\n    description?: string;\n    /** Formal EntId value when returned and readable; never inferred from session identity. */\n    enterpriseId?: string;\n    /** Formal EntShortName value when returned and readable; never inferred from session identity. */\n    enterpriseShortName?: string;\n    /** True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false. */\n    isDefault?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    code: string;\n    name: string;\n    description: string;\n    enterpriseId: string;\n    enterpriseShortName: string;\n    isDefault: boolean;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    /** Formal AppName value when returned and readable. */\n    code?: string;\n    /** Formal AppDesc value when returned and readable. */\n    description?: string;\n    /** Formal EntId value when returned and readable; never inferred from session identity. */\n    enterpriseId?: string;\n    /** Formal EntShortName value when returned and readable; never inferred from session identity. */\n    enterpriseShortName?: string;\n    /** True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false. */\n    isDefault?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -79,32 +74,37 @@
               "writable": false
             },
             {
-              "name": "code",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "name",
               "readable": true,
               "writable": false
             },
             {
+              "name": "code",
+              "jsdoc": "Formal AppName value when returned and readable.",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "description",
+              "jsdoc": "Formal AppDesc value when returned and readable.",
               "readable": true,
               "writable": false
             },
             {
               "name": "enterpriseId",
+              "jsdoc": "Formal EntId value when returned and readable; never inferred from session identity.",
               "readable": true,
               "writable": false
             },
             {
               "name": "enterpriseShortName",
+              "jsdoc": "Formal EntShortName value when returned and readable; never inferred from session identity.",
               "readable": true,
               "writable": false
             },
             {
               "name": "isDefault",
+              "jsdoc": "True/false only for a readable formal IsSys value of 1/0; undefined means unknown, not false.",
               "readable": true,
               "writable": false
             }

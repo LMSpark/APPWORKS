@@ -103,6 +103,7 @@ export type {
   LowcodeRegistrationResult,
   LowcodeSession,
   LowcodeApplicationSelectionReceipt,
+  LowcodePlatformApiOptions,
   LowcodeUserRegistration,
   LowcodeVerificationRequest,
   LowcodeVerificationScene,

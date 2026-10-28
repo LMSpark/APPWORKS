@@ -20,8 +20,8 @@ export type ProjectDetail = {
   projectId: string
   /** 项目名称 */
   name: string
-  /** 项目类型（如 lowcode / procode 等） */
-  projectType: string
+  /** 应用目录提供可读分类时的项目类型；未返回 IsSys 时缺省。 */
+  projectType?: string
   /** 项目图标资源标识 */
   icon: string
   /** 项目描述 */
@@ -115,9 +115,11 @@ export async function loadProjectRuntimeSettings(
     tenantId,
     projectId,
     name: application.name,
-    projectType: application.isDefault ? 'homepage' : 'application',
+    ...(typeof application.isDefault === 'boolean'
+      ? {projectType: application.isDefault ? 'homepage' : 'application'}
+      : {}),
     icon: '',
-    description: application.description,
+    description: application.description ?? '',
     homeNodeId: readOptionalString(nav.homePath),
     order: 0,
   }

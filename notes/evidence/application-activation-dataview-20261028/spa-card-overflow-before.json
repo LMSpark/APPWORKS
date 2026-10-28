@@ -1,0 +1,14 @@
+{
+  "buttonRect": {
+    "height": 28,
+    "width": 74,
+    "x": 802,
+    "y": 608.46875
+  },
+  "cardWidth": 502,
+  "cellWidth": 192.5,
+  "hitClass": "renderer-list-item-body",
+  "hitIsButton": false,
+  "hitTag": "DIV",
+  "hitText": "应用名称：世纪楚风-合同管理描述：世纪楚风-合同管理进入应用 设置 "
+}

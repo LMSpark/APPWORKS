@@ -13,6 +13,7 @@ import { LowcodeProjectBlueprintApi } from './platform/project-blueprint/project
 import { PermissionApi } from './platform/permission/permission-api.js'
 import { LowcodeRealtimeApi, type LowcodeFetch } from './realtime/lowcode-realtime-api.js'
 import { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
+import type { LowcodePlatformApiOptions } from './platform/lowcode-platform-api.js'
 import {
   LowcodeSessionStore,
   type LowcodeSessionStorage,
@@ -25,6 +26,12 @@ export type LowcodeApiOptions = Readonly<{
   sessionKey?: string
   applicationKey?: string
   fetch?: LowcodeFetch
+  /**
+   * Host-owned formal DataView directory reader used by activateApplication. It receives the active selection-fence
+   * assertion and must call it before/after asynchronous metadata and query work. Missing configuration fails closed;
+   * activation does not fall back to the legacy list API.
+   */
+  readApplicationById?: LowcodePlatformApiOptions['readApplicationById']
 }>
 
 /** lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。 */
@@ -56,7 +63,12 @@ export class LowcodeApi {
     this.design = new LowcodeDesignApi({ http: options.http, readScope: () => this.readRequestScope() })
     const browserFetch = typeof fetch === 'undefined' ? undefined : fetch.bind(globalThis)
     this.realtime = new LowcodeRealtimeApi(options.http, this.session, options.fetch ?? browserFetch)
-    this.platform = new LowcodePlatformApi(options.http, this.session, this.application)
+    this.platform = new LowcodePlatformApi({
+      http: options.http,
+      session: this.session,
+      application: this.application,
+      ...(options.readApplicationById === undefined ? {} : {readApplicationById: options.readApplicationById}),
+    })
     this.permission = new PermissionApi(options.http)
     options.http.interceptors.request.use({
       onRequest: async (config) => {

@@ -11,14 +11,13 @@ import type {
 } from '@spark-appworks/spark-app'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
 import * as ProjectModel from '@spark-appworks/spark-project-model'
-import type {DataRow} from '@spark-appworks/spark-data'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
-import {loadLowcodeApplicationCatalog} from './lowcode-application-catalog'
+import {readLowcodeApplicationById} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
@@ -35,6 +34,7 @@ export const lowcodeHttp = createRequest({ timeout: 30_000 })
 export const lowcodeApi = new LowcodePlatform.LowcodeApi({
   http: lowcodeHttp,
   ...(typeof window === 'undefined' ? {} : { sessionStorage: window.sessionStorage }),
+  readApplicationById: (applicationId, assertCurrent) => readLowcodeApplicationById(applicationId, assertCurrent),
 })
 
 const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
@@ -318,44 +318,6 @@ export function assembleLowcodeRuntimeNavigation(
   }
 }
 
-async function readExplicitApplicationFromCatalog(
-  projectId: string,
-  assertExecutionScope: () => void,
-): Promise<Pick<LowcodePlatform.LowcodeApplication, 'id' | 'name'>> {
-  const dataSet = await loadLowcodeApplicationCatalog()
-  try {
-    // Take ownership before checking the caller's application fence so a late acquired DataSet is always released.
-    assertExecutionScope()
-    const view = dataSet.getView('Base_AppSystemList', 'default')
-    if (view?.primaryKey !== 'rowid' || view.queryConfig.allPages !== true || view.queryConfig.distinct !== true) {
-      throw new Error('正式应用目录 DataView 配置或身份无效')
-    }
-    const result = await view.requestRefresh()
-    assertExecutionScope()
-    if (!result.success) throw new Error(result.message ?? '正式应用目录 DataView 查询失败')
-
-    const matchingRows = view.rows.filter((row: DataRow) => (
-      Object.hasOwn(row, 'rowid')
-      && view.fieldAccess(row, 'rowid').read === 'visible'
-      && row['rowid'] === projectId
-    ))
-    if (matchingRows.length === 0) throw new Error(`lowcode 应用不存在或无权访问：${projectId}`)
-    if (matchingRows.length !== 1) throw new Error(`lowcode 应用身份不唯一：${projectId}`)
-    const row = matchingRows[0]
-    if (!row || typeof row['rowid'] !== 'string' || !row['rowid'].trim()) {
-      throw new Error('正式应用目录缺少可读的应用身份')
-    }
-    const readName = (field: 'AppDesc' | 'AppName'): string => {
-      if (!Object.hasOwn(row, field) || view.fieldAccess(row, field).read !== 'visible') return ''
-      const value = row[field]
-      return typeof value === 'string' ? value.trim() : ''
-    }
-    return {id: row['rowid'], name: readName('AppDesc') || readName('AppName') || row['rowid']}
-  } finally {
-    dataSet.destroy()
-  }
-}
-
 export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<RuntimeNavigation> {
   const explicitProjectId = projectId?.trim()
   const activeContext = lowcodeApi.application.get()
@@ -392,7 +354,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   let navigationRootId: string
   try {
     if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
-      application = await readWithinExecutionScope(readExplicitApplicationFromCatalog(explicitProjectId, assertExecutionScope))
+      application = await readWithinExecutionScope(readLowcodeApplicationById(explicitProjectId, assertExecutionScope))
       navigationRootId = await readWithinExecutionScope(lowcodeApi.platform.resolveNavigationRootId(application.id))
       assertExecutionScope()
     } else if (activeContext !== null) {
@@ -608,7 +570,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         projectId: application.id,
         name: application.name,
         icon: '',
-        description: application.description,
+        description: application.description ?? '',
       })),
       loadProjectBlueprint: readLowcodeProjectBlueprintEditorTree,
     },

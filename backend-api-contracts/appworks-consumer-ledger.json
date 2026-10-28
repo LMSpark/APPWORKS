@@ -697,127 +697,127 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 74,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 641,
+      "sourceLine": 799,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 685,
+      "sourceLine": 843,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 821,
+      "sourceLine": 979,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 864,
+      "sourceLine": 1022,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 953,
+      "sourceLine": 1111,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 960,
+      "sourceLine": 1118,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/sysCache/findByPatternPageWithTotal",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 976,
+      "sourceLine": 1134,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/sysCache/findByPatternPageWithTotal",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 981,
+      "sourceLine": 1139,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1035,
+      "sourceLine": 1193,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1070,
+      "sourceLine": 1228,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 263,
+      "sourceLine": 279,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 292,
+      "sourceLine": 308,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/sysCache/findByPatternPageWithTotal",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 311,
+      "sourceLine": 327,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/message/code/send/public",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 327,
+      "sourceLine": 343,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 342,
+      "sourceLine": 358,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 366,
+      "sourceLine": 382,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 401,
+      "sourceLine": 417,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 430,
+      "sourceLine": 446,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 444,
+      "sourceLine": 460,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 457,
+      "sourceLine": 473,
       "scope": "publishable-lowcode-api"
     },
     {

@@ -1,5 +1,13 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 D99 功能管理 DataSpace 命名视图核验
+
+- **真实 SPA 证据：**复用用户已给的 NewApp 测试账号登录，D99 正式数据空间目录按名称查到归属“元数据管理”的“功能管理”空间，设计器目标 ID `7AB874097A1E8711A42FD845939A6E05`。画布显示 24 个模型、12 张数据库表、11 个字典、1 个文件资源、0 条关系；主业务模型为 `Base_NavigationInfo`。
+- **DataView 结论：**该空间中只读打开 `Base_DataModel` 与 `Base_AppSystemList` 的正式模型定义，两者“数据视图”页均提示需先选择或新增视图，“保存视图配置”和“新增视图草稿”不可用；本次未编辑、增建或提交。证据范围仅为这两个模型。详情见 [`d99-function-management-appsystemlist-view-audit-20261028.md`](evidence/d99-function-management-appsystemlist-view-audit-20261028.md)。
+- **统一接入判断：**D99 该空间不是全局应用目录可直接复用的已配置 DataView owner。仓内 `Base_AppSystemList@catalogApps` 属数据空间目录场景，不能借用来替代 homepage/平台目录的 route scope、结果范围和服务端授权。新增视图只有在正式 owner 与授权范围获得服务端/SPA证据后才实施，不能单凭数据空间设计页可创建就推定全局消费者可用。
+- **低价模型复核：**`gpt-6-luna` 对当前台账队列及源码复核，未发现 owner、scope、正式权限与提交回执合同完整的可安全代码切片；未改源码或测试。NavHost、ProjectPlanning、AgentWorkflowFiles 仍依次缺正式目标/字段授权、规划附件与描述来源、权限投影及文件路径查询回执。下一步沿目标场景的正式 DataSet → DataTable → DataView 只读核对，再按 owner 记录行身份、字段权限、查询/保存回执及冲突/未知结果；确认合同后才为真实差距建立 RED 并实现，不改 Java。
+- **本轮交付边界：**当前工作树开始时干净。本轮只读 SPA 证据、唯一台账与 evidence 文档；未写正式空间、模型、视图、条目或布局；没有代码改动或测试结果。
+
 ### 2026-10-28 DevSystem NavHost 与游离 DataSpace 最新 SPA 复核
 
 - **会话与真实入口：**使用用户已提供的测试账号恢复本地 SPA 会话，导航栏显示“王涛”；没有再次索取账号，也没有把密码记入文件。通过 D99 正式路由打开 DevSystem `appworks-tool-dev`，页面明确显示“当前导航未配置项目切换关系”，蓝图为“项目蓝图为空 / 0 页面”。未切换项目、未保存配置或修改业务数据。

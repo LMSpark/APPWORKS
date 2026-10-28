@@ -2367,11 +2367,17 @@ async function openInitialDesign(): Promise<void> {
 
 async function loadDesigns(): Promise<void> {
   const owner = dataOwner.value
-  if (!owner || loadingList.value) return
+  if (!componentActive || !owner || loadingList.value) return
   loadingList.value = true
-  try {await owner.refreshDirectory(); directoryRevision.value++}
-  catch (error: unknown) {ElMessage.error(`加载工作流目录失败: ${errorMessage(error)}`)}
-  finally {loadingList.value = false}
+  try {
+    await owner.refreshDirectory()
+    if (!componentActive || dataOwner.value !== owner) return
+    directoryRevision.value++
+  } catch (error: unknown) {
+    if (componentActive && dataOwner.value === owner) ElMessage.error(`加载工作流目录失败: ${errorMessage(error)}`)
+  } finally {
+    if (componentActive && dataOwner.value === owner) loadingList.value = false
+  }
 }
 
 function openDirectoryRow(row: DataRow): void {

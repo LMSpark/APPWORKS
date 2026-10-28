@@ -2970,3 +2970,9 @@ flowchart TD
 - **复核限制：**针对手动刷新过程中卸载的 pending 请求，实施者未能建立可靠的第二次刷新测试夹具，已移除该用例；本次不证明该路径的关闭保护/异步 toast 行为。自动化夹具只证明 owner 生命周期，不证明已认证 SPA、服务端文件保存回执或关闭重开读回。
 - **SPA 会话与账号：**用户已在本任务授权测试账号，不再要求重发。当前浏览器清单列出应用列表和数据空间管理标签；`cua.getTab` 均因 `browser.user is unavailable` 不能读取页面。Computer Use 登录对话框自动化被技能的非可绕过约束禁止；本轮没有自动填登录表单、没有执行正式 DataView 查询/写入，也未清除已有测试账号或业务记录。
 - **交付及后续：**实现提交 `f32f7565dc938ee646624d2433d5baf4d3b0f190` 已推送到 `origin/codex/ai-data-entry`；唯一台账本条随下一提交推送。真实 Workflow SPA 编辑/取消/保存/重开读回、AI 批量录入真实业务验证、根应用目录及其他平台消费者的正式 owner/scope/字段授权合同仍未完成；未改、启动或部署 Java。总体 SPARK data 唯一通道目标保持 active。
+
+### 2026-10-28 Workflow 手动刷新卸载隔离
+
+- **低价实施与主控复核：**针对上一轮未能覆盖的“手动刷新进行中卸载”补充 RED 用例，精确点击目录工具栏刷新，卸载页面后拒绝待处理请求，稳定复现旧实现仍弹出目录错误。低价模型只修改 `WorkflowDesigns.vue`：刷新完成、失败与 finally 均校验组件仍活动且当前 owner 身份未变；失效结果不弹提示、不递增目录修订号，也不更新已销毁页面的加载状态。测试仅改进按钮 stub 对 `loading` 状态的模拟并补 1 个回归用例。
+- **自动化验证：**`pnpm exec vitest run tests/ui/views/workflow-designs.test.ts --reporter=dot` 25/25 通过；`pnpm run typecheck` 退出 0；`git diff --check` 退出 0。测试输出仍有既存 Vue Router 无活动路由夹具警告及 esbuild/oxc 配置提示。
+- **SPA 与交付边界：**本次没有执行真实 SPA 文件查询、保存或关闭重开读回；自动化页面附着限制仍在，用户已授权的测试账号不再要求重发。未修改、启动或部署 Java；仅合入 SPA 生命周期边界修复，不宣称后端 DataView 写回或 B1 完整验收通过。整体 SPARK data 唯一通道目标保持 active。

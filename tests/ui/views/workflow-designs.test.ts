@@ -72,12 +72,13 @@ vi.mock('@spark-appworks/spark-ai/class-model', async (importOriginal) => {
 const ButtonStub = defineComponent({
   props: {
     disabled: Boolean,
+    loading: Boolean,
   },
   emits: ['click'],
   setup(props, { attrs, emit, slots }) {
     return () => h('button', {
       ...attrs,
-      disabled: props.disabled,
+      disabled: props.disabled || props.loading,
       type: 'button',
       onClick: () => emit('click'),
     }, slots['default']?.())
@@ -764,6 +765,33 @@ describe('WorkflowDesigns visual editor', () => {
 
     expect(owner.dispose).toHaveBeenCalledOnce()
     expect(owner.runtime.dispose).toHaveBeenCalledOnce()
+  })
+
+  it('does not report a manual directory refresh failure after the page has unmounted', async () => {
+    let rejectRefresh!: (error: Error) => void
+    const refreshPending = new Promise<void>((_resolve, reject) => { rejectRefresh = reject })
+    const createOwner = mocks.createOwner.getMockImplementation()!
+    let owner!: AgentWorkflowFileDataViewOwner
+    mocks.createOwner.mockImplementationOnce(async () => {
+      owner = await createOwner()
+      return owner
+    })
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    await vi.waitFor(() => expect(wrapper.find('.document-title').exists()).toBe(true))
+    expect(wrapper.find('.renderer-workflow-table').exists(), wrapper.text()).toBe(true)
+
+    const refreshDirectory = vi.spyOn(owner, 'refreshDirectory').mockImplementation(() => refreshPending)
+    const refreshButton = wrapper.find('.workflow-tool-group--actions').findAll('button').find(button => button.text() === '刷新')
+    expect(refreshButton).toBeDefined()
+    await vi.waitFor(() => expect(refreshButton!.attributes('disabled')).toBeUndefined())
+    await refreshButton!.trigger('click')
+    await vi.waitFor(() => expect(refreshDirectory).toHaveBeenCalledOnce())
+    wrapper.unmount()
+    rejectRefresh(new Error('late manual refresh failure'))
+    await flushPromises()
+
+    expect(mocks.message.error).not.toHaveBeenCalledWith('加载工作流目录失败: late manual refresh failure')
   })
 
   it('auto-opens the first readable design and skips unreadable summaries', async () => {

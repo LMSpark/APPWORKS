@@ -39,6 +39,7 @@ const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
   http: lowcodeHttp,
   readScope: () => lowcodeApi.readRequestScope(),
 })
+export {scenarioFileUpload as lowcodeDesignFileUpload}
 
 lowcodeHttp.interceptors.response.use({
   onResponseError: (error) => {

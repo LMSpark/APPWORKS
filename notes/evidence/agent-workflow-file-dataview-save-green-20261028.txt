@@ -1,0 +1,323 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > auto-opens the first readable design and skips unreadable summaries
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > lists directory entries through the resource DataView with read-only query grants
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:60:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the formal missing workflow directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:74:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a cross-module missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: [1003] 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:88:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps the backend-prefixed missing-directory response as a failed query
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > loads an empty directory when listFiles successfully returns no entries
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for different message
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 其他数据错误 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:118:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for different message
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for authorization denial
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: 文件夹路径不存在 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:118:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > keeps a missing-directory-like response as an error for authorization denial
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > reads the selected workflow definition and grants content-only writes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects a stale application scope before returning file data
+❌ [DataView] requestData 失败 [AgentWorkflowFiles@directory]: SPARK_EXECUTION_SCOPE_STALE Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts:145:22
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects a stale application scope before returning file data
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView resource > rejects cached field and action authorization after the scope becomes stale
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps workflowId read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+·stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps fileName read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps timestamp read-only while allowing only document content edits
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected design row through DataSet and confirms exact working-file bytes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > saves only the selected definition row through DataSet and confirms exact working-file bytes
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > rejects a changed remote baseline before upload and retains the DataView edit
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > reads the selected design through its DataView and reports a file read failure
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > keeps the original save unconfirmed when upload outcome is unknown and verifies without replay
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > confirms an unknown upload from the original target bytes without issuing a second upload
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when scope changes during save
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file DataView save contract > does not accept or clean the edit when readback changes during save
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+····················stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow target space resolution > resolves only one exact-name row with readable formal rowid and Name
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow target space resolution > fails closed when the exact name is duplicated or its identity fields are unreadable
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > loads the target from the formal catalog and serves page/AI definitions through its DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > loads the target from the formal catalog and serves page/AI definitions through its DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > does not load any target when the formal catalog name is ambiguous
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > rejects scope changes before exposing the target DataView
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > keeps selected document content on the page-owned bound DataView currentRow
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > keeps selected document content on the page-owned bound DataView currentRow
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > updates an existing design file through its page DataSet and confirms its exact bytes
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > updates an existing design file through its page DataSet and confirms its exact bytes
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > cancels a dirty design row through its DataView baseline and keeps switching views independent
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > cancels a dirty design row through its DataView baseline and keeps switching views independent
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > submits a definition-only edit through the definition DataView row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+
+stdout | tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts > Agent Workflow file owner lifecycle > submits a definition-only edit through the definition DataView row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:default
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:directory
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:design
+🐛 [DataView] 销毁 DataView: AgentWorkflowFiles:definition
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > keeps the empty state and warns when every design is unreadable
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > opens, edits, and saves a business node config
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > keeps the submitted DataView draft unchanged after an unknown receipt and retries only verification
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > opens, edits, and saves workflow-level properties
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > shows ClassModel pins and JSDoc at each extracted level
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > drags a graph node and saves its new position
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > moves the selected graph node with arrow keys
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > auto-layouts the workflow graph and saves immediately
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > creates a business node in the workflow graph
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > keeps start and output nodes protected while allowing business node deletion
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > updates a line endpoint from the line editor and saves it
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > rewires a line target from Vue Flow line update
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > renders twelve numbered docks and resolves automatic endpoints
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > changes and persists the selected line visual type
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > accepts explicit runtime line states without persisting them
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > adds, drags, deletes, and clears persisted line control points
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > publishes the current design as definition.json
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > opens, edits, and saves definition.json
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+stderr | tests/ui/views/workflow-designs.test.ts > WorkflowDesigns visual editor > creates a local definition draft when the backend definition endpoint is missing
+[Vue Router warn]: No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?
+
+······························
+
+ Test Files  2 passed (2)
+      Tests  51 passed (51)
+   Start at  12:05:32
+   Duration  11.84s (transform 13.56s, setup 254ms, import 17.49s, tests 1.81s, environment 2.09s)
+

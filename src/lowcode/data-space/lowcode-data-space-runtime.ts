@@ -3,7 +3,7 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeHttp } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
@@ -119,7 +119,7 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
   const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
  }) : []
  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
-  definition.createExecutor({applicationId: projectId, api: lowcodeApi.design, assertCurrent})]))
+  definition.createExecutor({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})]))
  if (!declared.length && !hasReference && !toolTables.length) return registeredFileExecutors
  const workspace = owner ?? new ProjectWorkspace({projectId, ...createLowcodeProjectGateways(projectId)})
  const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: scenarioId, assertCurrent,

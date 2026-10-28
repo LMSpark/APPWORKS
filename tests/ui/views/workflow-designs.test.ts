@@ -168,6 +168,12 @@ const HandleStub = defineComponent({
 })
 
 const workflowTableRows: DataRow[] = []
+let pageDataSet: DataSet | undefined
+let pageDesignView: ReturnType<DataSet['getView']> | undefined
+let pageDefinitionView: ReturnType<DataSet['getView']> | undefined
+let pageSaveViews: string[]
+let unknownNextPageSave: boolean
+let pageUploadCount: number
 const RendererTableStub = defineComponent({
   props: {dataViewKey: String, children: Array, onRowClick: Function},
   setup(props) {
@@ -539,6 +545,13 @@ function findButton(wrapper: ReturnType<typeof mountWorkflowDesigns>, label: str
   return button
 }
 
+function readSavedDocument(fileName: 'design.json' | 'definition.json'): Record<string, unknown> {
+  const view = fileName === 'design.json' ? pageDesignView : pageDefinitionView
+  const content = view?.rows[0]?.['content']
+  if (typeof content !== 'string') throw new Error(`missing saved ${fileName} DataView row`)
+  return JSON.parse(content) as Record<string, unknown>
+}
+
 describe('WorkflowDesigns visual editor', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -584,6 +597,12 @@ describe('WorkflowDesigns visual editor', () => {
     })
     mocks.classModelProvider.methodGuide.mockResolvedValue('Action guide text')
     mocks.createWorkerDtsClassModelKnowledgeProvider.mockReturnValue(mocks.classModelProvider)
+    pageDataSet = undefined
+    pageDesignView = undefined
+    pageDefinitionView = undefined
+    pageSaveViews = []
+    unknownNextPageSave = false
+    pageUploadCount = 0
     mocks.listWorkflowDesigns.mockResolvedValue([
       {
         workflowId: 'agent.workflow.demo',
@@ -604,23 +623,50 @@ describe('WorkflowDesigns visual editor', () => {
         views: {default: {}, directory: {}, design: {}, definition: {}},
       }
       const dataSet = DataSet.fromJson({scenarioId: 'TEST-SPACE', tables: {AgentWorkflowFiles: table}})
+      pageDataSet = dataSet
       const runtime = new PageRuntime({pageId: 'workflow-test', scenarioIds: ['TEST-SPACE'], loadScenario: async () => dataSet})
       await runtime.load()
       const directoryView = dataSet.getView('AgentWorkflowFiles', 'directory')!
       const designView = dataSet.getView('AgentWorkflowFiles', 'design')!
       const definitionView = dataSet.getView('AgentWorkflowFiles', 'definition')!
-      const makeResult = (rows: DataRow[]) => ({rows, total: rows.length, rowKey: (row: DataRow) => row['workflowId'],
-        assertIdentity: () => undefined, fieldAccess: (key: unknown, field: string) => ({read: rows.some(row => row['workflowId'] === key && Object.hasOwn(row, field)) ? 'visible' as const : 'invisible' as const,
-          write: 'denied' as const, component: 'readonly' as const, required: false, writeMode: 'readonly' as const}),
+      const pendingSaves = new WeakSet<object>()
+      pageDesignView = designView
+      pageDefinitionView = definitionView
+      const makeResult = (rows: DataRow[], writable: boolean) => ({rows, total: rows.length, rowKey: (row: DataRow) => row['workflowId'],
+        assertIdentity: () => undefined, fieldAccess: (key: unknown, field: string) => {
+          const visible = rows.some(row => row['workflowId'] === key && Object.hasOwn(row, field))
+          const write = visible && writable && field === 'content'
+          return {read: visible ? 'visible' as const : 'invisible' as const,
+            write: write ? 'allowed' as const : 'denied' as const,
+            component: write ? 'editable' as const : visible ? 'readonly' as const : 'hidden' as const,
+            required: false, writeMode: write ? 'editable' as const : 'readonly' as const}
+        },
         readFieldAccess: (row: DataRow, field: string) => Object.hasOwn(row, field) ? 'visible' : 'invisible',
-        addActionState: () => 'disabled' as const, editActionState: () => 'disabled' as const, deleteActionState: () => 'disabled' as const,
+        addActionState: () => 'disabled' as const, editActionState: (key: unknown) => writable && rows.some(row => row['workflowId'] === key) ? 'enabled' as const : 'disabled' as const, deleteActionState: () => 'disabled' as const,
         createChildActionState: () => 'disabled' as const, viewActionState: () => 'enabled' as const})
       const resourceIdentity = {resource: {resourceType: 'file' as const, resourceId: 'agent-workflow-files'}}
-      directoryView.bindQueryExecutor({executeQuery: async () => makeResult(summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})))}, resourceIdentity)
+      directoryView.bindQueryExecutor({executeQuery: async () => makeResult(summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})), false)}, resourceIdentity)
       const bindDocument = (view: typeof designView, fileName: string) => view.bindQueryExecutor({executeQuery: async () => {
         const workflowId = String(view.queryContext['workflowId'] ?? '')
-        return makeResult([{workflowId, fileName, timestamp: '', content: replies.get(`${workflowId}/${fileName}`) ?? ''}])
-      }}, resourceIdentity)
+        return makeResult([{workflowId, fileName, timestamp: '', content: replies.get(`${workflowId}/${fileName}`) ?? ''}], true)
+      }, save: async command => command.changes.map(change => {
+        pageSaveViews.push(view.viewId)
+        const changed = change.changes.changed ?? []
+        const savedRow = changed[0]
+        const pending = pendingSaves.has(change.context)
+        if (pending) pendingSaves.delete(change.context)
+        else {
+          pageUploadCount++
+          if (savedRow) replies.set(`${String(savedRow['workflowId'])}/${fileName}`, String(savedRow['content'] ?? ''))
+          if (unknownNextPageSave) {
+            unknownNextPageSave = false
+            pendingSaves.add(change.context)
+            throw new Error('response lost after upload')
+          }
+        }
+        return {metaName: change.identity.metaName, added: [], changed, deleted: [], changedFields: [['content']],
+          context: makeResult(changed as DataRow[], true)}
+      }), hasUnconfirmedSave: context => pendingSaves.has(context)}, resourceIdentity)
       bindDocument(designView, 'design.json')
       bindDocument(definitionView, 'definition.json')
       workflowTableRows.splice(0, workflowTableRows.length, ...summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})))
@@ -793,11 +839,36 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    expect(mocks.saveWorkflowDesign).toHaveBeenCalledOnce()
-    const [workflowId, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
-    expect(workflowId).toBe('agent.workflow.demo')
+    expect(mocks.saveWorkflowDesign).not.toHaveBeenCalled()
+    expect(pageSaveViews).toEqual(['design'])
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
+    expect(savedDocument.workflow.id).toBe('agent.workflow.demo')
     expect(savedDocument.workflow.graph.nodes[1]?.data?.inputs?.['prompt']).toBe('edited')
     expect(savedDocument.x_spark.draft?.['status']).toBe('saved')
+  })
+
+  it('keeps the submitted DataView draft unchanged after an unknown receipt and retries only verification', async () => {
+    const wrapper = mountWorkflowDesigns()
+    await flushPromises()
+    const inputValue = wrapper.find('.structured-field-row--inputs .structured-field-value')
+    await inputValue.setValue('unknown-save')
+    unknownNextPageSave = true
+    await findButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+    expect(pageDesignView?.hasUnconfirmedSave).toBe(true)
+    const submitted = pageDesignView?.rows[0]?.['content']
+    expect(String(submitted)).toContain('unknown-save')
+
+    await findButton(wrapper, '保存').trigger('click')
+    await flushPromises()
+
+    expect(pageUploadCount).toBe(1)
+    expect(pageSaveViews).toEqual(['design', 'design'])
+    expect(pageDesignView?.hasUnconfirmedSave).toBe(false)
+    expect(pageDesignView?.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(readSavedDocument('design.json')).toMatchObject({workflow: {graph: {nodes: expect.arrayContaining([
+      expect.objectContaining({data: expect.objectContaining({inputs: {prompt: 'unknown-save'}})}),
+    ])}}})
   })
 
   it('opens, edits, and saves workflow-level properties', async () => {
@@ -816,7 +887,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.x_spark.designer?.['title']).toBe('Edited Workflow')
     expect(savedDocument.workflow.runtimeBinding?.registration.alias).toBe('demo')
     expect(savedDocument.workflow.runtimeBinding?.inputContract.paramsSchema.properties).toHaveProperty('prompt')
@@ -847,7 +918,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.nodes[1]?.position).toEqual({ x: 70, y: 30 })
   })
 
@@ -863,7 +934,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.nodes[1]?.position).toEqual({ x: 300, y: 260 })
   })
 
@@ -874,8 +945,8 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '自动排版').trigger('click')
     await flushPromises()
 
-    expect(mocks.saveWorkflowDesign).toHaveBeenCalledOnce()
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    expect(mocks.saveWorkflowDesign).not.toHaveBeenCalled()
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.nodes.map(node => node.position)).toEqual([
       { x: 40, y: 40 },
       { x: 40, y: 250 },
@@ -895,7 +966,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -922,7 +993,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.nodes.map(node => node.id)).toEqual(['start', 'output'])
     expect(savedDocument.workflow.graph.lines).toHaveLength(0)
   })
@@ -946,7 +1017,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.lines[0]).toEqual(expect.objectContaining({
       from: expect.objectContaining({ nodeId: 'start' }),
       to: expect.objectContaining({ nodeId: 'output' }),
@@ -963,7 +1034,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.lines[0]).toEqual(expect.objectContaining({
       from: expect.objectContaining({ nodeId: 'start' }),
       to: expect.objectContaining({ nodeId: 'output' }),
@@ -1000,7 +1071,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.lines[0]?.data?.visual).toMatchObject({
       lineType: 'straight',
       controlPoints: [],
@@ -1017,7 +1088,7 @@ describe('WorkflowDesigns visual editor', () => {
 
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.lines[0]?.data).not.toHaveProperty('runtimeStatus')
   })
 
@@ -1047,7 +1118,7 @@ describe('WorkflowDesigns visual editor', () => {
     await findButton(wrapper, '保存').trigger('click')
     await flushPromises()
 
-    const [, savedDocument] = mocks.saveWorkflowDesign.mock.calls[0] as [string, WorkflowDesignDocument]
+    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
     expect(savedDocument.workflow.graph.lines[0]?.data?.visual?.controlPoints).toEqual([])
   })
 
@@ -1140,17 +1211,14 @@ describe('WorkflowDesigns visual editor', () => {
     expect((definitionEditor.element as HTMLTextAreaElement).value).toContain('"kind": "agent.workflow"')
 
     await definitionEditor.setValue('{"kind":"agent.workflow"}')
+    expect(pageDefinitionView?.hasEditingChanges()).toBe(true)
     await findButton(wrapper, '保存 Definition').trigger('click')
     await flushPromises()
 
     expect(mocks.parseAgentWorkflowDefinitionJson).toHaveBeenCalledWith('{"kind":"agent.workflow"}')
-    expect(mocks.saveWorkflowDefinition).toHaveBeenCalledWith(
-      'agent.workflow.demo',
-      expect.objectContaining({
-        kind: 'agent.workflow',
-        workflowId: 'agent.workflow.demo',
-      }),
-    )
+    expect(mocks.saveWorkflowDefinition).not.toHaveBeenCalled()
+    expect(pageSaveViews).toEqual(['definition'])
+    expect(readSavedDocument('definition.json')).toMatchObject({kind: 'agent.workflow', workflowId: 'agent.workflow.demo'})
     expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已保存')
   })
 

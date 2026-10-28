@@ -21,6 +21,8 @@ function fixture() {
       expect(input.appType).toBe('designfile')
       return `${input.customPath}/${input.fileName}`
     }),
+    readFileBytes: vi.fn(async (input: {appType: string; customPath: string; fileName: string}) =>
+      new TextEncoder().encode(`${input.customPath}/${input.fileName}`)),
   }
   const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {
     [AGENT_WORKFLOW_FILE_TABLE]: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID,
@@ -121,7 +123,7 @@ describe('Agent Workflow file DataView resource', () => {
     } finally {dataSet.destroy()}
   })
 
-  it('reads design and definition only for the selected workflow and grants no writes', async () => {
+  it('reads the selected workflow definition and grants content-only writes', async () => {
     const {api, dataSet} = fixture()
     const view = dataSet.getView(AGENT_WORKFLOW_FILE_TABLE, 'definition')!
     view.queryContext = {...view.queryContext, workflowId: 'agent.workflow.alpha'}
@@ -129,7 +131,8 @@ describe('Agent Workflow file DataView resource', () => {
       const result = await view.requestRefresh()
       expect(result.success).toBe(true)
       expect(view.rows).toMatchObject([{workflowId: 'agent.workflow.alpha', fileName: 'definition.json', timestamp: '', content: 'APP/workflow-designs/agent.workflow.alpha/definition.json'}])
-      expect(view.fieldAccess(view.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(view.fieldAccess(view.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+      expect(view.fieldAccess(view.rows[0]!, 'workflowId')).toMatchObject({write: 'denied'})
       expect(api.readTextFile).toHaveBeenCalledWith({appType: 'designfile', customPath: 'APP/workflow-designs/agent.workflow.alpha', fileName: 'definition.json'})
     } finally {dataSet.destroy()}
   })
@@ -159,6 +162,12 @@ describe('Agent Workflow file DataView resource', () => {
 })
 
 describe('Agent Workflow file DataView save contract', () => {
+  function unknownReceiptError(): Error {
+    const error = new Error('response lost')
+    error.name = 'RequestError'
+    Object.assign(error, {config: {url: '/api/File/UploadFile'}})
+    return error
+  }
   function writableFixture(options: Readonly<{
     upload?: LowcodeDesignFileUpload['uploadWorkingText']
     readback?: LowcodeDesignApi['readFileBytes']
@@ -248,7 +257,7 @@ describe('Agent Workflow file DataView save contract', () => {
   })
 
   it('keeps the original save unconfirmed when upload outcome is unknown and verifies without replay', async () => {
-    const {api, fileUpload, dataSet, view} = writableFixture({upload: async () => {throw new Error('response lost')}})
+    const {api, fileUpload, dataSet, view} = writableFixture({upload: async () => {throw unknownReceiptError()}})
     try {
       await view.requestRefresh()
       const id = view.getPkKey(view.rows[0]!)!
@@ -261,6 +270,28 @@ describe('Agent Workflow file DataView save contract', () => {
       expect(api.readFileBytes.mock.calls.length).toBeGreaterThan(readbacksBeforeVerification)
       expect(fileUpload.uploadWorkingText).toHaveBeenCalledOnce()
       expect(view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+    } finally {dataSet.destroy()}
+  })
+
+  it('confirms an unknown upload from the original target bytes without issuing a second upload', async () => {
+    let remote = '{"version":1}'
+    const {api, fileUpload, dataSet, view} = writableFixture({
+      upload: async input => {remote = input.text; throw unknownReceiptError()},
+      readback: async () => new TextEncoder().encode(remote),
+    })
+    try {
+      await view.requestRefresh()
+      const id = view.getPkKey(view.rows[0]!)!
+      await view.editRowById(id, {content: '{"version":2}'})
+      const target = {views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]}
+      await expect(dataSet.saveChanges(target)).rejects.toThrow('response lost')
+      const readsBeforeVerification = api.readFileBytes.mock.calls.length
+      const saved = await dataSet.saveChanges(target)
+      expect(saved.success).toBe(true)
+      expect(api.readFileBytes.mock.calls.length).toBeGreaterThan(readsBeforeVerification)
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledOnce()
+      expect(view.dirtyTracking.hasPendingChanges(id)).toBe(false)
+      expect(view.hasUnconfirmedSave).toBe(false)
     } finally {dataSet.destroy()}
   })
 
@@ -352,7 +383,8 @@ describe('Agent Workflow file owner lifecycle', () => {
     let token = 'scope-1'
     const calls: string[] = []
     const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1730000000000}],
-      readTextFile: async (input: {fileName: string}) => input.fileName === 'definition.json' ? '{"workflow":{}}' : '{"kind":"agent.workflow.design"}'}
+      readTextFile: async (input: {fileName: string}) => input.fileName === 'definition.json' ? '{"workflow":{}}' : '{"kind":"agent.workflow.design"}',
+      readFileBytes: async () => new TextEncoder().encode('{"workflow":{}}')}
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token, headers: {'X-AppId': 'APP'}}), api,
       loadScenario: async ({scenarioId}) => {
         calls.push(scenarioId)
@@ -363,14 +395,14 @@ describe('Agent Workflow file owner lifecycle', () => {
       expect(calls).toEqual(['CATALOG', 'CATALOG', 'SPACE-1'])
       expect(await owner.listWorkflowIds()).toEqual(['agent.workflow.alpha'])
       expect(await owner.readDocument('agent.workflow.alpha', 'definition.json')).toBe('{"workflow":{}}')
-      expect(owner.documentView.fieldAccess(owner.documentView.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(owner.documentView.fieldAccess(owner.documentView.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
     } finally {owner.dispose(); token = 'scope-2'}
   })
 
   it('does not load any target when the formal catalog name is ambiguous', async () => {
     const calls: string[] = []
     await expect(createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [], readTextFile: async () => ''}, catalogScenarioId: 'CATALOG',
+      api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array()}, catalogScenarioId: 'CATALOG',
       loadScenario: async ({scenarioId}) => {calls.push(scenarioId); return modelSet('CATALOG', [
         {rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}, {rowid: 'SPACE-2', Name: 'Agent工作流文件资源'},
       ])}})).rejects.toThrow('唯一')
@@ -381,21 +413,117 @@ describe('Agent Workflow file owner lifecycle', () => {
     let token = 'scope-1'
     const calls: string[] = []
     await expect(createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token, headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [], readTextFile: async () => ''}, catalogScenarioId: 'CATALOG',
+      api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array()}, catalogScenarioId: 'CATALOG',
       loadScenario: async ({scenarioId}) => {calls.push(scenarioId); const result = modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]); token = 'scope-2'; return result}})).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(calls).toEqual(['CATALOG'])
   })
 
   it('keeps selected document content on the page-owned bound DataView currentRow', async () => {
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: null}], readTextFile: async () => '{"kind":"agent.workflow.design"}'},
+      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: null}], readTextFile: async () => '{"kind":"agent.workflow.design"}',
+        readFileBytes: async () => new TextEncoder().encode('{"kind":"agent.workflow.design"}')},
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
         ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
     try {
       expect(owner.loadDocument).toBeTypeOf('function')
       await owner.loadDocument('agent.workflow.alpha', 'design.json')
       expect(owner.designView.currentRow).toMatchObject({workflowId: 'agent.workflow.alpha', fileName: 'design.json', content: '{"kind":"agent.workflow.design"}'})
-      expect(owner.designView.fieldAccess(owner.designView.currentRow!, 'content')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(owner.designView.fieldAccess(owner.designView.currentRow!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+    } finally {owner.dispose()}
+  })
+
+  it('updates an existing design file through its page DataSet and confirms its exact bytes', async () => {
+    let content = '{"kind":"agent.workflow.design","version":1}'
+    const api = {
+      listFiles: vi.fn(async () => [{name: 'agent.workflow.alpha', lastModified: 1}]),
+      readTextFile: vi.fn(async () => content),
+      readFileBytes: vi.fn(async () => new TextEncoder().encode(content)),
+    }
+    const fileUpload = {uploadWorkingText: vi.fn(async (command: {customPath: string; fileName: string; text: string}) => {
+      content = command.text
+      return {fileName: command.fileName, state: 'success'}
+    })}
+    const ownerInput = {applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}), api, fileUpload,
+      catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}: {scenarioId: string}) => scenarioId === 'CATALOG'
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)}
+    const owner = await createAgentWorkflowFileDataViewOwner(ownerInput)
+    try {
+      await owner.loadDocument('agent.workflow.alpha', 'design.json')
+      const row = owner.designView.currentRow!
+      const id = owner.designView.getPkKey(row)!
+      expect(owner.designView.fieldAccess(row, 'workflowId')).toMatchObject({write: 'denied'})
+      expect(owner.designView.fieldAccess(row, 'fileName')).toMatchObject({write: 'denied'})
+      expect(owner.designView.fieldAccess(row, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+      owner.designView.updateEditingValue(id, 'content', '{"kind":"agent.workflow.design","version":2}')
+
+      const saved = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]})
+
+      expect(saved.success).toBe(true)
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledWith({customPath: 'APP/workflow-designs/agent.workflow.alpha',
+        fileName: 'design.json', text: '{"kind":"agent.workflow.design","version":2}'})
+      expect(api.readFileBytes).toHaveBeenCalledOnce()
+      expect(content).toBe('{"kind":"agent.workflow.design","version":2}')
+      expect(owner.designView.dirtyTracking.hasPendingChanges(id)).toBe(false)
+    } finally {owner.dispose()}
+  })
+
+  it('cancels a dirty design row through its DataView baseline and keeps switching views independent', async () => {
+    const files = new Map([
+      ['design.json', '{"kind":"agent.workflow.design","version":1}'],
+      ['definition.json', '{"kind":"agent.workflow","version":1}'],
+    ])
+    const fileUpload = {uploadWorkingText: vi.fn(async (command: {fileName: string; text: string}) => {
+      files.set(command.fileName, command.text)
+      return {fileName: command.fileName, state: 'success' as const}
+    })}
+    const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
+      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async input => files.get(input.fileName) ?? '',
+        readFileBytes: async input => new TextEncoder().encode(files.get(input.fileName) ?? '')}, fileUpload,
+      catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
+    try {
+      await owner.loadDocument('agent.workflow.alpha', 'design.json')
+      const designId = owner.designView.getPkKey(owner.designView.currentRow!)!
+      owner.designView.updateEditingValue(designId, 'content', '{"kind":"agent.workflow.design","version":2}')
+      expect(owner.designView.hasEditingChanges()).toBe(true)
+      owner.designView.discardPendingChanges([designId])
+      expect(owner.designView.hasEditingChanges()).toBe(false)
+      await owner.loadDocument('agent.workflow.alpha', 'design.json')
+      expect(owner.designView.currentRow?.['content']).toBe(files.get('design.json'))
+
+      await owner.loadDocument('agent.workflow.alpha', 'definition.json')
+      expect(owner.definitionView.currentRow).toMatchObject({fileName: 'definition.json', content: files.get('definition.json')})
+      expect(owner.designView.currentRow?.['content']).toBe(files.get('design.json'))
+      expect(fileUpload.uploadWorkingText).not.toHaveBeenCalled()
+    } finally {owner.dispose()}
+  })
+
+  it('submits a definition-only edit through the definition DataView row', async () => {
+    const files = new Map([
+      ['design.json', '{"kind":"agent.workflow.design","version":1}'],
+      ['definition.json', '{"kind":"agent.workflow","version":1}'],
+    ])
+    const fileUpload = {uploadWorkingText: vi.fn(async (command: {fileName: string; text: string}) => {
+      files.set(command.fileName, command.text)
+      return {fileName: command.fileName, state: 'success' as const}
+    })}
+    const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
+      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async input => files.get(input.fileName) ?? '',
+        readFileBytes: async input => new TextEncoder().encode(files.get(input.fileName) ?? '')}, fileUpload,
+      catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
+    try {
+      await owner.loadDocument('agent.workflow.alpha', 'design.json')
+      await owner.loadDocument('agent.workflow.alpha', 'definition.json')
+      const definitionId = owner.definitionView.getPkKey(owner.definitionView.currentRow!)!
+      owner.definitionView.updateEditingValue(definitionId, 'content', '{"kind":"agent.workflow","version":2}')
+      const saved = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'definition', ids: [definitionId]}]})
+      expect(saved.success).toBe(true)
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledOnce()
+      expect(fileUpload.uploadWorkingText).toHaveBeenCalledWith({customPath: 'APP/workflow-designs/agent.workflow.alpha',
+        fileName: 'definition.json', text: '{"kind":"agent.workflow","version":2}'})
+      expect(owner.designView.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(files.get('design.json')).toBe('{"kind":"agent.workflow.design","version":1}')
     } finally {owner.dispose()}
   })
 })

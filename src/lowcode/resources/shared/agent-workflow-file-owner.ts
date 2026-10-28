@@ -1,7 +1,7 @@
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi, lowcodeDesignFileUpload} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {
   AGENT_WORKFLOW_DATA_SPACE_NAME,
@@ -12,7 +12,7 @@ import {
 } from './agent-workflow-file-resource'
 
 type RequestScope = ReturnType<typeof lowcodeApi.readRequestScope>
-type WorkflowFileApi = Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile'>
+type WorkflowFileApi = Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>
 
 export type AgentWorkflowFileDataViewOwner = Readonly<{
   readonly runtime: PageRuntime
@@ -34,6 +34,7 @@ type OwnerInput = Readonly<{
   applicationId: string
   readScope: () => RequestScope
   api: WorkflowFileApi
+  fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>
   catalogScenarioId: string
   loadScenario: (input: Readonly<{projectId: string; scenarioId: string}>) => Promise<DataSet>
 }>
@@ -48,6 +49,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
   }
   const catalogScenarioId = input?.catalogScenarioId ?? catalogPageData.scenarioId
   const api = input?.api ?? lowcodeApi.design
+  const fileUpload = input?.fileUpload ?? lowcodeDesignFileUpload
   const loadScenario = input?.loadScenario ?? (command => loadLowcodeRuntimeScenario(command))
   const assertCurrent = (): void => {
     const current = readScope()
@@ -96,8 +98,10 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       || !(table.getView('directory') && table.getView('design') && table.getView('definition'))) {
       throw new Error('AGENT_WORKFLOW_FILE_BINDING: 目标空间缺少已注册的文件资源及完整视图')
     }
-    const resource = new AgentWorkflowFileResource({applicationId, api, assertCurrent})
-    for (const view of table.viewList) view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
+    const resource = new AgentWorkflowFileResource({applicationId, api, fileUpload, assertCurrent})
+    for (const view of table.viewList) view.bindQueryExecutor({executeQuery: resource.executeQuery.bind(resource),
+      save: resource.save.bind(resource), hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)},
+    {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
     const directoryView = table.getView('directory')
     const designView = table.getView('design')
     const definitionView = table.getView('definition')

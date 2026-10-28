@@ -1,5 +1,5 @@
 import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { lowcodeApi, lowcodeDesignFileUpload } from '@/lowcode/lowcode-runtime'
 import { LowcodeDataSpaceModelSourceReader } from './model-source/lowcode-data-space-model-source-reader'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { LowcodeDataSpaceViewDesign, type SessionLoadOptions } from './view-design/lowcode-data-space-view-design'
@@ -34,7 +34,7 @@ function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>)
   return new LowcodeDataSpaceViewDesign({
     workspace: getAppProjectBlueprintWorkspace(applicationId), assertScope,
     fileResourceExecutors: Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
-      definition.createExecutor({applicationId, api: lowcodeApi.design, assertCurrent: assertScope})])),
+      definition.createExecutor({applicationId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent: assertScope})])),
     readModel: (input, metadata) => lowcodeApi.dataSpace.design.readModel({
       designScenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: input.scenarioId,
       metaName: input.modelName, assertCurrent: assertScope,

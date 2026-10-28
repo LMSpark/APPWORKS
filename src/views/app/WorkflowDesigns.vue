@@ -1656,6 +1656,7 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
     <el-dialog
       v-if="definitionDialogVisible"
       v-model="definitionDialogVisible"
+      :before-close="beforeCloseDefinitionEditor"
       title="Agent Workflow Definition"
       width="760px"
     >
@@ -1672,11 +1673,12 @@ AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel 
           class="definition-json-input"
           type="textarea"
           :rows="22"
+          :disabled="definitionPendingVerification"
           @input="markDefinitionDirty"
         />
       </div>
       <template #footer>
-        <el-button @click="definitionDialogVisible = false">关闭</el-button>
+        <el-button @click="closeDefinitionEditor">关闭</el-button>
         <el-button
           type="primary"
           :icon="Upload"
@@ -1704,6 +1706,7 @@ import {
   watch,
   type CSSProperties,
 } from 'vue'
+import {onBeforeRouteLeave} from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -1727,6 +1730,7 @@ import '@vue-flow/controls/dist/style.css'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/shared/agent-workflow-file-owner'
+import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 import '@vue-flow/minimap/dist/style.css'
 import {
   ArrowDown,
@@ -1751,7 +1755,7 @@ import {
   createWorkflowDesignNode,
   formatJson,
   isWorkflowDefinitionNotFoundError,
-  markWorkflowDesignDirty,
+  markWorkflowDesignDirty as markWorkflowDesignDirtyBase,
   markWorkflowDesignSaved,
   normalizeWorkflowDesignLineState,
   parseAgentWorkflowDefinitionJson,
@@ -1759,8 +1763,6 @@ import {
   parseWorkflowDesignJson,
   removeWorkflowDesignLine,
   removeWorkflowDesignNode,
-  saveWorkflowDefinition,
-  saveWorkflowDesign,
   updateWorkflowDesignLine,
   workflowDesignLineControlPoints,
   workflowDesignLineType,
@@ -2242,10 +2244,37 @@ const canSaveDefinition = computed(() => (
   && definitionJsonText.value.trim().length > 0
   && !savingDefinition.value
 ))
-const hasUnsavedChanges = computed(() => {
-  const status = currentDocument.value?.x_spark.draft?.['status']
-  return (typeof status === 'string' ? status : 'draft') === 'dirty' || editorDirty.value
+const definitionPendingVerification = computed(() => dataOwner.value?.definitionView.hasUnconfirmedSave ?? false)
+const hasDesignChanges = computed(() => {
+  const view = dataOwner.value?.designView
+  return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
+    || editorDirty.value
 })
+const hasDefinitionChanges = computed(() => {
+  const view = dataOwner.value?.definitionView
+  return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
+    || definitionDirty.value
+})
+const hasUnsavedChanges = computed(() => hasDesignChanges.value || hasDefinitionChanges.value)
+
+function stageDocumentInDataView(document: WorkflowDesignDocument): void {
+  const owner = dataOwner.value
+  const view = owner?.designView
+  const row = view?.currentRow
+  if (!owner || !view || !row || row['workflowId'] !== currentWorkflowId.value
+    || view.fieldAccess(row, 'content').write !== 'allowed') {
+    throw new Error('Workflow design DataView 当前行不可编辑')
+  }
+  const id = view.getPkKey(row)
+  if (id === null || id === undefined) throw new Error('Workflow design DataView 行身份缺失')
+  view.updateEditingValue(id, 'content', formatJson(document))
+}
+
+function markWorkflowDesignDirty(document: WorkflowDesignDocument, path: string): void {
+  if (dataOwner.value?.designView.hasUnconfirmedSave) throw new Error('design.json 提交结果待核验，核验前不能修改 DataView 草稿')
+  markWorkflowDesignDirtyBase(document, path)
+  if (document === currentDocument.value && currentWorkflowId.value) stageDocumentInDataView(document)
+}
 
 watch(
   () => selectedNode.value?.key ?? '',
@@ -2279,6 +2308,7 @@ watch(
 onMounted(async () => {
   window.document.addEventListener('keydown', handleNodeKeyboardMove)
   window.document.addEventListener('keydown', handleControlPointDeleteKey)
+  window.addEventListener('beforeunload', guardBrowserClose)
   loadingList.value = true
   try {
     const owner = await createAgentWorkflowFileDataViewOwner()
@@ -2298,10 +2328,24 @@ onMounted(async () => {
 })
 
 let componentActive = true
+onBeforeRouteLeave(async () => {
+  if (!hasUnsavedChanges.value) return true
+  if (!await confirmDiscardEditorDraft()) return false
+  if (!await confirmDiscardDefinitionDraft()) return false
+  return true
+})
+
+function guardBrowserClose(event: BeforeUnloadEvent): void {
+  if (!hasUnsavedChanges.value) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
 onBeforeUnmount(() => {
   componentActive = false
   window.document.removeEventListener('keydown', handleNodeKeyboardMove)
   window.document.removeEventListener('keydown', handleControlPointDeleteKey)
+  window.removeEventListener('beforeunload', guardBrowserClose)
   stopControlPointDrag()
   stopLayoutResize()
   stopGraphSplitResize()
@@ -4154,20 +4198,47 @@ function applySelectedDraft(options: { silent?: boolean } = {}): boolean {
 async function saveCurrentDesign(): Promise<boolean> {
   const document = currentDocument.value
   if (document === null || currentWorkflowId.value.length === 0) return false
-  if (!applySelectedDraft({ silent: true })) return false
-  normalizeWorkflowDesignLineState(document)
+  const initialOwner = dataOwner.value
+  if (!initialOwner) return false
+  const recovering = initialOwner.designView.hasUnconfirmedSave
+  if (!recovering) {
+    if (!applySelectedDraft({ silent: true })) return false
+    normalizeWorkflowDesignLineState(document)
+  }
 
   saving.value = true
   try {
-    markWorkflowDesignSaved(document)
-    const result = await saveWorkflowDesign(currentWorkflowId.value, document)
-    currentFilename.value = result.filename
-    currentTimestamp.value = result.timestamp
+    const owner = dataOwner.value
+    const row = owner?.designView.currentRow
+    if (!owner || !row || row['workflowId'] !== currentWorkflowId.value) throw new Error('design.json DataView 当前行已变化')
+    const id = owner.designView.getPkKey(row)
+    if (id === null || id === undefined) throw new Error('design.json DataView 行身份缺失')
+    if (!recovering) {
+      markWorkflowDesignSaved(document)
+      stageDocumentInDataView(document)
+    }
+    const result = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]})
+    if (!result.success || owner.designView.hasUnconfirmedSave || owner.designView.dirtyTracking.hasPendingChanges(id)) {
+      throw result.error ?? new Error(result.message ?? 'design.json 保存回执未确认')
+    }
+    const confirmed = owner.designView.currentRow
+    if (!confirmed || confirmed['workflowId'] !== currentWorkflowId.value || typeof confirmed['content'] !== 'string') {
+      throw new Error('design.json 保存回执缺少已确认的 DataView 行')
+    }
+    currentDocument.value = parseWorkflowDesignJson(confirmed['content'])
+    normalizeWorkflowDesignLineState(currentDocument.value)
+    syncWorkflowEditorFromDocument()
+    currentFilename.value = 'design.json'
+    currentTimestamp.value = String(owner.designView.currentRow?.['timestamp'] ?? currentTimestamp.value)
     editorDirty.value = false
     await loadDesigns()
     ElMessage.success('设计稿已保存')
     return true
   } catch (error: unknown) {
+    if (!dataOwner.value?.designView.hasUnconfirmedSave) {
+      markWorkflowDesignDirtyBase(document, 'workflow')
+      try {stageDocumentInDataView(document)} catch { /* Preserve the original save failure. */ }
+    }
     ElMessage.error(`保存失败: ${errorMessage(error)}`)
     return false
   } finally {
@@ -4185,7 +4256,7 @@ async function autoLayoutCurrentDesign(): Promise<void> {
     if (graph.changedNodePositions) markWorkflowDesignDirty(document, `${graph.scopePath}.nodes`)
     if (graph.changedViewport) markWorkflowDesignDirty(document, `${graph.scopePath}.viewport`)
   }
-  if (!result.changed && !hasUnsavedChanges.value) {
+  if (!result.changed && !hasDesignChanges.value) {
     ElMessage.info('当前工作流图已无需自动排版')
     return
   }
@@ -4236,6 +4307,14 @@ async function openDefinitionEditor(): Promise<void> {
 
 function markDefinitionDirty(): void {
   definitionDirty.value = true
+  const view = dataOwner.value?.definitionView
+  if (view?.hasUnconfirmedSave) return
+  const row = view?.currentRow
+  const id = row ? view?.getPkKey(row) : undefined
+  if (view && row && id !== null && id !== undefined && row['workflowId'] === currentWorkflowId.value
+    && row['fileName'] === 'definition.json' && view.fieldAccess(row, 'content').write === 'allowed') {
+    view.updateEditingValue(id, 'content', definitionJsonText.value)
+  }
 }
 
 async function readFreshDesignForDefinitionDraft(workflowId: string): Promise<WorkflowDesignDocument> {
@@ -4243,7 +4322,7 @@ async function readFreshDesignForDefinitionDraft(workflowId: string): Promise<Wo
   if (openedDocument === null) {
     throw new Error('当前设计稿未打开')
   }
-  if (hasUnsavedChanges.value) {
+  if (hasDesignChanges.value) {
     return openedDocument
   }
   try {
@@ -4269,19 +4348,41 @@ async function saveCurrentDefinition(): Promise<void> {
   const workflowId = currentWorkflowId.value
   if (workflowId.length === 0) return
 
-  let definition
-  try {
-    definition = parseAgentWorkflowDefinitionJson(definitionJsonText.value)
-  } catch (error: unknown) {
-    ElMessage.error(`Definition JSON 无效: ${errorMessage(error)}`)
-    return
+  const owner = dataOwner.value
+  const view = owner?.definitionView
+  if (!owner || !view) return
+  const recovering = view.hasUnconfirmedSave
+  let definition: ReturnType<typeof parseAgentWorkflowDefinitionJson> | undefined
+  if (!recovering) {
+    try {
+      definition = parseAgentWorkflowDefinitionJson(definitionJsonText.value)
+    } catch (error: unknown) {
+      ElMessage.error(`Definition JSON 无效: ${errorMessage(error)}`)
+      return
+    }
   }
 
   savingDefinition.value = true
   try {
-    const result = await saveWorkflowDefinition(workflowId, definition)
-    definitionTimestamp.value = result.timestamp
-    definitionJsonText.value = formatJson(definition)
+    const row = view?.currentRow
+    if (!owner || !view || !row || row['workflowId'] !== workflowId || row['fileName'] !== 'definition.json') {
+      throw new Error('definition.json DataView 当前行不存在；本页面不创建文件')
+    }
+    const id = view.getPkKey(row)
+    if (id === null || id === undefined || view.fieldAccess(row, 'content').write !== 'allowed') {
+      throw new Error('definition.json DataView 当前行不可编辑')
+    }
+    if (!recovering && definition !== undefined) view.updateEditingValue(id, 'content', formatJson(definition))
+    const result = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'definition', ids: [id]}]})
+    if (!result.success || view.hasUnconfirmedSave || view.dirtyTracking.hasPendingChanges(id)) {
+      throw result.error ?? new Error(result.message ?? 'definition.json 保存回执未确认')
+    }
+    definitionTimestamp.value = String(view.currentRow?.['timestamp'] ?? definitionTimestamp.value)
+    const confirmed = view.currentRow
+    if (!confirmed || confirmed['workflowId'] !== workflowId || typeof confirmed['content'] !== 'string') {
+      throw new Error('definition.json 保存回执缺少已确认的 DataView 行')
+    }
+    definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(confirmed['content']))
     definitionDirty.value = false
     ElMessage.success('definition.json 已保存')
   } catch (error: unknown) {
@@ -4296,7 +4397,7 @@ async function publishCurrentDefinition(): Promise<void> {
   const workflowId = currentWorkflowId.value
   if (document === null || workflowId.length === 0) return
   if (!applySelectedDraft({ silent: true })) return
-  if (hasUnsavedChanges.value && !await saveCurrentDesign()) return
+  if (hasDesignChanges.value && !await saveCurrentDesign()) return
 
   const definition = createAgentWorkflowDefinitionFromDesign(document)
   if (definition.x_spark.validation.status === 'invalid') {
@@ -4327,6 +4428,15 @@ function resetDefinitionEditor(): void {
   definitionDirty.value = false
 }
 
+async function closeDefinitionEditor(): Promise<void> {
+  if (!await confirmDiscardDefinitionDraft()) return
+  resetDefinitionEditor()
+}
+
+function beforeCloseDefinitionEditor(done: () => void): void {
+  void closeDefinitionEditor().then(() => {if (!definitionDialogVisible.value) done()})
+}
+
 async function copyJson(): Promise<void> {
   if (currentDocument.value === null) return
   try {
@@ -4338,31 +4448,63 @@ async function copyJson(): Promise<void> {
 }
 
 async function confirmDiscardEditorDraft(): Promise<boolean> {
-  if (!hasUnsavedChanges.value) return true
+  if (!hasDesignChanges.value) return true
   try {
     await ElMessageBox.confirm('当前工作流设计有未保存更改，是否继续并丢弃这些更改？', '切换工作流设计', {
       type: 'warning',
       confirmButtonText: '继续',
       cancelButtonText: '取消',
     })
+    const owner = dataOwner.value
+    const view = owner?.designView
+    const row = view?.currentRow
+    const id = row ? view?.getPkKey(row) : undefined
+    if (!owner || !view || !row || id === null || id === undefined || row['workflowId'] !== currentWorkflowId.value) {
+      throw new Error('无法定位当前 design.json DataView 行')
+    }
+    if (view.hasUnconfirmedSave) throw new Error('design.json 提交结果仍未确认，暂不能丢弃')
+    view.discardPendingChanges([id])
+    await owner.loadDocument(currentWorkflowId.value, 'design.json')
+    const baseline = view.currentRow
+    if (!baseline || baseline['workflowId'] !== currentWorkflowId.value || typeof baseline['content'] !== 'string') {
+      throw new Error('重新读取 design.json 基线失败')
+    }
+    currentDocument.value = parseWorkflowDesignJson(baseline['content'])
+    normalizeWorkflowDesignLineState(currentDocument.value)
     editorDirty.value = false
+    syncWorkflowEditorFromDocument()
     return true
-  } catch {
+  } catch (error: unknown) {
+    ElMessage.error(`丢弃设计草稿失败: ${errorMessage(error)}`)
     return false
   }
 }
 
 async function confirmDiscardDefinitionDraft(): Promise<boolean> {
-  if (!definitionDialogVisible.value || !definitionDirty.value) return true
+  const owner = dataOwner.value
+  const view = owner?.definitionView
+  const pending = Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
+  if (!definitionDirty.value && !pending) return true
   try {
     await ElMessageBox.confirm('当前 definition.json 有未保存更改，是否继续并丢弃这些更改？', '切换工作流设计', {
       type: 'warning',
       confirmButtonText: '继续',
       cancelButtonText: '取消',
     })
+    if (view?.hasUnconfirmedSave) throw new Error('definition.json 提交结果仍未确认，暂不能丢弃')
+    const row = view?.currentRow
+    const id = row ? view?.getPkKey(row) : undefined
+    if (view && row && id !== null && id !== undefined && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges(id))) {
+      view.discardPendingChanges([id])
+      if (owner && currentWorkflowId.value) await owner.loadDocument(currentWorkflowId.value, 'definition.json')
+      const baseline = view.currentRow
+      if (baseline && typeof baseline['content'] === 'string') definitionJsonText.value = formatJson(parseAgentWorkflowDefinitionJson(baseline['content']))
+    }
     definitionDirty.value = false
+    definitionDialogVisible.value = false
     return true
-  } catch {
+  } catch (error: unknown) {
+    ElMessage.error(`丢弃 definition 草稿失败: ${errorMessage(error)}`)
     return false
   }
 }

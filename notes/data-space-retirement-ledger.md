@@ -1,5 +1,13 @@
 # 数据空间旧方案删除记录
 
+### 2026-10-28 DevSystem NavHost 与游离 DataSpace 最新 SPA 复核
+
+- **会话与真实入口：**使用用户已提供的测试账号恢复本地 SPA 会话，导航栏显示“王涛”；没有再次索取账号，也没有把密码记入文件。通过 D99 正式路由打开 DevSystem `appworks-tool-dev`，页面明确显示“当前导航未配置项目切换关系”，蓝图为“项目蓝图为空 / 0 页面”。未切换项目、未保存配置或修改业务数据。
+- **游离 DataSpace 证据：**在数据空间目录通过标准目录视图按 `AI` 筛选，UI 显示 `Total 9`。其中“AI助手”正式空间 ID `25F8CEA8B08D00D5C82ECC40E029814D`，设计器只读显示 11 个模型、主业务模型 `AI助手数据`，并提示“尚无视图配置”；查询绑定指向“SPARK 数智化项目管理 / 智能助理”及 `vue:/domains/ai/views/AIAssistantView?context=global`。仓内没有找到该页面实现。按 `项目` 筛选显示 `Total 66`，当前第一页可见记录均标示“未解析应用”；不外推到未显示页。以上证明存在正式 DataSpace 身份和页面绑定但 owner 未解析的配置，不能按名称猜补 owner、scope、视图或权限。
+- **低价模型审计与选择：**`gpt-6-luna` 复核 B1 AI 批量新增会话后，未找到能建立有效 RED 的代码缺陷：候选字段、权限预检、原 DataView 暂存及防止部分追加重放已覆盖。固定 system prompt 仍缺部署映射 Agent 的启用状态及批准提示词版本/摘要正式证据，因此保留为部署合同缺口，不在前端猜造配置。另一低价审计确认 AppList 根 fallback、PlatformApps、project-settings 和跨应用导航各自缺少可证明同范围的正式 DataView owner/scope；不接错应用内 DataView，也不制造 root owner。
+- **交付边界与下一步：**本轮只读 SPA 查询，没有配置写入、条目变更或 Java 修改。详细 UI 事实见 [`dataspace-owner-and-devsystem-live-spa-20261028.md`](evidence/dataspace-owner-and-devsystem-live-spa-20261028.md)。先按活跃页面正式绑定和已解析 owner 建立“DataSpace 身份 → DataView → 消费者 → 权限/回执”映射；DevSystem 项目切换待正式跨项目候选 DataSet/scope/授权合同，不能用当前空关系冒充烟测通过。`AgentWorkflowFiles@directory` 最新 `[1003] 文件夹路径不存在` 仍以 2026-10-28 前条为准。
+- **基线与交付：**本轮开始时产品代码最新提交为 `008af6b36`，台账/证据 HEAD 为 `40c354f6a`，工作树干净且远端同步。此次只增补证据和本台账；交付状态以本轮 Git HEAD 与远端跟踪分支为准。
+
 ### 2026-10-28 认证会话恢复与真实 SPA 复核
 
 - **账号上下文纠正：**用户已在本任务明确提供并授权使用测试账号；本轮不再索取账号。通过当前登录页认证成功，进入 SPARK 应用列表，导航栏显示已登录用户。密码未写入台账、命令输出或代码。
@@ -15,7 +23,7 @@
 - **真实 SPA 边界：**未完成 authenticated SPARK SPA 的文件编辑、DataView 保存及重开读回烟测；IAB `getTab` 返回 `browser.user is unavailable`，桌面窗口当前不是目标 SPARK 标签。本次未在服务端写入 Workflow 文件，也未改、启动或部署 Java。自动化夹具和本地构建不等同真实服务验收。
 - **继续路线：**用户确认可通过数据空间设计补齐游离数据。按当前治理，只能为已确认、服务端承认的 owner 补正式 DataTable / DataView / 参数 / executor 定义；不得凭空制造 owner、scope 或权限。Workflow 文件写入已回到 SPARK data 的 DataView/DataSet 业务链，底层文件 API 只在资源 executor 中执行存储适配。后续仍须在有效 SPARK SPA 会话完成真实读写与重开读回，并继续处理其它游离 owner。
 
-> **当前源码与 SPA 审计覆盖：**产品代码最后变更为 `55ad0a6f3`；此前截至 `dd9f7af22` 的目录 owner、DataView 查询和绕行清单仍以本节与末尾 2026-10-28 审计为准，Workflow 文件可编辑保存新增事实见本节首条。后续依据当前源码、真实 SPA 证据及唯一执行队列持续更新，历史调用点计数不替代当前核验。
+> **当前源码与 SPA 审计覆盖：**截至本条更新，产品代码最后变更为 `008af6b36`，随后只有证据/台账提交，最新提交号以 Git HEAD 为准；此前目录 owner、DataView 查询和绕行清单仍以本节与末尾 2026-10-28 审计为准，Workflow 文件可编辑保存新增事实见本节首条。后续依据当前源码、真实 SPA 证据及唯一执行队列持续更新，历史调用点计数不替代当前核验。
 
 ### 2026-10-28 named-view 测试运行上下文修复
 

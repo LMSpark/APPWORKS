@@ -1,4 +1,5 @@
 import type { LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
@@ -23,6 +24,10 @@ import * as VuePageRegistry from '@/registries/vue-page-registry'
 const applicationCatalogReader = vi.hoisted(() => ({read: vi.fn<(applicationId: string, assertCurrent: () => void) => Promise<unknown>>()}))
 const applicationListReader = vi.hoisted(() => ({read: vi.fn<(assertCurrent: () => void) => Promise<unknown[]>>()}))
 const navigationRootReader = vi.hoisted(() => ({read: vi.fn<(systemId: string, assertCurrent: () => void) => Promise<string>>()}))
+const builtinBlueprintRecords=JSON.parse(readFileSync('notes/evidence/workbench-tool-mapping-20261029/builtin-blueprint-business-records.json','utf8')) as {
+  applicationId:string
+  rows:Array<Record<string,unknown>>
+}
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({ loadLowcodeRuntimeScenario: vi.fn() }))
 vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   readLowcodeApplications: applicationListReader.read,
@@ -215,6 +220,24 @@ describe('project reference application catalog owner', () => {
 
     expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
     expect(blueprint.nodeId).toBe('TARGET-PAGE')
+  })
+
+  it('loads the complete builtin blueprint for a cross-project reference through the existing gateway', async () => {
+    saveExecutionScope('APP-CURRENT')
+    const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
+    const gateway = createLowcodeProjectGateways('APP-CURRENT')
+
+    const blueprint = await gateway.projectReferences.loadProjectBlueprint(builtinBlueprintRecords.applicationId)
+
+    const nodeIds:string[]=[]
+    const collect=(node:typeof blueprint):void=>{
+      nodeIds.push(node.nodeId)
+      for(const child of node.children??[])collect(child as typeof blueprint)
+    }
+    collect(blueprint)
+    expect(nodeIds).toHaveLength(builtinBlueprintRecords.rows.length)
+    expect(new Set(nodeIds)).toEqual(new Set(builtinBlueprintRecords.rows.map(row=>String(row['rowid']))))
+    expect(readBlueprint).not.toHaveBeenCalled()
   })
 })
 

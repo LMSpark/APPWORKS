@@ -1,0 +1,27 @@
+[
+  {
+    "name": "appworks-builtin-blueprint-cross-reference-red-01.log",
+    "bytes": 1262,
+    "sha256": "C5221A1DF72278D7C40B9708DE28F9D3C3A5E82802D715AAEFC67E7C2CDFB701"
+  },
+  {
+    "name": "appworks-builtin-blueprint-cross-reference-red-02.log",
+    "bytes": 1627,
+    "sha256": "43FA6B62799597D0F8810DB4C64439B040898DFAB98DF348AC2B9F52093D6F3D"
+  },
+  {
+    "name": "appworks-builtin-blueprint-root-cross-reference-red.log",
+    "bytes": 1637,
+    "sha256": "0206A42578EB05FA442661E5C9A7A49F630326AD3749C6997CBA452718DE86B1"
+  },
+  {
+    "name": "appworks-builtin-blueprint-dev-owner-red-01.log",
+    "bytes": 8599,
+    "sha256": "E9EAEE69116093A7D3448AEAB85A43E7E95F51A6CEA95EB13C5765163A099405"
+  },
+  {
+    "name": "appworks-builtin-blueprint-root-dev-owner-red.log",
+    "bytes": 8607,
+    "sha256": "088A75DFF3E921B2F849D6D2363582B64278A8B30DD3BFE491464EC9485CC61A"
+  }
+]

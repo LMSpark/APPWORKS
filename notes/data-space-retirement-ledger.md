@@ -78,6 +78,9 @@
 - **完整蓝图来源方向已核：**`builtin-blueprint-source-contract.md` 根据85条真实记录修订。复用同一 navigation resource/path，以单份85 records和仅含身份的现有26 publishedNodeIds替换旧重复节点字段；同源派生主设计树与原运行菜单。7AB新增明确file语义节点DataView，普通动态Base_NavigationInfo模型保留；四处owner、标准字段绑定、AI/引用树/工具依赖必须同源，不能只换主树数组。下一片先验证完整只读消费与旧三文件删除，不把只读阶段冒充完整蓝图编辑/规划/发布；后续写入仍属于整体目标。
 - **发布修复收口验证：**主控独立组合 delivery/文件命令/工具资源为3文件、99/99通过，exit0；其中54项交付覆盖新建身份、只改VersionId、异步改绑/工时草稿保留及原部分成功/未知语义。typecheck、两文件ESLint、完整verify:rules及build退出0，保留AI spec既有2 warnings/1 info和构建分块告警；无公开声明变化，不需要重生成ClassModel。高阶窄复审无阻断，`publication-contract-review.md` 含源码SHA。第一轮夹具双身份失败与证据文件命名规则失败均保留在原始归档，未当有效产品RED或掩为通过。
 - **当前交付边界：**本组产品仅改BlueprintWorkspace发布函数及相应权限门槛，测试夹具从真实ProjectBlueprint投影解析工具身份。真实SPA只核D99完整设计树及动态应用只读加载；未创建工具或执行线上发布，两个抽查应用都没有cfg目标，不能声称真实后端发布已成功。完整85树仓内来源和三文件清理尚未实施，下一步先补其正式资源/owner反例；整体目标保持active。
+- **提交与接续：**发布修复及以上只读取证已提交推送 `90e12efeb3c1d37aae40dfb1072ca43739c9c8cd`，主控核HEAD=origin且提交后工作树干净。源码只两文件，36份诊断/RED/GREEN/工程日志统一归档并附SHA。下一组已派单一写者仅补builtin完整树与跨项目引用有效RED，产品/config/generated及旧三文件删除均未开放；必须先用现有正式入口证明旧DB来源/明确拒绝，不能用缺mock或不存在API伪造失败。
+- **当前现场：**IAB browser 2/tab 4为已授权会话，停在BE7动态应用开发工作台；D99历史烟测tab 3已在清理排版前关闭释放。前端仍为唯一工作树127.0.0.1:5273，Java未操作。后续若句柄失效，在同一浏览器恢复，不重选浏览器或重复索要凭据。
+- **完整蓝图双入口 RED 已独立核：**跨项目经现有 `createLowcodeProjectGateways().projectReferences.loadProjectBlueprint(D99)` 为1失败/46跳过，准确失败于现存 `BUILTIN_BLUEPRINT_SOURCE_UNAVAILABLE`；Dev经 `useDevState → loadBlueprintWorkspaceDataView → owner.loadProjectTree` 为1失败/66跳过，旧DB执行2次且返回2节点冲突树，未得到85身份与原根字段。两组均使用已有公开入口，没有提前注入85数组或导入未实现API。首个cross-reference日志为Vitest证据文件URL夹具错误，已纠正并保留但不计有效RED。主控日志与写者原始输出归档到同 evidence；下一步据冻结合同开放完整来源、只读消费者及替代项清理，随后再逐组验证，不能单独解除guard收工。
 
 ### 2026-10-29 仓内场景写入：已核合同与当前实施范围
 

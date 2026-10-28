@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { effectScope, nextTick, watchEffect } from 'vue'
 import { DataSet } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
@@ -38,6 +39,11 @@ const navTreeState = vi.hoisted(() => ({
 const blueprintRuntime = vi.hoisted(() => ({load:vi.fn()}))
 const blueprintRuntimeTrees = new Map<string,ProjectBlueprintTreeData>()
 const DATA_SPACE_CATALOG_SCENARIO_ID='90A82E287930A234FEC3E687C94A93EA'
+const builtinBlueprintRecords=JSON.parse(readFileSync('notes/evidence/workbench-tool-mapping-20261029/builtin-blueprint-business-records.json','utf8')) as {
+  applicationId:string
+  businessFields:string[]
+  rows:Array<Record<string,unknown>>
+}
 function createDataSpaceCatalogRuntimeDataSet(){
   return DataSet.fromJson({scenarioId:DATA_SPACE_CATALOG_SCENARIO_ID,tables:{Base_DataSet:{
     modelBinding:{modelId:`${DATA_SPACE_CATALOG_SCENARIO_ID}catalog`,modelName:'Base_DataSet'},
@@ -188,6 +194,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
   }}})
   let allPagesRequested=false
+  let queryCount=0
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
   const view=dataSet.getView('Base_NavigationInfo')!
   const result=(selected:Record<string,unknown>[])=>({
@@ -247,6 +254,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
   view.bindQueryExecutor({
     queryColumns:current=>current.columns,
     executeQuery:async(current,params)=>{
+      queryCount++
       allPagesRequested=params.allPages===true
       const matches=(row:Record<string,unknown>,filter:unknown):boolean=>{
         if(filter===null||typeof filter!=='object')return true
@@ -263,7 +271,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     },
     save,hasUnconfirmedSave:()=>unknownReceipt,
   })
-  return {dataSet,readAllPages:()=>allPagesRequested,save}
+  return {dataSet,readAllPages:()=>allPagesRequested,readQueryCount:()=>queryCount,save}
 }
 
 async function requestFullFromGet(config: { url: string }): Promise<Record<string, unknown>> {
@@ -316,6 +324,32 @@ describe('DevState 页面文件闭环', () => {
     blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>
       scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
     vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
+  })
+
+  it('builtin Dev 主树使用完整仓内记录且不查询冲突的 Base_NavigationInfo 数据库树',async()=>{
+    const applicationId=builtinBlueprintRecords.applicationId
+    const conflict=blueprintRoot([{...node('DB-CONFLICT','数据库冲突节点','cfg:db-conflict',applicationId)}],applicationId)
+    conflict.nodeId=applicationId
+    conflict.parentNodeId='000000'
+    conflict.capability.name='数据库冲突根'
+    const fixture=createBlueprintRuntimeDataSet(applicationId,conflict)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:applicationId},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      const tree=await owner.loadProjectTree()
+      const nodes:ProjectBlueprintTreeNodeData[]=[]
+      const collect=(item:ProjectBlueprintTreeNodeData):void=>{nodes.push(item);item.children?.forEach(collect)}
+      collect(tree)
+      expect.soft(fixture.readQueryCount()).toBe(0)
+      expect.soft(nodes).toHaveLength(builtinBlueprintRecords.rows.length)
+      expect.soft(new Set(nodes.map(item=>item.nodeId))).toEqual(new Set(builtinBlueprintRecords.rows.map(row=>String(row['rowid']))))
+      expect.soft(owner.view.rows.find(row=>row['rowid']===applicationId)).toMatchObject({
+        rowid:applicationId,SysId:applicationId,name:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['name'],
+        conType:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['conType'],
+      })
+    }finally{ownerScope.stop()}
   })
 
   it('节点基本信息通过共享 Base_NavigationInfo DataView 保存而不调用 ProjectWorkspace gateway', async () => {

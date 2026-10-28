@@ -4,17 +4,40 @@ import {defineComponent, h, markRaw, ref} from 'vue'
 import ElementPlus, {ElButton, ElInput, ElTable, ElTableColumn} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {FieldCheckbox, PAGE_RUNTIME, RendererSection, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
-import {RequestState} from '@spark-appworks/spark-data'
+import {DataSet, DataView, RequestState} from '@spark-appworks/spark-data'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type {RouteLocationNormalizedLoaded} from 'vue-router'
 import {SystemPageIdentityPool} from '../../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-pool'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import * as lowcodeDataSpaceDesign from '@/lowcode/data-space/lowcode-data-space-design'
+import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {dataSpacePageFixture} from './data-space-page.fixture'
+
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
+vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
+  return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {
+    readRequestScope: () => ({token: 'PAGE-TEST', headers: {'X-AppId': 'APP'}}),
+  })}
+})
+vi.mock('@/services/project/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+  view: DataView
+  constructor(dataSet: DataSet) {this.view = dataSet.getView('Base_NavigationInfo', 'default')!}
+  async loadProjectTree() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  treeProjection() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  dispose() {}
+}}))
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 beforeAll(() => registerAllRenderers())
-beforeEach(() => vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}}))
+beforeEach(() => {
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+  vi.mocked(loadLowcodeRuntimeScenario).mockReset().mockImplementation(async () => DataSet.fromJson({
+    scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},
+  }))
+})
 afterEach(() => {
   wrappers.splice(0).forEach(wrapper => wrapper.unmount())
   runtimes.splice(0).forEach(runtime => runtime.dispose())

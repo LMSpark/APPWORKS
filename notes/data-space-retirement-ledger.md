@@ -1,6 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **当前源码与 SPA 审计覆盖：**产品代码最后变更为 `95cc4d1cb`；目录 owner、DataView 查询和绕行清单以本文件末尾 2026-10-28 最新审计为准，覆盖早期调用点计数及更早的目录按钮观察。台账提交最新为 `c4ab50899`。
+> **当前源码与 SPA 审计覆盖：**产品代码最后变更为 `95cc4d1cb`；目录 owner、DataView 查询和绕行清单以本文件末尾 2026-10-28 最新审计为准，覆盖早期调用点计数及更早的目录按钮观察。台账随本条持续更新。
+
+### 2026-10-28 named-view 测试运行上下文修复
+
+- **根因与修复：**`data-space-view-parameter-input.test.ts` 的 named-view 用例直接挂载 `DataSpaceDesignPage`，未建立页面现在要求的 `X-AppId` 执行作用域和正式蓝图 `Base_NavigationInfo@default` DataView，因而在打开被测设计会话前被守卫拦截。低价实施者只补测试夹具，未改产品代码、未放宽断言。
+- **主控复核：**原失败的 named-view 用例及三个受影响测试文件复跑通过：3 files / 91 tests。`pnpm run typecheck`、目标 ESLint 与 `git diff --check` 均通过。改动仅在 `tests/runtime/page/design/native/data-space-view-parameter-input.test.ts`；本轮产品代码基线不变，未做真实 SPA 认证、业务查询或数据写入，未改/启动 Java。
+- **账号上下文：**用户账号已在本任务提供，不再要求重发。此前服务端对 `wangtao` 的认证失败及剩余次数仍按上方历史事实处理；本轮没有再次尝试认证，也没有把测试夹具通过记作服务端烟测。
 
 > **当前入口（2026-10-28；产品代码基线 `95cc4d1cb`）**：继续按 [SPARK data 元数据平台完整整合计划](#2026-10-24-spark-data-元数据平台完整整合计划) 推进；按复杂度选择低价模型实施，主控复核与烟测；不改、启动或部署后端 Java，业务数据唯一走 SPARK data。用户确认可通过数据空间设计补充正式数据空间定义；适用于已识别且由服务端承认的 DataSet owner，可补模型/字段/视图/参数/executor 注册，不能自行制造 owner、scope 或权限。业务层 owner 的查询/编辑/暂存/保存应收敛到绑定 DataView 的组件与 DataSet 提交；DataView executor 内部的真实资源存储适配可以保留，不构成第二条业务入口。当前源码复核和执行队列依据产品调用链、正式合同、自动化证据及真实 SPA 证据滚动更新；旧条目只保留其发生时的事实。当前源码、唯一执行队列和未完成 SPA/服务验收以本节及第 9 节为准；历史阶段顺序不自动构成派工指令。
 

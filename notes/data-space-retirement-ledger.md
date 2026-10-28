@@ -3115,3 +3115,11 @@ flowchart TD
 - **数据空间设计补全边界复核：**`lowcode-data-space-catalog.ts` 的正式新增链要求 `sysid` 指向当前可读 `Base_AppSystemList.rowid`，并经原 DataView/DataSet 保存；设计器能补已有正式应用 owner 下的模型、字段及视图，但不会创建 tenant/root owner。已识别的 90A8 元数据空间，其候选 DataSpace 完整集合查询仍返回 502、`sysid=homepage` 查询为 0 行，不能将它改作全局项目目录。NavHost 现有 `Base_Navigation_DataRelation` consumer 的正式目标查询也是 0 行，且新增权限/保存回执未证；当前不新增关系或补造视图。
 - **下一解锁项：**优先取得平台应用目录受服务端承认的 root/app-less DataSet owner、请求 scope 和查询权限投影；随后对照目录 DataView 与旧消费者各自的范围、字段权限和保存回执，再按消费者迁移并删掉被替代路径。其他资源按其正式 owner 与拒绝/回执合同独立处理。不能用本地夹具、DataView 包装或数据空间设计来补造服务端身份与授权。
 - **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。定向复核依据：[`tenant-app-catalog-dataspace-owner-feasibility-20261028.md`](evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md)、[`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。
+
+### 2026-10-28 Vue/TS 数据 owner 调用点清册复核
+
+- **扫描范围与结论：**低价模型对当前 `src/**/*.vue`、`src/**/*.ts` 做只读调用点盘点，主控用当前源码独立核对。未发现 Vue/TS 页面直接使用 `axios/fetch/apiClient.request` 发业务数据请求；`CapabilityDemo.vue` 只有注释示例。不能据此宣称全仓无旁路：SPARK 平台 API 与 DataView resource executor 是不同 owner，必须按语义分别列明。
+- **仍需统一评估的应用目录：**`lowcodeApi.platform.listApplications()` 有 5 个生产调用表达式：`AppList.vue` 的无蓝图场景 fallback、`PlatformApps.vue`、`project-settings.ts`、`lowcode-runtime.ts` 跨应用启动导航，以及同文件 `projectReferences.listProjects`。这些提供真实应用目录/项目消费者，继续列作数据游离缺口；正式 tenant/root DataSet owner、请求 scope 与权限投影未确认前不能替换为借用的 app DataView。`lowcode-runtime.ts` 的 `resolveNavigationRootId` 是另一条启动导航控制面读取，单独登记，不能和应用目录视为同一查询。
+- **不应机械改造成业务 DataView 的平台控制面：**登录/注册/验证码、会话/退出、企业管理 API、实时通知确认和缓存运维统计属于认证、平台控制面或运维状态；本次不把它们冒充业务行 CRUD，也不将其与 `listApplications()` 合并统计。应用目录及跨应用项目引用仍按前一项保留，不作豁免。
+- **资源 adapter 与真实缺口：**`src/lowcode/resources/database/database-catalog-preview-view-ops.ts` 的物理 GetData 和 `lowcode-database-dataset-extensions.ts` 的目录/注册/同步等 HTTP 请求位于 DataView 命令 executor 内，不是 Vue 页面第二套提交入口；但物理资源稳定身份、服务端字段授权与真实拒绝/回执仍未证明。文件、pagedata 和模型设计 API 也需区分资源 owner 与业务 DataView，不能只看调用了 HTTP 或 lowcode API 就判定违规。
+- **后续顺序：**先为所有 resource executor 建立“资源语义 → owner → DataView 命令/查询 → 权限/回执 → 页面消费者”逐项清册，再优先取得应用目录正式 root scope；root 合同取得后做旧目录与同 scope DataView 的逐行/字段对照，届时才迁移并删除 5 个消费者中的可等价旧路径。物理数据权限合同及工作流文件目录/字段授权继续按各自条目推进。此次只读核源码，无产品改动、测试或正式数据操作；总体目标保持 active。

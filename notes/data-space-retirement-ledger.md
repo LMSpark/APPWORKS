@@ -2811,3 +2811,9 @@ flowchart TD
 - **工程门禁：**`pnpm run verify:rules` 未通过，停止在既有无关项 `src/views/app/dev-system/nav-host-project-picker/nav-host-project-relation-command.ts:68` 的禁止类型断言；不归因于本切片。production build 有依赖注释、CodeMirror 动态导入和大 chunk 等既有 warning。定向测试、类型检查、改动文件 lint 与 build 结果按上文逐项记录；总体 SPARK data 唯一通道目标继续 active。
 - **后续门禁修复：**针对上一条门禁错误，低价模型把关系字段从 `Object.fromEntries(...) as Partial<DataRow>` 改为有类型的逐字段构造，保留空字段省略、字段权限检查和 DataView.addRow；将唯一 `tests/dev-system` 文件并入既有 `tests/app/dev/nav-host-project-picker/`，满足根测试目录上限。关系命令测试 12/12、`verify:ai-codegen` 检查 1410 文件、typecheck、目标 ESLint、完整 `verify:rules`（ClassModel 4 files / 49 tests、directory limits、page-thin 等）与 production build 全通过。AI model spec 保留 2 warnings / 1 info；构建保留依赖注释、CodeMirror 动态导入和大 chunk warnings。
 - **交付状态：**低价实施、主控复核及烟测完成；Workflow 修复和证据提交 `646fcdaf4fd8abbb585fc271179f299f7fc6e649`、DevSystem gate 修复提交 `80fe082656e8fd6c5a81858576a1649326505f36` 已推送。台账本次当前状态更新随独立文档提交推送；不改 Java。平台 root owner/scope、应用目录旁路、物理表预览权限合同、非空 Workflow/AI 下游验收继续 active。
+
+### 2026-10-28 数据空间设计补齐范围复核
+
+- **根应用目录：**当前无已证实的 root DataSet owner/scope。旧 `listApplications()` 使用固定 `7AB...` FormKey、`Base_AppSystemList`、`Filter:null`，曾返回 61 行；D99 正式 DataView 返回 1 行，不能据此认定范围相同。`90A8` 是元数据目录 owner，`0C70` 是应用管理页场景；现有空间不得代替 `homepage` root owner。找到正式 owner 后，可通过其设计器绑定 `Base_AppSystemList` 并定义经核实的字段、范围、分页 DataView，再对照 61 行及字段权限后迁移消费者。
+- **DevSystem 项目关系：**正式读取 owner `7AB...@Base_Navigation_DataRelation@default` 已确认，模型 26 列、查询 9 行；`prowid=appworks-tool-dev` 当前 0 行。可在此关系 owner 下通过设计器补专用关系视图，但字段可写授权、保存回执/读回及关系所引用候选 DataSpace 的正式范围仍未证实。候选 owner 必须来自真实关系引用及服务端认可的 DataSpace；不能把 `90A8` 的分页目录或 `7AB` 关系模型当成项目候选数据。
+- **实施界线：**设计器负责补齐已识别正式 owner 下的 DataTable/字段/DataView 定义，不能自行创造 root 身份、scope 或授权。SPA 本次只读审计，无设计保存、关系新增、业务行写入或 Java 改动；继续先补身份/权限/回执证据，再实施对应消费者。

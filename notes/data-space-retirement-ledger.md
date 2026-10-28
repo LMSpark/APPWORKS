@@ -3,9 +3,9 @@
 ### 2026-10-28 认证会话恢复与真实 SPA 复核
 
 - **账号上下文纠正：**用户已在本任务明确提供并授权使用测试账号；本轮不再索取账号。通过当前登录页认证成功，进入 SPARK 应用列表，导航栏显示已登录用户。密码未写入台账、命令输出或代码。
-- **真实 SPA 发现：**登录后直接打开先前残留的 `/t/NewApp/homepage/app-list` 路径，页面提示原页面身份已失效；SPA 同时显示 `SCENARIO_VIEW_FILE_MISSING`，指出正式场景 `7AB874097A1E8711A42FD845939A6E05` 尚未建立视图配置。经应用导航重新选择“应用列表”后目录卡片可见；没有创建、切换、设置或删除应用，也没有保存数据。该证据只确认登录和目录页错误提示，不证明 7AB DataView 查询已成功。
-- **正式设计核对：**从 D99“元数据管理”应用中的正式数据空间目录按完整 ID 查询，得到唯一“功能管理”空间记录；通过该记录的“设计”入口打开设计器。画布显示 24 个模型，模型目录显示 `Base_AppSystemList` 的“数据视图（0）”。当前 SPA 设计上下文是 D99；homepage 运行入口此前显示不同的项目身份。源码 `src/lowcode/data-space/lowcode-data-space-runtime.ts:85-100` 显示场景文件由 `createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)` 按项目身份读取，缺文件即 fail closed；因此相同 7AB scenarioId 在不同 projectId 下不构成同一文件 owner。不能据此认定 7AB 是 homepage 的正式资源 owner，也不能把设计文件写入 D99 当作根目录缺失文件的修复。未保存或改动配置。
-- **验收状态：**登录不再是阻塞项；7AB 场景缺少视图配置是当前可复现的 SPA 缺口。后续须通过正式数据空间设计绑定/建立 DataView，并用 DataView 真实查询验证响应范围与字段权限；未完成之前保留原目录路径，不宣称 DataView 迁移完成。未改产品代码、正式数据或 Java。
+- **真实 SPA 根目录复测及前次证据更正：**用已认证会话直接打开干净的 `/t/NewApp/homepage/app-list?__sparkNavigationId=appworks-tenant-app-list`，应用工场目录稳定显示 61 个应用卡片，未出现视图缺失提示。先前 `SCENARIO_VIEW_FILE_MISSING` 与“原页面身份已失效”出现在点击首张卡片“进入应用”之后、路由仍停留 homepage 的跨应用切换过程中；该状态不能作为根目录缺视图的证据。用户未提供过期身份下的写操作，也未创建、设置或删除应用。
+- **正式设计核对：**D99“元数据管理”正式目录按完整 ID 查到唯一“功能管理”空间；设计器画布显示 24 个模型，`Base_AppSystemList` 的数据视图数为 0。该空间归属 D99，不能直接证明 homepage 可用。源码 `vue-pages.json` 将 `/app-list` 注册为 tenant scope，未配置 `blueprintScenarioId`；`AppList.vue::loadProjects()` 在没有场景 ID 时仍调用 `lowcodeApi.platform.listApplications()`。因此干净 homepage 上 61 个卡片确认的是旧目录读取仍可用，不能记成 DataView 成功。数据空间目录在 D99 上下文的应用筛选只列“元数据管理”；未找到 homepage owner 或被服务端认可的根 scope。数据空间运行时按 `(projectId, scenarioId)` 读取场景文件（`src/lowcode/data-space/lowcode-data-space-runtime.ts:85-100`），D99 的 7AB 配置不能替代 homepage owner。
+- **验收状态：**当前可复现缺口是 homepage 应用目录仍依赖 `listApplications()`，而 SPA 未提供已确认的 DataSpace owner / scope / 服务端授权合同来安全迁移；保持现路径，不伪造 DataView owner 或权限。没有正式数据/配置写入，未改 Java。
 
 ### 2026-10-28 Workflow 文件编辑保存走 DataView
 

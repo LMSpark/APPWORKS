@@ -12,10 +12,12 @@
 
 ## 当前配置
 
-- `navigation/vue-pages.json`：系统 Vue 页面声明，作为路由、公共路径、设计器页面选项的配置源。
+- `navigation/vue-pages.json`：Vue 页面组件注册，作为路由组件、公共路径和设计器页面选项的配置源。
+- `applications/appworks.json`：AppWorks builtin system application 的仓内身份、导航资源及已迁入场景资源索引。导航节点来自 `navigation/appworks-system.json`；四个声明场景由仓内 pagedata 唯一供给，其正文经 SPARK data file DataView executor 读取。manifest 只登记资源，不复制导航或场景正文。
+- `navigation/appworks-system.json`：正式核对过的 AppWorks 系统导航节点子集，保留原 node ID、父子层级、顺序和 Vue URL；运行时仍消费后台菜单授权响应，不把仓内程序定义当作数据授权。
 - `schemas/*.schema.json`：配置协议的 JSON Schema。
 
-历史动态页面配置只作为 lowcode 迁移与差分样本保存在 `backend-api-contracts/characterization-fixtures/pages-config/`；运行时一律通过 lowcode 文件 API 读取。样本清单见同目录 `manifest.json`，并由 `pnpm run verify:pages-config` 校验。
+用户动态应用的应用目录记录、导航、页面和场景配置继续由其正式 lowcode 来源提供；AppWorks builtin 应用身份、已登记导航定义和四个场景配置由仓内资源唯一供给，读取失败时不回退到 lowcode 应用/蓝图/场景定义。运行菜单仍依据正式后台授权响应过滤。其余尚未完成来源迁入的系统页面与场景不因此视为已合仓。页面配置样本只作为迁移与差分证据保存在 `backend-api-contracts/characterization-fixtures/pages-config/`，样本清单见同目录 `manifest.json`，并由 `pnpm run verify:pages-config` 校验。
 
 ## 格式约定
 

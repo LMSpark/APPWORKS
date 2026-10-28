@@ -1,0 +1,38 @@
+{
+  "$schema": "../schemas/application-source.schema.json",
+  "protocol": "spark-appworks.application-source",
+  "schemaVersion": 1,
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "applicationName": "软件工坊[AppWorks]",
+  "source": "repository",
+  "navigationResource": {
+    "resourceId": "repository:navigation:appworks-system",
+    "path": "config/navigation/appworks-system.json"
+  },
+  "scenarioResources": [
+    {
+      "name": "dataSpaceDesign",
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "resourceId": "repository:scenario-view:8D1AB14DD8277F3E7017CD38F77B09FD",
+      "path": "config/pages/data-platform/data-space-design/pagedata.json"
+    },
+    {
+      "name": "dataSpaceCatalog",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "resourceId": "repository:scenario-view:90A82E287930A234FEC3E687C94A93EA",
+      "path": "config/pages/data-platform/data-space-catalog/pagedata.json"
+    },
+    {
+      "name": "dataDictionary",
+      "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "resourceId": "repository:scenario-view:69B79AB779DF4C12A5595DACDF3283F1",
+      "path": "config/pages/data-platform/data-dictionary/pagedata.json"
+    },
+    {
+      "name": "projectBlueprint",
+      "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
+      "path": "config/pages/application/project-blueprint/pagedata.json"
+    }
+  ]
+}

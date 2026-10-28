@@ -26,4 +26,4 @@ io/         蓝图/页面/引用 gateway、PageFileApi、PageContentLoader
 | DevSystem / AI | `new ProjectWorkspace`，使用 `project` 编辑蓝图和工具，独立编辑场景配置 |
 | 纯内存 | `new ProjectBlueprint({ projectId })` |
 
-存储分别为正式蓝图记录、工具三文件和 `SysForm/<scenarioId>/pagedata.json` 场景视图配置。运行 DataSet 不落入工具定义。
+存储分别为正式动态蓝图记录、工具三文件和场景视图配置。动态应用的文件仍位于 `SysForm/<scenarioId>/pagedata.json`；AppWorks系统程序的四个登记场景由仓内`config/pages/**/pagedata.json`提供，并经资源DataView读取。运行 DataSet 不落入工具定义。

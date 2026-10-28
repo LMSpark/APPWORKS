@@ -45,7 +45,7 @@
 ### 场景、稳定表名与正式模型分别定位
 
 - **场景**：编辑多视图配置、关系或组件绑定。
-- **规则**：后端正式模型提供字段和查询身份；单场景 SysForm/<scenarioId>/pagedata.json 通过 modelBinding 引用模型并配置稳定 tableName、多 DataView 和 viewCascades。页面完整绑定为 scenarioId@modelName@viewId：正式模型名称取 modelBinding.modelName，本地模型取自身 tableName，重名拒绝；局部 modelName@viewId 只由明确 mainScenarioId 补全，不自动选第一个场景。应用/租户留在请求scope和后端可信目录，不进入业务 JSON。
+- **规则**：后端正式模型提供字段和查询身份；动态单场景 SysForm/<scenarioId>/pagedata.json以及AppWorks四个仓内登记场景都通过modelBinding引用正式模型并配置稳定tableName、多DataView和viewCascades。页面完整绑定为scenarioId@modelName@viewId：正式模型名称取modelBinding.modelName，本地模型取自身tableName，重名拒绝；局部modelName@viewId只由明确mainScenarioId补全，不自动选第一个场景。仓内系统程序配置来源由`config/applications/appworks.json`声明；业务模型、应用/租户身份仍来自正式数据和请求scope，不进入业务JSON。
 - **违反后果**：强制表名等于模型ID、推断场景或在配置重定义字段，会导致双真源及跨场景串用。
 - **发现来源**：DataSet 整合 SPARK 数据空间语义审核及当前运行装配合同。
 

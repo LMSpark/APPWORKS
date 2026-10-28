@@ -1,0 +1,177 @@
+{
+  "date": "2026-10-29",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "applicationModel": {
+    "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+    "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+    "viewId": "catalogApps"
+  },
+  "platformDirectory": {
+    "truncated": false,
+    "hasMore": false,
+    "documents": 0,
+    "remoteProgramFileRequests": 0,
+    "pages": [
+      {
+        "page": {
+          "index": 1,
+          "size": 20
+        },
+        "fields": [
+          "AppType",
+          "publisher_ent",
+          "Memo",
+          "AppDesc",
+          "rowid",
+          "EntId",
+          "WebUrl",
+          "EntShortName",
+          "AppName",
+          "isSass"
+        ],
+        "code": 200,
+        "total": 62,
+        "rows": 20,
+        "memoPresent": 8
+      },
+      {
+        "page": {
+          "index": 2,
+          "size": 20
+        },
+        "fields": [
+          "AppType",
+          "publisher_ent",
+          "Memo",
+          "AppDesc",
+          "rowid",
+          "EntId",
+          "WebUrl",
+          "EntShortName",
+          "AppName",
+          "isSass"
+        ],
+        "code": 200,
+        "total": 62,
+        "rows": 20,
+        "memoPresent": 2
+      },
+      {
+        "page": {
+          "index": 3,
+          "size": 20
+        },
+        "fields": [
+          "AppType",
+          "publisher_ent",
+          "Memo",
+          "AppDesc",
+          "rowid",
+          "EntId",
+          "WebUrl",
+          "EntShortName",
+          "AppName",
+          "isSass"
+        ],
+        "code": 200,
+        "total": 62,
+        "rows": 20,
+        "memoPresent": 8
+      },
+      {
+        "page": {
+          "index": 4,
+          "size": 20
+        },
+        "fields": [
+          "AppType",
+          "publisher_ent",
+          "Memo",
+          "AppDesc",
+          "rowid",
+          "EntId",
+          "WebUrl",
+          "EntShortName",
+          "AppName",
+          "isSass"
+        ],
+        "code": 200,
+        "total": 62,
+        "rows": 2,
+        "memoPresent": 1
+      }
+    ]
+  },
+  "activation": {
+    "truncated": false,
+    "hasMore": false,
+    "documents": 0,
+    "remoteProgramFileRequests": 0,
+    "authorizationCode": 200
+  },
+  "ordinaryDesign": {
+    "targetId": "A651B6600F623DD7F22F127CF3B12B56",
+    "truncated": false,
+    "hasMore": false,
+    "opened": true,
+    "closed": true,
+    "reopened": true,
+    "viewConfigurationAbsent": true,
+    "fileCodes": [
+      {
+        "id": "24344.16836",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      },
+      {
+        "id": "24344.16837",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      },
+      {
+        "id": "24344.16838",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      },
+      {
+        "id": "24344.16839",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      },
+      {
+        "id": "24344.16840",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      },
+      {
+        "id": "24344.16841",
+        "code": 404,
+        "resultType": "undefined",
+        "missing": false
+      }
+    ],
+    "documents": 0
+  },
+  "systemDesign": {
+    "targetId": "7AB874097A1E8711A42FD845939A6E05",
+    "truncated": false,
+    "hasMore": false,
+    "documents": 0,
+    "modelCount": 24,
+    "registeredProgramFileReadRequests": 0,
+    "referenceLayoutReads": [
+      "SysForm/7AB874097A1E8711A42FD845939A6E05.json"
+    ],
+    "screenshot": "spa-system-scene.png"
+  },
+  "noDefinitionOrBusinessWrites": true,
+  "incomplete": [
+    "repository writer/history/readback and builtin tool/project tree definitions remain to implement"
+  ],
+  "interruption": "Earlier ordinary-target window returned to public homepage with truncated capture; cause unproven. A fresh authorized session completed the bounded repeat."
+}

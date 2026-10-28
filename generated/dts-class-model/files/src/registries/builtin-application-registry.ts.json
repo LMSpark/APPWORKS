@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:registries/builtin-application-registry",
+    "sourcePath": "src/registries/builtin-application-registry.ts",
+    "sourceFile": "src/registries/builtin-application-registry.ts",
+    "packageName": "app",
+    "modulePath": "registries/builtin-application-registry",
+    "jsdoc": "app 的 registries/builtin-application-registry 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinScenarioName, BuiltinScenarioResource, BuiltinNavigationResource, BuiltinApplicationDescriptor（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "BuiltinScenarioName",
+      "BuiltinScenarioResource",
+      "BuiltinNavigationResource",
+      "BuiltinApplicationDescriptor"
+    ]
+  },
+  "$defs": {
+    "BuiltinScenarioName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BuiltinScenarioName",
+      "enum": [
+        "dataSpaceDesign",
+        "dataSpaceCatalog",
+        "dataDictionary",
+        "projectBlueprint"
+      ]
+    },
+    "BuiltinScenarioResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuiltinScenarioResource",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/BuiltinScenarioName"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "scenarioId",
+        "resourceId",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "BuiltinNavigationResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuiltinNavigationResource",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "BuiltinApplicationDescriptor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuiltinApplicationDescriptor",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "navigation": {
+          "$ref": "#/$defs/BuiltinNavigationResource"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "navigation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-28T19:14:39.917Z",
+  "models": {
+    "BuiltinScenarioName": {
+      "name": "BuiltinScenarioName",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'dataSpaceDesign'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dataSpaceCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dataDictionary'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'projectBlueprint'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BuiltinScenarioResource": {
+      "name": "BuiltinScenarioResource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: BuiltinScenarioName;\n    scenarioId: string;\n    resourceId: string;\n    path: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: BuiltinScenarioName;\n    scenarioId: string;\n    resourceId: string;\n    path: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BuiltinNavigationResource": {
+      "name": "BuiltinNavigationResource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    path: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    path: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BuiltinApplicationDescriptor": {
+      "name": "BuiltinApplicationDescriptor",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    navigation: BuiltinNavigationResource;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    navigation: BuiltinNavigationResource;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

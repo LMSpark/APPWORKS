@@ -1,0 +1,106 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > passes a separate target app/root while fencing the selected execution scope
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stderr | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > propagates the official authorization failure and releases the temporary resource
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: menu authorization unavailable Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts:66:5
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > propagates the official authorization failure and releases the temporary resource
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects malformed nested menu item in the official authorization response
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects malformed relation context in the official authorization response
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+stderr | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects when the execution application changes during the authorization query
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: NAVIGATION_AUTHORIZATION_SCOPE_STALE: 菜单授权读取期间应用身份已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts:91:5
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects when the execution application changes during the authorization query
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > loads and saves the scene file with the selected appId through the existing request layer
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stderr | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects when the execution navigation root changes during the authorization query
+❌ [DataView] requestData 失败 [NavigationAuthorization@default]: NAVIGATION_AUTHORIZATION_SCOPE_STALE: 菜单授权读取期间应用身份已变化 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at processTicksAndRejections (node:internal/process/task_queues:104:5)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at readNavigationAuthorizationDataView (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/resources/shared/navigation-authorization-resource.ts:24:5)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts:103:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/runtime/auth-nav/data-space/navigation-authorization-resource.test.ts > navigation authorization semantic resource > rejects when the execution navigation root changes during the authorization query
+🐛 [DataView] 销毁 DataView: NavigationAuthorization:default
+
+······stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > keeps registered system scenes on their repository source when a dynamic app executes them
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > host scenario file request wiring > keeps registered system scenes on their repository source when a dynamic app executes them
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles one column from equivalent repeated formal output records
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+···········································stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > sends explicit view cascade constraints through the sole API wire codec
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > does not query a parent or add a filter when the scenario has no view cascade
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > applies an explicit named-view query filter without touching sibling views
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:detail
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:summary
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:detail
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:summary
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps an explicit view cascade when no model relationship exists
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles model-bound views with original private permissions and no CRUD query transforms
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > assembles two independent read-only views for one keyless formal model
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:default
+🐛 [DataView] 销毁 DataView: MODEL-PARENT:selection
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:default
+🐛 [DataView] 销毁 DataView: MODEL-CHILD:selection
+
+stdout | tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts > lowcode data-space DataView runtime > keeps allowAIAdd on formal DataTable columns while every native DataView inherits its output columns
+🐛 [DataView] 销毁 DataView: MODEL-AI:default
+🐛 [DataView] 销毁 DataView: MODEL-AI:selection
+🐛 [DataView] 销毁 DataView: MODEL-AI:default
+🐛 [DataView] 销毁 DataView: MODEL-AI:selection
+
+········
+
+ Test Files  2 passed (2)
+      Tests  57 passed (57)
+   Start at  03:21:34
+   Duration  16.41s (transform 18.00s, setup 468ms, import 17.62s, tests 9.21s, environment 4.12s)

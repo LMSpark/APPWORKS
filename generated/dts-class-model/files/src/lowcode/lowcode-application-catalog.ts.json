@@ -7,11 +7,11 @@
     "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
     "packageName": "app",
     "modulePath": "lowcode/lowcode-application-catalog",
-    "jsdoc": "@module app:lowcode/lowcode-application-catalog\n职责：通过正式应用目录模型装配应用目录运行 DataSet。\n边界：固定目录身份，复用当前登录会话和 SPARK DataView 权限结果；不要求已选应用。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "@module app:lowcode/lowcode-application-catalog\n职责：从正式目录场景配置装配应用目录和导航根 DataView。\n边界：查询字段、分页和排序由仓内场景 DataView 声明；正式应用与导航数据仍由 SPARK data 查询。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-28T15:46:34.978Z",
+  "generatedAt": "2026-10-28T19:03:21.571Z",
   "models": {}
 }

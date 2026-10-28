@@ -12,6 +12,7 @@ import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
+import {isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -87,6 +88,9 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
 export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
+ if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
+  throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
+ }
  const scope = lowcodeApi.readRequestScope()
  const assertCurrent = (): void => {
   if (lowcodeApi.readRequestScope().token !== scope.token || scope.headers['X-AppId'] !== projectId) {

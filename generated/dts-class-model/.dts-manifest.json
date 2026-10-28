@@ -3664,7 +3664,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T11:47:41.828Z"
+      "sourceModifiedAt": "2026-10-28T19:07:35.458Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -3819,7 +3819,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-28T11:55:24.716Z"
+      "sourceModifiedAt": "2026-10-28T17:53:10.052Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -3844,12 +3844,12 @@
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
       "shardFile": "files/src/lowcode/lowcode-application-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-28T15:46:34.978Z"
+      "sourceModifiedAt": "2026-10-28T19:03:21.571Z"
     },
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T15:41:26.029Z"
+      "sourceModifiedAt": "2026-10-28T19:08:20.308Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -3979,7 +3979,7 @@
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
       "shardFile": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
-      "sourceModifiedAt": "2026-10-24T20:18:50.901Z"
+      "sourceModifiedAt": "2026-10-28T17:22:26.373Z"
     },
     "src/lowcode/resources/excel-import/excel-import-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/excel-import/excel-import-design-ops.ts",
@@ -4024,7 +4024,7 @@
     "src/lowcode/resources/shared/agent-workflow-file-owner.ts": {
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
       "shardFile": "files/src/lowcode/resources/shared/agent-workflow-file-owner.ts.json",
-      "sourceModifiedAt": "2026-10-28T03:51:28.345Z"
+      "sourceModifiedAt": "2026-10-28T17:22:30.641Z"
     },
     "src/lowcode/resources/shared/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
@@ -4036,10 +4036,20 @@
       "shardFile": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
       "sourceModifiedAt": "2026-10-24T20:18:50.902Z"
     },
+    "src/lowcode/resources/shared/builtin-system-navigation.ts": {
+      "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+      "shardFile": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json",
+      "sourceModifiedAt": "2026-10-28T17:53:10.096Z"
+    },
     "src/lowcode/resources/shared/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/shared/file-resource-query-parameters.ts",
       "shardFile": "files/src/lowcode/resources/shared/file-resource-query-parameters.ts.json",
       "sourceModifiedAt": "2026-10-27T19:32:44.815Z"
+    },
+    "src/lowcode/resources/shared/navigation-authorization-resource.ts": {
+      "sourceFile": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
+      "shardFile": "files/src/lowcode/resources/shared/navigation-authorization-resource.ts.json",
+      "sourceModifiedAt": "2026-10-28T19:18:18.613Z"
     },
     "src/lowcode/resources/shared/page-tool-files-command.ts": {
       "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
@@ -4050,6 +4060,11 @@
       "sourceFile": "src/lowcode/resources/shared/project-tool-version-resource.ts",
       "shardFile": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json",
       "sourceModifiedAt": "2026-10-27T20:28:16.162Z"
+    },
+    "src/lowcode/resources/shared/repository-scenario-resource.ts": {
+      "sourceFile": "src/lowcode/resources/shared/repository-scenario-resource.ts",
+      "shardFile": "files/src/lowcode/resources/shared/repository-scenario-resource.ts.json",
+      "sourceModifiedAt": "2026-10-28T17:38:36.079Z"
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
@@ -4075,6 +4090,11 @@
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
       "sourceModifiedAt": "2026-10-26T05:11:02.328Z"
+    },
+    "src/registries/builtin-application-registry.ts": {
+      "sourceFile": "src/registries/builtin-application-registry.ts",
+      "shardFile": "files/src/registries/builtin-application-registry.ts.json",
+      "sourceModifiedAt": "2026-10-28T19:14:39.917Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -4284,7 +4304,7 @@
     "src/views/app/dev-system/components/NodeBasicInfo.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
       "shardFile": "files/src/views/app/dev-system/components/NodeBasicInfo.vue.json",
-      "sourceModifiedAt": "2026-10-27T14:00:29.565Z"
+      "sourceModifiedAt": "2026-10-28T17:22:30.643Z"
     },
     "src/views/app/dev-system/components/NodeLayoutConfig.vue": {
       "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
@@ -4369,7 +4389,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-28T07:18:26.697Z"
+      "sourceModifiedAt": "2026-10-28T17:22:30.643Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4874,7 +4894,7 @@
     "src/views/platform/PlatformApps.vue": {
       "sourceFile": "src/views/platform/PlatformApps.vue",
       "shardFile": "files/src/views/platform/PlatformApps.vue.json",
-      "sourceModifiedAt": "2026-10-28T15:25:40.028Z"
+      "sourceModifiedAt": "2026-10-28T19:02:20.887Z"
     },
     "src/views/platform/PlatformTenantManagement.vue": {
       "sourceFile": "src/views/platform/PlatformTenantManagement.vue",
@@ -4889,7 +4909,7 @@
     "src/views/tenant/AppList.vue": {
       "sourceFile": "src/views/tenant/AppList.vue",
       "shardFile": "files/src/views/tenant/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-28T15:25:40.028Z"
+      "sourceModifiedAt": "2026-10-28T19:02:20.888Z"
     },
     "src/views/tenant/AppProjectSettingsDialog.vue": {
       "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",

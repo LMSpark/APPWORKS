@@ -19,6 +19,30 @@
               "direction": "asc"
             }
           ]
+        },
+        "navigationRoot": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 1,
+          "queryConfig": {"fields": ["rowid", "SysId", "prowid"], "allPages": true, "distinct": true, "maxRows": 2},
+          "sortExpression": [{"field": "rowid", "direction": "asc"}]
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+        "modelName": "Base_AppSystemList"
+      },
+      "views": {
+        "default": {"autoLoad": false},
+        "catalogApps": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {"allPages": true, "distinct": true},
+          "sortExpression": [{"field": "rowid", "direction": "asc"}]
         }
       }
     },
@@ -41,6 +65,27 @@
       "views": {
         "default": {
           "autoLoad": false
+        }
+      }
+    },
+    "ProjectToolVersion": {
+      "resourceType": "file",
+      "resourceId": "project:tool-version",
+      "columns": [
+        {"name": "versionKey", "label": "版本身份", "type": "string", "required": true, "isPrimaryKey": true},
+        {"name": "pageId", "label": "工具ID", "type": "string", "required": true},
+        {"name": "fileName", "label": "文件名", "type": "string", "required": true},
+        {"name": "version", "label": "版本号", "type": "number", "required": true},
+        {"name": "snapshotFileName", "label": "快照文件名", "type": "string"},
+        {"name": "lastModified", "label": "修改时间", "type": "number"}
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryContext": {"pageId": "", "fileName": "rule.json"},
+          "queryConfig": {"allPages": true, "maxRows": 50000}
         }
       }
     }

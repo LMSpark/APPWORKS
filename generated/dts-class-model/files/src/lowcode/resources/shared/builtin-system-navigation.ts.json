@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/builtin-system-navigation",
+    "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+    "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/builtin-system-navigation",
+    "jsdoc": "app 的 lowcode/resources/shared/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinSystemNavigation（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "BuiltinSystemNavigation"
+    ]
+  },
+  "$defs": {
+    "NavigationNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "conid": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "Model",
+            "Navitem"
+          ]
+        },
+        "url": {
+          "type": "string"
+        },
+        "publishInMenu": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "parentId",
+        "title",
+        "order",
+        "conid",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "BuiltinSystemNavigation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuiltinSystemNavigation",
+      "properties": {
+        "navigationRootId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/NavigationNode"
+          }
+        }
+      },
+      "required": [
+        "navigationRootId",
+        "nodes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-28T17:53:10.096Z",
+  "models": {
+    "NavigationNode": {
+      "name": "NavigationNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    parentId: string;\n    title: string;\n    order: number;\n    conid: string;\n    kind: 'Model' | 'Navitem';\n    url?: string;\n    publishInMenu?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    parentId: string;\n    title: string;\n    order: number;\n    conid: string;\n    kind: 'Model' | 'Navitem';\n    url?: string;\n    publishInMenu?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "url",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publishInMenu",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BuiltinSystemNavigation": {
+      "name": "BuiltinSystemNavigation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    navigationRootId: string;\n    nodes: readonly NavigationNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    navigationRootId: string;\n    nodes: readonly NavigationNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

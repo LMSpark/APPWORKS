@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spark-appworks.local/schemas/application-source.schema.json",
+  "title": "SPARK AppWorks Application Source Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "protocol": {"const": "spark-appworks.application-source"},
+    "schemaVersion": {"const": 1},
+    "applicationId": {"type": "string", "minLength": 1},
+    "applicationName": {"type": "string", "minLength": 1},
+    "source": {"const": "repository"},
+    "navigationResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resourceId": {"const": "repository:navigation:appworks-system"},
+        "path": {"const": "config/navigation/appworks-system.json"}
+      },
+      "required": ["resourceId", "path"]
+    },
+    "scenarioResources": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint"]},
+          "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
+          "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
+          "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}
+        },
+        "required": ["name", "scenarioId", "resourceId", "path"]
+      }
+    }
+  },
+  "required": ["protocol", "schemaVersion", "applicationId", "applicationName", "source", "navigationResource", "scenarioResources"]
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 981,
+  "scannedFileCount": 985,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13048,8 +13048,8 @@
         "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
         "packageName": "app",
         "modulePath": "lowcode/lowcode-application-catalog",
-        "jsdoc": "@module app:lowcode/lowcode-application-catalog\n职责：通过正式应用目录模型装配应用目录运行 DataSet。\n边界：固定目录身份，复用当前登录会话和 SPARK DataView 权限结果；不要求已选应用。",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdoc": "@module app:lowcode/lowcode-application-catalog\n职责：从正式目录场景配置装配应用目录和导航根 DataView。\n边界：查询字段、分页和排序由仓内场景 DataView 声明；正式应用与导航数据仍由 SPARK data 查询。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
@@ -13616,6 +13616,21 @@
         ]
       }
     },
+    "src/lowcode/resources/shared/builtin-system-navigation.ts": {
+      "file": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/shared/builtin-system-navigation",
+        "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+        "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/shared/builtin-system-navigation",
+        "jsdoc": "app 的 lowcode/resources/shared/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinSystemNavigation（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "BuiltinSystemNavigation"
+        ]
+      }
+    },
     "src/lowcode/resources/shared/file-resource-query-parameters.ts": {
       "file": "files/src/lowcode/resources/shared/file-resource-query-parameters.ts.json",
       "module": {
@@ -13625,6 +13640,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/shared/file-resource-query-parameters",
         "jsdoc": "app 的 lowcode/resources/shared/file-resource-query-parameters 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/shared/navigation-authorization-resource.ts": {
+      "file": "files/src/lowcode/resources/shared/navigation-authorization-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/shared/navigation-authorization-resource",
+        "sourcePath": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
+        "sourceFile": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/shared/navigation-authorization-resource",
+        "jsdoc": "app 的 lowcode/resources/shared/navigation-authorization-resource 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
         "symbols": []
       }
@@ -13660,6 +13688,19 @@
         "symbols": [
           "ProjectToolVersionResource"
         ]
+      }
+    },
+    "src/lowcode/resources/shared/repository-scenario-resource.ts": {
+      "file": "files/src/lowcode/resources/shared/repository-scenario-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/shared/repository-scenario-resource",
+        "sourcePath": "src/lowcode/resources/shared/repository-scenario-resource.ts",
+        "sourceFile": "src/lowcode/resources/shared/repository-scenario-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/shared/repository-scenario-resource",
+        "jsdoc": "app 的 lowcode/resources/shared/repository-scenario-resource 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
       }
     },
     "src/lowcode/resources/shared/staged-design-file-view.ts": {
@@ -13735,6 +13776,24 @@
         "jsdoc": "@module app:main\n职责：提供 src 应用层的 main 能力，连接运行时上下文、视图组件和服务。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。\n\nSPARK 主应用入口\n🎯 设计理念：\n- 100% 声明式配置，0 实现逻辑\n- 配置即文档，所有配置都有类型约束\n- SparkApp.start() 自动处理所有初始化流程\n🔧 技术栈：\n- Vue 3.5 + TypeScript\n- Element Plus + VXE Table\n- SPARK 组件系统 + 动态路由系统\n📦 架构层次（由 SparkApp.start 自动完成）：\n- L1: @spark-appworks/spark-app - 应用基础设施层\n- L2: @spark-appworks/spark-project-model - PageNode 编排层\n- L4-L6: @spark-appworks/spark-component - 组件核心层\n💾 缓存分级过期策略：\n- 默认级别定义：0=永不过期, 1=3天, 2=7天, 3=15天(默认), 4=30天\n- 可在 createFileLoader 配置 expirationTiers 自定义级别\n- 可在 load 时指定 expirationLevel 为单个文件设置级别\n- 示例：\n```ts\n// 全局配置\ncreateFileLoader({\ndefaultExpirationLevel: 3,  // 默认15天\nexpirationTiers: [\n{ level: 0, maxAge: Infinity, description: '永不过期' },\n{ level: 1, maxAge: 3 * 24 * 60 * 60 * 1000 }\n]\n})\n// 单文件配置\nloader.load('/home/pagedata.json', { expirationLevel: 0 })  // 永不过期\nloader.load('/admin/rule.json', { expirationLevel: 1 })     // 3天过期\n```",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "src/registries/builtin-application-registry.ts": {
+      "file": "files/src/registries/builtin-application-registry.ts.json",
+      "module": {
+        "name": "app:registries/builtin-application-registry",
+        "sourcePath": "src/registries/builtin-application-registry.ts",
+        "sourceFile": "src/registries/builtin-application-registry.ts",
+        "packageName": "app",
+        "modulePath": "registries/builtin-application-registry",
+        "jsdoc": "app 的 registries/builtin-application-registry 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinScenarioName, BuiltinScenarioResource, BuiltinNavigationResource, BuiltinApplicationDescriptor（共 4 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "BuiltinScenarioName",
+          "BuiltinScenarioResource",
+          "BuiltinNavigationResource",
+          "BuiltinApplicationDescriptor"
+        ]
       }
     },
     "src/registries/vue-page-registry.ts": {
@@ -17335,6 +17394,26 @@
     "BuiltinActionName": {
       "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
+    },
+    "BuiltinApplicationDescriptor": {
+      "sourcePath": "src/registries/builtin-application-registry.ts",
+      "file": "files/src/registries/builtin-application-registry.ts.json"
+    },
+    "BuiltinNavigationResource": {
+      "sourcePath": "src/registries/builtin-application-registry.ts",
+      "file": "files/src/registries/builtin-application-registry.ts.json"
+    },
+    "BuiltinScenarioName": {
+      "sourcePath": "src/registries/builtin-application-registry.ts",
+      "file": "files/src/registries/builtin-application-registry.ts.json"
+    },
+    "BuiltinScenarioResource": {
+      "sourcePath": "src/registries/builtin-application-registry.ts",
+      "file": "files/src/registries/builtin-application-registry.ts.json"
+    },
+    "BuiltinSystemNavigation": {
+      "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+      "file": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json"
     },
     "ButtonTemplateProps": {
       "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",

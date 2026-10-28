@@ -37,7 +37,7 @@ function appScenario(scenarioId: string, description: string): DataSet {
 describe('AppList formal scenario data binding', () => {
   it('binds the scenario list to its PageRuntime DataView through RendererList', () => {
     expect(source).toContain('scenarioDataViewKey')
-    expect(source).toContain('scenarioId.value}@Base_AppSystemList@default')
+    expect(source).toContain(`scenarioId.value}@Base_AppSystemList@\${scenarioViewId.value}`)
     expect(source).toContain('<RendererList')
     expect(source).toContain(':data-view-key="scenarioDataViewKey"')
     expect(source).toContain('sparkProvide(PAGE_RUNTIME, current)')
@@ -78,7 +78,7 @@ describe('AppList formal scenario data binding', () => {
 
   it('uses the authenticated formal catalog by default and preserves explicit-scenario cancellation/disposal guards', () => {
     expect(source).toContain('loadLowcodeApplicationCatalog()')
-    expect(source).toContain('blueprintScenarioId.value || LOWCODE_APPLICATION_CATALOG_FORM_KEY')
+    expect(source).toContain("blueprintScenarioId.value || getBuiltinScenarioResource('projectBlueprint').scenarioId")
     expect(source).not.toContain('listApplications')
     expect(source).not.toContain('projects.value')
     expect(source).not.toContain('el-row v-else-if')

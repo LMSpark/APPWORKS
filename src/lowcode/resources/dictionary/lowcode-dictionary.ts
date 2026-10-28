@@ -10,8 +10,8 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
-import {loadScenarioDataSet} from '../../data-space/lowcode-data-space-runtime'
-import editorConfig from '../../../../config/pages/data-platform/data-dictionary/pagedata.json'
+import {loadLowcodeRuntimeScenario} from '../../data-space/lowcode-data-space-runtime'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 
 function applicationOptionsView() {
   return {
@@ -25,7 +25,7 @@ function applicationOptionsView() {
 /** 组合根负责scope，页面和专题对象不接触请求凭据。 */
 export class LowcodeDictionary {
   /** 设置与条目已有正式空间的身份，来自已核对的场景配置。 */
-  static readonly editorScenarioId = editorConfig.scenarioId
+  static readonly editorScenarioId = getBuiltinScenarioResource('dataDictionary').scenarioId
 
   /** 为精确字典条目视图装配最窄领域适配；正式轮次与租户Agent由通用应用Host负责。 */
   static createAiDataEntryHost(dataSet: DataSet, workspace: DictionaryWorkspace): AiDataEntryHost {
@@ -111,9 +111,8 @@ export class LowcodeDictionary {
 
   /** 装配字典定义/条目运行空间；目标身份只由调用方的dictionaryId确定。 */
   static async loadEditor(): Promise<Readonly<{dataSet: DataSet}>> {
-    const {assertCurrent} = this.scope()
-    const {dataSet} = await loadScenarioDataSet({scenarioId: this.editorScenarioId,
-      config: new ScenarioViewConfig(this.editorScenarioId, JSON.stringify(editorConfig)), assertCurrent})
+    const {assertCurrent, applicationId} = this.scope()
+    const dataSet = await loadLowcodeRuntimeScenario({projectId: applicationId, scenarioId: this.editorScenarioId})
     try {assertCurrent(); return {dataSet}}
     catch (error) {dataSet.destroy(); throw error}
   }
@@ -165,11 +164,11 @@ export class LowcodeDictionary {
     } catch (error) {dataSet.destroy(); throw error}
   }
 
-  private static scope(): Readonly<{assertCurrent: () => void}> {
+  private static scope(): Readonly<{applicationId: string; assertCurrent: () => void}> {
     const scope = lowcodeApi.readRequestScope()
     const appId = scope.headers['X-AppId']
     if (!appId) throw new Error('请先选择应用')
-    return {assertCurrent: () => {
+    return {applicationId: appId, assertCurrent: () => {
       const current = lowcodeApi.readRequestScope()
       if (current.token !== scope.token || current.headers['X-AppId'] !== appId) throw new Error('字典请求所属应用或登录身份已变化')
     }}

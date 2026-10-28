@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/navigation-authorization-resource",
+    "sourcePath": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
+    "sourceFile": "src/lowcode/resources/shared/navigation-authorization-resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/navigation-authorization-resource",
+    "jsdoc": "app 的 lowcode/resources/shared/navigation-authorization-resource 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-28T19:18:18.613Z",
+  "models": {}
+}

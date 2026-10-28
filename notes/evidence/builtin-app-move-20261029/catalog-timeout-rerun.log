@@ -1,0 +1,181 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > keeps the native 90A catalogApps view required by the catalog host
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > preserves explicit current-row and selection behavior in builtin 7AB catalog views
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects application count while keeping the catalog available
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects application missing while keeping the catalog available
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects application duplicate while keeping the catalog available
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects application wrong-key while keeping the catalog available
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects application non-scalar while keeping the catalog available
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > honors application key/title permissions and does not fall through a masked title
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects an application mismatch before reading formal configuration
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > discards a delayed user lookup after a newer list query
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > loads formal views, retains native values and uses the same view for filtering and paging
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects catalog count failures
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects catalog missing failures
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects catalog duplicate failures
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects catalog wrong-key failures
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects catalog non-scalar failures
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory missing without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory duplicate without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory wrong-key without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory non-scalar without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory conflicting-alias without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects user directory count without claiming list success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > consumes both permissions, rejects ambiguous associations and never uses user permission IDs as business IDs
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > does not query users when source identities are empty or unreadable
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > keeps the newest result after an earlier query success
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > keeps the newest result after an earlier query failure
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > native DataView catalog > rejects stale selected row identities and changed execution scopes
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > saves one original row and consumes the same result after independent reopening
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > creates only the configured fields, then reloads server creator/time
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > cancels a staged create without touching the server or other rows
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > rejects invalid create empty before writing
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > rejects invalid create length before writing
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > rejects invalid create application before writing
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > does not save unchanged edits or expand the editable property set
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > rejects an obsolete query and scope before committing
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > never replays an unknown write and verifies it through the original save entry
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > retains confirmed-write readback failure and retries only the read
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog original-view mutations > keeps add/edit disabled for a formal read-only query
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > uses formal derived views, preserves scope, and resolves complete ancestor paths
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > returns a real empty binding result without querying ancestors
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects missing without publishing a partial binding view
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects cycle without publishing a partial binding view
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects hidden without publishing a partial binding view
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects wrong-app without publishing a partial binding view
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects incomplete page counts instead of treating a truncated ancestor list as complete
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > does not publish delayed bindings after close
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > invalidates paths when the catalog selection or query row changes
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > delegates API information to the existing formal session and always releases it
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog navigation bindings and API information > rejects delayed API text after target changes and releases its original session
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+ × tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection 15042ms
+   → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+ × tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row 15027ms
+   → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > closes a delayed binding query without keeping the list busy or publishing its late error
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > creates through standard bound fields and consumes the saved query result
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > blocks resubmission after an unknown write and offers a read-only reconciliation action
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > renders navigation paths from a bound standard table and releases the views on close
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > copies only the information returned by the formal session
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > opens the original catalog row in a standard bound edit form and cancels without saving
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > does not publish delayed application results after the formal route space changes
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+ × tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only 15026ms
+   → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > retains standard OR/application filters across paging and resets them
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > does not expose hidden/masked fields, permission keys or unresolved creator IDs
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > retries failed application options independently of the list
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > reports missing route metadata without falling back to URL query
+ ↓ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > reports missing formal pagedata rather than a successful empty result
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:349:3
+    347|
+    348| describe('catalog page entry',()=>{
+    349|   it('offers original row actions on the bound row without a prior sel…
+       |   ^
+    350|     const {wrapper,router}=await page(),row=wrapper.get('tbody tr')
+    351|     const design=row.findAll('button').find(item=>item.text()==='设计')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:357:3
+    355|     await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARG…
+    356|   })
+    357|   it('targets the clicked row rather than a different selected row',as…
+       |   ^
+    358|     executeQuery.mockImplementation(async(view:DataView)=>context(view…
+    359|       ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:434:3
+    432|     expect(wrapper.text()).toContain('Current application');expect(wra…
+    433|   })
+    434|   it('binds standard components to the formal route space and opens th…
+       |   ^
+    435|     const {wrapper,router}=await page();expect(loadScenario).toHaveBee…
+    436|     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 61 skipped (64)
+   Start at  03:10:26
+   Duration  55.31s (transform 8.76s, setup 141ms, import 8.67s, tests 45.10s, environment 1.08s)

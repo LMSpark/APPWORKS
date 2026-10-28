@@ -42,7 +42,7 @@ import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
-import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {PageToolFilesDataView,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 import type {PageToolRestoreInput,PageToolSnapshotInput,PageToolSnapshotResult} from '@/lowcode/resources/shared/page-tool-files-command'
@@ -57,7 +57,7 @@ const {
   normalizePageIdFromPath,
   PAGE_TOOL_FILE_NAMES,
 } = ProjectBlueprintDomain
-const DATA_SPACE_CATALOG_SCENARIO_ID = catalogPageData.scenarioId
+const DATA_SPACE_CATALOG_SCENARIO_ID = getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
 
 function createLiveTargetProxy<T extends object>(readTarget: () => T): T {
   const initial = readTarget()

@@ -1,0 +1,252 @@
+{
+  "$schema": "../schemas/system-navigation.schema.json",
+  "protocol": "spark-appworks.system-navigation",
+  "schemaVersion": 1,
+  "navigationRootId": "D99A1DCE9894698799101EFD70F8FC76",
+  "nodes": [
+    {
+      "id": "D99A1DCE9894698799101EFD70F8FC76",
+      "parentId": "000000",
+      "title": "软件工坊[AppWorks]",
+      "order": 0,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "78C58A7FE34F2987267A1E8AF10B2990",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "服务器管理",
+      "order": 1,
+      "conid": "78C58A7FE34F2987267A1E8AF10B2990",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/database-management/ui/service-management-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "348D1C50B204C779AABBE2489C5E2FDF",
+      "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+      "title": "缓存管理",
+      "order": 1,
+      "conid": "348D1C50B204C779AABBE2489C5E2FDF",
+      "kind": "Navitem",
+      "url": "vue:/features/system/cache-management/ui/cache-management-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "A133D679691178F192D7E9DA06829506",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据编码",
+      "order": 1,
+      "conid": "A133D679691178F192D7E9DA06829506",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "数据库管理",
+      "order": 1,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "0C70F74793F9E858B71E0DBDEC784D57",
+      "parentId": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "title": "应用系统列表",
+      "order": 1,
+      "conid": "0C70F74793F9E858B71E0DBDEC784D57",
+      "kind": "Navitem",
+      "url": "vue:/features/application/application-manager/ui/application-manager-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "parentId": "A63ED0065A3692044913565A16E16D67",
+      "title": "JSON数据管理",
+      "order": 1,
+      "conid": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "36B01771C627B9BF5CD493DC75B996A1",
+      "parentId": "A63ED0065A3692044913565A16E16D67",
+      "title": "电子表格导入导出配置",
+      "order": 2,
+      "conid": "36B01771C627B9BF5CD493DC75B996A1",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "28F30060CD75BA684B28EEF07732CB72",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "数据表和视图",
+      "order": 2,
+      "conid": "28F30060CD75BA684B28EEF07732CB72",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "62DB03B06A489600FFF86F3640D5C0E7",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "数据库管理",
+      "order": 2,
+      "conid": "62DB03B06A489600FFF86F3640D5C0E7",
+      "kind": "Navitem",
+      "url": "vue:/DataBaseManage/DataBaseManage/index",
+      "publishInMenu": true
+    },
+    {
+      "id": "EDB0E34486FFB903E896E5C281230961",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据字典",
+      "order": 2,
+      "conid": "EDB0E34486FFB903E896E5C281230961",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "外部服务管理",
+      "order": 2,
+      "conid": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "kind": "Navitem",
+      "url": "vue:/features/integration/api-management/ui/api-management-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "A63ED0065A3692044913565A16E16D67",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "半结构化数据",
+      "order": 3,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "表和视图管理",
+      "order": 3,
+      "conid": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "EB720370EF06A5A656838F87E0716D6B",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "逻辑视图",
+      "order": 3,
+      "conid": "EB720370EF06A5A656838F87E0716D6B",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "BBA48156BAF054754E038C3A4FCBCD65",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "逻辑视图管理",
+      "order": 3,
+      "conid": "BBA48156BAF054754E038C3A4FCBCD65",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "数据资源",
+      "order": 3,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "62DA8FCF193CDF0CBA4464726E76338C",
+      "parentId": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "title": "项目蓝图",
+      "order": 3,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "A2D63AB2AAEF156E7727094A23AEA433",
+      "parentId": "A63ED0065A3692044913565A16E16D67",
+      "title": "PDF效验管理",
+      "order": 3,
+      "conid": "A2D63AB2AAEF156E7727094A23AEA433",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "5E9676B1E38860B023921F48FB4370DE",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据工作流",
+      "order": 4,
+      "conid": "5E9676B1E38860B023921F48FB4370DE",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "E0BB79BA59101F76628F1448D6351B4E",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "数据工作流",
+      "order": 4,
+      "conid": "E0BB79BA59101F76628F1448D6351B4E",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "CB52B21B26AD20AADDC4498613C3078D",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "字典管理",
+      "order": 4,
+      "conid": "CB52B21B26AD20AADDC4498613C3078D",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "C24764B008CAE96205D6AA6C8487FE52",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "结构化配置",
+      "order": 5,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "90A82E287930A234FEC3E687C94A93EA",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "数据空间管理",
+      "order": 6,
+      "conid": "90A82E287930A234FEC3E687C94A93EA",
+      "kind": "Navitem",
+      "url": "vue:/features/data-platform/data-set-management/ui/data-set-list-page",
+      "publishInMenu": true
+    },
+    {
+      "id": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "应用系统管理",
+      "order": 10,
+      "conid": "",
+      "kind": "Model"
+    },
+    {
+      "id": "6DA2948858EE3C55476751E2722EE0B4",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "系统支持管理",
+      "order": 12,
+      "conid": "",
+      "kind": "Model"
+    }
+  ]
+}

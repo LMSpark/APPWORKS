@@ -1,7 +1,7 @@
 import {withDefinitionResources} from '../view-design/definition-resource.fixture'
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, DataView, RequestState} from '@spark-appworks/spark-data'
-import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ProjectWorkspace, type ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
@@ -43,6 +43,15 @@ const initial = JSON.stringify({scenarioId: targetId, tables: {
   Children: {modelBinding: {modelId: 'ChildModel', modelName: 'ChildModel'},
     views: {default: {}, shared: {pageSize: 15}}},
 }, viewCascades: []})
+
+async function formalTargetMetadata(id: string): Promise<DataSet> {
+  const dataSet = DataSet.fromJson({scenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSetName: 'META', tables: {
+    Base_DataSet: {resourceType: 'static-data', columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
+      views: {default: {rows: [{rowid: id}], queryContext: {dataSpaceId: id}}}},
+  }})
+  await dataSet.getView('Base_DataSet', 'default')!.requestData()
+  return dataSet
+}
 
 function model(id: string): FormalModel {
   return {id, name: id, metaName: id, sourceName: id, sourceId: 'DB', sourceType: 'table',
@@ -102,7 +111,7 @@ function fixture(text: string | null = initial) {
         expect(id).toBe(targetId)
         await metadataGate
         if (metadataFailure) throw metadataFailure
-        const dataSet = DataSet.fromJson({scenarioId: 'META', dataSetName: 'META', tables: {}})
+        const dataSet = await formalTargetMetadata(id)
         metadata.push(dataSet)
         return dataSet
       }),
@@ -1179,7 +1188,7 @@ it('persists only captured native changes and keeps later editing values pending
   it("edits model-owned native definitions, saves and reopens through DataView and DataSet", async () => {
     const storage = fixture(), first = storage.openOwner()
     const session = await first.service.openDesignSession(targetId)
-    expect(session.targetId).toBe(targetId); expect(session.metadataDataSet.scenarioId).toBe('META')
+    expect(session.targetId).toBe(targetId); expect(session.metadataDataSet.scenarioId).toBe(DATA_SPACE_DESIGN_FORM_KEY)
     expect(session.definitionDataSet?.scenarioId).toBe(targetId)
     expect(session.definitionDataSet?.getView('Parents', 'shared')?.pageSize).toBe(10)
     expect(session.definitionDataSet?.getView('Children', 'shared')?.pageSize).toBe(15)
@@ -1206,7 +1215,7 @@ it('persists only captured native changes and keeps later editing values pending
   it('keeps formal metadata available when the file is absent and creates only on explicit command', async () => {
     const storage = fixture(null), owner = storage.openOwner()
     const session = await owner.service.openDesignSession(targetId)
-    expect(session.metadataDataSet.scenarioId).toBe('META')
+    expect(session.metadataDataSet.scenarioId).toBe(DATA_SPACE_DESIGN_FORM_KEY)
     expect(session.viewState).toBeNull(); expect(session.definitionDataSet).toBeNull()
     const view = await addViewDefinition(session.metadataDataSet, {...parent, viewId: 'first'})
     expect(storage.stored.has(targetId)).toBe(false); expect(session.viewState).toBeNull()

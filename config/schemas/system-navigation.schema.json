@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spark-appworks.local/schemas/system-navigation.schema.json",
+  "title": "SPARK AppWorks system navigation source",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "protocol": {"const": "spark-appworks.system-navigation"},
+    "schemaVersion": {"const": 1},
+    "navigationRootId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
+          "parentId": {"type": "string", "pattern": "^(?:[A-F0-9]{32}|000000)$"},
+          "title": {"type": "string", "minLength": 1},
+          "order": {"type": "integer"},
+          "conid": {"type": "string"},
+          "kind": {"enum": ["Model", "Navitem"]},
+          "url": {"type": "string", "pattern": "^vue:/"},
+          "publishInMenu": {"type": "boolean"}
+        },
+        "required": ["id", "parentId", "title", "order", "conid", "kind"]
+      }
+    }
+  },
+  "required": ["protocol", "schemaVersion", "navigationRootId", "nodes"]
+}

@@ -10,6 +10,8 @@ import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
+import {readBuiltinSystemNavigation} from '@/lowcode/resources/shared/builtin-system-navigation'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
@@ -213,6 +215,45 @@ describe('project reference application catalog owner', () => {
 
     expect(readBlueprint).toHaveBeenCalledWith('APP-TARGET')
     expect(blueprint.nodeId).toBe('TARGET-PAGE')
+  })
+})
+
+describe('AppWorks builtin navigation authorization projection', () => {
+  it('keeps the existing shell tool group and stable /dev identity', async () => {
+    const applicationId = getBuiltinApplicationDescriptor().id
+    saveExecutionScope(applicationId, applicationId)
+    vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({items: [], contexts: []})
+
+    const first = await readLowcodeRuntimeNavigation()
+    const second = await readLowcodeRuntimeNavigation()
+    const tools = first.items.find(item => item.id === 'appworks-system-tools')
+    const dev = tools?.children?.find(item => item.path === '/dev')
+
+    expect(dev).toMatchObject({id: 'appworks-tool-dev', itemKind: 'system-page', path: '/dev'})
+    expect(second.items.find(item => item.id === 'appworks-system-tools')).toEqual(tools)
+  })
+
+  it('does not promote a partially authorized parent chain into a root system page', async () => {
+    const applicationId = getBuiltinApplicationDescriptor().id
+    saveExecutionScope(applicationId, applicationId)
+    const navigation = await readBuiltinSystemNavigation()
+    const nodesById = new Map(navigation.nodes.map(node => [node.id, node]))
+    const leaf = navigation.nodes.find(node => node.kind === 'Navitem' && node.url?.includes('/table-and-view-page'))
+    if (!leaf) throw new Error('missing registered navigation fixture')
+    const parent = nodesById.get(leaf.parentId)
+    if (!parent) throw new Error('missing immediate parent fixture')
+    const readAuthorization = vi.spyOn(lowcodeApi.blueprint, 'readNavigationAuthorization').mockResolvedValue({
+      items: [
+        {id: parent.id, target: '', targetKind: 'empty', formKey: null, children: []},
+        {id: leaf.id, target: leaf.url!, targetKind: 'vue', formKey: leaf.conid, children: []},
+      ], contexts: [],
+    })
+
+    const result = await readLowcodeRuntimeNavigation()
+
+    expect(readAuthorization).toHaveBeenCalledWith(applicationId, applicationId)
+    expect(result.items.map(item => item.id)).toEqual(['appworks-system-tools'])
+    expect(result.items.some(item => item.id === parent.id)).toBe(false)
   })
 })
 

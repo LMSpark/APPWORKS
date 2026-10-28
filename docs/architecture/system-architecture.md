@@ -4,20 +4,23 @@
 
 ## 定位与边界
 
-AppWorks 是**纯前端**应用：浏览器经同源 `/api` 直连外部 lowcode-jdk17 网关，仓内没有任何服务端。
+AppWorks 是**纯前端**应用：浏览器经同源 `/api` 直连外部 SPARK 服务，仓内没有任何服务端。AppWorks 自身系统程序定义（本仓已登记的应用身份、导航和四个场景配置）来自仓库；用户动态应用的目录记录、蓝图与场景按正式 lowcode 来源读取。
 
 - 开发态：`vite.config.ts` 把 `/api` 代理到环境变量 `LOWCODE_GATEWAY_URL`；该变量缺失时 Vite 直接抛错拒绝启动，不做默认值兜底。
 - 生产态：由部署侧反向代理提供同源 `/api`，前端不感知网关地址。
-- 企业、应用、权限、数据空间、持久会话和 LLM 都在 lowcode 后端；前端只做界面、模型编辑、运行渲染和浏览器内 Agent 工具执行。
+- 企业、正式模型/字段、业务数据、持久会话、运行授权和 LLM 仍由外部服务提供；前端通过 SPARK data API 查询正式数据。仓内导航定义不构成用户授权，运行菜单仍按正式后台授权响应过滤。
 - 本仓不保存平台密钥，也不保存数据库副本。
 
 ## 一条主线
 
 ```mermaid
 flowchart LR
-  Session["lowcode 会话<br/>(企业 + 应用)"] --> Records["项目蓝图记录<br/>Base_NavigationInfo"]
-  Session --> Auth["导航授权证据<br/>GetNavigationMenus"]
-  Records --> Assemble["宿主装配<br/>assembleLowcodeRuntimeNavigation"]
+  Session["lowcode 会话<br/>(企业 + 应用)"] --> Source{"应用程序来源"}
+  Source -->|AppWorks builtin| Local["仓内应用与导航声明"]
+  Source -->|用户动态应用| Records["正式项目蓝图<br/>Base_NavigationInfo"]
+  Session --> Auth["正式导航授权响应"]
+  Local --> Assemble["宿主装配与授权过滤"]
+  Records --> Assemble
   Auth --> Assemble
   Assemble --> Nav["RuntimeNavigation<br/>(壳唯一导航合同)"]
   Nav --> Router["DynamicRouter"]
@@ -28,9 +31,9 @@ flowchart LR
   Scene --> DS["DataSet / DataView<br/>每次调用独立装配"]
 ```
 
-- **项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**运行菜单**只是蓝图经候选筛选与后端授权后的输出。
+- **动态应用项目蓝图**的正式节点种类为 `module/page/embedded/service/content`，唯一种类表是 `spark-utils` 的 `PROJECT_BLUEPRINT_NODE_KINDS`。后端 `conType` 中 `Model/Navitem` 对应 `module/page`；未知值保留为草稿 `unknown`，不能通过正式策划完成校验。**动态运行菜单**只是蓝图经候选筛选与后台授权后的输出。AppWorks builtin 导航定义使用仓内 `config/navigation/appworks-system.json`，并由同一后台授权响应按节点身份过滤；本地定义不包含授权规则。
 - 候选筛选：后端字段 `IsShowAtNav` 为 1 时，wire 层把记录标为 `runtimeNavigationCandidate`；宿主只保留"候选且授权树中存在同一 id"的节点。
-- `PageTool` 仅持有 `rule.json`、`script.js`、`style.css` 三个工具文件。场景视图配置位于 `SysForm/<scenarioId>/pagedata.json`；运行数据依据该配置、正式模型和权限装配，工具不持有业务数据。
+- `PageTool` 仅持有 `rule.json`、`script.js`、`style.css` 三个工具文件。已登记 builtin 场景的 `pagedata.json` 位于仓内 `config/pages/`，由 `applications/appworks.json` 显式映射；动态应用场景仍从其正式 lowcode 文件来源读取。运行数据依据对应场景配置、正式模型和权限装配，工具不持有业务数据。
 
 ## 包分层与依赖方向
 

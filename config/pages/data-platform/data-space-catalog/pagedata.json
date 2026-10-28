@@ -192,9 +192,7 @@
       },
       "views": {
         "default": {},
-        "catalogApps": {
-          "autoLoad": false
-        }
+        "catalogApps": {"autoLoad": false}
       }
     },
     "Base_DataModel": {

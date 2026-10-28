@@ -20,7 +20,7 @@ PageRuntime: 一次工具调用 + 多个独立场景 DataSet
 
 ## 场景与调用
 
-ScenarioViewConfig 校验单场景 tables/modelBinding/views/viewCascades；正式模型字段与关系通过平台读入。ScenarioViewFile 位于 `SysForm/<scenarioId>/pagedata.json`，与 `<appId>/<pageId>` 下工具文件分离。ProjectWorkspace的场景文件方法是底层文件管理能力；数据空间设计页经ScenarioDefinitionResource接入元数据DataSet，查询、编辑、取消和提交使用DataView/DataSet API，资源适配内部才调用文件管理能力。
+ScenarioViewConfig 校验单场景 tables/modelBinding/views/viewCascades；正式模型字段与关系通过平台读入。动态项目的ScenarioViewFile位于`SysForm/<scenarioId>/pagedata.json`，与`<appId>/<pageId>`下工具文件分离。AppWorks系统程序的四个清单场景配置已迁入仓内`config/pages/**/pagedata.json`，不再从远端系统程序目录读取；其他正式业务目标仍使用其原ScenarioViewFile来源。ProjectWorkspace的场景文件方法是底层文件管理能力；数据空间设计页经ScenarioDefinitionResource接入元数据DataSet，目标先由Base_DataSet DataView核实，再经原ProjectWorkspace owner读取，查询、编辑、取消和提交使用DataView/DataSet API。
 
 PageRuntime 构造入口接收 tool 或系统页 pageId（二选一）、scenarioIds、loadScenario，可显式提供 mainScenarioId、instanceId；loadTool 仅用于工具。load() 加载全部声明场景并按需加载工具，拒绝共享 DataSet 和错误身份。工具 materialize() 返回调用内定义并校验视图绑定；系统页没有三文件，读取 tool 或 materialize 明确拒绝。resolveView/getDataSet 只解析本次调用的数据。
 

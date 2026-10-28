@@ -1,0 +1,19 @@
+{
+  "source": "SPA standard data-space list -> design dialog -> metadata DataView",
+  "targetDataSpaceId": "7AB874097A1E8711A42FD845939A6E05",
+  "requestId": "24344.2347",
+  "code": 200,
+  "total": 23,
+  "matched": [
+    {
+      "rowid": "7AB874097A1E8711A42FD845939A6E05p001",
+      "Name": "Base_AppSystemList",
+      "MetaName": "Base_AppSystemList",
+      "dataSetId": "7AB874097A1E8711A42FD845939A6E05",
+      "PrimaryKeyFields": null,
+      "Type": "数据库表",
+      "selfType": "child"
+    }
+  ],
+  "noBusinessOrDefinitionWrites": true
+}

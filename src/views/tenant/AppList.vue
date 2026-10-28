@@ -83,8 +83,8 @@ import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, RendererList, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
-import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
-import { loadLowcodeApplicationCatalog } from '@/lowcode/lowcode-application-catalog'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
 import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
 
 type ProjectItem = {
@@ -113,8 +113,9 @@ const tenantId = computed(() => {
   return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
 })
 const blueprintScenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
-const scenarioId = computed(() => blueprintScenarioId.value || LOWCODE_APPLICATION_CATALOG_FORM_KEY)
-const scenarioDataViewKey = computed(() => `${scenarioId.value}@Base_AppSystemList@default`)
+const scenarioId = computed(() => blueprintScenarioId.value || getBuiltinScenarioResource('projectBlueprint').scenarioId)
+const scenarioViewId = computed(() => blueprintScenarioId.value ? 'default' : 'catalogApps')
+const scenarioDataViewKey = computed(() => `${scenarioId.value}@Base_AppSystemList@${scenarioViewId.value}`)
 
 function projectFromRow(row: DataRow): ProjectItem {
   const view = scenarioView.value
@@ -193,7 +194,7 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
     await current.load()
     if (!active || own !== generation || current.destroyed) { current.dispose(); return }
     const loaded = current.getDataSet(scenarioId)
-    const view = loaded?.getView('Base_AppSystemList', 'default')
+    const view = loaded ? getFormalModelView(loaded, 'Base_AppSystemList', scenarioViewId.value) : undefined
     if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
     if (view.queryConfig.allPages !== true) throw new Error('应用目录 DataView 必须配置 queryConfig.allPages=true，避免静默只显示第一页')
     const update = () => {

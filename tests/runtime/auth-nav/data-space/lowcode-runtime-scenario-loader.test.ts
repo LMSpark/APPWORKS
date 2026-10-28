@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
@@ -63,6 +64,13 @@ function relationFixture(field = 'missing', childModelId = 'CHILD') {
 describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
+
+  it('rejects an undeclared builtin program scene before invoking the dynamic file owner', async () => {
+    await expect(loadLowcodeRuntimeScenario({projectId: getBuiltinApplicationDescriptor().id, scenarioId: 'UNREGISTERED'}))
+      .rejects.toThrow('BUILTIN_SCENARIO_SOURCE_MISSING')
+    expect(mocks.readText).not.toHaveBeenCalled()
+    expect(mocks.request).not.toHaveBeenCalled()
+  })
 
   it('scopes legacy preview model reads after reading real relationships, leaving unrelated bindings untouched', async () => {
     const {text} = relationFixture('rowid')

@@ -1,0 +1,483 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > resolves formal model names through a unique internal table alias
+🐛 [DataView] 销毁 DataView: appDirectoryAlias:default
+🐛 [DataView] 销毁 DataView: appDirectoryAlias:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects duplicate formal model-name bindings instead of choosing a table key
+🐛 [DataView] 销毁 DataView: firstAlias:default
+🐛 [DataView] 销毁 DataView: firstAlias:catalogApps
+🐛 [DataView] 销毁 DataView: secondAlias:default
+🐛 [DataView] 销毁 DataView: secondAlias:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > projects every visible application through one formal DataView and releases the owner
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > projects every visible application through one formal DataView and releases the owner
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > projects readable enterprise metadata and explicit system defaults from the canonical columns
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > projects readable enterprise metadata and explicit system defaults from the canonical columns
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits application description when Memo is unavailable or unreadable
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits application description when Memo is unavailable or unreadable
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits Memo when its DataView field is hidden
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits Memo when its DataView field is hidden
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits Memo when its DataView field is masked
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits Memo when its DataView field is masked
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > uses formal AppDesc, then AppName, then rowid for the application name without inferring metadata
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > uses formal AppDesc, then AppName, then rowid for the application name without inferring metadata
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+·······stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the formal DataView owner when full application catalog query fails
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the formal DataView owner when full application catalog query fails
+❌ [DataView] requestData 失败 [Base_AppSystemList@catalogApps]: catalog query failed Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at Module.readLowcodeApplications (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:209:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:285:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the formal DataView owner when full application catalog query fails
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-success
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-success
+❌ [DataView] requestData 失败 [Base_AppSystemList@catalogApps]: SPARK_EXECUTION_SCOPE_STALE: 运行 owner 所属请求范围已失效 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at Module.readLowcodeApplications (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:209:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:313:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-success
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-failure
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-failure
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+❌ [DataView] requestData 失败 [Base_AppSystemList@catalogApps]: SPARK_EXECUTION_SCOPE_STALE: 运行 owner 所属请求范围已失效 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at Module.readLowcodeApplications (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:209:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:313:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the list reader DataSet when the authenticated session changes during query-failure
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads an exact application id through the shared formal DataView and destroys its DataSet
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads an exact application id through the shared formal DataView and destroys its DataSet
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects duplicate identities from the formal query response and destroys its DataSet
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects duplicate identities from the formal query response and destroys its DataSet
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an application whose id is not readable in the DataView result
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an application whose id is not readable in the DataView result
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits unreadable application name metadata and falls back to the readable rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > omits unreadable application name metadata and falls back to the readable rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an id that is absent from the DataView result
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an id that is absent from the DataView result
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops after metadata becomes stale before the DataView query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a result that became stale during the DataView query and releases its DataSet
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a result that became stale during the DataView query and releases its DataSet
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+··········stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet and preserves query failure from the DataView reader
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet and preserves query failure from the DataView reader
+❌ [DataView] requestData 失败 [Base_AppSystemList@catalogApps]: catalog query failed Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeApplications (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:209:20)
+at Module.readLowcodeApplicationById (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:234:24)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:500:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet and preserves query failure from the DataView reader
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: missing rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: missing rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: non-string rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: non-string rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: empty rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: empty rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: unreadable rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: unreadable rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: duplicate rowid
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects the complete catalog when it contains an invalid identity: duplicate rowid
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > loads the fixed formal space/model and queries through the shared session-only SPARK DataView
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > loads the fixed formal space/model and queries through the shared session-only SPARK DataView
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects stale metadata completion before creating or querying a DataSet
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads the unique navigation root through the formal three-field DataView with backend permissions
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > reads the unique navigation root through the formal three-field DataView with backend permissions
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects zero roots rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects zero roots rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects two roots rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects two roots rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+···········stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects three roots above the DataView cap rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects three roots above the DataView cap rather than choosing the first navigation root
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK 批量查询返回了无效或超限的 total 元数据 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at Module.readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:685:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects three roots above the DataView cap rather than choosing the first navigation root
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose rowid permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose SysId permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is hidden in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root whose prowid permission is masked in the real query response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with wrong system identity
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with wrong system identity
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with non-root parent identity
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a returned row with non-root parent identity
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong model name before returning a root identity
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects missing formal parent field before returning a root identity
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects missing formal parent field before returning a root identity
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects wrong formal data space before returning a root identity
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+············stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a failed root query and releases the assembled DataSet
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a failed root query and releases the assembled DataSet
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: navigation root query failed Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:766:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a failed root query and releases the assembled DataSet
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-success
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-success
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK_EXECUTION_SCOPE_STALE: 运行 owner 所属请求范围已失效 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:784:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-success
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-failure
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-failure
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK_EXECUTION_SCOPE_STALE: 运行 owner 所属请求范围已失效 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:784:7
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root result from a changed session and releases the DataSet during query-failure
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an all-pages query without a backend Count instead of deriving completeness from loaded rows
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an all-pages query without a backend Count instead of deriving completeness from loaded rows
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: 数据资源分页缺少后端总数: Base_NavigationInfo Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:798:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects an all-pages query without a backend Count instead of deriving completeness from loaded rows
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count of two when only one matching row is returned across all pages
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count of two when only one matching row is returned across all pages
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK 批量查询返回缺页或超出页边界的记录 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:812:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count of two when only one matching row is returned across all pages
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count that changes between all-pages reads
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count that changes between all-pages reads
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK 批量查询期间 total 已变化，不能返回部分统计 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:831:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a backend Count that changes between all-pages reads
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > stops on a stale metadata result before the root query
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet when the root query completes after its caller guard becomes stale
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > releases the DataSet when the root query completes after its caller guard becomes stale
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root query when the authenticated session changes during a successful DataView response
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root query when the authenticated session changes during a successful DataView response
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:878:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > rejects a root query when the authenticated session changes during a successful DataView response
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > prefers stale authentication scope over a root DataView query error
+🐛 [DataView] 销毁 DataView: RepositoryScenario:default
+
+stderr | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > prefers stale authentication scope over a root DataView query error
+❌ [DataView] requestData 失败 [Base_NavigationInfo@navigationRoot]: SPARK_EXECUTION_SCOPE_REQUIRED: 数据空间请求需要有效登录身份 Error:
+at run (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1849:21)
+at DataView.requestData (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:1861:7)
+at DataView.requestRefresh (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-data/src/data-view.ts:2120:5)
+at readLowcodeNavigationRootId (C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/src/lowcode/lowcode-application-catalog.ts:111:20)
+at C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts:891:5
+at file:///C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.pnpm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stdout | tests/app/lowcode/resources/application/lowcode-application-catalog.test.ts > authenticated application catalog DataView > prefers stale authentication scope over a root DataView query error
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogBindings
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:navigationRoot
+
+···········
+
+ Test Files  1 passed (1)
+      Tests  51 passed (51)
+   Start at  03:15:29
+   Duration  16.85s (transform 10.49s, setup 165ms, import 14.16s, tests 495ms, environment 1.61s)

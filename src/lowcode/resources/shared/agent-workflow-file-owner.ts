@@ -1,6 +1,6 @@
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import catalogPageData from '../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {lowcodeApi, lowcodeDesignFileUpload} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {
@@ -47,7 +47,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
   if (!applicationId || initialScope.headers['X-AppId'] !== applicationId) {
     throw new Error('SPARK_EXECUTION_SCOPE_STALE: 当前应用身份无效')
   }
-  const catalogScenarioId = input?.catalogScenarioId ?? catalogPageData.scenarioId
+  const catalogScenarioId = input?.catalogScenarioId ?? getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
   const api = input?.api ?? lowcodeApi.design
   const fileUpload = input?.fileUpload ?? lowcodeDesignFileUpload
   const loadScenario = input?.loadScenario ?? (command => loadLowcodeRuntimeScenario(command))

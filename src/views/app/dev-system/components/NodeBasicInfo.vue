@@ -70,9 +70,9 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type { DevState } from '../useDevState'
 import IconPicker from '@/components/IconPicker.vue'
-import catalogPageData from '../../../../../config/pages/data-platform/data-space-catalog/pagedata.json'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 const {FieldSelect, FieldText, FieldTextarea, RendererForm, RendererButton, RendererDialog, RendererFilter, RendererTable} = SparkComponent
-const CATALOG_SCENARIO_ID = catalogPageData.scenarioId
+const CATALOG_SCENARIO_ID = getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
 const catalogViewKey = buildDataViewKey('Base_DataSet', 'catalog', CATALOG_SCENARIO_ID)
 const blueprintViewKey = buildDataViewKey('Base_NavigationInfo', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
 /** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */

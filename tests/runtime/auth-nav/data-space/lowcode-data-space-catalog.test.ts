@@ -1,4 +1,6 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {config,flushPromises,mount} from '@vue/test-utils'
 import {createMemoryHistory,createRouter} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
@@ -115,6 +117,21 @@ beforeEach(()=>{
 })
 afterEach(()=>{disposals.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
 describe('native DataView catalog',()=>{
+  it('keeps the native 90A catalogApps view required by the catalog host',async()=>{
+    const pagedata:unknown=JSON.parse(readFileSync(resolve(process.cwd(),'config/pages/data-platform/data-space-catalog/pagedata.json'),'utf8'))
+    expect(pagedata).toMatchObject({tables:{Base_AppSystemList:{views:{catalogApps:{autoLoad:false}}}}})
+    const value=await owner();await value.initialize()
+    expect(calls('Base_AppSystemList').map(([view])=>view.viewId)).toContain('catalogApps')
+  })
+
+  it('preserves explicit current-row and selection behavior in builtin 7AB catalog views',()=>{
+    const pagedata:unknown=JSON.parse(readFileSync(resolve(process.cwd(),'config/pages/application/project-blueprint/pagedata.json'),'utf8'))
+    expect(pagedata).toMatchObject({tables:{
+      Base_AppSystemList:{views:{catalogApps:{autoCurrentFirst:false,autoSelectFirst:false}}},
+      Base_NavigationInfo:{views:{navigationRoot:{autoCurrentFirst:false,autoSelectFirst:false}}},
+    }})
+  })
+
   it.each(['count','missing','duplicate','wrong-key','non-scalar'] as const)('rejects application %s while keeping the catalog available',async kind=>{
     executeQuery.mockImplementation(async(view:DataView)=>view.tableName!=='Base_AppSystemList'?context(view,defaults[view.tableName]??[]):
       context(view,kind==='missing'?[{AppDesc:'missing'}]:kind==='duplicate'?[{rowid:'DUP'},{rowid:'DUP'}]:

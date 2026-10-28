@@ -1,0 +1,28 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+ × tests/runtime/auth-nav/data-space/scenario-initial-read-red.test.ts > scenario configuration initial DataView read contract > creates and starts the file resource DataView query before the first readText IO 9ms
+   → first file IO must already belong to a native ScenarioConfiguration DataView: expected undefined to be defined
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/scenario-initial-read-red.test.ts > scenario configuration initial DataView read contract > creates and starts the file resource DataView query before the first readText IO
+AssertionError: first file IO must already belong to a native ScenarioConfiguration DataView: expected undefined to be defined
+ ❯ Object.<anonymous> tests/runtime/auth-nav/data-space/scenario-initial-read-red.test.ts:55:100
+     53|         && dataSet.getTable('ScenarioConfiguration')?.resourceType ===…
+     54|       const view = fileDataSet?.getView('ScenarioConfiguration')
+     55|       expect(view, 'first file IO must already belong to a native Scen…
+       |                                                                                                    ^
+     56|       expect(view?.requestState, 'the real DataView query must be in f…
+     57|       return stored
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:97:75
+ ❯ tests/runtime/auth-nav/data-space/scenario-initial-read-red.test.ts:65:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:48:08
+   Duration  4.32s (transform 2.05s, setup 182ms, import 2.62s, tests 10ms, environment 1.17s)

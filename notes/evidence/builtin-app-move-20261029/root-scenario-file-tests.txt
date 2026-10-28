@@ -1,0 +1,76 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-project-model
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > submits shared configuration through native DataSet changes and skips unchanged files
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > notifies subscribers after valid edits, saved baselines, undo and reload
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > marks the submitted text saved while keeping edits made during saving dirty
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > loads a validated saved file and resets history
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+···························································································································stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (missing)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (valid)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > keeps pre-dispatch failures out of unknown and can explicitly adopt remote content
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects an old remote adoption when the same file receives a save receipt while reading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > checks the remote baseline and marks only submitted text saved after readback
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+················································stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > saves and validates exact text without normalizing it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains the submitted baseline when remote readback cannot confirm a write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects another save or forced reload while a save is pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+··············
+
+ Test Files  1 passed (1)
+      Tests  185 passed (185)
+   Start at  03:02:56
+   Duration  3.02s (transform 1.06s, setup 0ms, import 1.39s, tests 276ms, environment 1.03s)

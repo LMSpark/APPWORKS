@@ -150,6 +150,20 @@ function projectionConfig(dataSet: SparkData.DataSet): string {
   return JSON.stringify(config)
 }
 
+function assertFormalTarget(dataSet: SparkData.DataSet, targetId: string, assertCurrent: () => void): void {
+  assertCurrent()
+  const view = dataSet.getView('Base_DataSet', 'default')
+  const rows = view?.rows.filter(row => row['rowid'] === targetId) ?? []
+  const row = rows[0]
+  if (dataSet.destroyed || !view || view.destroyed
+    || view.requestState !== SparkData.RequestState.Loaded || view.rows.length !== view.total || view.total !== 1
+    || view.queryContext['dataSpaceId'] !== targetId || rows.length !== 1 || !row
+    || view.fieldAccess(row, 'rowid').read !== 'visible') {
+    throw new Error('DATA_SPACE_DESIGN_TARGET_UNCONFIRMED: 目标数据空间未由正式Base_DataSet唯一确认')
+  }
+  assertCurrent()
+}
+
 /** The file owns editable definitions; assembled DataSets are disposable projections of its revision. */
 export class LowcodeDataSpaceDesignSession {
   readonly targetId: string
@@ -2712,6 +2726,7 @@ export class LowcodeDataSpaceViewDesign {
     let session: LowcodeDataSpaceDesignSession | undefined
     try {
       this.options.assertScope()
+      assertFormalTarget(metadata, id, this.options.assertScope)
       if (!metadata.scenarioId) throw new Error('DATA_SPACE_DESIGN_METADATA_IDENTITY: 元数据空间缺少身份')
       resource = new ScenarioDefinitionResource({workspace: this.options.workspace,
         metadataScenarioId: metadata.scenarioId, targetScenarioId: id, assertCurrent: this.options.assertScope,

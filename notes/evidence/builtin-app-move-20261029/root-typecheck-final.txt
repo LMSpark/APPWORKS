@@ -1,0 +1,11 @@
+$ vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json
+tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts(406,101): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'Readonly<Record<string, unknown>>'.
+tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts(426,57): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts(429,61): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts(433,54): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts(436,58): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+[ELIFECYCLE] Command failed with exit code 2.

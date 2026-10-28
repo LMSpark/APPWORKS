@@ -1,0 +1,112 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/catalog-baseline-audit/SPARK_AppWorks
+
+-----------------------------------------------stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+xstdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+x-------stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+🐛 [DataView] 销毁 DataView: Base_DataSet:default
+🐛 [DataView] 销毁 DataView: Base_DataSet:catalog
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:default
+🐛 [DataView] 销毁 DataView: Base_AppSystemList:catalogApps
+🐛 [DataView] 销毁 DataView: Base_UserInfo:default
+🐛 [DataView] 销毁 DataView: Base_UserInfo:catalogUsers
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:default
+🐛 [DataView] 销毁 DataView: Base_NavigationInfo:catalogApps
+
+x-----
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > offers original row actions on the bound row without a prior selection
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:332:3
+    330|
+    331| describe('catalog page entry',()=>{
+    332|   it('offers original row actions on the bound row without a prior sel…
+       |   ^
+    333|     const {wrapper,router}=await page(),row=wrapper.get('tbody tr')
+    334|     const design=row.findAll('button').find(item=>item.text()==='设计')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > targets the clicked row rather than a different selected row
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:340:3
+    338|     await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARG…
+    339|   })
+    340|   it('targets the clicked row rather than a different selected row',as…
+       |   ^
+    341|     executeQuery.mockImplementation(async(view:DataView)=>context(view…
+    342|       ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts > catalog page entry > binds standard components to the formal route space and opens the designer in a dialog with the selected target only
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts:417:3
+    415|     expect(wrapper.text()).toContain('Current application');expect(wra…
+    416|   })
+    417|   it('binds standard components to the formal route space and opens th…
+       |   ^
+    418|     const {wrapper,router}=await page();expect(loadScenario).toHaveBee…
+    419|     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 59 skipped (62)
+   Start at  03:11:23
+   Duration  56.78s (transform 10.77s, setup 135ms, import 10.21s, tests 45.08s, environment 1.06s)

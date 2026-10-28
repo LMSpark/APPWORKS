@@ -41,9 +41,9 @@ import {getNavHomePath} from '@spark-appworks/spark-app'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {lowcodeApi, lowcodeEnterpriseDisplayName, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
-import {loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
+import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {buildTenantPath} from '@/services/tenant-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 
@@ -63,7 +63,8 @@ const enterpriseName = computed(() => {
   const enterprise = lowcodeApi.session.get()?.enterprise
   return enterprise ? lowcodeEnterpriseDisplayName(enterprise) : ''
 })
-const catalogKey = buildDataViewKey(MODEL, 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+const catalogScenarioId = getBuiltinScenarioResource('projectBlueprint').scenarioId
+const catalogKey = buildDataViewKey(MODEL, 'catalogApps', catalogScenarioId)
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {dataViewKey: catalogKey, field: 'rowid', label: '项目 ID', width: 190}},
   {type: 'r-text', props: {dataViewKey: catalogKey, field: 'AppDesc', label: '名称', displayFallbackFields: ['AppName', 'rowid'], width: 220}},
@@ -104,12 +105,12 @@ async function loadCatalog(): Promise<void> {
   try {
     const dataSet = await loadLowcodeApplicationCatalog()
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = new PageRuntime({pageId: 'platform-applications', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+    const current = new PageRuntime({pageId: 'platform-applications', scenarioIds: [catalogScenarioId],
       loadScenario: async () => dataSet})
     runtime = current
     await current.load()
     if (!active || own !== generation || current.destroyed) {current.dispose(); return}
-    const dataView = dataSet.getView(MODEL, 'default')
+    const dataView = getFormalModelView(dataSet, MODEL, 'catalogApps')
     if (!dataView || dataView.queryConfig.allPages !== true || dataView.queryConfig.distinct !== true) {
       throw new Error('正式应用目录 DataView 配置无效')
     }

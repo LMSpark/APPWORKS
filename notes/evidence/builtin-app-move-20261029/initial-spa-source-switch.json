@@ -1,0 +1,14 @@
+{
+  "phase": "first frozen source-switch before catalog correction",
+  "truncated": false,
+  "hasMore": false,
+  "documentRequests": 0,
+  "remoteProgramFileRequests": [],
+  "authorizationRequests": [
+    "http://127.0.0.1:5273/api/FormDesign/GetNavigationMenus/D99A1DCE9894698799101EFD70F8FC76/D99A1DCE9894698799101EFD70F8FC76"
+  ],
+  "repositoryRequests": [
+    "http://127.0.0.1:5273/config/navigation/appworks-system.json?import&t=1793208579649&raw"
+  ],
+  "caveat": "Navigation source switch only. Catalog Memo regression was detected and remains under repair; not final acceptance."
+}

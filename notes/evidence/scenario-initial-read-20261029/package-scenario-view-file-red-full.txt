@@ -1,0 +1,211 @@
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/packages/spark-project-model
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > submits shared configuration through native DataSet changes and skips unchanged files
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+····························································································stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > notifies subscribers after valid edits, saved baselines, undo and reload
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > marks the submitted text saved while keeping edits made during saving dirty
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ScenarioViewFile > loads a validated saved file and resets history
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > preflights an explicit create through a real read-only file DataView query
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > preflights an explicit create through a real read-only file DataView query
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+··························································xxxxstdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects a reload when the old file is edited while the replacement DataView query is in flight
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (missing)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > only cancels native edits after all remote checks succeed (valid)
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains an unknown first write across later edits and confirms its exact remote submission
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > keeps pre-dispatch failures out of unknown and can explicitly adopt remote content
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > invalidates a discarded missing-file draft so old consumers cannot edit it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects an old remote adoption when the same file receives a save receipt while reading
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > requires explicit creation after verified absence and confirms its real first write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > cannot create over an existing file or save over an externally created file
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > checks the remote baseline and marks only submitted text saved after readback
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+xxx·····················stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > saves and validates exact text without normalizing it
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > retains the submitted baseline when remote readback cannot confirm a write
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects another save or forced reload while a save is pending
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+stdout | tests/scenario/scenario-view-file.test.ts > ProjectWorkspace shared scenario versions > rejects snapshots for dirty or not-yet-persisted drafts
+🐛 [DataView] 销毁 DataView: ScenarioConfiguration:default
+
+··············
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > runs the first read through the real file DataView and distinguishes missing from create
+AssertionError: expected [Function] to throw error including 'SCENARIO_VIEW_FILE_MISSING' but got 'file DataView exists before gateway r…'
+
+Expected: "SCENARIO_VIEW_FILE_MISSING"
+Received: "file DataView exists before gateway read: expected undefined to be defined"
+
+ ❯ tests/scenario/scenario-view-file.test.ts:1079:75
+    1077|         return null
+    1078|       })
+    1079|       await expect(workspace.loadScenarioViews({scenarioId: 'UNIT-SCEN…
+       |                                                                           ^
+    1080|       expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+    1081|       expect(readText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > keeps executor IO failures on the DataView query path and releases the failed load
+AssertionError: expected AssertionError: file DataView exists befo… { …(4) } to be Error: scenario file transport failed // Object.is equality
+
+- Expected
++ Received
+
+- Error {
+-   "message": "scenario file transport failed",
++ AssertionError {
++   "message": "file DataView exists before gateway read: expected undefined to be defined",
++   "actual": undefined,
++   "expected": undefined,
++   "showDiff": false,
++   "operator": "strictEqual",
+  }
+
+ ❯ tests/scenario/scenario-view-file.test.ts:1096:75
+    1094|         throw failure
+    1095|       })
+    1096|       await expect(workspace.loadScenarioViews({scenarioId: 'UNIT-SCEN…
+       |                                                                           ^
+    1097|       const view = observed.view('UNIT-SCENE')
+    1098|       expect(view).toBeDefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects a query that returns after scope changes and does not publish its file
+AssertionError: expected [Function] to throw error including 'SCENARIO_VIEW_SCOPE_STALE' but got 'file DataView exists before gateway r…'
+
+Expected: "SCENARIO_VIEW_SCOPE_STALE"
+Received: "file DataView exists before gateway read: expected undefined to be defined"
+
+ ❯ tests/scenario/scenario-view-file.test.ts:1119:27
+    1117|       setScope('request-b')
+    1118|       waiting.resolve(fixture())
+    1119|       await expect(loading).rejects.toThrow('SCENARIO_VIEW_SCOPE_STALE…
+       |                           ^
+    1120|       expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+    1121|     } finally {observed.restore()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > does not install a query result after the workspace is disposed
+AssertionError: expected [Function] to throw error including 'PROJECT_WORKSPACE_DISPOSED' but got 'file DataView exists before gateway r…'
+
+Expected: "PROJECT_WORKSPACE_DISPOSED"
+Received: "file DataView exists before gateway read: expected undefined to be defined"
+
+ ❯ tests/scenario/scenario-view-file.test.ts:1140:27
+    1138|       workspace.dispose()
+    1139|       waiting.resolve(fixture())
+    1140|       await expect(loading).rejects.toThrow('PROJECT_WORKSPACE_DISPOSE…
+       |                           ^
+    1141|     } finally {observed.restore()}
+    1142|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > preflights an explicit create through a real read-only file DataView query
+AssertionError: create preflight has a file DataView before gateway read: expected undefined to be defined
+ ❯ Object.<anonymous> tests/scenario/scenario-view-file.test.ts:1150:82
+    1148|       readText.mockImplementationOnce(async scenarioId => {
+    1149|         const view = observed.view(scenarioId)
+    1150|         expect(view, 'create preflight has a file DataView before gate…
+       |                                                                                  ^
+    1151|         expect(view?.requestState).toBe(RequestState.Loading)
+    1152|         return null
+ ❯ ProjectWorkspace.createScenarioViews src/project/project-workspace.ts:238:56
+ ❯ tests/scenario/scenario-view-file.test.ts:1154:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > uses a distinct DataView query for each explicit target space
+AssertionError: target file DataView exists before gateway read: expected undefined to be defined
+ ❯ Object.<anonymous> tests/scenario/scenario-view-file.test.ts:1168:73
+    1166|       readText.mockImplementation(async scenarioId => {
+    1167|         const view = observed.view(scenarioId)
+    1168|         expect(view, 'target file DataView exists before gateway read'…
+       |                                                                         ^
+    1169|         expect(view?.requestState).toBe(RequestState.Loading)
+    1170|         return scenarioId === 'OTHER-SPACE' ? targetText : fixture()
+ ❯ ProjectWorkspace.readScenarioViews src/project/project-workspace.ts:247:54
+ ❯ ProjectWorkspace.loadScenarioViews src/project/project-workspace.ts:224:26
+ ❯ tests/scenario/scenario-view-file.test.ts:1172:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/scenario/scenario-view-file.test.ts > ProjectWorkspace scenario files > rejects a reload when the old file is edited while the replacement DataView query is in flight
+AssertionError: expected [Function] to throw error including 'SCENARIO_VIEW_UNSAVED' but got 'replacement query owns a new file Dat…'
+
+Expected: "SCENARIO_VIEW_UNSAVED"
+Received: "replacement query owns a new file DataView: expected undefined to be defined"
+
+ ❯ tests/scenario/scenario-view-file.test.ts:1196:26
+    1194|       file.setText(fixture(40))
+    1195|       waiting.resolve(fixture(50))
+    1196|       await expect(reload).rejects.toThrow('SCENARIO_VIEW_UNSAVED')
+       |                          ^
+    1197|       expect(workspace.getScenarioViews('UNIT-SCENE')).toBe(file)
+    1198|       expect(file.getText()).toBe(fixture(40))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 185 passed (192)
+   Start at  00:47:58
+   Duration  4.33s (transform 1.50s, setup 0ms, import 1.96s, tests 395ms, environment 1.45s)
+
+undefined
+C:\Users\lgf22\.codex\worktrees\ai-data-entry\SPARK_AppWorks\packages\spark-project-model:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run tests/scenario/scenario-view-file.test.ts "--reporter=dot"

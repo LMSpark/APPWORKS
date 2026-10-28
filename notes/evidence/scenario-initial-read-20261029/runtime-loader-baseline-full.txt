@@ -1,0 +1,533 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > scopes legacy preview model reads after reading real relationships, leaving unrelated bindings untouched
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetTableField' before translating fields
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+🐛 [DataView] 销毁 DataView: TaxAlias:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetRefData' before translating fields
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+🐛 [DataView] 销毁 DataView: TaxAlias:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetGroupData' before translating fields
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+🐛 [DataView] 销毁 DataView: TaxAlias:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetExpData' before translating fields
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+🐛 [DataView] 销毁 DataView: TaxAlias:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > validates the selected table before reading sources and preserves relevant translation diagnostics
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads only formal bindings while assembling declared file resources (file only: false)
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+🐛 [DataView] 销毁 DataView: FileDefinitions:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads only formal bindings while assembling declared file resources (file only: true)
+🐛 [DataView] 销毁 DataView: FileDefinitions:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: false)
+🐛 [DataView] 销毁 DataView: PARENT:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: true)
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+
+stdout | tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects and destroys incomplete runtime assembly while retaining design diagnostics and the source definition
+🐛 [DataView] 销毁 DataView: PARENT:default
+🐛 [DataView] 销毁 DataView: CHILD:default
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > scopes legacy preview model reads after reading real relationships, leaving unrelated bindings untouched 18ms
+   → expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetTableField' before translating fields 4ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetRefData' before translating fields 2ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetGroupData' before translating fields 2ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > includes the third formal model referenced by 'GetExpData' before translating fields 2ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > stops scoped model reads if the calling scope changes while legacy relationships load 2ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > validates the selected table before reading sources and preserves relevant translation diagnostics 1ms
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads only formal bindings while assembling declared file resources (file only: false) 2ms
+   → expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads only formal bindings while assembling declared file resources (file only: true) 1ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects a missing file owner before starting model or space reads 1ms
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > injects the registered Workflow file executor through formal runtime loading 2ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > consumes saved native relationships without reading legacy records (empty: false) 1ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > consumes saved native relationships without reading legacy records (empty: true) 1ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: false) 2ms
+   → expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -4,6 +4,7 @@
+      "designScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaNames": [
+        "PARENT",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: true) 2ms
+   → expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads a reused model once in the requested scenario batch and keeps independent named views 2ms
+   → expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects and destroys incomplete runtime assembly while retaining design diagnostics and the source definition 3ms
+   → expected [Function] to throw error matching /SCENARIO_ASSEMBLY_INCOMPLETE.*SCENE.…/s but got '[vitest] No "lowcodeDesignFileUpload"…'
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads resolved relationships without false incompleteness errors 1ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads outside relationships without false incompleteness errors 0ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > keeps a failed PageRuntime unloaded and allows a fresh assembly after the relation is repaired 6ms
+   → expected [Function] to throw error including 'SCENARIO_ASSEMBLY_INCOMPLETE' but got '[vitest] No "lowcodeDesignFileUpload"…'
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects when the request application differs from the page project 1ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects when the request identity changes while reading the scenario file 0ms
+ ✓ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects a missing scenario view file without reading formal models 0ms
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads formal space even when no tables are configured, keeping scenario identity separate from Name 0ms
+   → [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ × tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects a formal space result returned after request scope changed 1009ms
+   → expected "vi.fn()" to be called once, but got 0 times
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > scopes legacy preview model reads after reading real relationships, leaving unrelated bindings untouched
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:75:36
+     73|     try {
+     74|       expect(mocks.readRelations).toHaveBeenCalledOnce()
+     75|       expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({de…
+       |                                    ^
+     76|         dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']})
+     77|       expect(result.dataSet.getTable('Unavailable')).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads only formal bindings while assembling declared file resources (file only: false)
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:141:41
+    139|     try {
+    140|       if (fileOnly) expect(mocks.readModelBatch).not.toHaveBeenCalled()
+    141|       else expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWit…
+       |                                         ^
+    142|         dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']})
+    143|       expect(mocks.readSpaceDefinition).toHaveBeenCalledOnce()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > injects the registered Workflow file executor through formal runtime loading
+Error: [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lowcode/lowcode-runtime"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ src/lowcode/data-space/lowcode-data-space-runtime.ts:124:92
+    122|  }) : []
+    123|  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOU…
+    124|   definition.createExecutor({applicationId: projectId, api: lowcodeApi…
+       |                                                                                            ^
+    125|  if (!declared.length && !hasReference && !toolTables.length) return r…
+    126|  const workspace = owner ?? new ProjectWorkspace({projectId, ...create…
+ ❯ definitionExecutors src/lowcode/data-space/lowcode-data-space-runtime.ts:123:84
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:102:18
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:172:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > consumes saved native relationships without reading legacy records (empty: false)
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > consumes saved native relationships without reading legacy records (empty: true)
+Error: [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lowcode/lowcode-runtime"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ src/lowcode/data-space/lowcode-data-space-runtime.ts:124:92
+    122|  }) : []
+    123|  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOU…
+    124|   definition.createExecutor({applicationId: projectId, api: lowcodeApi…
+       |                                                                                            ^
+    125|  if (!declared.length && !hasReference && !toolTables.length) return r…
+    126|  const workspace = owner ?? new ProjectWorkspace({projectId, ...create…
+ ❯ definitionExecutors src/lowcode/data-space/lowcode-data-space-runtime.ts:123:84
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:102:18
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:194:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: false)
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -4,6 +4,7 @@
+      "designScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaNames": [
+        "PARENT",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:213:36
+    211|     const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', c…
+    212|     try {
+    213|       expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({de…
+       |                                    ^
+    214|         dataSpaceId: 'SCENE', metaNames: related ? ['PARENT', 'CHILD']…
+    215|       expect(assembly.diagnostics).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > limits formal model reads to the native connected scope (related: true)
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:213:36
+    211|     const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', c…
+    212|     try {
+    213|       expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({de…
+       |                                    ^
+    214|         dataSpaceId: 'SCENE', metaNames: related ? ['PARENT', 'CHILD']…
+    215|       expect(assembly.diagnostics).toEqual([])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads a reused model once in the requested scenario batch and keeps independent named views
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -5,6 +5,7 @@
+      "metaNames": [
+        "PARENT",
+        "CHILD",
+      ],
+    },
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:231:34
+    229|     config.tables['ParentCopy'] = {modelBinding: {modelId: 'PARENT', m…
+    230|     const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', c…
+    231|     expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({desi…
+       |                                  ^
+    232|     expect(assembly.dataSet.getView('ParentCopy', 'compact')?.pageSize…
+    233|     expect(assembly.dataSet.getView('ParentCopy', 'default')).not.toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects and destroys incomplete runtime assembly while retaining design diagnostics and the source definition
+AssertionError: expected [Function] to throw error matching /SCENARIO_ASSEMBLY_INCOMPLETE.*SCENE.…/s but got '[vitest] No "lowcodeDesignFileUpload"…'
+
+- Expected:
+/SCENARIO_ASSEMBLY_INCOMPLETE.*SCENE.*REL-BROKEN/s
+
++ Received:
+"[vitest] No \"lowcodeDesignFileUpload\" export is defined on the \"@/lowcode/lowcode-runtime\" mock. Did you forget to return it from \"vi.mock\"?
+If you need to partially mock a module, you can use \"importOriginal\" helper inside:
+"
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:245:85
+    243|     design.dataSet.destroy()
+    244|     const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    245|     await expect(loadLowcodeRuntimeScenario({projectId: 'APP', scenari…
+       |                                                                                     ^
+    246|       .rejects.toThrow(/SCENARIO_ASSEMBLY_INCOMPLETE.*SCENE.*REL-BROKE…
+    247|     expect(destroy).toHaveBeenCalledOnce()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads resolved relationships without false incompleteness errors
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > loads outside relationships without false incompleteness errors
+Error: [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lowcode/lowcode-runtime"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ src/lowcode/data-space/lowcode-data-space-runtime.ts:124:92
+    122|  }) : []
+    123|  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOU…
+    124|   definition.createExecutor({applicationId: projectId, api: lowcodeApi…
+       |                                                                                            ^
+    125|  if (!declared.length && !hasReference && !toolTables.length) return r…
+    126|  const workspace = owner ?? new ProjectWorkspace({projectId, ...create…
+ ❯ definitionExecutors src/lowcode/data-space/lowcode-data-space-runtime.ts:123:84
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:102:18
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:254:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > keeps a failed PageRuntime unloaded and allows a fresh assembly after the relation is repaired
+AssertionError: expected [Function] to throw error including 'SCENARIO_ASSEMBLY_INCOMPLETE' but got '[vitest] No "lowcodeDesignFileUpload"…'
+
+- Expected
++ Received
+
+- SCENARIO_ASSEMBLY_INCOMPLETE
++ [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
++ If you need to partially mock a module, you can use "importOriginal" helper inside:
++
+
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:274:34
+    272|     }})
+    273|     try {
+    274|       await expect(runtime.load()).rejects.toThrow('SCENARIO_ASSEMBLY_…
+       |                                  ^
+    275|       expect(runtime.isLoaded).toBe(false)
+    276|       expect(runtime.getDataSet('SCENE')).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > reads formal space even when no tables are configured, keeping scenario identity separate from Name
+Error: [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lowcode/lowcode-runtime"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ src/lowcode/data-space/lowcode-data-space-runtime.ts:124:92
+    122|  }) : []
+    123|  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOU…
+    124|   definition.createExecutor({applicationId: projectId, api: lowcodeApi…
+       |                                                                                            ^
+    125|  if (!declared.length && !hasReference && !toolTables.length) return r…
+    126|  const workspace = owner ?? new ProjectWorkspace({projectId, ...create…
+ ❯ definitionExecutors src/lowcode/data-space/lowcode-data-space-runtime.ts:123:84
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:102:18
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:314:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts > loadLowcodeRuntimeScenario > rejects a formal space result returned after request scope changed
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts:330:62
+    328|     mocks.readRelations.mockResolvedValue([])
+    329|     const pending = loadLowcodeRuntimeScenario({projectId: 'APP', scen…
+    330|     await vi.waitFor(() => expect(mocks.readSpaceDefinition).toHaveBee…
+       |                                                              ^
+    331|     mocks.readRequestScope.mockReturnValue(scope('t2', 'APP'))
+    332|     resolveSpace({dataSpaceId: 'SCENE', name: '迟到名称'})
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "lowcodeDesignFileUpload" export is defined on the "@/lowcode/lowcode-runtime" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("@/lowcode/lowcode-runtime"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ VitestMocker.createError node_modules/.pnpm/vitest@4.1.9_@types+node@26_d8276b3c7fd1d74a897b8406ae1aee6e/node_modules/vitest/dist/chunks/startVitestModuleRunner.CCBQZ9DQ.js:62:17
+ ❯ Object.get node_modules/.pnpm/vitest@4.1.9_@types+node@26_d8276b3c7fd1d74a897b8406ae1aee6e/node_modules/vitest/dist/chunks/startVitestModuleRunner.CCBQZ9DQ.js:327:16
+ ❯ src/lowcode/data-space/lowcode-data-space-runtime.ts:124:92
+    122|  }) : []
+    123|  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOU…
+    124|   definition.createExecutor({applicationId: projectId, api: lowcodeApi…
+       |                                                                                            ^
+    125|  if (!declared.length && !hasReference && !toolTables.length) return r…
+    126|  const workspace = owner ?? new ProjectWorkspace({projectId, ...create…
+ ❯ definitionExecutors src/lowcode/data-space/lowcode-data-space-runtime.ts:123:84
+ ❯ Module.loadLowcodeRuntimeScenario src/lowcode/data-space/lowcode-data-space-runtime.ts:102:18
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+
+This error originated in "tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "rejects a formal space result returned after request scope changed". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  14 failed | 11 passed (25)
+     Errors  1 error
+   Start at  00:47:48
+   Duration  5.08s (transform 1.89s, setup 137ms, import 2.39s, tests 1.07s, environment 1.15s)

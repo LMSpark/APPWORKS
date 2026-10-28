@@ -3111,6 +3111,7 @@ flowchart TD
 
 - **基线复核：**当前工作树干净，`HEAD=ebf2248f77e4de99d6e6107c12b2325418674bd3`，与 `origin/codex/ai-data-entry` 一致。NavHost 平面候选分页切片已在该基线中，不重复登记或改写。
 - **当前源码审计：**独立只读源码审计重新检查生产调用者后，未找到同时具备正式 DataSet owner、查询 scope、服务端行/字段授权和真实保存回执合同，且能据此安全移除旧业务旁路的新切片。重点未决面为平台应用目录（`AppList.vue`、`PlatformApps.vue`、`project-settings.ts`、`lowcode-runtime.ts`）、数据库物理预览 executor、`AgentWorkflowFiles` 文件资源、结构化配置目录和财务账户设置绑定。它们各自缺 owner/scope 等价证据、物理资源授权、文件目录/权限回执或正式模型视图；具体不能替换的合同按前述相应条目继续跟踪。登录/注册与缓存运维状态不强行改造为业务 DataView。
-- **SPA 工具现场：**当前 CUA inventory 可见本地 D99 数据空间标签；对标签 ID `6` 按 browser ID `2` 附着时返回 `browser.user is unavailable`。这只证明当前自动化附着失败，不能推断标签未认证，也没有执行登录请求、正式 DataView 查询、切换或写入。用户已提供测试账号及授权，不再次索取或记录明文凭据；认证表单不会由自动化填写。
+- **SPA 工具现场：**当前 CUA inventory 可见本地 D99 数据空间标签；先按 inventory 编号、再按文档标识 `iab` 附着同一标签，均返回 `browser.user is unavailable`。这只证明当前自动化附着失败，不能推断标签未认证，也没有执行登录请求、正式 DataView 查询、切换或写入。用户已提供测试账号及授权，不再次索取或记录明文凭据；认证表单不会由自动化填写。
+- **数据空间设计补全边界复核：**`lowcode-data-space-catalog.ts` 的正式新增链要求 `sysid` 指向当前可读 `Base_AppSystemList.rowid`，并经原 DataView/DataSet 保存；设计器能补已有正式应用 owner 下的模型、字段及视图，但不会创建 tenant/root owner。已识别的 90A8 元数据空间，其候选 DataSpace 完整集合查询仍返回 502、`sysid=homepage` 查询为 0 行，不能将它改作全局项目目录。NavHost 现有 `Base_Navigation_DataRelation` consumer 的正式目标查询也是 0 行，且新增权限/保存回执未证；当前不新增关系或补造视图。
 - **下一解锁项：**优先取得平台应用目录受服务端承认的 root/app-less DataSet owner、请求 scope 和查询权限投影；随后对照目录 DataView 与旧消费者各自的范围、字段权限和保存回执，再按消费者迁移并删掉被替代路径。其他资源按其正式 owner 与拒绝/回执合同独立处理。不能用本地夹具、DataView 包装或数据空间设计来补造服务端身份与授权。
-- **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。
+- **交付与状态：**此轮为源码/工具只读复核，仅更新本唯一台账；无产品代码或测试改动、无正式数据操作、无 Java 修改。SPARK data 唯一通道整合继续 active；真实 SPA smoke 尚未发生。定向复核依据：[`tenant-app-catalog-dataspace-owner-feasibility-20261028.md`](evidence/tenant-app-catalog-dataspace-owner-feasibility-20261028.md)、[`devsystem-nav-host-dataspace-live-20261028.md`](evidence/devsystem-nav-host-dataspace-live-20261028.md)。

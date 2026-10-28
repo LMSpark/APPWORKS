@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-10-28T07:45:06Z",
+  "evidenceType": "spa-ui-observation",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "dataSetId": "01000B6C7F84B4F1A85C91C4FC28E875",
+  "dataViewKey": "01000B6C7F84B4F1A85C91C4FC28E875@AgentWorkflowFiles@directory",
+  "operation": "data-space-design-preview-query",
+  "filters": [],
+  "queryParameters": {},
+  "result": {
+    "status": "error",
+    "visibleMessage": "[1003] 文件夹路径不存在",
+    "validQueryResult": false,
+    "resultDataText": "暂无数据"
+  },
+  "boundary": "Read-only SPA query. No workflow ID was supplied, and no design or business data was edited or saved. This records the visible UI result, not a raw HTTP request or response payload."
+}

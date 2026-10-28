@@ -2900,3 +2900,10 @@ flowchart TD
 - **本轮查明的真实阻断：**应用激活在 `LowcodePlatformApi.commitApplicationSelection()` 中先调用根解析，只有解析成功后才 `application.save()`；而 `loadLowcodeRuntimeScenario()` 要求当前正式请求 `X-AppId` 与传入 `projectId` 一致。现源码没有证明激活前可用的目标应用 DataSet owner/scope。把 7AB DataView 直接插入根解析会借用未经证实的请求身份，或要求提前改写应用上下文，从而改变“根解析失败时不切换当前应用”的既有状态语义。
 - **迁移门槛：**先确认服务端认可、可在应用选择提交前使用的导航 DataSet owner、`X-AppId` 规则和行/字段授权投影；再以真实 DataView 查询核对当前 root 查询结果。通过后实施 DataView resolver，保留 DataView 原有过滤并叠加两项条件；验收零根/多根、主键与目标应用归属、字段不可读、过期请求和失败时原应用上下文不变。不得只加 mock 测试或补一个 7AB 视图就声称迁移完成。
 - **本轮交付：**只读源码追踪及低价模型独立复核，无认证、正式查询/写入、产品代码或测试变更，也未修改/启动/部署 Java。当前未找到满足上述门槛的安全实现切片；唯一总账保持 active，下一步由真实 bootstrap owner/scope 合同取证解锁。
+
+### 2026-10-28 app-less 根 DataSet scope 可行性复核
+
+- **接口现状：**`DataSpaceRequestScope` 结构允许传入不带 `X-AppId` 的请求头，底层 DataView query owner 会保留调用方提供的 headers；这只证明传输层可表达此类 scope，不证明当前产品或服务端授予了平台根 scope。生产 `LowcodeApi.readRequestScope()` 要求登录态、已选应用和租户；DataSpace design 读取、设计会话及 pagedata 路径也绑定该 scope/应用文件 owner。
+- **根目录合同缺口：**旧 `listApplications()` 仅传 `x-FormKey: 7AB...`，历史根请求 61 行；D99 DataView 1 行来自另一应用 scope，不能当成同范围等价或权限证据。现有源码没有可获取平台/app-less `DataSpaceRequestScope` 的正式 API，也没有该根目录的 pagedata/DataSet owner。`LowcodeDataSpaceAssembler` 只装配已有身份，不创建请求授权。
+- **实现门槛：**服务端或正式平台合同须提供可验证的根 owner、认证 scope、pagedata 身份及行/字段授权投影后，才可在该 owner 下绑定 `Base_AppSystemList` 并以 `PageRuntime → DataSet → DataView` 迁移根目录。不得自行构造无 `X-AppId` scope、借用 7AB/D99/0C70，或把旧 API 包入 DataView executor。
+- **状态：**当前 SPA browser inventory 无可复用标签；此前用户给出的 `领码科技/wangtao` 已尝试并收到凭据错误及剩余次数提示，本轮未再次发送凭据。最近连续源码复核均受同一正式 bootstrap owner/scope/授权合同缺失限制；本轮不改产品代码、正式数据、测试或 Java，不以 mock 证明服务端支持。总体目标未完成；后续需有正式 owner/scope 合同，或有效认证会话可供只读取得该合同证据后继续。

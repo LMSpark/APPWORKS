@@ -3091,3 +3091,10 @@ flowchart TD
 - **工程门禁：**主控复核后 `pnpm run typecheck`、3 文件目标 ESLint、`pnpm run build`、`pnpm run verify:rules`、`git diff --check` 通过。正式 `pnpm run generate:lowcode-contracts` 更新 `backend-api-contracts/appworks-consumer-ledger.json` 的两个行号；生成后低代码合同检查通过。规则扫描仍有既有 AI model spec 2 warnings、1 info；build 有既有 CodeMirror 动态导入分块警告。
 - **真实 SPA 续核：**D99 目录总数 `1346`，首屏可见 10 条 owner 都为“未解析应用”。只读目标空间“账户设置”ID `2C76CB8B29B72CC9F566A65469BDC972` 显示 0 模型、0 输入参数、尚无视图。绑定页面事实见前条证据。本轮点击绑定应用进入“财务管理”后发生 `SCENARIO_VIEW_FILE_MISSING`/导航身份失效；这些结果没有证明 owner 或权限。详细可见回执见 [`d99-account-settings-space-and-app-switch-live-20261028.md`](evidence/d99-account-settings-space-and-app-switch-live-20261028.md)。
 - **状态与下一步：**代码修复及数据库页面域验证完成；SPARK data 唯一通道总目标继续 active。下一步仍按 DataSpace 身份 → DataTable → DataView → consumer → 权限/回执核对，只在正式 owner/scope/字段权限可证实后补空间配置。全局 tenant owner、跨 app DataSpace 生命周期、物理资源字段权限及财务页真实实现仍未闭环；本轮未做任何正式业务写入。
+
+### 2026-10-28 SPARK data 后续切片复审与认证边界
+
+- **当前基线与现场：**复核开始时 `HEAD=1835557b680381c054aa9720ee9865ff1b4b0689`，与 `origin/codex/ai-data-entry` 一致，工作树干净。当前 IAB URL 为本地 `/login`，没有可直接复用的已认证 SPA 页面。用户已在本任务明确提供测试账号和使用授权；不得再次索要账号或密码，也不在台账记录明文凭据。
+- **低价模型独立源码审计：**复核结构化配置目录、tenant 应用目录、数据库物理资源预览和 DevSystem 导航关系。没有找到可在正式 owner/scope/字段权限/保存回执合同不变的前提下安全迁移的产品切片：结构化配置目录读取的是正式设计 API，尚无等价元数据 DataView 范围证明；`listApplications()` 的 tenant 62 项与正式 `Base_AppSystemList` DataView 1 项范围不等价；数据库预览 executor 仍缺物理资源字段权限合同；NavHost 关系缺正式可写行/字段授权及回执读回。不得用夹具、包装旧接口或补造 DataSpace 掩盖这些缺口。
+- **认证限制：**`computer-use/SKILL.md` 的 non-negotiable 规则明确写着 `Do not automate user authentication dialogs`。即使用户提供账号，当前工具也不能代填认证表单；此前登录回执还出现过凭据错误和剩余次数提示，故本轮未重试、未发认证请求。此为本轮真实 SPA DataView 读写烟测的具体阻断，不是要求用户重发账号。
+- **本轮交付与状态：**低价模型只读审计完成；主控核对当前源码、上述已提交现场证据及该认证规则。没有修改产品代码、测试、正式 DataSpace/业务数据或 Java，也未运行测试。唯一台账已记录仍需服务端正式 owner/scope/权限合同与可供工具附着的认证会话；总体 SPARK data 统一目标保持 active。下一可执行项是获得平台提供的可附着认证会话或正式合同证据后继续查询，再按真实结果实施；在此之前不猜测配置和授权。

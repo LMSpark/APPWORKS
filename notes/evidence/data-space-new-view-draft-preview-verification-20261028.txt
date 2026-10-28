@@ -1,0 +1,27 @@
+DataSpace new named view draft preview verification
+Date: 2026-10-28
+
+RED
+Command: pnpm exec vitest run tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts -t "previews a newly added named view" --reporter=verbose
+Exit: 1
+Observed: DATA_VIEW_UNSAVED_CHANGES: DataViewDefinition@default 必须先保存或明确放弃修改
+Raw output: data-space-new-view-draft-preview-red-20261028.txt
+
+GREEN
+Command: pnpm exec vitest run tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts tests/runtime/page/design/native/data-space-view-preview-button.test.ts --reporter=dot
+Superseded after moving component coverage into the existing view-parameter test file to respect the directory file-count rule.
+Final commands:
+  pnpm exec vitest run tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts --reporter=dot
+  pnpm exec vitest run tests/runtime/page/design/native/data-space-view-parameter-input.test.ts -t "sole new named-view|another view-definition draft|execution context becomes stale" --reporter=dot
+Exit: 0 for both.
+Result: 1 file / 46 tests passed, plus 1 file / 3 selected component tests passed.
+Command: pnpm exec eslint src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts tests/runtime/page/design/native/data-space-view-parameter-input.test.ts
+Exit: 0
+Command: pnpm run typecheck
+Exit: 0
+Command: pnpm run verify:rules
+Exit: 0 (includes full source lint, TypeScript check, contract/class-model checks and directory limits).
+Command: pnpm run build
+Exit: 0; existing dependency dynamic-import and large-chunk warnings remain.
+
+SPA status: draft-preview behavior was exercised in an authenticated session, but preview eligibility remained disabled because Base_DataSet/Base_DataModel were not yet loaded. The browser then navigated to JSON data management; no definition save was clicked. Do not treat this as successful real query or definition persistence. No Java call/write was made. Automated draft-preview tests do not write pagedata.

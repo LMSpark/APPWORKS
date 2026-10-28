@@ -2814,9 +2814,9 @@ flowchart TD
 
 ### 2026-10-28 数据空间设计补齐范围复核
 
-- **根应用目录：**当前无已证实的 root DataSet owner/scope。旧 `listApplications()` 使用固定 `7AB...` FormKey、`Base_AppSystemList`、`Filter:null`，曾返回 61 行；D99 正式 DataView 返回 1 行，不能据此认定范围相同。`90A8` 是元数据目录 owner，`0C70` 是应用管理页场景；现有空间不得代替 `homepage` root owner。找到正式 owner 后，可通过其设计器绑定 `Base_AppSystemList` 并定义经核实的字段、范围、分页 DataView，再对照 61 行及字段权限后迁移消费者。
+- **根应用目录（按当次正式目录和 SPA 证据修订）：**“功能管理”正式 DataSpace `7AB874097A1E8711A42FD845939A6E05` 已确认绑定 `Base_AppSystemList`，资源映射为 `QYVirtualPlat.Base_AppSystemList`，23 个字段、当前 0 个命名视图；`IsSys` 模型输出关闭。旧 `listApplications()` 同样使用 7AB `LOWCODE_APPLICATION_CATALOG_FORM_KEY`、该模型及 `Filter:null`，历史真实响应为 61 行。故 owner/model 可通过数据空间设计补齐专用 DataView，不应再记作 owner 未知；但 D99 当前正式 DataView 只读到 1 行，61 行旧请求与该 DataView 的服务端 scope/权限是否等价仍未证明。新建命名视图的本地草稿只读预览代码和自动化验收已完成；下一步须在 SPA 中执行正式只读查询并比较 61 行及所需字段 `rowid/AppName/AppDesc/EntId/EntShortName/IsSys`，不得先保存共享模型输出配置或替换页面消费者。现场记录见 [`app-catalog-7ab-owner-live-20261028.md`](evidence/app-catalog-7ab-owner-live-20261028.md)。
 - **DevSystem 项目关系：**正式读取 owner `7AB...@Base_Navigation_DataRelation@default` 已确认，模型 26 列、查询 9 行；`prowid=appworks-tool-dev` 当前 0 行。可在此关系 owner 下通过设计器补专用关系视图，但字段可写授权、保存回执/读回及关系所引用候选 DataSpace 的正式范围仍未证实。候选 owner 必须来自真实关系引用及服务端认可的 DataSpace；不能把 `90A8` 的分页目录或 `7AB` 关系模型当成项目候选数据。
-- **实施界线：**设计器负责补齐已识别正式 owner 下的 DataTable/字段/DataView 定义，不能自行创造 root 身份、scope 或授权。SPA 本次只读审计，无设计保存、关系新增、业务行写入或 Java 改动；继续先补身份/权限/回执证据，再实施对应消费者。
+- **实施与验证：**设计器负责补齐已识别正式 owner 下缺失的 DataTable/字段/DataView 定义，不能自行创造 owner、scope 或授权。本轮修复了新建命名 DataView 的本地草稿只读预览：仅接受一条身份匹配且字段可读的新建定义，沿 SPARK data 补载并核验 `Base_DataSet`、`Base_DataModel` 后，在临时 `ScenarioViewConfig` 克隆上预览；不会保存 pagedata，也不允许其他未决定义混入。自动化目标测试 49/49（领域 46、组件新增草稿 3），目标 ESLint、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 通过；规则检查的 2 个既有 AI model warnings 和构建依赖动态导入/大 chunk warnings 保留。正式 SPA 中预览按钮启用和真实查询仍未验收：第二次尝试因 owner/model 元数据尚未加载被正确禁用，随后浏览器切换到 JSON 数据管理页；未点击保存，未新增关系或业务行。真实 DataView 查询范围、字段权限、保存回执/重开读回仍须分别取得 SPA 证据，再迁移对应消费者。无 Java 改动。
 
 ### 2026-10-28 DevSystem 项目关系生产接线复核
 

@@ -1,0 +1,103 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > previews a newly added named view from its exact DataViewDefinition draft without saving or using default
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+
+stdout | tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > previews a newly added named view from its exact DataViewDefinition draft without saving or using default
+🐛 [DataView] 销毁 DataView: Orders:default
+🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default
+🐛 [DataView] 销毁 DataView: ProjectToolFile:default
+🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default
+🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default
+🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels
+🐛 [DataView] 销毁 DataView: DataViewDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default
+🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph
+🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default
+🐛 [DataView] 销毁 DataView: DataViewFieldOption:default
+
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects an invalid definition query before any initial file read or assembly
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects an invalid refreshed definition query before entering its file owner
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > owns the initial missing file read in the definition DataView request lifecycle
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > owns the initial failed file read in the definition DataView request lifecycle
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > adds a model binding and named view with only their validation scope (schema undefined)
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > adds a model binding and named view with only their validation scope (schema 2)
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > creates a missing file only on save, retains a rejected new view for correction, then independently reopens it
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > preserves unrelated views and configuration while cancelling and saving only the selected view
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > round-trips every native view property across two named views and an independent runtime
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"valueField":["id","missing"]}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"labelField":"missing"}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"sortExpression":[{"field":"missing","direction":"asc"}]}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"treeConfig":{"idField":"missing"}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"treeConfig":{"parentIdField":"missing"}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"treeConfig":{"textField":"missing"}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"aggregates":{"bad":{"type":"count","field":"missing"}}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"aggregates":{"unknownTotal":{"type":"sum"}}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects invalid native field references on save and retains them for cancellation: {"queryConfig":{"outputType":"Table","fields":["missing"]}}
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > clears explicit overrides through native edits and rejects a mismatched preview identity
+ × tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > previews a newly added named view from its exact DataViewDefinition draft without saving or using default 70ms
+   → DATA_VIEW_UNSAVED_CHANGES: DataViewDefinition@default 必须先保存或明确放弃修改
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > keeps local display and aggregate fields while rejecting local fields used for remote ordering or tree identity
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects a new view carrying the non-configuration member rows without writing a file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects a new view carrying the non-configuration member currentRow without writing a file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects a new view carrying the non-configuration member scenarioId without writing a file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects a new view carrying the non-configuration member unknown without writing a file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > rejects a new view carrying the non-configuration member constructor without writing a file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > does not persist a prototype pseudo-member carried by a native new row
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > releases a late validation result and does not write after scope changes
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > releases a late validation result and does not write after dispose changes
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > releases a late validation result and does not write after external file changes
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > assembles named preview from model-scoped configuration while retaining the original file owner
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > assembles a model-only preview without loading or persisting a view file
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > releases a delayed model-only preview when scope is invalid
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > releases a delayed model-only preview when file is invalid
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > releases a delayed model-only preview when identity is invalid
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > rejects a late preview response after close invalidates its instance
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > rejects a late preview response after scope invalidates its instance
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > rejects a late preview response after file invalidates its instance
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > keeps two preview instances isolated and retries a failed query with only current call values
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > opens an isolated preview runtime and queries the bound view with typed inputs without writing definitions
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > rejects and releases a preview when its file changes before query
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > queries dependency views again when preview input values change (autoLoad=false)
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > queries dependency views again when preview input values change (autoLoad=true)
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > previews real DataView query rows with visible, masked and hidden fields and destroys the instance
+ ↓ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > shared data-space view design owner > destroys a failed preview DataSet without returning unverified rows
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts > native view definitions through the designer DataSet > previews a newly added named view from its exact DataViewDefinition draft without saving or using default
+Error: DATA_VIEW_UNSAVED_CHANGES: DataViewDefinition@default 必须先保存或明确放弃修改
+ ❯ DataView.assertResultReplacementAllowed packages/spark-data/src/data-view.ts:2179:13
+    2177|     }
+    2178|     if (this._dirtyTrackingDelegate?.hasPendingChanges() || this.hasEd…
+    2179|       throw new DataViewUnsavedChangesError(`DATA_VIEW_UNSAVED_CHANGES…
+       |             ^
+    2180|     }
+    2181|   }
+ ❯ LowcodeDataSpaceViewMetadata.assertClean src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts:67:36
+ ❯ LowcodeDataSpaceDesignSession.assertMetadataClean src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:245:24
+ ❯ assertCurrent src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:2205:32
+ ❯ LowcodeDataSpaceDesignSession.definitionReadGuard src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:2226:5
+ ❯ LowcodeDataSpaceDesignSession.openPreview src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:2232:32
+ ❯ tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts:241:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 skipped (45)
+   Start at  08:43:45
+   Duration  7.47s (transform 3.93s, setup 215ms, import 4.89s, tests 72ms, environment 1.79s)
+

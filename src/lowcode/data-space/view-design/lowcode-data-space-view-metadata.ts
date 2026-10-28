@@ -1,4 +1,4 @@
-import type {DataSet, DataTable, DataView} from '@spark-appworks/spark-data'
+import {RequestState, type DataSet, type DataTable, type DataView} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceViewFields, type LowcodeDataSpaceViewFieldCatalog} from './lowcode-data-space-view-fields'
 
 /** 定义视图及字段候选的业务接线；变更状态只由原DataView持有。 */
@@ -65,6 +65,15 @@ export class LowcodeDataSpaceViewMetadata {
   }
 
   assertClean(): void { this.#view.assertResultReplacementAllowed(); this.#bindings.assertResultReplacementAllowed() }
+  /** Permit one newly inserted view definition while a disposable read preview consumes it. */
+  assertCleanExceptNewViewDraft(id: string, targetId: string): void {
+    this.#bindings.assertResultReplacementAllowed()
+    const view = this.#view
+    if (view.requestState !== RequestState.Loaded || view.rows.length - view.dirtyTracking.pendingCreateIds.size + view.dirtyTracking.pendingDeleteIds.size !== view.total
+      || view.queryContext['dataSpaceId'] !== targetId
+      || view.mutating || view.dirtyTracking.pendingCreateIds.size !== 1 || !view.dirtyTracking.isPendingCreate(id)
+      || view.dirtyTracking.pendingDeleteIds.size || [...view.dirtyTracking.dirtyRowIds].some(key => key !== id)) throw new Error('请先处理其他视图定义修改')
+  }
   /** 绑定删除命令允许继续合并绑定变更，但不能覆盖视图属性编辑。 */
   assertViewsClean(): void {this.#view.assertResultReplacementAllowed()}
 

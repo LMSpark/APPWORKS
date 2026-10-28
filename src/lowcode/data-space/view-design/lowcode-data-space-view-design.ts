@@ -110,6 +110,10 @@ type DefinitionReadOptions = Readonly<{
   previewModelId?: string
   /** 由字段工作区提供的本次快照校验。 */
   fieldPreviewGuard?: () => void
+  /** The sole pending create consumed by a named-view draft preview. */
+  newViewDraft?: Readonly<{id: string; signature: string}>
+  /** The preview's selected resource identity, checked against the complete owner/model query results. */
+  previewIdentity?: NativeViewSelection
   /** 命令需要完整读取的元表；不为布局保存扩大到字段/关系。 */
   metadataNames?: readonly string[]
 }>
@@ -2197,12 +2201,21 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   private definitionReadGuard(options: DefinitionReadOptions = {}): () => void {
-    const {allowMissingDefinition = false, previewModelId, fieldPreviewGuard,
+    const {allowMissingDefinition = false, previewModelId, fieldPreviewGuard, newViewDraft, previewIdentity,
       metadataNames = ['Base_DataSet', 'Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation']} = options
     const generation = this.#generation
     const previewGuard = previewModelId === undefined ? undefined : this.getModelEdit(previewModelId).capturePreview()
     const assertCurrent = (): void => {
-      this.assertOwner(); this.assertMetadataClean()
+      this.assertOwner()
+      if (newViewDraft) this.#viewMetadata.assertCleanExceptNewViewDraft(newViewDraft.id, this.targetId)
+      else this.assertMetadataClean()
+      if (newViewDraft) {
+        const definitions = this.metadataDataSet.getView('DataViewDefinition', 'default')
+        const row = definitions?.rows.find(item => definitions.getPkKey(item) === newViewDraft.id)
+        const draft = definitions?.getEditingRow(newViewDraft.id)
+        if (!definitions || !row || !draft || !definitions.dirtyTracking.isPendingCreate(newViewDraft.id)
+          || JSON.stringify(draft) !== newViewDraft.signature) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 新视图草稿已变化')
+      }
       previewGuard?.(); fieldPreviewGuard?.()
       if (!allowMissingDefinition || this.#definition) this.assertProjectionClean()
       if (generation !== this.#generation || this.#file && this.#file.saveStatus !== 'idle') throw new Error('DATA_SPACE_DESIGN_SESSION_STALE: 定义已变化或保存待核验')
@@ -2218,20 +2231,111 @@ export class LowcodeDataSpaceDesignSession {
       for (const name of metadataNames) {
         const view = this.metadataDataSet.getView(name, 'default')
         if (view?.requestState !== SparkData.RequestState.Loaded || view.mutating || view.rows.length !== view.total
-          || view.queryContext['dataSpaceId'] !== this.targetId || view.hasEditingChanges() && !(previewGuard && name === 'Base_DataModel') || view.dirtyTracking.hasPendingChanges()) {
+          || view.queryContext['dataSpaceId'] !== this.targetId || view.hasEditingChanges() && !(previewGuard && name === 'Base_DataModel')
+          && !(newViewDraft && name === 'DataViewDefinition') || view.dirtyTracking.hasPendingChanges()
+          && !(newViewDraft && name === 'DataViewDefinition' && view.dirtyTracking.pendingCreateIds.size === 1 && view.dirtyTracking.isPendingCreate(newViewDraft.id))) {
           throw new Error('所需元数据未完整读取或存在其他定义草稿，请先处理未保存修改')
         }
       }
+      if (previewIdentity) this.assertPreviewMetadataIdentity(previewIdentity)
     }
     assertCurrent()
     return assertCurrent
   }
 
+  private assertPreviewMetadataIdentity(input: NativeViewSelection): void {
+    const space = this.metadataDataSet.getView('Base_DataSet', 'default')
+    if (!space) throw new Error('DATA_SPACE_PREVIEW_OWNER: Base_DataSet元数据视图缺失')
+    const spaceRows = space.rows.filter(row => space.getPkKey(row) === this.targetId)
+    if (space.requestState !== SparkData.RequestState.Loaded || space.rows.length !== space.total || space.total !== 1
+      || space.queryContext['dataSpaceId'] !== this.targetId || spaceRows.length !== 1) {
+      throw new Error('DATA_SPACE_PREVIEW_OWNER: Base_DataSet未唯一确认当前目标空间')
+    }
+    const spaceRow = spaceRows[0]
+    if (spaceRow === undefined) throw new Error('DATA_SPACE_PREVIEW_OWNER: Base_DataSet未唯一确认当前目标空间')
+    if (spaceRow['rowid'] !== this.targetId || space.fieldAccess(spaceRow, 'rowid').read !== 'visible') {
+      throw new Error('DATA_SPACE_PREVIEW_OWNER: Base_DataSet未唯一确认当前目标空间')
+    }
+    if ('fileResourceId' in input) return
+    const models = this.metadataDataSet.getView('Base_DataModel', 'default')
+    if (!models) throw new Error('DATA_SPACE_PREVIEW_MODEL: Base_DataModel元数据视图缺失')
+    const matches = models.rows.filter(row => models.getPkKey(row) === input.modelId)
+    if (models.requestState !== SparkData.RequestState.Loaded || models.rows.length !== models.total
+      || models.queryContext['dataSpaceId'] !== this.targetId || matches.length !== 1) {
+      throw new Error('DATA_SPACE_PREVIEW_MODEL: Base_DataModel未确认所选正式模型身份')
+    }
+    const model = matches[0]
+    if (model === undefined) throw new Error('DATA_SPACE_PREVIEW_MODEL: Base_DataModel未确认所选正式模型身份')
+    if (model['rowid'] !== input.modelId || model['dataSetId'] !== this.targetId || model['Name'] !== input.modelName
+      || ['rowid', 'dataSetId', 'Name'].some(field => models.fieldAccess(model, field).read !== 'visible')) {
+      throw new Error('DATA_SPACE_PREVIEW_MODEL: Base_DataModel未确认所选正式模型身份')
+    }
+  }
+
+  private captureNewViewPreviewDraft(input: NativeViewSelection): Readonly<{id: string; signature: string; config: ScenarioViewConfig}> | undefined {
+    const definitionView = this.metadataDataSet.getView('DataViewDefinition', 'default')
+    const draftRows = definitionView?.rows.filter(row => row['tableName'] === input.tableName && row['viewId'] === input.viewId
+      && definitionView.dirtyTracking.isPendingCreate(definitionView.getPkKey(row) ?? '')) ?? []
+    if (!draftRows.length) return undefined
+    const row = draftRows[0]
+    if (draftRows.length !== 1 || !definitionView || !row) throw new Error('SCENARIO_VIEW_DRAFT_IDENTITY: 新视图草稿身份无效')
+    const id = definitionView.getPkKey(row), idKey = id === undefined ? undefined : String(id), draft = idKey === undefined ? undefined : definitionView.getEditingRow(idKey)
+    if (idKey === undefined || !draft) throw new Error('SCENARIO_VIEW_DRAFT_IDENTITY: 新视图草稿身份无效')
+    if (draft['dataSetId'] !== this.targetId || draft['tableName'] !== input.tableName
+      || draft['viewId'] !== input.viewId || ('fileResourceId' in input
+        ? draft['dataModelId'] !== undefined || draft['dataModelName'] !== undefined
+        : draft['dataModelId'] !== input.modelId || draft['dataModelName'] !== input.modelName)
+      || ['dataSetId', 'tableName', 'viewId', ...('fileResourceId' in input ? [] : ['dataModelId', 'dataModelName']),
+        ...Object.keys(draft).filter(key => ScenarioViewConfig.isViewProperty(key))].some(field => definitionView.fieldAccess(row, field).read !== 'visible')) {
+      throw new Error('SCENARIO_VIEW_DRAFT_IDENTITY: 新视图草稿身份或读取权限无效')
+    }
+    const file = this.#file
+    if (!file) throw new Error('SCENARIO_VIEW_FILE_MISSING: 新视图预览需要已加载的模型配置')
+    const config = structuredClone(file.value.toJSON()), tables = record(config['tables'], 'tables')
+    const table = tables[input.tableName]
+    if (table === undefined) throw new Error('SCENARIO_VIEW_PREVIEW_VIEW: 新视图所属模型未配置')
+    const views = record(record(table, 'table')['views'], 'views')
+    if (Object.hasOwn(views, input.viewId)) throw new Error('SCENARIO_VIEW_DRAFT_IDENTITY: 新增视图与已保存视图冲突')
+    views[input.viewId] = Object.fromEntries(Object.entries(draft).filter(([key, value]) => ScenarioViewConfig.isViewProperty(key) && value !== undefined))
+    return {id: idKey, signature: JSON.stringify(draft), config: new ScenarioViewConfig(this.targetId, JSON.stringify(config))}
+  }
+
+  /** Shared synchronous eligibility check for the preview action; the actual open repeats this guard. */
+  canOpenPreview(input: NativeViewSelection): boolean {
+    try {
+      const draft = this.captureNewViewPreviewDraft(input)
+      const newViewDraft = draft ? {id: draft.id, signature: draft.signature} : undefined
+      this.definitionReadGuard({allowMissingDefinition: true, metadataNames: ['Base_DataSet', 'Base_DataModel'], previewIdentity: input,
+        ...(newViewDraft ? {newViewDraft} : {})})
+      return true
+    } catch {return false}
+  }
+
+  /** Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard. */
+  async preparePreviewEligibility(input: NativeViewSelection): Promise<boolean> {
+    try {
+      const draft = this.captureNewViewPreviewDraft(input)
+      if (!draft) return false
+      const newViewDraft = {id: draft.id, signature: draft.signature}
+      this.definitionReadGuard({allowMissingDefinition: true, metadataNames: [], newViewDraft})
+      await this.#metadata.load(['Base_DataSet', 'Base_DataModel'])
+      const assertCurrent = this.definitionReadGuard({allowMissingDefinition: true,
+        metadataNames: ['Base_DataSet', 'Base_DataModel'], newViewDraft, previewIdentity: input})
+      assertCurrent()
+      return true
+    } catch {return false}
+  }
+
   /** 按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。 */
   async openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview> {
-    const assertCurrent = this.definitionReadGuard({allowMissingDefinition: true, metadataNames: ['Base_DataSet', 'Base_DataModel']})
-    return this.design.openPreview({...input, scenarioId: this.targetId}, assertCurrent,
-      {subscribe: listener => this.subscribePreviewGuard(assertCurrent, listener), blueprintTreeProjection: this.#blueprintTreeProjection})
+    const draft = this.captureNewViewPreviewDraft(input)
+    const newViewDraft = draft ? {id: draft.id, signature: draft.signature} : undefined
+    const assertCurrent = this.definitionReadGuard({allowMissingDefinition: true, metadataNames: ['Base_DataSet', 'Base_DataModel'],
+      previewIdentity: input, ...(newViewDraft ? {newViewDraft} : {})})
+    return this.design.openPreview({...input, scenarioId: this.targetId}, {
+      assertCurrent, ...(draft ? {configOverride: draft.config} : {}),
+      subscribe: listener => this.subscribePreviewGuard(assertCurrent, listener), blueprintTreeProjection: this.#blueprintTreeProjection,
+    })
   }
 
   private subscribePreviewGuard(assertCurrent: () => void, listener: () => void): () => void {
@@ -2665,9 +2769,10 @@ export class LowcodeDataSpaceViewDesign {
    * 装配可供标准组件绑定的独立预览实例；调用方关闭时必须dispose。
    * @param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的SparkData.DataView，预览关闭时解除。
    */
-  async openPreview(input: NativeViewSelection & {scenarioId: string}, assertCurrent?: () => void,
-    options: Readonly<{subscribe?: (listener: () => void) => () => void;
-      blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']}> = {}): Promise<LowcodeDataSpaceQueryPreview> {
+  async openPreview(input: NativeViewSelection & {scenarioId: string}, options: Readonly<{assertCurrent?: () => void;
+    configOverride?: ScenarioViewConfig; subscribe?: (listener: () => void) => () => void;
+    blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']}> = {}): Promise<LowcodeDataSpaceQueryPreview> {
+    const {assertCurrent, configOverride} = options
     const file = this.currentFile(input.scenarioId)
     const text = file.getText()
     const revision = file.revision
@@ -2680,7 +2785,9 @@ export class LowcodeDataSpaceViewDesign {
       : !isRecord(binding) || binding['modelId'] !== input.modelId || binding['modelName'] !== input.modelName) {
       throw new Error('SCENARIO_VIEW_MODEL_BINDING: 预览选择与正式模型绑定不一致')
     }
-    if (!Object.hasOwn(record(table['views'], 'views'), viewId)) throw new Error('SCENARIO_VIEW_PREVIEW_VIEW: 视图不存在')
+    const config = configOverride ?? file.value
+    const configuredTable = record(record(config.toJSON()['tables'], 'tables')[tableName], 'table')
+    if (!Object.hasOwn(record(configuredTable['views'], 'views'), viewId)) throw new Error('SCENARIO_VIEW_PREVIEW_VIEW: 视图不存在')
     assertCurrent?.()
     const executor = ScenarioDefinitionResource.forQueries({workspace: this.options.workspace, metadataScenarioId: input.scenarioId,
       assertCurrent: () => {this.options.assertScope(); assertCurrent?.()},
@@ -2694,7 +2801,7 @@ export class LowcodeDataSpaceViewDesign {
       executeQuery: (view, params) => toolResource.executeQuery(view, params),
       save: () => Promise.reject(new Error('SCENARIO_VIEW_PREVIEW_READ_ONLY: 预览不提交工具文件')),
     }
-    const assembled = await this.options.assemble({scenarioId: input.scenarioId, config: file.value, fileExecutors, modelScope: tableName})
+    const assembled = await this.options.assemble({scenarioId: input.scenarioId, config, fileExecutors, modelScope: tableName})
     let preview: LowcodeDataSpaceQueryPreview | undefined
     try {
       const validate = (): void => {

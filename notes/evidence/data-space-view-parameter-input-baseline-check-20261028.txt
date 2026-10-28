@@ -1,0 +1,27 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks
+
+----x
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/page/design/native/data-space-view-parameter-input.test.ts > keeps the selected named view identity through a late field-directory response and saves/restores only that property
+AssertionError: expected 0 to be greater than 0
+ ❯ mountPage tests/runtime/page/design/native/data-space-view-parameter-input.test.ts:185:37
+    183|     wrappers.push(wrapper); await flushPromises()
+    184|     for (let attempt = 0; attempt < 80 && fixture.sessions.length === …
+    185|     expect(fixture.sessions.length).toBeGreaterThan(0)
+       |                                     ^
+    186|     return wrapper
+    187|   }
+ ❯ tests/runtime/page/design/native/data-space-view-parameter-input.test.ts:219:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  09:04:00
+   Duration  21.50s (transform 14.40s, setup 167ms, import 19.40s, tests 84ms, environment 1.42s)
+

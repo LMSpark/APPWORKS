@@ -229,6 +229,43 @@ describe('native view definitions through the designer DataSet', () => {
     } finally {session.dispose()}
   })
 
+  it('rejects a new-view preview until Base_DataSet and Base_DataModel are completely loaded', async () => {
+    const f = fixture(JSON.stringify({scenarioId: 'SPACE', tables: {Orders: {
+      modelBinding: {modelId: 'MODEL', modelName: 'OrdersModel'}, views: {default: {autoLoad: false}},
+    }}, viewCascades: []}))
+    const session = await f.service.openDesignSession('SPACE')
+    await session.loadDefinition()
+    const definitions = session.metadataDataSet.getView('DataViewDefinition')!
+    try {
+      await definitions.addRow({dataSetId: 'SPACE', dataModelId: 'MODEL', dataModelName: 'OrdersModel',
+        tableName: 'Orders', viewId: 'catalogApps', autoLoad: false, pageSize: 17, queryConfig: {outputType: 'Table'}})
+      const assemblies = f.assemble.mock.calls.length
+      expect(session.canOpenPreview({...selection, viewId: 'catalogApps'})).toBe(false)
+      await expect(session.openPreview({...selection, viewId: 'catalogApps'})).rejects.toThrow('所需元数据未完整读取或存在其他定义草稿')
+      expect(f.assemble).toHaveBeenCalledTimes(assemblies)
+      expect(f.getRemote()).toContain('"views":{"default":{"autoLoad":false}}')
+      expect(f.writeText).not.toHaveBeenCalled()
+    } finally {session.dispose()}
+  })
+
+  it('rejects a new-view preview when any other view-definition draft is pending', async () => {
+    const f = fixture(JSON.stringify({scenarioId: 'SPACE', tables: {Orders: {
+      modelBinding: {modelId: 'MODEL', modelName: 'OrdersModel'}, views: {default: {autoLoad: false}},
+    }}, viewCascades: []}))
+    const session = await f.service.openDesignSession('SPACE')
+    await session.loadDefinition()
+    const definitions = session.metadataDataSet.getView('DataViewDefinition')!
+    try {
+      await definitions.addRow({dataSetId: 'SPACE', dataModelId: 'MODEL', dataModelName: 'OrdersModel', tableName: 'Orders', viewId: 'catalogApps'})
+      await definitions.addRow({dataSetId: 'SPACE', dataModelId: 'MODEL', dataModelName: 'OrdersModel', tableName: 'Orders', viewId: 'otherDraft'})
+      const assemblyCount = f.assemble.mock.calls.length
+      await expect(session.openPreview({...selection, viewId: 'catalogApps'})).rejects.toThrow('请先处理其他视图定义修改')
+      expect(f.assemble).toHaveBeenCalledTimes(assemblyCount)
+      expect(f.getRemote()).toContain('"views":{"default":{"autoLoad":false}}')
+      expect(f.writeText).not.toHaveBeenCalled()
+    } finally {session.dispose()}
+  })
+
   it('keeps local display and aggregate fields while rejecting local fields used for remote ordering or tree identity', async () => {
     const config = JSON.parse(namedText)
     config.tables.Orders.columns = [{name: 'display', type: 'string', computeExpression: 'id + "!"'}]

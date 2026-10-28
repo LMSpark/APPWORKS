@@ -42,7 +42,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
     </div>
     <div v-if="row && view && !state.error" :key="String(rowKey)" data-view-properties>
       <p>{{ row['tableName'] }} @ {{ row['viewId'] }}</p>
-      <RendererButton :data-view-key="definitionViewKey" data-action="open-query-preview" :disabled="blocked || localDirty"
+      <RendererButton :data-view-key="definitionViewKey" data-action="open-query-preview" :disabled="blocked || localDirty && !draftPreviewReady || previewEligibilityLoading || !!activeProperty || filterPending || propertyPending || projectionDialogOpen || !!newName || !!newTable"
         label="查询预览" @click="previewOpen = true" />
       <RendererDialog v-model="previewOpen" :data-view-key="definitionViewKey" data-member="currentRow" title="数据预览"
         width="92%" top="4vh" :grid-columns="1" append-to-body destroy-on-close :close-on-click-modal="false">
@@ -414,6 +414,28 @@ const localDirty = computed(() => {tick.value; props.revision; return viewInputD
 const definitionDirty = computed(() => localDirty.value || state.value.file?.dirty === true)
 const blocked = computed(() => busy.value || props.disabled === true || !!state.value.error || !!bindingRemoval.value
   || state.value.file !== null && state.value.file.saveStatus !== 'idle')
+const previewSelection = computed(() => {
+  tick.value
+  const selected = row.value
+  if (!selected) return undefined
+  return props.fileResource ? {tableName: String(selected['tableName']), viewId: String(selected['viewId']), fileResourceId: props.fileResource.resourceId}
+    : props.modelId && props.modelName ? {modelId: props.modelId, modelName: props.modelName,
+      tableName: String(selected['tableName']), viewId: String(selected['viewId'])} : undefined
+})
+const draftPreviewReady = ref(false), previewEligibilityLoading = ref(false)
+let previewEligibilityRevision = 0
+watch(() => JSON.stringify([props.session.targetId, props.modelId, props.modelName, props.fileResource, props.rowKey,
+  props.revision, row.value, localDirty.value]), async snapshot => {
+  const revision = ++previewEligibilityRevision, selection = previewSelection.value
+  draftPreviewReady.value = false; previewEligibilityLoading.value = false
+  if (!localDirty.value || !selection) return
+  previewEligibilityLoading.value = true
+  const ready = await props.session.preparePreviewEligibility(selection)
+  if (!active || revision !== previewEligibilityRevision || snapshot !== JSON.stringify([props.session.targetId, props.modelId, props.modelName,
+    props.fileResource, props.rowKey, props.revision, row.value, localDirty.value])) return
+  draftPreviewReady.value = ready
+  previewEligibilityLoading.value = false
+}, {immediate: true, flush: 'post'})
 // 共享文件可能由来源/改名命令提交；不能冒充本编辑器草稿而阻断原命令恢复。
 watch(() => busy.value || localDirty.value || !!bindingRemoval.value, value => emit('pending', value), {immediate: true, flush: 'sync'})
 const bindings = computed(() => {

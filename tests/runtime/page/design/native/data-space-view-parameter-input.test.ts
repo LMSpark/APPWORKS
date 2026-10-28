@@ -85,6 +85,71 @@ it('preserves parameter typing across other view configuration edits, saves thro
   expect(reopened.metadataDataSet).not.toBe(dataSet)
 })
 
+async function mountPreviewEditor(fixture: ReturnType<typeof dataSpacePageFixture>, session: Awaited<ReturnType<typeof fixture.open>>, key: string) {
+  const runtime = new PageRuntime({pageId: '/data-space-design', scenarioIds: [session.metadataDataSet.scenarioId!], loadScenario: async () => session.metadataDataSet})
+  runtimes.push(runtime); await runtime.load()
+  const revision = ref(0)
+  const wrapper = mount(defineComponent({setup() {
+    const {sparkProvide} = useSparkComponent({type: 'data-space-design'})
+    sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(DataSpaceViewEditor, {session: markRaw(session), modelId: 'M1', modelName: 'Orders', rowKey: key,
+      revision: revision.value, onChanged: () => revision.value++})
+  }}), {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {
+    SparkComponentRenderer: false, 'spark-component-renderer': false, 'el-button': ElButton,
+    'el-table': ElTable, 'el-table-column': ElTableColumn, DataSpaceQueryPreview: true,
+  }}})
+  wrappers.push(wrapper); await flushPromises()
+  return {wrapper, revision}
+}
+
+async function preparePreviewDraft(reason: 'single' | 'another' | 'stale') {
+  const fixture = dataSpacePageFixture({overviewOnly: true, deferDefinition: true}); fixtures.push(fixture)
+  const original = {scenarioId: 'A', schemaVersion: 2, resourceRelations: [], tables: {
+    OrdersAlias: {modelBinding: {modelId: 'M1', modelName: 'Orders'}, views: {default: {autoLoad: false}}},
+  }}
+  fixture.stored.set('A', JSON.stringify(original))
+  const session = await fixture.open('A', {deferDefinition: false}), definitions = session.metadataDataSet.getView('DataViewDefinition')!
+  const add = (viewId: string) => definitions.addRow({dataSetId: 'A', dataModelId: 'M1', dataModelName: 'Orders', tableName: 'OrdersAlias', viewId, autoLoad: false})
+  await add('catalogApps')
+  if (reason === 'another') await add('otherDraft')
+  const row = definitions.rows.find(item => item['tableName'] === 'OrdersAlias' && item['viewId'] === 'catalogApps')!
+  return {fixture, original, session, key: String(definitions.getPkKey(row))}
+}
+
+it('enables a sole new named-view draft, opens preview, and does not save pagedata', async () => {
+  const prepared = await preparePreviewDraft('single')
+  const space = prepared.session.metadataDataSet.getView('Base_DataSet')!, models = prepared.session.metadataDataSet.getView('Base_DataModel')!
+  space.requestState = RequestState.Idle; models.requestState = RequestState.Idle
+  const loadSpace = vi.spyOn(space, 'loadFromServer'), loadModels = vi.spyOn(models, 'loadFromServer')
+  const {wrapper} = await mountPreviewEditor(prepared.fixture, prepared.session, prepared.key)
+  await flushPromises()
+  const previewButton = wrapper.get('[data-action="open-query-preview"]')
+  expect(previewButton.attributes('disabled')).toBeUndefined()
+  expect(loadSpace).toHaveBeenCalledOnce(); expect(loadModels).toHaveBeenCalledOnce()
+  await previewButton.trigger('click'); await flushPromises()
+  expect(wrapper.findComponent({name: 'DataSpaceQueryPreview'}).exists()).toBe(true)
+  const preview = await prepared.session.openPreview({modelId: 'M1', modelName: 'Orders', tableName: 'OrdersAlias', viewId: 'catalogApps'})
+  expect(preview.dataViewKey).toBe('A@Orders@catalogApps')
+  preview.dispose()
+  expect(prepared.fixture.fileWrites).toHaveLength(0)
+  expect(prepared.fixture.stored.get('A')).toBe(JSON.stringify(prepared.original))
+})
+
+it('keeps preview disabled when another view-definition draft is pending', async () => {
+  const prepared = await preparePreviewDraft('another'), {wrapper} = await mountPreviewEditor(prepared.fixture, prepared.session, prepared.key)
+  expect(wrapper.get('[data-action="open-query-preview"]').attributes('disabled')).toBeDefined()
+  expect(wrapper.findComponent({name: 'DataSpaceQueryPreview'}).exists()).toBe(false)
+  expect(prepared.fixture.fileWrites).toHaveLength(0)
+})
+
+it('refuses preview after the session execution context becomes stale', async () => {
+  const prepared = await preparePreviewDraft('stale'), {wrapper, revision} = await mountPreviewEditor(prepared.fixture, prepared.session, prepared.key)
+  prepared.fixture.invalidate(); revision.value++; await flushPromises()
+  expect(wrapper.find('[data-action="open-query-preview"]').exists()).toBe(false)
+  expect(wrapper.findComponent({name: 'DataSpaceQueryPreview'}).exists()).toBe(false)
+  expect(prepared.fixture.fileWrites).toHaveLength(0)
+})
+
 it('keeps the selected named view identity through a late field-directory response and saves/restores only that property', async () => {
   const fixture = dataSpacePageFixture({overviewOnly: true, deferDefinition: true}); fixtures.push(fixture)
   const targetId = '944DEE5A0E5170F903E0E008172C4CD2'

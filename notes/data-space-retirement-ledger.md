@@ -3662,3 +3662,9 @@ flowchart TD
 - **定向回归：**`pnpm exec vitest run tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts`：2 files / 101 tests passed。它证明仓内 loader 与内置 DataView fixture 合同，不证明本轮登录 SPA 的 D99 页面已成功加载 7AB DataView。
 - **现场序列补正：**从平台应用 DataView 切换到 D99 时，先短暂显示旧系统页身份失效；随后在下一次点击尚未执行（CUA 返回旧节点不存在）时，路由已自行落到 D99 服务器管理页并读到 5 行。因此不能把到达服务器页归因于再次点击导航。再由该真实 D99 页打开 DevSystem，仍显示 DataView 未就绪和 0 页面。00BE 切换时的父节点闭包错误属于另一个动态应用；不能据此解释 D99。
 - **状态：**D99 内置树的真实 SPA 读取仍未验收；00BE 的真实动态导航树因完整性错误仍未验收。前者需查 7AB runtime/仓内 file DataView 的现场加载失败，后者需取得正式完整行与权限结果后判断数据缺陷；不通过隐藏孤立记录或伪造完整树修复。
+
+### 2026-10-29 登录 SPA 的 builtin 树与动态目标切换实测
+
+- **D99 builtin 主树：**重新连接已授权 SPA 后，从正式平台应用目录进入 `D99A1DCE9894698799101EFD70F8FC76`，先打开其正式服务器管理页并读到 5 行；再由实际导航进入 DevSystem，等待 `state.initialize()` 完成。当前 7AB 仓内蓝图 DataView 返回 85 节点：14 模块、71 页面；42 个页面目标为 `vue:`、43 个目标为空、0 个 `cfg:`。这次是登录 SPA 的真实树读取，与仓内快照及前次零节点加载状态分开；证明本次 D99 builtin 树可用，但不代表其他应用无 cfg。
+- **00BE 动态应用切换：**从正式平台应用目录点击“数据资产管理”进入，principal/header 已变为 `00BE6ED455CD4BD7B785C61A12A1E67D`，但导航守卫显示原系统页身份已失效，应用目录最终显示 `进入应用失败: 蓝图 DataView 父节点闭包缺失：0F6317265D4A2F3BFAA31F4F6DC311FA -> 05F5F4DC24CE42FB815359EB84FFD33D`。未绕过闭包验证，未写远端数据；这使该动态项目的正式树、cfg 节点及其文件版本不可用作验收样本。
+- **证据边界：**当前可证 builtin D99 树确无 cfg；真实 cfg 动态项目仍未找到。00BE 的失败不能归因于 D99 builtin 源码或推广为所有动态应用的树状态。其缺父节点究竟是正式查询缺行、授权投影不完整还是后端关系数据异常，须以服务端正式查询返回及权限结果核对。

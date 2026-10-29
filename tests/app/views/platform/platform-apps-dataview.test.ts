@@ -10,6 +10,7 @@ const state = vi.hoisted(() => ({
   refresh: vi.fn<() => Promise<{success: boolean; message?: string}>>(async () => ({success: true})),
   dataSet: {} as {getView: () => unknown; onAnyViewChange: () => () => void; destroy: () => void},
   loadCatalog: vi.fn(async () => state.dataSet),
+  getFormalView: vi.fn((dataSet: {getView: () => unknown}) => dataSet.getView()),
   dispose: vi.fn(),
   projectSwitchKey: Symbol('PROJECT_SWITCH_KEY'),
   staleReceipt: false,
@@ -19,6 +20,7 @@ const state = vi.hoisted(() => ({
   isSysReadable: false,
   children: [] as Array<{type: string; props?: Record<string, unknown>}>,
   actions: [] as Array<{type: string; props?: Record<string, unknown>}>,
+  toolbar: {} as {children?: Array<{type: string; props?: Record<string, unknown>}>},
   viewKey: '',
 }))
 vi.mock('@spark-appworks/spark-project-model', () => ({PageRuntime: class {
@@ -31,7 +33,10 @@ vi.mock('@spark-appworks/spark-data', async importOriginal => {
   const actual = await importOriginal<typeof import('@spark-appworks/spark-data')>()
   return {...actual, buildDataViewKey: (model: string, view: string, space: string) => `${space}@${model}@${view}`}
 })
-vi.mock('@/lowcode/lowcode-application-catalog', () => ({loadLowcodeApplicationCatalog: state.loadCatalog}))
+vi.mock('@/lowcode/lowcode-application-catalog', () => ({
+  loadLowcodeApplicationCatalog: state.loadCatalog,
+  getFormalModelView: state.getFormalView,
+}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {session: {get: () => ({enterprise: {shortName: 'acme', chineseName: 'Acme'}})}},
   lowcodeEnterpriseDisplayName: () => 'Acme',
@@ -46,22 +51,21 @@ vi.mock('@spark-appworks/spark-component', () => ({
       state.viewKey = String(props.dataViewKey)
       state.children = props.children as typeof state.children
       state.actions = (props.actions as {children: typeof state.actions})?.children ?? []
-      return h('div', [h('button', {onClick: () => void state.refresh()}, '刷新'), ...state.actions.map(action => {
-        const fn = action.props?.['onClick']
-        return h('button', {onClick: () => typeof fn === 'function' && fn(state.rows[0])}, String(action.props?.['label']))
-      })])
+      state.toolbar = props.toolbar as typeof state.toolbar
+      return h('div')
     }
   }}),
 }))
 vi.mock('@spark-appworks/spark-app', () => ({getNavHomePath: () => '/home'}))
-vi.mock('@/services/tenant-scope', () => ({buildTenantPath: ({tenantId, projectId}: {tenantId: string; projectId: string}) => `/t/${tenantId}/${projectId}/home`}))
+vi.mock('@/services/application-scope', () => ({buildApplicationPath: ({projectId}: {projectId: string}) => `/apps/${projectId}/home`}))
 vi.mock('@/services/project/project-shell', () => ({PROJECT_SWITCH_KEY: state.projectSwitchKey}))
 
 const wrappers: Array<{exists: () => boolean; unmount: () => void}> = []
 beforeEach(() => {
-  state.dataSet = {getView: () => ({queryConfig: {allPages: true, distinct: true}, rows: state.rows,
+  const view = {queryConfig: {allPages: true, distinct: true}, rows: state.rows,
     get queryColumns() {return state.includeIsSys ? [{name: 'IsSys'}] : []},
-    fieldAccess: (_row: unknown, field: string) => ({read: field === 'IsSys' && !state.isSysReadable ? 'hidden' : 'visible'}), requestRefresh: state.refresh}),
+    fieldAccess: (_row: unknown, field: string) => ({read: field === 'IsSys' && !state.isSysReadable ? 'hidden' : 'visible'}), requestRefresh: state.refresh}
+  state.dataSet = {getView: () => view,
     onAnyViewChange: () => () => undefined, destroy: vi.fn()}
 })
 afterEach(() => {
@@ -75,6 +79,7 @@ afterEach(() => {
   state.loadCatalog.mockReset().mockResolvedValue(state.dataSet)
   state.dispose.mockReset()
   state.children = []; state.actions = []; state.viewKey = ''
+  state.toolbar = {}; state.getFormalView.mockClear()
   state.includeIsSys = false; state.isSysReadable = false
   state.staleReceipt = false; state.assertCurrent.mockReset().mockImplementation(() => {if (state.staleReceipt) throw new Error('selection was superseded')})
   state.switchAndReload.mockReset().mockImplementation(async () => ({assertCurrent: state.assertCurrent}))
@@ -94,21 +99,29 @@ describe('PlatformApps formal application catalog', () => {
   it('binds the standard table to the formal view and refreshes that DataView', async () => {
     const {wrapper} = await mountPage()
     expect(state.loadCatalog).toHaveBeenCalledOnce()
-    expect(state.viewKey).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
+    expect(state.viewKey).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@catalogApps')
+    expect(state.getFormalView).toHaveBeenCalledWith(state.dataSet, 'Base_AppSystemList', 'catalogApps')
     expect(wrapper.findComponent({name: 'RendererTable'}).props('showDataViewMeta')).toBe(true)
     expect(state.children.map(child => child.props?.['field'])).toEqual(['rowid', 'AppDesc', 'Memo'])
+    expect(state.children.every(child => child.type === 'r-text' && child.props?.['dataViewKey'] === state.viewKey)).toBe(true)
     expect(state.refresh).toHaveBeenCalledOnce()
-    await wrapper.get('button').trigger('click')
-    expect(state.refresh).toHaveBeenCalledTimes(2)
+    expect(state.toolbar.children?.[0]?.props).toMatchObject({dataViewKey: state.viewKey, action: 'refresh'})
+    expect(state.actions.every(action => action.props?.['dataViewKey'] === state.viewKey)).toBe(true)
   })
 
   it('hides the delete action when IsSys is absent or unreadable', async () => {
     await mountPage()
     const deleteAction = state.actions.find(action => action.props?.['label'] === '删除')
-    const visible = deleteAction?.props?.['onBeforeRender'] as ((scope: {row: object; dataSource: {fieldAccess: () => {read: string}}}) => boolean)
-    expect(visible({row: state.rows[0]!, dataSource: {fieldAccess: () => ({read: 'hidden'})}})).toBe(false)
-    expect(visible({row: {rowid: 'APP-2'}, dataSource: {fieldAccess: () => ({read: 'visible'})}})).toBe(false)
-    expect(visible({row: {rowid: 'APP-3', IsSys: null}, dataSource: {fieldAccess: () => ({read: 'visible'})}})).toBe(false)
+    const visible = deleteAction?.props?.['onBeforeRender'] as ((scope: {row: object; dataSource: unknown}) => boolean)
+    const dataSource = state.dataSet.getView()
+    expect(visible({row: state.rows[0]!, dataSource})).toBe(false)
+    expect(visible({row: {rowid: 'APP-2'}, dataSource})).toBe(false)
+    expect(visible({row: {rowid: 'APP-3', IsSys: null}, dataSource})).toBe(false)
+    state.includeIsSys = true
+    state.isSysReadable = true
+    expect(visible({row: {rowid: 'APP-4', IsSys: 0}, dataSource})).toBe(true)
+    state.isSysReadable = false
+    expect(visible({row: {rowid: 'APP-4', IsSys: 0}, dataSource})).toBe(false)
   })
 
   it('renders the type field only when formally projected and formats known values', async () => {
@@ -123,13 +136,15 @@ describe('PlatformApps formal application catalog', () => {
     expect(format(undefined)).toBe('')
   })
 
-  it('enters the row identity using the logged-in enterprise in the tenant route', async () => {
+  it('switches by projectId and navigates to the project home path', async () => {
     const {router, wrapper} = await mountPage()
-    await wrapper.findAll('button').find(button => button.text() === '进入')!.trigger('click')
+    const enter = state.actions.find(action => action.props?.['label'] === '进入')?.props?.['onClick']
+    expect(enter).toBeTypeOf('function')
+    await (enter as (row: object) => Promise<void>)(state.rows[0]!)
     await flushPromises()
     expect(state.switchAndReload).toHaveBeenCalledWith('APP-1')
     expect(state.assertCurrent).toHaveBeenCalledTimes(2)
-    expect(router.currentRoute.value.path).toBe('/t/acme/APP-1/home')
+    expect(router.currentRoute.value.path).toBe('/apps/APP-1/home')
   })
 
   it('does not navigate when the project switch receipt is stale', async () => {
@@ -137,7 +152,9 @@ describe('PlatformApps formal application catalog', () => {
     const {router, wrapper} = await mountPage()
     const push = vi.spyOn(router, 'push')
     const error = vi.spyOn(ElMessage, 'error')
-    await wrapper.findAll('button').find(button => button.text() === '进入')!.trigger('click')
+    const enter = state.actions.find(action => action.props?.['label'] === '进入')?.props?.['onClick']
+    expect(enter).toBeTypeOf('function')
+    await (enter as (row: object) => Promise<void>)(state.rows[0]!)
     await flushPromises()
     expect(state.assertCurrent).toHaveBeenCalledOnce()
     expect(push).not.toHaveBeenCalled()

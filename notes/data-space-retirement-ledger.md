@@ -3483,9 +3483,9 @@ flowchart TD
 ### 2026-10-29 history/快照未知回执当前复核
 
 - **当前自动化证据：**主控在当前 `codex/ai-data-entry` worktree 重新运行 `pnpm exec vitest run packages/spark-data/src/tests/query/file-resource-adapter.test.ts tests/app/dev/page-tool-files-command.test.ts tests/app/dev/file-versions/dev-file-editor-versions.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot`，最终 4 files / 110 tests passed。覆盖 DataView source 历史 list/preview/create、DataView 销毁后按原版本核验、确定拒绝记为 not-applied、DataView 命令快照上传未知后复用原快照命令且只上传一次、恢复版本的正式 DataView/DataSet 命令链及页面身份切换守卫。编辑器旧测试 mock 仍断言 `field` 别名，已改为标准 `dataField`，并补足当前 `import * as SparkComponent` 使用的命名 mock；编辑器单文件 11/11 通过。此证据只证明自动化执行器与 UI 夹具，不证明生产服务状态。
-- **真实 SPA 会话：**早先记录的 `127.0.0.1:5273` 连接拒绝已过时。本轮确认本地前端端口正在监听；IAB 实际加载了 SPARK 首页及 `/login` 登录页，登录页提供企业、用户名、密码输入，但没有已登录工作台会话。尝试通过原生 Chrome 控制时，Computer Use 因无法可靠确认当前浏览器 URL 而停止；没有继续在桌面浏览器操作。未自动登录、未启动 Java、未写真实文件或快照。因此真实场景历史 list/preview/create/恢复及服务端回读/重开仍未完成，不能用本地 fixture 测试代替。
+- **真实 SPA 会话：**早先记录的 `127.0.0.1:5273` 连接拒绝已过时。本轮确认本地前端端口正在监听；IAB 可加载 SPARK 首页及 `/login`。使用用户此前授权的 Windows DPAPI 测试账号后，Playwright Chromium 经 SPA 成功登录到 `/t/NewApp/homepage/app-list`；`/api/LoginAuthority/UserLoginByEnt` 与 `/api/DataOperation/GetBaseData` 均返回 200。登录后页面只显示“应用列表”空工作区及“创建应用”入口，无现存应用卡片/开发工作台可进入，网络记录也没有其它 `/api/` 业务数据响应。未创建远端应用、未做业务写入、未启动 Java。故真实场景历史 list/preview/create/恢复及服务端回读/重开仍未完成；不能用本地 fixture 测试代替。此前原生 Chrome 控制因无法可靠确认 URL 被 Computer Use 停止，该事实不影响本次 Playwright 登录验证。
 - **owner 清除目标：**用户“理论上应该清除 owner”要求清掉 lowcode/页面侧作为第二数据层存在的 owner 类、状态及查询/编辑/取消/保存/回执协调入口；页面直接消费 SPARK data 的 DataSet/DataView。通用文件资源绑定、存储 transport 和确需的 attempt/receipt 状态归 SPARK data 资源适配内部，按 DataSet、资源和目标身份管理，不保留业务层 owner facade。不能只隐藏 getter、移除页面可见 API、改名或搬文件后宣称完成。领域命令仅保留业务所需的输入校验、跨资源顺序及补偿规则，并通过 DataSet/DataView 提交。
-- **后续顺序：**在线历史验收仍待已认证且可控的 SPA 会话；当前分支的快照 unknown attempt 自动化合同已复核。按总目标继续审计 builtin 项目树与工具三文件正式映射、旧结构/旧测试清理，不将真实 SPA 缺口标成通过。
+- **后续顺序：**在线历史验收当前已完成 SPA 登录验证，但此账号的应用列表没有现存开发工作台，不能进入工具三文件/版本界面；在取得可用的现存应用与页面目标前，不创建远端测试应用。当前分支的快照 unknown attempt 自动化合同已复核。真实历史 list/preview/create/恢复及服务端回读仍未通过；后续按总目标完成该验收，再继续 builtin 项目树及工具三文件正式映射，不能将真实 SPA 缺口标成通过。
 
 ### 2026-10-29 PageTool 历史/快照迁入 DataView 来源生命周期
 

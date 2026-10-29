@@ -3496,6 +3496,20 @@ flowchart TD
 - **owner 清除边界与本切片（后续直接消费切片，取代本节上一版未完成结论）：**目标仍是移除 lowcode/页面层通用资源 facade、生命周期/保存/取消/回执协调入口；通用文件 DataTable/DataView 创建、transport adapter binding 与文件 attempt/receipt 生命周期在 spark-data。`getOrCreateFileResourceView` 现由 spark-data 承担通用建表、命名视图复用及 adapter 绑定；`useDevState` 对页面文件通过 DataView 查询/改行，并直接调用 `DataSet.saveChanges`，Save All / 外部会话也按脏 DataView 提交；`DevFileEditor` 直接通过 `DataView.discardPendingChanges` 取消，再同步 PageTool 文件投影。删除了 `PageToolFilesDataView`、其通用文件读/保存/取消接口及页面 DataView Map/release 生命周期；`PageToolFileCommands` 只保留 PageTool 创建、补偿、删除和恢复的领域命令、目录删除前置检查及对应命令回执，不承接普通页面文件保存/编辑/取消。页面投影同步仍发生在保存确认后，是 PageTool 领域状态同步，不是第二份文件持久化入口。回归用例断言旧 facade 与其保存/加载/取消方法不存在，并验证 DataView 编辑和 DataSet.saveChanges 的实际调用及上传结果。`ProjectToolVersion@default` 仍是同后端资源的标准 DataView 列表，不是待删旁路。
 - **当前残余与验证：**`useDevState` 仍有加载/目标身份检查及 PageTool 投影同步编排；`PageToolFileCommands` 仍注册 PageTool 专属命令 DataView 和目录预检 DataView，供跨资源创建/删除/恢复领域命令使用；后续应继续确认各命令调用者和回执边界，不把它描述成普通文件保存链。主控独立复跑 5 files / 173 tests、typecheck、ClassModel 校验（4 files / 49 tests）、涉及文件 ESLint `--max-warnings=0`、完整 `verify:rules`、build 和 `git diff --check` 均退出 0。正式生成 ClassModel 与 lowcode contracts 退出 0（611 endpoints / 208 consumers）；规则扫描保留既有 AI model spec 2 warnings / 1 info；独立 build 为 packages 0 built / 8 skipped、前端 3292 modules，保留既有 CodeMirror `INEFFECTIVE_DYNAMIC_IMPORT` warnings。未完成真实服务持久写入、回读与重开验收；未启动/修改 Java。历史段落中的 `PageToolFilesDataView` 记载实施当时状态，不能用作当前接口合同。
 
+### 2026-10-29 应用路由移除租户段
+
+- **路由合同：**前端业务路径统一为 `/apps/{projectId}/{pagePath}`。`/t/{tenantId}/...` 不再是前端路由身份；路径 helper、DynamicRouter 前缀、登录后导航守卫、应用切换、跨应用引用、系统页身份、平台应用列表及相关测试夹具均改为应用身份。旧路由没有兼容别名。`src/services/application-scope.ts` 是唯一应用路径解析/构造 helper；源码保留的 `/t/` 只用于负向测试，断言旧格式不再解析。后端认证会话合同未因 URL 改动而改写。
+- **活动文档：**将平台路由文档改为 `docs/architecture/platform-application-routing.md`，同步更新系统架构和架构索引，移除过期大写文档名 allowlist 项；不把台账中旧 SPA URL 证据改写成当前事实。
+- **验证：**主控复跑应用路由相关 7 files / 80 tests，DynamicRouter 2 files / 46 tests，正式 `pnpm run generate:class-model-surface`、`pnpm run typecheck`、`pnpm run build` 与完整 `pnpm run verify:rules` 均退出 0；生成 ClassModel 991 DTS / 2049 symbols / 1642 index entries，lowcode ledger 611 endpoints / 208 consumers。规则扫描保留既有 AI model spec 2 warnings / 1 info；构建保留既有 CodeMirror `INEFFECTIVE_DYNAMIC_IMPORT` warning。`application-switch.test.ts` 当前 13/16，3 项未渲染 AppList 按钮（Vue 测试未注册 Element Plus 渲染组件）；`api-pages` 路径保持断言通过，但同一批次另外 2 项因 `lowcodeDesignFileUpload` mock 缺失失败；这些未被记为通过。
+- **验收边界：**本片未完成真实 SPA 新路径烟测，也未证明路由切换后的真实服务查询/持久化。按当前唯一台账顺序，优先完成真实场景历史 list/preview/create/恢复及未知快照 attempt 核验；应用列表无可用现存应用时不得创建远端测试应用来伪造入口。
+
+### 2026-10-29 应用切换 SPA 复测发现身份路由阻断
+
+- **当前环境与只读路径：**仅启动本 worktree 的 Vite 前端（`127.0.0.1:5273`），未启动或修改 Java。使用已授权测试账号登录成功，实际地址为 `/apps/homepage/app-list`，应用目录显示 56 个已有应用。未创建、删除或设置远端应用。
+- **可复现异常：**从目录选择现存“数据资产管理”应用（页面顶栏切换到应用 ID `00BE6ED455CD4BD7B785C61A12A1E67D`）后，URL 仍停在 `/apps/homepage/app-list`，页面显示“无法确定系统页面 / 原页面身份已失效，请从导航菜单重新选择”。之后一次直接访问该应用 `/dashboard` 路径得到空白页；浏览器返回后，应用目录可重新加载。当前说明应用目录的读取与新 URL 形式通过了登录/加载，但跨应用运行导航没有通过真实 SPA 验收。
+- **待定位：**现象出现在应用切换的目标导航刷新/系统页 owner 替换/目标首页 push 之间。尚未取得失败请求及目标 `homePath` 的运行时证据，不据此假定是 URL 构造、会话激活、权限响应或 PageRuntime 中任一单因；没有进行修补或历史文件写操作。前端系统页身份 scope 仍名为 `tenant`，与确认的 application-only 路由语义不一致，需在定位时一并按真实合同核对并更名。
+- **优先项影响：**在目标应用现存开发工作台页面可达前，不能进行场景历史 list/preview/create/restore 和未知快照回执的真实服务闭环；不通过创建新远端应用绕开此问题。该 SPA 阻断替代上一条“本片未完成真实 SPA smoke”的状态，自动化测试通过不能替代本项。
+
 ### 2026-10-29 Save All unknown PageTool receipt hint follows SPARK data DataView
 
 - **现状与修复：**PageTool 普通文件提交已迁入 SPARK data 文件 DataView，但 DevSystem “场景定义”提交失败提示仍只检查旧 `workspace.unconfirmedPageFiles` / 命令对象状态，导致文件 DataView 内存在 unknown receipt 时漏掉“再次保存先核验原工具提交”的保护提示。现在同时检查当前蓝图 DataSet 内 PageTool 文件 DataViews 的 `hasUnconfirmedSave`，仅修正错误提示，不改变提交、核验或取消行为。
@@ -3508,3 +3522,74 @@ flowchart TD
 - **修复：**`isBlueprintViewAttachedToRuntime` 现在要求 PageRuntime 持有同一个 scenario DataSet，且同一 DataSet 以原始 `tableName + viewId` 返回完全相同的 DataView 实例；设计页读取树投影前和 PageRuntime 装配后都走该核验。动态远端模型仍按真实正式绑定装配；没有伪造模型键或新增业务查询/owner。
 - **验证：**加入同 DataSet/同 DataView 正例与另一 DataSet 负例。主控独立运行 `tests/app/dev/dev-site-tree-move.test.ts` 与 `tests/runtime/page/design/native/data-space-design-page.test.ts`，2 files / 377 tests 通过；`pnpm run typecheck`、目标 ESLint、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均退出 0。ClassModel 正式生成后仅出现无源码对应的 symbol ID 顺序、时间戳与 manifest 噪声；确认无真实公开合同内容变化后恢复生成噪声。Rules 保留 AI model spec 的 2 warnings / 1 info，build 保留既有打包警告。
 - **真实验收边界：**本轮新开的本地 SPA 页签没有继承之前的登录态，停在 `/login`；未操作真实场景历史，也未创建快照。历史列表、预览、创建、恢复及 unknown attempt 的服务回读/重开仍未验收，不能用本次模拟器测试宣称完成。未改 Java，未写远端业务数据。
+
+### 2026-10-29 应用路由租户命名清除更正
+
+- **用户纠偏：**前端不考虑租户。上一节指出“系统页身份 scope 仍名为 tenant”后，已将应用导航身份 scope 改为 `application`，系统页实例键只含应用 `projectId`，移除身份池中的 `tenantId` 键；应用目录页注册 scope 从 `tenant` 改为 `catalog`，目录导航按 `catalog` 取页。路径继续只有 `/apps/{projectId}/{pagePath}`，没有租户路径参数、租户别名或租户身份参与路由解析。
+- **同步：**应用目录 scope schema、配置、注册器、DynamicRouter、低代码目录导航、路由测试夹具及应用路径 mock 均已对齐；清除了开发态临时 SPA 代理日志。后端认证会话及正式 API 的认证请求合同未在本次改动中变更；这不构成前端路由/页面身份的租户维度。
+- **生成：**运行正式 `pnpm run generate:class-model-surface`，产物报告 991 DTS、2049 symbols、1642 index entries。
+- **边界：**本次只改前端路径和页面身份命名；未执行自动化测试，真实 SPA 应用切换和数据请求仍按上一节记为未通过/未验收。上一节“scope 仍名为 tenant”是更改前事实，不再代表当前源码。
+
+### 2026-10-29 DevSystem 工作区身份收敛到应用 ID
+
+- **用户纠偏：**前端不考虑租户；路由、DevSystem 项目选择和页面状态都以应用 ID 为身份。租户数据范围与授权由后端按登录态处理，前端不把租户拼进工作区身份或本地缓存键。
+- **实施：**`ProjectWorkspaceScope`、主/蓝图工作区缓存键、DevSystem 当前编辑 scope、owner bundle 键、项目选择器状态、预览路由快照、活动页面 localStorage 键及页面身份展示统一只使用 `projectId`。页面策划附件调用不再传 `tenantId`。Owner 仍用当前认证请求 token 校验异步代次和待处理 owner 续接；这是防止过期/跨登录请求复用，不作为租户路由或业务数据授权。
+- **验证：**`pnpm run typecheck` 退出 0；`tests/app/dev/dev-state-page-file-closed-loop.test.ts` 72/72 通过；涉及源文件及用例 ESLint `--max-warnings=0` 通过，`git diff --check` 无空白错误。测试中原有“其他租户项目”场景改为“其他应用项目”，项目编辑仍通过 DataView 保存，未改变服务端授权。
+- **范围边界：**该切片清理应用工作台的前端身份维度；平台租户管理等独立既有业务页和后端登录会话合同不在本次删除范围。场景历史真实 SPA 的恢复并保存重开仍未完成，不能用上述自动化验证代替。
+
+### 2026-10-29 场景历史真实 SPA 恢复与保存
+
+- **运行验收：**在已登录的 `http://127.0.0.1:5273/apps/D99A1DCE9894698799101EFD70F8FC76/dev` SPA 中，打开场景 `90A82E287930A234FEC3E687C94A93EA`；历史列表实际返回 `1__pagedata.json` 与 `2__pagedata.json`。历史预览 v1 显示原定义 `Base_DataSet@catalog.pageSize=10`。创建 v1 后的 v2 曾注入成功响应丢失，界面进入 unknown 并阻止重复创建；只读核验原 attempt 的版本号、名称及文本后界面确认原快照并恢复创建入口。刷新列表仍只见 v1/v2。纠正：两份快照均是原定义，不能称 v2 为修改内容；目前无法仅凭历史文件区分创建方式，unknown→核验成功的因果证据以当次 SPA 状态及单次 POST 记录为准。
+- **恢复与重开：**之后在同一 SPA 将当前定义 `pageSize` 改为 11 并经“保存场景视图”写入，再恢复 v1 到定义草稿；SPA 明示“历史已恢复到定义草稿；显式保存后生效”，草稿预览变回 `pageSize: 10`，随后点“显式保存定义”。重新登录并从应用导航重进 DevSystem、选择 `DataSetManage` 后点击重新加载，编辑器回读 `pageSize: 10`、场景 ID 正确、保存按钮禁用；重开后历史列表仍显示 v1/v2。活动文件回读 `pageSize: 10`，SHA256 `0093B30A5AA1F06AD803B45CBB2F85144B1102DB19E0AB6FF2C1E9FC85A9311E`；v1/v2 各为 SHA256 `32918F306C64D6A29D2BF29A3D612CA1DD71038BB05AA16A8B4E7C2A7C2701FF`。SPARK data owner 将活动定义紧凑序列化，因此当前字节哈希与仓内漂亮格式不同，JSON 结构和值一致。
+- **边界：**SPA 的 list/preview/normal create/unknown attempt 原快照核验/恢复草稿/显式保存/重新进入后重载均有实际证据。unknown 因果记录来自之前的浏览器采集；本轮独立复核了当前 SPA 列表与持久化产物，但没有重新注入一次未知响应。测试与当前目标切换仍待验收；不据此宣称整体场景历史专题或总目标完成。
+
+### 2026-10-29 前端应用身份彻底去租户维度
+
+- **用户再次纠偏：**前端不考虑租户。应用路径、DevSystem/标签页身份、选择器与页面本地偏好只按应用 ID；前端不得把登录企业名作为租户工作区维度。
+- **实施：**继续清除应用壳层 localStorage 的 `tenant:{id}:project:{id}` 键格式，改为 `project:{id}`；应用项目设置读取、弹窗和命令只传 `projectId`，认证续期只核对请求 token；删除标签页公开类型中的遗留 `tenantId`。平台租户管理等独立后台功能和底层登录/API 会话结构不作为应用页面身份输入。
+- **验证：**正式 `pnpm run generate:class-model-surface` 成功（991 DTS / 2049 symbols / 1642 index entries）；`pnpm run typecheck` 成功；项目设置 2 个用例文件 9/9 通过；应用切换与应用列表两个测试文件 24/24 通过；所涉文件 ESLint `--max-warnings=0` 通过；工作区应用路径及身份文件中 `tenantId`、`tenant:`、`/t/`、旧 tenant helper 搜索无命中。另将应用目录默认场景断言修正为真实 `catalogApps` DataView，并补全切换测试中的正式模型视图 fixture；此前 3 个切换用例未渲染应用入口的失败由错误 fixture 导致，修正后通过。全仓仍保留平台租户管理及底层认证/API 的租户合同。
+- **边界：**真实 SPA 应用切换及目标路径仍待继续验收；当前浏览器会话已退出，本轮未复现或修复既有跨应用导航阻断。此条不代表全仓已无任何 tenant 字符串，也不代表总目标完成。
+
+### 2026-10-29 场景历史与应用切换自动化复核
+
+- **复核：**`tests/app/dev/use-dev-state-page-data-history.test.ts` 与 `packages/spark-data/src/tests/query/file-resource-adapter.test.ts` 合计 35/35 通过，覆盖场景历史列表/预览/恢复范围，以及 DataView source-history unknown attempt 跨 view 销毁重绑后核验原版本、不得换 attempt identity 的行为。应用切换与应用目录测试两文件 24/24 通过；`pnpm run typecheck` 通过，目标 ESLint `--max-warnings=0` 通过。
+- **应用目录合同修正：**代码实际把默认目录绑定到 `Base_AppSystemList@catalogApps`；旧断言误写 `@default`。应用切换测试此前模拟目录数据集不满足页面正式视图消费，导致 3 个按钮未渲染假失败；按当前正式 DataView 绑定补齐 fixture 后，入口与回执测试通过。测试日志仍有既有 Element Plus 未注册 stub 警告，不计作无警告。
+- **边界：**本轮浏览器无登录态，重新进入本地登录页但没有成功建立认证会话，未完成真实 SPA 应用目标切换，也未重复执行远端历史快照 create/restore；上述离线合同覆盖不能替代线上回读与重开。
+
+### 2026-10-29 应用前端身份边界再次确认
+
+- **用户再次明确：**前端不考虑租户。应用路由范围合同为 `{ projectId }`，路径前缀为 `/apps/{projectId}`；此规则不附加租户维度。
+- **本轮修正：**清理应用列表、项目设置弹窗及应用路由 composable 中将应用功能描述为租户路由/租户流程的误导性注释；应用列表组件标识改为 `app-list`。`application-scope.ts` 的解析和构建接口仅含 `projectId`。
+- **验证：**`pnpm run generate:class-model-surface` 成功（991 DTS / 2049 symbols / 1642 index entries）；未运行测试。
+- **边界：**真实 SPA 跨应用目标切换仍待验收，不能以本轮注释与生成产物更新替代。
+
+### 2026-10-29 真实 SPA 应用与场景目标切换复核
+
+- **应用切换：**在已授权登录会话中，从 `/apps/homepage/app-list` 经正式应用目录 DataView 选择“元数据管理”，成功进入 `D99A1DCE9894698799101EFD70F8FC76` 的数据库服务器管理页；URL 为 `/apps/D99.../features/data-platform/database-management/ui/service-management-page?__sparkNavigationId=78C...`，页面实际读到 DataView 行。前端应用路由只含 `/apps/{projectId}`，没有租户维度。
+- **场景历史当前复核：**沿 D99 应用 `DevSystem` 选正式导航节点 `90A82E287930A234FEC3E687C94A93EA · DataSetManage`，历史列表返回 `1__pagedata.json` 与 `2__pagedata.json`，第一版只读预览含 `Base_DataSet@catalog.pageSize=10`。切到 `8D1AB14DD8277F3E7017CD38F77B09FD · DataSetDesign` 后历史面板无版本；切回 90A 后重新只见原两版，未串用目标。本轮未执行保存、恢复或创建。
+- **失败目标证据：**从目录尝试切换到“数据资产管理” `00BE6ED455CD4BD7B785C61A12A1E67D`，目标应用 `Base_NavigationInfo` DataView 在路由提交前报告父节点闭包缺失 `0F6317265D4A2F3BFAA31F4F6DC311FA -> 05F5F4DC24CE42FB815359EB84FFD33D`；不跳过完整性检查、不改远端记录。另一个有效目标 D99 已切换成功；该目标的数据问题仍单独待处理。
+- **证据：**[`spa-current-session-target-switch.json`](evidence/repository-scenario-history-20261029/spa-current-session-target-switch.json)。本轮使用现有实际前端服务，未修改/启动 Java；真实创建未知回执、恢复保存及重开证据仍引用前述同场景原始记录，未以本轮只读复核替代。
+- **builtin 树与普通应用补充复核：**同一 D99 DevSystem SPA 实际投影 85 个树节点（14 模块、71 页面、42 个 vue 目标、0 个 cfg），运行菜单仍只显示当前服务端授权返回的可达项；源链为仓内 7AB RepositoryScenario DataView → BuiltinBlueprintNodeResource → BlueprintWorkspaceDataView.loadProjectTree。应用目录切换到普通动态应用 `BE7C7452A333B0EB675F1EACBA035E8F` 后实际进入 `/apps/BE7.../dashboard`，其 DevSystem DataView 读到 4 节点、2 个 `/delivery/...` 页面目标、0 个 cfg。当前抽查的 builtin/动态项目都没有 cfg 三文件映射对象；不能为原生 Vue 或路由页伪造三文件。
+- **待续范围：**本轮只读切换不能替代跨目标旧 cfg 真实文件清单或文件读回；其余正式 cfg 消费者与三文件注册/版本映射仍须逐项核。00BE 父节点缺失是独立数据完整性阻断，本轮未改写。
+
+- **路由夹具修正：**将运行时导航测试中的旧双段路径更新为 /apps/{projectId}，并将别名测试常量改名为 APPLICATION_PREFIX。pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts tests/runtime/auth-nav/database-table-view-route-alias.test.ts：2 文件、55/55 用例通过。
+
+### 2026-10-29 cfg 工具目标单段身份校验
+
+- **RED 证据：**新增回归用例后先运行现有解析与运行导航测试；4种目标 `cfg:APP/tool`、带 query、`../`、编码分隔符均被错误解析为文件 pageId，运行导航也未拒绝 `cfg:PROJECT-1/orders`。这与真实工具文件 owner 的单段 pageId 合同不一致。
+- **修正：**`parseConfigToolPageId` 只接受非空、无空白变体、非 `.`/`..` 且不含路径分隔符、编码分隔符、控制符、query/hash 的单段 cfg 身份；树目录与运行导航共用解析，运行导航对非法已授权目标明确失败关闭。合法工具仍与 nodeId、scenarioId 分离，发布仍只更新 VersionId。
+- **验证：**RED 后修复；`pnpm exec vitest run packages/spark-project-model/tests/project-model.test.ts tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts` 72/72；正式 `pnpm run generate:class-model-surface` 成功（991 DTS / 2049 symbols / 1642 entries）；`pnpm run typecheck` 通过；改动文件 ESLint `--max-warnings=0` 通过；`pnpm run verify:rules` 退出 0（其中 AI model spec 仍报告既有 2 条 warning、1 条 info）；`pnpm run build` 退出 0；定向 `git diff --check` 无空白错误。
+- **未完成项：**D99 builtin 与 BE7C 普通应用的实测 cfg 数均为 0；尚未从正式授权 DataView 取得真实存在 cfg 节点的动态应用完整清单，也未逐个回读相应工作文件/VersionId 快照。因此不能据本片推断历史 `cfg:APP/tool` 是否均可迁移，也不能宣称工具三文件正式映射闭环完成。没有修改 Java 或远端业务记录。
+
+### 2026-10-29 前端应用身份回归复核
+
+- **用户纠偏与当前源码：**前端不考虑租户；应用路由与页面身份只用 `projectId`，规范路径为 `/apps/{projectId}/...`。本轮在指定工作树复核主壳、动态路由、导航守卫、DevSystem 标签身份与应用切换链；命中 `tenantId` 的运行时引用只在低代码登录会话装配处，不作为路由/页面/项目工作区身份。
+- **验证：**7 个应用路由/切换测试文件 146/146 通过；`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run lint`、`pnpm run build` 均退出 0。Rules 保留既有 AI 模型 2 warning/1 info；build 有既有 vendor annotation、chunk size 与 CodeMirror dynamic import 提示。
+- **现场边界：**5273 指定 `/apps/homepage/app-list` 后被当前未认证 SPA 重定向到公开首页；本轮没有登录，也未把公开页当作真实应用切换或 cfg 映射证据。动态应用的正式 cfg 清单和三文件逐项回读仍未完成。
+
+### 2026-10-29 前端应用路径回归与目录夹具对齐
+
+- **用户约束：**前端不考虑租户；页面与应用身份仅含 `projectId`，路径为 `/apps/{projectId}/...`。本轮不把 tenant 加入路由、目录返回路径或场景身份。
+- **修正：**数据空间目录回归用例此前仍使用 `/t/{tenant}/{project}`；已改成 `/apps/{projectId}`，其返回路径和设计器导航断言也同步为单段应用身份。用例在触达路径断言前暴露出蓝图夹具不匹配：项目蓝图 pagedata 的 `Base_AppSystemList` 使用蓝图场景自己的正式 `modelId`，而夹具复用了目录场景 ID；按各自配置修正模型身份，并为蓝图 pagedata 明确声明的两个只读文件资源注入不参与本用例数据断言的空查询 executor。
+- **验证：**`pnpm exec vitest run tests/runtime/page/catalog/data-space-four-file.test.ts tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts packages/spark-project-model/tests/project-model.test.ts`：3 files / 137 tests 全部通过；`tests/runtime/auth-nav/data-space/view-design/project-tool-resource.test.ts`、`project-tool-version-resource.test.ts` 与 `file-resource-query-parameters.test.ts`：3 files / 20 tests 全部通过；落盘后 `git diff --check` 退出 0（仅有工作树 CRLF 提示）。此结果仅覆盖所列回归，不代表完整 Vitest 全量通过；本仓更早完整运行仍有未解决失败项。
+- **真实服务边界与下一步：**当前 CUA 浏览器清单没有可复用的已登录 SPA 标签，故本轮未做真实服务读回/发布。已有台账记录的 D99 与 BE7C 项目正式导航树各自为 0 个 cfg 节点；因此这次自动化结果不能证明任何真实 cfg 三文件路径及 `VersionId` 映射。继续寻找真实授权 DataView 中存在 cfg 的项目并逐项核对三文件工作文本、发布快照和 VersionId；不创建远端应用或用模拟记录冒充 SPA 证据。

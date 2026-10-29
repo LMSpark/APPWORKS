@@ -3654,3 +3654,11 @@ flowchart TD
 - **BE7C 工作台：**打开既有记录中的 `/apps/BE7C7452A333B0EB675F1EACBA035E8F/dev?__sparkNavigationId=appworks-tool-dev` 后页面保持空白；没有可读取的导航树或 cfg 节点证据。
 - **结论：**用户登录已确认，但实时目录/蓝图 DataView 目前不能提供可验收的正式节点数据。真实 cfg 项目的工具三文件、发布 `VersionId` 和持久回读仍未验证；先保留为未完成，不按树为空推断无 cfg，也不绕过数据完整性检查或写远端记录。
 - **补充复核：**应用列表页主体为空后，通过顶栏“平台应用管理”打开正式应用 DataView，读取到 62 行/62 总数，登录企业为领码科技；其中“元数据管理”对应 D99。经该表“进入”后应用 principal 切到 D99，但旧平台页路由提示“应用范围已切换，请重新选择页面”；重新点正式顶栏导航后进入 D99 服务器管理页且读到 5 条 DataView 行，证明平台应用目录及 D99 普通业务页可用。再从 D99 顶栏进入“开发工作台”，仍显示“项目蓝图 DataView 尚未就绪、0 页面”。这把失败范围收窄到 DevSystem 项目蓝图数据未就绪；仍不足以判断节点/Cfg 数量。
+
+### 2026-10-29 D99 内置蓝图身份与运行时核对补正
+
+- **身份纠正：**当前仓 `config/applications/appworks.json` 将 `D99A1DCE9894698799101EFD70F8FC76` 登记为唯一 AppWorks builtin application；其 `projectBlueprint` 正式场景为 `7AB874097A1E8711A42FD845939A6E05`。此前将 D99 描述为“普通动态应用”的台账文字不准确，不能继续作为判断依据。
+- **仓内接线：**该 7AB 场景 pagedata 声明 `RepositoryBlueprintNode` file DataTable/DataView；`loadLowcodeRuntimeScenario` 的 builtin executor 明确接到仓内导航文件资源；`BlueprintWorkspaceDataView` 对 D99 选择此只读 DataView，不回退到数据库 `Base_NavigationInfo`。源码合同已存在。
+- **定向回归：**`pnpm exec vitest run tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts`：2 files / 101 tests passed。它证明仓内 loader 与内置 DataView fixture 合同，不证明本轮登录 SPA 的 D99 页面已成功加载 7AB DataView。
+- **现场序列补正：**从平台应用 DataView 切换到 D99 时，先短暂显示旧系统页身份失效；随后在下一次点击尚未执行（CUA 返回旧节点不存在）时，路由已自行落到 D99 服务器管理页并读到 5 行。因此不能把到达服务器页归因于再次点击导航。再由该真实 D99 页打开 DevSystem，仍显示 DataView 未就绪和 0 页面。00BE 切换时的父节点闭包错误属于另一个动态应用；不能据此解释 D99。
+- **状态：**D99 内置树的真实 SPA 读取仍未验收；00BE 的真实动态导航树因完整性错误仍未验收。前者需查 7AB runtime/仓内 file DataView 的现场加载失败，后者需取得正式完整行与权限结果后判断数据缺陷；不通过隐藏孤立记录或伪造完整树修复。

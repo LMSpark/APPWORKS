@@ -6,7 +6,7 @@
  */
 import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
-import type {ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
+import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 
@@ -1397,4 +1397,11 @@ export class BlueprintWorkspaceDataView {
     this.assertUsable()
     if(this.#readOnlySource)throw new Error('BUILTIN_BLUEPRINT_READ_ONLY: 仓内蓝图来源当前只读，不能新增、移动、修改或删除')
   }
+}
+
+/** Confirm this exact workspace DataView is hosted by the PageRuntime DataSet for its scenario. */
+export function isBlueprintViewAttachedToRuntime(runtime: PageRuntime, scenarioId: string, workspace: BlueprintWorkspaceDataView): boolean {
+  const dataSet = runtime.getDataSet(scenarioId)
+  const view = workspace.view
+  return dataSet === workspace.dataSet && dataSet.getView(view.tableName, view.viewId) === view
 }

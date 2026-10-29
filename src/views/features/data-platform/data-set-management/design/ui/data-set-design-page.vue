@@ -320,7 +320,7 @@ import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataVie
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
-import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import {BlueprintWorkspaceDataView, isBlueprintViewAttachedToRuntime} from '@/services/project/blueprint-workspace-dataview'
 import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import DataSpaceParametersEditor from '../parameters/DataSpaceParametersEditor.vue'
 import DataSpaceViewEditor from '../views/DataSpaceViewEditor.vue'
@@ -1464,9 +1464,8 @@ async function load(): Promise<void> {
       const runtime = pageRuntime
       const owner = blueprintWorkspace
       const dataSet = blueprintDataSet
-      const key = buildDataViewKey('Base_NavigationInfo', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
       if (!runtime || !owner || !dataSet || runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY) !== dataSet
-        || runtime.resolveView(key) !== owner.view) throw new Error('PROJECT_TOOL_CATALOG_OWNER: 正式导航 DataView 尚未由当前页面 PageRuntime 接管')
+        || !isBlueprintViewAttachedToRuntime(runtime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, owner)) throw new Error('PROJECT_TOOL_CATALOG_OWNER: 原导航 DataView 尚未由当前页面 PageRuntime 接管')
       return owner.treeProjection()
     }})
     if (!active || generation !== ownGeneration) {opened.dispose(); return}
@@ -1487,8 +1486,9 @@ async function load(): Promise<void> {
       if (!active || generation !== ownGeneration) {runtime.dispose(); opened.dispose(); return}
       sparkProvide(PAGE_RUNTIME, runtime)
       pageRuntime = runtime
-      const navigationKey = buildDataViewKey('Base_NavigationInfo', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
-      if (runtime.resolveView(navigationKey) !== blueprintWorkspace?.view) throw new Error('PROJECT_TOOL_CATALOG_OWNER: PageRuntime 未接管原导航 DataView')
+      if (!blueprintWorkspace || !isBlueprintViewAttachedToRuntime(runtime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, blueprintWorkspace)) {
+        throw new Error('PROJECT_TOOL_CATALOG_OWNER: PageRuntime 未接管原导航 DataView')
+      }
     } catch (cause) {runtime?.dispose(); opened.dispose(); throw cause}
     const navigation = opened.metadataDataSet.addTable(`DesignNavigation_${crypto.randomUUID().replaceAll('-', '')}`,
       ['id', 'label', 'parentId'].map(name => ({name, type: 'string', isPrimaryKey: name === 'id'})))

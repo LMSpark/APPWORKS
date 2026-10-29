@@ -40,11 +40,15 @@ vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
   })}
 })
 vi.mock('@/services/project/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+  dataSet: DataSet
   view: DataView
-  constructor(dataSet: DataSet) {this.view = dataSet.getView('Base_NavigationInfo', 'default')!}
+  constructor(dataSet: DataSet) {this.dataSet=dataSet;this.view = dataSet.getView('Base_NavigationInfo', 'default')!}
   async loadProjectTree() {return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}}
   treeProjection() {return {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}}
   dispose() {}
+},isBlueprintViewAttachedToRuntime:(runtime:PageRuntime,scenarioId:string,workspace:{dataSet:DataSet;view:DataView})=>{
+  const dataSet=runtime.getDataSet(scenarioId),view=workspace.view
+  return dataSet===workspace.dataSet&&dataSet?.getView(view.tableName,view.viewId)===view
 }}))
 const wrappers: ReturnType<typeof mount>[] = []
 

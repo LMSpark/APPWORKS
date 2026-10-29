@@ -7,7 +7,7 @@ import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcod
 import {PAGE_RUNTIME, RendererTree, Spark, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
-import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import {BlueprintWorkspaceDataView, isBlueprintViewAttachedToRuntime} from '@/services/project/blueprint-workspace-dataview'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 import type {DevState} from '@/views/app/dev-system/useDevState'
 
@@ -73,6 +73,10 @@ describe('ProjectBlueprintTree standard DataView consumer',()=>{
     const runtime=new PageRuntime({pageId:'builtin-project-blueprint-tree-consumer',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY],
       mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,loadScenario:async()=>dataSet})
     await runtime.load()
+    expect(isBlueprintViewAttachedToRuntime(runtime,LOWCODE_APPLICATION_CATALOG_FORM_KEY,owner)).toBe(true)
+    const other=createBuiltinFileOwner()
+    expect(isBlueprintViewAttachedToRuntime(runtime,LOWCODE_APPLICATION_CATALOG_FORM_KEY,other.owner)).toBe(false)
+    other.owner.dispose();other.dataSet.destroy()
     const state={projectId:'D99A1DCE9894698799101EFD70F8FC76',project:{rootNode:{id:'ROOT'}},blueprintWorkspaceDataView:shallowRef(owner),blueprintLoading:ref(false),
       selectedNode:ref(null),addRootNode:vi.fn(),openProjectPlanningDocumentImportDialog:vi.fn(),childCreateActionState:()=> 'disabled',
       addChildNodeById:vi.fn(),selectNodeById:vi.fn(),moveBlueprintNodeRelative:vi.fn(),removeNodeById:vi.fn(),addStatus:vi.fn()} as unknown as DevState

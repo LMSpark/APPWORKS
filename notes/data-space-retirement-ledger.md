@@ -3501,3 +3501,10 @@ flowchart TD
 - **现状与修复：**PageTool 普通文件提交已迁入 SPARK data 文件 DataView，但 DevSystem “场景定义”提交失败提示仍只检查旧 `workspace.unconfirmedPageFiles` / 命令对象状态，导致文件 DataView 内存在 unknown receipt 时漏掉“再次保存先核验原工具提交”的保护提示。现在同时检查当前蓝图 DataSet 内 PageTool 文件 DataViews 的 `hasUnconfirmedSave`，仅修正错误提示，不改变提交、核验或取消行为。
 - **验证：**原两个未知回执后保存/取消场景定义测试修复前失败、修复后通过；本次主控复跑 5 个定向文件共 274/274 通过、`pnpm run typecheck`、目标 ESLint、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均退出 0。Rules 保留 AI model spec 基线 2 warnings / 1 info；build packages 0 built / 8 skipped，前端 3292 modules，并保留既有打包警告。
 - **边界：**这是 SPARK data unknown receipt 的 UI 提示对齐，不代表真实服务写入/回读或历史列表 SPA 验收完成。`/t/{tenant}/homepage/app-list` 的 Vue 页面源在仓内 `src/views/tenant/AppList.vue`，路由注册在 `config/navigation/vue-pages.json`，由 `src/registries/vue-page-registry.ts` 解析；页面所需 API 仍由正式后端提供，仓内代码不等于后端服务代码。
+
+### 2026-10-29 builtin repository file DataView PageRuntime identity
+
+- **真实故障：**已登录 SPA 进入数据空间设计页时曾显示 `PROJECT_TOOL_CATALOG_OWNER: PageRuntime 未接管原导航 DataView`。源为内置仓内蓝图：`BlueprintWorkspaceDataView` 把 `RepositoryBlueprintNode@default` 文件 DataView 放入低代码应用目录 DataSet；它没有 `modelBinding`。设计页却用 `Base_NavigationInfo@default` 正式模型完整键来证明宿主身份，因此会拒绝正确的内置文件视图。
+- **修复：**`isBlueprintViewAttachedToRuntime` 现在要求 PageRuntime 持有同一个 scenario DataSet，且同一 DataSet 以原始 `tableName + viewId` 返回完全相同的 DataView 实例；设计页读取树投影前和 PageRuntime 装配后都走该核验。动态远端模型仍按真实正式绑定装配；没有伪造模型键或新增业务查询/owner。
+- **验证：**加入同 DataSet/同 DataView 正例与另一 DataSet 负例。主控独立运行 `tests/app/dev/dev-site-tree-move.test.ts` 与 `tests/runtime/page/design/native/data-space-design-page.test.ts`，2 files / 377 tests 通过；`pnpm run typecheck`、目标 ESLint、`pnpm run verify:rules`、`pnpm run build` 和 `git diff --check` 均退出 0。ClassModel 正式生成后仅出现无源码对应的 symbol ID 顺序、时间戳与 manifest 噪声；确认无真实公开合同内容变化后恢复生成噪声。Rules 保留 AI model spec 的 2 warnings / 1 info，build 保留既有打包警告。
+- **真实验收边界：**本轮新开的本地 SPA 页签没有继承之前的登录态，停在 `/login`；未操作真实场景历史，也未创建快照。历史列表、预览、创建、恢复及 unknown attempt 的服务回读/重开仍未验收，不能用本次模拟器测试宣称完成。未改 Java，未写远端业务数据。

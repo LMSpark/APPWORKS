@@ -3483,7 +3483,7 @@ flowchart TD
 ### 2026-10-29 history/快照未知回执当前复核
 
 - **当前自动化证据：**主控在当前 `codex/ai-data-entry` worktree 重新运行 `pnpm exec vitest run packages/spark-data/src/tests/query/file-resource-adapter.test.ts tests/app/dev/page-tool-files-command.test.ts tests/app/dev/file-versions/dev-file-editor-versions.test.ts tests/app/dev/file-versions/blueprint-workspace-delivery.test.ts --reporter=dot`，最终 4 files / 110 tests passed。覆盖 DataView source 历史 list/preview/create、DataView 销毁后按原版本核验、确定拒绝记为 not-applied、DataView 命令快照上传未知后复用原快照命令且只上传一次、恢复版本的正式 DataView/DataSet 命令链及页面身份切换守卫。编辑器旧测试 mock 仍断言 `field` 别名，已改为标准 `dataField`，并补足当前 `import * as SparkComponent` 使用的命名 mock；编辑器单文件 11/11 通过。此证据只证明自动化执行器与 UI 夹具，不证明生产服务状态。
-- **真实 SPA 会话：**当前 IAB 工作台标签存在，但 `cua.getTab('4',{browser:'iab'})` 返回 `browser.user is unavailable`；桌面 `sky.list_apps()` 仅列 Chrome 新标签，没有可复用的 SPA 浏览器窗口；IAB 上留存地址对应 `127.0.0.1:5273`，显示连接拒绝。未自动登录、未启动 Java、未写真实文件或快照。故真实场景历史 list/preview/create/恢复与线上回读仍未完成；不能用前述 110 项测试代替。
+- **真实 SPA 会话：**早先记录的 `127.0.0.1:5273` 连接拒绝已过时。本轮确认本地前端端口正在监听；IAB 实际加载了 SPARK 首页及 `/login` 登录页，登录页提供企业、用户名、密码输入，但没有已登录工作台会话。尝试通过原生 Chrome 控制时，Computer Use 因无法可靠确认当前浏览器 URL 而停止；没有继续在桌面浏览器操作。未自动登录、未启动 Java、未写真实文件或快照。因此真实场景历史 list/preview/create/恢复及服务端回读/重开仍未完成，不能用本地 fixture 测试代替。
 - **owner 清除目标：**用户“理论上应该清除 owner”要求清掉 lowcode/页面侧作为第二数据层存在的 owner 类、状态及查询/编辑/取消/保存/回执协调入口；页面直接消费 SPARK data 的 DataSet/DataView。通用文件资源绑定、存储 transport 和确需的 attempt/receipt 状态归 SPARK data 资源适配内部，按 DataSet、资源和目标身份管理，不保留业务层 owner facade。不能只隐藏 getter、移除页面可见 API、改名或搬文件后宣称完成。领域命令仅保留业务所需的输入校验、跨资源顺序及补偿规则，并通过 DataSet/DataView 提交。
 - **后续顺序：**在线历史验收仍待已认证且可控的 SPA 会话；当前分支的快照 unknown attempt 自动化合同已复核。按总目标继续审计 builtin 项目树与工具三文件正式映射、旧结构/旧测试清理，不将真实 SPA 缺口标成通过。
 

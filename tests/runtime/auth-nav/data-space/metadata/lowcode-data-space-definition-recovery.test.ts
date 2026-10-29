@@ -1,4 +1,4 @@
-import {withDefinitionResources} from '../view-design/definition-resource.fixture'
+import {formalBaseDataSetModelBinding, withDefinitionResources} from '../view-design/definition-resource.fixture'
 import {describe, expect, it} from 'vitest'
 import {DataSpaceDesignApi, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
@@ -150,7 +150,8 @@ function fixture() {
       },
       loadMetadata: withDefinitionResources(async id => {
         expect(id).toBe(targetId)
-        const models: FormalModel[] = metaTables.map(name => ({id: `META-${name}`, name, metaName: name,
+        const baseBinding = formalBaseDataSetModelBinding()
+        const models: FormalModel[] = metaTables.map(name => ({id: name === 'Base_DataSet' ? baseBinding.modelId : `META-${name}`, name, metaName: name,
           sourceName: name, sourceId: 'DB', sourceType: 'table', primaryKey: 'rowid', businessMain: false, raw: {},
           fields: Object.keys(http.rows.get(name)?.[0] ?? {rowid: '', dataSetId: ''}).map(field => ({
             id: `${name}-${field}`, modelId: `META-${name}`, name: field, canonicalName: field, type: 'string',

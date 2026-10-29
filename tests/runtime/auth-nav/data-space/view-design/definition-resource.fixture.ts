@@ -1,11 +1,22 @@
 import {readFileSync} from 'node:fs'
 import {DataSet, RequestState, type DataView} from '@spark-appworks/spark-data'
 
-/** Formal metadata fixture with a query-authorized target row and optional database tables. */
-export function createConfirmedMetadataFixture(targetId: string, tables: Record<string, unknown> = {}): DataSet {
+/** Return the target model identity from the formal data-space design page config. */
+export function formalBaseDataSetModelBinding(): {modelId: string; modelName: string} {
   const config = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
-  return DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {
-    Base_DataSet: {modelBinding: config.tables.Base_DataSet.modelBinding,
+  const binding = config.tables?.Base_DataSet?.modelBinding
+  if (typeof binding?.modelId !== 'string' || binding.modelName !== 'Base_DataSet') {
+    throw new Error('missing formal Base_DataSet model binding in pagedata')
+  }
+  return {modelId: binding.modelId, modelName: binding.modelName}
+}
+
+/** Formal metadata fixture with a query-authorized target row and optional database tables. */
+export function createConfirmedMetadataFixture(targetId: string, tables: Record<string, unknown> = {}, scenarioId = 'META'): DataSet {
+  const config = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
+  const modelBinding = formalBaseDataSetModelBinding()
+  return DataSet.fromJson({scenarioId, dataSetName: 'metadata', tables: {
+    Base_DataSet: {modelBinding,
       columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
       views: {default: {autoLoad: false, queryContext: {dataSpaceId: targetId}}}},
     ...tables,

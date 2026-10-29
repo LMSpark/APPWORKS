@@ -1,4 +1,5 @@
 import {withDefinitionResources} from '../view-design/definition-resource.fixture'
+import {createConfirmedMetadataFixture} from '../view-design/definition-resource.fixture'
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, DataView, RequestState} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY, DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
@@ -45,12 +46,7 @@ const initial = JSON.stringify({scenarioId: targetId, tables: {
 }, viewCascades: []})
 
 async function formalTargetMetadata(id: string): Promise<DataSet> {
-  const dataSet = DataSet.fromJson({scenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSetName: 'META', tables: {
-    Base_DataSet: {resourceType: 'static-data', columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
-      views: {default: {rows: [{rowid: id}], queryContext: {dataSpaceId: id}}}},
-  }})
-  await dataSet.getView('Base_DataSet', 'default')!.requestData()
-  return dataSet
+  return createConfirmedMetadataFixture(id, {}, DATA_SPACE_DESIGN_FORM_KEY)
 }
 
 function model(id: string): FormalModel {

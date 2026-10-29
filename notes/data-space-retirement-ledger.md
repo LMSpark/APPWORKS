@@ -3898,3 +3898,10 @@ flowchart TD
 - **视图参数 mock：**补上现有 `isBlueprintViewAttachedToRuntime` 测试导出；此前缺导出造成的参数设计测试错误消失。
 - **布局成员链：**标准布局上下文新增内部 DataMember 语义继承，字段读取继承父级成员，修复 `rows`、`selectedRows` 下使用 DataView 当前行冒充字段行。进一步核对 `spark-data` 的 `readDataViewInputValue(view, dataField)` 合同后确认：`value + name` 是正式输入值字段映射，会按当前行字段读出 `Alpha`，即使 `DATA_ROW` 不提供行上下文；该结果不是旁路。测试已分别断言集合成员不借用当前行、Value 字段映射保留正式读值。Tabs + 参数输入两个定向套件 **18/18 passed**。
 - **检查：**当前变更文件 ESLint 与 `pnpm run typecheck` 退出 0；六个 Base_DataSet 套件退出 0。全仓未重跑；在线 cfg 项目仍需重新认证后的 SPA 只读验收，用户此前表示该标签需要重新登录。Java 未修改/启动。
+
+### 2026-10-30 全仓回归当前失败组复核与正式宿主夹具
+
+- **全仓快照：**在 `6f07c4df1` 上运行 `pnpm exec vitest run --reporter=json --outputFile=artifacts/vitest-full-after-6f07c4df1.json`，结束码 1。JSON 为 **6,985 tests / 6,834 passed / 151 failed**，14 个失败 describe 组分布在 7 个测试文件；不能宣称全仓通过。精确失败原因包含：两个 metadata 测试未带正式 Base_DataSet modelBinding；五个原生设计页测试在缺少登录 scope 时被正确阻断。登录身份补入后页面测试进一步暴露真实宿主的 Node 相对 URL fetch 不可解析及挂载异步依赖，未将错误归咎产品行为。
+- **metadata 夹具修复：**`definition-resource.fixture.ts` 增加读取正式 pagedata Base_DataSet 身份的 helper；definition-recovery 按该 modelId 装配，design-session 保留正式设计场景 ID并用已授权 DataView 查询目标。两个套件 **104/104 passed**。
+- **原生页面测试宿主：**五个失败页面套件统一建立 role-neutral 测试登录会话并在 teardown 恢复；selected app 是本页 fixture 的 APP。测试侧仅装载仓内 RepositoryScenario DataView/空蓝图树，业务页面仍由真实组件树和 DataSpaceDesignPage 渲染；不改执行范围守卫、不调用线上业务写接口。五个套件 **344/344 passed**。
+- **当前门禁与下一步：**改动文件 ESLint、`pnpm run typecheck`、`git diff --check` 通过。上述是全仓旧快照中全部 7 个 failed testResult 文件的定向修复证据；还需提交推送并重新运行全仓，确认未受影响的 933 个套件及真实当前全仓汇总。SPA cfg 登录、真实 ProjectToolFile 读写/回读和发布版本现场验收继续未完成。未改、启动或部署 Java。

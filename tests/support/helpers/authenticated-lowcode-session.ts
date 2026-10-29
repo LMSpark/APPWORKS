@@ -8,14 +8,14 @@ const priorSession = lowcodeApi.session.get()
 const priorApplication = lowcodeApi.application.get()
 
 /** Install a valid, role-neutral login identity for tests that construct real lowcode hosts. */
-export function installAuthenticatedLowcodeTestSession(): void {
+export function installAuthenticatedLowcodeTestSession(options: {applicationId?: string} = {}): void {
   lowcodeApi.session.save({accessToken: 'test-access-token', refreshToken: 'test-refresh-token',
     accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
     identity: {userId: 'test-user', account: 'test', displayName: 'Test User', enterpriseId: 'test-enterprise',
       enterpriseShortName: 'Test Enterprise', role: null, raw: {}},
     enterprise: {id: 'test-enterprise', name: 'Test Enterprise', code: 'TEST', shortName: 'Test Enterprise', shortCode: 'TEST', raw: {}},
   })
-  lowcodeApi.application.save({application: {id: 'test-app', name: 'Test App'}, navigationRootId: 'test-root'})
+  lowcodeApi.application.save({application: {id: options.applicationId ?? 'test-app', name: 'Test App'}, navigationRootId: 'test-root'})
 }
 
 /** Serve registered repository scenarios when Node's fetch receives the browser-relative host URL. */

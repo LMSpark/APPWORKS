@@ -10,14 +10,28 @@ import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/mod
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
 import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
+import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', async () => {
+  const {DataSet} = await import('@spark-appworks/spark-data')
+  return {loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
+    scenarioId, tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},
+  }))}
+})
+vi.mock('@/services/project/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+  view: unknown
+  constructor(dataSet: {getView: (table: string, view: string) => unknown}) {this.view = dataSet.getView('Base_NavigationInfo', 'default')}
+  async loadProjectTree() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  treeProjection() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  dispose() {}
+}, isBlueprintViewAttachedToRuntime: () => true}))
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 const wrappers: ReturnType<typeof mount>[] = []
 beforeAll(() => registerAllRenderers())
-beforeEach(() => {vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})})
-afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); fixtures.splice(0).forEach(f => f.dispose()); vi.unstubAllGlobals()})
+beforeEach(() => {installAuthenticatedLowcodeTestSession({applicationId: 'APP'}); installRepositoryScenarioTestFetch(); vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})})
+afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); fixtures.splice(0).forEach(f => f.dispose()); restoreLowcodeTestSession()})
 const fields = [
   {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', AsName: '', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1, ValueFun: ''},
   {rowid: 'PARENT', dataModelId: 'M1', Name: 'parentId', AsName: '', type: 'dataModel', FieldType: 'string', IsPKey: 0, IsOutput: 1, ValueFun: ''},

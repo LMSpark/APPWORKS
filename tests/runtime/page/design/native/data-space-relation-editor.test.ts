@@ -7,19 +7,35 @@ import {resolveDataViewKey, RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
+import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../support/helpers/authenticated-lowcode-session'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {VueFlow} from '@vue-flow/core'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', async () => {
+  const {DataSet} = await import('@spark-appworks/spark-data')
+  return {loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
+    scenarioId, tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},
+  }))}
+})
+vi.mock('@/services/project/blueprint-workspace-dataview', () => ({BlueprintWorkspaceDataView: class {
+  view: unknown
+  constructor(dataSet: {getView: (table: string, view: string) => unknown}) {this.view = dataSet.getView('Base_NavigationInfo', 'default')}
+  async loadProjectTree() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  treeProjection() {return {nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: []}}
+  dispose() {}
+}, isBlueprintViewAttachedToRuntime: () => true}))
 const wrappers: ReturnType<typeof mount>[] = []
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')!.load()}, 30000)
 beforeEach(() => {
+  installAuthenticatedLowcodeTestSession({applicationId: 'APP'})
+  installRepositoryScenarioTestFetch()
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
 })
-afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); fixtures.splice(0).forEach(f => f.dispose()); vi.unstubAllGlobals()})
+afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); fixtures.splice(0).forEach(f => f.dispose()); restoreLowcodeTestSession()})
 function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   const f = dataSpacePageFixture(options); fixtures.push(f)
   vi.mocked(openLowcodeDataSpaceDesignSession).mockImplementation(f.open)

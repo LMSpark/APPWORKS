@@ -3448,3 +3448,9 @@ flowchart TD
 - **标准组件合同：**扩展既有 `FieldJson.treePolicy` 属性，以复用原规则树编辑策略；权限和持久化仍由标准字段 DataView/文件 owner 承担。已运行正式 `pnpm run generate:class-model-surface` 更新 ClassModel 产物。
 - **边界：**`script.js` 与 `style.css` 当前仍为只读查看；本切片只统一可编辑的 `rule.json`。真实服务保存和 SPA 回归未运行，不能据本地静态检查宣称线上保存成功。
 - **验证：**正式 `pnpm run generate:class-model-surface`、`pnpm run typecheck`、受影响五个 Vue/TS 文件的 ESLint、`git diff --check` 均通过。按用户当前指令未添加或运行测试。总体 SPARK data 唯一通道目标继续 active。
+
+### 2026-10-29 PageTool 页面服务 DataSet owner 暴露收敛
+
+- **代码证据与边界：**`useDevState` 只将页面专属 `DataView` 暴露给标准字段组件；正文读写、目录预检和版本预览分别走 `DataView.refresh`、`DataSet.saveChanges`、`listSourceVersions/previewSourceVersion`。`createPageToolFilesIo` 仅在 DevSystem DataSet 装配处注入，未传给页面。PageTool create/compensate/delete/snapshot/restore 的 I/O 仍是 `bindDataSetCommandSubmit` 的 submit/verify executor，经 `DataSet.saveChanges` 触发。`PageToolFilesDataView` 对象必须保留，其 dirty/unknown attempt、receipt delivery、跨页面视图及租约重绑均为当前资源适配/领域协调状态。
+- **最小真实收敛：**删除 `ownerDataSet` public getter 及 `useDevState` 五处读取该 getter 的 DataSet 比较，保留 DataSet 同一性装配保证（同一个 DataSet 构造 blueprint 与 files，parked bundle 重启校验 runtime DataSet 与 blueprint DataSet）及全部页面/租约/revision guards。删除之前的目录预检仍保留：蓝图节点删除前完整目录只读核验；提交文件目录删除前再通过 DataView 重核，以保护两阶段部分成功流程。
+- **TDD 与验证：**新增结构回归断言资源服务提供 `saveView` 且不暴露 backing DataSet；修复前测试 RED（`ownerDataSet in resource` 为 true），移除 getter 后 GREEN。`pnpm exec vitest run tests/app/dev/page-tool-files-command.test.ts tests/app/dev/dev-state-page-file-closed-loop.test.ts --reporter=dot` 2 files / 106 tests 通过；目标 ESLint、`pnpm run typecheck`、`pnpm run verify:rules` 均退出 0，`git diff --check` 通过（Git 对 LF→CRLF 的提示仅为行尾警告）。Rules 扫描保留既有 AI model spec 2 warnings（DataViewFilter、ScenarioViewConfig）及 1 info（DataSet polymorphic factory 检查）；目录限额、page-thin 与 lowcode contract ledger 检查通过。本项不提交/推送。

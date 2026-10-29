@@ -8,6 +8,13 @@ function timeoutAfterAccept():Error{const error=new Error('timeout after accept'
 function responseFailureAfterAccept():Error{const error=new Error('readback response failed');error.name='RequestError';Object.assign(error,{config:{url:'/api/File/DownFile'},response:{status:404}});return error}
 
 describe('PageToolFilesDataView',()=>{
+  it('exposes file DataViews and command saves without exposing its backing DataSet',()=>{
+    const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const resource=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[],read:async()=>null,upload:async()=>{},remove:async()=>{}},()=>{})
+    expect(resource.saveView).toBe(dataSet.getView('PageToolFileSave','default'))
+    expect('ownerDataSet' in resource).toBe(false)
+  })
+
   it('restores an exact listed file version through its DataView command and returns confirmed text',async()=>{
     const files=new Map([['script.js','working baseline']]),snapshots=new Map([[`APP/PAGE/4__script.js`,'restored text']])
     const upload=vi.fn(),restoreWorkingFile=vi.fn(async(command:{fileName:string;text:string})=>{files.set(command.fileName,command.text)})

@@ -86,7 +86,6 @@ function isDefiniteRestoreRejection(error:unknown):boolean{
 /** File resource command owner; page identity and request guard are captured per command. */
 export class PageToolFilesDataView {
   readonly view
-  public get ownerDataSet():DataSet{return this.dataSet}
   readonly #snapshotVersions=new Map<string,number>()
   readonly #snapshotGuards=new Map<string,()=>void>()
   readonly #snapshotAttemptCallbacks=new Map<string,(result:PageToolSnapshotResult)=>void>()

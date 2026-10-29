@@ -12,12 +12,12 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
     </div>
     <RendererTabs v-model="activeStage" class="blueprint-workspace__tabs" toolbar-placement="header">
       <RendererTabPane label="基本信息" name="basic" :index="0"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></RendererTabPane>
-      <RendererTabPane label="原型描述" name="prototype" :index="1"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
+      <RendererTabPane label="原型描述" name="prototype" :index="1"><PrototypePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="access('htmlDesc')" @changed="fieldChanged" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
       <RendererTabPane label="数据空间" name="data" :index="2"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data' && readyWorkspaceForView" :state="state" :field-access="access('conid')" /></RendererTabPane>
       <RendererTabPane label="导航属性" name="navigation" :index="3" :lazy="true"><template v-if="activeStage==='navigation' && readyWorkspaceForView"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="readyWorkspaceForView.runtime.instanceId" :state="state" /></template></RendererTabPane>
       <RendererTabPane label="导航宿主" name="nav-host" :index="4"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-nav-host-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
       <RendererTabPane label="任务信息" name="task-info" :index="5"><DisplayEmpty description="参考实现暂无对应任务资源" /></RendererTabPane>
-      <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
+      <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="estimateAccess" @changed="fieldChanged" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" :runtime-access="access('NavigationUrl')" :visibility-boolean="isBooleanField('IsShowAtNav')" :visibility-options="binaryOptions('IsShowAtNav')" :navigation-options="navigationTypeOptions" @changed="fieldChanged" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
     </RendererTabs>
   </section>
   <DisplayEmpty v-else description="在左侧 WBS 中选择节点" />
@@ -65,35 +65,20 @@ const session = shallowRef<BlueprintWorkspaceDataView>()
 const dataViewRevision = ref(0)
 const sessionDirty = computed(() => {void dataViewRevision.value; void props.state.hasAnyDirty.value; return session.value?.dirty ?? false})
 const fileVersions = computed(() => {void dataViewRevision.value; return String(session.value?.value('VersionId') ?? '').trim()})
-const runtimeSummary = computed(() => {
-  void dataViewRevision.value
-  const target = String(session.value?.value('NavigationUrl') ?? '')
-  return target.startsWith('cfg:') ? '配置页面资源' : target.startsWith('vue:') ? 'Vue 页面资源' : '未配置'
-})
-const draft = {
-  read(field: string) {void dataViewRevision.value; return session.value?.value(field)},
-  write(field: string, value: unknown) {session.value?.update(field, value); dataViewRevision.value++; props.state.notifyExternalDataViewChanged()},
-  get prototypeHtml() {return String(this.read('htmlDesc') ?? '')},
-  set prototypeHtml(value: string) {this.write('htmlDesc', value)},
-  get difficultyFactor() {return Number(this.read('DifficultyFactor') ?? 0)},
-  set difficultyFactor(value: number) {this.write('DifficultyFactor', value)},
-  get manhour() {return Number(this.read('Manhour') ?? 0)},
-  set manhour(value: number) {this.write('Manhour', value)},
-  get quantity() {return Number(this.read('Number') ?? 0)},
-  set quantity(value: number) {this.write('Number', value)},
-  get sum() {return Number(this.read('Sum') ?? 0)},
-  set sum(value: number) {this.write('Sum', value)},
-  get total() {return Number(this.read('Total') ?? 0)},
-  set total(value: number) {this.write('Total', value)},
-  get personInCharge() {return String(this.read('personCharge') ?? '')},
-  set personInCharge(value: string) {this.write('personCharge', value)},
-  get status() {return String(this.read('status') ?? '')},
-  set status(value: string) {this.write('status', value)},
-  get visible() {return Number(this.read('IsShowAtNav') ?? 0) !== 0},
-  set visible(value: boolean) {this.write('IsShowAtNav', value ? 1 : 0)},
-  get navigationType() {return Number(this.read('NavigationType') ?? 0)},
-  set navigationType(value: number) {this.write('NavigationType', value)},
+function fieldChanged():void {dataViewRevision.value++; props.state.notifyExternalDataViewChanged()}
+function columnType(field:string):string|undefined {void dataViewRevision.value;return session.value?.view.columns.find(column=>column.name===field)?.type}
+function isBooleanField(field:string):boolean {return ['boolean','bool'].includes(columnType(field)??'')}
+function isNumericField(field:string):boolean {return ['number','int','integer','decimal','float','double'].includes(columnType(field)??'')}
+function binaryOptions(field:string):Array<{label:string;value:string|number}> {
+  const values=isNumericField(field)?[1,0]:['1','0']
+  return values.map((value,index)=>({label:index===0?'是':'否',value}))
 }
+const navigationTypeOptions = computed(()=>{
+  void dataViewRevision.value
+  const values=isNumericField('NavigationType')?[4,3,2,1,0]:['4','3','2','1','0']
+  const labels=['子系统','当前窗口','新窗口','对话框','嵌入']
+  return values.map((value,index)=>({value,label:labels[index]??''}))
+})
 type FieldAccess = Readonly<{read: boolean; write: boolean}>
 type ReadyWorkspace = Readonly<{nodeId:string;projectId:string;runtime:PageRuntime;session:BlueprintWorkspaceDataView}>
 const readyWorkspace = shallowRef<ReadyWorkspace>()

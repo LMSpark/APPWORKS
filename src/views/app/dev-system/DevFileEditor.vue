@@ -12,57 +12,39 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <span class="file-page-id"><NavIcon name="Tickets" :size="14" /> {{ state.activePageId.value }}</span>
         </div>
         <div class="file-header__actions">
-          <el-tooltip content="从服务端重新加载此文件" placement="bottom" :show-after="600">
-            <el-button size="small" :disabled="!state.activePageId.value" @click="refreshFile">
-              <NavIcon name="Refresh" :size="14" />
-            </el-button>
-          </el-tooltip>
-          <el-tooltip content="保存当前文件到服务端" placement="bottom" :show-after="600">
-            <el-button
-              type="primary"
-              size="small"
-              :disabled="!fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value"
-              :loading="state.pageIoBusy.value"
-              @click="saveFile"
-            >
-              <NavIcon name="DocumentChecked" :size="14" /> {{ fileEditor.isUnconfirmed.value ? '核验原提交' : '保存' }}
-            </el-button>
-          </el-tooltip>
+          <SparkComponent.RendererButton label="重新加载" icon="Refresh" button-size="small" :disabled="!state.activePageId.value" @click="refreshFile" />
+          <SparkComponent.RendererButton :label="fileEditor.isUnconfirmed.value ? '核验原提交' : '保存'" icon="DocumentChecked" button-type="primary" button-size="small" :disabled="ruleEditing || !fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value" :loading="state.pageIoBusy.value" @click="saveFile" />
           <span class="action-divider" />
-          <el-button
-            size="small"
-            :type="showVersionPanel ? 'primary' : 'default'"
+          <SparkComponent.RendererButton
+            label="版本"
+            icon="Clock"
+            button-size="small"
+            :button-type="showVersionPanel ? 'primary' : 'default'"
             :disabled="!state.activePageId.value"
             @click="toggleVersionPanel"
-          >
-            <NavIcon name="Clock" :size="14" /> 版本
-          </el-button>
+          />
         </div>
       </div>
 
-      <el-tabs v-if="showTabs" v-model="localActiveFile" type="card" class="file-tab-bar">
-        <el-tab-pane v-for="f in props.state.pageFileNames" :key="f" :name="f">
-          <template #label>
-            <span class="file-tab-label" :class="{ 'file-dirty': fileEditor.isFileDirty(f) }">
-              <NavIcon :name="fileIcon(f)" :size="13" /> {{ f }}
-            </span>
-          </template>
-        </el-tab-pane>
-      </el-tabs>
+      <SparkComponent.RendererTabs v-if="showTabs" v-model="localActiveFile" class="file-tab-bar">
+        <SparkComponent.RendererTabPane v-for="(f,index) in props.state.pageFileNames" :key="f" :name="f" :label="`${fileEditor.isFileDirty(f) ? '● ' : ''}${f}`" :index="index" />
+      </SparkComponent.RendererTabs>
 
-      <div class="editor-body" v-loading="!fileEditor.isReady.value">
+      <div class="editor-body" v-loading="!fileEditor.isReady.value || ruleDataViewLoading">
         <div class="editor-area">
-          <JsonTreeEditor
+          <SparkComponent.RendererForm
             v-if="resolvedActiveFile === 'rule.json'"
-            type="json-tree-editor"
-            :model-value="fileEditor.text.value"
-            :policy="rulePolicy"
-            :schema="RULE_JSON_SCHEMA"
+            v-bind="ruleDataView ? {dataSource:ruleDataView} : {}"
+            :auto-columns="false"
+            :show-data-view-meta="false"
+            context-data-member="currentRow"
             class="code-input code-input--json"
-            height="100%"
-            @update:model-value="(val: unknown) => state.project.writePageFile({ fileName: 'rule.json', text: String(val) })"
-          />
-          <SparkCodeEditor
+          >
+            <SparkComponent.FieldJson v-if="ruleDataView" data-member="currentRow" data-field="text" label="页面规则" mode="tree" :schema="RULE_JSON_SCHEMA" :tree-policy="rulePolicy" height="100%" @update:model-value="stageRuleFile" @editing-change="ruleEditing=$event" />
+            <SparkComponent.DisplayAlert v-else-if="fileViewError" title="规则文件 DataView 加载失败" :description="fileViewError" alert-type="error" />
+            <SparkComponent.DisplayAlert v-else title="正在载入规则文件 DataView…" alert-type="info" />
+          </SparkComponent.RendererForm>
+          <SparkComponent.SparkCodeEditor
             v-else-if="isCodeFile(resolvedActiveFile)"
             :model-value="fileEditor.text.value"
             :language="resolveCodeLanguage(resolvedActiveFile)"
@@ -70,10 +52,9 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             class="code-input code-input--code"
             height="100%"
           />
-          <el-input
+          <SparkComponent.FieldTextarea
             v-else
             :model-value="fileEditor.text.value"
-            type="textarea"
             :autosize="{ minRows: 30, maxRows: 60 }"
             readonly
             class="code-input"
@@ -85,33 +66,33 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <div v-if="showVersionPanel" class="version-side">
             <div class="vs-header">
               <span class="vs-title">版本历史</span>
-              <el-button size="small" type="primary" :disabled="versionBusy" :loading="creatingVersion" @click="createVersion">
-                <NavIcon name="Plus" :size="12" /> 存档
-              </el-button>
+              <SparkComponent.RendererButton label="存档" icon="Plus" button-type="primary" button-size="small" :disabled="versionBusy" :loading="creatingVersion" @click="createVersion" />
             </div>
             <div class="vs-file">{{ resolvedActiveFile }}</div>
             <div v-loading="remoteVersionLoading" class="vs-list">
               <p v-if="remoteVersionLoading" role="status">正在读取版本…</p>
               <p v-else-if="versionQueryError" role="alert">读取版本失败：{{ versionQueryError }}</p>
-              <RendererTable v-else-if="versionQueryLoaded && versionRowCount > 0" :data-view-key="versionViewKey" :auto-columns="false"
+              <SparkComponent.RendererTable v-else-if="versionQueryLoaded && versionRowCount > 0" :data-view-key="versionViewKey" :auto-columns="false"
                 :show-data-view-meta="false" :show-selection-summary="false" :show-aggregate-summary="false"
                 :show-pagination="false" :actions="versionActions">
-                <FieldText :data-view-key="versionViewKey" field="version" label="版本" readonly />
-                <FieldText :data-view-key="versionViewKey" field="lastModified" label="更新时间" readonly :display-formatter="formatVersionTime" />
-              </RendererTable>
-              <div v-else-if="versionQueryLoaded" class="vs-empty">暂无版本</div>
+                <SparkComponent.FieldText data-member="currentRow" data-field="version" label="版本" readonly />
+                <SparkComponent.FieldText data-member="currentRow" data-field="lastModified" label="更新时间" readonly :display-formatter="formatVersionTime" />
+              </SparkComponent.RendererTable>
+              <SparkComponent.DisplayEmpty v-else-if="versionQueryLoaded" description="暂无版本" />
             </div>
           </div>
         </transition>
       </div>
     </template>
-    <el-empty v-else description="请从左侧树中选择一个配置页面开始编辑" class="empty-hint" />
+    <SparkComponent.DisplayEmpty v-else description="请从左侧树中选择一个配置页面开始编辑" class="empty-hint" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { SparkCodeEditor, JsonTreeEditor, FieldText, PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps } from '@spark-appworks/spark-component'
+import { computed,onBeforeUnmount,ref,shallowRef,watch } from 'vue'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type { RToolbarProps } from '@spark-appworks/spark-component'
+import type {DataView} from '@spark-appworks/spark-data'
 import { buildDataViewKey } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { createRuleJsonSchema, createRuleTreePolicy } from '@/services/project-model-artifacts'
@@ -123,7 +104,7 @@ import NavIcon from '@/components/NavIcon.vue'
 
 const rulePolicy = createRuleTreePolicy()
 const RULE_JSON_SCHEMA = createRuleJsonSchema()
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'dev-file-editor'})
+const {sparkProvide, sparkRemove} = SparkComponent.useSparkComponent({type: 'dev-file-editor'})
 
 const props = withDefaults(defineProps<{
   state: DevState
@@ -148,10 +129,15 @@ const creatingVersion = ref(false)
 const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || props.state.pageIoBusy.value)
 let versionRevision = 0
 let disposed = false
-onBeforeUnmount(() => { disposed = true; versionRevision++; sparkRemove(PAGE_RUNTIME) })
+onBeforeUnmount(() => { const pageId=props.state.activePageId.value;if(pageId)props.state.releasePageToolFileDataView(pageId);ruleDataView.value=undefined;disposed = true; versionRevision++; fileViewRevision++; sparkRemove(SparkComponent.PAGE_RUNTIME) })
 const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
+const ruleDataView=shallowRef<DataView>()
+const ruleDataViewLoading=ref(false)
+const ruleEditing=ref(false)
+const fileViewError=ref('')
+let fileViewRevision=0
 const project = computed(() => props.state.project)
 const versionViewKey = buildDataViewKey('ProjectToolVersion', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
 const versionActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
@@ -160,8 +146,8 @@ const versionActions = computed<RToolbarProps>(() => ({children: [{type: 'r-butt
 }}]}))
 
 watch(() => props.state.blueprintPageRuntime.value, runtime => {
-  if (runtime?.isLoaded) sparkProvide(PAGE_RUNTIME, runtime)
-  else sparkRemove(PAGE_RUNTIME)
+  if (runtime?.isLoaded) sparkProvide(SparkComponent.PAGE_RUNTIME, runtime)
+  else sparkRemove(SparkComponent.PAGE_RUNTIME)
 }, {immediate: true})
 
 function alignActivePage(): boolean {
@@ -192,6 +178,19 @@ watch([resolvedActiveFile, () => props.state.activePageId.value], () => {
   showVersionPanel.value = false
 })
 
+watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value],async([pageId,ready])=>{
+  const current=++fileViewRevision
+  ruleDataView.value=undefined;fileViewError.value='';ruleEditing.value=false
+  if(!pageId||!ready)return
+  ruleDataViewLoading.value=true
+  try{
+    const view=await props.state.loadPageToolFileDataView({pageId,fileName:'rule.json'})
+    if(current===fileViewRevision&&props.state.activePageId.value===pageId)ruleDataView.value=view
+  }catch(error){if(current===fileViewRevision)fileViewError.value=error instanceof Error?error.message:String(error)}
+  finally{if(current===fileViewRevision)ruleDataViewLoading.value=false}
+},{immediate:true})
+watch(()=>props.state.activePageId.value,(pageId,previousPageId)=>{if(previousPageId&&previousPageId!==pageId)props.state.releasePageToolFileDataView(previousPageId)})
+
 function isCodeFile(name: string): boolean {
   return name.endsWith('.js') || name.endsWith('.css')
 }
@@ -200,19 +199,27 @@ function resolveCodeLanguage(name: string): 'javascript' | 'css' {
   return name.endsWith('.css') ? 'css' : 'javascript'
 }
 
-function fileIcon(name: string): string {
-  if (name === 'rule.json') return 'Crop'
-  if (name === 'script.js') return 'Lightning'
-  if (name === 'style.css') return 'Brush'
-  return 'Document'
-}
-
 function saveFile() {
   void fileEditor.save().catch(() => undefined)
 }
 
-function refreshFile() {
-  void fileEditor.refresh().catch(() => undefined)
+async function refreshFile() {
+  const pageId=props.state.activePageId.value
+  if(pageId&&resolvedActiveFile.value==='rule.json')props.state.cancelPageToolFileDataView({pageId,fileName:'rule.json'})
+  try{
+    await fileEditor.refresh()
+    if(pageId&&resolvedActiveFile.value==='rule.json'){
+      ruleDataView.value=undefined
+      ruleDataView.value=await props.state.loadPageToolFileDataView({pageId,fileName:'rule.json',discardPending:true})
+    }
+  }catch(error){fileViewError.value=error instanceof Error?error.message:String(error)}
+}
+
+function stageRuleFile(value:string):void{
+  const pageId=props.state.activePageId.value
+  if(!pageId)return
+  try{props.state.stagePageToolFileDataView({pageId,fileName:'rule.json',text:value});fileViewError.value=''}
+  catch(error){fileViewError.value=error instanceof Error?error.message:String(error)}
 }
 
 async function loadVersions() {
@@ -236,7 +243,7 @@ async function loadVersions() {
     if (view.loadingError) throw view.loadingError
     if (disposed || revision !== versionRevision || !showVersionPanel.value || pageId !== props.state.activePageId.value
       || fileName !== resolvedActiveFile.value || runtime !== props.state.blueprintPageRuntime.value) return
-    sparkProvide(PAGE_RUNTIME, runtime)
+    sparkProvide(SparkComponent.PAGE_RUNTIME, runtime)
     versionRowCount.value = view.rows.length
     versionQueryLoaded.value = true
   } catch (e) {

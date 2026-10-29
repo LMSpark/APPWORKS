@@ -20,7 +20,7 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
         :children="props.children" :height="height" :max-height="props.maxHeight" :row-edit-mode="props.rowEditMode"
         :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonTreeEditor v-else-if="mode === 'tree'" :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
-        :height="height" v-bind="props.valueFormat === 'native' ? {policy: nativeTreePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
+        :height="height" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :mode="mode" :height="height" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
     </template>
@@ -45,6 +45,7 @@ const nativeTreePolicy={
   isProtected:(path:JsonPath)=>path.length===1,
   canAddChild:(path:JsonPath)=>path.length>0,
 }
+const treePolicy=computed(()=>props.treePolicy??(props.valueFormat === 'native'?nativeTreePolicy:undefined))
 function pathRoot(raw: unknown) {
   const value = props.valueFormat === 'native' ? asJsonValue(raw) : parseJsonDocument(String(raw))
   if (!Array.isArray(value) && !isJsonObject(value)) throw new Error('JSON路径的根必须是对象或数组')

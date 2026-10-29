@@ -9,39 +9,30 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     <!-- 工具栏 -->
     <div class="preview-toolbar">
       <div class="preview-toolbar__left">
-        <el-switch
+        <FieldSwitch
           v-model="livePreview"
           active-text="实时预览"
           inactive-text="手动"
-          size="small"
         />
-        <el-switch
+        <FieldSwitch
           v-model="autoRefresh"
           active-text="切Tab刷新"
           inactive-text="—"
-          size="small"
         />
       </div>
       <div class="preview-toolbar__right">
-        <el-button size="small" @click="refresh" :loading="loading">
-          <NavIcon name="RefreshRight" :size="14" /> 刷新预览
-        </el-button>
+        <RendererButton label="刷新预览" button-type="default" :loading="loading" @click="refresh" />
       </div>
     </div>
 
     <!-- 预览区域 -->
     <div class="preview-container">
       <template v-if="loading">
-        <div class="preview-loading">
-          <el-icon class="is-loading"><Loading /></el-icon> 加载中...
-        </div>
+        <DisplayAlert title="正在加载预览…" alert-type="info" />
       </template>
       <template v-else-if="parseError">
         <div class="error-panel">
-          <el-alert type="error" :closable="false" show-icon>
-            <template #title>解析失败</template>
-            {{ parseError }}
-          </el-alert>
+          <DisplayAlert title="解析失败" :description="parseError" alert-type="error" />
         </div>
       </template>
       <template v-else-if="previewRuntime">
@@ -51,7 +42,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         />
       </template>
       <template v-else>
-        <el-empty description="暂无可预览的内容，请先编辑页面配置" />
+        <DisplayEmpty description="暂无可预览的内容，请先编辑页面配置" />
       </template>
     </div>
   </div>
@@ -59,15 +50,13 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vue'
-import { SparkPageRenderer } from '@spark-appworks/spark-component'
+import { DisplayAlert,DisplayEmpty,FieldSwitch,RendererButton,SparkPageRenderer } from '@spark-appworks/spark-component'
 import { PageRuntime, PageTool, ScenarioDefinitionDocument, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
 import { loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { isRecord } from '@spark-appworks/spark-utils'
 import type { DevState } from './useDevState'
-import NavIcon from '@/components/NavIcon.vue'
-import { Loading } from '@element-plus/icons-vue'
 
 const props = defineProps<{
   state: DevState

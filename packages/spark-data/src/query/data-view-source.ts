@@ -42,6 +42,13 @@ export type DataViewSourceHistoryStatus = Readonly<{
   message: string | null
 }>
 
+/** 状态由文件资源 owner 持有的正文保存 attempt；供重开后的 DataView 核验原提交。 */
+export type DataViewSourceWriteAttemptStatus = Readonly<{
+  state: 'idle' | 'unknown' | 'confirmed' | 'not-applied'
+  text: string | null
+  message: string | null
+}>
+
 /** 创建回调在任何可能写入的请求发出前冻结的具体历史编号。 */
 export type DataViewSourceHistoryAttempt = Readonly<{version: string | number; fileName: string}>
 
@@ -66,6 +73,9 @@ export type DataViewSourceAdapter = Readonly<{
       onAttempt(attempt: DataViewSourceHistoryAttempt): void
     }>): Promise<void>
   }>
+  /** 正文保存 owner 的不可变 attempt；允许同一 DataSet 资源视图重开后核验并交付原保存状态。 */
+  verifyWriteAttempt?(view: DataView, hooks: Readonly<{assertCurrent(): void}>): Promise<DataViewSourceWriteAttemptStatus>
+  acknowledgeWriteAttempt?(view: DataView): void
 }>
 
 /** 内部执行器：只保护DataView生命周期，来源I/O留给绑定的适配器。 */
@@ -114,6 +124,25 @@ export class DataViewSource {
     }})
     if (baseline !== this.identity(this.view) || history !== this.adapter.history) throw new Error('DATA_VIEW_SOURCE_STALE: 历史来源在核验期间改变')
     return Object.freeze({...result})
+  }
+
+  /** 重开文件视图后只核验原正文保存 attempt，不提交新编辑或重放上传。 */
+  async verifyWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {
+    const baseline=this.identity(this.view),verify=this.adapter.verifyWriteAttempt
+    if(!verify)throw new Error('DATA_VIEW_SOURCE_UNSUPPORTED: 查询来源未提供正文保存核验能力')
+    const result=await verify(this.view,{assertCurrent:()=>{
+      if(baseline!==this.identity(this.view)||verify!==this.adapter.verifyWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
+    }})
+    if(baseline!==this.identity(this.view)||verify!==this.adapter.verifyWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
+    return Object.freeze({...result})
+  }
+
+  /** 原正文 attempt 已核验并完成领域结果交付后，消费其 owner 回执。 */
+  acknowledgeWriteAttempt(): void {
+    const baseline=this.identity(this.view),acknowledge=this.adapter.acknowledgeWriteAttempt
+    if(!acknowledge)throw new Error('DATA_VIEW_SOURCE_UNSUPPORTED: 查询来源未提供正文保存回执')
+    acknowledge(this.view)
+    if(baseline!==this.identity(this.view)||acknowledge!==this.adapter.acknowledgeWriteAttempt)throw new Error('DATA_VIEW_SOURCE_STALE: 正文保存attempt所属来源已变化')
   }
 
   /** 仅同源全部视图干净且在整个操作期间未变化时，允许存储适配创建来源快照。 */

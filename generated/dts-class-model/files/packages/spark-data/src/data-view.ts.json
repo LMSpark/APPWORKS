@@ -1360,6 +1360,21 @@
           "type": "object",
           "title": "Promise<DataViewSourceHistoryStatus>"
         },
+        "method.verifySourceWriteAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifySourceWriteAttempt.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceWriteAttemptStatus>"
+        },
+        "method.acknowledgeSourceWriteAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acknowledgeSourceWriteAttempt.return": true,
         "method.createSourceVersion.params": {
           "type": "object",
           "properties": {},
@@ -2747,7 +2762,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T01:14:54.906Z",
+  "generatedAt": "2026-10-29T04:37:35.152Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4532,6 +4547,31 @@
                     "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "verifySourceWriteAttempt",
+              "jsdoc": "核验由同一DataSet文件来源owner持有的正文保存attempt；不会重放原上传。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceWriteAttemptStatus",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acknowledgeSourceWriteAttempt",
+              "jsdoc": "领域结果交付完成后消费已核验的正文保存attempt。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

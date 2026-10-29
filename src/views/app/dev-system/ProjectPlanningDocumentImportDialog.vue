@@ -5,7 +5,7 @@
 AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模块定位前端交互入口。
 -->
 <template>
-  <el-dialog
+  <RendererDialog
     v-model="visible"
     title="导入项目策划文档"
     width="640px"
@@ -31,9 +31,7 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
           <NavIcon name="Upload" :size="24" />
           <p class="project-planning-import__upload-text">
             将 .docx 文件拖拽到此处，或
-            <el-button type="primary" link @click="fileInput?.click()">
-              点击选择文件
-            </el-button>
+            <RendererButton label="点击选择文件" button-type="primary" link @click="fileInput?.click()" />
           </p>
           <p class="project-planning-import__upload-hint">仅支持 .docx 格式的项目策划文档</p>
         </div>
@@ -47,12 +45,8 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
         <span class="project-planning-import__filename">
           {{ state.projectPlanningDocumentFileName.value || '已绑定项目策划附件' }}
         </span>
-        <el-icon v-if="state.projectPlanningDocumentUploading.value" class="is-loading">
-          <NavIcon name="Loading" :size="14" />
-        </el-icon>
-        <el-tag v-else-if="state.projectPlanningAttachmentRef.value" size="small" type="success">
-          已绑定
-        </el-tag>
+        <DisplayAlert v-if="state.projectPlanningDocumentUploading.value" title="正在上传…" alert-type="info" />
+        <DisplayTag v-else-if="state.projectPlanningAttachmentRef.value" content="已绑定" tag-type="success" size="small" />
       </div>
 
       <div v-if="state.projectPlanningAttachmentRef.value" class="project-planning-import__ref">
@@ -63,35 +57,35 @@ AI用途：排查需求文档到 projectPlanning 的导入链路时，用本模�
       <div v-if="state.projectPlanningAiTimeline.value.length > 0" class="project-planning-import__timeline">
         <div class="project-planning-import__timeline-header">
           <span>AI 进度</span>
-          <el-tag size="small" type="info">{{ state.projectPlanningAiTimeline.value.length }}</el-tag>
+          <DisplayTag :content="String(state.projectPlanningAiTimeline.value.length)" tag-type="info" size="small" />
         </div>
         <div
           v-for="event in state.projectPlanningAiTimeline.value"
           :key="event.sequence"
           class="project-planning-import__timeline-row"
         >
-          <el-tag size="small" effect="plain">{{ event.type }}</el-tag>
+          <DisplayTag :content="event.type" size="small" effect="plain" />
           <span class="project-planning-import__timeline-text">{{ event.payloadPreview }}</span>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button
-        type="primary"
+      <RendererButton label="取消" @click="handleClose" />
+      <RendererButton
+        :label="state.projectPlanningAiRunning.value ? 'AI 正在策划...' : '开始项目策划'"
+        button-type="primary"
         :loading="state.projectPlanningAiRunning.value"
         :disabled="!state.projectPlanningAttachmentRef.value || state.projectPlanningDocumentUploading.value"
         @click="state.runProjectPlanningDocumentImportAi()"
-      >
-        {{ state.projectPlanningAiRunning.value ? 'AI 正在策划...' : '开始项目策划' }}
-      </el-button>
+      />
     </template>
-  </el-dialog>
+  </RendererDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import {DisplayAlert,DisplayTag,RendererButton,RendererDialog} from '@spark-appworks/spark-component'
 import NavIcon from '@/components/NavIcon.vue'
 import type { DevState } from './useDevState'
 

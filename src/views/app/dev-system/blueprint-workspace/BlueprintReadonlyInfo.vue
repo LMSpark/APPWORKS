@@ -1,9 +1,9 @@
 <template>
   <section class="readonly-info" aria-live="polite">
-    <el-alert v-if="error" type="error" :closable="false" :title="`只读查询失败：${error}`" />
-    <el-skeleton v-else-if="loading" :rows="3" animated />
+    <DisplayAlert v-if="error" alert-type="error" :title="`只读查询失败：${error}`" />
+    <DisplayAlert v-else-if="loading" title="正在加载只读数据…" alert-type="info" />
     <RendererTable v-else-if="loaded" :data-view-key="binding" :auto-columns="false" :show-data-view-meta="false" :show-aggregate-summary="false" :show-selection-summary="false" :show-pagination="true">
-      <FieldText v-for="field in fields" :key="field" :data-view-key="binding" :field="field" :label="field" readonly />
+      <FieldText v-for="field in fields" :key="field" data-member="currentRow" :data-field="field" :label="field" readonly />
     </RendererTable>
   </section>
 </template>
@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import {onBeforeUnmount, ref, watch} from 'vue'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {FieldText, RendererTable} from '@spark-appworks/spark-component'
+import {DisplayAlert,FieldText, RendererTable} from '@spark-appworks/spark-component'
 import {queryBlueprintReadonlyView} from './blueprint-readonly-info'
 
 const props=defineProps<{runtime:PageRuntime;nodeId:string;binding:string;fields:readonly string[];assertCurrent:(nodeId:string,runtime:PageRuntime)=>void}>()

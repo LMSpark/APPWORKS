@@ -6,7 +6,7 @@
  */
 import type {SparkNodeProps, SparkFieldSemanticProps} from '../../../../shared-types'
 import type {RToolbarProps} from '../../../../containers/layout/action/RendererToolbar/RendererToolbar.types'
-import type {JsonPath, JsonSchemaObject, JsonValue} from '@spark-appworks/spark-json-document'
+import type {JsonPath, JsonSchemaObject, JsonTreePolicy, JsonValue} from '@spark-appworks/spark-json-document'
 /** JSON对象数组的纯行适配；不查询、不写入DataView、不保存。输入是副本，返回值必须是JSON对象。 */
 export type JsonArrayRowAdapter = {
   /** 将单个原对象投影为子字段；仅供显示，打开或取消不写回。 */
@@ -29,6 +29,8 @@ export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。
    * form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */
   schema?: JsonSchemaObject
+  /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */
+  treePolicy?: JsonTreePolicy
   /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的"0"。 */
   valueLabel?: string
   /** 编辑区域高度，省略时320像素。 */

@@ -15,6 +15,7 @@
       "DataViewSourceAdoptHooks",
       "DataViewSourceVersion",
       "DataViewSourceHistoryStatus",
+      "DataViewSourceWriteAttemptStatus",
       "DataViewSourceHistoryAttempt",
       "DataViewSourceAdapter",
       "DataViewSource"
@@ -165,6 +166,39 @@
       ],
       "additionalProperties": false
     },
+    "DataViewSourceWriteAttemptStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceWriteAttemptStatus",
+      "properties": {
+        "state": {
+          "enum": [
+            "idle",
+            "unknown",
+            "confirmed",
+            "not-applied"
+          ]
+        },
+        "text": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "message": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "text",
+        "message"
+      ],
+      "additionalProperties": false
+    },
     "DataViewSourceHistoryAttempt": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -248,7 +282,34 @@
         "method.adopt.return": {
           "type": "object",
           "title": "Promise<void>"
-        }
+        },
+        "method.verifyWriteAttempt.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "hooks": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyWriteAttempt.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceWriteAttemptStatus>"
+        },
+        "method.acknowledgeWriteAttempt.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acknowledgeWriteAttempt.return": true
       }
     },
     "DataViewSource": {
@@ -327,6 +388,21 @@
           "type": "object",
           "title": "Promise<DataViewSourceHistoryStatus>"
         },
+        "method.verifyWriteAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifyWriteAttempt.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceWriteAttemptStatus>"
+        },
+        "method.acknowledgeWriteAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acknowledgeWriteAttempt.return": true,
         "method.createVersion.params": {
           "type": "object",
           "properties": {},
@@ -355,7 +431,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T22:43:44.849Z",
+  "generatedAt": "2026-10-29T04:37:27.316Z",
   "models": {
     "DataViewSourceSnapshot": {
       "name": "DataViewSourceSnapshot",
@@ -524,6 +600,40 @@
         }
       }
     },
+    "DataViewSourceWriteAttemptStatus": {
+      "name": "DataViewSourceWriteAttemptStatus",
+      "jsdoc": "状态由文件资源 owner 持有的正文保存 attempt；供重开后的 DataView 核验原提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    state: 'idle' | 'unknown' | 'confirmed' | 'not-applied';\n    text: string | null;\n    message: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    state: 'idle' | 'unknown' | 'confirmed' | 'not-applied';\n    text: string | null;\n    message: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataViewSourceHistoryAttempt": {
       "name": "DataViewSourceHistoryAttempt",
       "jsdoc": "创建回调在任何可能写入的请求发出前冻结的具体历史编号。",
@@ -558,11 +668,11 @@
       "jsdoc": "查询执行器可选的来源适配；具体存储保留冲突、作用域及未知结果核验责任。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 当前owner保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus;\n        /** 只读核验status中的原编号和原文；即使后续同源DataView有草稿也可核验。 */\n        verify(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<DataViewSourceHistoryStatus>;\n        /** 为干净已保存的来源创建快照；写入前调用onAttempt冻结候选编号，后续编辑不更换它。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n            onAttempt(attempt: DataViewSourceHistoryAttempt): void;\n        }>): Promise<void>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 当前owner保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus;\n        /** 只读核验status中的原编号和原文；即使后续同源DataView有草稿也可核验。 */\n        verify(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<DataViewSourceHistoryStatus>;\n        /** 为干净已保存的来源创建快照；写入前调用onAttempt冻结候选编号，后续编辑不更换它。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n            onAttempt(attempt: DataViewSourceHistoryAttempt): void;\n        }>): Promise<void>;\n    }>;\n    /** 正文保存 owner 的不可变 attempt；允许同一 DataSet 资源视图重开后核验并交付原保存状态。 */\n    verifyWriteAttempt?(view: DataView, hooks: Readonly<{\n        assertCurrent(): void;\n    }>): Promise<DataViewSourceWriteAttemptStatus>;\n    acknowledgeWriteAttempt?(view: DataView): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 当前owner保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus;\n        /** 只读核验status中的原编号和原文；即使后续同源DataView有草稿也可核验。 */\n        verify(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<DataViewSourceHistoryStatus>;\n        /** 为干净已保存的来源创建快照；写入前调用onAttempt冻结候选编号，后续编辑不更换它。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n            onAttempt(attempt: DataViewSourceHistoryAttempt): void;\n        }>): Promise<void>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 当前owner保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus;\n        /** 只读核验status中的原编号和原文；即使后续同源DataView有草稿也可核验。 */\n        verify(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<DataViewSourceHistoryStatus>;\n        /** 为干净已保存的来源创建快照；写入前调用onAttempt冻结候选编号，后续编辑不更换它。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n            onAttempt(attempt: DataViewSourceHistoryAttempt): void;\n        }>): Promise<void>;\n    }>;\n    /** 正文保存 owner 的不可变 attempt；允许同一 DataSet 资源视图重开后核验并交付原保存状态。 */\n    verifyWriteAttempt?(view: DataView, hooks: Readonly<{\n        assertCurrent(): void;\n    }>): Promise<DataViewSourceWriteAttemptStatus>;\n    acknowledgeWriteAttempt?(view: DataView): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -657,6 +767,61 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "verifyWriteAttempt",
+              "jsdoc": "正文保存 owner 的不可变 attempt；允许同一 DataSet 资源视图重开后核验并交付原保存状态。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "hooks",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        assertCurrent(): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceWriteAttemptStatus",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acknowledgeWriteAttempt",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]
@@ -805,6 +970,31 @@
                     "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "verifyWriteAttempt",
+              "jsdoc": "重开文件视图后只核验原正文保存 attempt，不提交新编辑或重放上传。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceWriteAttemptStatus",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acknowledgeWriteAttempt",
+              "jsdoc": "原正文 attempt 已核验并完成领域结果交付后，消费其 owner 回执。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

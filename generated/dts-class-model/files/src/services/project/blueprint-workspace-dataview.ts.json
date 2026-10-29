@@ -259,6 +259,18 @@
         "projectId": {
           "type": "string"
         },
+        "standardComponentBinding": {
+          "type": "object",
+          "properties": {
+            "dataViewKey": {
+              "type": "string"
+            },
+            "dataSource": {
+              "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
         "nodeId": {
           "type": "string"
         },
@@ -759,7 +771,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T03:28:25.847Z",
+  "generatedAt": "2026-10-29T03:53:19.485Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1075,6 +1087,12 @@
             },
             {
               "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "standardComponentBinding",
+              "jsdoc": "Standard component binding for this owner: formal model key, or the exact trusted local-file DataView.",
               "readable": true,
               "writable": false
             },

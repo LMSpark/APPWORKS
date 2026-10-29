@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 990,
+  "scannedFileCount": 991,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9291,9 +9291,30 @@
           "DataViewSourceAdoptHooks",
           "DataViewSourceVersion",
           "DataViewSourceHistoryStatus",
+          "DataViewSourceWriteAttemptStatus",
           "DataViewSourceHistoryAttempt",
           "DataViewSourceAdapter",
           "DataViewSource"
+        ]
+      }
+    },
+    "packages/spark-data/src/query/file-resource-adapter.ts": {
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/file-resource-adapter",
+        "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+        "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/file-resource-adapter",
+        "jsdoc": "@spark-appworks/spark-data 的 query/file-resource-adapter 模块。\n导出 DtsTypeDeclarationModel symbol: FileResourceTarget, FileResourceSnapshot, FileResourceHistoryAttempt, FileResourceTransport, BindFileResourceAdapterOptions, BindFileDirectoryQueryAdapterOptions（共 6 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "FileResourceTarget",
+          "FileResourceSnapshot",
+          "FileResourceHistoryAttempt",
+          "FileResourceTransport",
+          "BindFileResourceAdapterOptions",
+          "BindFileDirectoryQueryAdapterOptions"
         ]
       }
     },
@@ -17389,6 +17410,14 @@
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
+    "BindFileDirectoryQueryAdapterOptions": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
+    "BindFileResourceAdapterOptions": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
     "BindReadonlyCommandQueryOptions": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
@@ -18777,6 +18806,10 @@
       "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
       "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
     },
+    "DataViewSourceWriteAttemptStatus": {
+      "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
+      "file": "files/packages/spark-data/src/query/data-view-source.ts.json"
+    },
     "DataViewState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json"
@@ -19256,6 +19289,22 @@
     "FileLoadResult": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
+    },
+    "FileResourceHistoryAttempt": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
+    "FileResourceSnapshot": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
+    "FileResourceTarget": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
+    },
+    "FileResourceTransport": {
+      "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "file": "files/packages/spark-data/src/query/file-resource-adapter.ts.json"
     },
     "FilterBlueprintPlanningNodesOptions": {
       "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",

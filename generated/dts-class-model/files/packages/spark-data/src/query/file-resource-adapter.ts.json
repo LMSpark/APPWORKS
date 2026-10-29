@@ -1,0 +1,618 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/file-resource-adapter",
+    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts",
+    "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/file-resource-adapter",
+    "jsdoc": "@spark-appworks/spark-data 的 query/file-resource-adapter 模块。\n导出 DtsTypeDeclarationModel symbol: FileResourceTarget, FileResourceSnapshot, FileResourceHistoryAttempt, FileResourceTransport, BindFileResourceAdapterOptions, BindFileDirectoryQueryAdapterOptions（共 6 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "FileResourceTarget",
+      "FileResourceSnapshot",
+      "FileResourceHistoryAttempt",
+      "FileResourceTransport",
+      "BindFileResourceAdapterOptions",
+      "BindFileDirectoryQueryAdapterOptions"
+    ]
+  },
+  "$defs": {
+    "FileResourceTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileResourceTarget",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "key",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "FileResourceSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileResourceSnapshot",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "revision": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "text",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "FileResourceHistoryAttempt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileResourceHistoryAttempt",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "fileName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "fileName"
+      ],
+      "additionalProperties": false
+    },
+    "FileResourceTransport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileResourceTransport",
+      "properties": {
+        "history": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<FileResourceSnapshot | null>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "$ref": "#/$defs/FileResourceTarget"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "baseline": {
+                  "$ref": "#/$defs/FileResourceSnapshot"
+                }
+              },
+              "required": [
+                "target",
+                "text",
+                "baseline"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.isUnknown.params": {
+          "type": "object",
+          "properties": {
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.isUnknown.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BindFileResourceAdapterOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BindFileResourceAdapterOptions",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "contentField": {
+          "type": "string"
+        },
+        "revisionField": {
+          "type": "string"
+        },
+        "transport": {
+          "$ref": "#/$defs/FileResourceTransport"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.target.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.target.return": {
+          "$ref": "#/$defs/FileResourceTarget"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "BindFileDirectoryQueryAdapterOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BindFileDirectoryQueryAdapterOptions",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.target.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.target.return": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "fields": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "required": [
+            "key",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        "method.list.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "fields": {
+                  "$ref": "../types.ts.json#/$defs/DataRow"
+                }
+              },
+              "required": [
+                "key",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-29T04:54:23.457Z",
+  "models": {
+    "FileResourceTarget": {
+      "name": "FileResourceTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    key: string;\n    fields: Readonly<DataRow>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileResourceSnapshot": {
+      "name": "FileResourceSnapshot",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    text: string;\n    revision: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    text: string;\n    revision: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileResourceHistoryAttempt": {
+      "name": "FileResourceHistoryAttempt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    version: string | number;\n    fileName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    version: string | number;\n    fileName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileResourceTransport": {
+      "name": "FileResourceTransport",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "history",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "FileResourceSnapshot",
+                        "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isUnknown",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BindFileResourceAdapterOptions": {
+      "name": "BindFileResourceAdapterOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revisionField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "transport",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "target",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "FileResourceTarget",
+                "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BindFileDirectoryQueryAdapterOptions": {
+      "name": "BindFileDirectoryQueryAdapterOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    target(view: DataView): Readonly<{\n        key: string;\n        fields: Readonly<DataRow>;\n    }>;\n    list(target: Readonly<{\n        key: string;\n        fields: Readonly<DataRow>;\n    }>): Promise<readonly string[]>;\n    assertCurrent?(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    target(view: DataView): Readonly<{\n        key: string;\n        fields: Readonly<DataRow>;\n    }>;\n    list(target: Readonly<{\n        key: string;\n        fields: Readonly<DataRow>;\n    }>): Promise<readonly string[]>;\n    assertCurrent?(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "target",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        key: string;\n        fields: Readonly<DataRow>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "list",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        key: string;\n        fields: Readonly<DataRow>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

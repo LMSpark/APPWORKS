@@ -11,7 +11,56 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
-  "$defs": {},
-  "generatedAt": "2026-10-26T08:15:46.917Z",
-  "models": {}
+  "$defs": {
+    "Option": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Option",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-29T04:03:06.105Z",
+  "models": {
+    "Option": {
+      "name": "Option",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    label: string;\n    value: string | number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
 }

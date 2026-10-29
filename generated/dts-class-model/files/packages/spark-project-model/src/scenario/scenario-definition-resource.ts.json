@@ -81,6 +81,14 @@
         },
         "history": {
           "$ref": "#/$defs/History"
+        },
+        "verifyWriteAttempt": {
+          "type": "object",
+          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceWriteAttemptStatus>"
+        },
+        "acknowledgeWriteAttempt": {
+          "type": "object",
+          "title": "(view: DataView) => void"
         }
       },
       "required": [

@@ -608,6 +608,22 @@
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
             },
+            "loadPageToolFileDataView": {
+              "type": "object",
+              "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
+            },
+            "releasePageToolFileDataView": {
+              "type": "object",
+              "title": "(pageId: string) => void"
+            },
+            "stagePageToolFileDataView": {
+              "type": "object",
+              "title": "(input: { pageId: string; fileName: PageToolFileName; text: string; }) => void"
+            },
+            "cancelPageToolFileDataView": {
+              "type": "object",
+              "title": "(input: { pageId: string; fileName: PageToolFileName; }) => void"
+            },
             "restorePageToolVersion": {
               "type": "object",
               "title": "(input: Omit<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolRestoreInput, \"baselineText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
@@ -821,6 +837,10 @@
             "blueprintPageRuntime",
             "loadBlueprintWorkspaceDataView",
             "savePageToolFile",
+            "loadPageToolFileDataView",
+            "releasePageToolFileDataView",
+            "stagePageToolFileDataView",
+            "cancelPageToolFileDataView",
             "restorePageToolVersion",
             "loadNavigationDictionaryOptions",
             "createPageToolSnapshot",

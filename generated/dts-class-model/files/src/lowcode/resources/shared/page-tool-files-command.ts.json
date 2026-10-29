@@ -412,6 +412,9 @@
         "saveView": {
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "directoryView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
         "hasPendingRestoreDelivery": {
           "type": "boolean"
         },
@@ -489,6 +492,74 @@
         "method.savePageFile.return": {
           "type": "object",
           "title": "Promise<void>"
+        },
+        "method.getPageFileDataView.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageFileDataView.return": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.releasePageFileDataView.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releasePageFileDataView.return": {
+          "type": "boolean"
+        },
+        "method.loadPageFileDataView.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPageFileDataView.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.preparePageFileDataViewSave.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageToolFileSaveInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preparePageFileDataViewSave.return": true,
+        "method.cancelPageFileDataView.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cancelPageFileDataView.return": {
+          "type": "string"
         },
         "method.create.params": {
           "type": "object",
@@ -672,7 +743,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T07:21:15.914Z",
+  "generatedAt": "2026-10-29T04:50:03.399Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -1405,6 +1476,11 @@
               "writable": false
             },
             {
+              "name": "directoryView",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "hasPendingRestoreDelivery",
               "readable": true,
               "writable": false
@@ -1480,6 +1556,124 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "getPageFileDataView",
+              "jsdoc": "Bind one page's rule-file edit surface to its own view so switching pages retains each DataView draft.",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "releasePageFileDataView",
+              "jsdoc": "Release a page editor's view; clean views are destroyed, while pending submissions remain owned for recovery.",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadPageFileDataView",
+              "jsdoc": "Load the exact file row into the page-scoped DataView and select it for standard field components.",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                },
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preparePageFileDataViewSave",
+              "jsdoc": "Register the PageTool runtime projection and immutable save attempt after the bound DataView field changed.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileSaveInput",
+                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancelPageFileDataView",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
               }
             },
             {

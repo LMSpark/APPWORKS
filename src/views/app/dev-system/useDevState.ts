@@ -13,7 +13,7 @@
  * - `workspace` = `getAppProjectBlueprintWorkspace(scope)`；领域真源在 `workspace.project`
  * - `project` = `workspace.project`（ProjectBlueprint；API、事件、revision、projection）
  * - 项目蓝图树 / 节点表单 / dirty：经模型 API + 显式投影 API 到 Vue ref
- * - 配置页内容：写入走 `project.writePageFile()`，保存/版本走 ProjectWorkspace
+ * - 配置页内容：可编辑字段先写入文件 DataView；`project.writePageFile()` 仅同步运行投影，保存由文件资源 owner 经 DataSet 提交
  * - 本模块只编排：Vue ref、localStorage 活动页、autoSave、SSE、状态消息
  */
 import { ref, shallowRef, reactive, computed, getCurrentScope, nextTick, onScopeDispose } from 'vue'
@@ -371,6 +371,32 @@ export function useDevState() {
       if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(pageId)!==page||requireActive&&workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区、页面或owner已切换')
     }})
     workspace.project.markPageFileChanged(pageId,fileName)
+  }
+  async function loadPageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;discardPending?:boolean}):Promise<DataView>{
+    const workspace=currentEditor.value,scope=currentScopeKey(),owner=await loadBlueprintWorkspaceDataView(),fileOwner=pageToolFilesDataView
+    const page=workspace.project.findPageTool(input.pageId)
+    if(fileOwner?.ownerDataSet!==owner.dataSet||page?.isLoaded!==true)throw new Error('PAGE_TOOL_FILE_VIEW_OWNER: 活跃文件 DataView、DataSet 或页面身份不匹配')
+    const assertCurrent=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 项目、页面或owner已切换')}
+    return fileOwner.loadPageFileDataView(input.pageId,input.fileName,input.discardPending===true).then(view=>{assertCurrent();return view})
+  }
+  function releasePageToolFileDataView(pageId:string):void{pageToolFilesDataView?.releasePageFileDataView(pageId)}
+  function stagePageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;text:string}):void{
+    const workspace=currentEditor.value,scope=currentScopeKey(),fileOwner=pageToolFilesDataView,page=workspace.project.findPageTool(input.pageId)
+    const owner=blueprintWorkspaceDataView.value
+    if(!fileOwner||fileOwner.ownerDataSet!==owner?.dataSet||page?.isLoaded!==true||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_VIEW_OWNER: 活跃文件 DataView、DataSet 或页面身份不匹配')
+    const view=fileOwner.getPageFileDataView(input.pageId),row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?null:view.getEditingRow(id)??row
+    if(!row||!edited||id===null||id===undefined||row['fileName']!==input.fileName||row['pageId']!==input.pageId||edited['text']!==input.text)throw new Error('PAGE_TOOL_FILE_VIEW_DRAFT: 标准字段更新没有写入目标 DataView')
+    workspace.project.writePageFile({pageId:input.pageId,fileName:input.fileName,text:input.text})
+    const revision=workspace.project.revision
+    fileOwner.preparePageFileDataViewSave({page,fileName:input.fileName,text:input.text,revision,requireActive:true,assertCurrent:()=>{
+      if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区、页面或owner已切换')
+    }})
+  }
+  function cancelPageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName}):void{
+    const workspace=currentEditor.value,fileOwner=pageToolFilesDataView,page=workspace.project.findPageTool(input.pageId)
+    if(!fileOwner||page?.isLoaded!==true)return
+    const text=fileOwner.cancelPageFileDataView(input.pageId,input.fileName)
+    if(text!==undefined)workspace.project.writePageFile({pageId:input.pageId,fileName:input.fileName,text})
   }
   function registerExternalDataViewSession(session: ExternalDataViewSession): () => void {
     externalDataViewSessions.add(session)
@@ -1587,7 +1613,7 @@ export function useDevState() {
     if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
     const projection=owner.treeProjection()
     const node=projection.nodeId===nodeId?projection:findNodeById(projection.children,nodeId)
-    if(!node||node.nodeId!==nodeId||node.projectId!==owner.projectId)throw new Error('蓝图 DataView 选择行身份不匹配')
+    if(node?.nodeId!==nodeId||node.projectId!==owner.projectId)throw new Error('蓝图 DataView 选择行身份不匹配')
     await selectNode(node)
   }
 
@@ -1670,7 +1696,7 @@ export function useDevState() {
     if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
     const projection=owner.treeProjection()
     const parent=projection.nodeId===parentNodeId?projection:findNodeById(projection.children,parentNodeId)
-    if(!parent||parent.projectId!==owner.projectId)throw new Error('蓝图 DataView 新增父节点不属于当前项目')
+    if(parent?.projectId!==owner.projectId)throw new Error('蓝图 DataView 新增父节点不属于当前项目')
     await addChildNode(parent)
   }
 
@@ -1755,11 +1781,11 @@ export function useDevState() {
 
   function removeNodeById(nodeId:string):void{
     const owner=blueprintWorkspaceDataView.value
-    if(!owner||!owner.hasTreeProjection){addStatus('蓝图 DataView 项目树尚未加载，不能删除节点','warning');return}
+    if(!owner?.hasTreeProjection){addStatus('蓝图 DataView 项目树尚未加载，不能删除节点','warning');return}
     try{
       const projection=owner.treeProjection()
       const node=projection.nodeId===nodeId?projection:findNodeById(projection.children,nodeId)
-      if(!node||node.projectId!==owner.projectId)throw new Error('蓝图 DataView 删除行身份不匹配')
+       if(node?.projectId!==owner.projectId)throw new Error('蓝图 DataView 删除行身份不匹配')
       removeNodeFromTree(node)
     }catch(error){addStatus(`删除节点失败: ${String(error)}`,'error')}
   }
@@ -1866,6 +1892,10 @@ export function useDevState() {
     blueprintPageRuntime,
     loadBlueprintWorkspaceDataView,
     savePageToolFile,
+    loadPageToolFileDataView,
+    releasePageToolFileDataView,
+    stagePageToolFileDataView,
+    cancelPageToolFileDataView,
     restorePageToolVersion,
     loadNavigationDictionaryOptions,
     createPageToolSnapshot,

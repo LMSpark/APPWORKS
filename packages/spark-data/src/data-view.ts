@@ -31,7 +31,7 @@ import { SaveRuleValidator } from './validation/save-rule-validator'
 import { DataViewFilter } from './query/filter/data-view-filter'
 import { DataViewQuery } from './query/data-view-query'
 import {DataViewSource, type DataViewSourceAdapter, type DataViewSourceSnapshot, type DataViewSourceAdoptOptions,
-  type DataViewSourceVersion, type DataViewSourceHistoryStatus} from './query/data-view-source'
+  type DataViewSourceVersion, type DataViewSourceHistoryStatus, type DataViewSourceWriteAttemptStatus} from './query/data-view-source'
 import {DataViewFilterLookup} from './query/data-view-filter-lookup'
 import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
@@ -504,6 +504,12 @@ rows: DataRow[] = []
   async verifySourceHistoryAttempt(): Promise<DataViewSourceHistoryStatus> {
     return this.sourceLifecycle().verifyHistoryAttempt()
   }
+
+  /** 核验由同一DataSet文件来源owner持有的正文保存attempt；不会重放原上传。 */
+  async verifySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {return this.sourceLifecycle().verifyWriteAttempt()}
+
+  /** 领域结果交付完成后消费已核验的正文保存attempt。 */
+  acknowledgeSourceWriteAttempt(): void {this.sourceLifecycle().acknowledgeWriteAttempt()}
 
   /** 为已保存且同源视图均干净的资源创建快照；异步编辑、来源切换或释放均拒绝旧操作。 */
   async createSourceVersion(): Promise<void> {await this.sourceLifecycle().createVersion()}

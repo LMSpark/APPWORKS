@@ -6,16 +6,18 @@ AI用途：编辑原型说明并提交父工作台真实保存。
 -->
 <template>
   <section class="stage-pane">
-    <FieldHtmlEditor v-if="fieldAccess.read" v-model="model" label="原型设计" :rows="16" :readonly="!fieldAccess.write" />
-    <el-alert v-else title="当前查询没有返回该字段或读取权限" type="warning" :closable="false" />
-    <div class="stage-actions"><el-button type="primary" :loading="saving" :disabled="!fieldAccess.write" @click="$emit('save')">保存节点修改</el-button></div>
+    <RendererForm v-bind="binding" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldHtmlEditor v-if="fieldAccess.read" data-member="currentRow" data-field="htmlDesc" label="原型设计" :rows="16" :readonly="!fieldAccess.write" @update:model-value="$emit('changed')" />
+      <DisplayAlert v-else title="当前查询没有返回该字段或读取权限" alert-type="warning" />
+    </RendererForm>
+    <div class="stage-actions"><RendererButton label="保存节点修改" button-type="primary" :loading="saving" :disabled="!fieldAccess.write" @click="$emit('save')" /></div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { FieldHtmlEditor } from '@spark-appworks/spark-component'
-defineProps<{ saving: boolean; fieldAccess: {read: boolean; write: boolean} }>()
-defineEmits<{ save: [] }>()
-const model = defineModel<string>({ required: true })
+import { DisplayAlert, FieldHtmlEditor, RendererButton, RendererForm } from '@spark-appworks/spark-component'
+import type { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+defineProps<{ saving: boolean; fieldAccess: {read: boolean; write: boolean}; binding: BlueprintWorkspaceDataView['standardComponentBinding'] }>()
+defineEmits<{ save: []; changed: [] }>()
 </script>
 

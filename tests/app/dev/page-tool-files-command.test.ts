@@ -17,6 +17,8 @@ describe('PageToolFilesDataView',()=>{
       readVersion:async()=>snapshots.get('APP/PAGE/4__script.js')??null,
     },()=>{})
     await expect(owner.restoreVersion({pageId:'PAGE',customPath:'APP/PAGE',fileName:'script.js',version:4,baselineText:'working baseline',assertCurrent:()=>{}})).resolves.toBe('restored text')
+    expect(owner.saveView.queryContext).toMatchObject({pageId:'PAGE',fileName:'script.js'})
+    expect(owner.saveView.rows[0]).toMatchObject({pageId:'PAGE',fileName:'script.js',text:'working baseline'})
     expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
     expect(restoreWorkingFile).toHaveBeenCalledWith({appId:'APP',pageId:'PAGE',fileName:'script.js',text:'restored text'})
     expect(upload).not.toHaveBeenCalled()
@@ -170,7 +172,7 @@ describe('PageToolFilesDataView',()=>{
     const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
     const save=vi.spyOn(dataSet,'saveChanges')
     await owner.savePageFile({page,fileName:'script.js',text:'submitted',revision:3,assertCurrent:()=>{}})
-    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'default',ids:[expect.any(String)]}]})
+    expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'page-PAGE',ids:[JSON.stringify(['APP','PAGE','script.js'])]}]})
     expect(upload).toHaveBeenCalledWith({appId:'APP',pageId:'PAGE',fileName:'script.js',text:'submitted'})
     expect(files.get('script.js')).toBe('submitted');expect(page.getSavedFileText('script.js')).toBe('submitted');expect(page.isDirty()).toBe(false)
   })
@@ -182,6 +184,9 @@ describe('PageToolFilesDataView',()=>{
     const page=new PageTool({pageId:'PAGE'});page.markLoaded();page.hydrateFileText('script.js','before');page.setFileText('script.js','submitted')
     const input={page,fileName:'script.js' as const,text:'submitted',revision:7,assertCurrent:()=>{}}
     await expect(owner.savePageFile(input)).rejects.toThrow('timeout after accept')
+    const pendingView=owner.getPageFileDataView('PAGE')
+    expect(owner.releasePageFileDataView('PAGE')).toBe(false)
+    await expect(owner.loadPageFileDataView('PAGE','script.js')).resolves.toBe(pendingView)
     await expect(owner.savePageFile(input)).resolves.toBeUndefined()
     expect(upload).toHaveBeenCalledTimes(1);expect(page.getSavedFileText('script.js')).toBe('submitted')
   })
@@ -371,15 +376,17 @@ describe('PageToolFilesDataView',()=>{
 
   it('deletes every page file and version entry through one DataView command, then confirms an empty directory',async()=>{
     const files=new Map([['rule.json','{}'],['script.js','x'],['2__rule.json','snapshot'],['3__style.css','snapshot-style']])
-    const remove=vi.fn(async(_app:string,_page:string,name:string)=>{files.delete(name)})
+    const operations:string[]=[],remove=vi.fn(async(_app:string,_page:string,name:string)=>{operations.push(`remove:${name}`);files.delete(name)})
     const dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
     const save=vi.spyOn(dataSet,'saveChanges')
-    const resource=new PageToolFilesDataView(dataSet,'APP',{list:async()=>[...files.keys()],read:async(_a:string,_p:string,n:string)=>files.get(n)??null,
+    const resource=new PageToolFilesDataView(dataSet,'APP',{list:async()=>{operations.push('list');return [...files.keys()]},read:async(_a:string,_p:string,n:string)=>files.get(n)??null,
       upload:async()=>{},remove},()=>{})
     await expect(resource.deletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
     expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
     expect(remove).toHaveBeenCalledTimes(4)
     expect([...files.keys()]).toEqual([])
+    expect(operations[0]).toBe('list')
+    expect(operations.findIndex(operation=>operation.startsWith('remove:'))).toBeGreaterThan(operations.indexOf('list'))
   })
 
   it('retains a known failed delete command and retries the same commandId',async()=>{
@@ -436,13 +443,37 @@ describe('PageToolFilesDataView',()=>{
   })
 
   it('preflights the exact page directory and file names before the blueprint delete phase',async()=>{
-    const list=vi.fn(async()=>['rule.json','2__rule.json'])
-    const resource=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+    const list=vi.fn(async()=>['rule.json','2__rule.json']),dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const resource=new PageToolFilesDataView(dataSet,'APP',{
       list,read:async()=>null,upload:async()=>{},remove:async()=>{},
     },()=>{})
     await expect(resource.preflightDeletePageFiles('PAGE','APP/PAGE')).resolves.toBeUndefined()
     expect(list).toHaveBeenCalledOnce()
+    expect(dataSet.getTable('PageToolFilesDirectory')).toBeDefined()
+    expect(resource.directoryView.rows.map(row=>row['fileName'])).toEqual(['rule.json','2__rule.json'])
     await expect(resource.preflightDeletePageFiles('PAGE','APP/OTHER')).rejects.toThrow('PAGE_TOOL_FILE_DELETE_SCOPE')
     expect(list).toHaveBeenCalledOnce()
+  })
+
+  it('refuses the directory delete command when the DataView preflight reports an unsafe entry',async()=>{
+    const list=vi.fn(async()=>['../outside']),remove=vi.fn(),dataSet=SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}})
+    const save=vi.spyOn(dataSet,'saveChanges'),resource=new PageToolFilesDataView(dataSet,'APP',{
+      list,read:async()=>null,upload:async()=>{},remove,
+    },()=>{})
+    await expect(resource.deletePageFiles('PAGE','APP/PAGE')).rejects.toThrow('PAGE_TOOL_FILE_DELETE_SCOPE')
+    expect(resource.directoryView.rows.map(row=>row['fileName'])).toEqual(['../outside'])
+    expect(save).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+  })
+
+  it('requires PageTool snapshots to use the DataSet command instead of the generic source-version writer',async()=>{
+    const uploadVersion=vi.fn(),owner=new PageToolFilesDataView(SparkData.createDataSet({dataSetName:'test',scenarioId:'SCENE',tables:{}}),'APP',{
+      list:async()=>[],read:async()=> 'working',upload:async()=>{},remove:async()=>{},
+      listVersions:async()=>[],readVersion:async()=>null,uploadVersion,
+    },()=>{})
+    owner.saveView.queryContext={appId:'APP',pageId:'PAGE',fileName:'script.js'}
+    await owner.saveView.refresh()
+    await expect(owner.saveView.createSourceVersion()).rejects.toThrow('PAGE_TOOL_SNAPSHOT_COMMAND_REQUIRED')
+    expect(uploadVersion).not.toHaveBeenCalled()
   })
 })

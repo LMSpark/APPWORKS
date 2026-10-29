@@ -6,17 +6,18 @@ AI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式
 -->
 <template>
   <section class="stage-pane">
-    <el-form label-width="110px">
-      <el-form-item v-if="fieldAccess.read" label="已保存场景"><span>{{ state.persistedDataSpaceId.value || '未绑定' }}</span></el-form-item>
-    </el-form>
-    <el-alert v-if="!fieldAccess.read" title="当前查询没有返回场景字段或读取权限" type="warning" :closable="false" />
-    <el-alert v-if="state.sceneBindingPending.value" title="场景绑定尚未通过顶栏保存并正式回读；请先保存或取消节点修改，再加载设计器。" type="warning" :closable="false" />
+    <RendererForm v-if="fieldAccess.read" :auto-columns="false" :show-data-view-meta="false" label-width="110px">
+      <DisplayText label="已保存场景" :model-value="state.persistedDataSpaceId.value || '未绑定'" tag="span" />
+    </RendererForm>
+    <DisplayAlert v-if="!fieldAccess.read" title="当前查询没有返回场景字段或读取权限" alert-type="warning" />
+    <DisplayAlert v-if="state.sceneBindingPending.value" title="场景绑定尚未通过顶栏保存并正式回读；请先保存或取消节点修改，再加载设计器。" alert-type="warning" />
     <DevDataSetDesigner v-else-if="state.persistedDataSpaceId.value" :key="state.persistedDataSpaceId.value" :state="state" />
-    <el-alert v-else title="请先在当前数据空间中选择并保存一个正式场景。" type="info" :closable="false" />
+    <DisplayAlert v-else title="请先在当前数据空间中选择并保存一个正式场景。" alert-type="info" />
   </section>
 </template>
 <script setup lang="ts">
 import type { DevState } from '../useDevState'
 import DevDataSetDesigner from '../DevDataSetDesigner.vue'
+import {DisplayAlert,DisplayText,RendererForm} from '@spark-appworks/spark-component'
 defineProps<{ state: DevState; fieldAccess: {read: boolean; write: boolean} }>()
 </script>

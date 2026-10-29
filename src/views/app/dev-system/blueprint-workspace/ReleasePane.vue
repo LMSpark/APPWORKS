@@ -6,18 +6,25 @@ AI用途：设置正式节点导航发布参数并查看cfg或vue资源表面。
 -->
 <template>
   <section class="stage-pane">
-    <el-form label-width="110px">
-      <el-form-item v-if="visibilityAccess.read" label="导航可见"><el-switch v-model="form.visible" :disabled="!visibilityAccess.write" /></el-form-item>
-      <el-form-item v-if="navigationAccess.read" label="导航类型"><el-input-number v-model="form.navigationType" :min="0" :disabled="!navigationAccess.write" /></el-form-item>
-      <el-alert v-if="!visibilityAccess.read && !navigationAccess.read" title="当前查询未返回发布字段或读取权限" type="warning" :closable="false" />
-      <el-form-item label="运行资源"><el-input :model-value="runtimeSummary" disabled /></el-form-item>
-    </el-form>
-    <div class="stage-actions"><el-button type="primary" :loading="saving" :disabled="!visibilityAccess.write && !navigationAccess.write" @click="$emit('save')">保存节点修改</el-button></div>
+    <RendererForm v-bind="binding" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="110px">
+      <FieldSwitch v-if="visibilityAccess.read && visibilityBoolean" data-member="currentRow" data-field="IsShowAtNav" label="导航可见" :readonly="!visibilityAccess.write" @update:model-value="$emit('changed')" />
+      <FieldRadio v-else-if="visibilityAccess.read" data-member="currentRow" data-field="IsShowAtNav" label="导航可见" :options="visibilityOptions" :button-style="true" :readonly="!visibilityAccess.write" @update:model-value="$emit('changed')" />
+      <FieldSelect v-if="navigationAccess.read" data-member="currentRow" data-field="NavigationType" label="导航类型" :options="navigationOptions" :readonly="!navigationAccess.write" :clearable="false" @update:model-value="$emit('changed')" />
+      <FieldText v-if="runtimeAccess.read" data-member="currentRow" data-field="NavigationUrl" label="运行资源" readonly empty-text="未配置" :display-formatter="formatRuntimeResource" />
+      <DisplayAlert v-if="!visibilityAccess.read && !navigationAccess.read" title="当前查询未返回发布字段或读取权限" alert-type="warning" />
+    </RendererForm>
+    <div class="stage-actions"><RendererButton label="保存节点修改" button-type="primary" :loading="saving" :disabled="!visibilityAccess.write && !navigationAccess.write" @click="$emit('save')" /></div>
   </section>
 </template>
 
 <script setup lang="ts">
-defineProps<{ form: { visible: boolean; navigationType: number }; runtimeSummary: string; saving: boolean; visibilityAccess: {read: boolean; write: boolean}; navigationAccess: {read: boolean; write: boolean} }>()
-defineEmits<{ save: [] }>()
+import {DisplayAlert,FieldRadio,FieldSelect,FieldSwitch,FieldText,RendererButton,RendererForm} from '@spark-appworks/spark-component'
+import type {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+type Option={label:string;value:string|number}
+defineProps<{binding:BlueprintWorkspaceDataView['standardComponentBinding'];saving:boolean;visibilityAccess:{read:boolean;write:boolean};navigationAccess:{read:boolean;write:boolean};runtimeAccess:{read:boolean;write:boolean};visibilityBoolean:boolean;visibilityOptions:Option[];navigationOptions:Option[]} >()
+defineEmits<{save:[];changed:[]}>()
+function formatRuntimeResource(value:unknown):string {
+  const target=String(value??'')
+  return target.startsWith('cfg:')?'配置页面资源':target.startsWith('vue:')?'Vue 页面资源':'未配置'
+}
 </script>
-

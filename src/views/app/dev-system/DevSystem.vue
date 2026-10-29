@@ -14,40 +14,37 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         <div class="dev-project-picker">
           <NavHostProjectPicker :state="state" />
         </div>
-        <el-tag size="small" type="info" effect="plain">{{ state.tenantId }}/{{ state.projectId }}</el-tag>
-        <el-tag v-if="state.hasAnyDirty.value" type="warning" size="small" effect="dark">未保存</el-tag>
+        <DisplayTag :content="`${state.tenantId}/${state.projectId}`" tag-type="info" size="small" effect="plain" />
+        <DisplayTag v-if="state.hasAnyDirty.value" content="未保存" tag-type="warning" size="small" effect="dark" />
       </div>
       <div class="dev-header__right">
-        <el-input
+        <FieldText
           v-if="state.activePageId.value"
           v-model="pageDesignAiPrompt"
           class="dev-ai-input"
-          size="small"
           clearable
           placeholder="描述 AI 编辑需求"
         />
-        <el-button
+        <RendererButton
           v-if="state.activePageId.value"
-          size="small"
-          type="primary"
+          label="AI 编辑"
+          icon="MagicStick"
+          button-size="small"
+          button-type="primary"
           :loading="state.pageDesignAiRunning.value"
           :disabled="!canRunPageDesignAi"
           @click="runPageDesignAi"
-        >
-          <NavIcon name="MagicStick" :size="14" /> AI 编辑
-        </el-button>
-        <el-button size="small" @click="switchToPreview" :disabled="!canPreviewCurrentPage">
-          <NavIcon name="Search" :size="14" /> 预览页面
-        </el-button>
-        <el-button
+        />
+        <RendererButton label="预览页面" icon="Search" button-size="small" @click="switchToPreview" :disabled="!canPreviewCurrentPage" />
+        <RendererButton
           v-if="canSaveFromHeader"
-          size="small"
-          type="success"
+          :label="headerSaveLabel"
+          icon="FolderChecked"
+          button-size="small"
+          button-type="success"
           :loading="state.allSaving.value || state.blueprintSaving.value || state.pageIoBusy.value"
           @click="saveAll"
-        >
-          <NavIcon name="FolderChecked" :size="14" /> {{ headerSaveLabel }}
-        </el-button>
+        />
       </div>
     </div>
 
@@ -84,23 +81,23 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
                 <NavIcon name="Share" :size="13" /> {{ state.blueprintDraft.nodeId }}
                 <template v-if="state.blueprintDraft.capability.name"> · {{ state.blueprintDraft.capability.name }}</template>
               </span>
-              <el-tag v-if="state.blueprintDirty.value" type="warning" size="small">属性已修改</el-tag>
+              <DisplayTag v-if="state.blueprintDirty.value" content="属性已修改" tag-type="warning" size="small" />
             </template>
             <template v-if="state.activePageId.value">
               <span class="footer-info"><NavIcon name="Tickets" :size="13" /> {{ state.activePageId.value }}</span>
-              <el-tag v-if="state.hasAnyFileDirty.value" type="warning" size="small">文件已修改</el-tag>
+              <DisplayTag v-if="state.hasAnyFileDirty.value" content="文件已修改" tag-type="warning" size="small" />
             </template>
           </div>
           <div class="workspace-footer__right">
-            <el-button
+            <RendererButton
               v-if="state.activePageId.value"
-              size="small"
-              type="success"
+              :label="`/${state.activePageId.value}`"
+              icon="Connection"
+              button-size="small"
+              button-type="success"
               link
               @click="previewPage(state.activePageId.value)"
-            >
-              <NavIcon name="Connection" :size="13" /> /{{ state.activePageId.value }}
-            </el-button>
+            />
           </div>
         </div>
       </div>
@@ -133,7 +130,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, watch } from 'vue'
-import { AiToolApprovalPanel, PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
+import { AiToolApprovalPanel,DisplayTag,FieldText,PAGE_RUNTIME,RendererButton,useSparkComponent } from '@spark-appworks/spark-component'
 import { useDevSystem } from './useDevSystem'
 import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
 import BlueprintWorkspace from './blueprint-workspace/BlueprintWorkspace.vue'

@@ -3914,3 +3914,4 @@ flowchart TD
 - **现有回归：**`pnpm exec vitest run tests/runtime/auth-nav/application-scope.test.ts tests/app/views/tenant/app-list-dataview.test.ts --reporter=dot --silent` 通过，**2 files / 11 tests**。app-list 的目录查询绑定正式 `Base_AppSystemList` DataView；目录与页面路由使用 project/app ID，不由前端租户参数选定。
 - **标准组件差距：**`src/views/tenant/AppList.vue` 的卡片目录已用标准 `RendererList` 和 DataView 字段/动作子节点，但页头、创建弹窗及表单仍直接用 Element Plus。应用创建当前因缺少正式保存合同而 fail-closed；在没有正式资源/DataView 身份前不造临时模型或页面级提交通道。此壳层页面的组件替换尚未完成，需沿仓内 ClassModel 与标准字段组件合同继续收敛。
 - **现场边界：**CUA 当前浏览器清单没有 SPA 标签，故本轮只能确认源码和本地回归，不能确认登录态、服务器端 app-list 实际 URL 或动态 cfg 项目三文件读取/持久化。当前反馈为需重新登录；没有远端写入，未修改、启动或部署 Java。
+- **续查补证：**本轮新开可见 SPA 标签访问 `/apps/homepage/app-list`，未认证状态被重定向到公开首页；同一标签随后只导航到 `/login`，AX 页面显示登录表单及已选企业“领码科技”，没有输入或提交账号信息。登录页现留在 `http://127.0.0.1:5273/login` 供用户手动恢复会话；真实 cfg 树与服务端三文件读回仍未验。

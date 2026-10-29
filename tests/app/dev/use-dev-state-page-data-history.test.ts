@@ -13,6 +13,7 @@ import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcod
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
+import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 
 const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterceptors, readModels, previewLoad } = vi.hoisted(() => ({
   httpGet: vi.fn(),
@@ -45,7 +46,7 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
       'MobileUrl', 'NavigationType', 'ChildItemLocation', 'NavigationShowType', 'HorizontalAlignment', 'IsShowAtNav', 'IsShowChildItem',
       'BeginGroup', 'conid', 'conType', 'memo', 'htmlDesc', 'VersionId', 'DifficultyFactor', 'Manhour', 'Number', 'Sum', 'Total',
       'personCharge', 'status']
-    const dataSet = DataSet.fromJson({scenarioId, tables: {Base_NavigationInfo: {
+    const dataSet = DataSet.fromJson({scenarioId, tables: {ProjectToolFile: appConfig.tables.ProjectToolFile, Base_NavigationInfo: {
       modelBinding: {modelId: `${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`, modelName: 'Base_NavigationInfo'},
       columns: fields.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
       views: {default: {autoLoad: false}},
@@ -584,7 +585,7 @@ describe('tool and shared scenario editing owners',()=>{
    expect(fileViewLoad.mock.calls.map(([input])=>input.fileName)).toEqual(['rule.json'])
    const fileView=await fileViewLoad.mock.results[0]?.value as unknown as {currentRow:Record<string,unknown>|null;tableName:string;viewId:string}
    expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'rule.json'})
-   expect(fileView.tableName).toBe('PageToolFileSave')
+   expect(fileView.tableName).toBe('ProjectToolFile')
    expect(fileView.viewId).toBe('page-orders-page-rule.json')
   }finally{wrapper.unmount()}
  })
@@ -615,7 +616,7 @@ describe('tool and shared scenario editing owners',()=>{
    expect(runtime.tool.getFileText('script.js')).toBe('DataView draft')
   } finally {wrapper.unmount()}
  })
- it('loads only the requested tool file DataView and leaves other files unloaded',async()=>{const state=createDevStateWithConfigPages();const ownerLoad=vi.spyOn(state.editor,'ensureActivePageFilesLoaded');const fileView=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'});expect(ownerLoad).not.toHaveBeenCalled();expect(fileView.tableName).toBe('PageToolFileSave');expect(fileView.viewId).toBe('page-orders-page-script.js');expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'script.js'});expect(state.pageFileNames).toEqual(['rule.json','script.js','style.css'])})
+ it('loads only the requested tool file DataView from the formal ProjectToolFile mapping',async()=>{const state=createDevStateWithConfigPages();const ownerLoad=vi.spyOn(state.editor,'ensureActivePageFilesLoaded');const fileView=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'});expect(ownerLoad).not.toHaveBeenCalled();expect(appConfig.tables.ProjectToolFile.resourceType).toBe('file');expect(appConfig.tables.ProjectToolFile.resourceId).toBe('project:tool-file');expect(appConfig.tables.ProjectToolFile.columns.map(column=>column.name)).toEqual(['fileKey','pageId','fileName','versionId','text','localDirty']);expect(fileView.tableName).toBe('ProjectToolFile');expect(fileView.dataTable?.resourceId).toBe('project:tool-file');expect(fileView.viewId).toBe('page-orders-page-script.js');expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'script.js'});expect(state.pageFileNames).toEqual(['rule.json','script.js','style.css'])})
  it('loads scene views through the scene gateway and undoes to a clean shared baseline',async()=>{let remote=fixtureText(20);httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}));httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content});const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene');await state.writeScenarioViewText(fixtureText(50));expect(state.pageDataDirty.value).toBe(true);expect(await state.scenarioDefinitionDocument.value?.undo()).toBe(true);state.scenarioDefinitionRevision.value++;expect(state.pageDataDirty.value).toBe(false);await state.writeScenarioViewText(fixtureText(70));await state.saveScenarioViewText();expect(JSON.parse(remote)).toEqual(JSON.parse(fixtureText(70)));expect(state.pageDataDirty.value).toBe(false);expect(state.project.readDirtyProjection().dirtyFiles).not.toContain('pagedata.json')})
  it('rejects model structure edits and preserves the last valid scene document',async()=>{httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}));const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();const previous=state.scenarioDefinitionDocument.value?.getText();await expect(state.writeScenarioViewText(JSON.stringify({scenarioId:'scene',tables:{Orders:{columns:[],views:{default:{}}}}}))).rejects.toThrow();expect(state.scenarioDefinitionDocument.value?.getText()).toBe(previous);expect(state.pageDataDirty.value).toBe(false)})
 })

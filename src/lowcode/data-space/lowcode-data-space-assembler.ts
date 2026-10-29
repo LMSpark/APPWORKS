@@ -2,7 +2,7 @@
  * @module app:lowcode/data-space/lowcode-data-space-assembler
  * 职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。
  */
-import { DataSpaceDesignApi, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
+import { DataSpaceDesignApi, LOWCODE_APPLICATION_CATALOG_FORM_KEY, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewQuery, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
@@ -99,7 +99,9 @@ export class LowcodeDataSpaceAssembler {
    const table = record(value, tableName)
    if (table['resourceType'] === 'file') {
     const executor = input.fileExecutors && Object.hasOwn(input.fileExecutors, tableName) ? input.fileExecutors[tableName] : undefined
-    if (!executor || typeof executor.executeQuery !== 'function') throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
+    const deferredToolFile = input.config.scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY
+     && tableName === 'ProjectToolFile' && table['resourceId'] === 'project:tool-file'
+    if ((!executor || typeof executor.executeQuery !== 'function') && !deferredToolFile) throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
     tables[tableName] = {tableName, ...structuredClone(table)}
     continue
    }
@@ -139,11 +141,13 @@ export class LowcodeDataSpaceAssembler {
    for (const table of Object.values(dataSet.tables)) {
     if (table.resourceType !== 'file' || table.modelBinding) continue
     const resourceId = table.resourceId, executor = input.fileExecutors?.[table.tableName]
-    if (!resourceId || !executor) throw new Error(`SCENARIO_FILE_OWNER: ${table.tableName} 文件身份不完整`)
+    const deferredToolFile = input.config.scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY
+     && table.tableName === 'ProjectToolFile' && resourceId === 'project:tool-file'
+    if (!resourceId || !executor && !deferredToolFile) throw new Error(`SCENARIO_FILE_OWNER: ${table.tableName} 文件身份不完整`)
     table.forEachView(view => {
      DataViewQuery.validateFields(view.queryConfig, new Set(table.columns.filter(column => !column.computeExpression && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()}, new Set(view.columns.filter(column => column.name !== '_pk').map(column => column.name)))
-     view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
+     if (executor) view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
     })
    }
    for (const [tableName, model] of bindings) {

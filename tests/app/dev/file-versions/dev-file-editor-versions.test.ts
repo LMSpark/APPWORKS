@@ -52,7 +52,7 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
   const dataSet = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', getView: vi.fn((tableName: string) =>
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
   const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
-  const fileView={tableName:'PageToolFileSave',viewId:`page-page-A-${activeFile}`,dataSet:{scenarioId:'7AB874097A1E8711A42FD845939A6E05'},rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
+  const fileView={tableName:'ProjectToolFile',viewId:`page-page-A-${activeFile}`,dataSet:{scenarioId:'7AB874097A1E8711A42FD845939A6E05'},rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
   const state = {
     activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
     restoredText: ref(fixture.text),
@@ -89,9 +89,9 @@ describe('DevFileEditor snapshot identity', () => {
     const {state, wrapper, fileView} = setup()
     await flushPromises()
     expect(state.loadPageToolFileDataView).toHaveBeenCalledWith({pageId: 'page-A', fileName: 'script.js'})
-    expect(wrapper.findComponent({name: 'RendererForm'}).props('dataViewKey')).toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-script.js')
+    expect(wrapper.findComponent({name: 'RendererForm'}).props('dataViewKey')).toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-script.js')
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props()).toMatchObject({
-      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-script.js',
+      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-script.js',
       dataMember: 'currentRow', dataField: 'text', label: 'script.js', language: 'javascript',
     })
     wrapper.unmount()
@@ -102,7 +102,7 @@ describe('DevFileEditor snapshot identity', () => {
     await flushPromises()
     expect(state.loadPageToolFileDataView).toHaveBeenCalledWith({pageId: 'page-A', fileName: 'style.css'})
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props()).toMatchObject({
-      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-style.css',
+      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-style.css',
       dataMember: 'currentRow', dataField: 'text', label: 'style.css', language: 'css',
     })
     wrapper.unmount()
@@ -118,12 +118,12 @@ describe('DevFileEditor snapshot identity', () => {
     state.activePageId.value = 'page-B'
     await flushPromises()
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
-      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+      .toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-B-script.js')
 
     refresh.resolve()
     await flushPromises()
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
-      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+      .toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-B-script.js')
     wrapper.unmount()
   })
 
@@ -137,12 +137,12 @@ describe('DevFileEditor snapshot identity', () => {
     state.activePageId.value = 'page-B'
     await flushPromises()
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
-      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+      .toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-B-script.js')
 
     staleView.resolve(fileView)
     await flushPromises()
     expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
-      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+      .toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-B-script.js')
     wrapper.unmount()
   })
 

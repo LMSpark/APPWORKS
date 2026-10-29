@@ -148,6 +148,28 @@
         }
       }
     },
+    "ProjectToolFile": {
+      "resourceType": "file",
+      "resourceId": "project:tool-file",
+      "columns": [
+        { "name": "fileKey", "label": "文件身份", "type": "string", "required": true, "isPrimaryKey": true },
+        { "name": "pageId", "label": "工具ID", "type": "string" },
+        { "name": "fileName", "label": "文件名", "type": "string" },
+        { "name": "versionId", "label": "发布版本", "type": "string" },
+        { "name": "text", "label": "原文", "type": "string" },
+        { "name": "localDirty", "label": "工具已有本地修改", "type": "boolean" }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryContext": { "pageId": "", "fileName": "rule.json", "versionId": "" },
+          "queryConfig": { "allPages": true, "maxRows": 1 }
+        }
+      }
+    },
     "RepositoryBlueprintNode": {
       "resourceType": "file",
       "resourceId": "repository:navigation:appworks-system:records",

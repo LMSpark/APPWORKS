@@ -134,6 +134,12 @@ describe('loadLowcodeRuntimeScenario', () => {
     try{
       expect(dataSet.getTable('Base_NavigationInfo')?.modelBinding?.modelName).toBe('Base_NavigationInfo')
       expect(dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
+      const toolFile=dataSet.getView('ProjectToolFile','default')
+      expect(toolFile?.dataTable?.resourceId).toBe('project:tool-file')
+      expect(()=>toolFile?.bindQueryExecutor({executeQuery:async view=>({rows:[],total:0,assertIdentity:()=>undefined,
+        rowKey:row=>row[view.primaryKey],fieldAccess:()=>({read:'invisible',write:'denied',component:'hidden',required:false,writeMode:'readonly'}),
+        readFieldAccess:()=>'invisible',addActionState:()=>'disabled',editActionState:()=>'disabled',deleteActionState:()=>'disabled',
+        createChildActionState:()=>'disabled',viewActionState:()=>'hidden'})},{resource:{resourceType:'file',resourceId:'project:tool-file'}})).not.toThrow()
       expect(mocks.readModelBatch).toHaveBeenCalledOnce()
       expect(mocks.request).not.toHaveBeenCalled()
     }finally{dataSet.destroy()}

@@ -22,6 +22,7 @@ import { getBuiltinScenarioResource } from '@/registries/builtin-application-reg
 import { BUILTIN_BLUEPRINT_BUSINESS_FIELDS } from '@/lowcode/resources/shared/builtin-system-navigation'
 import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 import {PageToolFileCommands} from '@/lowcode/resources/shared/page-tool-files-command'
+import applicationPageData from '../../../config/pages/application/project-blueprint/pagedata.json'
 
 const httpFns = vi.hoisted(() => ({
   get: vi.fn(),
@@ -194,7 +195,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     item.children?.forEach((child,index)=>collect(child,item.nodeId,index))
   }
   collect(root,'000000',0)
-  const tables:Record<string,unknown>={Base_NavigationInfo:{
+  const tables:Record<string,unknown>={ProjectToolFile:applicationPageData.tables.ProjectToolFile,Base_NavigationInfo:{
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
     columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
   }}
@@ -1921,7 +1922,7 @@ describe('DevState 页面文件闭环', () => {
       expect(view.dirtyTracking.getOriginal(id)?.['text']).toBe('before')
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
       await state.savePageToolFile({pageId:'demo',fileName:'script.js'})
-      expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'page-demo-script.js',ids:[id]}]})
+      expect(save).toHaveBeenCalledWith({views:[{tableName:'ProjectToolFile',viewId:'page-demo-script.js',ids:[id]}]})
       expect(pageFiles.files.get('demo/script.js')).toBe('submitted')
       expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('submitted')
     }finally{scope.stop()}
@@ -1961,8 +1962,8 @@ describe('DevState 页面文件闭环', () => {
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
       await state.savePageToolFile({pageId:'demo',fileName:'script.js'})
       await state.savePageToolFile({pageId:'demo',fileName:'style.css'})
-      expect(save).toHaveBeenNthCalledWith(1,{views:[{tableName:'PageToolFileSave',viewId:'page-demo-script.js',ids:[scriptId]}]})
-      expect(save).toHaveBeenNthCalledWith(2,{views:[{tableName:'PageToolFileSave',viewId:'page-demo-style.css',ids:[styleId]}]})
+      expect(save).toHaveBeenNthCalledWith(1,{views:[{tableName:'ProjectToolFile',viewId:'page-demo-script.js',ids:[scriptId]}]})
+      expect(save).toHaveBeenNthCalledWith(2,{views:[{tableName:'ProjectToolFile',viewId:'page-demo-style.css',ids:[styleId]}]})
       expect(pageFiles.files.get('demo/script.js')).toBe('script edited')
       expect(pageFiles.files.get('demo/style.css')).toBe('style edited')
     }finally{scope.stop()}
@@ -1989,7 +1990,7 @@ describe('DevState 页面文件闭环', () => {
       state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'file change'})
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
       await state.saveAll()
-      expect(save.mock.calls.some(([command])=>command?.views?.some(view=>view.tableName==='PageToolFileSave'&&view.viewId==='page-demo-script.js'))).toBe(true)
+      expect(save.mock.calls.some(([command])=>command?.views?.some(view=>view.tableName==='ProjectToolFile'&&view.viewId==='page-demo-script.js'))).toBe(true)
       expect(pageFiles.files.get('demo/script.js')).toBe('file change')
       expect(pageFiles.upload.mock.calls.filter(([command])=>command.fileName==='script.js')).toHaveLength(1)
       expect(pageFiles.upload.mock.calls.some(([command])=>command.fileName==='rule.json'||command.fileName==='style.css')).toBe(false)

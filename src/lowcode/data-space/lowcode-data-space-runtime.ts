@@ -1,8 +1,8 @@
 /**
  * @module app:lowcode/data-space/lowcode-data-space-runtime
- * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
+ * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { DATA_SPACE_DESIGN_FORM_KEY, LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { createLowcodeProjectGateways, lowcodeApi, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
@@ -70,7 +70,9 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  for (const [tableName, table] of Object.entries(tables)) {
   if (isRecord(table) && table['resourceType'] === 'file') {
    const executor = input.fileExecutors && Object.hasOwn(input.fileExecutors, tableName) ? input.fileExecutors[tableName] : undefined
-   if (!executor || typeof executor.executeQuery !== 'function') throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
+   const deferredToolFile = input.scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY
+    && tableName === 'ProjectToolFile' && table['resourceId'] === ProjectToolResource.resources.ProjectToolFile
+   if ((!executor || typeof executor.executeQuery !== 'function') && !deferredToolFile) throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
    continue
   }
   if (!isRecord(table) || !isRecord(table['modelBinding']) || typeof table['modelBinding']['modelName'] !== 'string') throw new Error('场景模型绑定不完整')
@@ -123,6 +125,10 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  const reference = isRecord(tables) ? tables[DataSpaceReferenceLayoutResource.tableName] : undefined
  const hasReference = isRecord(reference) && reference['resourceType'] === 'file' && reference['resourceId'] === DataSpaceReferenceLayoutResource.resourceId
  const toolTables = isRecord(tables) ? Object.entries(ProjectToolResource.resources).filter(([name, id]) => {
+  // DevSystem binds the formal ProjectToolFile table through spark-data's
+  // FileResource adapter so its read/edit/save/history lifecycle has one owner.
+  // The data-space designer still uses ProjectToolResource for its own query use cases.
+  if (scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY && name === 'ProjectToolFile') return false
   const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
  }) : []
  const builtinBlueprintTable = isRecord(tables) ? tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] : undefined

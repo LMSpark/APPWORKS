@@ -48,8 +48,8 @@ import type {PageToolRestoreInput} from '@/lowcode/resources/shared/page-tool-fi
 import {isRequestError} from '@spark-appworks/spark-utils'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 
-const PAGE_FILE_TABLE='PageToolFileSave'
-const PAGE_FILE_COLUMNS=[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},{name:'text',type:'string'},{name:'revision',type:'string'}] as const
+const PAGE_FILE_TABLE='ProjectToolFile'
+const PAGE_FILE_RESOURCE_ID=ProjectBlueprintDomain.ProjectToolResource.resources.ProjectToolFile
 type PageFileName='rule.json'|'script.js'|'style.css'
 function pageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:PageFileName}{
   const pageId=String(resource.fields['pageId']??''),fileName=resource.fields['fileName']
@@ -60,6 +60,10 @@ export function createPageFileResourceView(input:Readonly<{dataSet:DataSet;appId
   const {dataSet,appId,pageId,io,assertCurrent}=input
   const resourceFileName=input.fileName
   if(!pageId.trim()||pageId!==pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
+  const formalTable=dataSet.getTable(PAGE_FILE_TABLE)
+  if(formalTable?.resourceType!=='file'||formalTable.resourceId!==PAGE_FILE_RESOURCE_ID
+    ||formalTable.modelBinding!==undefined||!formalTable.columns.some(column=>column.name==='fileKey'&&column.isPrimaryKey)
+    ||!formalTable.columns.some(column=>column.name==='text'))throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile 映射缺失或无效')
   const target=(view:DataView)=>{const targetPageId=String(view.queryContext['pageId']??''),fileName=view.queryContext['fileName']
     if(!targetPageId||!['rule.json','script.js','style.css'].includes(String(fileName)))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
     return {key:JSON.stringify([appId,targetPageId,fileName]),fields:{pageId:targetPageId,fileName:String(fileName)}}}
@@ -90,8 +94,8 @@ export function createPageFileResourceView(input:Readonly<{dataSet:DataSet;appId
     isUnknown:error=>isRequestError(error)&&error.response===undefined,
     history,
   }
-  return getOrCreateFileResourceView({dataSet,tableName:PAGE_FILE_TABLE,viewId:`page-${encodeURIComponent(pageId)}-${encodeURIComponent(resourceFileName)}`,resourceId:`page-tool-files-save:${appId}`,
-    columns:[...PAGE_FILE_COLUMNS],contentField:'text',revisionField:'revision',target,transport,assertCurrent})
+  return getOrCreateFileResourceView({dataSet,tableName:PAGE_FILE_TABLE,viewId:`page-${encodeURIComponent(pageId)}-${encodeURIComponent(resourceFileName)}`,resourceId:PAGE_FILE_RESOURCE_ID,
+    columns:formalTable.columns,contentField:'text',target,transport,assertCurrent})
 }
 
 const {

@@ -39,6 +39,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type {DevState} from '../useDevState'
 import {configureProjectHierarchy, resolveNavHostProjectBinding, resolveProjectCandidate, validateProjectHierarchy} from './nav-host-project-picker-contract'
@@ -96,6 +97,10 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
   loading.value = true
   try {
     const currentProject = props.state.projectId
+    if (currentProject === getBuiltinApplicationDescriptor().id) {
+      error.value = '仓内蓝图尚未接入该资源'
+      return
+    }
     const relationRuntime = new PageRuntime({pageId: 'dev-system-nav-host-relation', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
       loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
     hostRuntime = relationRuntime

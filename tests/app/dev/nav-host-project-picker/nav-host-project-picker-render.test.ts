@@ -115,6 +115,8 @@ describe('NavHost project picker hierarchy rendering', () => {
     try {
       await flushPromises()
       expect(hostView.refresh).not.toHaveBeenCalled()
+      expect(runtimeState.runtimes).toHaveLength(0)
+      expect(runtimeState.provided).toHaveLength(0)
       expect(wrapper.text()).toContain('仓内蓝图尚未接入该资源')
       expect(wrapper.find('[data-stub="RendererTree"]').exists()).toBe(false)
     } finally {wrapper.unmount()}

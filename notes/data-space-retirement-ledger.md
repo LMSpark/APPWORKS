@@ -3449,6 +3449,12 @@ flowchart TD
 - **边界：**`script.js` 与 `style.css` 当前仍为只读查看；本切片只统一可编辑的 `rule.json`。真实服务保存和 SPA 回归未运行，不能据本地静态检查宣称线上保存成功。
 - **验证：**正式 `pnpm run generate:class-model-surface`、`pnpm run typecheck`、受影响五个 Vue/TS 文件的 ESLint、`git diff --check` 均通过。按用户当前指令未添加或运行测试。总体 SPARK data 唯一通道目标继续 active。
 
+### 2026-10-29 builtin Dev 项目切换关系读取旁路收口
+
+- **切片依据：**当前 HEAD `3b63f1fa652c3fa56ca181a58cb51e29b4d90c79` 的 builtin source contract 记录仓内蓝图为 85 条原始节点、固定发布 26 节点，并明确 cfg=0；导航宿主 `Base_Navigation_DataRelation` 不属于迁入的 builtin 资源，尚未迁入时不能借普通 7AB DB 视图假装仓内资源。`catalog-triple-removal-review.md` 与 `catalog-test-migration-map.md` 保护仍有效的旧业务测试，本切片不删旧三文件或有效测试。
+- **RED/GREEN：**当前组件原先无 builtin 分支，会在 `NavHostProjectPicker` watcher 中创建关系 `PageRuntime` 并刷新 `Base_Navigation_DataRelation`。当前测试 `does not issue the legacy navigation-host relation query for the repository-owned builtin app` 有效 RED：断言 `hostView.refresh` 实际被调用 1 次。实现于创建 `relationRuntime` 前按 builtin manifest ID fail closed，显示既有“仓内蓝图尚未接入该资源”提示；增强测试断言无 refresh、无 PageRuntime、无 runtime provide。动态项目的正式 DataView 读取分支未变。
+- **验证：**`pnpm exec vitest run tests/app/dev/nav-host-project-picker --reporter=dot` 3 files / 32 tests 通过；目标 ESLint、`pnpm run typecheck`、`pnpm run verify:rules`、`git diff --check` 退出 0。Rules 保留 AI model spec 既有 2 warnings（DataViewFilter、ScenarioViewConfig）和 1 info（DataSet factory 检查）；lowcode contracts 611 endpoints/208 consumers、目录限额、page-thin 均通过。未改 builtin tree/三文件/pagedata/生成产物，未做真实服务写入；未提交/推送。
+
 ### 2026-10-29 PageTool 页面服务 DataSet owner 暴露收敛
 
 - **代码证据与边界：**`useDevState` 只将页面专属 `DataView` 暴露给标准字段组件；正文读写、目录预检和版本预览分别走 `DataView.refresh`、`DataSet.saveChanges`、`listSourceVersions/previewSourceVersion`。`createPageToolFilesIo` 仅在 DevSystem DataSet 装配处注入，未传给页面。PageTool create/compensate/delete/snapshot/restore 的 I/O 仍是 `bindDataSetCommandSubmit` 的 submit/verify executor，经 `DataSet.saveChanges` 触发。`PageToolFilesDataView` 对象必须保留，其 dirty/unknown attempt、receipt delivery、跨页面视图及租约重绑均为当前资源适配/领域协调状态。

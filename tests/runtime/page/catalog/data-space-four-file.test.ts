@@ -408,6 +408,9 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
       if (name === 'RepositoryBlueprintNode') return [name, new BuiltinBlueprintNodeResource({
         applicationId: getBuiltinApplicationDescriptor().id, scenarioId: blueprintScenarioId, assertCurrent: () => undefined,
       }).executor]
+      if (name === 'ProjectToolFile') return [name, {executeQuery: async () => {
+        throw new Error('Unexpected project tool file query in catalog fixture')
+      }}]
       const definition = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => item.tableName === name)
       if (!definition) throw new Error(`Missing formal file resource executor: ${name}`)
       const api = {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(),

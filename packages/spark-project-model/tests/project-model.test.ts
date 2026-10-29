@@ -15,13 +15,11 @@ describe('ProjectBlueprint', () => {
     })
   }
 
-  it('preserves edits made while a tool file is loading and refuses dirty reload',async()=>{
-    let finish:(text:string)=>void=()=>{}
-    const workspace=new ProjectWorkspace({projectId:'crm',pageFiles:{readPageFile:()=>new Promise(resolve=>{finish=resolve})},blueprint:{}})
-    workspace.project.setActivePage('orders');const page=workspace.project.getActivePage()!
-    const loading=workspace.loadPageFile('script.js');const rejection=expect(loading).rejects.toThrow('EDIT_DURING_LOAD')
-    page.setFileText('script.js','local');finish('remote');await rejection
-    expect(page.script.text).toBe('local');await expect(workspace.loadPageFile('script.js',{forceReload:true})).rejects.toThrow('PAGE_TOOL_DIRTY')
+  it('does not expose a ProjectWorkspace-owned page file loading path',()=>{
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('selectPage')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('loadPageTool')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('ensureActivePageFilesLoaded')
+    expect(ProjectWorkspace.prototype).not.toHaveProperty('loadPageFile')
   })
 
   it.each(['file', 'page', 'all'] as const)('does not refill cleared %s content from an in-flight read', async (scope) => {

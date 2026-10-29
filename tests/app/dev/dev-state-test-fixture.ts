@@ -27,7 +27,7 @@ function buildTestNavRoot(pages: readonly DevStateTestPage[]): ProjectBlueprintT
   }
 }
 
-/** 在导航树挂载配置页节点（与登录后 ingest 同路径），供 selectPage 使用。 */
+/** 在导航树挂载配置页节点（与登录后 ingest 同路径），供应用级页面选择使用。 */
 export function seedDevStateConfigPages(
   state: DevState,
   pages: readonly DevStateTestPage[] = ORDERS_PAGE_FIXTURE,
@@ -54,7 +54,15 @@ export async function ensureDevStateActivePageLoaded(
   options?: { forceReload?: boolean },
 ): Promise<void> {
   if (!alignDevStateActivePage(state)) return
-  await state.editor.ensureActivePageFilesLoaded(options)
+  const pageId=state.activePageId.value,page=state.project.getActivePage()
+  if(!page||page.pageId!==pageId)throw new Error('测试页面 DataView 活动身份不匹配')
+  for(const fileName of state.pageFileNames){
+    const view=await state.loadPageToolFileDataView({pageId,fileName,...(options?.forceReload===true?{forceReload:true}:{})})
+    const row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?row:view.getEditingRow(id)??row
+    if(!edited||edited['pageId']!==pageId||edited['fileName']!==fileName||typeof edited['text']!=='string')throw new Error(`测试文件 DataView ${fileName} 未返回有效原文`)
+    page.hydrateFileText(fileName,edited['text'])
+  }
+  page.markLoaded()
 }
 
 export function isDevStatePageDocumentDirty(state: DevState, name: PageToolFileName): boolean {

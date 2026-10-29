@@ -37,7 +37,6 @@ export type {
 } from './project/project-types'
 export type {
   ProjectWorkspaceOptions,
-  ProjectPageLoadOptions,
   ScenarioViewVersionAttempt,
   ScenarioViewVersionAttemptStatus,
   ScenarioViewVersionCreateCommand,

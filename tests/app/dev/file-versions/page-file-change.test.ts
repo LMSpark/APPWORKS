@@ -17,7 +17,7 @@ describe('checked tool file changes', () => {
       readPageFile: async input => input.fileName === 'rule.json' ? rule : '',
       saveFileContent: async (_id, _name, text) => {writes++; await waiting; rule = text},
     }})
-    await workspace.selectPage('TOOL')
+    workspace.project.setActivePage('TOOL')
     const saving = workspace.savePageFileChange({pageId: 'TOOL', fileName: 'rule.json', expectedText: rule, text: '{"type":"r-table"}'})
     await expect(workspace.savePageFileChange({pageId: 'TOOL', fileName: 'rule.json', expectedText: rule, text: '{"type":"r-button"}'})).rejects.toThrow(/正在保存/)
     finish(); await saving

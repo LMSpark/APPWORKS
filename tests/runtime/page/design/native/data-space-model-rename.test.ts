@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataView, resolveDataViewKey} from '@spark-appworks/spark-data'
+import {DataView, resolveDataViewKey, type DataSet} from '@spark-appworks/spark-data'
 import {createModelRenameHandle, createModelRenameHost} from '../../../../../src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
@@ -9,6 +9,18 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   const f = dataSpacePageFixture({allowModelRename: true, ...options}); fixtures.push(f); return f
 }
 const writes = (f: ReturnType<typeof fixture>) => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+async function readToolFile(dataSet:DataSet,pageId:string,fileName:'rule.json'|'script.js'|'style.css'):Promise<string>{
+  const source=dataSet.getView('ProjectToolFile','default')
+  if(!source)throw new Error('formal ProjectToolFile DataView missing')
+  const view=source.createQueryView(`test:${pageId}:${fileName}`)
+  try{
+    view.configure({queryContext:{pageId,fileName,versionId:''},commitMode:'staged',filterExpression:{logic:'and',filters:[]},fieldProjection:[],queryConfig:{allPages:true,maxRows:50000}})
+    const loaded=await view.loadFromServer({singleFlight:false})
+    const row=view.rows.find(item=>item['pageId']===pageId&&item['fileName']===fileName)
+    if(!loaded.success||view.rows.length!==1||typeof row?.['text']!=='string')throw new Error(loaded.message??'formal file DataView query failed')
+    return row['text']
+  }finally{view.dataTable?.destroyView(view.viewId)}
+}
 function toolFixture() {
   const files = new Map<string, string>(), saves: string[] = [], pages = ['ONE', 'TWO'], targets = new Map<string, string>(), versions = new Map<string, string>()
   let lose = '', denyRead = '', beforeSave: (() => void) | undefined
@@ -280,7 +292,9 @@ describe('formal model registration rename', () => {
 
   it('preserves concurrent remote properties when explicitly reconciling a loaded clean tool', async () => {
     const t = toolFixture(), session = await t.f.open('A'), workspace = t.f.workspaces[0]!
-    const loaded = await workspace.loadPageTool('ONE'), operation = session.getModelRename('M1')
+    const loaded = workspace.project.openPageDesign('ONE'),baseline=await readToolFile(session.metadataDataSet,'ONE','rule.json')
+    loaded.hydrateFileText('rule.json',baseline);loaded.markLoaded();workspace.project.setActivePage('ONE')
+    const operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     const release = t.f.holdModelResponse(), saving = operation.save()
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -297,7 +311,7 @@ describe('formal model registration rename', () => {
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders')
     if (kind === 'script') t.files.set('ONE/script.js', 'const model = "Orders";')
     if (kind === 'missing') t.deny('TWO/rule.json')
-    if (kind === 'dirty') {const page = await t.f.workspaces[0]!.loadPageTool('ONE'); page.setFileText('rule.json', '{"type":"r-text"}')}
+    if (kind === 'dirty') {const workspace=t.f.workspaces[0]!,page=workspace.project.openPageDesign('ONE');page.hydrateFileText('rule.json',await readToolFile(session.metadataDataSet,'ONE','rule.json'));workspace.project.setActivePage('ONE');page.setFileText('rule.json', '{"type":"r-text"}')}
     if (kind === 'inventory') {await operation.preview(); t.pages.pop(); await expect(operation.save()).rejects.toThrow(/清单/)}
     else await expect(operation.preview()).rejects.toThrow()
     expect(t.saves).toEqual([]); expect(writes(t.f)).toHaveLength(0)
@@ -305,7 +319,8 @@ describe('formal model registration rename', () => {
   })
 
   it('preserves local editing started during a file write and resumes after the edit is resolved', async () => {
-    const t = toolFixture(), session = await t.f.open('A'), page = await t.f.workspaces[0]!.loadPageTool('ONE')
+    const t = toolFixture(), session = await t.f.open('A'), workspace=t.f.workspaces[0]!,page=workspace.project.openPageDesign('ONE')
+    page.hydrateFileText('rule.json',await readToolFile(session.metadataDataSet,'ONE','rule.json'));page.markLoaded();workspace.project.setActivePage('ONE')
     const operation = session.getModelRename('M1'); operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
     t.onSave(() => {page.setFileText('rule.json', '{"type":"r-text","props":{"label":"Local draft"}}')})
     await expect(operation.save()).rejects.toThrow(/本地编辑/)
@@ -342,8 +357,8 @@ describe('formal model registration rename', () => {
     expect(persisted.children[1].props).toEqual(rule.children[1]!.props)
     expect(persisted.props.label).toBe('A@Orders@shared')
     expect(saved).toEqual(['rule.json']); expect(writes(f)).toHaveLength(1)
-    const reopened = await f.open('A'), tool = await f.workspaces.at(-1)!.loadPageTool('TOOL')
-    const view = resolveDataViewKey(String(tool.toDefinition().rule[0]?.props?.['dataViewKey']), reopened.definitionDataSet!)!
+    const reopened = await f.open('A'),text=await readToolFile(reopened.metadataDataSet,'TOOL','rule.json'),definition=JSON.parse(text) as {props?:{dataViewKey?:string}}
+    const view = resolveDataViewKey(String(definition.props?.dataViewKey), reopened.definitionDataSet!)!
     await view.refresh(); expect(view.rows).toMatchObject([{rowid: 'O1'}])
     expect(f.workspaces[0]!.getActivePageTool()).toBeNull()
   })

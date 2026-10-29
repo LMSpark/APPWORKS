@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 992,
+  "scannedFileCount": 993,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11689,7 +11689,6 @@
         "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：不渲染 Vue 组件；定义数据空间由宿主正式装配，业务运行数据不在工作区维护。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ProjectPageLoadOptions",
           "ScenarioViewVersionAttempt",
           "ScenarioViewVersionAttemptStatus",
           "ScenarioViewVersionNotAppliedError",
@@ -12531,7 +12530,7 @@
         "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
         "packageName": "app",
         "modulePath": "lowcode/data-space/lowcode-data-space-runtime",
-        "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
+        "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LoadScenarioDataSetInput"
@@ -14336,6 +14335,19 @@
         "symbols": [
           "ProjectNavigationGuard"
         ]
+      }
+    },
+    "src/services/project/page-tool-file-dataview.ts": {
+      "file": "files/src/services/project/page-tool-file-dataview.ts.json",
+      "module": {
+        "name": "app:services/project/page-tool-file-dataview",
+        "sourcePath": "src/services/project/page-tool-file-dataview.ts",
+        "sourceFile": "src/services/project/page-tool-file-dataview.ts",
+        "packageName": "app",
+        "modulePath": "services/project/page-tool-file-dataview",
+        "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/services/project/project-settings.ts": {
@@ -21055,10 +21067,6 @@
     "ProjectPageFileWriteCommand": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
-    },
-    "ProjectPageLoadOptions": {
-      "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
-      "file": "files/packages/spark-project-model/src/project/project-workspace.ts.json"
     },
     "ProjectPageNodeSummary": {
       "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",

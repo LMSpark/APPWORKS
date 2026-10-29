@@ -165,10 +165,6 @@ function blueprintRoot(children:ProjectBlueprintTreeNodeData[],projectId='homepa
 
 const httpMock = vi.mocked(http)
 
-function notFound(): Error & { response: { status: number } } {
-  return Object.assign(new Error('not found'), { response: { status: 404 } })
-}
-
 function pageFileResponse(url: string): Record<string, unknown> {
   if (url.endsWith('/rule.json')) return { content: '[]' }
   if (url.endsWith('/pagedata.json')) return { content: '{"dataSetName":"TestDS","tables":{}}' }
@@ -1176,6 +1172,7 @@ describe('DevState 页面文件闭环', () => {
       const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
       await state.selectNode(node)
       httpFns.put.mockClear()
+      pageFiles.legacyReads.length=0
       const created=await state.createPageForSelectedNode({pageId:'new-tool',title:'New tool',icon:'Document'})
       expect(created,state.statusMessages.value.map(message=>message.text).join('\n')).toBe(true)
       const changed=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.changed?.find(row=>row['rowid']==='CHILD-A')
@@ -1183,6 +1180,7 @@ describe('DevState 页面文件闭环', () => {
       expect(httpFns.put.mock.calls.some(([url])=>String(url).startsWith('project-blueprint:'))).toBe(false)
       expect(httpFns.post).not.toHaveBeenCalledWith('designfile:APP-A/new-tool/create')
       expect(pageFiles.upload).toHaveBeenCalledTimes(3)
+      expect(pageFiles.legacyReads).toEqual([])
       expect(fixture.dataSet.getView('PageToolFilesCommand')?.rows.some(row=>row['action']==='create'&&row['pageId']==='new-tool')).toBe(true)
       await expect(state.createPageForSelectedNode({pageId:'new-tool',title:'Duplicate',icon:'Document'})).resolves.toBe(false)
       expect(pageFiles.upload).toHaveBeenCalledTimes(3)
@@ -1785,25 +1783,19 @@ describe('DevState 页面文件闭环', () => {
 
   it('缺失 script/style 时 fail-fast，不静默写入空文档', async () => {
     const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
-    httpMock.get.mockImplementation(async (url: string) => {
-      if (url.endsWith('/script.js') || url.endsWith('/style.css')) throw notFound()
-      return pageFileResponse(url)
-    })
+    pageFiles.files.set('demo/rule.json','[]')
 
-    await expect(ensureDevStateActivePageLoaded(state, { forceReload: true })).rejects.toThrow('not found')
+    await expect(ensureDevStateActivePageLoaded(state, { forceReload: true })).rejects.toThrow('FILE_RESOURCE_MISSING')
 
     expect(state.project.getActivePage()?.isLoaded).toBe(false)
   })
 
   it('缺失 rule/pagedata 时 fail-fast，不创建占位模型', async () => {
     const state = createDevStateWithConfigPages(DEMO_PAGE_FIXTURE, 'demo')
-    httpMock.get.mockImplementation(async (url: string) => {
-      if (url.endsWith('/rule.json')) throw notFound()
-      if (url.endsWith('/pagedata.json')) throw notFound()
-      return pageFileResponse(url)
-    })
+    pageFiles.files.set('demo/script.js','script')
+    pageFiles.files.set('demo/style.css','style')
 
-    await expect(ensureDevStateActivePageLoaded(state)).rejects.toThrow('not found')
+    await expect(ensureDevStateActivePageLoaded(state)).rejects.toThrow('FILE_RESOURCE_MISSING')
 
     expect(state.project.getActivePage()?.isLoaded).toBe(false)
   })

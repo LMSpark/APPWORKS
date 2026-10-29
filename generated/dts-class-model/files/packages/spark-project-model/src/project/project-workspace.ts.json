@@ -10,7 +10,6 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：不渲染 Vue 组件；定义数据空间由宿主正式装配，业务运行数据不在工作区维护。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ProjectPageLoadOptions",
       "ScenarioViewVersionAttempt",
       "ScenarioViewVersionAttemptStatus",
       "ScenarioViewVersionNotAppliedError",
@@ -20,20 +19,6 @@
     ]
   },
   "$defs": {
-    "ProjectPageLoadOptions": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ProjectPageLoadOptions",
-      "properties": {
-        "forceReload": {
-          "enum": [
-            false,
-            true
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
     "ScenarioViewVersionAttempt": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -764,22 +749,6 @@
             }
           ]
         },
-        "method.loadPageTool.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            },
-            "options": {
-              "$ref": "#/$defs/ProjectPageLoadOptions"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.loadPageTool.return": {
-          "type": "object",
-          "title": "Promise<PageTool>"
-        },
         "method.previewPageFileRemote.params": {
           "type": "object",
           "properties": {
@@ -835,48 +804,6 @@
         },
         "method.ingestBlueprintTree.return": {
           "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
-        },
-        "method.selectPage.params": {
-          "type": "object",
-          "properties": {
-            "options": {
-              "$ref": "#/$defs/ProjectPageLoadOptions"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.selectPage.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.ensureActivePageFilesLoaded.params": {
-          "type": "object",
-          "properties": {
-            "options": {
-              "$ref": "#/$defs/ProjectPageLoadOptions"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.ensureActivePageFilesLoaded.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.loadPageFile.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            },
-            "options": {
-              "$ref": "#/$defs/ProjectPageLoadOptions"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.loadPageFile.return": {
-          "type": "object",
-          "title": "Promise<void>"
         },
         "method.notifyPageFileChanged.params": {
           "type": "object",
@@ -942,26 +869,8 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T22:53:55.421Z",
+  "generatedAt": "2026-10-29T18:30:43.588Z",
   "models": {
-    "ProjectPageLoadOptions": {
-      "name": "ProjectPageLoadOptions",
-      "jsdoc": "Project Page Load Options 的调用配置。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** force Reload 字段。 */\n    forceReload?: boolean;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "forceReload",
-              "jsdoc": "force Reload 字段。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "ScenarioViewVersionAttempt": {
       "name": "ScenarioViewVersionAttempt",
       "jsdoc": "宿主在任何可能写请求发出前交付的不可变快照身份。",
@@ -2167,40 +2076,6 @@
               }
             },
             {
-              "name": "loadPageTool",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectPageLoadOptions",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageTool",
-                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
-                  }
-                ]
-              }
-            },
-            {
               "name": "previewPageFileRemote",
               "jsdoc": "读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。",
               "parameters": [
@@ -2292,128 +2167,6 @@
                 "type": "reference",
                 "name": "ProjectBlueprintTreeData",
                 "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
-              }
-            },
-            {
-              "name": "selectPage",
-              "jsdoc": "按指定 pageId 选择并加载页面文件。",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectPageLoadOptions",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "selectPage",
-              "jsdoc": "按当前项目蓝图选中节点选择并加载页面文件。",
-              "parameters": [
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectPageLoadOptions",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "ensureActivePageFilesLoaded",
-              "parameters": [
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectPageLoadOptions",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "loadPageFile",
-              "jsdoc": "加载 Page File。",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                },
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectPageLoadOptions",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
               }
             },
             {

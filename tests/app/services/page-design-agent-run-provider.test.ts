@@ -41,7 +41,8 @@ async function loadDefinitions(workspace: ProjectWorkspace, scenarioId: string, 
 function createBlueprintRuntimeDataSet(options:{fail?:boolean}={}):DataSet{
   const scenarioId='7AB874097A1E8711A42FD845939A6E05'
   const fields=['rowid','SysId','prowid','FunOrderValue','name','memo','FunName','NavigationUrl','IsShowAtNav','NavigationType']
-  const dataSet=DataSet.fromJson({scenarioId,tables:{Base_NavigationInfo:{modelBinding:{modelId:'formal-model',modelName:'Base_NavigationInfo'},columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}}}}})
+  const dataSet=DataSet.fromJson({scenarioId,tables:{Base_NavigationInfo:{modelBinding:{modelId:'formal-model',modelName:'Base_NavigationInfo'},columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}}},
+    ProjectToolFile:{resourceType:'file',resourceId:'project:tool-file',columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},{name:'versionId',type:'string'},{name:'text',type:'string'},{name:'localDirty',type:'boolean'}],views:{default:{autoLoad:false}}}}})
   dataSet.getView('Base_NavigationInfo','default')!.bindQueryExecutor({executeQuery:async()=>{
     if(options.fail)throw new Error('formal view query failed')
     return {rows:[{rowid:'ROOT',SysId:'demo',prowid:'000000',FunOrderValue:0,name:'Root',memo:'Root description',FunName:'Root',NavigationUrl:'',IsShowAtNav:0,NavigationType:'Model'},
@@ -99,7 +100,6 @@ function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json'
   editor.project.openPageDesign('orders')
   editor.project.getActivePage()?.markLoaded()
   editor.project.setActivePage('orders')
-  vi.spyOn(editor, 'selectPage').mockResolvedValue()
   vi.spyOn(editor.project, 'readDirtyProjection').mockReturnValue({
     dirtyFiles: new Set(dirtyFileNames),
     hasAnyFileDirty: dirtyFileNames.length > 0,
@@ -210,6 +210,7 @@ describe('preparePageDesignAgentRun', () => {
     mocks.activatePageDesignAgentWorkflow.mockImplementationOnce(async options=>{expect(editor.project.blueprintTree.children[0]?.nodeId).toBe('orders');return mocks.delegateHost})
     await preparePageDesignAgentRun({requestId:'dv-success',alias:'pageDesign',args:{pageId:'orders'}},{} as AiAgentHost)
     expect(loadLowcodeRuntimeScenario).toHaveBeenCalledWith({projectId:'demo',scenarioId:'7AB874097A1E8711A42FD845939A6E05'})
+    expect(lowcodeApi.design.readTextFile).toHaveBeenCalledTimes(3)
     expect(read).not.toHaveBeenCalled(); expect(dispose).toHaveBeenCalledTimes(1)
     expect(runtimeDispose).toHaveBeenCalledTimes(1)
     await expect(dataSet.getView('Base_NavigationInfo','default')!.refresh()).rejects.toThrow('destroyed')
@@ -230,7 +231,8 @@ describe('preparePageDesignAgentRun', () => {
       scenarioViews:{readScope:()=> 'tenant-A',readText:async()=>remote,writeText:async(_id,text)=>{
         remote=text; if(++writes===1)throw new Error('receipt lost')
       }}})
-    await editor.selectPage('orders')
+    editor.project.setActivePage('orders')
+    editor.project.getActivePage()?.markLoaded()
     const {view}=await editScene(editor), port=createPageDesignInlineDeliveryPort({autoSave:true})
     const target={editor,pageId:'orders',scenarioId:'SCENE-A',savePageFile:dataViewFileSaver(editor)}
     expect((await port.save(target)).status).toBe('failed')
@@ -248,6 +250,7 @@ describe('preparePageDesignAgentRun', () => {
     vi.clearAllMocks()
     vi.mocked(loadLowcodeRuntimeScenario).mockImplementation(async()=>createBlueprintRuntimeDataSet())
     vi.spyOn(lowcodeApi,'readRequestScope').mockReturnValue({token:'test-scope',headers:{'X-AppId':'demo'}} as ReturnType<typeof lowcodeApi.readRequestScope>)
+    vi.spyOn(lowcodeApi.design,'readTextFile').mockImplementation(async({fileName})=>fileName==='rule.json'?'[]':'')
     mocks.delegateHost.has.mockReturnValue(true)
     mocks.delegateHost.dryRun.mockReturnValue(createDryRunResult())
     mocks.delegateHost.run.mockResolvedValue(createRunResult())
@@ -263,7 +266,8 @@ describe('preparePageDesignAgentRun', () => {
         writeText: async (_id, text) => { writes++; remote = text; throw new Error('scene write unconfirmed') } },
       scenarioDefinitions: loadDefinitions,
     })
-    await editor.selectPage('orders')
+    editor.project.setActivePage('orders')
+    editor.project.getActivePage()?.markLoaded()
     const {scene, view} = await editScene(editor)
     editor.project.writePageFile({ fileName: 'script.js', text: 'script A' })
     const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', requestId: 'A', scenarioId: 'SCENE-A',savePageFile:dataViewFileSaver(editor) })
@@ -287,7 +291,8 @@ describe('preparePageDesignAgentRun', () => {
         writeText: async (_id, text) => { writes.push(text); remote = text } },
       scenarioDefinitions: loadDefinitions,
     })
-    await editor.selectPage('orders')
+    editor.project.setActivePage('orders')
+    editor.project.getActivePage()?.markLoaded()
     const {scene, view} = await editScene(editor)
     const guarded = guardPageDesignEditor(editor, {dataSet: true})
     const aiDefinitions = await guarded.loadScenarioDefinitions({scenarioId: 'SCENE-A'})
@@ -373,6 +378,7 @@ describe('preparePageDesignAgentRun', () => {
   it('fails closed when headless Agent Run has no active DevSystem file DataView owner', async () => {
     const editor = createEditor(['rule.json', 'script.js'])
     mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
+    const fileRead=vi.spyOn(lowcodeApi.design,'readTextFile').mockImplementation(async({fileName})=>fileName==='rule.json'?'[]':`${fileName} contents`)
 
     const host = await preparePageDesignAgentRun({
       requestId: 'request-1',
@@ -382,7 +388,10 @@ describe('preparePageDesignAgentRun', () => {
 
     await expect(host.run('pageDesign', {} as JsonParams)).rejects.toThrow('PAGE_TOOL_FILE_SAVE_DATAVIEW_REQUIRED')
 
-    expect(editor.selectPage).toHaveBeenCalledWith('orders', { forceReload: true })
+    expect(editor.project.getActivePage()?.isLoaded).toBe(true)
+    expect(fileRead.mock.calls.map(([input])=>input.fileName)).toEqual(['rule.json','script.js','style.css'])
+    expect(editor.project.getActivePage()?.getFileText('rule.json')).toBe('[]\n')
+    expect(editor.project.getActivePage()?.isLoaded).toBe(true)
     expect('savePageFile' in editor).toBe(false)
   })
 

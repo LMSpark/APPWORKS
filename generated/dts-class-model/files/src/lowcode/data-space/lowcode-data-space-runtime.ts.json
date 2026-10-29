@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/lowcode-data-space-runtime",
-    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用和租户由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "LoadScenarioDataSetInput"
@@ -46,7 +46,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T00:33:55.264Z",
+  "generatedAt": "2026-10-29T16:40:52.212Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",

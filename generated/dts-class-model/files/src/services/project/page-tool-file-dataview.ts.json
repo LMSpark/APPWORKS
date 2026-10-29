@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/page-tool-file-dataview",
+    "sourcePath": "src/services/project/page-tool-file-dataview.ts",
+    "sourceFile": "src/services/project/page-tool-file-dataview.ts",
+    "packageName": "app",
+    "modulePath": "services/project/page-tool-file-dataview",
+    "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "PageFileIo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageFileIo",
+      "properties": {
+        "list": {
+          "type": "object",
+          "title": "(app: string, page: string) => Promise<string[]>"
+        },
+        "read": {
+          "type": "object",
+          "title": "(app: string, page: string, name: \"rule.json\" | \"script.js\" | \"style.css\") => Promise<string | null>"
+        },
+        "upload": {
+          "type": "object",
+          "title": "(command: Readonly<{ appId: string; pageId: string; fileName: \"rule.json\" | \"script.js\" | \"style.css\"; text: string; }>) => Promise<void>"
+        },
+        "restoreWorkingFile": {
+          "type": "object",
+          "title": "(command: Readonly<{ appId: string; pageId: string; fileName: \"rule.json\" | \"script.js\" | \"style.css\"; text: string; }>) => Promise<void>"
+        },
+        "listVersions": {
+          "type": "object",
+          "title": "({ appId: app, customPath, fileName }: { appId: string; customPath: string; fileName: \"rule.json\" | \"script.js\" | \"style.css\"; }) => Promise<Readonly<{ version: number; fileName: string; lastModified: number | null; }>[]>"
+        },
+        "uploadVersion": {
+          "type": "object",
+          "title": "({ appId: app, customPath, fileName, version, text }: { appId: string; customPath: string; fileName: \"rule.json\" | \"script.js\" | \"style.css\"; version: number; text: string; }) => Promise<void>"
+        },
+        "readVersion": {
+          "type": "object",
+          "title": "({ appId: app, customPath, fileName, version }: { appId: string; customPath: string; fileName: \"rule.json\" | \"script.js\" | \"style.css\"; version: number; }) => Promise<string | null>"
+        },
+        "remove": {
+          "type": "object",
+          "title": "(app: string, page: string, name: string) => Promise<void>"
+        }
+      },
+      "required": [
+        "list",
+        "read",
+        "upload",
+        "restoreWorkingFile",
+        "listVersions",
+        "uploadVersion",
+        "readVersion",
+        "remove"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-29T18:23:07.762Z",
+  "models": {
+    "PageFileIo": {
+      "name": "PageFileIo",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof createPageToolFilesIo>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof createPageToolFilesIo>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

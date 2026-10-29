@@ -31,7 +31,7 @@
 - project D99A1DCE9894698799101EFD70F8FC76，tenant NewApp；8D设计8D1AB14DD8277F3E7017CD38F77B09FD，90A目录90A82E287930A234FEC3E687C94A93EA，7AB蓝图7AB874097A1E8711A42FD845939A6E05。正式菜单仍native，M0完整后才切。
 - IAB2/tab9，cua_repl句柄copyPilotTab/copyPilotCdp/copyFs；新上下文先cua.rewriteDocumentation。当前设计工具模型tab，URL含主8D/附90A/dataSpaceId90A/returnTo原目录(主90A附8D与7AB)，04:25已markHandoff。
 - 画布部署前基线已fresh-read：pilot-graph-preview-remote-before.json assets三工具；REPL graphRemoteBefore.result.value。长度rule13558/script19349/style686。源本地rule/script最终hash1814E8DE...80DCCB8 / BE74BFAA...978AA25；读取测试715AF1AC...527177F。
-- 未来部署用createLowcodeProjectGateways(projectId) + ProjectWorkspace.selectPage(8D)，page.setFileText、getFileText取实际提交文本、savePageFile，fresh-read核实；对照基线防并发，先script/style再rule。只上传工具配置，不写SysForm业务布局。
+- **历史操作记录，已被 2026-10-30 源码治理取代，不可作为当前实施入口：**本记录当时描述的 `ProjectWorkspace.selectPage()` / `savePageFile` 页面文件直读写入口已从生产 API 删除。后续页面文件读取和变更必须经正式 `ProjectToolFile` DataView / SPARK data FileResource 链，存储 owner 仅留在适配内部。真实 SPA cfg 项目在线验收仍待重新登录后完成；以 `notes/data-space-retirement-ledger.md` 最新记录为准。
 - `createFiles`网关缺失；已存在工具用selectPage正常。首次缺三文件时setActivePage创建owner的创建语义已真实成功，不需要再试。
 - `designExpected` REPL是UI修正前旧值，不可用于新部署；graphRemoteBefore才最新。CDP result envelope须取.result.value；readEvents参数afterSequence；只保留必要URL/方法/查询字段，不打印auth。
 - 回目录筛选90A若旧1-1已显示，要等查询按钮恢复/实际请求完成再选行。曾在查询完前选行被新结果清掉，重选后动作正确；不能误称页面故障。

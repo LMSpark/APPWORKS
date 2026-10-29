@@ -3922,3 +3922,16 @@ flowchart TD
 - **修复：**节点选择只绑定当前 PageTool 身份并保留活动页面 ID；文件正文留给活动文件 DataView。预览继续在用户打开/刷新预览时按正式 DataView 读取所需三文件。AI 编辑需要完整 PageTool 时，改为按 `ProjectToolFile` DataView 读取并验证行身份后再 hydrate，避免移除旧节点读取后破坏 AI 前置条件。
 - **回归：**`tests/app/dev/dev-state-page-file-closed-loop.test.ts`、`tests/app/dev/use-dev-state-page-data-history.test.ts`、`tests/app/dev/dev-preview-tab-loop.test.ts`：**3 files / 107 tests passed**。相关 TypeScript ESLint、`pnpm run typecheck` 与 `git diff --check` 退出 0。全仓未重跑。
 - **范围：**这是本仓节点选择和组件数据链的定向证据，不代表真实 SPA cfg 项目读取、保存、重开或版本回读已在线验收。SPA 会话需重新登录；没有远端业务写入，未修改、启动或部署 Java。
+
+### 2026-10-30 清除 DevSystem 与 headless AI 的旧文件预读
+
+- **根因与 RED：**除节点选择外，创建并绑定新工具后也经 `editor.selectPage()` 从旧 gateway 读取三份文件；隔离式 Agent Run 的 `preparePageDesignAgentRun()` 更会以 `forceReload` 经同一路径读取三文件。分别增加回归后，创建流程记录三次旧读取，headless 流程的 `selectPage` spy 记录到强制重读调用。
+- **修复：**把 `ProjectToolFile` 的正式 FileResource/DataView 适配从 DevSystem composable 提到共享 `src/services/project/page-tool-file-dataview.ts`。DevSystem 新建成功后只绑定活动页；headless Agent Run 也用正式 7AB DataTable/DataView 按 `pageId + fileName` 查询三行、验证目标与稳定主键后 hydrate PageTool。两条链均不再调用旧 PageFileGateway 预读。
+- **回归：**`page-design-agent-run-provider.test.ts`、`dev-state-page-file-closed-loop.test.ts`、`use-dev-state-page-data-history.test.ts`、`dev-preview-tab-loop.test.ts`：**4 files / 130 tests passed**。相关 ESLint、`pnpm run typecheck`、`git diff --check` 退出 0。
+- **范围：**仅覆盖本地 headless/DevSystem 代码链，仍未证明真实 SPA 会话下服务器文件持久结果、重开、版本快照回读和应用目标切换。未写远端业务数据，未修改、启动或部署 Java。
+
+### 2026-10-30 退役 ProjectWorkspace 页面文件读取入口
+
+- **修复：**已无生产调用方后，删除 `ProjectWorkspace.selectPage()`、`loadPageTool()`、`ensureActivePageFilesLoaded()`、`loadPageFile()` 及其私有读取链和 `ProjectPageLoadOptions` 导出；保留 DataView FileResource 适配内部仍需的原文件存储读写、版本回读与未知结果核验责任。测试 fixture 与模型重命名回归均迁移至正式 `ProjectToolFile` DataView 查询。源码/ClassModel 声明已通过正式生成器同步。
+- **回归：**本次变更相关套件 **7 files / 221 tests passed**；`pnpm run typecheck`、相关 TypeScript ESLint 与 `git diff --check` 退出 0。`pnpm run verify:rules` 通过；AI model spec 保留既有 2 warnings（`DataViewFilter.fromJson`、`ScenarioViewConfig.fromJson`）和 1 info。`pnpm run build` 退出 0，产物构建有依赖注释、chunk 大小和动态导入告警。
+- **范围：**构建与回归只证明本地代码路径；真实 SPA 登录仍需重新建立，cfg 正式项目上的查询、保存、重开、版本回读和切换目标在线验收未完成。无远端业务写入，未修改、启动或部署 Java。

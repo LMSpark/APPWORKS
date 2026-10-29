@@ -121,14 +121,13 @@ describe('DevPreviewTab live refresh', () => {
 
   it('loads all three files through their DataViews without invoking the PageTool owner loader', async () => {
     const { state } = createPreviewState()
-    const ownerLoad = vi.spyOn(state.editor, 'ensureActivePageFilesLoaded')
     const fileViewLoad = vi.spyOn(state, 'loadPageToolFileDataView')
     const wrapper = mount(DevPreviewTab, {
       props: { state, refreshToken: 0 },
       global: { stubs: { ElAlert: true, ElButton: ButtonStub, ElEmpty: true, ElIcon: true, ElSwitch: SwitchStub, Loading: true, NavIcon: true, SparkPageRenderer: RendererStub } },
     })
     await flushPromises()
-    expect(ownerLoad).not.toHaveBeenCalled()
+    expect(Reflect.has(state.editor, 'ensureActivePageFilesLoaded')).toBe(false)
     expect(fileViewLoad.mock.calls.map(([input]) => input.fileName).sort()).toEqual(['rule.json', 'script.js', 'style.css'])
     expect(fileViewLoad.mock.calls.every(([input]) => input.pageId === 'cascade-demo')).toBe(true)
     wrapper.unmount()

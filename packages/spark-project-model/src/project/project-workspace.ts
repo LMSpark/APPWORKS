@@ -13,13 +13,11 @@ import { PageFileApi, type ProjectPageFileGateway } from '../io/page-file-api'
 import { PageContentLoader } from '../io/page-content-loader'
 import type {
   ProjectBlueprintTreeData,
-  ProjectBlueprintTreeNodeData,
 } from '../blueprint/project-blueprint-node'
 import type { ProjectBlueprintGateway } from '../io/project-blueprint-client'
 import type { PageToolFileVersionSummary } from '../page/page-file'
 import {
   assertNonEmptyPageId,
-  PAGE_TOOL_FILE_NAMES,
   type PageToolFileName,
 } from '../page/page-file'
 import { PageTool } from '../page/page-tool'
@@ -33,15 +31,6 @@ import {
   type ProjectPageReference,
   type ProjectSummary,
 } from '../io/project-reference-client'
-import {
-  resolvePageNodePageId,
-} from '../blueprint/project-blueprint-tree'
-
-/** Project Page Load Options 的调用配置。 */
-export type ProjectPageLoadOptions = {
-    /** force Reload 字段。 */
-forceReload?: boolean
-}
 
 /** 按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。 */
 /** 宿主在任何可能写请求发出前交付的不可变快照身份。 */
@@ -155,10 +144,6 @@ projectReferences?: ProjectReferenceGateway
   scenarioViews?: ScenarioViewGateway
   /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */
   scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>
-}
-
-function isProjectPageLoadOptions(value: unknown): value is ProjectPageLoadOptions {
-  return value !== null && typeof value === 'object'
 }
 
 /**
@@ -635,7 +620,6 @@ constructor(options: ProjectWorkspaceOptions) {
   }
 
   public getActivePageTool(): PageTool | null { return this.project.getActivePage() }
-  public async loadPageTool(pageId: string, options?: ProjectPageLoadOptions): Promise<PageTool> { const tool=this.project.openPageDesign(pageId); await this.loadPage(tool,options); return tool }
 
   /** 只读远端正式蓝图，不覆盖本地策划草稿或活动页。 */
   /** 读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。 */
@@ -692,48 +676,6 @@ ingestBlueprintTree(
     })
   }
 
-  /** 按指定 pageId 选择并加载页面文件。 */
-  async selectPage(pageId: string, options?: ProjectPageLoadOptions): Promise<void>
-  /** 按当前项目蓝图选中节点选择并加载页面文件。 */
-  async selectPage(options?: ProjectPageLoadOptions): Promise<void>
-  async selectPage(
-    pageIdOrOptions?: string | ProjectPageLoadOptions,
-    maybeOptions?: ProjectPageLoadOptions,
-  ): Promise<void> {
-    const explicitPageId = typeof pageIdOrOptions === 'string'
-      ? pageIdOrOptions.trim()
-      : ''
-    const options = typeof pageIdOrOptions === 'string'
-      ? maybeOptions
-      : (isProjectPageLoadOptions(pageIdOrOptions) ? pageIdOrOptions : undefined)
-    const pageId = explicitPageId || this.resolveSelectedPageId()
-    if (!pageId) {
-      throw new Error('pageId 不能为空，无法加载页面')
-    }
-
-    const page = this.project.openPageDesign(pageId)
-    this.project.setActivePage(pageId)
-    const pageNodeOptions: { forceReload?: boolean } = {}
-    if (options?.forceReload === true) pageNodeOptions.forceReload = true
-    await this.loadPage(page, pageNodeOptions)
-    this.project.markPageLoadedChanged(page.pageId, true)
-  }
-
-async ensureActivePageFilesLoaded(options?: ProjectPageLoadOptions): Promise<void> {
-    const page = this.requireActivePage('无活动页面，无法加载页面文件')
-    const loadOptions: { forceReload?: boolean } = {}
-    if (options?.forceReload === true) loadOptions.forceReload = true
-    await this.loadPage(page, loadOptions)
-    this.project.markPageLoadedChanged(page.pageId, true)
-  }
-
-    /** 加载 Page File。 */
-async loadPageFile(name: PageToolFileName, options?: ProjectPageLoadOptions): Promise<void> {
-    const page = this.requireActivePage('无活动页面，无法加载页面文件')
-    await this.loadSinglePageFile(page, name, { forceReload: options?.forceReload === true })
-    this.project.markPageFileChanged(page.pageId, name)
-  }
-
 notifyPageFileChanged(
     pageId: string,
     filename: PageToolFileName | '__created' | '__deleted' | '__bulk',
@@ -759,66 +701,6 @@ async listReferenceProjects(): Promise<ProjectSummary[]> {
 
 async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference[]> {
     return this.requireProjectReferenceClient().listProjectPages(projectId)
-  }
-
-  private resolveSelectedPageId(): string {
-    const node = this.requireSelectedNode('未选中蓝图节点，无法加载页面')
-    if (!resolvePageNodePageId(node)) {
-      throw new Error(`当前选中节点不是可配置页面，种类: ${node.kind}`)
-    }
-    const pageId = resolvePageNodePageId(node)
-    if (!pageId) {
-      throw new Error('无法从项目节点解析出 pageId')
-    }
-    return pageId
-  }
-
-  private async loadPage(page: PageTool, options?: ProjectPageLoadOptions): Promise<void> {
-    const forceReload = options?.forceReload === true
-    if (page.isLoaded && !forceReload) return
-    await Promise.all(
-      PAGE_TOOL_FILE_NAMES.map(name => this.loadSinglePageFile(page, name, { forceReload })),
-    )
-    page.markLoaded()
-  }
-
-  private async loadSinglePageFile(
-    page: PageTool,
-    name: PageToolFileName,
-    options?: ProjectPageLoadOptions,
-  ): Promise<void> {
-    const pendingKey = JSON.stringify([page.pageId, name])
-    if (this.pageFileSaves.has(pendingKey)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存，不能重载')
-    if (this.unconfirmedToolSaves.has(pendingKey) && !options?.forceReload) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原提交，或明确重新加载远端结果')
-    if (page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_DIRTY: ${name} 有未保存编辑，不能重载`)
-    const baseline = page.getFileText(name)
-    const result = await this.getContentLoader().loadPageFileContent(page.pageId, name, {
-      forceReload: options?.forceReload === true,
-    })
-    if (!result.success) {
-      throw new Error(result.error ?? result.reason ?? `${name} 加载失败`)
-    }
-    if (page.getFileText(name) !== baseline || page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_EDIT_DURING_LOAD: ${name} 在装载期间发生编辑`)
-    page.hydrateFileText(name, result.data ?? '')
-    this.unconfirmedToolSaves.delete(pendingKey)
-  }
-
-  private getSelectedNode(): ProjectBlueprintTreeNodeData | null {
-    const selectedNodeId = this.project.session.session.selectedNodeId
-    if (!selectedNodeId) return null
-    return this.project.design.findNodeById(selectedNodeId)?.toNodeData() ?? null
-  }
-
-  private requireSelectedNode(message: string): ProjectBlueprintTreeNodeData {
-    const node = this.getSelectedNode()
-    if (node) return node
-    throw new Error(message)
-  }
-
-  private requireActivePage(message: string): PageTool {
-    const page = this.project.getActivePage()
-    if (page) return page
-    throw new Error(message)
   }
 
   private requireProjectReferenceClient(): ProjectReferenceClient {

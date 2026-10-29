@@ -49,7 +49,9 @@ import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-spac
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {createPageToolFilesIo, lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
+import {isRecord} from '@spark-appworks/spark-utils'
 
 // --- delivery ---
 
@@ -254,7 +256,23 @@ export const preparePageDesignAgentRun: AiAgentRunPrepare<AiAgentHost> = async (
     const tree=await blueprintOwner.loadProjectTree()
     if(tree.projectId!==projectId||!tree.nodeId||!Array.isArray(tree.children))throw new Error('PAGE_DESIGN_BLUEPRINT_TREE_INCOMPLETE')
     editor.project.replaceBlueprintTree(tree)
-    await editor.selectPage(pageId, { forceReload: true })
+    editor.project.setActivePage(pageId)
+    const page=editor.project.getActivePage()
+    if(page?.pageId!==pageId)throw new Error('PAGE_DESIGN_TOOL_PAGE_MISSING: 配置页面身份无效')
+    const fileIo=createPageToolFilesIo(projectId)
+    for(const fileName of PAGE_TOOL_FILE_NAMES){
+      const view=createPageFileResourceView({dataSet,appId:projectId,pageId,fileName,io:fileIo,assertCurrent})
+      view.queryContext={...view.queryContext,appId:projectId,pageId,fileName}
+      await view.refresh();assertCurrent()
+      const candidate:unknown=view.rows.find((item:unknown)=>isRecord(item)&&item['pageId']===pageId&&item['fileName']===fileName)
+      if(!isRecord(candidate)||candidate['pageId']!==pageId||candidate['fileName']!==fileName||typeof candidate['text']!=='string')
+        throw new Error(`PAGE_DESIGN_TOOL_FILE_INVALID: ${fileName} DataView 身份或文本无效`)
+      const id=view.getPkKey(candidate)
+      if(id===undefined)throw new Error(`PAGE_DESIGN_TOOL_FILE_INVALID: ${fileName} 缺少稳定身份`)
+      view.setCurrentRowById(id)
+      page.hydrateFileText(fileName,candidate['text'])
+    }
+    page.markLoaded()
     planning = resolvePageDesignPlanningContext(editor.project, pageId)
   }finally{
     blueprintOwner?.dispose()

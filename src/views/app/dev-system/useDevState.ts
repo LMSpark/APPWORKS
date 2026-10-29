@@ -34,7 +34,7 @@ import {
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import {getOrCreateFileResourceView, type DataView, type DataSet, type FileResourceTarget, type FileResourceTransport} from '@spark-appworks/spark-data'
+import type {DataView, DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal, createPageToolFilesIo } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
@@ -42,61 +42,12 @@ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-sp
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {PageToolFileCommands,createChildPageWithFiles,assertRecoveredChildPermission} from '@/lowcode/resources/shared/page-tool-files-command'
 import type {PageToolRestoreInput} from '@/lowcode/resources/shared/page-tool-files-command'
-import {isRequestError} from '@spark-appworks/spark-utils'
-import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 
 const PAGE_FILE_TABLE='ProjectToolFile'
-const PAGE_FILE_RESOURCE_ID=ProjectBlueprintDomain.ProjectToolResource.resources.ProjectToolFile
-type PageFileName='rule.json'|'script.js'|'style.css'
-function pageFileResourceIdentity(resource:FileResourceTarget):{pageId:string;fileName:PageFileName}{
-  const pageId=String(resource.fields['pageId']??''),fileName=resource.fields['fileName']
-  if(!pageId||(fileName!=='rule.json'&&fileName!=='script.js'&&fileName!=='style.css'))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 来源文件身份无效')
-  return {pageId,fileName}
-}
-export function createPageFileResourceView(input:Readonly<{dataSet:DataSet;appId:string;pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;io:ReturnType<typeof createPageToolFilesIo>;assertCurrent:()=>void}>):DataView{
-  const {dataSet,appId,pageId,io,assertCurrent}=input
-  const resourceFileName=input.fileName
-  if(!pageId.trim()||pageId!==pageId.trim()||/[\\/%\u0000-\u001f\u007f?#]/.test(pageId))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 页面身份无效')
-  const formalTable=dataSet.getTable(PAGE_FILE_TABLE)
-  if(formalTable?.resourceType!=='file'||formalTable.resourceId!==PAGE_FILE_RESOURCE_ID
-    ||formalTable.modelBinding!==undefined||!formalTable.columns.some(column=>column.name==='fileKey'&&column.isPrimaryKey)
-    ||!formalTable.columns.some(column=>column.name==='text'))throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile 映射缺失或无效')
-  const target=(view:DataView)=>{const targetPageId=String(view.queryContext['pageId']??''),fileName=view.queryContext['fileName']
-    if(!targetPageId||!['rule.json','script.js','style.css'].includes(String(fileName)))throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 查询需绑定页面和文件')
-    return {key:JSON.stringify([appId,targetPageId,fileName]),fields:{pageId:targetPageId,fileName:String(fileName)}}}
-  const history:NonNullable<FileResourceTransport['history']>={
-    list:async resource=>{const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
-      return (await io.listVersions({appId,customPath:`${appId}/${filePage}`,fileName})).map(item=>({version:item.version,fileName:item.fileName,lastModified:item.lastModified}))},
-    preview:async(resource,version)=>{const {pageId:filePage,fileName}=pageFileResourceIdentity(resource),numeric=Number(version)
-      if(!Number.isSafeInteger(numeric)||numeric<0)throw new Error('FILE_RESOURCE_VERSION: 版本号无效')
-      const text=await io.readVersion({appId,customPath:`${appId}/${filePage}`,fileName,version:numeric});if(text===null)throw new Error('FILE_RESOURCE_VERSION_MISSING: 历史文件不存在');return text},
-    create:async(resource,text,onAttempt)=>{const {pageId:filePage,fileName}=pageFileResourceIdentity(resource),customPath=`${appId}/${filePage}`
-      const versions=await io.listVersions({appId,customPath,fileName});assertCurrent()
-      const version=Math.max(0,...versions.map(item=>item.version))+1,versionedFileName=`${version}__${fileName}`
-      if(!Number.isSafeInteger(version)||version<1||versions.some(item=>item.version===version&&item.fileName===versionedFileName))throw new Error('FILE_RESOURCE_VERSION: 快照版本无效或冲突')
-      onAttempt({version,fileName:versionedFileName});assertCurrent()
-      try{await io.uploadVersion({appId,customPath,fileName,version,text})}catch(error){if(error instanceof LowcodeApiError&&error.code!==0){const rejection=new Error(error.message);Object.assign(rejection,{definiteNotApplied:true});throw rejection}throw error}
-      assertCurrent();const [after,readback]=await Promise.all([io.listVersions({appId,customPath,fileName}),io.readVersion({appId,customPath,fileName,version})]);assertCurrent()
-      if(!after.some(item=>item.version===version&&item.fileName===versionedFileName)||readback!==text)throw new Error(`FILE_RESOURCE_VERSION_UNCONFIRMED: ${versionedFileName} 目录或原文回读不一致`)},
-    verify:async(resource,attempt,text)=>{const {pageId:filePage,fileName}=pageFileResourceIdentity(resource),customPath=`${appId}/${filePage}`,version=Number(attempt.version)
-      if(!Number.isSafeInteger(version)||version<1||attempt.fileName!==`${version}__${fileName}`)return false
-      const [versions,readback]=await Promise.all([io.listVersions({appId,customPath,fileName}),io.readVersion({appId,customPath,fileName,version})])
-      return versions.some(item=>item.version===version&&item.fileName===attempt.fileName)&&readback===text},
-  }
-  const transport:FileResourceTransport={
-    read:async resource=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
-      const text=await io.read(appId,filePage,fileName);assertCurrent();return text===null?null:{text,revision:'0'}},
-    write:async({target:resource,text})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
-      await io.upload({appId,pageId:filePage,fileName,text});assertCurrent()},
-    isUnknown:error=>isRequestError(error)&&error.response===undefined,
-    history,
-  }
-  return getOrCreateFileResourceView({dataSet,tableName:PAGE_FILE_TABLE,viewId:`page-${encodeURIComponent(pageId)}-${encodeURIComponent(resourceFileName)}`,resourceId:PAGE_FILE_RESOURCE_ID,
-    columns:formalTable.columns,contentField:'text',target,transport,assertCurrent})
-}
 
 const {
   isConfigFilesPageSurface,
@@ -585,8 +536,8 @@ export function useDevState() {
     refreshBlueprintTreeProjection();notifyExternalDataViewChanged()
     if(isDefaultUserProjectScope())await reloadAndSyncNavigation()
     handlePathChange(`/${pending.pageId}`);bumpPageCache(pending.pageId,'__created')
-    await editor.selectPage(pending.pageId);assertTarget()
-    persistActivePageId(pending.pageId)
+    assertTarget()
+    if(!setActivePageContext(pending.pageId))throw new Error('PAGE_BINDING_ACTIVE_PAGE: 新建工具未能绑定活动页面')
     addStatus(`工具 ${pending.pageId} 的导航绑定已通过 Base_NavigationInfo DataView 保存`,'success')
   }
   async function moveBlueprintNodeInDataView(nodeId: string, parentId: string | null, index: number): Promise<void> {

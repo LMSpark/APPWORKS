@@ -1,5 +1,4 @@
 import {mount, flushPromises} from '@vue/test-utils'
-import {defineComponent, h} from 'vue'
 import {describe, expect, it, vi} from 'vitest'
 import NavHostProjectPicker from '@/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
@@ -36,13 +35,43 @@ vi.mock('@spark-appworks/spark-component', async () => {
     const values = componentProps as Record<string, unknown>
     return vue.h('div', {'data-stub': name, 'data-view-key': values['dataViewKey'], 'data-node-key': values['nodeKey'], onClick: () => {
       if (typeof values['onNodeClick'] === 'function') (values['onNodeClick'] as () => void)()
+      if (typeof values['onRowClick'] === 'function') (values['onRowClick'] as () => void)()
       emit('click')
     }}, slots['default']?.())
   }})
+  const dialog = vue.defineComponent({
+    name: 'RendererDialog',
+    props: {modelValue: Boolean, title: String, width: [String, Number], destroyOnClose: Boolean},
+    emits: ['update:modelValue'],
+    setup: (componentProps, {slots, emit, expose}) => {
+      expose({requestClose: () => emit('update:modelValue', false)})
+      return () => {
+      const values = componentProps as Record<string, unknown>
+      const content = values['modelValue'] ? [slots['default']?.(), slots['footer']?.()] : []
+      return vue.h('div', {
+        'data-stub': 'RendererDialog',
+        'data-model-value': String(values['modelValue']),
+        'data-title': values['title'],
+        'data-width': values['width'],
+        'data-destroy-on-close': String(values['destroyOnClose']),
+      }, content)
+      }
+    },
+  })
+  const alert = vue.defineComponent({
+    name: 'DisplayAlert',
+    props: ['description', 'alertType', 'closable'],
+    setup: (componentProps) => () => {
+      const values = componentProps as Record<string, unknown>
+      return vue.h('div', {'data-stub': 'DisplayAlert', role: 'alert', 'data-alert-type': values['alertType']}, String(values['description'] ?? ''))
+    },
+  })
   return {
     PAGE_RUNTIME: runtimeState.token,
+    DisplayAlert: alert,
     RendererButton: stub('RendererButton', ['dataViewKey', 'label', 'disabled', 'loading']),
-    RendererTable: stub('RendererTable', ['dataViewKey', 'children', 'highlightCurrentRow', 'showDataViewMeta']),
+    RendererDialog: dialog,
+    RendererTable: stub('RendererTable', ['dataViewKey', 'children', 'highlightCurrentRow', 'showDataViewMeta', 'onRowClick']),
     RendererTree: stub('RendererTree', ['dataViewKey', 'nodeKey', 'children', 'treeProps', 'showDataViewMeta', 'onNodeClick']),
     useSparkComponent: () => ({sparkProvide: (key: unknown, value: unknown) => runtimeState.provided.push({key, value}), sparkRemove: vi.fn()}),
   }
@@ -82,14 +111,29 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.projectView = dataView([{rowid: 'candidate', code: 'PROJECT-X', name: 'Candidate', parent: ''}])
     const hostView = runtimeState.hostView
     const state = {projectId: getBuiltinApplicationDescriptor().id, tenantId: 'tenant-a', openEditingProject: vi.fn()}
-    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {
-      stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true},
-    }})
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     try {
       await flushPromises()
       expect(hostView.refresh).not.toHaveBeenCalled()
       expect(wrapper.text()).toContain('仓内蓝图尚未接入该资源')
       expect(wrapper.find('[data-stub="RendererTree"]').exists()).toBe(false)
+    } finally {wrapper.unmount()}
+  })
+
+  it('renders relation read errors through the standard alert with alert semantics', async () => {
+    runtimeState.runtimes.length = 0
+    runtimeState.provided.length = 0
+    runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
+    runtimeState.hostView.refresh.mockRejectedValue(new Error('relation query failed'))
+    runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
+    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn()}
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
+    try {
+      await flushPromises()
+      const alert = wrapper.findComponent({name: 'DisplayAlert'})
+      expect(alert.props()).toMatchObject({description: 'relation query failed', alertType: 'error', closable: false})
+      expect(wrapper.get('[role="alert"]').text()).toBe('relation query failed')
+      expect(wrapper.findAllComponents({name: 'RendererButton'})).toHaveLength(0)
     } finally {wrapper.unmount()}
   })
 
@@ -105,18 +149,23 @@ describe('NavHost project picker hierarchy rendering', () => {
       {rowid: 'row-c', code: 'C', name: 'Child', parent: 'P'},
     ])
     const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
-    const wrapper = mount(NavHostProjectPicker, {
-      props: {state: state as never},
-      global: {stubs: {
-        'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}),
-        'el-button': true,
-      }},
-    })
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
+    const entry = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')
+    expect(entry).toBeTruthy()
+    await entry!.trigger('click')
+    await flushPromises()
+    const dialog = wrapper.findComponent({name: 'RendererDialog'})
+    expect(dialog.props()).toMatchObject({modelValue: true, title: '切换开发项目', width: '620px', destroyOnClose: true})
     const tree = wrapper.find('[data-stub="RendererTree"]')
     expect(tree.exists(), wrapper.html()).toBe(true)
     expect(tree.attributes('data-view-key')).toBe('projects@Project@default')
     expect(tree.attributes('data-node-key')).toBe('rowid')
+    const treeFields = wrapper.findComponent({name: 'RendererTree'}).props('children') as Array<{props?: Record<string, unknown>}>
+    expect(treeFields).toEqual([
+      {type: 'r-text', props: {dataMember: 'currentRow', dataField: 'name', label: '项目名称'}},
+      {type: 'r-text', props: {dataMember: 'currentRow', dataField: 'code', label: '项目 ID'}},
+    ])
     expect(runtimeState.projectView.setTreeConfig).toHaveBeenCalledWith({idField: 'code', parentIdField: 'parent', textField: 'name', treeMode: 'flat'})
     expect(runtimeState.projectView.queryConfig.allPages).toBe(true)
     const candidateRuntime = runtimeState.runtimes.find(item => item.scenarioIds[0] === 'projects')
@@ -129,6 +178,16 @@ describe('NavHost project picker hierarchy rendering', () => {
     await openButton!.trigger('click')
     await flushPromises()
     expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'C'})
+    const cancel = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '取消')
+    expect(cancel).toBeTruthy()
+    await cancel!.trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent({name: 'RendererDialog'}).props('modelValue')).toBe(false)
+    await entry!.trigger('click')
+    await flushPromises()
+    ;(dialog.vm as unknown as {requestClose(): void}).requestClose()
+    await flushPromises()
+    expect(dialog.props('modelValue')).toBe(false)
     wrapper.unmount()
     expect(candidateRuntime?.disposed).toBe(true)
   })
@@ -146,7 +205,9 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
     runtimeState.projectView.queryConfig = {pageSize: 20}
     const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
-    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
+    await flushPromises()
+    await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')
     await flushPromises()
     const view = runtimeState.projectView
     view.currentRow = view.rows[0]
@@ -167,7 +228,9 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.projectView.total = 1335
     runtimeState.projectView.queryConfig = {pageSize: 20}
     const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
-    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
+    await flushPromises()
+    await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')
     await flushPromises()
     expect(runtimeState.projectView.queryConfig).toEqual({pageSize: 20})
     runtimeState.projectView.currentRow = runtimeState.projectView.rows[0]
@@ -189,7 +252,9 @@ describe('NavHost project picker hierarchy rendering', () => {
     let finish!: (rows: any[]) => void
     view.queryOptionRows.mockImplementationOnce(() => new Promise(resolve => {finish = resolve}))
     const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
-    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true}}})
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
+    await flushPromises()
+    await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')
     await flushPromises()
     view.currentRow = view.rows[0]
     await wrapper.find('[data-stub="RendererTable"]').trigger('click')

@@ -1,9 +1,9 @@
 <template>
   <div class="dev-project-picker">
-    <p v-if="error" role="alert">{{ error }}</p>
-    <RendererButton v-if="ready && viewKey" :data-view-key="viewKey" label="切换项目" @click="pickerOpen = true" />
-    <span v-else-if="!error">{{ loading ? '正在读取导航项目…' : '当前导航未配置可用项目' }}</span>
-    <el-dialog v-model="pickerOpen" title="切换开发项目" width="620px" destroy-on-close>
+    <DisplayAlert v-if="error" :description="error" alert-type="error" :closable="false" />
+    <RendererButton v-else-if="ready && viewKey" :data-view-key="viewKey" label="切换项目" @click="pickerOpen = true" />
+    <DisplayAlert v-else :description="loading ? '正在读取导航项目…' : '当前导航未配置可用项目'" alert-type="info" :closable="false" />
+    <RendererDialog v-model="pickerOpen" title="切换开发项目" width="620px" destroy-on-close>
       <RendererTree
         v-if="ready && viewKey && parentField"
         :key="viewKey"
@@ -21,13 +21,13 @@
         :children="fields"
         :highlight-current-row="true"
         :show-data-view-meta="false"
-        @row-click="observeCandidateSelection"
+        :on-row-click="observeCandidateSelection"
       />
       <template #footer>
-        <el-button @click="pickerOpen = false">取消</el-button>
+        <RendererButton label="取消" @click="pickerOpen = false" />
         <RendererButton v-if="ready && viewKey" :data-view-key="viewKey" label="打开所选项目" :disabled="!canOpen || busy" :loading="busy" @click="openSelected" />
       </template>
-    </el-dialog>
+    </RendererDialog>
   </div>
 </template>
 
@@ -36,7 +36,7 @@ import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, DataViewFilter, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererButton, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
+import {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
 import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -151,8 +151,8 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
       }
     }
     fields.value = [
-      {type: 'r-text', props: {field: mappedLabelField, label: '项目名称'}},
-      {type: 'r-text', props: {field: mappedValueField, label: '项目 ID'}},
+      {type: 'r-text', props: {dataMember: 'currentRow', dataField: mappedLabelField, label: '项目名称'}},
+      {type: 'r-text', props: {dataMember: 'currentRow', dataField: mappedValueField, label: '项目 ID'}},
     ]
     viewKey.value = buildDataViewKey(modelName, 'default', scenarioId)
     valueField.value = mappedValueField

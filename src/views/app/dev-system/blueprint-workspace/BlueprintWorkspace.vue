@@ -207,7 +207,6 @@ async function saveDelivery() {
   saving.value = true
   try {
     const runtimeTarget = String(current.value('NavigationUrl') ?? '')
-    const customPath = `${projectId}/${pageId}`
     if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || !pageId || pageId.trim() !== pageId
       || pageId === '.' || pageId === '..' || /[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
       || runtimeTarget !== `cfg:${pageId}`) throw new Error('交付工具身份必须与当前项目及页面一致')
@@ -217,11 +216,19 @@ async function saveDelivery() {
       const text = texts.get(fileName)
       if (text === undefined) throw new Error('交付文本缺失')
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 交付期间已修改`)
-      const snapshot = await props.state.createPageToolSnapshot({pageId,customPath,fileName,text,assertCurrent:assertTarget,
-        onAttempt:result=>{if(!attemptedSnapshots.includes(result.fileName))attemptedSnapshots.push(result.fileName)}})
-      const {version,fileName:versionedName}=snapshot
+      const fileView=await props.state.loadPageToolFileDataView({pageId,fileName})
+      assertTarget()
+      if(fileView.currentRow?.['text']!==text)throw new Error(`${fileName} 保存基线与文件 DataView 不一致`)
+      const history=await fileView.createSourceVersion(attempt=>{
+        if(typeof attempt.fileName==='string'&&!attemptedSnapshots.includes(attempt.fileName))attemptedSnapshots.push(attempt.fileName)
+      })
+      if(history.state!=='confirmed'||typeof history.version!=='number'||typeof history.fileName!=='string') {
+        throw new Error(`${fileName} 文件 DataView 未确认快照回执`)
+      }
+      const {version,fileName:versionedName}=history
       written.push(versionedName)
       assertTarget()
+      fileView.acknowledgeSourceHistoryAttempt()
       if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 上传期间已修改，未更新发布引用`)
       versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       attemptedReferences.push(versionedName)

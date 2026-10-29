@@ -1,4 +1,6 @@
 import type {DataView} from '../data-view'
+import type {DataSet} from '../dataset'
+import type {DataColumn} from '../types'
 import {DataViewLocalQuery} from './data-view-local-query'
 import type {DataViewSourceAdapter, DataViewSourceHistoryStatus} from './data-view-source'
 import type {DataRow, QueryParams} from '../types'
@@ -11,6 +13,9 @@ export type FileResourceTransport=Readonly<{
   write(input:Readonly<{target:FileResourceTarget;text:string;baseline:FileResourceSnapshot}>):Promise<void>
   isUnknown(error:unknown):boolean
   history?:Readonly<{
+    assertCanCreate?(target:FileResourceTarget):void|Promise<void>
+    /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */
+    isDefiniteRejection?(error:unknown):boolean
     list(target:FileResourceTarget):Promise<ReadonlyArray<Readonly<{version:string|number;fileName:string;lastModified:number|null}>>>
     preview(target:FileResourceTarget,version:string|number):Promise<string>
     create(target:FileResourceTarget,text:string,onAttempt:(attempt:FileResourceHistoryAttempt)=>void):Promise<void>
@@ -36,8 +41,37 @@ type Executor=Parameters<DataView['bindQueryExecutor']>[0]
 type SaveCommand=Parameters<NonNullable<Executor['save']>>[0]
 type SaveReceipt=Awaited<ReturnType<NonNullable<Executor['save']>>>[number]
 type PendingWrite=Readonly<{target:FileResourceTarget;baseline:FileResourceSnapshot;text:string;state:'unknown'|'confirmed'|'not-applied';message:string|null}>
-type SharedFileResourceState=Readonly<{pending:Map<string,PendingWrite>;historyAttempts:Map<string,Readonly<{target:FileResourceTarget;attempt:FileResourceHistoryAttempt;text:string;state:'pending'|'unknown'|'confirmed'|'not-applied';message:string|null}>>}>
+type HistoryAttempt=Readonly<{target:FileResourceTarget;attempt:FileResourceHistoryAttempt;text:string;state:'pending'|'unknown'|'confirmed'|'not-applied';message:string|null;deliveryPending:boolean}>
+type SharedFileResourceState=Readonly<{pending:Map<string,PendingWrite>;historyAttempts:Map<string,HistoryAttempt>}>
 const sharedStates=new WeakMap<object,Map<string,SharedFileResourceState>>()
+const boundViews=new WeakMap<DataView,string>()
+const fileResourceBindings=new WeakMap<DataView,(options:BindFileResourceAdapterOptions)=>void>()
+
+/** Get a named file-resource view from its DataSet, creating its table and binding once. */
+export function getOrCreateFileResourceView(input:Readonly<{
+  dataSet:DataSet
+  tableName:string
+  viewId:string
+  columns:readonly DataColumn[]
+  resourceId:string
+  contentField:string
+  revisionField?:string
+  target:(view:DataView)=>FileResourceTarget
+  transport:FileResourceTransport
+  assertCurrent?:()=>void
+}>):DataView{
+  if(input.dataSet.destroyed)throw new Error('FILE_RESOURCE_DATASET: 资源视图未绑定存活DataSet')
+  const table=input.dataSet.getTable(input.tableName)??input.dataSet.addTable(input.tableName,[...input.columns])
+  if(table.modelBinding!==undefined||(table.resourceType!==undefined&&table.resourceType!=='file'))throw new Error('FILE_RESOURCE_IDENTITY: 表不是文件资源')
+  table.resourceType='file';table.resourceId=input.resourceId
+  const view=table.getOrCreateView(input.viewId),boundResource=boundViews.get(view)
+  if(boundResource!==undefined&&boundResource!==input.resourceId)throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源')
+  bindFileResourceAdapter(view,{resourceId:input.resourceId,contentField:input.contentField,
+    ...(input.revisionField?{revisionField:input.revisionField}:{}),target:input.target,transport:input.transport,
+    ...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})})
+  boundViews.set(view,input.resourceId)
+  return view
+}
 
 function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
   const dataSet=view.dataSet
@@ -51,11 +85,20 @@ function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
 
 /** Binds one semantic file resource to the standard DataView query/save and receipt lifecycle. */
 export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAdapterOptions):void{
-  const state=sharedState(view,options.resourceId)
+  const existing=fileResourceBindings.get(view)
+  if(existing){existing(options);return}
+  let currentOptions=options
+  const state=sharedState(view,currentOptions.resourceId)
   const contexts=new WeakMap<object,Readonly<{rows:readonly DataRow[];target:FileResourceTarget}>>()
-  const assertCurrent=()=>{if(view.destroyed||view.dataTable?.getView(view.viewId)!==view)throw new Error('FILE_RESOURCE_VIEW_STALE: DataView已释放或解绑');options.assertCurrent?.()}
+  const assertCurrent=()=>{if(view.destroyed||view.dataTable?.getView(view.viewId)!==view)throw new Error('FILE_RESOURCE_VIEW_STALE: DataView已释放或解绑');currentOptions.assertCurrent?.()}
   const targetIdentity=(target:FileResourceTarget)=>JSON.stringify([target.key,target.fields])
-  const historyTransport=options.transport.history
+  let historyTransport=currentOptions.transport.history
+  const historyTransportRef={current:historyTransport}
+  const requireHistoryTransport=()=>{
+    const transport=historyTransportRef.current
+    if(!transport)throw new Error('FILE_RESOURCE_HISTORY_UNAVAILABLE: 来源历史适配器不可用')
+    return transport
+  }
   const result=(rows:readonly DataRow[],target:FileResourceTarget):Awaited<ReturnType<Executor['executeQuery']>>=>{
     const primaryKey=view.primaryKey
     const fields=new Set(view.columns.map(column=>column.name)),selected=DataViewLocalQuery.select({rows:[...rows],fields,primaryKeys:[primaryKey],params:{page:1,allPages:true,treeMode:'flat'}})
@@ -63,7 +106,7 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
     const rowKey=(row:Readonly<DataRow>)=>row[primaryKey]
     const allowed=(key:unknown,field:string)=>keys.has(String(key))&&selected.output.has(field)
     const queryResult={rows:selected.rows,total:selected.total,rowKey,assertIdentity:()=>assertCurrent(),
-      fieldAccess:(key:unknown,field:string)=>{const visible=allowed(key,field),write=visible&&field===options.contentField
+      fieldAccess:(key:unknown,field:string)=>{const visible=allowed(key,field),write=visible&&field===currentOptions.contentField
         return {read:visible?'visible' as const:'invisible' as const,write:write?'allowed' as const:'denied' as const,
           component:!visible?'hidden' as const:write?'editable' as const:'readonly' as const,required:false,
           writeMode:write?'editable' as const:'readonly' as const}},
@@ -75,40 +118,51 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
   }
   const source:DataViewSourceAdapter={
     views:current=>current.dataTable?.viewList.filter(candidate=>{
-      try{return targetIdentity(options.target(candidate))===targetIdentity(options.target(current))}catch{return false}
+      try{return targetIdentity(currentOptions.target(candidate))===targetIdentity(currentOptions.target(current))}catch{return false}
     })??[],
-    preview:async current=>{assertCurrent();const target=options.target(current),snapshot=await options.transport.read(target);assertCurrent()
+    preview:async current=>{assertCurrent();const target=currentOptions.target(current),snapshot=await currentOptions.transport.read(target);assertCurrent()
       if(snapshot===null)throw new Error('FILE_RESOURCE_MISSING: 来源文件不存在')
       return {version:snapshot.revision,content:snapshot.text}},
-    adopt:async(current,snapshot,hooks)=>{assertCurrent();const target=options.target(current),remote=await options.transport.read(target);assertCurrent();hooks.assertCurrent()
+    adopt:async(current,snapshot,hooks)=>{assertCurrent();const target=currentOptions.target(current),remote=await currentOptions.transport.read(target);assertCurrent();hooks.assertCurrent()
       if(remote?.text !== snapshot.content||remote.revision!==snapshot.version)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件已变化')
       hooks.beforeApply()},
     ...(historyTransport?{history:{
-      list:async current=>{assertCurrent();const target=options.target(current),items=await historyTransport.list(target);assertCurrent();return items.map(item=>({...item,label:item.fileName}))},
-      preview:async(current,version)=>{assertCurrent();const target=options.target(current),text=await historyTransport.preview(target,version);assertCurrent();return text},
-      status:(current):DataViewSourceHistoryStatus=>{const target=options.target(current),item=state.historyAttempts.get(target.key)
+      list:async current=>{assertCurrent();const target=currentOptions.target(current),items=await requireHistoryTransport().list(target);assertCurrent();return items.map(item=>({...item,label:item.fileName}))},
+      preview:async(current,version)=>{assertCurrent();const target=currentOptions.target(current),text=await requireHistoryTransport().preview(target,version);assertCurrent();return text},
+      status:(current):DataViewSourceHistoryStatus=>{const target=currentOptions.target(current),item=state.historyAttempts.get(target.key)
         return item?{state:item.state,version:item.attempt.version,fileName:item.attempt.fileName,message:item.message}: {state:'idle',version:null,fileName:null,message:null}},
-      verify:async(current,hooks)=>{const target=options.target(current),item=state.historyAttempts.get(target.key)
+      isDeliveryPending:current=>{const item=state.historyAttempts.get(currentOptions.target(current).key);return item?.state==='confirmed'&&item.deliveryPending},
+      acknowledge:current=>{const target=currentOptions.target(current),item=state.historyAttempts.get(target.key)
+        if(item&&(item.state==='confirmed'||item.state==='not-applied'))state.historyAttempts.set(target.key,{...item,deliveryPending:false})},
+      verify:async(current,hooks)=>{const target=currentOptions.target(current),item=state.historyAttempts.get(target.key)
         if(item?.state !== 'unknown')return {state:item?.state??'idle',version:item?.attempt.version??null,fileName:item?.attempt.fileName??null,message:item?.message??null}
-        hooks.assertCurrent();const applied=await historyTransport.verify(target,item.attempt,item.text);hooks.assertCurrent()
-        const next={...item,state:applied?'confirmed' as const:'not-applied' as const,message:null};state.historyAttempts.set(target.key,next)
+        hooks.assertCurrent();const applied=await requireHistoryTransport().verify(target,item.attempt,item.text);hooks.assertCurrent()
+        const next={...item,state:applied?'confirmed' as const:'not-applied' as const,message:null,deliveryPending:applied};state.historyAttempts.set(target.key,next)
         return {state:next.state,version:next.attempt.version,fileName:next.attempt.fileName,message:null}},
-      create:async(current,hooks)=>{assertCurrent();const target=options.target(current),snapshot=await options.transport.read(target);assertCurrent()
+      create:async(current,hooks)=>{assertCurrent();const target=currentOptions.target(current);await requireHistoryTransport().assertCanCreate?.(target);assertCurrent()
+        const snapshot=await currentOptions.transport.read(target);assertCurrent()
         if(!snapshot)throw new Error('FILE_RESOURCE_MISSING: 来源文件不存在')
+        const matching=current.rows.filter(row=>String(row[current.primaryKey])===target.key)
+        const baseline=matching[0]
+        if(matching.length!==1||!baseline)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+        if(baseline[currentOptions.contentField]!==snapshot.text)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+        if(currentOptions.revisionField!==undefined&&String(baseline[currentOptions.revisionField]??'')!==String(snapshot.revision??'')){
+          throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+        }
         let captured:FileResourceHistoryAttempt|undefined
-        try{await historyTransport.create(target,snapshot.text,attempt=>{hooks.assertCurrent();if(captured)throw new Error('FILE_RESOURCE_ATTEMPT_INVALID: attempt重复捕获')
-          captured=attempt;state.historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null});hooks.onAttempt(attempt)})
+        try{await requireHistoryTransport().create(target,snapshot.text,attempt=>{hooks.assertCurrent();if(captured)throw new Error('FILE_RESOURCE_ATTEMPT_INVALID: attempt重复捕获')
+          captured=attempt;state.historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null,deliveryPending:true});hooks.onAttempt(attempt)})
           if(!captured)throw new Error('FILE_RESOURCE_ATTEMPT_MISSING: 创建来源历史未捕获attempt')
-          state.historyAttempts.set(target.key,{target,attempt:captured,text:snapshot.text,state:'confirmed',message:null})
-        }catch(error){if(captured){const existing=state.historyAttempts.get(target.key)
-          if(existing)state.historyAttempts.set(target.key,{...existing,state:options.transport.isUnknown(error)?'unknown':'not-applied',message:error instanceof Error?error.message:String(error)})}
+          state.historyAttempts.set(target.key,{target,attempt:captured,text:snapshot.text,state:'confirmed',message:null,deliveryPending:true})
+        }catch(error){if(captured){const storedAttempt=state.historyAttempts.get(target.key)
+          if(storedAttempt){const notApplied=requireHistoryTransport().isDefiniteRejection?.(error)===true;state.historyAttempts.set(target.key,{...storedAttempt,state:notApplied?'not-applied':'unknown',deliveryPending:!notApplied,message:error instanceof Error?error.message:String(error)})}}
           throw error}},
     }}: {}),
     verifyWriteAttempt:async(current,hooks)=>{
-      const target=options.target(current),attempt=state.pending.get(target.key)
+      const target=currentOptions.target(current),attempt=state.pending.get(target.key)
       if(!attempt)return {state:'idle',text:null,message:null}
       hooks.assertCurrent()
-      const remote=await options.transport.read(attempt.target);hooks.assertCurrent()
+      const remote=await currentOptions.transport.read(attempt.target);hooks.assertCurrent()
       if(remote?.text===attempt.text){const confirmed={...attempt,state:'confirmed' as const,message:null};state.pending.set(target.key,confirmed)
         return {state:'confirmed',text:attempt.text,message:null}}
       if(remote?.text===attempt.baseline.text){const notApplied={...attempt,state:'not-applied' as const,message:null};state.pending.set(target.key,notApplied)
@@ -116,16 +170,16 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
       return {state:'unknown',text:attempt.text,message:'远端文件与原提交及原基线均不一致'}
     },
     acknowledgeWriteAttempt:current=>{
-      const target=options.target(current),attempt=state.pending.get(target.key)
+      const target=currentOptions.target(current),attempt=state.pending.get(target.key)
       if(attempt?.state==='confirmed'||attempt?.state==='not-applied')state.pending.delete(target.key)
     },
   }
   const executor:Executor={localAggregates:false,source,
     executeQuery:async(currentView,params:QueryParams)=>{
-      assertCurrent();const target=options.target(currentView),snapshot=await options.transport.read(target);assertCurrent()
+      assertCurrent();const target=currentOptions.target(currentView),snapshot=await currentOptions.transport.read(target);assertCurrent()
       if(snapshot===null)throw new Error('FILE_RESOURCE_MISSING: 查询目标文件不存在')
-      const revisionField=options.revisionField
-      const row:DataRow={...target.fields,[currentView.primaryKey]:target.key,[options.contentField]:snapshot.text,
+      const revisionField=currentOptions.revisionField
+      const row:DataRow={...target.fields,[currentView.primaryKey]:target.key,[currentOptions.contentField]:snapshot.text,
         ...(revisionField?{[revisionField]:snapshot.revision??''}:{})}
       const selected=DataViewLocalQuery.select({rows:[row],fields:new Set(currentView.columns.map(column=>column.name)),
         primaryKeys:[currentView.primaryKey],params})
@@ -139,7 +193,7 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
         if(!context||!original||!submitted||(change.changes.added?.length??0)>0||(change.changes.deleted?.length??0)>0||change.changes.changed.length!==1){
           throw new Error('FILE_RESOURCE_CHANGE: 仅允许一个已查询文件行的内容更新')
         }
-        const target=options.target(view),text=submitted[options.contentField]
+        const target=currentOptions.target(view),text=submitted[currentOptions.contentField]
         if(targetIdentity(target)!==targetIdentity(context.target)||JSON.stringify(target.fields)!==JSON.stringify(context.target.fields)
           ||submitted[view.primaryKey]!==original[view.primaryKey]||typeof text!=='string'){
           throw new Error('FILE_RESOURCE_SCOPE: 文件目标或内容身份无效')
@@ -147,30 +201,30 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
         assertCurrent()
         const prior=state.pending.get(target.key)
         if(prior){
-          const remote=await options.transport.read(prior.target);assertCurrent()
+          const remote=await currentOptions.transport.read(prior.target);assertCurrent()
           if(remote?.text===prior.text){state.pending.set(target.key,{...prior,state:'confirmed',message:null});if(text!==prior.text)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本');state.pending.delete(target.key)}
           else if(remote?.text===prior.baseline.text){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 原文件提交确认未生效')}
           else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及基线均不一致')
         }else{
-          const baseline=await options.transport.read(target);assertCurrent()
-          if(baseline===null||baseline.text!==original[options.contentField]
-            ||options.revisionField&&String(baseline.revision??'')!==String(original[options.revisionField]??'')){
+          const baseline=await currentOptions.transport.read(target);assertCurrent()
+          if(baseline===null||baseline.text!==original[currentOptions.contentField]
+            ||currentOptions.revisionField&&String(baseline.revision??'')!==String(original[currentOptions.revisionField]??'')){
             throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView查询基线')
           }
           try{
-            await options.transport.write({target,text,baseline})
-            const readback=await options.transport.read(target);assertCurrent()
+            await currentOptions.transport.write({target,text,baseline})
+            const readback=await currentOptions.transport.read(target);assertCurrent()
             if(readback?.text!==text)throw new Error('FILE_RESOURCE_READBACK: 文件保存回读不一致')
           }catch(error){
-            if(options.transport.isUnknown(error))state.pending.set(target.key,{target,baseline,text,state:'unknown',message:error instanceof Error?error.message:String(error)})
+            if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,baseline,text,state:'unknown',message:error instanceof Error?error.message:String(error)})
             throw error
           }
         }
-        const saved=await options.transport.read(target);assertCurrent()
+        const saved=await currentOptions.transport.read(target);assertCurrent()
         if(saved?.text !== text)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
-        const accepted={...submitted,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}
+        const accepted={...submitted,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
         receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
-          changedFields:[[options.contentField,...(options.revisionField?[options.revisionField]:[])]],
+          changedFields:[[currentOptions.contentField,...(currentOptions.revisionField?[currentOptions.revisionField]:[])]],
           context:result([accepted],target)})
       }
       return receipts
@@ -178,7 +232,12 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
     hasUnconfirmedSave:context=>{const captured=contexts.get(context);return captured!==undefined&&state.pending.has(captured.target.key)},
     abandonUnconfirmedSave:context=>{const captured=contexts.get(context);if(captured)state.pending.delete(captured.target.key)},
   }
-  view.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:options.resourceId}})
+  view.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:currentOptions.resourceId}})
+  fileResourceBindings.set(view,next=>{
+    if(next.resourceId!==currentOptions.resourceId)throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源')
+    currentOptions=next
+    historyTransport=next.transport.history;historyTransportRef.current=historyTransport
+  })
 }
 
 /** Binds a complete, read-only file directory listing to one DataView query. */

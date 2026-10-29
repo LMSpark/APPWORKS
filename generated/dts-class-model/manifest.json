@@ -13726,13 +13726,11 @@
         "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/shared/page-tool-files-command",
-        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolRestoreInput, PageToolFilesDataView（共 4 个 symbol）。",
+        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolRestoreInput, PageToolFileCommands（共 2 个 symbol）。",
         "jsdocSource": "inferred",
         "symbols": [
-          "PageToolSnapshotInput",
-          "PageToolSnapshotResult",
           "PageToolRestoreInput",
-          "PageToolFilesDataView"
+          "PageToolFileCommands"
         ]
       }
     },
@@ -20730,13 +20728,13 @@
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
     },
+    "PageToolFileCommands": {
+      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
+      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
+    },
     "PageToolFileName": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
-    },
-    "PageToolFilesDataView": {
-      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
     },
     "PageToolFileVersionSummary": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
@@ -20751,14 +20749,6 @@
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
     },
     "PageToolRestoreInput": {
-      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
-    },
-    "PageToolSnapshotInput": {
-      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
-    },
-    "PageToolSnapshotResult": {
       "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
       "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
     },

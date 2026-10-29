@@ -88,7 +88,7 @@ userMessage?: string
   saveDirtyFilesAfterRun?: boolean
   /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */
   deliverySaveFileNames?: readonly PageToolFileName[]
-  /** DevSystem当前活跃PageToolFilesDataView保存入口；autoSave时必需。 */
+  /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */
   savePageFile?: (pageId:string,name:PageToolFileName,text:string)=>Promise<void>
 }
 

@@ -21,6 +21,7 @@ import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspa
 import { getBuiltinScenarioResource } from '@/registries/builtin-application-registry'
 import { BUILTIN_BLUEPRINT_BUSINESS_FIELDS } from '@/lowcode/resources/shared/builtin-system-navigation'
 import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import {PageToolFileCommands} from '@/lowcode/resources/shared/page-tool-files-command'
 
 const httpFns = vi.hoisted(() => ({
   get: vi.fn(),
@@ -1889,6 +1890,36 @@ describe('DevState 页面文件闭环', () => {
         .rejects.toThrow('PAGE_TOOL_RESTORE_LOCAL_PENDING')
       expect(pageFiles.upload).toHaveBeenCalledOnce()
     }finally{ownerScope.stop()}
+  })
+
+  it('uses the DataView and DataSet save chain without a PageTool file owner facade',async()=>{
+    expect(PageToolFileCommands.prototype).not.toHaveProperty('savePageFile')
+    expect(PageToolFileCommands.prototype).not.toHaveProperty('loadPageFileDataView')
+    expect(PageToolFileCommands.prototype).not.toHaveProperty('cancelPageFileDataView')
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','before');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const page=state.project.getActivePage()!;page.hydrateFileText('script.js','before')
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture file row has no DataView identity')
+      await view.editRowById(id,{text:'submitted'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'submitted'})
+      expect(page.getSavedFileText('script.js')).toBe('before')
+      expect(view.dirtyTracking.getOriginal(id)?.['text']).toBe('before')
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
+      await state.savePageToolFile({pageId:'demo',fileName:'script.js'})
+      expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'page-demo',ids:[id]}]})
+      expect(pageFiles.files.get('demo/script.js')).toBe('submitted')
+      expect(page.getSavedFileText('script.js')).toBe('submitted')
+    }finally{scope.stop()}
   })
 
   it('切换左侧节点时触发右侧 blueprintDraft 订阅刷新', async () => {

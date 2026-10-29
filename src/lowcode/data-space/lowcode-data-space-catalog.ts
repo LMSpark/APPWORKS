@@ -20,8 +20,9 @@ function association(row: Readonly<Record<string, unknown>>, read: ReadAccess): 
   return scalar(formal ? row['ROWID'] : output ? row['rowid'] : undefined)
 }
 
-function validate(result: QueryResult, keyField: string, fields: readonly string[]): void {
+function validate(result: QueryResult, keyField: string, options: Readonly<{fields: readonly string[]; requireComplete?: boolean}>): void {
   if (!result.countReported) throw new Error('目录查询未返回服务端总数')
+  if (options.requireComplete && result.total !== result.rows.length) throw new Error('目录查询结果不完整：服务端总数与返回行数不匹配')
   const keys = new Set<string>()
   for (const row of result.rows) {
     const raw = row[keyField], key = result.rowKey(row)
@@ -29,7 +30,7 @@ function validate(result: QueryResult, keyField: string, fields: readonly string
       throw new Error(`目录查询结果缺少唯一且匹配 ${keyField} 的正式主键`)
     }
     keys.add(key.trim())
-    for (const field of fields) if (result.fieldAccess(key, field).read === 'visible') scalar(row[field])
+    for (const field of options.fields) if (result.fieldAccess(key, field).read === 'visible') scalar(row[field])
   }
 }
 
@@ -67,13 +68,13 @@ export class LowcodeDataSpaceCatalog {
     }
     this.view.events.on('requestStateChanged', onRequest)
     this.#unsubscribe = () => this.view.events.off('requestStateChanged', onRequest)
-    this.apps.validateQueryResult = result => {this.assertCurrent(); validate(result, 'rowid', ['AppDesc', 'AppName'])}
+    this.apps.validateQueryResult = result => {this.assertCurrent(); validate(result, 'rowid', {fields: ['AppDesc', 'AppName'], requireComplete: true})}
     this.users.validateQueryResult = result => {
-      this.assertCurrent(); validate(result, 'ID', ['UserName'])
+      this.assertCurrent(); validate(result, 'ID', {fields: ['UserName'], requireComplete: true})
       for (const row of result.rows) association(row, field => result.fieldAccess(result.rowKey(row), field).read)
     }
     this.view.validateQueryResult = async result => {
-      this.assertCurrent(); validate(result, 'rowid', catalogFields)
+      this.assertCurrent(); validate(result, 'rowid', {fields: catalogFields})
       const revision = this.#revision
       const ids = [...new Set(result.rows.flatMap(row => result.fieldAccess(result.rowKey(row), 'createuser').read === 'visible'
         ? [scalar(row['createuser'])].filter(Boolean) : []))]
@@ -209,11 +210,18 @@ export class LowcodeDataSpaceCatalog {
     const id = this.designTarget(), row = id ? this.row(id) : undefined
     return this.idle() && !!row && this.view.deleteActionState(row) === 'enabled'
   }
+  private assertDeleteTarget(row: DataRow, id: string): void {
+    const selected = this.view.selectedRows
+    if (!this.isCurrent() || selected.length !== 1 || selected[0] !== row || this.row(id) !== row
+      || this.view.getPkKey(row) !== id || this.view.fieldAccess(row, 'rowid').read !== 'visible') throw new Error('删除目标已变化')
+  }
   /** 先核空间下的模型数，再经原DataView暂存删除并由DataSet提交；不级联删除其他记录或场景文件。 */
-  public async deleteSelected(): Promise<void> {
+  public async deleteSelected(row: DataRow): Promise<void> {
+    const key = this.view.getPkKey(row)
+    if (typeof key !== 'string' || !key || !this.view.rows.includes(row)) throw new Error('删除目标已变化')
+    const id = key
+    this.assertDeleteTarget(row, id)
     if (!this.canDelete()) throw new Error('当前不能删除此数据空间')
-    const id = this.designTarget(), row = this.row(id)
-    if (!row) throw new Error('删除目标已变化')
     const models = this.dataSet.getView('Base_DataModel')
     if (!models) throw new Error('正式目录场景未配置模型视图，无法核对删除影响')
     const check = models.createQueryView('catalogDeleteCheck')
@@ -226,7 +234,8 @@ export class LowcodeDataSpaceCatalog {
       if (check.loadingError) throw check.loadingError
       if (check.total > 0) throw new Error(`该数据空间仍有 ${check.total} 个模型，请先在设计器中删除模型后再删除空间`)
     } finally {models.dataTable?.destroyView(check.viewId)}
-    if (this.row(this.designTarget()) !== row) throw new Error('删除目标已变化')
+    this.assertDeleteTarget(row, id)
+    if (!this.canDelete()) throw new Error('当前不能删除此数据空间')
     await this.view.removeRow(id)
     const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [id]}]})
     this.assertCurrent()
@@ -260,7 +269,7 @@ export class LowcodeDataSpaceCatalog {
       for (const view of [bound, ancestors]) {
         view.autoLoad = false; view.queryConfig = {...view.queryConfig, fields, allPages: true, maxRows: 50000, autoQuery: false}
         view.validateQueryResult = result => {
-          current(); validate(result, 'rowid', fields)
+          current(); validate(result, 'rowid', {fields, requireComplete: true})
           for (const node of result.rows) if (fields.some(field => result.fieldAccess(result.rowKey(node), field).read !== 'visible')
             || node['SysId'] !== row['sysid'] || !Object.hasOwn(node, 'prowid')) throw new Error('导航绑定身份、归属或读取权限不完整')
         }

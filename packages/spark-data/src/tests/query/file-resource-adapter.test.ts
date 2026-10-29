@@ -14,6 +14,7 @@ function fixture(rejectHistoryBeforeWrite=false) {
   const history:NonNullable<FileResourceTransport['history']>={
     list:async target=>[...versions.keys()].map(version=>({version,fileName:`${version}__${String(target.fields['fileName'])}`,lastModified:null})),
     preview:async(_target,version)=>versions.get(Number(version))??'',
+    isDefiniteRejection:error=>error instanceof Error&&error.message==='explicit history rejection',
     create:async(target,text,onAttempt)=>{const version=Math.max(0,...versions.keys())+1;onAttempt({version,fileName:`${version}__${String(target.fields['fileName'])}`})
       if(rejectHistoryBeforeWrite)throw new Error('explicit history rejection')
       versions.set(version,text);throw new Error('timeout')},
@@ -23,7 +24,7 @@ function fixture(rejectHistoryBeforeWrite=false) {
   const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId:'page-files',contentField:'text',revisionField:'revision',
     target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),transport})
   bind(view)
-  return {dataSet,view,current,read,write,bind,versions}
+  return {dataSet,view,current,read,write,bind,versions,history}
 }
 
 describe('DataView file resource adapter',()=>{
@@ -99,6 +100,34 @@ describe('DataView file resource adapter',()=>{
     try {
       await f.view.refresh()
       expect(await f.view.previewSource()).toEqual({version:'v1',content:'baseline'})
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('rejects a snapshot when the remote file no longer matches the clean DataView baseline',async()=>{
+    const f=fixture()
+    try {
+      await f.view.refresh()
+      f.current.text='changed remotely'
+      await expect(f.view.createSourceVersion()).rejects.toThrow('FILE_RESOURCE_SOURCE_CONFLICT')
+      expect(f.versions.size).toBe(0)
+      expect(f.view.rows[0]).toMatchObject({text:'baseline',revision:'v1'})
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('retains an uploaded snapshot as unknown when local readback fails and only retries its original receipt',async()=>{
+    const f=fixture()
+    try {
+      await f.view.refresh()
+      const create=vi.spyOn(f.history,'create').mockImplementationOnce(async(_target,text,onAttempt)=>{
+        onAttempt({version:1,fileName:'1__rule.json'})
+        f.versions.set(1,text)
+        throw new Error('readback scope changed after upload')
+      })
+      await expect(f.view.createSourceVersion()).rejects.toThrow('readback scope changed after upload')
+      expect(f.view.getSourceHistoryStatus()).toMatchObject({state:'unknown',version:1,fileName:'1__rule.json'})
+      await expect(f.view.createSourceVersion()).resolves.toMatchObject({state:'confirmed',version:1,fileName:'1__rule.json'})
+      expect(create).toHaveBeenCalledOnce()
+      expect(f.versions.get(1)).toBe('baseline')
     } finally {f.dataSet.destroy()}
   })
 

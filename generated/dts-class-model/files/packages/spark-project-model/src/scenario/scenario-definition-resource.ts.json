@@ -119,6 +119,14 @@
           "type": "object",
           "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<DataViewSourceHistoryStatus>"
         },
+        "isDeliveryPending": {
+          "type": "object",
+          "title": "(view: DataView) => boolean"
+        },
+        "acknowledge": {
+          "type": "object",
+          "title": "(view: DataView) => void"
+        },
         "create": {
           "type": "object",
           "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; onAttempt(attempt: DataViewSourceHistoryAttempt): void; }>) => Promise<void>"

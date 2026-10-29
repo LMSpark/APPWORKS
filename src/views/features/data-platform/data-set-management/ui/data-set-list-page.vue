@@ -32,11 +32,11 @@
           <RendererButton v-if="editing.readbackFailed" label="重新读取" :disabled="busy" @click="saveEdit" />
         </template>
       </RendererDialog>
-      <RendererDialog v-if="deleteOpen" :model-value="true" title="删除确认" :width="420" :close-disabled="busy" @update:model-value="deleteOpen = false">
+      <RendererDialog v-if="deleteOpen" :model-value="true" title="删除确认" :width="420" :close-disabled="busy" @update:model-value="closeDelete">
         <p>确认删除数据空间“{{ deleteName }}”吗？仅删除空间记录；空间下仍有模型时不能删除。</p>
         <p v-if="actionError" role="alert">{{ actionError }}</p>
         <template #footer>
-          <RendererButton label="取消" :disabled="busy" @click="deleteOpen = false" />
+          <RendererButton label="取消" :disabled="busy" @click="closeDelete" />
           <RendererButton label="删除" :disabled="busy" @click="confirmDelete" />
         </template>
       </RendererDialog>
@@ -72,6 +72,7 @@ const {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm
 const DataSetDesign = defineAsyncComponent(() => import('../design/ui/data-set-design-page.vue'))
 const route = useRoute()
 const deleteOpen = ref(false), deleteName = ref(''), designId = ref('')
+const deleteTarget = shallowRef<DataRow>()
 const designPage = ref<{hasPending: boolean} | null>(null)
 /** 设计页有未保存修改或在途操作时禁止关闭对话框，避免卸载时静默丢弃草稿。 */
 const designPending = computed(() => designPage.value?.hasPending === true)
@@ -167,12 +168,20 @@ function openDelete(): void {
   const catalog = owner.value
   if (!catalog?.canDelete()) return
   const row = catalog.view.selectedRows[0]
+  if (!row || !catalog.view.rows.includes(row)) return
+  deleteTarget.value = row
   deleteName.value = typeof row?.['Name'] === 'string' ? row['Name'] : ''
   actionError.value = ''; deleteOpen.value = true
 }
+function closeDelete(): void {
+  if (busy.value) return
+  deleteOpen.value = false; deleteTarget.value = undefined; actionError.value = ''
+}
 async function confirmDelete(): Promise<void> {
-  await act(catalog => catalog.deleteSelected(), '数据空间已删除')
-  if (!actionError.value) deleteOpen.value = false
+  const target = deleteTarget.value
+  if (!target) {actionError.value = '删除目标已变化'; return}
+  await act(catalog => catalog.deleteSelected(target), '数据空间已删除')
+  if (!actionError.value) closeDelete()
 }
 async function copyApi(): Promise<void> {
   await act(async catalog => {

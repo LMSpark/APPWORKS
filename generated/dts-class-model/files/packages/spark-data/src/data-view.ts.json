@@ -1360,6 +1360,12 @@
           "type": "object",
           "title": "Promise<DataViewSourceHistoryStatus>"
         },
+        "method.acknowledgeSourceHistoryAttempt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acknowledgeSourceHistoryAttempt.return": true,
         "method.verifySourceWriteAttempt.params": {
           "type": "object",
           "properties": {},
@@ -1377,12 +1383,17 @@
         "method.acknowledgeSourceWriteAttempt.return": true,
         "method.createSourceVersion.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "onAttempt": {
+              "type": "object",
+              "title": "(attempt: DataViewSourceHistoryStatus) => void"
+            }
+          },
           "additionalProperties": false
         },
         "method.createSourceVersion.return": {
           "type": "object",
-          "title": "Promise<void>"
+          "title": "Promise<DataViewSourceHistoryStatus>"
         },
         "method.adoptSource.params": {
           "type": "object",
@@ -2762,7 +2773,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T04:37:35.152Z",
+  "generatedAt": "2026-10-29T06:18:27.532Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4525,7 +4536,7 @@
             },
             {
               "name": "getSourceHistoryStatus",
-              "jsdoc": "读取原来源owner持有的快照提交状态；scope、文本和file owner不暴露给页面。",
+              "jsdoc": "读取原来源适配器持有的快照提交状态；scope、文本和文件适配器状态不暴露给页面。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -4535,7 +4546,7 @@
             },
             {
               "name": "verifySourceHistoryAttempt",
-              "jsdoc": "只读核验来源owner捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。",
+              "jsdoc": "只读核验来源适配器捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -4550,8 +4561,17 @@
               }
             },
             {
+              "name": "acknowledgeSourceHistoryAttempt",
+              "jsdoc": "历史回执已被页面业务接收后清除适配器待交付标记；不影响来源版本本身。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "verifySourceWriteAttempt",
-              "jsdoc": "核验由同一DataSet文件来源owner持有的正文保存attempt；不会重放原上传。",
+              "jsdoc": "核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -4567,7 +4587,7 @@
             },
             {
               "name": "acknowledgeSourceWriteAttempt",
-              "jsdoc": "领域结果交付完成后消费已核验的正文保存attempt。",
+              "jsdoc": "领域结果交付完成后消费已核验的正文保存适配器attempt。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -4576,15 +4596,46 @@
             },
             {
               "name": "createSourceVersion",
-              "jsdoc": "为已保存且同源视图均干净的资源创建快照；异步编辑、来源切换或释放均拒绝旧操作。",
-              "parameters": [],
+              "jsdoc": "为已保存且同源视图均干净的资源创建快照并返回适配器回执；异步编辑、来源切换或释放均拒绝旧操作。",
+              "parameters": [
+                {
+                  "name": "onAttempt",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "attempt",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataViewSourceHistoryStatus",
+                                "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "intrinsic",
-                    "name": "void"
+                    "type": "reference",
+                    "name": "DataViewSourceHistoryStatus",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
                   }
                 ]
               }

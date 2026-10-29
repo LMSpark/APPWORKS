@@ -86,6 +86,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
   const pageRuntime={instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>dataSet,
     resolveView:()=>dataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime
   let owner: BlueprintWorkspaceDataView | undefined
+  let activeSnapshotFile='rule.json'
   const blueprintWorkspaceDataView=shallowRef<BlueprintWorkspaceDataView>()
   const accessRevision = ref(0)
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
@@ -101,7 +102,15 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       if(state.registerExternalDataViewSession.mock.calls.length===0)state.registerExternalDataViewSession({isDirty:()=>current.dirty,save:()=>current.save()})
       return current
     }),
-    createPageToolSnapshot: api.createSnapshot,
+    loadPageToolFileDataView: vi.fn(async ({pageId,fileName}:{pageId:string;fileName:string})=>{
+      activeSnapshotFile=fileName
+      const fileView={currentRow:{text:state.project.readPageFileText(fileName)},createSourceVersion:async(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>{
+        const result=await api.createSnapshot({pageId,customPath:`${state.projectId}/${pageId}`,fileName:activeSnapshotFile,
+          text:state.project.readPageFileText(activeSnapshotFile),onAttempt})
+        return {state:'confirmed',version:result.version,fileName:result.fileName,message:null}
+      },acknowledgeSourceHistoryAttempt:vi.fn()}
+      return fileView
+    }),
     refreshBlueprintTreeProjection: vi.fn(),
     blueprintDraft: {nodeId:'node-A',kind:'page',capability,navigation:undefined,dataSpace:undefined,prototype:undefined},
     pageDataDirty: ref(false),

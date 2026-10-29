@@ -14,14 +14,20 @@ vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
 }))
 vi.mock('@spark-appworks/spark-component', async () => {
   const {defineComponent, h} = await import('vue')
-  return {SparkCodeEditor: {}, JsonTreeEditor: {}, PAGE_RUNTIME: 'PAGE_RUNTIME',
+  const passive = (name: string) => defineComponent({name, setup(_, {slots}) {return () => h('div', slots['default']?.())}})
+  const button = defineComponent({name: 'RendererButton', props: {label: String, disabled: Boolean}, emits: ['click'],
+    setup(props, {emit}) {return () => h('button', {disabled: props.disabled, onClick: () => emit('click')}, props.label)}})
+  return {__v_isRef: false, SparkCodeEditor: passive('SparkCodeEditor'), JsonTreeEditor: passive('JsonTreeEditor'), PAGE_RUNTIME: 'PAGE_RUNTIME',
     useSparkComponent: () => ({sparkProvide: fixture.sparkProvide, sparkRemove: fixture.sparkRemove}),
+    RendererButton: button, RendererForm: passive('RendererForm'), RendererTabs: passive('RendererTabs'), RendererTabPane: passive('RendererTabPane'),
+    FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'), DisplayAlert: passive('DisplayAlert'),
+    DisplayEmpty: defineComponent({name: 'DisplayEmpty', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
     RendererTable: defineComponent({name: 'RendererTable', props: {dataViewKey: String, actions: Object}, setup(props, {slots}) { return () => h('div', {class: 'bound-table'}, [
       h('button', {onClick: () => (props.actions as {children: {props: {onClick: (row: unknown) => void}}[]})['children'][0]?.props.onClick({
         versionKey:'["page-A","script.js",2]',pageId:'page-A',fileName:'script.js',version:2,snapshotFileName:'2__script.js',
       })}, '恢复'), slots['default']?.(),
     ]) }}),
-    FieldText: defineComponent({name: 'FieldText', props: {field: String, label: String, displayFormatter: Function}, template: '<span>{{ label }}</span>'}),
+    FieldText: defineComponent({name: 'FieldText', props: {dataMember: String, dataField: String, label: String, displayFormatter: Function}, template: '<span>{{ label }}</span>'}),
   }
 })
 
@@ -44,6 +50,7 @@ function setup(hasFormalVersionBinding = true) {
   const dataSet = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', getView: vi.fn((tableName: string) =>
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
   const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
+  const fileView={createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
   const state = {
     activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
     restoredText: ref(fixture.text),
@@ -51,7 +58,7 @@ function setup(hasFormalVersionBinding = true) {
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
     blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
-    createPageToolSnapshot: vi.fn().mockResolvedValue({version: 3, fileName: '3__script.js'}),
+    loadPageToolFileDataView: vi.fn().mockResolvedValue(fileView),
     restorePageToolVersion: vi.fn().mockResolvedValue('restored text'),
     editor: {},
   }
@@ -68,7 +75,7 @@ function setup(hasFormalVersionBinding = true) {
     if (!button) throw new Error(`按钮缺失：${label}`)
     await button.trigger('click')
   }
-  return { state, wrapper, click, view }
+  return { state, wrapper, click, view, fileView }
 }
 
 describe('DevFileEditor snapshot identity', () => {
@@ -81,7 +88,7 @@ describe('DevFileEditor snapshot identity', () => {
     expect(view.queryContext).toEqual({pageId: 'page-A', fileName: 'script.js'})
     expect(view.refresh).toHaveBeenCalledOnce()
     expect(wrapper.findComponent({name: 'RendererTable'}).props('dataViewKey')).toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolVersion@default')
-    const timeField = wrapper.findAllComponents({name: 'FieldText'}).find(field => field.props('field') === 'lastModified')!
+    const timeField = wrapper.findAllComponents({name: 'FieldText'}).find(field => field.props('dataField') === 'lastModified')!
     expect(timeField.props('displayFormatter')(null)).toBe('-')
     expect(timeField.props('displayFormatter')(0)).toMatch(/^\d{4}-\d{2}-\d{2} /)
     wrapper.unmount()
@@ -121,38 +128,31 @@ describe('DevFileEditor snapshot identity', () => {
   })
 
   it('does not create a snapshot for a different file after working save', async () => {
-    const { state, wrapper, click } = setup()
+    const { wrapper, click, fileView } = setup()
     const saved = deferred<void>(); fixture.save.mockReturnValueOnce(saved.promise)
     await click('版本'); await flushPromises(); await click('存档')
     await wrapper.setProps({ activeFile: 'style.css' })
     saved.resolve(); await flushPromises()
-    expect(state.createPageToolSnapshot).not.toHaveBeenCalled()
+    expect(fileView.createSourceVersion).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 
   it('does not create a snapshot when edits occur during working save', async () => {
-    const { state, wrapper, click } = setup()
+    const { state, wrapper, click, fileView } = setup()
     const saved = deferred<void>(); fixture.save.mockReturnValueOnce(saved.promise)
     await click('版本'); await flushPromises(); await click('存档')
     state.dirty.value = true; saved.resolve(); await flushPromises()
-    expect(state.createPageToolSnapshot).not.toHaveBeenCalled()
+    expect(fileView.createSourceVersion).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 
-  it('creates the saved file snapshot through the SPARK data command owner', async () => {
-    const { state, wrapper, click } = setup()
+  it('creates the saved file snapshot through the file DataView source history API', async () => {
+    const { state, wrapper, click, fileView } = setup()
     await click('版本'); await flushPromises(); await click('存档'); await flushPromises()
     expect(fixture.save).toHaveBeenCalledOnce()
-    expect(state.createPageToolSnapshot).toHaveBeenCalledOnce()
-    const input = state.createPageToolSnapshot.mock.calls[0]![0] as {
-      pageId: string; customPath: string; fileName: string; text: string; assertCurrent: () => void
-    }
-    expect(input).toMatchObject({pageId: 'page-A', customPath: 'project-A/page-A', fileName: 'script.js', text: 'saved file contents'})
-    expect(input.assertCurrent).toBeTypeOf('function')
-    input.assertCurrent()
+    expect(state.loadPageToolFileDataView).toHaveBeenCalledWith({pageId:'page-A',fileName:'script.js'})
+    expect(fileView.createSourceVersion).toHaveBeenCalledOnce()
     expect(state.addStatus).toHaveBeenCalledWith('script.js 已创建新版本快照', 'success')
-    state.activePageId.value = 'page-B'
-    expect(input.assertCurrent).toThrow('快照期间编辑目标已切换')
     wrapper.unmount()
   })
 

@@ -20,14 +20,16 @@ import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-c
 import CatalogPage from '@/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'
 const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
 const models={Base_DataSet:['rowid','Name','Type','description','sysid','createuser','createtime'],
+  Base_DataModel:['rowid','dataSetId'],
   Base_AppSystemList:['rowid','AppDesc','AppName'],Base_UserInfo:['ID','ROWID','rowid','UserName'],
   Base_NavigationInfo:['rowid','SysId','conid','prowid','FunName','name','NavigationUrl']}
 // 与线上导航模型一致：conid 只能作服务端过滤（output=false），查询结果不返回。
 const navigationProjection=models.Base_NavigationInfo.map((field,index)=>({fieldId:field.toUpperCase(),source:'resource',resourceFieldId:field.toUpperCase(),
   resourceField:field,viewField:field,type:'string',label:field,output:field!=='conid',sortOrder:index,sortDirection:null,group:0,distinct:false,
   primaryKey:index===0,value:'',valueFunction:'',expression:''}))
-function dataset(scenarioId='SCENE') {
-  return DataSet.fromJson({scenarioId,dataSetName:scenarioId,tables:Object.fromEntries(Object.entries(models).map(([name,fields])=>[name,{
+function dataset(scenarioId='SCENE',includeDeleteCheck=false) {
+  const entries=Object.entries(models).filter(([name])=>includeDeleteCheck||name!=='Base_DataModel')
+  return DataSet.fromJson({scenarioId,dataSetName:scenarioId,tables:Object.fromEntries(entries.map(([name,fields])=>[name,{
     modelBinding:{modelId:`M-${name}`,modelName:name},resourceType:'database-table',resourceId:name,
     columns:fields.map((field,index)=>({name:field,type:'string',isPrimaryKey:index===0})),
     views:{default:{autoLoad:false,...(name==='Base_NavigationInfo'?{fieldProjection:navigationProjection}:{})},[name==='Base_DataSet'?'catalog':name==='Base_UserInfo'?'catalogUsers':'catalogApps']:{autoLoad:false,
@@ -42,12 +44,16 @@ function context(view:DataView,rows:readonly Record<string,unknown>[],opts:{coun
 }
 const defaults:Record<string,Record<string,unknown>[]>= {
   Base_DataSet:[{rowid:'TARGET',Name:'Directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-01'}],
+  Base_DataModel:[],
   Base_AppSystemList:[{rowid:'APP',AppDesc:'',AppName:'Application'}],Base_UserInfo:[{ID:'PERMISSION-USER',rowid:'USER',UserName:'Creator'}],
 }
 function writable() {
   const rowsByModel=structuredClone(defaults)
+  let activeDataSet:DataSet|undefined
+  let nextModelQuery:{started:()=>void;wait:Promise<DataSpaceQueryContext>;release:(value:DataSpaceQueryContext)=>void}|undefined
   let afterWrite: (()=>void)|undefined
   executeQuery.mockImplementation(async(view:DataView)=> {
+    if(view.tableName==='Base_DataModel'&&nextModelQuery){const gate=nextModelQuery;nextModelQuery=undefined;gate.started();return gate.wait}
     const rows=(rowsByModel[view.tableName]??[]).map(row=>({...row,lingma_sys_params:{e:['Name','description'],d:true,r:[],h:[],m:[]}}))
     const table=new DataSpaceQueryTable({scenarioId:view.dataSet!.scenarioId!,metaName:view.tableName})
     return new DataSpaceQueryContext({identity:table.identity,scope:'scope-a',readScope:()=>readRequestScope().token,
@@ -81,11 +87,15 @@ function writable() {
     })
   })
   loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
-    const dataSet=dataset(scenarioId)
+    const dataSet=dataset(scenarioId,true)
+    activeDataSet=dataSet
     for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery,save,hasUnconfirmedSave}))
     return Promise.resolve(dataSet)
   })
-  return {save,rows:rowsByModel['Base_DataSet']!,get writes(){return writes},onWrite(fn:()=>void){afterWrite=fn}}
+  return {save,rows:rowsByModel['Base_DataSet']!,get dataSet(){return activeDataSet},get writes(){return writes},onWrite(fn:()=>void){afterWrite=fn},
+    holdNextModelQuery(){let started!:()=>void,release!:(value:DataSpaceQueryContext)=>void
+      const startedPromise=new Promise<void>(resolve=>{started=resolve}),wait=new Promise<DataSpaceQueryContext>(resolve=>{release=resolve})
+      nextModelQuery={started,wait,release};return {started:startedPromise,release:(value:DataSpaceQueryContext)=>release(value)}}}
 }
 function calls(name:string) {return executeQuery.mock.calls.filter(([view])=>view.tableName===name)}
 function last(name='Base_DataSet'):QueryParams {return calls(name).at(-1)![1] as QueryParams}
@@ -107,7 +117,7 @@ beforeEach(()=>{
   readRequestScope.mockReturnValue({token:'scope-a',headers:{'X-AppId':'app-a'}})
   loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
     const dataSet=dataset(scenarioId)
-    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery}))
+    for(const name of Object.keys(models))dataSet.getTable(name)?.forEachView(view=>view.bindQueryExecutor({executeQuery}))
     return Promise.resolve(dataSet)
   })
   executeQuery.mockImplementation(async(view:DataView)=>context(view,defaults[view.tableName]??[],view.tableName==='Base_DataSet'?{total:25}:{}))
@@ -117,6 +127,56 @@ beforeEach(()=>{
 })
 afterEach(()=>{disposals.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
 describe('native DataView catalog',()=>{
+  it('rejects a delete when the selection changes during the formal model preflight query',async()=>{
+    const fixture=writable();fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
+    const {wrapper}=await page(),view=fixture.dataSet?.getView('Base_DataSet','catalog')
+    if(!view)throw new Error('catalog DataView was not assembled')
+    await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'删除').trigger('click');await flushPromises()
+    const gate=fixture.holdNextModelQuery(),deleteButtons=wrapper.findAll('button').filter(item=>item.text()==='删除')
+    const submit=deleteButtons.at(-1)!.trigger('click');await gate.started
+    const other=view.rows.find(row=>row['rowid']==='OTHER')
+    if(!other)throw new Error('second catalog row was not queried')
+    view.setSelectedRows([other])
+    const modelView=fixture.dataSet?.getView('Base_DataModel','catalogDeleteCheck')
+    if(!modelView)throw new Error('formal Base_DataModel delete check view was not created')
+    gate.release(context(modelView,[]));await submit;await flushPromises()
+    expect(wrapper.text()).toContain('删除目标已变化')
+    expect(fixture.writes).toBe(0);expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET','OTHER'])
+  })
+  it('rejects the open delete confirmation when the DataView selection changes before submit',async()=>{
+    const fixture=writable()
+    fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
+    const {wrapper}=await page(),view=fixture.dataSet?.getView('Base_DataSet','catalog')
+    if(!view)throw new Error('catalog DataView was not assembled')
+    await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'删除').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('确认删除数据空间“Directory item”吗')
+    const other=view.rows.find(row=>row['rowid']==='OTHER')
+    if(!other)throw new Error('second catalog row was not queried')
+    view.setSelectedRows([other])
+    const deleteButtons=wrapper.findAll('button').filter(item=>item.text()==='删除')
+    await deleteButtons.at(-1)!.trigger('click');await flushPromises()
+    expect(fixture.writes).toBe(0)
+    expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET','OTHER'])
+    expect(wrapper.text()).toContain('删除目标已变化')
+  })
+  it('rejects an open delete confirmation when refresh replaces the captured row with the same id',async()=>{
+    const fixture=writable(),{wrapper}=await page(),view=fixture.dataSet?.getView('Base_DataSet','catalog')
+    if(!view)throw new Error('catalog DataView was not assembled')
+    await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    const captured=view.selectedRows[0]
+    if(!captured)throw new Error('delete target was not selected')
+    await button(wrapper,'删除').trigger('click');await flushPromises()
+    await view.refresh();await flushPromises()
+    const replacement=view.rows.find(row=>row['rowid']==='TARGET')
+    expect(replacement).toBeDefined();expect(replacement).not.toBe(captured)
+    const deleteButtons=wrapper.findAll('button').filter(item=>item.text()==='删除')
+    await deleteButtons.at(-1)!.trigger('click');await flushPromises()
+    expect(fixture.writes).toBe(0)
+    expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET'])
+    expect(wrapper.text()).toContain('删除目标已变化')
+  })
   it('keeps the native 90A catalogApps view required by the catalog host',async()=>{
     const pagedata:unknown=JSON.parse(readFileSync(resolve(process.cwd(),'config/pages/data-platform/data-space-catalog/pagedata.json'),'utf8'))
     expect(pagedata).toMatchObject({tables:{Base_AppSystemList:{views:{catalogApps:{autoLoad:false}}}}})
@@ -316,6 +376,18 @@ describe('catalog navigation bindings and API information',()=>{
     navigation();const execute=executeQuery.getMockImplementation()!
     executeQuery.mockImplementation(async(view:DataView,...args:unknown[])=>view.viewId==='catalogBindingAncestors'?context(view,[parent,leaf],{count:false}):execute(view,...args))
     const value=await selected();await expect(value.queryBindings()).rejects.toThrow('总数');expect(value.bindings).toBeUndefined()
+  })
+  it('rejects a truncated all-pages ancestor response instead of publishing a partial path set',async()=>{
+    const rows=[parent,...Array.from({length:501},(_,index)=>({...leaf,rowid:`LEAF-${String(index).padStart(3,'0')}`}))]
+    const target=rows[1]!
+    executeQuery.mockImplementation(async(view:DataView)=>view.tableName==='Base_NavigationInfo'
+      ?context(view,view.viewId==='catalogBindingAncestors'?rows.slice(0,-1):[target],
+        {total:view.viewId==='catalogBindingAncestors'?rows.length:1})
+      :context(view,defaults[view.tableName]??[]))
+    const value=await selected();await expect(value.queryBindings()).rejects.toThrow('完整')
+    expect(value.bindings).toBeUndefined()
+    const ancestorCall=calls('Base_NavigationInfo').find(([view])=>view.viewId==='catalogBindingAncestors')!
+    expect(ancestorCall?.[1]).toMatchObject({allPages:true,maxRows:50000})
   })
   it('does not publish delayed bindings after close',async()=>{
     navigation();const execute=executeQuery.getMockImplementation()!,value=await selected()

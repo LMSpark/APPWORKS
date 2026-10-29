@@ -129,7 +129,7 @@ const creatingVersion = ref(false)
 const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || props.state.pageIoBusy.value)
 let versionRevision = 0
 let disposed = false
-onBeforeUnmount(() => { const pageId=props.state.activePageId.value;if(pageId)props.state.releasePageToolFileDataView(pageId);ruleDataView.value=undefined;disposed = true; versionRevision++; fileViewRevision++; sparkRemove(SparkComponent.PAGE_RUNTIME) })
+onBeforeUnmount(() => {ruleDataView.value=undefined;disposed = true; versionRevision++; fileViewRevision++; sparkRemove(SparkComponent.PAGE_RUNTIME) })
 const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
@@ -189,7 +189,6 @@ watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value],async([p
   }catch(error){if(current===fileViewRevision)fileViewError.value=error instanceof Error?error.message:String(error)}
   finally{if(current===fileViewRevision)ruleDataViewLoading.value=false}
 },{immediate:true})
-watch(()=>props.state.activePageId.value,(pageId,previousPageId)=>{if(previousPageId&&previousPageId!==pageId)props.state.releasePageToolFileDataView(previousPageId)})
 
 function isCodeFile(name: string): boolean {
   return name.endsWith('.js') || name.endsWith('.css')
@@ -205,7 +204,13 @@ function saveFile() {
 
 async function refreshFile() {
   const pageId=props.state.activePageId.value
-  if(pageId&&resolvedActiveFile.value==='rule.json')props.state.cancelPageToolFileDataView({pageId,fileName:'rule.json'})
+  if(pageId&&resolvedActiveFile.value==='rule.json'&&ruleDataView.value){
+    const view=ruleDataView.value,row=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']==='rule.json'),id=row&&view.getPkKey(row)
+    if(view.hasUnconfirmedSave){fileViewError.value='原文件提交仍待核验，暂不能取消';return}
+    if(id!==undefined&&view.dirtyTracking.hasPendingChanges(id))view.discardPendingChanges([id])
+    const baseline=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']==='rule.json')
+    if(typeof baseline?.['text']==='string')props.state.project.writePageFile({pageId,fileName:'rule.json',text:baseline['text']})
+  }
   try{
     await fileEditor.refresh()
     if(pageId&&resolvedActiveFile.value==='rule.json'){
@@ -309,7 +314,6 @@ async function createVersion() {
   const selectedNode = props.state.selectedNode.value
   const nodeId = selectedNode?.nodeId
   const navigationTarget = selectedNode?.navigation?.target
-  const customPath = `${projectId}/${pageId}`
   creatingVersion.value = true
   try {
     await fileEditor.save()
@@ -321,8 +325,12 @@ async function createVersion() {
     }
     assertCurrent()
     if (fileEditor.isFileDirty(fileName)) throw new Error('保存期间文件已修改，请先保存最新修改')
-    const text = fileEditor.text.value
-    await props.state.createPageToolSnapshot({pageId, customPath, fileName, text, assertCurrent})
+    const view=await props.state.loadPageToolFileDataView({pageId,fileName})
+    assertCurrent()
+    const receipt=await view.createSourceVersion()
+    assertCurrent()
+    if(receipt.state!=='confirmed')throw new Error('来源未确认快照回执')
+    view.acknowledgeSourceHistoryAttempt()
     props.state.addStatus(`${fileName} 已创建新版本快照`, 'success')
     if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()
   } catch (e) {

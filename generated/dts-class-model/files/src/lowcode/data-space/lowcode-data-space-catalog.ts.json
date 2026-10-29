@@ -164,7 +164,11 @@
         },
         "method.deleteSelected.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "row": {
+              "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
           "additionalProperties": false
         },
         "method.deleteSelected.return": {
@@ -254,7 +258,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T00:16:12.857Z",
+  "generatedAt": "2026-10-29T06:19:13.195Z",
   "models": {
     "LowcodeDataSpaceCatalog": {
       "name": "LowcodeDataSpaceCatalog",
@@ -428,7 +432,15 @@
             {
               "name": "deleteSelected",
               "jsdoc": "先核空间下的模型数，再经原DataView暂存删除并由DataSet提交；不级联删除其他记录或场景文件。",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

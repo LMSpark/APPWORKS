@@ -211,7 +211,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T05:16:21.541Z",
+  "generatedAt": "2026-10-29T06:43:20.186Z",
   "models": {
     "PageDesignAiRunOptions": {
       "name": "PageDesignAiRunOptions",
@@ -293,7 +293,7 @@
       "jsdoc": "Page Design Ai Run Command 的命令参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前活跃PageToolFilesDataView保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}",
+        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -302,7 +302,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前活跃PageToolFilesDataView保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}"
+            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n    /** DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。 */\n    savePageFile?: (pageId: string, name: PageToolFileName, text: string) => Promise<void>;\n}"
           }
         ],
         "members": {
@@ -371,7 +371,7 @@
           "methods": [
             {
               "name": "savePageFile",
-              "jsdoc": "DevSystem当前活跃PageToolFilesDataView保存入口；autoSave时必需。",
+              "jsdoc": "DevSystem当前 PageTool 文件 DataView 保存入口；autoSave时必需。",
               "parameters": [
                 {
                   "name": "pageId",

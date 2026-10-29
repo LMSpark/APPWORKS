@@ -794,29 +794,17 @@
           "type": "object",
           "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; discardPending?: boolean; }) => Promise<DataView>"
         },
-        "releasePageToolFileDataView": {
-          "type": "object",
-          "title": "(pageId: string) => void"
-        },
         "stagePageToolFileDataView": {
           "type": "object",
           "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; text: string; }) => void"
         },
-        "cancelPageToolFileDataView": {
-          "type": "object",
-          "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; }) => void"
-        },
         "restorePageToolVersion": {
           "type": "object",
-          "title": "(input: Omit<PageToolRestoreInput, \"baselineText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
+          "title": "(input: Omit<PageToolRestoreInput, \"baselineText\" | \"sourceText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
         },
         "loadNavigationDictionaryOptions": {
           "type": "object",
           "title": "() => Promise<void>"
-        },
-        "createPageToolSnapshot": {
-          "type": "object",
-          "title": "(input: PageToolSnapshotInput) => Promise<PageToolSnapshotResult>"
         },
         "editor": {
           "$ref": "../../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
@@ -1018,12 +1006,9 @@
         "loadBlueprintWorkspaceDataView",
         "savePageToolFile",
         "loadPageToolFileDataView",
-        "releasePageToolFileDataView",
         "stagePageToolFileDataView",
-        "cancelPageToolFileDataView",
         "restorePageToolVersion",
         "loadNavigationDictionaryOptions",
-        "createPageToolSnapshot",
         "editor",
         "project",
         "addStatus",
@@ -1063,7 +1048,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T04:24:57.294Z",
+  "generatedAt": "2026-10-29T06:53:02.662Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

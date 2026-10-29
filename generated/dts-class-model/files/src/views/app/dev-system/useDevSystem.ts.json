@@ -612,29 +612,17 @@
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
             },
-            "releasePageToolFileDataView": {
-              "type": "object",
-              "title": "(pageId: string) => void"
-            },
             "stagePageToolFileDataView": {
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; text: string; }) => void"
             },
-            "cancelPageToolFileDataView": {
-              "type": "object",
-              "title": "(input: { pageId: string; fileName: PageToolFileName; }) => void"
-            },
             "restorePageToolVersion": {
               "type": "object",
-              "title": "(input: Omit<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolRestoreInput, \"baselineText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
+              "title": "(input: Omit<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolRestoreInput, \"baselineText\" | \"sourceText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
             },
             "loadNavigationDictionaryOptions": {
               "type": "object",
               "title": "() => Promise<void>"
-            },
-            "createPageToolSnapshot": {
-              "type": "object",
-              "title": "(input: import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolSnapshotInput) => Promise<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolSnapshotResult>"
             },
             "editor": {
               "type": "object",
@@ -838,12 +826,9 @@
             "loadBlueprintWorkspaceDataView",
             "savePageToolFile",
             "loadPageToolFileDataView",
-            "releasePageToolFileDataView",
             "stagePageToolFileDataView",
-            "cancelPageToolFileDataView",
             "restorePageToolVersion",
             "loadNavigationDictionaryOptions",
-            "createPageToolSnapshot",
             "editor",
             "project",
             "addStatus",

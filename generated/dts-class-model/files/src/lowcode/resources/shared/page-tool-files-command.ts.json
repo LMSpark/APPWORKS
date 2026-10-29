@@ -7,13 +7,11 @@
     "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/shared/page-tool-files-command",
-    "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolSnapshotInput, PageToolSnapshotResult, PageToolRestoreInput, PageToolFilesDataView（共 4 个 symbol）。",
+    "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolRestoreInput, PageToolFileCommands（共 2 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
-      "PageToolSnapshotInput",
-      "PageToolSnapshotResult",
       "PageToolRestoreInput",
-      "PageToolFilesDataView"
+      "PageToolFileCommands"
     ]
   },
   "$defs": {
@@ -130,62 +128,6 @@
         }
       }
     },
-    "PageToolSnapshotInput": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageToolSnapshotInput",
-      "properties": {
-        "pageId": {
-          "type": "string"
-        },
-        "customPath": {
-          "type": "string"
-        },
-        "fileName": {
-          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
-        },
-        "text": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true,
-        "method.onAttempt.params": {
-          "type": "object",
-          "properties": {
-            "result": {
-              "$ref": "#/$defs/PageToolSnapshotResult"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.onAttempt.return": true
-      }
-    },
-    "PageToolSnapshotResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageToolSnapshotResult",
-      "properties": {
-        "version": {
-          "type": "number"
-        },
-        "fileName": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "version",
-        "fileName"
-      ],
-      "additionalProperties": false
-    },
     "PageToolRestoreInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -204,6 +146,9 @@
           "type": "number"
         },
         "baselineText": {
+          "type": "string"
+        },
+        "sourceText": {
           "type": "string"
         }
       },
@@ -366,50 +311,12 @@
         }
       }
     },
-    "PageToolFileSaveInput": {
+    "PageToolFileCommands": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "PageToolFileSaveInput",
-      "properties": {
-        "page": {
-          "$ref": "../../../../packages/spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
-        },
-        "fileName": {
-          "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
-        },
-        "text": {
-          "type": "string"
-        },
-        "revision": {
-          "type": "number"
-        },
-        "requireActive": {
-          "type": "boolean"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true
-      }
-    },
-    "PageToolFilesDataView": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "PageToolFilesDataView",
+      "title": "PageToolFileCommands",
       "properties": {
         "view": {
-          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "ownerDataSet": {
-          "type": "object",
-          "title": "DataSet"
-        },
-        "saveView": {
           "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "directoryView": {
@@ -422,9 +329,6 @@
           "type": "boolean"
         },
         "hasUnconfirmedSave": {
-          "type": "boolean"
-        },
-        "hasPendingFileSave": {
           "type": "boolean"
         },
         "hasPendingPageDelete": {
@@ -459,108 +363,14 @@
         "method.rebindScope.params": {
           "type": "object",
           "properties": {
-            "input": {
+            "assertCurrent": {
               "type": "object",
-              "properties": {
-                "assertCurrent": {
-                  "type": "object",
-                  "title": "() => void"
-                },
-                "assertPendingFileSavePage": {
-                  "type": "object",
-                  "title": "(page: PageTool, fileName: PageToolFileName, requireActive: boolean) => void"
-                }
-              },
-              "required": [
-                "assertCurrent"
-              ],
-              "additionalProperties": false
+              "title": "() => void"
             }
           },
           "additionalProperties": false
         },
         "method.rebindScope.return": true,
-        "method.savePageFile.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/PageToolFileSaveInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.savePageFile.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.getPageFileDataView.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.getPageFileDataView.return": {
-          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "method.releasePageFileDataView.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.releasePageFileDataView.return": {
-          "type": "boolean"
-        },
-        "method.loadPageFileDataView.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            },
-            "fileName": {
-              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
-            },
-            "discardPending": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.loadPageFileDataView.return": {
-          "type": "object",
-          "title": "Promise<DataView>"
-        },
-        "method.preparePageFileDataViewSave.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/PageToolFileSaveInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.preparePageFileDataViewSave.return": true,
-        "method.cancelPageFileDataView.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            },
-            "fileName": {
-              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.cancelPageFileDataView.return": {
-          "type": "string"
-        },
         "method.create.params": {
           "type": "object",
           "properties": {
@@ -625,19 +435,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.createSnapshot.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/PageToolSnapshotInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.createSnapshot.return": {
-          "type": "object",
-          "title": "Promise<PageToolSnapshotResult>"
-        },
         "method.restoreVersion.params": {
           "type": "object",
           "properties": {
@@ -679,21 +476,6 @@
         "method.hasPendingCommandForParent.return": {
           "type": "boolean"
         },
-        "method.hasUnconfirmedPageFile.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            },
-            "fileName": {
-              "$ref": "../../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.hasUnconfirmedPageFile.return": {
-          "type": "boolean"
-        },
         "method.pendingCommandForParent.params": {
           "type": "object",
           "properties": {
@@ -730,20 +512,11 @@
         "method.save.return": {
           "type": "object",
           "title": "Promise<void>"
-        },
-        "method.savePageFiles.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.savePageFiles.return": {
-          "type": "object",
-          "title": "Promise<void>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-29T04:50:03.399Z",
+  "generatedAt": "2026-10-29T06:51:08.262Z",
   "models": {
     "PageToolFileUploadCommand": {
       "name": "PageToolFileUploadCommand",
@@ -964,119 +737,16 @@
         }
       }
     },
-    "PageToolSnapshotInput": {
-      "name": "PageToolSnapshotInput",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */\n    pageId: string;\n    /** 由当前导航 DataView 解析并经应用范围校验的文件目录。 */\n    customPath: string;\n    /** 仅允许页面工具三文件之一。 */\n    fileName: PageToolFileName;\n    /** 当前工具编辑器读取的完整文件原文，允许空字符串。 */\n    text: string;\n    /** 在每次异步边界校验页面、节点与请求作用域仍为原目标。 */\n    assertCurrent: () => void;\n    /** 获得版本号且即将提交快照时记录可核验的文件名。 */\n    onAttempt?: (result: PageToolSnapshotResult) => void;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前蓝图工作区中正在交付的页面身份，用于校验命令目标。 */\n    pageId: string;\n    /** 由当前导航 DataView 解析并经应用范围校验的文件目录。 */\n    customPath: string;\n    /** 仅允许页面工具三文件之一。 */\n    fileName: PageToolFileName;\n    /** 当前工具编辑器读取的完整文件原文，允许空字符串。 */\n    text: string;\n    /** 在每次异步边界校验页面、节点与请求作用域仍为原目标。 */\n    assertCurrent: () => void;\n    /** 获得版本号且即将提交快照时记录可核验的文件名。 */\n    onAttempt?: (result: PageToolSnapshotResult) => void;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "pageId",
-              "jsdoc": "当前蓝图工作区中正在交付的页面身份，用于校验命令目标。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "customPath",
-              "jsdoc": "由当前导航 DataView 解析并经应用范围校验的文件目录。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fileName",
-              "jsdoc": "仅允许页面工具三文件之一。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "text",
-              "jsdoc": "当前工具编辑器读取的完整文件原文，允许空字符串。",
-              "readable": true,
-              "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "assertCurrent",
-              "jsdoc": "在每次异步边界校验页面、节点与请求作用域仍为原目标。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            },
-            {
-              "name": "onAttempt",
-              "jsdoc": "获得版本号且即将提交快照时记录可核验的文件名。",
-              "parameters": [
-                {
-                  "name": "result",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolSnapshotResult",
-                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "PageToolSnapshotResult": {
-      "name": "PageToolSnapshotResult",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 经文件目录及原文回读确认的版本号。 */\n    version: number;\n    /** 经回执确认的 version__fileName。 */\n    fileName: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    /** 经文件目录及原文回读确认的版本号。 */\n    version: number;\n    /** 经回执确认的 version__fileName。 */\n    fileName: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "version",
-              "jsdoc": "经文件目录及原文回读确认的版本号。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fileName",
-              "jsdoc": "经回执确认的 version__fileName。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "PageToolRestoreInput": {
       "name": "PageToolRestoreInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    /** 历史原文由正式文件 DataView 的 previewSourceVersion 读取。 */\n    sourceText: string;\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    pageId: string;\n    customPath: string;\n    fileName: PageToolFileName;\n    version: number;\n    baselineText: string;\n    /** 历史原文由正式文件 DataView 的 previewSourceVersion 读取。 */\n    sourceText: string;\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1104,6 +774,12 @@
             },
             {
               "name": "baselineText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceText",
+              "jsdoc": "历史原文由正式文件 DataView 的 previewSourceVersion 读取。",
               "readable": true,
               "writable": false
             }
@@ -1354,64 +1030,9 @@
         }
       }
     },
-    "PageToolFileSaveInput": {
-      "name": "PageToolFileSaveInput",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    /** Whether this save requires the original page to remain the active page. */\n    requireActive?: boolean;\n    assertCurrent: () => void;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    page: PageTool;\n    fileName: PageToolFileName;\n    text: string;\n    revision: number;\n    /** Whether this save requires the original page to remain the active page. */\n    requireActive?: boolean;\n    assertCurrent: () => void;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "page",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fileName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "text",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "revision",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "requireActive",
-              "jsdoc": "Whether this save requires the original page to remain the active page.",
-              "readable": true,
-              "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "assertCurrent",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "PageToolFilesDataView": {
-      "name": "PageToolFilesDataView",
-      "jsdoc": "File resource command owner; page identity and request guard are captured per command.",
+    "PageToolFileCommands": {
+      "name": "PageToolFileCommands",
+      "jsdoc": "PageTool-only file creation/deletion/restoration commands; ordinary reads and saves use DataView directly.",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -1466,16 +1087,6 @@
               "writable": false
             },
             {
-              "name": "ownerDataSet",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "saveView",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "directoryView",
               "readable": true,
               "writable": false
@@ -1496,11 +1107,6 @@
               "writable": false
             },
             {
-              "name": "hasPendingFileSave",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "hasPendingPageDelete",
               "readable": true,
               "writable": false
@@ -1514,166 +1120,28 @@
           "methods": [
             {
               "name": "rebindScope",
-              "jsdoc": "Rebind a parked command owner to a newly acquired same-project DevSystem scope.",
               "parameters": [
                 {
-                  "name": "input",
+                  "name": "assertCurrent",
                   "type": {
-                    "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        assertCurrent: () => void;\n        assertPendingFileSavePage?: (page: PageTool, fileName: PageToolFileName, requireActive: boolean) => void;\n    }"
-                      }
-                    ]
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
                   }
                 }
               ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"
-              }
-            },
-            {
-              "name": "savePageFile",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileSaveInput",
-                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "getPageFileDataView",
-              "jsdoc": "Bind one page's rule-file edit surface to its own view so switching pages retains each DataView draft.",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "DataView"
-              }
-            },
-            {
-              "name": "releasePageFileDataView",
-              "jsdoc": "Release a page editor's view; clean views are destroyed, while pending submissions remain owned for recovery.",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "loadPageFileDataView",
-              "jsdoc": "Load the exact file row into the page-scoped DataView and select it for standard field components.",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName"
-                  }
-                },
-                {
-                  "name": "discardPending",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "boolean"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "DataView"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "preparePageFileDataViewSave",
-              "jsdoc": "Register the PageTool runtime projection and immutable save attempt after the bound DataView field changed.",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileSaveInput",
-                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            },
-            {
-              "name": "cancelPageFileDataView",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName"
-                  }
-                }
-              ],
-              "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "intrinsic",
-                  "name": "string"
-                }
               }
             },
             {
@@ -1798,31 +1266,6 @@
               }
             },
             {
-              "name": "createSnapshot",
-              "jsdoc": "创建发布快照是一个 file DataView 命令。版本号在 owner 内由真实目录计算；上传后同时回读目录与原文，\n失败时保留 DataView 命令行及原版本号，后续保存只核验/接续这条命令。",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolSnapshotInput",
-                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageToolSnapshotResult",
-                    "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts"
-                  }
-                ]
-              }
-            },
-            {
               "name": "restoreVersion",
               "jsdoc": "将版本恢复作为原文件 DataView 命令提交；未知回执只核验原命令。",
               "parameters": [
@@ -1894,29 +1337,6 @@
               }
             },
             {
-              "name": "hasUnconfirmedPageFile",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
               "name": "pendingCommandForParent",
               "parameters": [
                 {
@@ -1943,20 +1363,6 @@
             },
             {
               "name": "save",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "savePageFiles",
               "parameters": [],
               "type": {
                 "type": "reference",

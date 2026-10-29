@@ -497,22 +497,27 @@ rows: DataRow[] = []
   /** 按存储版本身份预览历史原文；内容不替代当前查询结果，恢复须转为定义视图的变更再保存。 */
   async previewSourceVersion(version: string | number): Promise<string> {return this.sourceLifecycle().previewVersion(version)}
 
-  /** 读取原来源owner持有的快照提交状态；scope、文本和file owner不暴露给页面。 */
+  /** 读取原来源适配器持有的快照提交状态；scope、文本和文件适配器状态不暴露给页面。 */
   getSourceHistoryStatus(): DataViewSourceHistoryStatus {return this.sourceLifecycle().historyStatus()}
 
-  /** 只读核验来源owner捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。 */
+  /** 只读核验来源适配器捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。 */
   async verifySourceHistoryAttempt(): Promise<DataViewSourceHistoryStatus> {
     return this.sourceLifecycle().verifyHistoryAttempt()
   }
 
-  /** 核验由同一DataSet文件来源owner持有的正文保存attempt；不会重放原上传。 */
+  /** 历史回执已被页面业务接收后清除适配器待交付标记；不影响来源版本本身。 */
+  acknowledgeSourceHistoryAttempt(): void {this.sourceLifecycle().acknowledgeHistoryAttempt()}
+
+  /** 核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。 */
   async verifySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus> {return this.sourceLifecycle().verifyWriteAttempt()}
 
-  /** 领域结果交付完成后消费已核验的正文保存attempt。 */
+  /** 领域结果交付完成后消费已核验的正文保存适配器attempt。 */
   acknowledgeSourceWriteAttempt(): void {this.sourceLifecycle().acknowledgeWriteAttempt()}
 
-  /** 为已保存且同源视图均干净的资源创建快照；异步编辑、来源切换或释放均拒绝旧操作。 */
-  async createSourceVersion(): Promise<void> {await this.sourceLifecycle().createVersion()}
+  /** 为已保存且同源视图均干净的资源创建快照并返回适配器回执；异步编辑、来源切换或释放均拒绝旧操作。 */
+  async createSourceVersion(onAttempt?: (attempt: DataViewSourceHistoryStatus) => void): Promise<DataViewSourceHistoryStatus> {
+    return this.sourceLifecycle().createVersion(onAttempt)
+  }
 
   /**
    * 再核对已预览的来源并接纳；只在存储核验成功后取消明确指定视图的修改。

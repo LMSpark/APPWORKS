@@ -7,11 +7,11 @@ AI用途：选择原生页面、配置工具或外部链接并检查嵌入能力
 <template>
   <div v-if="state.blueprintDraft.navigation">
     <RendererDivider content-position="left" content="导航目标" />
-    <RendererForm v-if="blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-      <FieldSelect v-if="access('NavigationUrl').read && !customTargetEditing" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationUrl" label="页面或工具" placeholder="搜索已登记页面或工具" :options="targetOptions" :filterable="true" :clearable="true" :readonly="!access('NavigationUrl').write" @update:model-value="state.handlePathChange(String($event))" />
-      <FieldText v-else-if="access('NavigationUrl').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationUrl" label="自定义目标 URL" placeholder="vue:页面路径或外部地址" :readonly="!access('NavigationUrl').write" @update:model-value="state.markBlueprintDirty" />
-      <FieldText v-if="access('MobileUrl').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="MobileUrl" label="移动端目标" :readonly="!access('MobileUrl').write" @update:model-value="state.markBlueprintDirty" />
-      <FieldSelect v-if="access('NavigationType').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationType" label="打开方式" :options="openModeOptions" :readonly="!access('NavigationType').write" :clearable="false" @update:model-value="state.markBlueprintDirty" />
+    <RendererForm v-if="blueprintBindingReady" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldSelect v-if="access('NavigationUrl').read && !customTargetEditing" v-bind="blueprintFieldProps" data-member="currentRow" data-field="NavigationUrl" label="页面或工具" placeholder="搜索已登记页面或工具" :options="targetOptions" :filterable="true" :clearable="true" :readonly="!access('NavigationUrl').write" @update:model-value="state.handlePathChange(String($event))" />
+      <FieldText v-else-if="access('NavigationUrl').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="NavigationUrl" label="自定义目标 URL" placeholder="vue:页面路径或外部地址" :readonly="!access('NavigationUrl').write" @update:model-value="state.markBlueprintDirty" />
+      <FieldText v-if="access('MobileUrl').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="MobileUrl" label="移动端目标" :readonly="!access('MobileUrl').write" @update:model-value="state.markBlueprintDirty" />
+      <FieldSelect v-if="access('NavigationType').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="NavigationType" label="打开方式" :options="openModeOptions" :readonly="!access('NavigationType').write" :clearable="false" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
     <RendererButton v-if="access('NavigationUrl').read" :label="customTargetEditing ? '同步当前工具目标' : '输入自定义目标'" :disabled="!access('NavigationUrl').write" @click="customTargetEditing ? applyCustomTarget() : customTargetEditing = true" />
     <RendererButton v-if="flags.isPage.value || flags.isContent.value" label="创建并绑定当前工具" :disabled="!toolId || !access('NavigationUrl').write || creating" :loading="creating" @click="createTool" />
@@ -21,7 +21,6 @@ AI用途：选择原生页面、配置工具或外部链接并检查嵌入能力
 </template>
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue'
-import {buildDataViewKey} from '@spark-appworks/spark-data'
 import type {DevState} from '../useDevState'
 import {useNodeKindFlags} from '../composables/useNodeKindFlags'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
@@ -33,12 +32,16 @@ const flags=useNodeKindFlags(props.state)
 const creating=ref(false)
 const customTargetEditing=ref(false)
 const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
-const blueprintViewKey=computed(()=>{
-  const view=props.state.blueprintWorkspaceDataView.value?.view
-  const scenarioId=view?.dataSet?.scenarioId
-  const modelName=view?.dataTable?.modelBinding?.modelName
-  return view&&scenarioId&&modelName?buildDataViewKey(modelName,view.viewId,scenarioId):''
+const blueprintComponentBinding=computed(()=>{
+  const owner=props.state.blueprintWorkspaceDataView.value
+  return owner?.projectId===props.state.projectId?owner.standardComponentBinding:undefined
 })
+const blueprintViewKey=computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
+const blueprintDirectSource=computed(()=>blueprintComponentBinding.value?.dataSource)
+const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
+  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintFieldProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
+const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
 const toolId=computed(()=>{
   const target=props.state.blueprintDraft.navigation?.target ?? ''
   return target.startsWith('cfg:')?target.slice(4).trim():''

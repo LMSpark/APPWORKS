@@ -11,11 +11,11 @@ AI用途：检查开发系统主树的正式视图绑定、节点选择与相对
       <RendererButton label="导入项目策划文档" :disabled="state.blueprintLoading.value" @click="state.openProjectPlanningDocumentImportDialog" />
     </div>
 
-    <DisplayEmpty v-if="!viewKey" description="项目蓝图 DataView 尚未就绪" />
+    <DisplayEmpty v-if="!viewBindingReady" description="项目蓝图 DataView 尚未就绪" />
     <RendererTree
       v-else
-      :key="viewKey"
-      :data-view-key="viewKey"
+      :key="viewKey || 'builtin-blueprint-file-view'"
+      v-bind="containerBindingProps"
       node-key="rowid"
       :current-key="selectedNodeId"
       filterable
@@ -29,13 +29,13 @@ AI用途：检查开发系统主树的正式视图绑定、节点选择与相对
       <template #default="{ data }">
         <span class="tree-node">
           <DisplayIcon v-if="isFieldReadable(data, 'NavigationImageWxz')" :icon="String(data.NavigationImageWxz ?? '')" class="node-icon" />
-          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="FunName" :display-fallback-fields="['name']" readonly />
-          <FieldText v-if="isFieldReadable(data, 'conType')" :data-view-key="viewKey" data-member="currentRow" data-field="conType" :display-formatter="formatNodeKind" readonly class="node-tag" />
-          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="NavigationUrl" readonly class="node-path" />
-          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="ChildItemLocation" :display-formatter="formatPlacement" readonly class="node-tag" />
+          <FieldText v-bind="fieldBindingProps" data-member="currentRow" data-field="FunName" :display-fallback-fields="['name']" readonly />
+          <FieldText v-if="isFieldReadable(data, 'conType')" v-bind="fieldBindingProps" data-member="currentRow" data-field="conType" :display-formatter="formatNodeKind" readonly class="node-tag" />
+          <FieldText v-bind="fieldBindingProps" data-member="currentRow" data-field="NavigationUrl" readonly class="node-path" />
+          <FieldText v-bind="fieldBindingProps" data-member="currentRow" data-field="ChildItemLocation" :display-formatter="formatPlacement" readonly class="node-tag" />
           <span class="node-actions">
-            <RendererButton v-if="state.childCreateActionState(String(data.rowid)) === 'enabled'" :data-view-key="viewKey" label="添加子节点" button-size="small" @click="addChildFromRow" />
-            <RendererButton v-if="canDeleteRow(data)" :data-view-key="viewKey" label="删除" button-size="small" button-type="danger" @click="openDeleteFromRow" />
+            <RendererButton v-if="state.childCreateActionState(String(data.rowid)) === 'enabled'" v-bind="fieldBindingProps" label="添加子节点" button-size="small" @click="addChildFromRow" />
+            <RendererButton v-if="canDeleteRow(data)" v-bind="fieldBindingProps" label="删除" button-size="small" button-type="danger" @click="openDeleteFromRow" />
           </span>
         </span>
       </template>
@@ -53,7 +53,7 @@ AI用途：检查开发系统主树的正式视图绑定、节点选择与相对
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { buildDataViewKey, type DataRow } from '@spark-appworks/spark-data'
+import { type DataRow } from '@spark-appworks/spark-data'
 import { DisplayAlert, DisplayEmpty, DisplayIcon, FieldText, RendererButton, RendererDialog, RendererTree } from '@spark-appworks/spark-component'
 import type { DevState } from './useDevState'
 import { formatNavigationPlacementLabel } from './childPlacementLabels'
@@ -62,14 +62,13 @@ const props = defineProps<{ state: DevState }>()
 const state = props.state
 const deletingNodeId = ref('')
 const owner = computed(() => state.blueprintWorkspaceDataView.value)
-const viewKey = computed(() => {
-  const view = owner.value?.view
-  const scenarioId = view?.dataSet?.scenarioId
-  const modelName = view?.dataTable?.modelBinding?.modelName
-  return owner.value?.projectId === state.projectId && view && scenarioId && modelName
-    ? buildDataViewKey(modelName, view.viewId, scenarioId)
-    : ''
-})
+const componentBinding = computed(() => owner.value?.projectId === state.projectId ? owner.value.standardComponentBinding : undefined)
+const viewKey = computed(() => componentBinding.value?.dataViewKey ?? '')
+const directDataSource = computed(() => componentBinding.value?.dataSource)
+const containerBindingProps = computed(() => viewKey.value ? {dataViewKey: viewKey.value}
+  : directDataSource.value ? {dataSource: directDataSource.value} : {})
+const fieldBindingProps = computed(() => viewKey.value ? {dataViewKey: viewKey.value} : {})
+const viewBindingReady = computed(() => Boolean(viewKey.value || directDataSource.value))
 const selectedNodeId = computed(() => state.selectedNode.value?.nodeId ?? null)
 const canAddRoot = computed(() => {
   const current = owner.value

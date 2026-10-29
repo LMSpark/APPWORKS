@@ -261,7 +261,7 @@ describe('BlueprintWorkspace file delivery', () => {
     expect(dataSet.getView('Base_NavigationInfo')?.getEditingPatch('node-A')).toMatchObject({memo:'changed through basic info'})
     expect(wrapper.findAll('button').find(button=>button.text().includes('保存节点修改'))?.attributes('disabled')).toBeUndefined()
     expect(state.registerExternalDataViewSession.mock.calls[0]?.[0].isDirty()).toBe(true)
-    await wrapper.findAllComponents(StandardRenderer).find(button=>button.props('label')==='取消节点修改')!.vm.$emit('click')
+    wrapper.findAllComponents(StandardRenderer).find(button=>button.props('label')==='取消节点修改')!.vm.$emit('click')
     await flushPromises()
     expect(dataSet.getView('Base_NavigationInfo')?.getEditingPatch('node-A')).toBeUndefined()
     expect(state.registerExternalDataViewSession.mock.calls[0]?.[0].isDirty()).toBe(false)
@@ -554,8 +554,7 @@ describe('Blueprint editor owner-view field bindings', () => {
       blueprintDraft:owner.nodeData(),blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),
       blueprintNodeSectionWritable:()=>false,markBlueprintDirty:vi.fn(),notifyExternalDataViewChanged:vi.fn(),
       loadNavigationDictionaryOptions:vi.fn().mockResolvedValue(undefined),pageDataDirty:ref(false)}
-    const expectedKey=buildDataViewKey(owner.view.dataTable?.modelBinding?.modelName??owner.view.tableName,owner.view.viewId,owner.dataSet.scenarioId)
-    const FormProbe=defineComponent({name:'RendererForm',props:['dataViewKey'],template:'<div><slot /></div>'})
+    const FormProbe=defineComponent({name:'RendererForm',props:['dataViewKey','dataSource'],template:'<div><slot /></div>'})
     const FieldProbe=(name:string)=>defineComponent({name,props:['dataViewKey','dataMember','dataField'],template:'<span />'})
     const Host=defineComponent({setup(){useSparkComponent({type:'builtin-owner-field-binding-host'}).sparkProvide(PAGE_RUNTIME,runtime)
       return()=>h('div',[h(NodeBasicInfo,{state:state as never,sections:['capability']}),h(NodeStateConfig,{state:state as never})])}})
@@ -569,10 +568,11 @@ describe('Blueprint editor owner-view field bindings', () => {
       expect(owner.view.tableName).toBe(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)
       expect(owner.value('name')).toBe(node.name)
       expect(dataSet.getView('Base_NavigationInfo','default')?.currentRow?.['name']).toBe('DB-conflict-name')
-      expect(wrapper.getComponent(FormProbe).props('dataViewKey')).toBe(expectedKey)
-      expect(wrapper.findAllComponents({name:'FieldText'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
-      expect(wrapper.findAllComponents({name:'FieldTextarea'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
-      expect(wrapper.findAllComponents({name:'FieldSelect'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
+      expect(wrapper.getComponent(FormProbe).props('dataSource')).toBe(owner.view)
+      expect(wrapper.getComponent(FormProbe).props('dataViewKey')).toBeUndefined()
+      expect(wrapper.findAllComponents({name:'FieldText'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldTextarea'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldSelect'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
     }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })
 })

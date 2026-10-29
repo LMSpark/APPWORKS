@@ -5,17 +5,16 @@
 AI用途：仅在模块节点配置子项布局。
 -->
 <template>
-  <div v-if="flags.isModule.value && state.blueprintDraft.navigation && blueprintViewKey">
+  <div v-if="flags.isModule.value && state.blueprintDraft.navigation && blueprintBindingReady">
     <RendererDivider content-position="left" content="布局配置" />
-    <RendererForm :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-      <FieldRadio v-if="access('ChildItemLocation').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="ChildItemLocation" label="子项布局" :options="placementOptions" :button-style="true" :readonly="!access('ChildItemLocation').write" @update:model-value="state.markBlueprintDirty" />
+    <RendererForm v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldRadio v-if="access('ChildItemLocation').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="ChildItemLocation" label="子项布局" :options="placementOptions" :button-style="true" :readonly="!access('ChildItemLocation').write" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
   </div>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {buildDataViewKey} from '@spark-appworks/spark-data'
 import type {DevState} from '../useDevState'
 import {useNodeKindFlags} from '../composables/useNodeKindFlags'
 import * as SparkComponent from '@spark-appworks/spark-component'
@@ -25,12 +24,16 @@ const props=defineProps<{state:DevState}>()
 const state=props.state
 const flags=useNodeKindFlags(state)
 const access=(field:string)=>state.blueprintNodeFieldAccess(field)
-const blueprintViewKey=computed(()=>{
-  const view=state.blueprintWorkspaceDataView.value?.view
-  const scenarioId=view?.dataSet?.scenarioId
-  const modelName=view?.dataTable?.modelBinding?.modelName
-  return view&&scenarioId&&modelName?buildDataViewKey(modelName,view.viewId,scenarioId):''
+const blueprintComponentBinding=computed(()=>{
+  const owner=state.blueprintWorkspaceDataView.value
+  return owner?.projectId===state.projectId?owner.standardComponentBinding:undefined
 })
+const blueprintViewKey=computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
+const blueprintDirectSource=computed(()=>blueprintComponentBinding.value?.dataSource)
+const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
+  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintFieldProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
+const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
 const placementOptions=[
   {value:'Top',label:'顶部'},
   {value:'Left',label:'左侧'},

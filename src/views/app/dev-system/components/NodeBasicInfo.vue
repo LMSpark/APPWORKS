@@ -8,37 +8,37 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
   <div>
     <template v-if="includes('capability')">
     <RendererDivider content-position="left" content="能力信息" />
-    <RendererForm v-if="blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-      <FieldText :data-view-key="blueprintViewKey" data-member="currentRow" data-field="rowid" label="节点 ID" readonly />
-      <FieldText v-if="access('name').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="name" label="能力名称" :readonly="!access('name').write" @update:model-value="state.markBlueprintDirty" />
-      <FieldTextarea v-if="access('memo').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="memo" label="功能描述" :autosize="{minRows:4,maxRows:12}" :readonly="!access('memo').write" @update:model-value="state.markBlueprintDirty" />
+    <RendererForm v-if="blueprintBindingReady" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldText v-bind="blueprintFieldProps" data-member="currentRow" data-field="rowid" label="节点 ID" readonly />
+      <FieldText v-if="access('name').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="name" label="能力名称" :readonly="!access('name').write" @update:model-value="state.markBlueprintDirty" />
+      <FieldTextarea v-if="access('memo').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="memo" label="功能描述" :autosize="{minRows:4,maxRows:12}" :readonly="!access('memo').write" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
-    <RendererForm v-if="blueprintViewKey && access('conType').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-      <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="conType" label="业务种类" :options="kindOptions" :clearable="false" :readonly="!access('conType').write" @update:model-value="state.markBlueprintDirty" />
+    <RendererForm v-if="blueprintBindingReady && access('conType').read" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldSelect v-bind="blueprintFieldProps" data-member="currentRow" data-field="conType" label="业务种类" :options="kindOptions" :clearable="false" :readonly="!access('conType').write" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
     </template>
     <template v-if="includes('navigation')">
     <RendererButton v-if="state.blueprintNodeFieldAccess('FunName').read" :label="state.blueprintDraft.navigation ? '移除导航配置' : '提供导航'" :disabled="!state.blueprintNodeSectionWritable('navigation')" @click="toggleNavigation" />
     <template v-if="state.blueprintDraft.navigation">
       <RendererDivider content-position="left" content="导航信息" />
-      <RendererForm v-if="blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-        <FieldText v-if="access('FunName').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="FunName" label="菜单标题" :readonly="!access('FunName').write" @update:model-value="state.markBlueprintDirty" />
-        <FieldText v-if="includes('navigation-target') && access('NavigationUrl').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationUrl" label="工具或页面目标" :readonly="!access('NavigationUrl').write" @update:model-value="state.handlePathChange(String($event))" />
+      <RendererForm v-if="blueprintBindingReady" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+        <FieldText v-if="access('FunName').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="FunName" label="菜单标题" :readonly="!access('FunName').write" @update:model-value="state.markBlueprintDirty" />
+        <FieldText v-if="includes('navigation-target') && access('NavigationUrl').read" v-bind="blueprintFieldProps" data-member="currentRow" data-field="NavigationUrl" label="工具或页面目标" :readonly="!access('NavigationUrl').write" @update:model-value="state.handlePathChange(String($event))" />
       </RendererForm>
-      <RendererForm v-if="blueprintViewKey && access('NavigationImageWxz').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-        <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationImageWxz" label="图标" :options="iconOptions" :filterable="true" :clearable="true" :readonly="!access('NavigationImageWxz').write" @update:model-value="state.markBlueprintDirty" />
+      <RendererForm v-if="blueprintBindingReady && access('NavigationImageWxz').read" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+        <FieldSelect v-bind="blueprintFieldProps" data-member="currentRow" data-field="NavigationImageWxz" label="图标" :options="iconOptions" :filterable="true" :clearable="true" :readonly="!access('NavigationImageWxz').write" @update:model-value="state.markBlueprintDirty" />
       </RendererForm>
     </template>
     </template>
     <template v-if="includes('data-space')">
     <RendererDivider content-position="left" content="数据空间" />
-    <div v-if="access('conid').read" class="scene-binding-control">
-        <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="conid"
+    <RendererForm v-if="blueprintBindingReady && access('conid').read" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" class="scene-binding-control">
+        <FieldSelect v-bind="blueprintFieldProps" data-member="currentRow" data-field="conid"
           label="绑定场景" :option-data-view-key="catalogViewKey" option-value-field="rowid" option-label-field="Name"
           :readonly="true" :clearable="false" />
         <RendererButton :label="state.blueprintDraft.dataSpace?.scenarioId ? '更换场景' : '选择场景'"
           :disabled="!canChooseScene" @click="openScenePicker" />
-    </div>
+    </RendererForm>
     <DisplayAlert v-else title="当前查询没有返回 conid 字段或读取权限" alert-type="error" />
     <DisplayAlert v-if="catalogError" :description="catalogError" alert-type="error" />
     <RendererDialog v-if="catalogOpen" :model-value="true" :data-view-key="catalogViewKey"
@@ -58,8 +58,8 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
     </template>
     <template v-if="includes('prototype')">
     <RendererButton v-if="access('htmlDesc').read" :label="state.blueprintDraft.prototype ? '移除原型描述' : '提供原型描述'" :disabled="!access('htmlDesc').write" @click="togglePrototype" />
-    <RendererForm v-if="state.blueprintDraft.prototype && access('htmlDesc').read && blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
-      <FieldTextarea :data-view-key="blueprintViewKey" data-member="currentRow" data-field="htmlDesc" label="原型描述" :autosize="{minRows:6,maxRows:12}" :readonly="!access('htmlDesc').write" @update:model-value="state.markBlueprintDirty" />
+    <RendererForm v-if="state.blueprintDraft.prototype && access('htmlDesc').read && blueprintBindingReady" v-bind="blueprintContainerProps" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldTextarea v-bind="blueprintFieldProps" data-member="currentRow" data-field="htmlDesc" label="原型描述" :autosize="{minRows:6,maxRows:12}" :readonly="!access('htmlDesc').write" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
     </template>
   </div>
@@ -75,12 +75,16 @@ import {getBuiltinScenarioResource} from '@/registries/builtin-application-regis
 const {DisplayAlert, FieldSelect, FieldText, FieldTextarea, RendererForm, RendererButton, RendererDialog, RendererFilter, RendererTable, RendererDivider} = SparkComponent
 const CATALOG_SCENARIO_ID = getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
 const catalogViewKey = buildDataViewKey('Base_DataSet', 'catalog', CATALOG_SCENARIO_ID)
-const blueprintViewKey = computed(()=>{
-  const view=props.state.blueprintWorkspaceDataView.value?.view
-  const scenarioId=view?.dataSet?.scenarioId
-  const modelName=view?.dataTable?.modelBinding?.modelName
-  return view&&scenarioId&&modelName?buildDataViewKey(modelName,view.viewId,scenarioId):''
+const blueprintComponentBinding = computed(()=>{
+  const owner=props.state.blueprintWorkspaceDataView.value
+  return owner?.projectId===props.state.projectId?owner.standardComponentBinding:undefined
 })
+const blueprintViewKey = computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
+const blueprintDirectSource = computed(()=>blueprintComponentBinding.value?.dataSource)
+const blueprintContainerProps = computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
+  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintFieldProps = computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
+const blueprintBindingReady = computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
 /** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */
 type Section = 'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'
 const props = defineProps<{state:DevState;sections?:readonly Section[]}>()

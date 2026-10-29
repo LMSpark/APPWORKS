@@ -4,7 +4,7 @@
  * 边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。
  * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
-import {DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
@@ -160,6 +160,18 @@ export class BlueprintWorkspaceDataView {
   }
 
   public get projectId(): string {return this.#projectId}
+  /** Standard component binding for this owner: formal model key, or the exact trusted local-file DataView. */
+  public get standardComponentBinding(): Readonly<{dataViewKey?: string; dataSource?: DataView}> {
+    const scenarioId=this.view.dataSet?.scenarioId
+    const modelName=this.view.dataTable?.modelBinding?.modelName
+    if(scenarioId&&modelName)return {dataViewKey:buildDataViewKey(modelName,this.view.viewId,scenarioId)}
+    if(this.#readOnlySource&&scenarioId===LOWCODE_APPLICATION_CATALOG_FORM_KEY
+      &&this.view.tableName===BUILTIN_BLUEPRINT_NODE_TABLE_NAME
+      &&this.view.dataTable?.resourceType==='file'
+      &&this.view.dataTable.resourceId===BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
+      &&!this.view.dataTable.modelBinding)return {dataSource:this.view}
+    return {}
+  }
   /** Rebind the parked owner to a newly acquired same-project DevSystem scope. */
   public rebindScope(assertCurrent: () => void): void {
     if (this.#disposed) throw new Error('蓝图 DataView owner 已释放，不能重新绑定作用域')

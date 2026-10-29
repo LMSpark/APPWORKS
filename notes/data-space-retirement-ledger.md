@@ -3632,3 +3632,9 @@ flowchart TD
 - **GREEN：**恢复仓内当前 `applicationPrefix` 行为后，该精确回归及 `database-directory-page.test.ts` 整文件通过；ESLint 对该测试文件通过。覆盖当前前端 `projectId` 应用路由合同，未修改产品代码或后端。
 - **DevSystem 测试夹具：**当前实现下先运行数据库目录、DevSystem 头部保存与导航宿主项目选择器三文件；发现项目选择器两条断言仍要求 `{tenantId, projectId}`，实际 `openEditingProject` 合同只提交 `{projectId}`。移除这两份前端状态夹具中的 `tenantId`，并同步精确断言；头部保存 fixture 的 `projectPicker` 也只保留 `projectId`。没有更改认证 principal 或 SPARK API 服务端合同夹具。
 - **验证：**上述三文件合跑 43/43 通过；三个测试文件 ESLint `--max-warnings=0` 通过。数据库目录应用路径回归先前以旧租户前缀实现 RED，当前实现 GREEN。
+
+### 2026-10-29 projectId-only 切片复核与提交
+
+- **完整受影响回归：**数据库目录、DevSystem 头部保存、导航宿主项目选择、应用路径解析、路由守卫、应用切换与表视图旧别名 7 files / 82 tests 通过；正式 ClassModel 生成成功（991 DTS / 2049 symbols / 1642 entries），`pnpm run typecheck`、`pnpm run lint`、`pnpm run verify:rules` 和 `pnpm run build` 均退出 0。规则扫描保留 AI model spec 2 warnings / 1 info；构建保留既有 vendor PURE annotation、chunk size 和 CodeMirror dynamic import 提示。
+- **提交：**仅将应用路径前缀修正、三份前端 projectId-only 测试和本台账组成提交 `45ef2883a`，已推送 `origin/codex/ai-data-entry`；其他既有未提交工作未纳入该提交。
+- **真实 SPA 当前观察：**本轮用户回复已登录，但 Codex 可见的 Chrome 仍为新标签；在 IAB 打开 `http://127.0.0.1:5273/apps/homepage/app-list` 后被重定向到 `/`，再打开登录入口看到账号登录表单。这证明当前 IAB 会话尚未认证，不能读取真实导航树或 cfg 三文件；已将登录表单保留为交接标签，未输入或传输凭据。

@@ -110,7 +110,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     }], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
     runtimeState.projectView = dataView([{rowid: 'candidate', code: 'PROJECT-X', name: 'Candidate', parent: ''}])
     const hostView = runtimeState.hostView
-    const state = {projectId: getBuiltinApplicationDescriptor().id, tenantId: 'tenant-a', openEditingProject: vi.fn()}
+    const state = {projectId: getBuiltinApplicationDescriptor().id, openEditingProject: vi.fn()}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     try {
       await flushPromises()
@@ -128,7 +128,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
     runtimeState.hostView.refresh.mockRejectedValue(new Error('relation query failed'))
     runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
-    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn()}
+    const state = {projectId: 'project-current', openEditingProject: vi.fn()}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     try {
       await flushPromises()
@@ -150,7 +150,7 @@ describe('NavHost project picker hierarchy rendering', () => {
       {rowid: 'row-p', code: 'P', name: 'Parent', parent: ''},
       {rowid: 'row-c', code: 'C', name: 'Child', parent: 'P'},
     ])
-    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const state = {projectId: 'project-current', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
     const entry = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')
@@ -179,7 +179,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     expect(openButton, wrapper.html()).toBeTruthy()
     await openButton!.trigger('click')
     await flushPromises()
-    expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'C'})
+    expect(state.openEditingProject).toHaveBeenCalledWith({projectId: 'C'})
     const cancel = wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '取消')
     expect(cancel).toBeTruthy()
     await cancel!.trigger('click')
@@ -206,7 +206,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.hostView = dataView([{rowid: 'rel-1', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project', ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: ''}], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
     runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
     runtimeState.projectView.queryConfig = {pageSize: 20}
-    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const state = {projectId: 'project-current', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
     await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')
@@ -229,7 +229,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     runtimeState.projectView = dataView([{rowid: 'row-p', code: 'P', name: 'Parent'}])
     runtimeState.projectView.total = 1335
     runtimeState.projectView.queryConfig = {pageSize: 20}
-    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const state = {projectId: 'project-current', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
     await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')
@@ -241,7 +241,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     await button.trigger('click')
     await flushPromises()
     expect(runtimeState.projectView.queryOptionRows).toHaveBeenCalledWith(expect.objectContaining({fields: ['rowid', 'code', 'name']}))
-    expect(state.openEditingProject).toHaveBeenCalledWith({tenantId: 'tenant-a', projectId: 'P'})
+    expect(state.openEditingProject).toHaveBeenCalledWith({projectId: 'P'})
     wrapper.unmount()
   })
 
@@ -253,7 +253,7 @@ describe('NavHost project picker hierarchy rendering', () => {
     const view = runtimeState.projectView
     let finish!: (rows: any[]) => void
     view.queryOptionRows.mockImplementationOnce(() => new Promise(resolve => {finish = resolve}))
-    const state = {projectId: 'project-current', tenantId: 'tenant-a', openEditingProject: vi.fn().mockResolvedValue(true)}
+    const state = {projectId: 'project-current', openEditingProject: vi.fn().mockResolvedValue(true)}
     const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}})
     await flushPromises()
     await wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '切换项目')!.trigger('click')

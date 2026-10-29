@@ -67,11 +67,11 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function open(identity: Record<string, unknown> = {systemPageIdentityHost: true, systemPageIdentityState: 'resolved', nodeId: directoryNode.id}): Promise<VueWrapper> {
+async function open(identity: Record<string, unknown> = {systemPageIdentityHost: true, systemPageIdentityState: 'resolved', nodeId: directoryNode.id}, routePath = '/'): Promise<VueWrapper> {
   const router = createRouter({history: createMemoryHistory(), routes: [
-    {path: '/', component: DatabaseDirectoryPage, meta: {blueprintScenarioId: DATABASE_TABLE_VIEW_SCENARIO_ID, ...identity}},
+    {path: routePath, component: DatabaseDirectoryPage, meta: {blueprintScenarioId: DATABASE_TABLE_VIEW_SCENARIO_ID, ...identity}},
   ]})
-  await router.push('/')
+  await router.push(routePath)
   await router.isReady()
   const wrapper = mount(DatabaseDirectoryPage, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()], provide: {[NAV_KEY as symbol]: navigation}}})
   wrappers.push(wrapper)
@@ -527,6 +527,14 @@ describe('database directory page', () => {
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
     expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`, tableViewNode)
+  })
+
+  it('keeps only the single application prefix when opening a table view from an app route', async () => {
+    const wrapper = await open(undefined, '/apps/APP/DataBaseManage/DataBaseManage/index')
+    await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
+    await pageButton(wrapper, '管理').trigger('click')
+    expect(navigateToPath).toHaveBeenCalledWith('/apps/APP/DataBaseManage/TableAndView?view=main&databaseId=DB1#top', tableViewNode)
+    expect(navigateToPath.mock.calls[0]?.[0]).not.toContain('/t/')
   })
 
   it('resolves a cross-module duplicate only within the current host branch', async () => {

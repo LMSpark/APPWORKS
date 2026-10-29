@@ -3605,3 +3605,30 @@ flowchart TD
 - **修正：**断言解析 JSON 后核对 scenarioId，不改变场景文件合同。同步撤掉目录测试中不满足 DataView 查询结果类型的空文件 executor，改为正式 LOWCODE_FILE_RESOURCE_REGISTRY 的 ProjectToolVersion executor 和 BuiltinBlueprintNodeResource executor；项目/蓝图模型 ID 按各自正式 pagedata 绑定。
 - **验证：**目录、系统场景 gateway、动态路由、cfg 导航与工具/版本 DataView 测试 6 files / 219 tests 通过；pnpm run typecheck、pnpm run verify:rules、pnpm run build 与两处目标测试文件 eslint --max-warnings=0 均退出 0。规则扫描保留既有 AI model spec 2 warnings / 1 info；build 通过并保留既有 CodeMirror dynamic import warnings。仅测试和台账变化，没有公开 ClassModel/API 声明变化，本片未重跑生成器。
 - **范围：**cfg 正式映射的源码/离线合同已有证据；动态 cfg 项目的真实工作文件、三个发布快照和 VersionId 持久回读仍缺 SPA 证据。本轮 CUA 无已登录标签，不把单测当作真实 SPA 验收。
+
+### 2026-10-29 前端应用身份再次纠偏
+
+- **用户要求：**前端不考虑租户。前端页面/路由/项目工作区身份只用 `projectId`；服务端认证传输层既有合同不混入应用身份。
+- **修正：**`src/App.vue` 在构造 `/apps/{projectId}/...` 纠正路径时，移除对 `principal.enterpriseName` 的错误依赖；DevSystem 清除已无对应控件的租户选择器样式。既有工作树已删除 `/t/{tenant}/{projectId}` 路由与租户工作区键。
+- **验证范围：**本次仅做源码与差异核对，未运行测试；完整应用身份回归结果见本台账前述记录。
+
+### 2026-10-29 历史闭环现状与当前工作树复核
+
+- **历史真实 SPA 证据复核：**`notes/evidence/repository-scenario-history-20261029/spa-history-first-smoke-partial.json` 记录正式列表、预览、快照 1 创建、快照 2 响应丢失后同 attempt 重开及原编号/原文只读核验、恢复为未落盘草稿、目标切换；补跑 `spa-history-corrected-smoke.json` 将撤销/重做、恢复草稿后的显式保存、重新打开和保留历史全部记录为 pass。主控与单一写者复核当前变更：本地 `useDevState.ts`、`lowcode-runtime.ts` 改动不涉及历史写入链，`DevDataSetDesigner.vue` 新增面板重挂载/重载锁逻辑有当前单测覆盖。历史基线源 SHA 不是当前完整源码证明，旧 target-switch 不覆盖当前的应用路由 WIP。
+- **当前回归：**历史相关 6 个轻量文件合计 388 项通过（场景文件 198、定义资源 73、运行时 56、DevSystem 历史 26、设计器投影 1、仓内历史宿主/资源 34）；builtin/蓝图、cfg 导航和三文件资源 5 个文件 121 项通过；应用路径/路由/切换 4 个文件 37 项通过。整仓正式 ClassModel 生成成功（991 DTS / 2049 symbols / 1642 entries）、`pnpm run typecheck`、`pnpm run lint`、`pnpm run verify:rules` 与 `pnpm run build` 均退出 0。规则扫描仍报既有 AI model spec 2 warnings / 1 info；build 保留 vendor PURE annotation、chunk size 与 CodeMirror 动态导入提示。
+- **未通过/未运行项：**5 文件历史合跑因单 worker 超过 5 分钟无用例输出、内存升至约 2.7 GB而中断；其中逐文件回归已通过。单文件 `data-space-design-page.test.ts` 同样因内存持续升至约 1.2 GB 且无结果而中断，不计通过。当前 SPARK SPA 的 5273 端口仍有本地 Vite 服务，但本轮内嵌页与桌面 Chrome 均无已登录会话；CUA 因 Windows 浏览器 URL 可信度错误停止。用授权 DPAPI 凭据启动临时只读 DataView 应用目录发现的尝试被本机执行策略拒绝，脚本未执行、未认证、未发出数据请求，未尝试绕过。
+- **整页定向覆盖：**`data-space-design-page.test.ts` 通过 9 个高价值当前用例：首屏不等待整空间装配；选中模型绑定字段视图按需打开；只保存所选视图；标准图画布布局；7AB ProjectToolVersion 通过定义 DataViews 注册；标准绑定下编辑 API/文件字段/模型关系与过滤参数，并保存后重开。375 项整文件仍未验证；整文件运行在内存快速增长后中断，不能以这 9 项代表全文件通过。
+- **阶段状态：**场景历史 list/preview/create/unknown 核验/草稿恢复与持久保存/重开已有真实 SPA 证据和当前轻量回归，不再列为源码实现缺失；当前路由 WIP 仍缺新 SPA 目标切换证明。builtin 85 节点、D99 及 BE7C 普通动态应用的真实导航树均为 0 cfg；动态 cfg 应用的正式树、工具三文件工作文本与发布 `VersionId` 回读仍未验证。下一步继续从可用的正式只读 DataView/授权 SPA 找真实 cfg 节点；不创建或修改远端业务数据。
+
+### 2026-10-29 应用路径前缀残留修正
+
+- **用户再次纠偏：**前端不考虑租户。页面路径只取 `/apps/{projectId}` 作为应用前缀。
+- **修正：**`DataBaseManage` 旧别名跳转将 `tenantPrefix` 改为 `applicationPrefix`，并将正则收窄为 `/apps/{projectId}`，不再误取后续页面段。
+- **核对边界：**登录会话和 SPARK API 传输合同里的服务端身份字段仍属于接口边界；它们不作为前端页面/路由/应用工作区身份。未据此宣称仓内所有历史“租户”文本或后端字段已删除。
+
+### 2026-10-29 数据库目录应用路径回归
+
+- **回归与 RED：**在数据库目录测试中新增 `/apps/APP/DataBaseManage/DataBaseManage/index` 来源路径，断言“管理”跳转保留恰好一个 `/apps/APP` 前缀。临时以旧 `/t/{tenant}/{project}` 前缀提取逻辑运行该用例，实际导航丢失 `/apps/APP`，用例失败；未保留临时代码。
+- **GREEN：**恢复仓内当前 `applicationPrefix` 行为后，该精确回归及 `database-directory-page.test.ts` 整文件通过；ESLint 对该测试文件通过。覆盖当前前端 `projectId` 应用路由合同，未修改产品代码或后端。
+- **DevSystem 测试夹具：**当前实现下先运行数据库目录、DevSystem 头部保存与导航宿主项目选择器三文件；发现项目选择器两条断言仍要求 `{tenantId, projectId}`，实际 `openEditingProject` 合同只提交 `{projectId}`。移除这两份前端状态夹具中的 `tenantId`，并同步精确断言；头部保存 fixture 的 `projectPicker` 也只保留 `projectId`。没有更改认证 principal 或 SPARK API 服务端合同夹具。
+- **验证：**上述三文件合跑 43/43 通过；三个测试文件 ESLint `--max-warnings=0` 通过。数据库目录应用路径回归先前以旧租户前缀实现 RED，当前实现 GREEN。

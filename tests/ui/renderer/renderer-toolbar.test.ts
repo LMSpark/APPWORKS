@@ -105,6 +105,97 @@ describe('container toolbar contract through the real renderer', () => {
   })
 })
 
+describe('RendererTree editing projection', () => {
+  it('shows same-DataView parent and order edits without mutating rows, then restores on discard', async () => {
+    const ds=SparkData.createDataSet({scenarioId:'BLUEPRINT',dataSetName:'Blueprint',tables:{Nodes:{
+      tableName:'Nodes',modelBinding:{modelId:'BLUEPRINT-MODEL',modelName:'Nodes'},columns:[
+        {name:'rowid',type:'string',isPrimaryKey:true},{name:'prowid',type:'string'},{name:'FunOrderValue',type:'number'},{name:'FunName',type:'string'}],
+      views:{default:{treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'FunName',treeMode:'flat'},rows:[
+        {rowid:'A',prowid:null,FunOrderValue:0,FunName:'A'},
+        {rowid:'B',prowid:null,FunOrderValue:1,FunName:'B'},
+        {rowid:'C',prowid:'A',FunOrderValue:0,FunName:'C'},
+      ]}},
+    }}})
+    const view=ds.getView('Nodes','default')!
+    expect(view.rows.map(row=>row['rowid'])).toEqual(['A','B','C'])
+    const runtime=new PageRuntime({pageId:'renderer-tree-editing-projection',scenarioIds:['BLUEPRINT'],loadScenario:async()=>ds})
+    await runtime.load()
+    const TreeProbe=defineComponent({name:'ElTree',props:['data','nodeKey','props'],template:'<div data-testid="tree-probe" />'})
+    const registry=Spark.createRegistry()
+    registry.register({type:'r-tree',component:RendererTree})
+    const Host=defineComponent({setup(){useSparkComponent({type:'renderer-tree-editing-projection-host'}).sparkProvide(PAGE_RUNTIME,runtime)
+      return()=>h(RendererTree,{dataViewKey:'BLUEPRINT@Nodes@default',nodeKey:'rowid',showDataViewMeta:false,showPagination:false})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})],stubs:{'el-tree':TreeProbe}}})
+    const parentOf=(rows:readonly Record<string,unknown>[],key:string,parent?:string):string|undefined=>{
+      for(const row of rows){if(row['rowid']===key)return parent;const nested=row['children'];if(Array.isArray(nested)){const found=parentOf(nested as Record<string,unknown>[],key,String(row['rowid']));if(found!==undefined)return found}}
+      return undefined
+    }
+    const treeRows=()=>wrapper.getComponent(TreeProbe).props('data') as Record<string,unknown>[]
+    try{
+      await flushPromises()
+      expect(parentOf(treeRows(),'C'),JSON.stringify(treeRows())).toBe('A')
+      view.updateEditingValue('C','prowid','B')
+      view.updateEditingValue('C','FunOrderValue',0)
+      await flushPromises()
+      expect(view.rows.find(row=>row['rowid']==='C')?.['prowid']).toBe('A')
+      expect.soft(parentOf(treeRows(),'C')).toBe('B')
+      view.discardEditingRows()
+      await flushPromises()
+      expect(view.hasEditingChanges()).toBe(false)
+      expect(parentOf(treeRows(),'C')).toBe('A')
+    }finally{wrapper.unmount();runtime.dispose();ds.destroy()}
+  })
+
+  it('restores the DataView tree projection after a default move is rejected', async () => {
+    const ds=SparkData.createDataSet({scenarioId:'BLUEPRINT',dataSetName:'Blueprint',tables:{Nodes:{
+      tableName:'Nodes',modelBinding:{modelId:'BLUEPRINT-MODEL',modelName:'Nodes'},columns:[
+        {name:'rowid',type:'string',isPrimaryKey:true},{name:'prowid',type:'string'},{name:'FunOrderValue',type:'number'},{name:'FunName',type:'string'}],
+      views:{default:{treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'FunName',treeMode:'flat'},rows:[
+        {rowid:'A',prowid:null,FunOrderValue:0,FunName:'A'},
+        {rowid:'B',prowid:null,FunOrderValue:1,FunName:'B'},
+        {rowid:'C',prowid:'A',FunOrderValue:0,FunName:'C'},
+      ]}},
+    }}})
+    const view=ds.getView('Nodes','default')!
+    const runtime=new PageRuntime({pageId:'renderer-tree-rejected-drop',scenarioIds:['BLUEPRINT'],loadScenario:async()=>ds})
+    await runtime.load()
+    const errors:unknown[]=[]
+    const parentOf=(rows:readonly Record<string,unknown>[],key:string,parent?:string):string|undefined=>{
+      for(const row of rows){if(row['rowid']===key)return parent;const nested=row['children'];if(Array.isArray(nested)){const found=parentOf(nested as Record<string,unknown>[],key,String(row['rowid']));if(found!==undefined)return found}}
+      return undefined
+    }
+    const TreeDropProbe=defineComponent({name:'ElTree',props:['data','nodeKey','props'],setup(props,{emit,expose}){
+      expose({dropRejectedChildIntoB(){
+        const rows=props['data'] as Array<Record<string,unknown>>
+        const a=rows.find(row=>row['rowid']==='A')!,b=rows.find(row=>row['rowid']==='B')!
+        const children=a['children'] as Array<Record<string,unknown>>
+        const child=children.splice(children.findIndex(row=>row['rowid']==='C'),1)[0]!
+        ;(b['children'] as Array<Record<string,unknown>>).push(child)
+        emit('node-drop',{data:child},{data:b},'inner')
+      }})
+      return()=>h('div',{'data-testid':'tree-drop-probe'})
+    }})
+    const registry=Spark.createRegistry();registry.register({type:'r-tree',component:RendererTree})
+    const Host=defineComponent({setup(){useSparkComponent({type:'renderer-tree-rejected-drop-host'}).sparkProvide(PAGE_RUNTIME,runtime)
+      return()=>h(RendererTree,{dataViewKey:'BLUEPRINT@Nodes@default',dataMember:'rows',nodeKey:'rowid',showDataViewMeta:false})}})
+    const move=vi.spyOn(view,'moveTreeNode').mockRejectedValue(new Error('move rejected by DataView permission'))
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})],config:{errorHandler:error=>errors.push(error)},stubs:{'el-tree':TreeDropProbe}}})
+    const tree=wrapper.getComponent(TreeDropProbe)
+    try{
+      await flushPromises()
+      const before=tree.props('data') as Record<string,unknown>[]
+      expect(parentOf(before,'C')).toBe('A')
+      await (tree.vm as unknown as {dropRejectedChildIntoB():void}).dropRejectedChildIntoB()
+      await flushPromises()
+      expect(move).toHaveBeenCalledExactlyOnceWith('C','B',-1)
+      expect(view.rows.find(row=>row['rowid']==='C')?.['prowid']).toBe('A')
+      expect(view.hasEditingChanges()).toBe(false)
+      expect(errors.some(error=>error instanceof Error&&error.message==='move rejected by DataView permission')).toBe(true)
+      expect(parentOf(tree.props('data') as Record<string,unknown>[],'C')).toBe('A')
+    }finally{wrapper.unmount();runtime.dispose();ds.destroy()}
+  })
+})
+
 const SparkActionStub = defineComponent(
   (props: { config: SparkNode }) => {
     return () => h('button', {

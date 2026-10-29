@@ -91,6 +91,7 @@
 - **来源真实SPA补证与UI界线：**开发服务曾因仓内正在写入ZIP触发watch EBUSY退出，诊断后只重启前端（5273）；后续压缩改为TEMP完成并关闭后再放入证据目录。恢复后重新起算，经应用目录→D99→开发工作台的SPA采集无Document请求、无截断；真实owner为7AB@RepositoryBlueprintNode@default、file resource、无modelBinding、85行，界面84项/41页面，Base_NavigationInfo查询0且旧DB视图0行。仍有2次独立Base_Navigation_DataRelation自动查询，基本信息标签无name/memo内容但file currentRow.name=DataBaseManage，证明源层已迁入而UI尚未接线。详见`builtin-source-only-spa.json/png`，未发生业务写。来源静态二审无新增阻断；根lint首次5错（async无await、非空/多余断言、可选链），已交写者纠正，完整rules/build尚未通过，不提前提交完成声明。
 - **标准UI有效RED已核：**主控独立3文件4失败/87跳过，分别准确落在基本信息固定DB键、builtin NavHostProjectPicker仍刷新旧关系、同DataView编辑父/顺序未进入树显示、默认移动被拒后显示副本未恢复。树测试使用真实RendererTree与DataView，底层ElTree Probe模拟已核原生splice/emit顺序，定位派生层；不能称真实DOM拖放验收，后续仍需真实ElementPlus/SPA验证。早期导入/夹具错误日志保留不计有效RED；全部相关输出归档`standard-ui-red-raw-output.zip`并附SHA。新公共drop合同及编辑覆盖方向已明确，UI产品尚未实施；先收口来源工程门禁，再开放本组。
 - **来源中间成果工程门禁通过：**5项lint与4处AI断言规则错误均已纠正，沿完整值检查的类型谓词/isRecord收窄，未关闭规则；源码说明同步双来源，config/架构文档明确四系统场景按scenario固定仓内、场景保存/历史已实现及UI未完边界。正式ClassModel再次生成989 DTS、lowcode合同611 endpoints/208 consumers；源码4文件153/153、typecheck及定向lint通过；主控完整verify:rules与build退出0，ClassModel49项包含在门禁中。生成文件非业务变化部分为编译器iterator内部ID变动，未手改产物。构建保留VueUse PURE注释、chunk体积、CodeMirror动态/静态导入告警，不宣称零告警或全仓测试全绿。原始工程/诊断输出归档`source-engineering-checks.zip`，当前源SHA为`source-checkpoint-sha256.json`。本次仅提交完整来源/owner中间成果，UI四项RED待独立检查点与实施，旧三文件仍在，整体目标active。
+- **来源提交及下一检查点：**完整来源中间成果已提交`aaa8459ea`（61文件，含配置/源码/正式生成物/证据），不包含UI实现。接续将3个UI测试文件的四项已确认失败单独保存为RED检查点；这是有意未完成测试，不作为工程全绿声明。随后由同一写者实施标准树实际DataView绑定、编辑覆盖/可取消drop及字段与辅助资源源切换，按上述矩阵验证后继续清理旧三文件；整体目标不变。
 
 ### 2026-10-29 仓内场景写入：已核合同与当前实施范围
 

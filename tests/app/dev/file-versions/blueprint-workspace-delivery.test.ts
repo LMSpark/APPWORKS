@@ -1,9 +1,9 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
+import { buildDataViewKey, DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import { PageRuntime, ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
+import { PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
@@ -11,6 +11,10 @@ import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPla
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
 import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.vue'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {readBuiltinSystemNavigation, BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/shared/builtin-system-navigation'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 import NodeLayoutConfig from '@/views/app/dev-system/components/NodeLayoutConfig.vue'
 
 const api = vi.hoisted(() => ({
@@ -439,6 +443,60 @@ describe('BlueprintWorkspace file delivery', () => {
     expect(state.addStatus).not.toHaveBeenCalledWith(expect.stringContaining('DataView 加载失败'), 'error')
     await flushPromises()
     wrapper.unmount()
+  })
+})
+
+describe('Blueprint editor owner-view field bindings', () => {
+  it('binds capability and navigation fields to the builtin file owner even beside a conflicting DB view',async()=>{
+    const application=getBuiltinApplicationDescriptor(),scenario=getBuiltinScenarioResource('projectBlueprint')
+    const source=await readBuiltinSystemNavigation()
+    const node=source.records.find(record=>record.conType==='Navitem'&&record.FunName.trim())!
+    const dataSet=DataSet.fromJson({scenarioId:scenario.scenarioId,tables:{
+      [BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:{resourceType:'file',resourceId:BUILTIN_BLUEPRINT_NODE_RESOURCE_ID,
+        columns:BUILTIN_BLUEPRINT_BUSINESS_FIELDS.map(name=>({name,type:['Manhour','Sum','Total','DifficultyFactor','Number','FunOrderValue'].includes(name)?'number':'string',isPrimaryKey:name==='rowid'})),
+        views:{default:{}}},
+      Base_NavigationInfo:{modelBinding:{modelId:`${scenario.scenarioId}p000`,modelName:'Base_NavigationInfo'},
+        columns:BUILTIN_BLUEPRINT_BUSINESS_FIELDS.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),
+        views:{default:{rows:[{...node,name:'DB-conflict-name',memo:'DB-conflict-memo',FunName:'DB-conflict-title'}]}}},
+    }})
+    const fileView=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default')!
+    new BuiltinBlueprintNodeResource({applicationId:application.id,scenarioId:scenario.scenarioId,assertCurrent:()=>undefined}).bind(fileView)
+    const dbView=dataSet.getView('Base_NavigationInfo','default')!
+    const conflictRow:DataRow={...node,name:'DB-conflict-name',memo:'DB-conflict-memo',FunName:'DB-conflict-title'}
+    dbView.bindQueryExecutor({queryColumns:current=>current.columns,executeQuery:async()=>({rows:[conflictRow],total:1,resultPrimaryKey:'rowid',
+      rowKey:row=>row['rowid'],assertIdentity:()=>undefined,fieldAccess:()=>({read:'visible',write:'denied',component:'readonly',required:false,writeMode:'readonly'}),
+      readFieldAccess:()=> 'visible',addActionState:()=> 'disabled',editActionState:()=> 'disabled',deleteActionState:()=> 'disabled',
+      createChildActionState:()=> 'disabled',viewActionState:()=> 'enabled'})})
+    await dbView.refresh()
+    dbView.setCurrentRowById(node.rowid)
+    const owner=new BlueprintWorkspaceDataView(dataSet,application.id,()=>undefined)
+    const runtime=new PageRuntime({pageId:'builtin-owner-field-binding',scenarioIds:[scenario.scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    await owner.loadProjectTree()
+    await owner.load(node.rowid)
+    const state={projectId:application.id,selectedNode:ref({nodeId:node.rowid}),blueprintPageRuntime:shallowRef(runtime),
+      blueprintDraft:owner.nodeData(),blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),
+      blueprintNodeSectionWritable:()=>false,markBlueprintDirty:vi.fn(),notifyExternalDataViewChanged:vi.fn(),
+      loadNavigationDictionaryOptions:vi.fn().mockResolvedValue(undefined),pageDataDirty:ref(false)}
+    const expectedKey=buildDataViewKey(owner.view.tableName,owner.view.viewId,owner.dataSet.scenarioId)
+    const FormProbe=defineComponent({name:'RendererForm',props:['dataViewKey'],template:'<div><slot /></div>'})
+    const FieldProbe=(name:string)=>defineComponent({name,props:['dataViewKey','dataMember','dataField'],template:'<span />'})
+    const Host=defineComponent({setup(){useSparkComponent({type:'builtin-owner-field-binding-host'}).sparkProvide(PAGE_RUNTIME,runtime)
+      return()=>h('div',[h(NodeBasicInfo,{state:state as never,sections:['capability']}),h(NodeStateConfig,{state:state as never})])}})
+    const wrapper=mount(Host,{global:{plugins:[Spark.createPlugin()],stubs:{
+      RendererForm:FormProbe,FieldText:FieldProbe('FieldText'),FieldTextarea:FieldProbe('FieldTextarea'),FieldSelect:FieldProbe('FieldSelect'),
+      RendererButton:true,RendererDialog:true,RendererFilter:true,RendererTable:true,ElDivider:true,ElFormItem:true,ElAlert:true,
+      ElInput:true,ElSelect:true,ElSwitch:true,ElOption:true,ElInputNumber:true,IconPicker:true,
+    }}})
+    try{
+      expect(owner.view.tableName).toBe(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)
+      expect(owner.value('name')).toBe(node.name)
+      expect(dataSet.getView('Base_NavigationInfo','default')?.currentRow?.['name']).toBe('DB-conflict-name')
+      expect(wrapper.getComponent(FormProbe).props('dataViewKey')).toBe(expectedKey)
+      expect(wrapper.findAllComponents({name:'FieldText'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldTextarea'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldSelect'}).every(field=>field.props('dataViewKey')===expectedKey)).toBe(true)
+    }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })
 })
 

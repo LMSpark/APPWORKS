@@ -2,6 +2,7 @@ import {mount, flushPromises} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {describe, expect, it, vi} from 'vitest'
 import NavHostProjectPicker from '@/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 
 const runtimeState = vi.hoisted(() => ({
   token: Symbol('PAGE_RUNTIME'),
@@ -71,6 +72,27 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
 }
 
 describe('NavHost project picker hierarchy rendering', () => {
+  it('does not issue the legacy navigation-host relation query for the repository-owned builtin app', async () => {
+    runtimeState.runtimes.length = 0
+    runtimeState.provided.length = 0
+    runtimeState.hostView = dataView([{
+      rowid: 'legacy-host-relation', prowid: 'host-a', dataSetId: 'projects', DataName: 'Project',
+      ValParamName: 'projectId', TextParamName: 'projectName', selectValParam: 'code', selectTextParam: 'name', selectPid: 'parent',
+    }], {scenarioId: 'application-catalog-form', modelName: 'Base_Navigation_DataRelation'})
+    runtimeState.projectView = dataView([{rowid: 'candidate', code: 'PROJECT-X', name: 'Candidate', parent: ''}])
+    const hostView = runtimeState.hostView
+    const state = {projectId: getBuiltinApplicationDescriptor().id, tenantId: 'tenant-a', openEditingProject: vi.fn()}
+    const wrapper = mount(NavHostProjectPicker, {props: {state: state as never}, global: {
+      stubs: {'el-dialog': defineComponent({setup: (_props, {slots}) => () => h('div', [slots['default']?.(), slots['footer']?.()])}), 'el-button': true},
+    }})
+    try {
+      await flushPromises()
+      expect(hostView.refresh).not.toHaveBeenCalled()
+      expect(wrapper.text()).toContain('仓内蓝图尚未接入该资源')
+      expect(wrapper.find('[data-stub="RendererTree"]').exists()).toBe(false)
+    } finally {wrapper.unmount()}
+  })
+
   it('keeps tree candidates complete and validates selected identity through the same view', async () => {
     runtimeState.runtimes.length = 0
     runtimeState.provided.length = 0

@@ -327,7 +327,7 @@
           "type": "node",
           "data": {
             "type": "node",
-            "title": "Load page tool",
+            "title": "Use loaded page tool",
             "models": [
               {
                 "id": "node.pageEntry.workspace",
@@ -340,11 +340,11 @@
               "pageId": "{{pageId}}"
             },
             "outputs": {
-              "page": "{{node.pageEntry.workspace.loadPageTool}}"
+              "page": "{{node.pageEntry.workspace.getActivePageTool}}"
             },
             "llm": {
               "task": {
-                "goal": "Load the explicitly supplied pageId; runtime requestId isolates workspace ownership.",
+                "goal": "Use the explicitly selected pageId; tool files were loaded through the ProjectToolFile DataView before workflow execution.",
                 "requirements": {
                   "pageId": "{{pageId}}"
                 },
@@ -356,7 +356,7 @@
                 "rootClassName": "ProjectWorkspace",
                 "className": "ProjectWorkspace",
                 "allowedActions": [
-                  "loadPageTool"
+                  "getActivePageTool"
                 ]
               },
               "functionCalling": {
@@ -364,7 +364,7 @@
               },
               "output": {
                 "structuredResult": {
-                  "page": "{{node.pageEntry.workspace.loadPageTool}}"
+                  "page": "{{node.pageEntry.workspace.getActivePageTool}}"
                 }
               }
             },
@@ -692,7 +692,7 @@
           "to": {
             "nodeId": "node.pageEntry",
             "modelId": "node.pageEntry.workspace",
-            "memberName": "loadPageTool"
+            "memberName": "getActivePageTool"
           },
           "type": "custom",
           "data": {
@@ -709,7 +709,7 @@
           "from": {
             "nodeId": "node.pageEntry",
             "modelId": "node.pageEntry.workspace",
-            "memberName": "loadPageTool"
+            "memberName": "getActivePageTool"
           },
           "to": {
             "nodeId": "node.pageInventory",

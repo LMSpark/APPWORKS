@@ -3935,3 +3935,10 @@ flowchart TD
 - **修复：**已无生产调用方后，删除 `ProjectWorkspace.selectPage()`、`loadPageTool()`、`ensureActivePageFilesLoaded()`、`loadPageFile()` 及其私有读取链和 `ProjectPageLoadOptions` 导出；保留 DataView FileResource 适配内部仍需的原文件存储读写、版本回读与未知结果核验责任。测试 fixture 与模型重命名回归均迁移至正式 `ProjectToolFile` DataView 查询。源码/ClassModel 声明已通过正式生成器同步。
 - **回归：**本次变更相关套件 **7 files / 221 tests passed**；`pnpm run typecheck`、相关 TypeScript ESLint 与 `git diff --check` 退出 0。`pnpm run verify:rules` 通过；AI model spec 保留既有 2 warnings（`DataViewFilter.fromJson`、`ScenarioViewConfig.fromJson`）和 1 info。`pnpm run build` 退出 0，产物构建有依赖注释、chunk 大小和动态导入告警。
 - **范围：**构建与回归只证明本地代码路径；真实 SPA 登录仍需重新建立，cfg 正式项目上的查询、保存、重开、版本回读和切换目标在线验收未完成。无远端业务写入，未修改、启动或部署 Java。
+
+### 2026-10-30 pageDesign 工作流切换到 DataView 预加载工具
+
+- **有效失败：**在 `550d8a27f` 的全量 Vitest 中发现仅 1 项失败：`page-design-sop.test.ts` 检查保存的工作流图端点对应真实类成员，`node.pageEntry` 仍调用已退役的 `ProjectWorkspace.loadPageTool()`。这也是一个活动工作流入口会重新读取文件的旧合同，不能只保留 API 删除而不清除配置引用。
+- **修复：**`agent.workflow.pageDesign/design.json` 的页面入口改为 `ProjectWorkspace.getActivePageTool()`，只取得 `preparePageDesignAgentRun()` 已通过 7AB `ProjectToolFile` DataView 读取并装载的活动工具；同步更新其任务说明和正式 `definition.json` 投影。工作流不再自行加载工具文件。
+- **验证：**`page-design-sop.test.ts` **7/7 passed**，其中包含 design→definition 投影一致性及所有图端点必须是真实成员；`pnpm run verify:workflow-designs`、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 均退出 0。修复后全量 Vitest JSON `artifacts/vitest-full-after-workflow-fix.json`：**940 files / 6,986 tests passed，0 failed**。Build 保留依赖注释、chunk 大小及动态导入告警；规则扫描保留 AI model spec 2 warnings / 1 info。
+- **范围：**这是仓内工作流合同修复；headless AI 编辑的自动保存仍因缺少同一 DataView owner 而 fail-closed，不能通过 PageTool 或 workspace 直写绕过；真实 cfg 项目 SPA 保存/回读仍待登录会话验收。无远端业务写入，未修改、启动或部署 Java。

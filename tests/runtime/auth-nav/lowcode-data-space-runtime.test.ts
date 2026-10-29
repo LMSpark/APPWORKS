@@ -501,7 +501,8 @@ describe('host scenario file request wiring', () => {
     const host = await stubRepositoryScenarioHost(resource, text)
     await expect(gateway.readText(resource.scenarioId)).resolves.toBe(text)
     if (text === null) throw new Error('registered system scenario unexpectedly missing')
-    expect(text).toContain(`"scenarioId": "${resource.scenarioId}"`)
+    const parsedText: unknown = JSON.parse(text)
+    expect(isRecord(parsedText) ? parsedText['scenarioId'] : undefined).toBe(resource.scenarioId)
     expect(transport.request).not.toHaveBeenCalled()
     await expect(gateway.writeText(resource.scenarioId, text, text)).rejects.toMatchObject({
       name: 'ScenarioViewWriteNotAppliedError', resourceId: resource.resourceId,

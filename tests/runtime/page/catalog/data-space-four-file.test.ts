@@ -13,6 +13,9 @@ import { createPageComponentRegistry } from '../../../../packages/spark-componen
 import { buildPageContext } from '../../../../packages/spark-component/src/page/context/buildPageContext'
 import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
 import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import { LOWCODE_FILE_RESOURCE_REGISTRY } from '../../../../src/lowcode/resources/shared/agent-workflow-file-resource'
+import { BuiltinBlueprintNodeResource } from '../../../../src/lowcode/resources/shared/builtin-blueprint-node-resource'
+import { getBuiltinApplicationDescriptor } from '../../../../src/registries/builtin-application-registry'
 
 const pageId = 'data-space-catalog'
 const scenarioId = '90A82E287930A234FEC3E687C94A93EA'
@@ -401,7 +404,16 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
     : model)
   const blueprintFileExecutors = Object.fromEntries(Object.entries(recordAt(blueprintConfig.toJSON()['tables'], 'blueprint tables'))
     .filter(([, table]) => recordAt(table, 'blueprint table')['resourceType'] === 'file')
-    .map(([name]) => [name, {executeQuery: async () => ({rows: [], total: 0})}]))
+    .map(([name]) => {
+      if (name === 'RepositoryBlueprintNode') return [name, new BuiltinBlueprintNodeResource({
+        applicationId: getBuiltinApplicationDescriptor().id, scenarioId: blueprintScenarioId, assertCurrent: () => undefined,
+      }).executor]
+      const definition = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => item.tableName === name)
+      if (!definition) throw new Error(`Missing formal file resource executor: ${name}`)
+      const api = {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(),
+        listFileVersions: async () => []}
+      return [name, definition.createExecutor({applicationId: 'catalog-test-app', api, assertCurrent: () => undefined})]
+    }))
   const blueprintAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
     config: blueprintConfig, space: {dataSpaceId: blueprintScenarioId, name: '蓝图空间'}, models: blueprintModels,
     relations: [], fileExecutors: blueprintFileExecutors,

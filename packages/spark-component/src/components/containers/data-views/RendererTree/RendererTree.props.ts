@@ -11,7 +11,7 @@ import type {
 } from '../../../shared-types'
 import type { RToolbarProps } from '../../layout/action/RendererToolbar/RendererToolbar.types'
 import type { REditorProps } from '../../zones/RendererEditor.types'
-import type { TreeEventHandler } from './zero-code'
+import type { TreeEventHandler, TreeNodeDropHandler } from './zero-code'
 
 /**
  * r-tree 组件公开属性接口。
@@ -35,11 +35,17 @@ export type RTreeProps = SparkNodeProps & SparkCrudDataContainerProps & {
     expandToKey?: string | number | null
     /** 初始化自动展开到指定层级（根节点为第 1 层） */
     expandLevel?: number
+    /** 在标准树容器内显示本地节点过滤输入，不修改 DataView 查询。 */
+    filterable?: boolean
+    /** 本地节点过滤输入的提示文本。 */
+    filterPlaceholder?: string
     /** 节点点击回调 */
     onNodeClick?: TreeEventHandler
     /** 节点展开回调 */
     onNodeExpand?: TreeEventHandler
     /** 节点折叠回调 */
     onNodeCollapse?: TreeEventHandler
+    /** 异步处理节点拖放；设置 control.cancel 后由宿主处理而不调用默认 DataView 移动。 */
+    onNodeDrop?: TreeNodeDropHandler
     /** 透传给 el-tree 的显式属性 */
     treeProps?: Record<string, unknown>}

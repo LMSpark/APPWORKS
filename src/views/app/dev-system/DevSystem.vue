@@ -132,8 +132,8 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { AiToolApprovalPanel } from '@spark-appworks/spark-component'
+import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { AiToolApprovalPanel, PAGE_RUNTIME, useSparkComponent } from '@spark-appworks/spark-component'
 import { useDevSystem } from './useDevSystem'
 import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
 import BlueprintWorkspace from './blueprint-workspace/BlueprintWorkspace.vue'
@@ -153,6 +153,13 @@ const {
   saveAll,
   runPageDesignAi,
 } = useDevSystem()
+
+const {sparkProvide,sparkRemove}=useSparkComponent({type:'dev-system-page-runtime-host'})
+watch(()=>state.blueprintPageRuntime.value,runtime=>{
+  if(runtime?.isLoaded)sparkProvide(PAGE_RUNTIME,runtime)
+  else sparkRemove(PAGE_RUNTIME)
+},{immediate:true,flush:'sync'})
+onBeforeUnmount(()=>sparkRemove(PAGE_RUNTIME))
 
 onMounted(() => {
   void state.initialize()

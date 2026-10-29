@@ -1,0 +1,68 @@
+{
+  "purpose": "Public RendererTree initial diagnostics and valid REDs; not final component or UI acceptance",
+  "note": "Root tree-component-01 is an intermediate ASI test harness failure; root-parent-set-01 retained as initial diagnostic, set-02 is the two valid failures. Lifecycle green reports only its five selected tests.",
+  "archive": "renderer-tree-public-initial-checks.zip",
+  "sha256": "1703EAD211D1B4595B1292D69D0138DBD5E49B5B7CB46BC24BDD2426E5189468",
+  "entries": [
+    {
+      "name": "appworks-builtin-ui-red-public-drop-01.log",
+      "bytes": 1640,
+      "sha256": "4F0420EB8D32BC4D774425D092A84128268016903D6103758CB31E941F5A0D28"
+    },
+    {
+      "name": "appworks-builtin-ui-red-stale-drop-01.log",
+      "bytes": 1792,
+      "sha256": "CEDB6BA945BA3520E8FA241AED4448CE317DA1D93EEFD5CA33D51D400931B02A"
+    },
+    {
+      "name": "appworks-builtin-ui-red-drop-pending-native-01.log",
+      "bytes": 1676,
+      "sha256": "ED8BB72404CEBB07BB164CBB14D221176657D2F3399139C4FC3F64E779157D5D"
+    },
+    {
+      "name": "appworks-builtin-ui-red-drop-unmount-01.log",
+      "bytes": 1725,
+      "sha256": "ACF91B7B3BCE1DDFAAF40B68DA39A358D8AF66D57A2AD824D1FB7B35C819A2AD"
+    },
+    {
+      "name": "appworks-builtin-ui-red-tree-sibling-order-01.log",
+      "bytes": 1716,
+      "sha256": "B604769409D030D542AAC66916E42F74299A4B107387F8CB290F7DC7BF790F35"
+    },
+    {
+      "name": "appworks-builtin-ui-red-root-parent-set-01.log",
+      "bytes": 2389,
+      "sha256": "F02FC2014B4ED84A2C8D13B96C6679C453599838EA8E29453AABCBED818349D2"
+    },
+    {
+      "name": "appworks-builtin-ui-red-root-parent-set-02.log",
+      "bytes": 2406,
+      "sha256": "E0F83B98D4E0E068B329964F939466FD3F47644C0E0ECA9C8993F840CE19C724"
+    },
+    {
+      "name": "appworks-builtin-ui-tree-lifecycle-green-01.log",
+      "bytes": 435,
+      "sha256": "7BF106963156D80BA5AA8F2237F264622FA1982537177A0AACBD413922DF9D62"
+    },
+    {
+      "name": "appworks-builtin-ui-public-typecheck-02.log",
+      "bytes": 62,
+      "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+    },
+    {
+      "name": "appworks-builtin-ui-public-eslint-03.log",
+      "bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "name": "appworks-builtin-root-tree-component-01.log",
+      "bytes": 1571,
+      "sha256": "D0A70AF555D1B88AF84FFC7C85B6F5B6F84DDA029ACA6726C7B7992A12EA62E0"
+    },
+    {
+      "name": "appworks-builtin-ui-tree-public-green-06.log",
+      "bytes": 435,
+      "sha256": "D3ECCFD1C0F8641600FDF0854C0A7D70B95176C4379A30BD32FCC276196B251A"
+    }
+  ]
+}

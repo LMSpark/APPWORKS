@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/components/NodeLayoutConfig",
-    "jsdoc": "@module app:views/app/dev-system/components/NodeLayoutConfig\n职责：提供 DevSystem 的 NodeLayoutConfig 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeLayoutConfig。",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeLayoutConfig\n职责：通过标准字段组件编辑正式ChildItemLocation值。\n边界：布局标签不改写wire值；字段权限和提交由当前蓝图DataView承接。\nAI用途：仅在模块节点配置子项布局。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-26T13:49:22.606Z",
+  "generatedAt": "2026-10-29T03:09:25.744Z",
   "models": {}
 }

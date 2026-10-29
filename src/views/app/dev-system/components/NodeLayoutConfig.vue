@@ -1,33 +1,42 @@
 <!--
 @module app:views/app/dev-system/components/NodeLayoutConfig
-职责：提供 DevSystem 的 NodeLayoutConfig 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。
-边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
-AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeLayoutConfig。
+职责：通过标准字段组件编辑正式ChildItemLocation值。
+边界：布局标签不改写wire值；字段权限和提交由当前蓝图DataView承接。
+AI用途：仅在模块节点配置子项布局。
 -->
 <template>
-  <div v-if="flags.isModule.value && state.blueprintDraft.navigation">
-    <el-divider content-position="left">布局配置</el-divider>
-    <el-form-item v-if="access('ChildItemLocation').read" label="子项布局" class="fi fi--wide">
-      <el-radio-group v-model="state.blueprintDraft.navigation.placement" :disabled="!access('ChildItemLocation').write" @change="state.markBlueprintDirty">
-        <el-radio-button
-          v-for="option in CHILD_PLACEMENT_OPTIONS"
-          :key="option.value || '__default__'"
-          :value="option.value"
-        >
-          {{ option.label }}
-        </el-radio-button>
-      </el-radio-group>
-    </el-form-item>
+  <div v-if="flags.isModule.value && state.blueprintDraft.navigation && blueprintViewKey">
+    <RendererDivider content-position="left" content="布局配置" />
+    <RendererForm :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldRadio v-if="access('ChildItemLocation').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="ChildItemLocation" label="子项布局" :options="placementOptions" :button-style="true" :readonly="!access('ChildItemLocation').write" @update:model-value="state.markBlueprintDirty" />
+    </RendererForm>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { DevState } from '../useDevState'
-import { useNodeKindFlags } from '../composables/useNodeKindFlags'
-import { CHILD_PLACEMENT_OPTIONS } from '../childPlacementLabels'
+import {computed} from 'vue'
+import {buildDataViewKey} from '@spark-appworks/spark-data'
+import type {DevState} from '../useDevState'
+import {useNodeKindFlags} from '../composables/useNodeKindFlags'
+import * as SparkComponent from '@spark-appworks/spark-component'
 
-const props = defineProps<{ state: DevState }>()
-
-const flags = useNodeKindFlags(props.state)
-const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
+const {FieldRadio, RendererForm, RendererDivider}=SparkComponent
+const props=defineProps<{state:DevState}>()
+const state=props.state
+const flags=useNodeKindFlags(state)
+const access=(field:string)=>state.blueprintNodeFieldAccess(field)
+const blueprintViewKey=computed(()=>{
+  const view=state.blueprintWorkspaceDataView.value?.view
+  const scenarioId=view?.dataSet?.scenarioId
+  const modelName=view?.dataTable?.modelBinding?.modelName
+  return view&&scenarioId&&modelName?buildDataViewKey(modelName,view.viewId,scenarioId):''
+})
+const placementOptions=[
+  {value:'Top',label:'顶部'},
+  {value:'Left',label:'左侧'},
+  {value:'Right',label:'右侧'},
+  {value:'Parent',label:'继承父级'},
+  {value:'Tabs',label:'页签'},
+  {value:'Popup',label:'弹出窗口'},
+]
 </script>

@@ -1,232 +1,180 @@
 <!--
 @module app:views/app/dev-system/ProjectBlueprintTree
-职责：提供 DevSystem 的项目蓝图树，展示并编辑需求、原型、数据空间与交付节点。
-边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
-AI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模块定位 views/app/dev-system/ProjectBlueprintTree。
+职责：通过当前项目蓝图 DataView 显示及操作项目导航树。
+边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；领域操作只接收稳定行身份。
+AI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。
 -->
 <template>
   <div class="dev-tree">
     <div class="dev-tree__toolbar">
-      <el-input
-        v-model="treeFilter"
-        placeholder="搜索节点…"
-        clearable
-        size="small"
-        style="flex: 1"
-      />
-      <el-button size="small" type="primary" @click="state.addRootNode()" title="新增模块">
-        <NavIcon name="Plus" :size="14" />
-      </el-button>
-      <el-dropdown size="small" trigger="click">
-        <el-button size="small">
-          <NavIcon name="MoreFilled" :size="14" />
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="expandAll">展开全部</el-dropdown-item>
-            <el-dropdown-item @click="collapseAll">折叠全部</el-dropdown-item>
-            <el-dropdown-item divided @click="state.openProjectPlanningDocumentImportDialog()">
-              <NavIcon name="Upload" :size="14" /> 导入项目策划文档
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <RendererButton label="新增模块" button-type="primary" :disabled="!canAddRoot" @click="state.addRootNode" />
+      <RendererButton label="导入项目策划文档" :disabled="state.blueprintLoading.value" @click="state.openProjectPlanningDocumentImportDialog" />
     </div>
-    <el-empty v-if="state.blueprintEmpty.value" description="项目蓝图为空" />
-    <el-tree
+
+    <DisplayEmpty v-if="!viewKey" description="项目蓝图 DataView 尚未就绪" />
+    <RendererTree
       v-else
-      ref="treeRef"
-      :data="state.treeData.value"
-      node-key="nodeId"
-      :props="{ label: nodeLabel, children: 'children' }"
-      :default-expand-all="true"
-      :filter-node-method="filterNode"
-      highlight-current
-      draggable
-      :allow-drag="allowNodeDrag"
-      :allow-drop="allowNodeDrop"
-      :expand-on-click-node="false"
-      @node-click="handleNodeClick"
-      @node-drop="handleNodeDrop"
+      :key="viewKey"
+      :data-view-key="viewKey"
+      node-key="rowid"
+      :current-key="selectedNodeId"
+      filterable
+      filter-placeholder="搜索蓝图节点"
+      :show-data-view-meta="false"
+      :tree-props="treeProps"
+      :on-node-click="handleNodeClick"
+      :on-node-drop="handleNodeDrop"
+      class="dev-tree__renderer"
     >
-      <template #default="{ node, data }">
+      <template #default="{ data }">
         <span class="tree-node">
-          <span class="node-icon">
-            <NavIcon
-              :name="data.navigation?.icon ?? ''"
-              :fallback="data.children?.length ? 'Folder' : data.kind === 'module' ? 'Grid' : 'Document'"
-            />
-          </span>
-          <span class="node-label">{{ nodeLabel(data) }}</span>
-          <el-tag size="small" type="success" class="node-tag node-kind-tag">
-            {{ formatNodeKind(data) }}
-          </el-tag>
-          <span v-if="data.navigation?.target" class="node-path">{{ data.navigation?.target }}</span>
-          <el-tag v-if="data.navigation?.placement" size="small" type="info" class="node-tag">
-            {{ formatNavigationPlacementLabel(data.navigation?.placement) }}
-          </el-tag>
+          <DisplayIcon v-if="isFieldReadable(data, 'NavigationImageWxz')" :icon="String(data.NavigationImageWxz ?? '')" class="node-icon" />
+          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="FunName" :display-fallback-fields="['name']" readonly />
+          <FieldText v-if="isFieldReadable(data, 'conType')" :data-view-key="viewKey" data-member="currentRow" data-field="conType" :display-formatter="formatNodeKind" readonly class="node-tag" />
+          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="NavigationUrl" readonly class="node-path" />
+          <FieldText :data-view-key="viewKey" data-member="currentRow" data-field="ChildItemLocation" :display-formatter="formatPlacement" readonly class="node-tag" />
           <span class="node-actions">
-            <el-button v-if="state.childCreateActionState(data.nodeId) === 'enabled'" size="small" link type="primary" @click.stop="state.addChildNode(data)">
-              <NavIcon name="Plus" :size="12" />
-            </el-button>
-            <el-button
-              size="small"
-              link
-              type="danger"
-              @click.stop="handleRemove(node, data)"
-            >
-              <NavIcon name="Delete" :size="12" />
-            </el-button>
+            <RendererButton v-if="state.childCreateActionState(String(data.rowid)) === 'enabled'" :data-view-key="viewKey" label="添加子节点" button-size="small" @click="addChildFromRow" />
+            <RendererButton v-if="canDeleteRow(data)" :data-view-key="viewKey" label="删除" button-size="small" button-type="danger" @click="openDeleteFromRow" />
           </span>
         </span>
       </template>
-    </el-tree>
+    </RendererTree>
+
+    <RendererDialog v-if="deletingNodeId" :model-value="true" title="确认删除" width="420px" @update:model-value="closeDelete">
+      <DisplayAlert description="确定删除所选节点？删除只允许正式权限认可的叶子节点。" alert-type="warning" />
+      <template #footer>
+        <RendererButton label="取消" @click="closeDelete(false)" />
+        <RendererButton label="确定删除" button-type="danger" @click="confirmDelete" />
+      </template>
+    </RendererDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
-import { ElMessageBox } from 'element-plus'
-import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
+import { computed, ref } from 'vue'
+import { buildDataViewKey, type DataRow } from '@spark-appworks/spark-data'
+import { DisplayAlert, DisplayEmpty, DisplayIcon, FieldText, RendererButton, RendererDialog, RendererTree } from '@spark-appworks/spark-component'
 import type { DevState } from './useDevState'
 import { formatNavigationPlacementLabel } from './childPlacementLabels'
-import NavIcon from '@/components/NavIcon.vue'
 
 const props = defineProps<{ state: DevState }>()
 const state = props.state
-
-const treeRef = ref()
-const treeFilter = ref('')
-
-const NODE_KIND_LABEL: Record<string,string> = {module:'模块',page:'页面',embedded:'嵌入内容',service:'服务',content:'内容',unknown:'待确认'}
-function nodeLabel(node: ProjectBlueprintTreeNodeData): string { return node.navigation?.title ?? node.capability.name }
-function formatNodeKind(node: ProjectBlueprintTreeNodeData): string { return NODE_KIND_LABEL[node.kind] ?? node.kind }
-
-watch(treeFilter, (val) => { treeRef.value?.filter(val) })
-
-// 同步 el-tree 高亮到 selectedNode
-watch(() => state.selectedNode.value, async (node) => {
-  if (node) {
-    await nextTick()
-    treeRef.value?.setCurrentKey(node.nodeId)
-  }
-}, { immediate: true })
-
-function filterNode(value: string, data: ProjectBlueprintTreeNodeData) {
-  if (!value) return true
-  const v = value.toLowerCase()
-  return nodeLabel(data).toLowerCase().includes(v) ||
-    data.nodeId.toLowerCase().includes(v) ||
-    (data.navigation?.target?.toLowerCase().includes(v) ?? false)
+const deletingNodeId = ref('')
+const owner = computed(() => state.blueprintWorkspaceDataView.value)
+const viewKey = computed(() => {
+  const view = owner.value?.view
+  const scenarioId = view?.dataSet?.scenarioId
+  const modelName = view?.dataTable?.modelBinding?.modelName
+  return owner.value?.projectId === state.projectId && view && scenarioId && modelName
+    ? buildDataViewKey(modelName, view.viewId, scenarioId)
+    : ''
+})
+const selectedNodeId = computed(() => state.selectedNode.value?.nodeId ?? null)
+const canAddRoot = computed(() => {
+  const current = owner.value
+  return !!current && !current.isBusy && !current.hasPendingBlueprintCommand && current.view.addActionState() === 'enabled'
+})
+const treeProps = computed(() => ({
+  defaultExpandAll: true,
+  highlightCurrent: true,
+  expandOnClickNode: false,
+  draggable: true,
+  filterNodeMethod: (value: string, row: DataRow) => matchesFilter(value, row),
+  allowDrag: (node: { data?: DataRow }) => canMoveRow(node.data),
+  allowDrop: (dragged: { data?: DataRow }, target: { data?: DataRow }) => canMoveRow(dragged.data) && canMoveRow(target.data),
+}))
+function matchesFilter(value: string, row: DataRow): boolean {
+  const query = value.trim().toLocaleLowerCase()
+  if (!query) return true
+  return ['FunName', 'name', 'rowid', 'NavigationUrl'].some(field => {
+    const formalRow = resolveFormalRow(row)
+    if (!formalRow || owner.value?.view.fieldAccess(formalRow, field).read !== 'visible') return false
+    return String(row[field] ?? '').toLocaleLowerCase().includes(query)
+  })
 }
+function resolveFormalRow(row: DataRow): DataRow | undefined {
+  const view = owner.value?.view
+  if (!view) return undefined
+  const rowId = row['rowid']
+  if (typeof rowId !== 'string' && typeof rowId !== 'number') return undefined
+  const matches = view.rows.filter(candidate => Object.is(candidate['rowid'], rowId))
+  return matches.length === 1 ? matches[0] : undefined
+}
+function isFieldReadable(row: DataRow, field: string): boolean {
+  const formalRow = resolveFormalRow(row)
+  return !!formalRow && owner.value?.view.fieldAccess(formalRow, field).read === 'visible'
+}
+function canMoveRow(row: DataRow | undefined): boolean {
+  const view = owner.value?.view
+  const formalRow = row ? resolveFormalRow(row) : undefined
+  if (!view || !formalRow || String(formalRow['rowid']) === state.project.rootNode?.id) return false
+  return view.editActionState(formalRow) === 'enabled'
+    && view.fieldAccess(formalRow, 'prowid').write === 'allowed'
+    && view.fieldAccess(formalRow, 'FunOrderValue').write === 'allowed'
+}
+function canDeleteRow(row: DataRow): boolean {
+  const view = owner.value?.view
+  const formalRow = resolveFormalRow(row)
+  return !!view && !!formalRow && view.deleteActionState(formalRow) === 'enabled'
+}
+function formatNodeKind(value: unknown): string {
+  const kind = String(value ?? '')
+  const labels: Record<string, string> = {Model: '模块', Navitem: '页面', embedded: '嵌入内容', service: '服务', content: '内容'}
+  return labels[kind] ?? kind
+}
+function formatPlacement(value: unknown): string { return formatNavigationPlacementLabel(String(value ?? '')) }
 
-async function handleNodeClick(data: ProjectBlueprintTreeNodeData) {
-  await state.selectNode(data)
+function handleNodeClick(...args: unknown[]): void {
+  const control = args[3]
+  if (control && typeof control === 'object' && 'cancel' in control) control.cancel = true
+  const nodeId = readNodeId(args[0])
+  if (!nodeId) return
+  void state.selectNodeById(nodeId).catch(error => state.addStatus(`选择蓝图节点失败：${String(error)}`, 'error'))
 }
-
-function allowNodeDrag(data: ProjectBlueprintTreeNodeData): boolean {
-  return data.nodeId !== state.project.rootNode?.id
+function readNodeId(value: unknown): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !('rowid' in value)) return ''
+  const rowId = value.rowid
+  return typeof rowId === 'string' || typeof rowId === 'number' ? String(rowId) : ''
 }
-
-function allowNodeDrop(draggingNode: { data: ProjectBlueprintTreeNodeData }): boolean {
-  return draggingNode.data.nodeId !== state.project.rootNode?.id
+function handleNodeDrop(...args: unknown[]): void {
+  const control = args[1]
+  if (control && typeof control === 'object' && 'cancel' in control) control.cancel = true
+  const event = args[0]
+  if (!event || typeof event !== 'object' || !('draggedKey' in event) || !('targetKey' in event) || !('dropType' in event)) return
+  const position = event.dropType
+  if (position !== 'before' && position !== 'after' && position !== 'inner') return
+  void state.moveBlueprintNodeRelative({nodeId: String(event.draggedKey), targetNodeId: String(event.targetKey), position})
+    .catch(error => state.addStatus(`节点移动失败：${String(error)}`, 'error'))
 }
-
-function handleNodeDrop(draggingNode: { data: ProjectBlueprintTreeNodeData }) {
-  void state.moveNodeInTree(draggingNode.data)
+function stopEvent(event: unknown): void {
+  if (event && typeof event === 'object' && 'stopPropagation' in event && typeof event.stopPropagation === 'function') event.stopPropagation()
 }
-
-async function handleRemove(node: { parent: { data: ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintTreeNodeData) {
-  try {
-    await ElMessageBox.confirm(
-      `确定删除 "${nodeLabel(data)}"？${data.children?.length ? `（含 ${data.children.length} 个子节点）` : ''}`,
-      '确认删除',
-      { type: 'warning' },
-    )
-  } catch { return }
-  state.removeNodeFromTree(node, data)
+function addChildFromRow(...args: unknown[]): void {
+  stopEvent(args[1])
+  const parentNodeId = readNodeId(args[0])
+  if (parentNodeId) void state.addChildNodeById(parentNodeId)
 }
-
-function expandAll() {
-  for (const k of getAllKeys(state.treeData.value)) treeRef.value?.getNode(k)?.expand()
+function openDeleteFromRow(...args: unknown[]): void {
+  stopEvent(args[1])
+  deletingNodeId.value = readNodeId(args[0])
 }
-function collapseAll() {
-  for (const k of getAllKeys(state.treeData.value)) treeRef.value?.getNode(k)?.collapse()
+function closeDelete(value = false): void { if (!value) deletingNodeId.value = '' }
+function confirmDelete(): void {
+  const nodeId = deletingNodeId.value
+  deletingNodeId.value = ''
+  if (nodeId) state.removeNodeById(nodeId)
 }
-function getAllKeys(nodes: ProjectBlueprintTreeNodeData[]): string[] {
-  return nodes.flatMap(n => [n.nodeId, ...(n.children ? getAllKeys(n.children) : [])])
-}
-
-defineExpose({ treeRef })
 </script>
 
 <style scoped>
-.dev-tree {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.dev-tree__toolbar {
-  display: flex;
-  gap: 6px;
-  padding: 10px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  flex-shrink: 0;
-  background: var(--el-fill-color-extra-light);
-}
-
-.dev-tree :deep(.el-tree) {
-  flex: 1;
-  overflow: auto;
-  background: transparent;
-  padding: 8px;
-}
-
-.dev-tree :deep(.el-tree-node__content) {
-  border-radius: 8px;
-  margin-bottom: 2px;
-}
-
-.dev-tree :deep(.el-tree-node__content:hover) {
-  background: var(--el-fill-color-light);
-}
-
-.tree-node {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  font-size: 13px;
-  overflow: hidden;
-}
-.node-icon {
-  display: inline-flex;
-  align-items: center;
-  color: var(--el-color-primary);
-}
-.node-label { flex-shrink: 0; font-weight: 500; }
-.node-path {
-  color: var(--el-text-color-placeholder);
-  font-size: 11px;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.node-tag { flex-shrink: 0; }
-.node-actions {
-  margin-left: auto;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity .15s;
-}
-
-:deep(.node-actions .el-button) {
-  margin: 0;
-  min-width: 20px;
-}
-
-:deep(.el-tree-node__content:hover) .node-actions { opacity: 1; }
+.dev-tree { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.dev-tree__toolbar { display:flex; align-items:center; gap:6px; padding:10px; border-bottom:1px solid var(--el-border-color-lighter); flex-shrink:0; background:var(--el-fill-color-extra-light); }
+.dev-tree__renderer { flex:1; min-height:0; overflow:auto; padding:8px; }
+.tree-node { display:inline-flex; align-items:center; gap:6px; flex:1; min-width:0; font-size:13px; overflow:hidden; }
+.node-icon { flex-shrink:0; color:var(--el-color-primary); }
+.node-path { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--el-text-color-placeholder); font-size:11px; }
+.node-tag { flex-shrink:0; }
+.node-actions { display:flex; gap:4px; margin-left:auto; flex-shrink:0; opacity:0; transition:opacity .15s; }
+.tree-node:hover .node-actions { opacity:1; }
 </style>

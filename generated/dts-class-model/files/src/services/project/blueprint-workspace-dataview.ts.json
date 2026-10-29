@@ -389,6 +389,40 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.moveNodeRelative.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "targetNodeId": {
+                  "type": "string"
+                },
+                "position": {
+                  "enum": [
+                    "before",
+                    "after",
+                    "inner"
+                  ]
+                }
+              },
+              "required": [
+                "nodeId",
+                "targetNodeId",
+                "position"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNodeRelative.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.applyLeafMoveBatch.params": {
           "type": "object",
           "properties": {
@@ -725,7 +759,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T00:33:55.265Z",
+  "generatedAt": "2026-10-29T03:28:25.847Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",
@@ -1240,6 +1274,35 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveNodeRelative",
+              "jsdoc": "Resolve a renderer drop against fresh rows from this same DataView, then stage its permission-checked move.",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }"
+                      }
+                    ]
                   }
                 }
               ],

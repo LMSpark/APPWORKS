@@ -130,6 +130,40 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.moveBlueprintNodeRelative.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "targetNodeId": {
+                  "type": "string"
+                },
+                "position": {
+                  "enum": [
+                    "before",
+                    "after",
+                    "inner"
+                  ]
+                }
+              },
+              "required": [
+                "nodeId",
+                "targetNodeId",
+                "position"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveBlueprintNodeRelative.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.treeProjection.params": {
           "type": "object",
           "properties": {},
@@ -728,6 +762,10 @@
           "type": "object",
           "title": "(nodeId: string, parentId: string | null, index: number) => Promise<void>"
         },
+        "moveBlueprintNodeRelative": {
+          "type": "object",
+          "title": "(command: Readonly<{ nodeId: string; targetNodeId: string; position: \"before\" | \"after\" | \"inner\"; }>) => Promise<void>"
+        },
         "loadBlueprintTreeFromDataView": {
           "type": "object",
           "title": "() => Promise<ProjectBlueprintDomain.ProjectBlueprintTreeData>"
@@ -842,6 +880,10 @@
           "type": "object",
           "title": "(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData) => Promise<void>"
         },
+        "selectNodeById": {
+          "type": "object",
+          "title": "(nodeId: string) => Promise<void>"
+        },
         "handlePathChange": {
           "type": "object",
           "title": "(val: string) => void"
@@ -854,6 +896,10 @@
           "type": "object",
           "title": "(parent: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData) => Promise<void>"
         },
+        "addChildNodeById": {
+          "type": "object",
+          "title": "(parentNodeId: string) => Promise<void>"
+        },
         "listReferenceProjects": {
           "type": "object",
           "title": "() => Promise<ProjectBlueprintDomain.ProjectSummary[]>"
@@ -864,7 +910,11 @@
         },
         "removeNodeFromTree": {
           "type": "object",
-          "title": "(_node: { parent: { data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData; }; }, data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData) => void"
+          "title": "(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData) => void"
+        },
+        "removeNodeById": {
+          "type": "object",
+          "title": "(nodeId: string) => void"
         },
         "moveNodeInTree": {
           "type": "object",
@@ -944,6 +994,7 @@
         "registerExternalDataViewSession",
         "notifyExternalDataViewChanged",
         "moveBlueprintNodeInDataView",
+        "moveBlueprintNodeRelative",
         "loadBlueprintTreeFromDataView",
         "refreshBlueprintTreeProjection",
         "blueprintWorkspaceDataView",
@@ -973,12 +1024,15 @@
         "rejectAiTool",
         "abortAiTool",
         "selectNode",
+        "selectNodeById",
         "handlePathChange",
         "addRootNode",
         "addChildNode",
+        "addChildNodeById",
         "listReferenceProjects",
         "listReferenceProjectPages",
         "removeNodeFromTree",
+        "removeNodeById",
         "moveNodeInTree",
         "openProjectPlanningDocumentImportDialog",
         "closeProjectPlanningDocumentImportDialog",
@@ -989,7 +1043,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T22:38:30.470Z",
+  "generatedAt": "2026-10-29T02:44:58.462Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",
@@ -1080,11 +1134,11 @@
       "jsdoc": "DataView-backed page areas register the same dirty/save owner with the DevSystem shell.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+        "declarationTypeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+            "typeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1151,6 +1205,34 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveBlueprintNodeRelative",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }"
+                      }
+                    ]
                   }
                 }
               ],

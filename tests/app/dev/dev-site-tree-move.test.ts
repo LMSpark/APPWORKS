@@ -1,81 +1,76 @@
-import { mount } from '@vue/test-utils'
-import { defineComponent, ref } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import {defineComponent, h, ref, shallowRef} from 'vue'
+import {mount} from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import {describe, expect, it, vi} from 'vitest'
+import {DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import {PAGE_RUNTIME, RendererTree, Spark, useSparkComponent} from '@spark-appworks/spark-component'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
-import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
-import { useDevState, type DevState } from '@/views/app/dev-system/useDevState'
-import { isolateAppProjectWorkspaceForTest, seedDevStateConfigPages } from './dev-state-test-fixture'
+import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
+import type {DevState} from '@/views/app/dev-system/useDevState'
 
-function createState(node: ProjectBlueprintTreeNodeData): DevState {
-  isolateAppProjectWorkspaceForTest()
-  const state = useDevState()
-  seedDevStateConfigPages(state, [{
-    pageId: 'orders',
-    nodeId: node.nodeId,
-    title: node.navigation?.title ?? node.capability.name,
-    ...(node.navigation?.target !== undefined ? { path: node.navigation?.target } : {}),
-  }])
-  state.addRootNode = vi.fn<DevState['addRootNode']>()
-  state.addChildNode = vi.fn<DevState['addChildNode']>()
-  state.childCreateActionState = vi.fn<DevState['childCreateActionState']>(()=>'unknown')
-  state.removeNodeFromTree = vi.fn<DevState['removeNodeFromTree']>()
-  state.selectNode = vi.fn<DevState['selectNode']>(async () => {})
-  state.moveNodeInTree = vi.fn<DevState['moveNodeInTree']>(async () => {})
-  return state
+function createOwner():{owner:BlueprintWorkspaceDataView;dataSet:DataSet} {
+  const rows:DataRow[]=[
+    {rowid:'ROOT',SysId:'APP-A',prowid:'000000',FunOrderValue:0,name:'APP-A',FunName:'APP-A',conType:'Model',NavigationImageWxz:'Grid',NavigationUrl:'',ChildItemLocation:'Left'},
+    {rowid:'NODE-A',SysId:'APP-A',prowid:'ROOT',FunOrderValue:0,name:'Orders',FunName:'Orders',conType:'Navitem',NavigationImageWxz:'Document',NavigationUrl:'cfg:orders',ChildItemLocation:'Left'},
+  ]
+  const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','conType','NavigationImageWxz','NavigationUrl','ChildItemLocation']
+  const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{Base_NavigationInfo:{
+    modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
+    columns:fields.map(name=>({name,type:name==='FunOrderValue'?'number':'string',isPrimaryKey:name==='rowid'})),
+    views:{default:{autoLoad:false,treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'FunName',rootParentValue:'000000'}}},
+  }}})
+  const view=dataSet.getView('Base_NavigationInfo','default')!
+  view.bindQueryExecutor({queryColumns:target=>target.columns,executeQuery:async()=>({
+    rows,total:rows.length,resultPrimaryKey:'rowid',rowKey:(row:Readonly<DataRow>)=>row['rowid'],
+    assertIdentity:(identity:{scenarioId:string;metaName:string})=>{
+      if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('blueprint identity mismatch')
+    },
+    fieldAccess:(key:unknown,field:string)=>rows.some(row=>row['rowid']===key&&Object.hasOwn(row,field))
+      ? {read:'visible' as const,write:'allowed' as const,component:'editable' as const,required:false,writeMode:'editable' as const}
+      : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
+    readFieldAccess:(row:Readonly<DataRow>,field:string)=>Object.hasOwn(row,field)?'visible' as const:'invisible' as const,
+    addActionState:()=>'enabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'enabled' as const,
+    createChildActionState:()=>'enabled' as const,viewActionState:()=>'enabled' as const,
+  })})
+  return {owner:new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>undefined),dataSet}
 }
 
-const ElTreeDropStub = defineComponent({
-  props: {
-    data: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  emits: ['node-drop'],
-  template: '<button class="emit-drop" @click="$emit(\'node-drop\', { data: data[0] })">drop</button>',
-})
+describe('ProjectBlueprintTree standard DataView consumer',()=>{
+  it('binds RendererTree to the formal owner and dispatches row actions by stable key',async()=>{
+    const {owner,dataSet}=createOwner()
+    await owner.loadProjectTree()
+    const runtime=new PageRuntime({pageId:'project-blueprint-tree-consumer',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+      mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,loadScenario:async()=>dataSet})
+    await runtime.load()
+    const addChildNodeById=vi.fn(async()=>{})
+    const selectNodeById=vi.fn(async()=>{})
+    const state={projectId:'APP-A',project:{rootNode:{id:'ROOT'}},blueprintWorkspaceDataView:shallowRef(owner),blueprintLoading:ref(false),
+      selectedNode:ref(null),addRootNode:vi.fn(),openProjectPlanningDocumentImportDialog:vi.fn(),childCreateActionState:(id:string)=>owner.childCreateActionState(id),
+      addChildNodeById,selectNodeById,moveBlueprintNodeRelative:vi.fn(async()=>{}),removeNodeById:vi.fn(),addStatus:vi.fn()} as unknown as DevState
+    const registry=Spark.createRegistry();registry.register({type:'r-tree',component:RendererTree})
+    const Host=defineComponent({setup(){useSparkComponent({type:'project-blueprint-tree-host'}).sparkProvide(PAGE_RUNTIME,runtime)
+      return()=>h(ProjectBlueprintTree,{state})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})]}})
+    try{
+      await wrapper.vm.$nextTick()
+      await Promise.resolve()
+      const tree=wrapper.findComponent(RendererTree)
+      expect(tree.props('dataViewKey')).toBe(`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`)
+      expect(tree.text()).toContain('Orders')
 
-describe('ProjectBlueprintTree move persistence', () => {
-  it('shows a child-create action only for enabled formal DataView state and invokes the existing command', async () => {
-    const node: ProjectBlueprintTreeNodeData = {nodeId:'orders',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}}
-    const state=createState(node)
-    const actionState=ref<'enabled'|'hidden'|'disabled'|'unknown'>('unknown')
-    state.childCreateActionState=vi.fn<DevState['childCreateActionState']>(()=>actionState.value)
-    const wrapper=mount(ProjectBlueprintTree,{props:{state},global:{stubs:{NavIcon:true,ElButton:{emits:['click'],template:'<button @click="$emit(\'click\',$event)"><slot /></button>'},ElDropdown:true,ElDropdownItem:true,ElDropdownMenu:true,ElEmpty:true,ElInput:true,ElTag:true,ElTree:{props:['data'],template:'<div><slot v-for="item in data" :node="{data:item}" :data="item" /></div>'}}}})
-    expect(wrapper.findAll('.node-actions button')).toHaveLength(1) // delete remains; child add is hidden
-    actionState.value='hidden'
-    await wrapper.vm.$nextTick()
-    expect(wrapper.findAll('.node-actions button')).toHaveLength(1)
-    actionState.value='enabled'
-    await wrapper.vm.$nextTick()
-    const addButton=wrapper.find('.node-actions button')
-    expect(addButton.exists()).toBe(true)
-    await addButton.trigger('click')
-    expect(state.addChildNode).toHaveBeenCalledWith(node)
-  })
-  it('persists drag-drop through moveNodeInTree', async () => {
-    const node: ProjectBlueprintTreeNodeData = {nodeId:'orders',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders',order:0,publishInMenu:true,showChildren:true,beginGroup:false},source:{}}
-    const state = createState(node)
+      const orderNode=wrapper.find('.el-tree-node[data-key="NODE-A"]')
+      const addButton=orderNode.findAll('button').find(button=>button.text().includes('添加子节点'))
+      expect(addButton?.exists()).toBe(true)
+      await addButton!.trigger('click')
+      expect(addChildNodeById).toHaveBeenCalledOnce()
+      expect(addChildNodeById).toHaveBeenCalledWith('NODE-A')
+      expect(selectNodeById).not.toHaveBeenCalled()
 
-    const wrapper = mount(ProjectBlueprintTree, {
-      props: { state },
-      global: {
-        stubs: {
-          NavIcon: true,
-          ElButton: true,
-          ElDropdown: true,
-          ElDropdownItem: true,
-          ElDropdownMenu: true,
-          ElEmpty: true,
-          ElInput: true,
-          ElTag: true,
-          ElTree: ElTreeDropStub,
-        },
-      },
-    })
-
-    await wrapper.find('.emit-drop').trigger('click')
-
-    expect(state.moveNodeInTree).toHaveBeenCalledWith(expect.objectContaining({nodeId:node.nodeId,kind:node.kind}))
+      await orderNode.find('.el-tree-node__content').trigger('click')
+      await Promise.resolve()
+      expect(selectNodeById).toHaveBeenCalledWith('NODE-A')
+    }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })
 })

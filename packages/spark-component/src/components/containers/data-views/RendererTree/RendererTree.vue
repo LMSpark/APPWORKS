@@ -10,6 +10,15 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
       <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
+    <el-input
+      v-if="props.filterable"
+      v-model="filterText"
+      class="renderer-tree-filter"
+      :placeholder="props.filterPlaceholder ?? '搜索节点'"
+      clearable
+      size="small"
+    />
+
     <DataViewMetaBar
       :rows="dataState.rows.value"
       :columns="dataState.columns.value"
@@ -92,7 +101,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
  *
  * 内部通过 useContainerDataSource 统一解析 dataViewKey，并走能力链读取 PAGE_RUNTIME。
  */
-import { computed, nextTick, ref, toRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, toRef, watch } from 'vue'
 import {
   useSparkPageComponent,
   SparkComponentRenderer,
@@ -118,7 +127,20 @@ import DataViewMetaBar from '../DataViewMetaBar.vue'
 const props = withDefaults(defineProps<RTreeProps>(), {
   type: 'r-tree',
 })
-const treePropsValue = computed<Record<string, unknown>>(() => ({ ...(props.treeProps ?? {}) }))
+const dropPending = shallowRef(false)
+const filterText = ref('')
+const treePropsValue = computed<Record<string, unknown>>(() => {
+  const treeProps = { ...(props.treeProps ?? {}) }
+  const allowDrag = treeProps['allowDrag']
+  const allowDrop = treeProps['allowDrop']
+  return {
+    ...treeProps,
+    allowDrag: (node: unknown) => !dropPending.value
+      && (typeof allowDrag !== 'function' || allowDrag(node) !== false),
+    allowDrop: (dragged: unknown, target: unknown, type: unknown) => !dropPending.value
+      && (typeof allowDrop !== 'function' || allowDrop(dragged, target, type) !== false),
+  }
+})
 const {
   nodeContentChildren,
   toolbarConfig,
@@ -150,6 +172,7 @@ const {
   treeData,
   treeIdField,
   currentRow,
+  refreshTreeData,
 } = useRendererTreeViewState({
   dataState,
 })
@@ -170,7 +193,12 @@ function getNodeLabel(data: unknown): string {
 }
 
 function toScopeRow(data: unknown): DataRow | undefined {
-  return toDataRecord(data) ?? undefined
+  const view = dataState.resolvedView.value
+  if (!view || data === null || typeof data !== 'object' || Array.isArray(data)) return undefined
+  const key = Reflect.get(data, nodeKeyField.value)
+  if (typeof key !== 'string' && typeof key !== 'number') return undefined
+  const matches = view.rows.filter(row => Object.is(row[nodeKeyField.value], key))
+  return matches.length === 1 ? matches[0] : undefined
 }
 
 const elTreeFieldProps = computed(() => ({
@@ -202,6 +230,8 @@ const {
   props,
   resolvedView: dataState.resolvedView,
   treeData,
+  refreshTreeData,
+  dropPending,
   nativeTreeRef,
   logger,
   nodeKeyField,
@@ -305,7 +335,22 @@ function collectExpandKeysByLevel(
   return result
 }
 
+const applyTreeFilter = treeApi.filter.bind(treeApi)
+let lastAppliedFilter: string | undefined
+treeApi.filter = (keyword: string) => {
+  filterText.value = keyword
+  if (lastAppliedFilter === keyword) return
+  lastAppliedFilter = keyword
+  applyTreeFilter(keyword)
+}
+
 registerApi(treeApi)
+
+watch(filterText, keyword => {
+  if (lastAppliedFilter === keyword) return
+  lastAppliedFilter = keyword
+  applyTreeFilter(keyword)
+})
 
 // 事件处理器与零代码动作由 createRendererTreeZeroCode 收口
 </script>
@@ -316,6 +361,12 @@ registerApi(treeApi)
   gap: 12px;
   width: 100%;
   min-height: 0;
+}
+
+.renderer-tree-filter {
+  width: auto;
+  margin: 8px 8px 0;
+  flex: 0 0 auto;
 }
 
 .renderer-tree-layout--top,

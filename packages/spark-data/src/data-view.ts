@@ -3634,7 +3634,12 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     }
     if (this.filterExpression !== undefined) config.filterExpression = this.filterExpression
     if (this.sortExpression !== undefined) config.sortExpression = this.sortExpression
-    if (this.treeConfig !== undefined) config.treeConfig = this.treeConfig
+    if (this.treeConfig !== undefined) {
+      const remoteTreeConfig = { ...this.treeConfig }
+      delete remoteTreeConfig.rootParentValue
+      delete remoteTreeConfig.rootParentValues
+      if (Object.keys(remoteTreeConfig).length > 0) config.treeConfig = remoteTreeConfig
+    }
     if (this.valueField !== undefined) config.valueField = this.valueField
     if (this.labelField !== undefined) config.labelField = this.labelField
     if (this.selectionDelimiter !== ',') config.selectionDelimiter = this.selectionDelimiter

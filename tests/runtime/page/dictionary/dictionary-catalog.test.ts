@@ -253,6 +253,45 @@ describe('dictionary catalog formal view assembly', () => {
     expect(tree.getRoots()).toHaveLength(1)
     expect(tree.getNode('root')?.parentId).toBe(rootParentValue)
   })
+  it('roundtrips an exact typed root-parent set through scenario config and DataSet assembly', () => {
+    const rootParentValues=[null,'',0,'0','000000'] as const
+    const input={
+      scenarioId:'ROOTS',
+      tables:{
+        Categories:{
+          modelBinding:{modelId:'categories',modelName:'Categories'},
+          views:{
+            default:{
+              treeConfig:{idField:'rowid',parentIdField:'prowid',textField:'Name',rootParentValues},
+            },
+          },
+        },
+      },
+    }
+    const config=new ScenarioViewConfig('ROOTS',JSON.stringify(input))
+    expect(config.toJSON()).toMatchObject({tables:{Categories:{views:{default:{treeConfig:{rootParentValues}}}}}})
+    const assemble=(scenario:ScenarioViewConfig)=>{
+      const tables=(scenario.toJSON() as {tables:Record<string,{modelBinding:unknown;views:unknown}>}).tables
+      const definition=tables['Categories']!
+      return DataSet.fromJson({scenarioId:'ROOTS',dataSetName:'Roots',tables:{Categories:{tableName:'Categories',
+        modelBinding:definition.modelBinding,columns:[{name:'rowid',type:'string',isPrimaryKey:true},
+          {name:'prowid',type:'string'},{name:'Name',type:'string'}],views:definition.views}}})
+    }
+    const first=assemble(config)
+    expect(first.getView('Categories','default')?.treeConfig?.rootParentValues).toEqual(rootParentValues)
+    const reopenedConfig=new ScenarioViewConfig('ROOTS',JSON.stringify(config.toJSON()))
+    const reopened=assemble(reopenedConfig)
+    expect(reopened.getView('Categories','default')?.treeConfig?.rootParentValues).toEqual(rootParentValues)
+    first.destroy();reopened.destroy()
+  })
+  it.each([{value:true},{value:{}},{value:[null,true]}])('rejects invalid tree root-parent sets %j and dual declarations', ({value:invalidRootParentValues}) => {
+    expect(()=>new ScenarioViewConfig('ROOTS',JSON.stringify({scenarioId:'ROOTS',tables:{Categories:{
+      modelBinding:{modelId:'categories',modelName:'Categories'},views:{default:{treeConfig:{rootParentValues:invalidRootParentValues}}},
+    }}}))).toThrow('rootParentValues')
+    expect(()=>new ScenarioViewConfig('ROOTS',JSON.stringify({scenarioId:'ROOTS',tables:{Categories:{
+      modelBinding:{modelId:'categories',modelName:'Categories'},views:{default:{treeConfig:{rootParentValue:'root',rootParentValues:[null,'root']}}},
+    }}}))).toThrow('rootParentValue')
+  })
   it('binds auxiliary labels by their formal reference field without changing dictionary IDs', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
     expect(ds.getView('Base_UserInfo', 'default')?.valueField).toBe('ROWID')

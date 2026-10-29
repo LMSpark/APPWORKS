@@ -89,6 +89,7 @@ function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenNam
     pageDataDirty: ref(false),
     sceneBindingPending: ref(true),
     blueprintPageRuntime: ref(runtime),
+    blueprintWorkspaceDataView: ref({view: {tableName: 'Base_NavigationInfo', viewId: 'default', dataSet: {scenarioId: BLUEPRINT_SCENARIO_ID}}}),
     blueprintNodeFieldAccess: vi.fn((field: string) => ({read: true, write: field !== 'conid' || options.targetWritable !== false})),
     blueprintNodeSectionWritable: vi.fn(() => true),
     blueprintDraft: draft,

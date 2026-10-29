@@ -47,6 +47,11 @@ function assertFlatTreeNodeArray(nodes: unknown[]): FlatTreeNode[] {
   return result
 }
 
+function isRootParentValueSet(value: unknown): value is ReadonlyArray<string | number | null> {
+  return Array.isArray(value) && value.every(item => item === null || typeof item === 'string'
+    || (typeof item === 'number' && Number.isFinite(item)))
+}
+
 function parseFlatTreeNodesInput(
   json: FlatTreeNode[] | Record<string, unknown> | string,
 ): FlatTreeNode[] {
@@ -141,12 +146,19 @@ export class TreeManager {
    */
   constructor(options: TreeManagerOptions) {
     const { config, api, initialNodes, httpClient, endpointContextProvider } = options
+    if (config.rootParentValues !== undefined && config.rootParentValue !== undefined) {
+      throw new Error('TreeManager: rootParentValue cannot be combined with rootParentValues')
+    }
+    if (config.rootParentValues !== undefined && !isRootParentValueSet(config.rootParentValues)) {
+      throw new Error('TreeManager: rootParentValues must contain only string, number, or null values')
+    }
     this.config = {
       idField: 'id',
       parentIdField: 'parentId',
       textField: 'name',
       lazy: true,
-      ...config
+      ...config,
+      ...(config.rootParentValues === undefined ? {} : {rootParentValues: config.rootParentValues.map(value => value)}),
     }
     if (api) this.api = api
     if (httpClient) this._http = httpClient
@@ -278,6 +290,10 @@ export class TreeManager {
    * @returns 子节点数组
    */
   getChildren(parentId: string | number | null): FlatTreeNode[] {
+    return this._getChildrenForParent(parentId)
+  }
+
+  private _getChildrenForParent(parentId: string | number | null | undefined): FlatTreeNode[] {
     const childIds = this._parentIndex.get(parentId)
     if (!childIds || childIds.size === 0) return []
     const result: FlatTreeNode[] = []
@@ -293,6 +309,22 @@ export class TreeManager {
    * @returns 根节点数组
    */
   getRoots(): FlatTreeNode[] {
+    const rootParentValues = this.config.rootParentValues
+    if (rootParentValues !== undefined) {
+      const roots: FlatTreeNode[] = []
+      const seenIds = new Set<string | number>()
+      for (const parentValue of rootParentValues) {
+        const matches = parentValue === null
+          ? [...this._getChildrenForParent(null), ...this._getChildrenForParent(undefined)]
+          : this._getChildrenForParent(parentValue)
+        for (const node of matches) {
+          if (seenIds.has(node.id)) continue
+          seenIds.add(node.id)
+          roots.push(node)
+        }
+      }
+      return roots
+    }
     return this.getChildren(this.config.rootParentValue ?? null)
   }
 

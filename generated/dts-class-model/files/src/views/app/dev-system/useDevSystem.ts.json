@@ -580,6 +580,10 @@
               "type": "object",
               "title": "(nodeId: string, parentId: string | null, index: number) => Promise<void>"
             },
+            "moveBlueprintNodeRelative": {
+              "type": "object",
+              "title": "(command: Readonly<{ nodeId: string; targetNodeId: string; position: \"before\" | \"after\" | \"inner\"; }>) => Promise<void>"
+            },
             "loadBlueprintTreeFromDataView": {
               "type": "object",
               "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeData>"
@@ -696,6 +700,10 @@
               "type": "object",
               "title": "(node: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData) => Promise<void>"
             },
+            "selectNodeById": {
+              "type": "object",
+              "title": "(nodeId: string) => Promise<void>"
+            },
             "handlePathChange": {
               "type": "object",
               "title": "(val: string) => void"
@@ -708,6 +716,10 @@
               "type": "object",
               "title": "(parent: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData) => Promise<void>"
             },
+            "addChildNodeById": {
+              "type": "object",
+              "title": "(parentNodeId: string) => Promise<void>"
+            },
             "listReferenceProjects": {
               "type": "object",
               "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").ProjectSummary[]>"
@@ -718,7 +730,11 @@
             },
             "removeNodeFromTree": {
               "type": "object",
-              "title": "(_node: { parent: { data: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData; }; }, data: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData) => void"
+              "title": "(data: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData) => void"
+            },
+            "removeNodeById": {
+              "type": "object",
+              "title": "(nodeId: string) => void"
             },
             "moveNodeInTree": {
               "type": "object",
@@ -798,6 +814,7 @@
             "registerExternalDataViewSession",
             "notifyExternalDataViewChanged",
             "moveBlueprintNodeInDataView",
+            "moveBlueprintNodeRelative",
             "loadBlueprintTreeFromDataView",
             "refreshBlueprintTreeProjection",
             "blueprintWorkspaceDataView",
@@ -827,12 +844,15 @@
             "rejectAiTool",
             "abortAiTool",
             "selectNode",
+            "selectNodeById",
             "handlePathChange",
             "addRootNode",
             "addChildNode",
+            "addChildNodeById",
             "listReferenceProjects",
             "listReferenceProjectPages",
             "removeNodeFromTree",
+            "removeNodeById",
             "moveNodeInTree",
             "openProjectPlanningDocumentImportDialog",
             "closeProjectPlanningDocumentImportDialog",

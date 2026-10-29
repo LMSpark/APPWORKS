@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 989,
+  "scannedFileCount": 990,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -3258,7 +3258,10 @@
           "NativeTreeLike",
           "NativeRendererTreeNodeLike",
           "TreeEventControl",
-          "TreeEventHandler"
+          "TreeEventHandler",
+          "TreeNodeDropType",
+          "TreeNodeDropEvent",
+          "TreeNodeDropHandler"
         ],
         "componentName": "RendererTree",
         "componentType": "r-tree",
@@ -9388,6 +9391,19 @@
         ]
       }
     },
+    "packages/spark-data/src/query/sort-expression.ts": {
+      "file": "files/packages/spark-data/src/query/sort-expression.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/sort-expression",
+        "sourcePath": "packages/spark-data/src/query/sort-expression.ts",
+        "sourceFile": "packages/spark-data/src/query/sort-expression.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/sort-expression",
+        "jsdoc": "@module @spark-appworks/spark-data:query/sort-expression\n职责：提供按 DataColumn 类型解释 SortExpression 的纯行投影排序。\n边界：不查询、不修改行、不读取权限；消费者须先确认本次正式行对排序字段可读。\nAI用途：在不改变 DataView 查询状态的临时投影中复用声明列类型和排序方向。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "packages/spark-data/src/resource-relation/resource-relation-definition.ts": {
       "file": "files/packages/spark-data/src/resource-relation/resource-relation-definition.ts.json",
       "module": {
@@ -14533,7 +14549,7 @@
         "sourceFile": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/components/NodeLayoutConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeLayoutConfig\n职责：提供 DevSystem 的 NodeLayoutConfig 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/components/NodeLayoutConfig。",
+        "jsdoc": "@module app:views/app/dev-system/components/NodeLayoutConfig\n职责：通过标准字段组件编辑正式ChildItemLocation值。\n边界：布局标签不改写wire值；字段权限和提交由当前蓝图DataView承接。\nAI用途：仅在模块节点配置子项布局。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14546,7 +14562,7 @@
         "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/components/NodeStateConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态写入navigation分组，业务kind不由显示状态推断。\nAI用途：调整节点导航展示并经领域dirty与Workspace保存。",
+        "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态字段直接绑定当前蓝图DataView；显示方式与对齐沿正式独立字典视图读取。\nAI用途：调整节点导航展示并经原DataView显式保存。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14720,7 +14736,7 @@
         "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/ProjectBlueprintTree",
-        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：提供 DevSystem 的项目蓝图树，展示并编辑需求、原型、数据空间与交付节点。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑项目蓝图节点时，用本模块定位 views/app/dev-system/ProjectBlueprintTree。",
+        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；领域操作只接收稳定行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22493,6 +22509,18 @@
       "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
       "file": "files/packages/spark-json-document/src/tree/tree-types.ts.json"
     },
+    "TreeNodeDropEvent": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json"
+    },
+    "TreeNodeDropHandler": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json"
+    },
+    "TreeNodeDropType": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json"
+    },
     "TreePath": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
@@ -24880,6 +24908,42 @@
           "directory": "containers/data-views"
         }
       },
+      "TreeNodeDropEvent": {
+        "className": "TreeNodeDropEvent",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json",
+        "component": {
+          "name": "RendererTree",
+          "type": "r-tree",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "TreeNodeDropHandler": {
+        "className": "TreeNodeDropHandler",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json",
+        "component": {
+          "name": "RendererTree",
+          "type": "r-tree",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "TreeNodeDropType": {
+        "className": "TreeNodeDropType",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts.json",
+        "component": {
+          "name": "RendererTree",
+          "type": "r-tree",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
       "TreeTableRowsInput": {
         "className": "TreeTableRowsInput",
         "sourcePath": "packages/spark-component/src/components/containers/data-views/view-tree-state.ts",
@@ -25281,7 +25345,10 @@
         "RendererTreeNode",
         "RTreeProps",
         "TreeEventControl",
-        "TreeEventHandler"
+        "TreeEventHandler",
+        "TreeNodeDropEvent",
+        "TreeNodeDropHandler",
+        "TreeNodeDropType"
       ],
       "RendererVirtualCard": [
         "RendererVirtualCardApi",
@@ -25601,7 +25668,10 @@
         "RendererTreeNode",
         "RTreeProps",
         "TreeEventControl",
-        "TreeEventHandler"
+        "TreeEventHandler",
+        "TreeNodeDropEvent",
+        "TreeNodeDropHandler",
+        "TreeNodeDropType"
       ],
       "r-tree-node-summary": [
         "RTreeNodeSummaryProps"
@@ -25784,6 +25854,9 @@
         "TableRowClassContext",
         "TreeEventControl",
         "TreeEventHandler",
+        "TreeNodeDropEvent",
+        "TreeNodeDropHandler",
+        "TreeNodeDropType",
         "TreeTableRowsInput"
       ]
     },
@@ -25892,6 +25965,9 @@
         "TableRowClassContext",
         "TreeEventControl",
         "TreeEventHandler",
+        "TreeNodeDropEvent",
+        "TreeNodeDropHandler",
+        "TreeNodeDropType",
         "TreeTableRowsInput"
       ],
       "field-support": [
@@ -26009,6 +26085,9 @@
         "TableRowClassContext",
         "TreeEventControl",
         "TreeEventHandler",
+        "TreeNodeDropEvent",
+        "TreeNodeDropHandler",
+        "TreeNodeDropType",
         "TreeTableRowsInput"
       ],
       "containers/layout": [

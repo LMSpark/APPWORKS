@@ -40,6 +40,20 @@ async function fixture(value: string | number = 'first') {
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('filters candidates without editing the bound DataView until an option is selected', async () => {
+    const f=await fixture(),select=f.wrapper.getComponent(ElSelect),documentRoot=new DOMWrapper(document.body)
+    const dropdownId=select.get('input').attributes('aria-controls')!
+    await select.get('.el-select__wrapper').trigger('click');await flushPromises()
+    await select.get('input').setValue('第二');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.view.rows[0]?.['choice']).toBe('first')
+    const visibleOptions=documentRoot.get(`#${dropdownId}`).findAll('[role="option"]').filter(option=>option.isVisible())
+    expect(visibleOptions.map(option=>option.text())).toEqual(['第二项'])
+    await visibleOptions[0]!.trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['choice']).toBe('second')
+    expect(f.view.rows[0]?.['choice']).toBe('first')
+  })
+
   it('opens options on demand and edits, clears and cancels through the bound DataView', async () => {
     const f = await fixture(), select = f.wrapper.getComponent(ElSelect), documentRoot = new DOMWrapper(document.body)
     const dropdownId = select.get('input').attributes('aria-controls')!

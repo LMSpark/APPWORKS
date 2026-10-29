@@ -137,6 +137,15 @@
         "expandLevel": {
           "type": "number"
         },
+        "filterable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "filterPlaceholder": {
+          "type": "string"
+        },
         "onNodeClick": {
           "type": "object",
           "title": "TreeEventHandler"
@@ -149,6 +158,10 @@
           "type": "object",
           "title": "TreeEventHandler"
         },
+        "onNodeDrop": {
+          "type": "object",
+          "title": "TreeNodeDropHandler"
+        },
         "treeProps": {
           "type": "object",
           "properties": {},
@@ -158,7 +171,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.801Z",
+  "generatedAt": "2026-10-29T02:45:58.049Z",
   "models": {
     "RTreeProps": {
       "name": "RTreeProps",
@@ -172,7 +185,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & {\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & {\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 在标准树容器内显示本地节点过滤输入，不修改 DataView 查询。 */\n    filterable?: boolean;\n    /** 本地节点过滤输入的提示文本。 */\n    filterPlaceholder?: string;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 异步处理节点拖放；设置 control.cancel 后由宿主处理而不调用默认 DataView 移动。 */\n    onNodeDrop?: TreeNodeDropHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -186,7 +199,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}"
+            "typeText": "{\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 在标准树容器内显示本地节点过滤输入，不修改 DataView 查询。 */\n    filterable?: boolean;\n    /** 本地节点过滤输入的提示文本。 */\n    filterPlaceholder?: string;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 异步处理节点拖放；设置 control.cancel 后由宿主处理而不调用默认 DataView 移动。 */\n    onNodeDrop?: TreeNodeDropHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}"
           }
         ],
         "members": {
@@ -240,6 +253,18 @@
               "writable": false
             },
             {
+              "name": "filterable",
+              "jsdoc": "在标准树容器内显示本地节点过滤输入，不修改 DataView 查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterPlaceholder",
+              "jsdoc": "本地节点过滤输入的提示文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "onNodeClick",
               "jsdoc": "节点点击回调",
               "readable": true,
@@ -254,6 +279,12 @@
             {
               "name": "onNodeCollapse",
               "jsdoc": "节点折叠回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onNodeDrop",
+              "jsdoc": "异步处理节点拖放；设置 control.cancel 后由宿主处理而不调用默认 DataView 移动。",
               "readable": true,
               "writable": false
             },

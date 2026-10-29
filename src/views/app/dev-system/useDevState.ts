@@ -120,6 +120,7 @@ export type ExternalDataViewSession = Readonly<{
   hasUnconfirmedSave?: () => boolean
   save: () => Promise<void>
   moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>
+  moveBlueprintNodeRelative?: (command:Readonly<{nodeId:string;targetNodeId:string;position:'before'|'after'|'inner'}>) => Promise<void>
   treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData
   hasTreeProjection?: () => boolean
   childCreateActionState?: (parentNodeId:string) => 'enabled'|'hidden'|'disabled'|'unknown'
@@ -239,7 +240,7 @@ export function useDevState() {
         if(fileOwner.hasPendingFileSave){await savePendingPageFiles(workspace,fileOwner);return}
         if(fileOwner.dirty||fileOwner.hasUnconfirmedSave){if(!fileOwner.hasPendingPageDelete||fileOwner.hasPendingNonDeleteCommand)throw new Error('PAGE_TOOL_CHILD_CREATE_PENDING: 文件命令属于子节点创建流程；请通过原新增子节点入口核验并继续创建导航行');await fileOwner.save();refreshBlueprintTreeProjection();return}
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
-        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
+        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),moveBlueprintNodeRelative:command=>session.moveNodeRelative(command),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
         childCreateActionState:id=>session.childCreateActionState(id)}
       unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
       return session
@@ -291,7 +292,7 @@ export function useDevState() {
           await fileOwner.save();refreshBlueprintTreeProjection();return
         }
         await session.save();await fileOwner.save();refreshBlueprintTreeProjection()},
-        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
+        moveBlueprintNode:(id,parent,index)=>session.moveNode(id,parent,index),moveBlueprintNodeRelative:command=>session.moveNodeRelative(command),treeProjection:()=>session.treeProjection(),hasTreeProjection:()=>session.hasTreeProjection,
         childCreateActionState:id=>session.childCreateActionState(id)}
       unregisterBlueprintWorkspaceSession=registerExternalDataViewSession(external)
       return session
@@ -469,6 +470,17 @@ export function useDevState() {
     const owner=owners[0]
     if (owners.length !== 1 || !owner?.moveBlueprintNode) throw new Error('BLUEPRINT_TREE_DATAVIEW_REQUIRED: 当前项目必须恰有一个树行 DataView owner')
     await owner.moveBlueprintNode(nodeId, parentId, index)
+    refreshBlueprintTreeProjection(owner)
+    notifyExternalDataViewChanged()
+  }
+  async function moveBlueprintNodeRelative(command:Readonly<{nodeId:string;targetNodeId:string;position:'before'|'after'|'inner'}>):Promise<void>{
+    if(blueprintDirty.value)throw new Error('节点基本信息有未保存草稿，请先保存或取消后再移动树节点')
+    const owners=[...externalDataViewSessions].filter(session=>session.moveBlueprintNodeRelative)
+    const owner=owners[0]
+    if(owners.length!==1||!owner?.moveBlueprintNodeRelative)throw new Error('BLUEPRINT_TREE_DATAVIEW_REQUIRED: 当前项目必须恰有一个相对移动 DataView owner')
+    const scope=currentScopeKey(),workspace=currentEditor.value
+    await owner.moveBlueprintNodeRelative(command)
+    if(currentScopeKey()!==scope||currentEditor.value!==workspace)throw new Error('相对移动结果所属项目或工作区已切换')
     refreshBlueprintTreeProjection(owner)
     notifyExternalDataViewChanged()
   }
@@ -1570,6 +1582,15 @@ export function useDevState() {
     }
   }
 
+  async function selectNodeById(nodeId:string):Promise<void>{
+    const owner=await loadBlueprintWorkspaceDataView()
+    if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
+    const projection=owner.treeProjection()
+    const node=projection.nodeId===nodeId?projection:findNodeById(projection.children,nodeId)
+    if(!node||node.nodeId!==nodeId||node.projectId!==owner.projectId)throw new Error('蓝图 DataView 选择行身份不匹配')
+    await selectNode(node)
+  }
+
   function handlePathChange(val: string): void {
     markBlueprintDirty()
     syncActivePageContextByPath(val)
@@ -1644,6 +1665,15 @@ export function useDevState() {
     }
   }
 
+  async function addChildNodeById(parentNodeId:string):Promise<void>{
+    const owner=await loadBlueprintWorkspaceDataView()
+    if(!owner.hasTreeProjection)throw new Error('蓝图 DataView 项目树尚未加载')
+    const projection=owner.treeProjection()
+    const parent=projection.nodeId===parentNodeId?projection:findNodeById(projection.children,parentNodeId)
+    if(!parent||parent.projectId!==owner.projectId)throw new Error('蓝图 DataView 新增父节点不属于当前项目')
+    await addChildNode(parent)
+  }
+
   async function addChildNode(parent: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     try {
       const session=await loadBlueprintWorkspaceDataView()
@@ -1681,7 +1711,7 @@ export function useDevState() {
     }
   }
 
-  function removeNodeFromTree(_node: { parent: { data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData } }, data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): void {
+  function removeNodeFromTree(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): void {
     if (hasExternalDataViewChanges()) {addStatus('树行 DataView 有未保存修改，请先保存或取消后再删除节点', 'warning'); return}
 
     const pageId = resolvePageNodePageId(data)
@@ -1721,6 +1751,17 @@ export function useDevState() {
           : `删除节点失败: ${message}`, 'error')
       },
     )
+  }
+
+  function removeNodeById(nodeId:string):void{
+    const owner=blueprintWorkspaceDataView.value
+    if(!owner||!owner.hasTreeProjection){addStatus('蓝图 DataView 项目树尚未加载，不能删除节点','warning');return}
+    try{
+      const projection=owner.treeProjection()
+      const node=projection.nodeId===nodeId?projection:findNodeById(projection.children,nodeId)
+      if(!node||node.projectId!==owner.projectId)throw new Error('蓝图 DataView 删除行身份不匹配')
+      removeNodeFromTree(node)
+    }catch(error){addStatus(`删除节点失败: ${String(error)}`,'error')}
   }
 
   async function moveNodeInTree(data: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
@@ -1818,6 +1859,7 @@ export function useDevState() {
     registerExternalDataViewSession,
     notifyExternalDataViewChanged,
     moveBlueprintNodeInDataView,
+    moveBlueprintNodeRelative,
     loadBlueprintTreeFromDataView,
     refreshBlueprintTreeProjection,
     blueprintWorkspaceDataView,
@@ -1850,12 +1892,15 @@ export function useDevState() {
     rejectAiTool,
     abortAiTool,
     selectNode,
+    selectNodeById,
     handlePathChange,
     addRootNode,
     addChildNode,
+    addChildNodeById,
     listReferenceProjects,
     listReferenceProjectPages,
     removeNodeFromTree,
+    removeNodeById,
     moveNodeInTree,
     openProjectPlanningDocumentImportDialog,
     closeProjectPlanningDocumentImportDialog,

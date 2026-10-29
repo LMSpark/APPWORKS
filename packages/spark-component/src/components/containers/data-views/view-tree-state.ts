@@ -4,13 +4,14 @@
  * 边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。
  * AI用途：需要判断 view tree state 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。
  */
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import type { ComputedRef } from 'vue'
 import {
   SparkData,
   type DataView,
   type DataRow,
   type TreeConfig,
+  sortDataRowsByExpression,
 } from '@spark-appworks/spark-data'
 import type { RendererTreeNode } from './RendererTree/zero-code'
 import type { DataViewState } from './view-runtime-state.js'
@@ -24,6 +25,8 @@ import {
 export type RendererTreeViewState = DataViewState & {
     /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */
     treeData: ComputedRef<RendererTreeNode[]>
+    /** 从当前 DataView 重新构建树显示投影。 */
+    refreshTreeData: () => void
     /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */
     treeIdField: ComputedRef<string>}
 
@@ -130,14 +133,43 @@ function buildTreeSeedNodes(rows: readonly DataRow[], fields: TreeFieldNames): T
   return { seedNodes, hasParentLink }
 }
 
-function buildNestedTreeRows(fields: TreeFieldNames, seedNodes: TreeManagerSeedNode[]): DataRow[] {
+function buildNestedTreeRows(
+  fields: TreeFieldNames,
+  seedNodes: TreeManagerSeedNode[],
+  treeConfig?: TreeConfig,
+): DataRow[] {
   const nestedRows = SparkData.createTreeManager({
+    ...treeConfig,
     idField: fields.idField,
     parentIdField: fields.parentIdField,
     textField: fields.textField,
     treeMode: 'nested',
   }, seedNodes).buildNestedTree()
   return toDataRows(nestedRows)
+}
+
+function sortTreeProjectionRows(
+  view: DataView,
+  rows: DataRow[],
+  formalRowsByTreeId: ReadonlyMap<string | number, DataRow>,
+): DataRow[] {
+  const expression = view.sortExpression
+  if (!expression?.length) return rows.map(row => ({...row}))
+  const idField = view.treeConfig?.idField ?? view.primaryKey
+  const canReadExpression = rows.every(row => {
+    const id = row[idField]
+    if (typeof id !== 'string' && typeof id !== 'number') return false
+    const formalRow = formalRowsByTreeId.get(id)
+    return formalRow !== undefined && expression.every(sort => view.fieldAccess(formalRow, sort.field).read === 'visible')
+  })
+  const sorted = canReadExpression ? sortDataRowsByExpression(rows, view.columns, expression) : [...rows]
+
+  return sorted.map(row => {
+    const children = row['children']
+    if (!Array.isArray(children)) return row
+    const childRows = children.map(toDataRecord).filter((record): record is Record<string, unknown> => record !== null).map(toDataRow)
+    return {...row, children: sortTreeProjectionRows(view, childRows, formalRowsByTreeId)}
+  })
 }
 
 /** Tree Table Rows Input 的输入数据。 */
@@ -168,7 +200,7 @@ export function buildTreeTableRows(input: TreeTableRowsInput): DataRow[] {
   const { seedNodes, hasParentLink } = buildTreeSeedNodes(rows, fields)
   if (seedNodes.length === 0 || !hasParentLink) return toMutableRows(rows)
 
-  return buildNestedTreeRows(fields, seedNodes)
+  return buildNestedTreeRows(fields, seedNodes, treeConfig)
 }
 
 /** Renderer Tree View State Options 的调用配置。 */
@@ -178,30 +210,68 @@ dataState: DataViewState}
 
 export function useRendererTreeViewState(options: RendererTreeViewStateOptions): RendererTreeViewState {
   const { rows, treeConfig } = options.dataState
+  const projectionRevision = shallowRef(0)
+  const refreshTreeData = () => {
+    projectionRevision.value += 1
+  }
 
   const treeIdField = computed<string>(() => treeConfig.value?.idField ?? 'id')
 
   const treeData = computed<RendererTreeNode[]>(() => {
-    const resolvedRows = toTreeRows(rows.value)
-    if (resolvedRows.length === 0) return []
-    if (isAlreadyNested(resolvedRows)) return resolvedRows
-    if (!treeConfig.value) return resolvedRows
-
+    projectionRevision.value
     const view = options.dataState.resolvedView.value
-    if (view?.treeManager) {
-      return toTreeRows(toDataRows(view.treeManager.buildNestedTree()))
+    const formalTreeIdField = view?.treeConfig?.idField ?? view?.primaryKey ?? 'id'
+    const formalRowsByTreeId = new Map<string | number, DataRow>()
+    if (view) {
+      for (const row of view.rows) {
+        const id = row[formalTreeIdField]
+        if (typeof id === 'string' || typeof id === 'number') formalRowsByTreeId.set(id, row)
+      }
+    }
+    const editedRows = options.dataState.editingRows.value
+    let sourceRows = rows.value
+    if (view && editedRows.length > 0) {
+      const fields = resolveTreeFieldNames(treeConfig.value ?? {}, treeIdField.value)
+      if (fields) {
+        const editedById = new Map<string | number, DataRow>()
+        for (const editedRow of editedRows) {
+          const id = editedRow[fields.idField]
+          if (typeof id === 'string' || typeof id === 'number') editedById.set(id, editedRow)
+        }
+        sourceRows = rows.value.map(row => {
+          const id = row[fields.idField]
+          return (typeof id === 'string' || typeof id === 'number') ? editedById.get(id) ?? row : row
+        })
+      }
+    }
+    const resolvedRows = toTreeRows(sourceRows)
+    if (resolvedRows.length === 0) return []
+    if (isAlreadyNested(resolvedRows)) {
+      const sorted = view ? sortTreeProjectionRows(view, resolvedRows.map(toDataRow), formalRowsByTreeId) : resolvedRows
+      return toTreeRows(sorted)
+    }
+    if (!treeConfig.value) {
+      const sorted = view ? sortTreeProjectionRows(view, resolvedRows.map(toDataRow), formalRowsByTreeId) : resolvedRows
+      return toTreeRows(sorted)
+    }
+
+    if (view?.treeManager && editedRows.length === 0) {
+      return toTreeRows(sortTreeProjectionRows(view, toDataRows(view.treeManager.buildNestedTree()), formalRowsByTreeId))
     }
 
     const fields = resolveTreeFieldNames(treeConfig.value, treeIdField.value)
     if (!fields) return resolvedRows
 
     const { seedNodes } = buildTreeSeedNodes(resolvedRows, fields)
-    return toTreeRows(buildNestedTreeRows(fields, seedNodes))
+    const nestedRows = buildNestedTreeRows(fields, seedNodes, treeConfig.value)
+    const orderedRows = view ? sortTreeProjectionRows(view, nestedRows, formalRowsByTreeId) : nestedRows
+    return toTreeRows(orderedRows)
   })
 
   return {
     ...options.dataState,
     treeData,
+    refreshTreeData,
     treeIdField,
   }
 }

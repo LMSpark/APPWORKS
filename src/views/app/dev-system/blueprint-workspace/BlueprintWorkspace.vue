@@ -5,20 +5,22 @@
 AI用途：保存策划、原型、场景绑定、估算、交付或发布前定位实际控制链。
 -->
 <template>
-  <el-tabs v-if="state.selectedNode.value" v-model="activeStage" type="border-card" class="blueprint-workspace" v-loading="loading">
-    <template #extra>
-      <el-button size="small" :disabled="!sessionDirty || saving || loading" @click="cancelEdits">取消节点修改</el-button>
-      <el-button size="small" type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')">保存节点修改</el-button>
-    </template>
-    <el-tab-pane label="基本信息" name="basic"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></el-tab-pane>
-    <el-tab-pane label="原型描述" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
-    <el-tab-pane label="数据空间" name="data"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data' && readyWorkspaceForView" :state="state" :field-access="access('conid')" /></el-tab-pane>
-    <el-tab-pane label="导航属性" name="navigation" lazy><template v-if="activeStage==='navigation' && readyWorkspaceForView"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="readyWorkspaceForView.runtime.instanceId" :state="state" /></template></el-tab-pane>
-    <el-tab-pane label="导航宿主" name="nav-host"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-nav-host-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></el-tab-pane>
-    <el-tab-pane label="任务信息" name="task-info"><el-empty description="参考实现暂无对应任务资源" /></el-tab-pane>
-    <el-tab-pane label="本仓扩展" name="extensions"><el-tabs v-model="activeExtension" class="extension-tabs"><el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></el-tab-pane><el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></el-tab-pane><el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></el-tab-pane></el-tabs></el-tab-pane>
-  </el-tabs>
-  <el-empty v-else description="在左侧 WBS 中选择节点" />
+  <section v-if="state.selectedNode.value" class="blueprint-workspace" v-loading="loading">
+    <div class="blueprint-workspace__actions">
+      <RendererButton label="取消节点修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
+      <RendererButton label="保存节点修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')" />
+    </div>
+    <RendererTabs v-model="activeStage" class="blueprint-workspace__tabs" toolbar-placement="header">
+      <RendererTabPane label="基本信息" name="basic" :index="0"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></RendererTabPane>
+      <RendererTabPane label="原型描述" name="prototype" :index="1"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" :field-access="access('htmlDesc')" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
+      <RendererTabPane label="数据空间" name="data" :index="2"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data' && readyWorkspaceForView" :state="state" :field-access="access('conid')" /></RendererTabPane>
+      <RendererTabPane label="导航属性" name="navigation" :index="3" :lazy="true"><template v-if="activeStage==='navigation' && readyWorkspaceForView"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="readyWorkspaceForView.runtime.instanceId" :state="state" /></template></RendererTabPane>
+      <RendererTabPane label="导航宿主" name="nav-host" :index="4"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-nav-host-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
+      <RendererTabPane label="任务信息" name="task-info" :index="5"><DisplayEmpty description="参考实现暂无对应任务资源" /></RendererTabPane>
+      <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane :form="draft" :saving="saving" :field-access="estimateAccess" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
+    </RendererTabs>
+  </section>
+  <DisplayEmpty v-else description="在左侧 WBS 中选择节点" />
 </template>
 
 <script setup lang="ts">
@@ -30,7 +32,7 @@ import {
   type LowcodeBlueprintFileName,
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import {DisplayEmpty, PAGE_RUNTIME, RendererButton, RendererTabPane, RendererTabs, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
@@ -262,9 +264,11 @@ watch([() => props.state.selectedNode.value?.nodeId ?? '', () => props.state.pro
 </script>
 
 <style scoped>
-.blueprint-workspace { height: 100%; display: flex; flex-direction: column; }
-.blueprint-workspace :deep(.el-tabs__content) { flex: 1; min-height: 0; overflow: auto; }
-.blueprint-workspace :deep(.el-tab-pane) { height: 100%; }
+.blueprint-workspace { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.blueprint-workspace__actions { display: flex; justify-content: flex-end; gap: 8px; padding: 6px 12px; }
+.blueprint-workspace__tabs { flex: 1; min-height: 0; }
+.blueprint-workspace :deep(.renderer-tabs-main), .blueprint-workspace :deep(.el-tabs), .blueprint-workspace :deep(.el-tabs__content) { height: 100%; min-height: 0; }
+.blueprint-workspace :deep(.el-tab-pane) { min-height: 100%; }
 .blueprint-workspace :deep(.stage-pane) { max-width: 960px; padding: 20px; }
 .blueprint-workspace :deep(.stage-actions) { display: flex; justify-content: flex-end; margin-top: 18px; }
 .domain-note { margin-top: 16px; }

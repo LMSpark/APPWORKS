@@ -4,7 +4,7 @@
  * 边界：只编排 table-level/data-view-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。
  * AI用途：当动作、脚本或 ClassModel 需要调用 renderer tree 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。
  */
-import { nextTick } from 'vue'
+import { nextTick, onScopeDispose, watch } from 'vue'
 import { isDataRow, type DataView, type DataRow } from '@spark-appworks/spark-data'
 import type { LoggerApi } from '@spark-appworks/spark-utils'
 import {
@@ -100,6 +100,22 @@ export type TreeEventHandler = {
   (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>
 }
 
+/** RendererTree drop type reported by the native tree after it changes its display projection. */
+export type TreeNodeDropType = 'before' | 'after' | 'inner'
+
+/** Stable DataView row identity for a native tree drop. */
+export type TreeNodeDropEvent = Readonly<{
+  /** Primary key of the dragged row in the resolved DataView. */
+  draggedKey: string | number
+  /** Primary key of the target row in the resolved DataView. */
+  targetKey: string | number
+  /** Drop position relative to the target row. */
+  dropType: TreeNodeDropType
+}>
+
+/** Async host handler for drops; setting control.cancel suppresses the default DataView move. */
+export type TreeNodeDropHandler = (event: TreeNodeDropEvent, control: TreeEventControl) => void | Promise<void>
+
 /** r-tree 与节点交互相关的行为属性。 */
 type RendererTreeBehaviorProps = Readonly<Record<string, unknown>> & {
   /** 节点点击时触发，可取消默认选中当前行行为。 */
@@ -108,6 +124,8 @@ type RendererTreeBehaviorProps = Readonly<Record<string, unknown>> & {
   onNodeExpand?: TreeEventHandler | undefined
   /** 节点收起时触发，用于同步外部状态或埋点。 */
   onNodeCollapse?: TreeEventHandler | undefined
+  /** Handles a drop before the default DataView move; cancel when the host owns the operation. */
+  onNodeDrop?: TreeNodeDropHandler | undefined
 }
 
 /** 创建 r-tree zero-code API 和事件桥接所需的运行时输入。 */
@@ -118,6 +136,10 @@ type RendererTreeZeroCodeOptions = {
   resolvedView: ValueRef<DataView | null>
   /** 树渲染使用的行数据集合。 */
   treeData: ValueRef<DataRow[]>
+  /** Forces a fresh display projection after native tree mutation settles. */
+  refreshTreeData: () => void
+  /** Tracks an in-flight drop so native drag callbacks can be disabled. */
+  dropPending: ValueRef<boolean>
   /** Element Plus tree 原生组件 ref。 */
   nativeTreeRef: ValueRef<unknown>
   /** 运行时诊断日志。 */
@@ -161,6 +183,8 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     props,
     resolvedView,
     treeData,
+    refreshTreeData,
+    dropPending,
     nativeTreeRef,
     nodeKeyField,
     treeIdField,
@@ -171,6 +195,34 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     if (!isDataRow(data)) return null
     const key = data[nodeKeyField.value]
     return typeof key === 'string' || typeof key === 'number' ? key : null
+  }
+
+  function findCurrentTreeRow(view: DataView, key: string | number): DataRow | null {
+    const pending = [...view.rows]
+    while (pending.length > 0) {
+      const row = pending.shift()
+      if (!row) continue
+      if (getNodeKey(row) === key) return row
+      const children = row['children']
+      if (Array.isArray(children)) {
+        for (const child of children) if (isDataRow(child)) pending.push(child)
+      }
+    }
+    return null
+  }
+
+  function isCurrentTreeRow(view: DataView, expected: DataRow): boolean {
+    const pending = [...view.rows]
+    while (pending.length > 0) {
+      const row = pending.shift()
+      if (!row) continue
+      if (row === expected) return true
+      const children = row['children']
+      if (Array.isArray(children)) {
+        for (const child of children) if (isDataRow(child)) pending.push(child)
+      }
+    }
+    return false
   }
 
   function getNativeTree(): NativeTreeLike | null {
@@ -313,23 +365,32 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
   }
 
   const handleNodeClick = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
-    await runTreeEvent({
-      handler: props.onNodeClick,
-      data,
-      node,
-      component,
-      autoHandle: () => {
-      const key = getNodeKey(data)
-      if (key === null) {
-        logger.warn('RendererTree node-click 跳过自动选中：节点缺少主键', {
-          nodeKey: nodeKeyField.value,
-          treeIdField: treeIdField.value,
-        })
-        return
+    const clickedView = resolvedView.value
+    try {
+      await runTreeEvent({
+        handler: props.onNodeClick,
+        data,
+        node,
+        component,
+        autoHandle: () => {
+          const key = getNodeKey(data)
+          if (key === null) {
+            logger.warn('RendererTree node-click 跳过自动选中：节点缺少主键', {
+              nodeKey: nodeKeyField.value,
+              treeIdField: treeIdField.value,
+            })
+            return
+          }
+          resolvedView.value?.setCurrentRowById(key)
+        },
+      })
+    } finally {
+      await nextTick()
+      if (clickedView && resolvedView.value === clickedView && !clickedView.destroyed) {
+        const currentKey = getNodeKey(clickedView.currentRow)
+        getNativeTree()?.setCurrentKey?.(currentKey)
       }
-      resolvedView.value?.setCurrentRowById(key)
-      },
-    })
+    }
   }
 
   const handleNodeExpand = async (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent) => {
@@ -340,25 +401,66 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
     await runTreeEvent({ handler: props.onNodeCollapse, data, node, component })
   }
 
-  const handleNodeDrop = async (draggingNode: ElTreeNode, dropNode: ElTreeNode, dropType: string) => {
+  let dropGeneration = 0
+  let pendingDropView: DataView | null = null
+
+  watch(
+    () => resolvedView.value,
+    nextView => {
+      if (dropPending.value && nextView !== pendingDropView) {
+        dropGeneration += 1
+        dropPending.value = false
+        pendingDropView = null
+        refreshTreeData()
+      }
+    },
+    { flush: 'sync' },
+  )
+  onScopeDispose(() => {
+    dropGeneration += 1
+    dropPending.value = false
+    pendingDropView = null
+  })
+
+  const handleNodeDrop = async (draggingNode: ElTreeNode, dropNode: ElTreeNode, rawDropType: string) => {
     const view = resolvedView.value
-    if (!view) return
+    if (!view || dropPending.value) return
 
     const draggedKey = getNodeKey(draggingNode.data)
-    if (draggedKey === null) return
+    const targetKey = getNodeKey(dropNode.data)
+    if (draggedKey === null || targetKey === null) return
+    if (rawDropType !== 'before' && rawDropType !== 'after' && rawDropType !== 'inner') return
+    const draggedRow = findCurrentTreeRow(view, draggedKey)
+    const targetRow = findCurrentTreeRow(view, targetKey)
+    if (!draggedRow || !targetRow) return
 
-    let newParentId: string | number | null = null
-    if (dropType === 'inner') {
-      newParentId = getNodeKey(dropNode.data)
-    } else {
-      // 取 dropNode 在树索引中的 parentId，避免手工解析行字段
-      const dropNodeKey = getNodeKey(dropNode.data)
-      newParentId = (dropNodeKey !== null ? view.treeManager?.getNode(dropNodeKey)?.parentId : null) ?? null
+    const generation = ++dropGeneration
+    const control = createCancellableControl()
+    dropPending.value = true
+    pendingDropView = view
+    try {
+      await props.onNodeDrop?.({ draggedKey, targetKey, dropType: rawDropType }, control)
+      if (!control.cancel && resolvedView.value === view && !view.destroyed && generation === dropGeneration
+        && isCurrentTreeRow(view, draggedRow) && isCurrentTreeRow(view, targetRow)) {
+        let newParentId: string | number | null = null
+        if (rawDropType === 'inner') {
+          newParentId = targetKey
+        } else {
+          // 取 dropNode 在树索引中的 parentId，避免手工解析行字段
+          newParentId = view.treeManager?.getNode(targetKey)?.parentId ?? null
+        }
+        await view.moveTreeNode(draggedKey, newParentId, -1)
+      }
+    } catch (error) {
+      control.cancel = true
+      logger.error('RendererTree node-drop failed; the current DataView projection was restored', error)
+    } finally {
+      if (generation === dropGeneration) {
+        dropPending.value = false
+        pendingDropView = null
+        if (resolvedView.value === view && !view.destroyed) refreshTreeData()
+      }
     }
-
-    const moveTreeNode = ((nextNodeId: string | number, nextParentId: string | number | null, nextIndex?: number) =>
-      view.moveTreeNode(nextNodeId, nextParentId, nextIndex))
-    await moveTreeNode(draggedKey, newParentId, -1)
   }
 
   return {

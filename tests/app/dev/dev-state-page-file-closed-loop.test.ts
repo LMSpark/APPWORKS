@@ -707,6 +707,64 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('RendererTree 相对移动按同一 Base_NavigationInfo DataView 的新鲜行排序并只暂存当前树 patch',async()=>{
+    const root=blueprintRoot([
+      {...node('MOVE-A','A','','APP-A'),navigation:{title:'A',order:0,publishInMenu:true,showChildren:true,beginGroup:false}},
+      {...node('MOVE-B','B','','APP-A'),navigation:{title:'B',order:1,publishInMenu:true,showChildren:true,beginGroup:false}},
+      {...node('MOVE-C','C','','APP-A'),navigation:{title:'C',order:2,publishInMenu:true,showChildren:true,beginGroup:false}},
+    ],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      await owner.load('MOVE-A')
+      const selected=owner.view.currentRow
+      const rawBefore=owner.view.rows.map(row=>({rowid:row['rowid'],prowid:row['prowid'],FunOrderValue:row['FunOrderValue']}))
+      const refresh=vi.spyOn(owner.view,'refresh')
+
+      await owner.moveNodeRelative({nodeId:'MOVE-C',targetNodeId:'MOVE-A',position:'before'})
+
+      expect(refresh).toHaveBeenCalledOnce()
+      expect(owner.treeProjection().children.map(child=>child.nodeId)).toEqual(['MOVE-C','MOVE-A','MOVE-B'])
+      expect(owner.view.editingRows.map(row=>row['rowid'])).toEqual(expect.arrayContaining(['MOVE-A','MOVE-C']))
+      expect(owner.view.editingRows.find(row=>row['rowid']==='MOVE-C')?.['FunOrderValue']).toBe(0)
+      expect(owner.view.editingRows.find(row=>row['rowid']==='MOVE-A')?.['FunOrderValue']).toBe(1)
+      expect(owner.view.rows.map(row=>({rowid:row['rowid'],prowid:row['prowid'],FunOrderValue:row['FunOrderValue']}))).toEqual(rawBefore)
+      expect(owner.view.currentRow?.['rowid']).toBe(selected?.['rowid'])
+      expect(fixture.save).not.toHaveBeenCalled()
+      await expect(owner.moveNodeRelative({nodeId:'MOVE-B',targetNodeId:'MOVE-A',position:'after'})).rejects.toThrow('未保存修改')
+      expect(refresh).toHaveBeenCalledOnce()
+    }finally{ownerScope.stop()}
+  })
+
+  it('RendererTree 相对移动缺失目标或任一受影响行无排序写权限时不留下 DataView patch',async()=>{
+    const root=blueprintRoot([
+      {...node('MOVE-A','A','','APP-A'),navigation:{title:'A',order:0,publishInMenu:true,showChildren:true,beginGroup:false}},
+      {...node('MOVE-B','B','','APP-A'),navigation:{title:'B',order:1,publishInMenu:true,showChildren:true,beginGroup:false}},
+      {...node('MOVE-C','C','','APP-A'),navigation:{title:'C',order:2,publishInMenu:true,showChildren:true,beginGroup:false}},
+    ],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root,{readonlyFields:['FunOrderValue']})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      await owner.loadProjectTree()
+      await owner.load('MOVE-A')
+      const selected=owner.view.currentRow
+
+      await expect(owner.moveNodeRelative({nodeId:'MOVE-C',targetNodeId:'MISSING',position:'before'})).rejects.toThrow('未返回相对移动目标')
+      expect(owner.view.editingRows).toEqual([])
+      await expect(owner.moveNodeRelative({nodeId:'MOVE-C',targetNodeId:'MOVE-A',position:'before'})).rejects.toThrow('权限拒绝移动行')
+      expect(owner.view.editingRows).toEqual([])
+      expect(owner.view.currentRow?.['rowid']).toBe(selected?.['rowid'])
+      expect(fixture.save).not.toHaveBeenCalled()
+    }finally{ownerScope.stop()}
+  })
+
   it('多父批次任一父行 c 权限不足时完整预检拒绝且不留下部分草稿',async()=>{
     const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
       node('PARENT-A','Parent A','','APP-A'),node('PARENT-B','Parent B','','APP-A'),
@@ -1300,7 +1358,7 @@ describe('DevState 页面文件闭环', () => {
     try {
       expect(state.blueprintDraft.navigation?.title).toBe('尚未保存的基本信息')
       state.addRootNode()
-      state.removeNodeFromTree({parent:{data:root}},{...root.children![0]!})
+      state.removeNodeById(root.children![0]!.nodeId)
       await state.addChildNode(root)
       expect(fixture.save).not.toHaveBeenCalled()
       expect(httpFns.put).not.toHaveBeenCalled()
@@ -1320,7 +1378,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      state.removeNodeById(leaf.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalled()
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['LEAF-A'])
@@ -1338,7 +1396,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      state.removeNodeFromTree({parent:{data:deniedRoot}},{...deniedRoot.children![0]!})
+      state.removeNodeById(deniedRoot.children![0]!.nodeId)
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(httpFns.delete).not.toHaveBeenCalled()
@@ -1356,7 +1414,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      state.removeNodeFromTree({parent:{data:root}},{...parent})
+      state.removeNodeById(parent.nodeId)
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
@@ -1371,7 +1429,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      state.removeNodeFromTree({parent:{data:root}},{...leaf,projectId:'OTHER-PROJECT'})
+      state.removeNodeById('OTHER-PROJECT')
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
     } finally {ownerScope.stop()}
@@ -1388,7 +1446,7 @@ describe('DevState 页面文件闭环', () => {
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
-      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      state.removeNodeById(leaf.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalled()
       expect(owner.hasUnconfirmedSave).toBe(true)
@@ -1543,7 +1601,7 @@ describe('DevState 页面文件闭环', () => {
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
-      state.removeNodeFromTree({parent:{data:root}},{...leaf})
+      state.removeNodeById(leaf.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalledTimes(1)
       expect(owner.view.dirtyTracking.hasPendingChanges('LEAF-FAIL')).toBe(true)
@@ -1567,7 +1625,7 @@ describe('DevState 页面文件闭环', () => {
       await state.loadBlueprint()
       pageFiles.files.set('mounted-page/rule.json','[]')
       expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
-      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true))
       expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
       expect(httpFns.delete).not.toHaveBeenCalled()
@@ -1590,7 +1648,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
-      state.removeNodeFromTree({parent:{data:root}},{...mounted,projectId:targetProject})
+      state.removeNodeById('OTHER-PROJECT')
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(pageFiles.remove).not.toHaveBeenCalled()
@@ -1607,7 +1665,7 @@ describe('DevState 页面文件闭环', () => {
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
       expect(fixture.save).toHaveBeenCalledTimes(1)
       expect(pageFiles.remove).not.toHaveBeenCalled()
@@ -1626,7 +1684,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
-      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/部分成功|蓝图.*已删除.*文件/.test(item.text))).toBe(true))
       const fileView=fixture.dataSet.getView('PageToolFilesCommand')
       const commandId=fileView?.rows.find(row=>row['action']==='delete')?.['commandId']
@@ -1651,7 +1709,7 @@ describe('DevState 页面文件闭环', () => {
       await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
-      state.removeNodeFromTree({parent:{data:root}},{...mounted})
+      state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
       expect([...pageFiles.files.keys()]).toContain('unknown-page/rule.json')
       expect(pageFiles.remove).not.toHaveBeenCalled()
@@ -1675,7 +1733,7 @@ describe('DevState 页面文件闭环', () => {
     await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
     const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
     await owner.loadProjectTree()
-    first.removeNodeFromTree({parent:{data:root}},{...mounted})
+    first.removeNodeById(mounted.nodeId)
     await vi.waitFor(()=>expect(first.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true))
     const fileView=fixture.dataSet.getView('PageToolFilesCommand')
     const commandId=fileView?.rows.find(row=>row['action']==='delete')?.['commandId']

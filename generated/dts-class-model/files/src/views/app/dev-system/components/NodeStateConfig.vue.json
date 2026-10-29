@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/components/NodeStateConfig",
-    "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态写入navigation分组，业务kind不由显示状态推断。\nAI用途：调整节点导航展示并经领域dirty与Workspace保存。",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态字段直接绑定当前蓝图DataView；显示方式与对齐沿正式独立字典视图读取。\nAI用途：调整节点导航展示并经原DataView显式保存。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-26T19:25:45.367Z",
+  "generatedAt": "2026-10-29T03:09:25.743Z",
   "models": {}
 }

@@ -8,20 +8,21 @@ AI用途：编辑rule/script/style并触发父工作台真实交付动作。
   <section class="delivery-pane">
     <div class="delivery-actions">
       <span>三个文件独立追加版本；页面数据来自 DataSpace。</span>
-      <el-button type="primary" :loading="saving" :disabled="!canPublish" @click="$emit('save')">保存三个交付文件</el-button>
+      <RendererButton label="保存三个交付文件" button-type="primary" :loading="saving" :disabled="!canPublish" @click="$emit('save')" />
     </div>
-    <el-tabs v-model="activeFile" type="card" class="delivery-tabs">
-      <el-tab-pane v-for="file in files" :key="file" :label="file" :name="file">
+    <RendererTabs v-model="activeFile" class="delivery-tabs">
+      <RendererTabPane v-for="(file, index) in files" :key="file" :label="file" :name="file" :index="index">
         <DevFileEditor v-if="activeFile === file" :state="state" :active-file="file" :show-tabs="false" />
-      </el-tab-pane>
-      <el-tab-pane label="预览" name="preview"><DevPreviewTab v-if="activeFile === 'preview'" :state="state" :refresh-token="0" /></el-tab-pane>
-    </el-tabs>
+      </RendererTabPane>
+      <RendererTabPane label="预览" name="preview" :index="files.length"><DevPreviewTab v-if="activeFile === 'preview'" :state="state" :refresh-token="0" /></RendererTabPane>
+    </RendererTabs>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
+import { RendererButton, RendererTabPane, RendererTabs } from '@spark-appworks/spark-component'
 import DevFileEditor from '../DevFileEditor.vue'
 import DevPreviewTab from '../DevPreviewTab.vue'
 import type { DevState } from '../useDevState'

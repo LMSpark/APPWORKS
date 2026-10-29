@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/sort-expression",
+    "sourcePath": "packages/spark-data/src/query/sort-expression.ts",
+    "sourceFile": "packages/spark-data/src/query/sort-expression.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/sort-expression",
+    "jsdoc": "@module @spark-appworks/spark-data:query/sort-expression\n职责：提供按 DataColumn 类型解释 SortExpression 的纯行投影排序。\n边界：不查询、不修改行、不读取权限；消费者须先确认本次正式行对排序字段可读。\nAI用途：在不改变 DataView 查询状态的临时投影中复用声明列类型和排序方向。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-29T01:05:52.201Z",
+  "models": {}
+}

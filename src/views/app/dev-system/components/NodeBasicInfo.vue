@@ -7,43 +7,45 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
 <template>
   <div>
     <template v-if="includes('capability')">
-    <el-divider content-position="left">能力信息</el-divider>
-    <el-form-item label="节点 ID"><el-input :model-value="state.blueprintDraft.nodeId" disabled /></el-form-item>
-    <RendererForm v-if="access('name').read || access('memo').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" :context-data-member="'currentRow'">
-      <template #default>
-        <el-form-item v-if="access('name').read" label="能力名称"><FieldText :data-view-key="blueprintViewKey" data-member="currentRow" data-field="name" :readonly="!access('name').write" @update:model-value="state.markBlueprintDirty" /></el-form-item>
-        <el-form-item v-if="access('memo').read" label="功能描述"><FieldTextarea :data-view-key="blueprintViewKey" data-member="currentRow" data-field="memo" :autosize="{minRows:4,maxRows:12}" :readonly="!access('memo').write" @update:model-value="state.markBlueprintDirty" /></el-form-item>
-      </template>
+    <RendererDivider content-position="left" content="能力信息" />
+    <RendererForm v-if="blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldText :data-view-key="blueprintViewKey" data-member="currentRow" data-field="rowid" label="节点 ID" readonly />
+      <FieldText v-if="access('name').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="name" label="能力名称" :readonly="!access('name').write" @update:model-value="state.markBlueprintDirty" />
+      <FieldTextarea v-if="access('memo').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="memo" label="功能描述" :autosize="{minRows:4,maxRows:12}" :readonly="!access('memo').write" @update:model-value="state.markBlueprintDirty" />
     </RendererForm>
-    <el-form-item v-if="access('conType').read" label="业务种类"><el-select v-model="state.blueprintDraft.kind" :disabled="!access('conType').write" @change="state.markBlueprintDirty"><el-option v-for="option in kindOptions" :key="option.value" :label="option.label" :value="option.value" /></el-select></el-form-item>
+    <RendererForm v-if="blueprintViewKey && access('conType').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="conType" label="业务种类" :options="kindOptions" :clearable="false" :readonly="!access('conType').write" @update:model-value="state.markBlueprintDirty" />
+    </RendererForm>
     </template>
     <template v-if="includes('navigation')">
-    <el-form-item v-if="state.blueprintNodeFieldAccess('FunName').read" label="提供导航"><el-switch v-model="hasNavigation" :disabled="!state.blueprintNodeSectionWritable('navigation')" /></el-form-item>
+    <RendererButton v-if="state.blueprintNodeFieldAccess('FunName').read" :label="state.blueprintDraft.navigation ? '移除导航配置' : '提供导航'" :disabled="!state.blueprintNodeSectionWritable('navigation')" @click="toggleNavigation" />
     <template v-if="state.blueprintDraft.navigation">
-      <el-divider content-position="left">导航信息</el-divider>
-      <el-form-item v-if="access('FunName').read" label="菜单标题"><el-input v-model="state.blueprintDraft.navigation.title" :disabled="!access('FunName').write" @change="state.markBlueprintDirty" /></el-form-item>
-      <el-form-item v-if="access('NavigationImageWxz').read" label="图标"><IconPicker v-if="access('NavigationImageWxz').write" :model-value="state.blueprintDraft.navigation.icon ?? ''" @update:model-value="state.blueprintDraft.navigation.icon = $event; state.markBlueprintDirty()" /><el-input v-else :model-value="state.blueprintDraft.navigation.icon ?? ''" disabled /></el-form-item>
-      <el-form-item v-if="includes('navigation-target') && access('NavigationUrl').read" label="工具或页面目标"><el-input v-model="state.blueprintDraft.navigation.target" :disabled="!access('NavigationUrl').write" @change="state.markBlueprintDirty" /></el-form-item>
+      <RendererDivider content-position="left" content="导航信息" />
+      <RendererForm v-if="blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+        <FieldText v-if="access('FunName').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="FunName" label="菜单标题" :readonly="!access('FunName').write" @update:model-value="state.markBlueprintDirty" />
+        <FieldText v-if="includes('navigation-target') && access('NavigationUrl').read" :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationUrl" label="工具或页面目标" :readonly="!access('NavigationUrl').write" @update:model-value="state.handlePathChange(String($event))" />
+      </RendererForm>
+      <RendererForm v-if="blueprintViewKey && access('NavigationImageWxz').read" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+        <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="NavigationImageWxz" label="图标" :options="iconOptions" :filterable="true" :clearable="true" :readonly="!access('NavigationImageWxz').write" @update:model-value="state.markBlueprintDirty" />
+      </RendererForm>
     </template>
     </template>
     <template v-if="includes('data-space')">
-    <el-divider content-position="left">数据空间</el-divider>
-    <el-form-item v-if="access('conid').read" label="绑定场景">
-      <div class="scene-binding-control">
+    <RendererDivider content-position="left" content="数据空间" />
+    <div v-if="access('conid').read" class="scene-binding-control">
         <FieldSelect :data-view-key="blueprintViewKey" data-member="currentRow" data-field="conid"
-          :option-data-view-key="catalogViewKey" option-value-field="rowid" option-label-field="Name"
+          label="绑定场景" :option-data-view-key="catalogViewKey" option-value-field="rowid" option-label-field="Name"
           :readonly="true" :clearable="false" />
         <RendererButton :label="state.blueprintDraft.dataSpace?.scenarioId ? '更换场景' : '选择场景'"
           :disabled="!canChooseScene" @click="openScenePicker" />
-      </div>
-    </el-form-item>
-    <el-form-item v-else label="绑定场景"><el-alert title="当前查询没有返回 conid 字段或读取权限" type="warning" :closable="false" /></el-form-item>
-    <el-alert v-if="catalogError" :title="catalogError" type="error" :closable="false" />
+    </div>
+    <DisplayAlert v-else title="当前查询没有返回 conid 字段或读取权限" alert-type="error" />
+    <DisplayAlert v-if="catalogError" :description="catalogError" alert-type="error" />
     <RendererDialog v-if="catalogOpen" :model-value="true" :data-view-key="catalogViewKey"
       title="选择数据空间" width="min(980px, 94vw)" :close-disabled="catalogLoading"
       @update:model-value="closeScenePicker">
-      <p v-if="catalogLoading" role="status">正在读取数据空间目录…</p>
-      <p v-if="catalogError" role="alert">{{ catalogError }}</p>
+      <DisplayAlert v-if="catalogLoading" description="正在读取数据空间目录…" alert-type="info" />
+      <DisplayAlert v-if="catalogError" :description="catalogError" alert-type="error" />
       <template v-if="catalogViewReady">
         <RendererFilter :data-view-key="catalogViewKey" :auto-query="false" :children="catalogFilterFields" />
         <RendererTable :data-view-key="catalogViewKey" :children="catalogFields" :highlight-current-row="true" />
@@ -55,35 +57,53 @@ AI用途：为选中节点配置四组领域信息并标记蓝图dirty。
     </RendererDialog>
     </template>
     <template v-if="includes('prototype')">
-    <el-form-item v-if="access('htmlDesc').read" label="提供原型"><el-switch v-model="hasPrototype" :disabled="!access('htmlDesc').write" /></el-form-item>
-    <el-form-item v-if="state.blueprintDraft.prototype && access('htmlDesc').read" label="原型描述"><el-input v-model="state.blueprintDraft.prototype.htmlDescription" :disabled="!access('htmlDesc').write" type="textarea" :rows="6" @change="state.markBlueprintDirty" /></el-form-item>
+    <RendererButton v-if="access('htmlDesc').read" :label="state.blueprintDraft.prototype ? '移除原型描述' : '提供原型描述'" :disabled="!access('htmlDesc').write" @click="togglePrototype" />
+    <RendererForm v-if="state.blueprintDraft.prototype && access('htmlDesc').read && blueprintViewKey" :data-view-key="blueprintViewKey" :auto-columns="false" :show-data-view-meta="false" context-data-member="currentRow" label-width="120px">
+      <FieldTextarea :data-view-key="blueprintViewKey" data-member="currentRow" data-field="htmlDesc" label="原型描述" :autosize="{minRows:6,maxRows:12}" :readonly="!access('htmlDesc').write" @update:model-value="state.markBlueprintDirty" />
+    </RendererForm>
     </template>
   </div>
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import { PROJECT_BLUEPRINT_NODE_KINDS } from '@spark-appworks/spark-utils'
-import type { ProjectBlueprintNodeKind } from '@spark-appworks/spark-utils'
 import {buildDataViewKey, RequestState, type DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
+import * as ElementIcons from '@element-plus/icons-vue'
 import type { DevState } from '../useDevState'
-import IconPicker from '@/components/IconPicker.vue'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-const {FieldSelect, FieldText, FieldTextarea, RendererForm, RendererButton, RendererDialog, RendererFilter, RendererTable} = SparkComponent
+const {DisplayAlert, FieldSelect, FieldText, FieldTextarea, RendererForm, RendererButton, RendererDialog, RendererFilter, RendererTable, RendererDivider} = SparkComponent
 const CATALOG_SCENARIO_ID = getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
 const catalogViewKey = buildDataViewKey('Base_DataSet', 'catalog', CATALOG_SCENARIO_ID)
-const blueprintViewKey = buildDataViewKey('Base_NavigationInfo', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+const blueprintViewKey = computed(()=>{
+  const view=props.state.blueprintWorkspaceDataView.value?.view
+  const scenarioId=view?.dataSet?.scenarioId
+  const modelName=view?.dataTable?.modelBinding?.modelName
+  return view&&scenarioId&&modelName?buildDataViewKey(modelName,view.viewId,scenarioId):''
+})
 /** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */
 type Section = 'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'
 const props = defineProps<{state:DevState;sections?:readonly Section[]}>()
 const includes = (section: Section) => props.sections === undefined ? true : props.sections.includes(section)
-const labels:Record<ProjectBlueprintNodeKind,string>={module:'模块',page:'页面',embedded:'嵌入内容',service:'服务',content:'内容'}
-const kindOptions=PROJECT_BLUEPRINT_NODE_KINDS.map(value=>({value,label:labels[value]}))
+const kindOptions=[
+  {value:'Model',label:'模块'},
+  {value:'Navitem',label:'页面'},
+  {value:'embedded',label:'嵌入内容'},
+  {value:'service',label:'服务'},
+  {value:'content',label:'内容'},
+]
+const iconOptions=Object.keys(ElementIcons).filter(value=>value!=='default').sort().map(value=>({value,label:value}))
 const access=(field:string)=>props.state.blueprintNodeFieldAccess(field)
-const hasNavigation = computed({get:()=>props.state.blueprintDraft.navigation !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.navigation={title:props.state.blueprintDraft.capability.name??'',order:0,publishInMenu:true,showChildren:true,beginGroup:false};else delete props.state.blueprintDraft.navigation;props.state.markBlueprintDirty()}})
-const hasPrototype = computed({get:()=>props.state.blueprintDraft.prototype !== undefined,set:(enabled:boolean)=>{if(enabled)props.state.blueprintDraft.prototype={htmlDescription:''};else delete props.state.blueprintDraft.prototype;props.state.markBlueprintDirty()}})
+function toggleNavigation():void {
+  if(props.state.blueprintDraft.navigation) delete props.state.blueprintDraft.navigation
+  else props.state.blueprintDraft.navigation={title:props.state.blueprintDraft.capability.name??'',order:0,publishInMenu:true,showChildren:true,beginGroup:false}
+  props.state.markBlueprintDirty()
+}
+function togglePrototype():void {
+  if(props.state.blueprintDraft.prototype) delete props.state.blueprintDraft.prototype
+  else props.state.blueprintDraft.prototype={htmlDescription:''}
+  props.state.markBlueprintDirty()
+}
 const catalogOpen = ref(false), catalogLoading = ref(false), catalogError = ref('')
 const catalogReady = ref(false)
 const catalogView = shallowRef<DataView>()

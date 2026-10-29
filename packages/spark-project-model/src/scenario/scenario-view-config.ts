@@ -730,11 +730,22 @@ export class ScenarioViewConfig {
     }
     if ('treeConfig' in view) {
       const tree = record(view['treeConfig'], `${path}.treeConfig`)
-      keys(tree, ['idField', 'parentIdField', 'rootParentValue', 'textField', 'depthLimit', 'lazy', 'treeMode', 'serverPaginationMode', 'filterMode'], `${path}.treeConfig`)
+      keys(tree, ['idField', 'parentIdField', 'rootParentValue', 'rootParentValues', 'textField', 'depthLimit', 'lazy', 'treeMode', 'serverPaginationMode', 'filterMode'], `${path}.treeConfig`)
       for (const key of ['idField', 'parentIdField', 'textField']) if (key in tree) name(tree[key], `${path}.treeConfig.${key}`)
       const rootParent = tree['rootParentValue']
       if ('rootParentValue' in tree && typeof rootParent !== 'string'
         && !(typeof rootParent === 'number' && Number.isFinite(rootParent))) throw new Error(`${path}.treeConfig.rootParentValue 必须是字符串或有限数值`)
+      if ('rootParentValues' in tree) {
+        const rootParentValues = tree['rootParentValues']
+        if (!Array.isArray(rootParentValues)
+          || !rootParentValues.every(value => value === null || typeof value === 'string'
+            || (typeof value === 'number' && Number.isFinite(value)))) {
+          throw new Error(`${path}.treeConfig.rootParentValues 必须是字符串、有限数值或null组成的数组`)
+        }
+      }
+      if ('rootParentValue' in tree && 'rootParentValues' in tree) {
+        throw new Error(`${path}.treeConfig.rootParentValue 与 rootParentValues 不可同时声明`)
+      }
       optionalBoolean(tree, 'lazy', `${path}.treeConfig`)
       const depth = tree['depthLimit']
       if ('depthLimit' in tree && (typeof depth !== 'number' || !Number.isSafeInteger(depth) || depth < 0)) throw new Error(`${path}.treeConfig.depthLimit 无效`)

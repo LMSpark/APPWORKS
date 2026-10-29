@@ -3,7 +3,7 @@ import { HttpClientBase } from '@spark-appworks/spark-utils'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { DataSet } from '../../dataset'
 import { TreeManager } from '../../node-tree/tree-manager'
-import type { FlatTreeNode } from '../../types'
+import type { FlatTreeNode, TreeConfig } from '../../types'
 
 const NAV_BASE = '/api/tree/nodes'
 const RELATIVE_NAV_BASE = '/tree/nodes'
@@ -45,7 +45,7 @@ function createTreeHttpClient(methods: Partial<Record<'get' | 'post' | 'put', Tr
   return new TreeHttpClient(methods)
 }
 
-function createRemoteTreeDataSet(mockHttpClient: HttpClientBase): DataSet {
+function createRemoteTreeDataSet(mockHttpClient: HttpClientBase, localRootConfig: Pick<TreeConfig, 'rootParentValue' | 'rootParentValues'> = {}): DataSet {
   const dataSet = DataSet.fromJson({
     dataSetName: 'Tree4Plus7',
     tables: {
@@ -72,6 +72,7 @@ function createRemoteTreeDataSet(mockHttpClient: HttpClientBase): DataSet {
               idField: 'id',
               parentIdField: 'parentId',
               textField: 'name',
+              ...localRootConfig,
             },
           },
         },
@@ -156,6 +157,26 @@ describe('DataSet Tree 4+7 interfaces', () => {
           treeConfig: {idField: 'id', parentIdField: 'parentId', textField: 'name', treeMode: 'nested'}},
       })
       expect(view!.rows[0]?.['id']).toBe(1)
+    })
+
+    it.each([
+      {rootParentValue: 'local-root'},
+      {rootParentValues: [null, '', 0, '0']},
+    ])('keeps local root organization out of HTTP viewConfig: %j', async localRootConfig => {
+      const get = vi.fn().mockResolvedValue([])
+      const dataSet = createRemoteTreeDataSet(createTreeHttpClient({get}), localRootConfig)
+      const view = dataSet.getView('NavigationNodes', 'default')
+      expect(view).toBeDefined()
+
+      const result = await view!.loadFromServer()
+
+      expect(result.success).toBe(true)
+      expect(get.mock.calls[0]?.[1]).toMatchObject({
+        viewConfig: {treeConfig: {idField: 'id', parentIdField: 'parentId', textField: 'name'}},
+      })
+      expect(JSON.stringify(get.mock.calls[0]?.[1])).not.toContain('rootParentValue')
+      expect(view!.treeConfig).toMatchObject({...localRootConfig})
+      dataSet.destroy()
     })
 
     it('loadTreeNested should call nested endpoint for explicit nested contract', async () => {

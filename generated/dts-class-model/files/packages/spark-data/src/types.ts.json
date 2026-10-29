@@ -396,7 +396,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@217387": {
+            "__@iterator@218040": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -451,7 +451,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@217387"
+            "__@iterator@218040"
           ],
           "additionalProperties": false
         },
@@ -1022,7 +1022,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@217387": {
+            "__@iterator@218040": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1077,7 +1077,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@217387"
+            "__@iterator@218040"
           ],
           "additionalProperties": false
         },
@@ -1303,7 +1303,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@217387": {
+            "__@iterator@218040": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1358,7 +1358,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@217387"
+            "__@iterator@218040"
           ],
           "additionalProperties": false
         },
@@ -1596,7 +1596,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@217387": {
+                "__@iterator@218040": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1651,7 +1651,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@217387"
+                "__@iterator@218040"
               ],
               "additionalProperties": false
             },
@@ -1881,7 +1881,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@217387": {
+                "__@iterator@218040": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1936,7 +1936,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@217387"
+                "__@iterator@218040"
               ],
               "additionalProperties": false
             },
@@ -2872,7 +2872,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@217387": {
+                "__@iterator@218040": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2927,7 +2927,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@217387"
+                "__@iterator@218040"
               ],
               "additionalProperties": false
             },
@@ -3157,7 +3157,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@217387": {
+                "__@iterator@218040": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3212,7 +3212,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@217387"
+                "__@iterator@218040"
               ],
               "additionalProperties": false
             },
@@ -3678,6 +3678,22 @@
               "type": "number"
             }
           ]
+        },
+        "rootParentValues": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "textField": {
           "type": "string"
@@ -6201,7 +6217,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T12:18:19.675Z",
+  "generatedAt": "2026-10-29T01:25:07.042Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -7751,7 +7767,7 @@
       "jsdoc": "树结构字段配置（属于视图层，固化在 DataView）。\n树操作 HTTP 接口族配置在 `CrudApi`；模型层始终存储平铺数据，树形态由视图层组织。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 节点 ID 字段名 */\n    idField?: string;\n    /** 父节点 ID 字段名 */\n    parentIdField?: string;\n    /** 根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。 */\n    rootParentValue?: string | number;\n    /** 节点文本显示字段名 */\n    textField?: string;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 是否懒加载子节点 */\n    lazy?: boolean;\n    /**\n     * 树视图模式（默认 'flat'）：模型层始终存储平铺数据，视图层选择返回 flat 还是 nested 组织方式\n     */\n    treeMode?: 'flat' | 'nested';\n    /**\n     * 服务端分页策略：root 按根节点分页并返回 descendants；flat 按扁平行集合分页。\n     */\n    serverPaginationMode?: 'root' | 'flat';\n    /** 服务端过滤树时是否保留祖先链，默认 include-ancestors */\n    filterMode?: 'include-ancestors' | 'node-only';\n}",
+        "declarationTypeText": "{\n    /** 节点 ID 字段名 */\n    idField?: string;\n    /** 父节点 ID 字段名 */\n    parentIdField?: string;\n    /** 根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。 */\n    rootParentValue?: string | number;\n    /** 精确匹配的多个本地根父字段值；null 同时包含 null 与 undefined。不可与 rootParentValue 同时声明，也不发送到服务端。 */\n    rootParentValues?: ReadonlyArray<string | number | null>;\n    /** 节点文本显示字段名 */\n    textField?: string;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 是否懒加载子节点 */\n    lazy?: boolean;\n    /**\n     * 树视图模式（默认 'flat'）：模型层始终存储平铺数据，视图层选择返回 flat 还是 nested 组织方式\n     */\n    treeMode?: 'flat' | 'nested';\n    /**\n     * 服务端分页策略：root 按根节点分页并返回 descendants；flat 按扁平行集合分页。\n     */\n    serverPaginationMode?: 'root' | 'flat';\n    /** 服务端过滤树时是否保留祖先链，默认 include-ancestors */\n    filterMode?: 'include-ancestors' | 'node-only';\n}",
         "members": {
           "attributes": [
             {
@@ -7769,6 +7785,12 @@
             {
               "name": "rootParentValue",
               "jsdoc": "根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootParentValues",
+              "jsdoc": "精确匹配的多个本地根父字段值；null 同时包含 null 与 undefined。不可与 rootParentValue 同时声明，也不发送到服务端。",
               "readable": true,
               "writable": false
             },

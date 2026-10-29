@@ -786,6 +786,8 @@ export type TreeConfig = {
   parentIdField?: string
   /** 根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。 */
   rootParentValue?: string | number
+  /** 精确匹配的多个本地根父字段值；null 同时包含 null 与 undefined。不可与 rootParentValue 同时声明，也不发送到服务端。 */
+  rootParentValues?: ReadonlyArray<string | number | null>
   /** 节点文本显示字段名 */
   textField?: string
   /** 最大展开深度 */

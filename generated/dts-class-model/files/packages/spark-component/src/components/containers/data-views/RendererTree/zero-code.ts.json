@@ -16,7 +16,10 @@
       "NativeTreeLike",
       "NativeRendererTreeNodeLike",
       "TreeEventControl",
-      "TreeEventHandler"
+      "TreeEventHandler",
+      "TreeNodeDropType",
+      "TreeNodeDropEvent",
+      "TreeNodeDropHandler"
     ],
     "componentName": "RendererTree",
     "componentType": "r-tree",
@@ -293,6 +296,51 @@
       ],
       "additionalProperties": false
     },
+    "TreeNodeDropType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "TreeNodeDropType",
+      "enum": [
+        "inner",
+        "before",
+        "after"
+      ]
+    },
+    "TreeNodeDropEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TreeNodeDropEvent",
+      "properties": {
+        "draggedKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "targetKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "dropType": {
+          "$ref": "#/$defs/TreeNodeDropType"
+        }
+      },
+      "required": [
+        "draggedKey",
+        "targetKey",
+        "dropType"
+      ],
+      "additionalProperties": false
+    },
     "RendererTreeBehaviorProps": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -309,6 +357,10 @@
         "onNodeCollapse": {
           "type": "object",
           "title": "TreeEventHandler"
+        },
+        "onNodeDrop": {
+          "type": "object",
+          "title": "TreeNodeDropHandler"
         }
       },
       "additionalProperties": true
@@ -325,6 +377,9 @@
           "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
         },
         "treeData": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "dropPending": {
           "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
         },
         "nativeTreeRef": {
@@ -344,15 +399,24 @@
         "props",
         "resolvedView",
         "treeData",
+        "dropPending",
         "nativeTreeRef",
         "logger",
         "nodeKeyField",
         "treeIdField"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.refreshTreeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshTreeData.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-09T22:50:53.757Z",
+  "generatedAt": "2026-10-29T01:24:44.922Z",
   "models": {
     "RendererTreeNode": {
       "name": "RendererTreeNode",
@@ -837,6 +901,96 @@
         "members": {}
       }
     },
+    "TreeNodeDropType": {
+      "name": "TreeNodeDropType",
+      "jsdoc": "RendererTree drop type reported by the native tree after it changes its display projection.",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "'before' | 'after' | 'inner'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'before'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'after'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'inner'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "TreeNodeDropEvent": {
+      "name": "TreeNodeDropEvent",
+      "jsdoc": "Stable DataView row identity for a native tree drop.",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Primary key of the dragged row in the resolved DataView. */\n    draggedKey: string | number;\n    /** Primary key of the target row in the resolved DataView. */\n    targetKey: string | number;\n    /** Drop position relative to the target row. */\n    dropType: TreeNodeDropType;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Primary key of the dragged row in the resolved DataView. */\n    draggedKey: string | number;\n    /** Primary key of the target row in the resolved DataView. */\n    targetKey: string | number;\n    /** Drop position relative to the target row. */\n    dropType: TreeNodeDropType;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "draggedKey",
+              "jsdoc": "Primary key of the dragged row in the resolved DataView.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetKey",
+              "jsdoc": "Primary key of the target row in the resolved DataView.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dropType",
+              "jsdoc": "Drop position relative to the target row.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TreeNodeDropHandler": {
+      "name": "TreeNodeDropHandler",
+      "jsdoc": "Async host handler for drops; setting control.cancel suppresses the default DataView move.",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "(event: TreeNodeDropEvent, control: TreeEventControl) => void | Promise<void>",
+        "members": {}
+      }
+    },
     "RendererTreeBehaviorProps": {
       "name": "RendererTreeBehaviorProps",
       "jsdoc": "r-tree 与节点交互相关的行为属性。",
@@ -849,7 +1003,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<Record<string, unknown>> & {\n    /** 节点点击时触发，可取消默认选中当前行行为。 */\n    onNodeClick?: TreeEventHandler | undefined;\n    /** 节点展开时触发，用于懒加载、埋点或自定义展开逻辑。 */\n    onNodeExpand?: TreeEventHandler | undefined;\n    /** 节点收起时触发，用于同步外部状态或埋点。 */\n    onNodeCollapse?: TreeEventHandler | undefined;\n}",
+        "declarationTypeText": "Readonly<Record<string, unknown>> & {\n    /** 节点点击时触发，可取消默认选中当前行行为。 */\n    onNodeClick?: TreeEventHandler | undefined;\n    /** 节点展开时触发，用于懒加载、埋点或自定义展开逻辑。 */\n    onNodeExpand?: TreeEventHandler | undefined;\n    /** 节点收起时触发，用于同步外部状态或埋点。 */\n    onNodeCollapse?: TreeEventHandler | undefined;\n    /** Handles a drop before the default DataView move; cancel when the host owns the operation. */\n    onNodeDrop?: TreeNodeDropHandler | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -858,7 +1012,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 节点点击时触发，可取消默认选中当前行行为。 */\n    onNodeClick?: TreeEventHandler | undefined;\n    /** 节点展开时触发，用于懒加载、埋点或自定义展开逻辑。 */\n    onNodeExpand?: TreeEventHandler | undefined;\n    /** 节点收起时触发，用于同步外部状态或埋点。 */\n    onNodeCollapse?: TreeEventHandler | undefined;\n}"
+            "typeText": "{\n    /** 节点点击时触发，可取消默认选中当前行行为。 */\n    onNodeClick?: TreeEventHandler | undefined;\n    /** 节点展开时触发，用于懒加载、埋点或自定义展开逻辑。 */\n    onNodeExpand?: TreeEventHandler | undefined;\n    /** 节点收起时触发，用于同步外部状态或埋点。 */\n    onNodeCollapse?: TreeEventHandler | undefined;\n    /** Handles a drop before the default DataView move; cancel when the host owns the operation. */\n    onNodeDrop?: TreeNodeDropHandler | undefined;\n}"
           }
         ],
         "members": {
@@ -880,6 +1034,12 @@
               "jsdoc": "节点收起时触发，用于同步外部状态或埋点。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "onNodeDrop",
+              "jsdoc": "Handles a drop before the default DataView move; cancel when the host owns the operation.",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -897,7 +1057,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** r-tree 的组件属性集合，包含事件回调和配置透传。 */\n    props: RendererTreeBehaviorProps;\n    /** 当前解析出的 DataView；为空时树 API 只处理原生实例能力。 */\n    resolvedView: ValueRef<DataView | null>;\n    /** 树渲染使用的行数据集合。 */\n    treeData: ValueRef<DataRow[]>;\n    /** Element Plus tree 原生组件 ref。 */\n    nativeTreeRef: ValueRef<unknown>;\n    /** 运行时诊断日志。 */\n    logger: LoggerApi;\n    /** 作为树节点 key 的字段名。 */\n    nodeKeyField: ValueRef<string>;\n    /** 作为树节点 id 的字段名，用于诊断缺主键场景。 */\n    treeIdField: ValueRef<string>;\n}",
+        "declarationTypeText": "{\n    /** r-tree 的组件属性集合，包含事件回调和配置透传。 */\n    props: RendererTreeBehaviorProps;\n    /** 当前解析出的 DataView；为空时树 API 只处理原生实例能力。 */\n    resolvedView: ValueRef<DataView | null>;\n    /** 树渲染使用的行数据集合。 */\n    treeData: ValueRef<DataRow[]>;\n    /** Forces a fresh display projection after native tree mutation settles. */\n    refreshTreeData: () => void;\n    /** Tracks an in-flight drop so native drag callbacks can be disabled. */\n    dropPending: ValueRef<boolean>;\n    /** Element Plus tree 原生组件 ref。 */\n    nativeTreeRef: ValueRef<unknown>;\n    /** 运行时诊断日志。 */\n    logger: LoggerApi;\n    /** 作为树节点 key 的字段名。 */\n    nodeKeyField: ValueRef<string>;\n    /** 作为树节点 id 的字段名，用于诊断缺主键场景。 */\n    treeIdField: ValueRef<string>;\n}",
         "members": {
           "attributes": [
             {
@@ -915,6 +1075,12 @@
             {
               "name": "treeData",
               "jsdoc": "树渲染使用的行数据集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dropPending",
+              "jsdoc": "Tracks an in-flight drop so native drag callbacks can be disabled.",
               "readable": true,
               "writable": true
             },
@@ -941,6 +1107,17 @@
               "jsdoc": "作为树节点 id 的字段名，用于诊断缺主键场景。",
               "readable": true,
               "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "refreshTreeData",
+              "jsdoc": "Forces a fresh display projection after native tree mutation settles.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

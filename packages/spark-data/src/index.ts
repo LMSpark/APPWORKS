@@ -35,6 +35,7 @@ export type { DataViewFilterWire } from './query/filter/data-view-filter-codec'
 export { DataViewQuery } from './query/data-view-query'
 export { DataViewQueryCache } from './query/data-view-query-cache'
 export { DataViewArrayQuery } from './query/data-view-array-query'
+export { sortDataRowsByExpression } from './query/sort-expression'
 export { DataViewLocalQuery } from './query/data-view-local-query'
 export {
   bindDataSetCommandSubmit,

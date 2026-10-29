@@ -75,6 +75,14 @@ export type BlueprintLeafMoveBatchOptions=Readonly<{
   beforeStage?:()=>boolean
 }>
 
+type StageMoveFromRowsCommand=Readonly<{
+  nodeKey:string
+  parentId:string|null
+  index:number
+  rows:readonly DataRow[]
+  projectId:string
+}>
+
 type PendingChildCreateBatch=Readonly<{
   children:readonly BlueprintChildNodeCreateAtParent[]
   updates:ReadonlyArray<Readonly<{nodeId:string;parentNodeId:string;patch:Readonly<Record<string,unknown>>}>>
@@ -323,6 +331,41 @@ export class BlueprintWorkspaceDataView {
     this.#treeQueryLoaded=true
     this.synchronizeCurrentRow()
     try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
+    this.stageMoveFromRows({nodeKey,parentId,index,rows,projectId})
+  }
+
+  /** Resolve a renderer drop against fresh rows from this same DataView, then stage its permission-checked move. */
+  public async moveNodeRelative(command:Readonly<{nodeId:string;targetNodeId:string;position:'before'|'after'|'inner'}>):Promise<void>{
+    this.assertWritable()
+    if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 正在保存或回执待核验，不能移动节点')
+    if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
+    for(const field of ['prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未正式输出树字段 ${field}`)
+    const nodeKey=command.nodeId.trim(),targetKey=command.targetNodeId.trim(),projectId=this.#projectId
+    if(!nodeKey||!targetKey||nodeKey===targetKey)throw new Error('蓝图节点相对位置命令身份无效')
+    const revision=++this.#revision,selectedNodeId=this.#nodeId
+    const rows=await this.queryProjectRows(revision,selectedNodeId)
+    this.#treeQueryLoaded=true
+    this.synchronizeCurrentRow()
+    try{this.treeProjection()}catch(error){this.#treeQueryLoaded=false;throw error}
+    const byId=new Map(rows.map(row=>[String(row['rowid']),row]))
+    const moving=byId.get(nodeKey),target=byId.get(targetKey)
+    if(!moving||!target)throw new Error('蓝图 DataView 未返回相对移动目标的正式行')
+    const normalizedParent=(row:DataRow)=>String(row['prowid']??'000000').trim()||'000000'
+    const targetParent=command.position==='inner'?targetKey:normalizedParent(target)
+    const siblings=(parent:string)=>rows.filter(row=>normalizedParent(row)===parent&&row!==moving)
+      .sort((a,b)=>Number(a['FunOrderValue']??0)-Number(b['FunOrderValue']??0)||String(a['rowid']).localeCompare(String(b['rowid'])))
+    const destination=siblings(targetParent)
+    let index=destination.length
+    if(command.position!=='inner'){
+      const targetIndex=destination.findIndex(row=>String(row['rowid'])===targetKey)
+      if(targetIndex<0)throw new Error('蓝图 DataView 相对排序目标不是当前目标父级的正式子节点')
+      index=targetIndex+(command.position==='after'?1:0)
+    }
+    this.stageMoveFromRows({nodeKey,parentId:targetParent,index,rows,projectId})
+  }
+
+  private stageMoveFromRows(command:StageMoveFromRowsCommand):void{
+    const {nodeKey,parentId,index,rows,projectId}=command
     const byId=new Map(rows.map(row=>[String(row['rowid']),row]))
     const moving=byId.get(nodeKey);if(!moving)throw new Error(`蓝图 DataView 未返回待移动节点 ${nodeKey}`)
     const targetParentInput=parentId?.trim()??'000000'

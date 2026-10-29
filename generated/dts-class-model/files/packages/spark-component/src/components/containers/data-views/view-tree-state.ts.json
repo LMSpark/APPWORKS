@@ -23,150 +23,28 @@
       "type": "object",
       "title": "RendererTreeViewState",
       "properties": {
-        "tableName": {
-          "type": "object",
-          "title": "UseDateFormatReturn"
-        },
-        "viewId": {
-          "type": "object",
-          "title": "ComputedRef<string | undefined>"
-        },
-        "primaryKey": {
-          "type": "object",
-          "title": "ComputedRef<string | undefined>"
-        },
-        "treeConfig": {
-          "type": "object",
-          "title": "ComputedRef<TreeConfig | undefined>"
-        },
-        "rows": {
-          "type": "object",
-          "title": "ComputedRef<readonly DataRow[]>"
-        },
-        "columns": {
-          "type": "object",
-          "title": "ComputedRef<readonly import(\"@spark-appworks/spark-data\").DataColumn[]>"
-        },
-        "currentRow": {
-          "type": "object",
-          "title": "ComputedRef<DataRow | null>"
-        },
-        "selectedRows": {
-          "type": "object",
-          "title": "ComputedRef<readonly DataRow[]>"
-        },
-        "editingRows": {
-          "type": "object",
-          "title": "ComputedRef<readonly DataRow[]>"
-        },
-        "isMultiSelect": {
-          "type": "object",
-          "title": "ComputedRef<boolean>"
-        },
-        "value": {
-          "type": "object",
-          "title": "UseDateFormatReturn"
-        },
-        "label": {
-          "type": "object",
-          "title": "ComputedRef<string | null>"
-        },
-        "labels": {
-          "type": "object",
-          "title": "ComputedRef<readonly string[]>"
-        },
-        "requestState": {
-          "type": "object",
-          "title": "ComputedRef<import(\"@spark-appworks/spark-data\").RequestState>"
-        },
-        "aggregateError": {
-          "type": "object",
-          "title": "ComputedRef<Error | null>"
-        },
-        "aggregateResult": {
-          "type": "object",
-          "title": "ComputedRef<import(\"./view-runtime-state.js\").AggregateResultState>"
-        },
-        "selectionAggregateResult": {
-          "type": "object",
-          "title": "ComputedRef<import(\"./view-runtime-state.js\").AggregateResultState>"
-        },
-        "total": {
-          "type": "object",
-          "title": "ComputedRef<number>"
-        },
-        "page": {
-          "type": "object",
-          "title": "ComputedRef<number>"
-        },
-        "pageSize": {
-          "type": "object",
-          "title": "ComputedRef<number>"
-        },
-        "paginated": {
-          "type": "object",
-          "title": "ComputedRef<boolean>"
-        },
-        "mutating": {
-          "type": "object",
-          "title": "ComputedRef<boolean>"
-        },
-        "mutatingError": {
-          "type": "object",
-          "title": "ComputedRef<Error | null>"
-        },
-        "loadingError": {
-          "type": "object",
-          "title": "ComputedRef<Error | null>"
-        },
-        "resolvedView": {
-          "type": "object",
-          "title": "ComputedRef<DataView | null>"
-        },
-        "resolvedDataRow": {
-          "type": "object",
-          "title": "ComputedRef<DataRow | null>"
-        },
         "treeData": {
           "type": "object",
           "title": "ComputedRef<RendererTreeNode[]>"
         },
         "treeIdField": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         }
       },
       "required": [
-        "tableName",
-        "viewId",
-        "primaryKey",
-        "treeConfig",
-        "rows",
-        "columns",
-        "currentRow",
-        "selectedRows",
-        "editingRows",
-        "isMultiSelect",
-        "value",
-        "label",
-        "labels",
-        "requestState",
-        "aggregateError",
-        "aggregateResult",
-        "selectionAggregateResult",
-        "total",
-        "page",
-        "pageSize",
-        "paginated",
-        "mutating",
-        "mutatingError",
-        "loadingError",
-        "resolvedView",
-        "resolvedDataRow",
         "treeData",
         "treeIdField"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.refreshTreeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshTreeData.return": true
+      }
     },
     "TreeTableRowsInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -216,7 +94,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:35:59.405Z",
+  "generatedAt": "2026-10-29T01:15:49.392Z",
   "models": {
     "RendererTreeViewState": {
       "name": "RendererTreeViewState",
@@ -228,7 +106,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "DataViewState & {\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}",
+        "declarationTypeText": "DataViewState & {\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 从当前 DataView 重新构建树显示投影。 */\n    refreshTreeData: () => void;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -237,7 +115,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}"
+            "typeText": "{\n    /** 树形节点数组（已嵌套 children），供 RendererTree 组件直接渲染。 */\n    treeData: ComputedRef<RendererTreeNode[]>;\n    /** 从当前 DataView 重新构建树显示投影。 */\n    refreshTreeData: () => void;\n    /** 树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。 */\n    treeIdField: ComputedRef<string>;\n}"
           }
         ],
         "members": {
@@ -253,6 +131,17 @@
               "jsdoc": "树 ID 字段名（默认 'id'），用于节点寻址和选中态标识。",
               "readable": true,
               "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "refreshTreeData",
+              "jsdoc": "从当前 DataView 重新构建树显示投影。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

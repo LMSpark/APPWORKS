@@ -297,7 +297,7 @@ describe('persisted DataTable submission configuration', () => {
           lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}}], Count: 1}}
       await runtime.view.loadFromServer()
       if (operation === 'create') {
-        await runtime.view.addRow({id: 'B', title: 'Created'})
+        await runtime.view.addRowWithIdentity({field: 'id', value: 'B'}, {title: 'Created'})
         runtime.http.receipt = {maplistadd: [{PhysicalOrders: [{id: 'B', title: 'Created'}]}]}
       } else {
         await runtime.view.removeRow('A')
@@ -319,7 +319,7 @@ describe('persisted DataTable submission configuration', () => {
       runtime.http.query = {primaryKeyField: 'id', allowAdd: true, lingma_sys_key: 'TABLE-SIGNED',
         data: {Items: [{id: 'A', title: 'Before', lingma_sys_key: 'SIGNED', lingma_sys_params: {e: ['title']}}], Count: 1}}
       await runtime.view.loadFromServer()
-      await runtime.view.addRow({id: 'B', title: 'Created'})
+      await runtime.view.addRowWithIdentity({field: 'id', value: 'B'}, {title: 'Created'})
       await runtime.view.editRowById('A', {title: 'Changed'})
       await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_CONFIG_CONFLICT')
       expect(runtime.http.requests).toHaveLength(1)

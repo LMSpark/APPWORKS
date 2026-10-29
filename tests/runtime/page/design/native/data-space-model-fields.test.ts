@@ -120,7 +120,7 @@ describe('field saves preserve independent query drafts', () => {
     const view = await session.loadModelFields('M1'), owner = session.getFieldEdit('F1', 'modelFields')
     const directory = session.metadataDataSet.getView('Base_DataModel_Field', 'default')!
     if (mode === 'created') {
-      await directory.addRow({rowid: 'NEW', dataSetId: 'A', dataModelId: 'M2', Name: 'extra', type: 'dataModel', FieldType: '计算字段', IsPKey: 0, IsOutput: 1})
+      await directory.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {dataSetId: 'A', dataModelId: 'M2', Name: 'extra', type: 'dataModel', FieldType: '计算字段', IsPKey: 0, IsOutput: 1})
       expect(directory.dirtyTracking.isPendingCreate('NEW')).toBe(true)
     } else if (mode === 'deleted') {
       expect(await directory.removeRow('OTHER')).toBe(true)

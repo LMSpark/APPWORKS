@@ -528,7 +528,7 @@ describe('workspace creation preserves independent model drafts', () => {
     ]}, f => f.setModelValues({Type: '接口'}))
     const directory = session.metadataDataSet.getView('Base_DataModel_Field', 'default')!
     const inputView = await session.loadSourceInputFields('M1'), inputs = session.getModelSourceInputs('M1')
-    if (mode === 'created') await directory.addRow({rowid: 'OTHER_NEW', dataSetId: 'A', dataModelId: 'M2', Name: 'another', type: 'dataModel', FieldType: '计算字段', IsPKey: 0, IsOutput: 1})
+    if (mode === 'created') await directory.addRowWithIdentity({field: 'rowid', value: 'OTHER_NEW'}, {dataSetId: 'A', dataModelId: 'M2', Name: 'another', type: 'dataModel', FieldType: '计算字段', IsPKey: 0, IsOutput: 1})
     else if (mode === 'deleted') expect(await directory.removeRow('OTHER')).toBe(true)
     else {
       directory.updateEditingValue('OTHER', 'description', '其他模型未提交')

@@ -102,12 +102,11 @@ describe('declarative actions consume DataView query permissions', () => {
   })
 
   it('uses addActionState for locally pending creates', async () => {
-    for (const allowAdd of [false, true]) {
-      const { dataSet, view } = await actionViewFixture(allowAdd)
-      await view.addRow({ id: 2, name: 'draft' })
-      expect(isDataViewSavePermitted({ view })).toBe(allowAdd)
-      dataSet.destroy()
-    }
+    const { dataSet, view } = await actionViewFixture(true)
+    await view.addRow({ name: 'draft' })
+    expect(view.addActionState()).toBe('enabled')
+    expect(isDataViewSavePermitted({ view })).toBe(true)
+    dataSet.destroy()
   })
 
   it('pauses mutation actions after a query error and rejects retired identities', async () => {

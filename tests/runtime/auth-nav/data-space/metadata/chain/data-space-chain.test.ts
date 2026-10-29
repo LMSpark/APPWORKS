@@ -27,7 +27,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
   return {lowcodeHttp: http, createLowcodeProjectGateways: transport.gateways, lowcodeApi: {
     readRequestScope: transport.scope,
     dataSpace: {runtime, design: new DataSpaceDesignApi({http, runtime, readScope: transport.scope})},
-  }}
+  }, lowcodeDesignFileUpload: async () => {throw new Error('unexpected design file upload')}}
 })
 vi.mock('@/services/project/project-shell', () => ({getAppProjectBlueprintWorkspace: transport.workspace}))
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'

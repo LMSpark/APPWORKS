@@ -407,7 +407,7 @@ describe('formal model alias query ownership', () => {
         write: 'denied', component: mode === 'hidden' ? 'hidden' : 'readonly', required: true, writeMode: 'readonly'})
       expect(view.columns.find(column => column.name === 'caption')?.isComputed).not.toBe(true)
       expect(context.readFieldAccess(context.rows[0]!, 'caption')).toBe(mode === 'hidden' ? 'invisible' : mode)
-      await view.addRow({orderId: 'B'})
+      await view.addRowWithIdentity({field: 'orderId', value: 'B'}, {})
       expect(view.fieldAccess(view.rows.find(row => row['orderId'] === 'B')!, 'caption')).toMatchObject({read: 'visible', write: 'denied', component: 'readonly'})
       expect(() => context.buildSaveRequest({added: [{orderId: 'B', caption: 'Override'}]})).toThrow('SPARK_MODEL_SAVE_FIELD')
       context.invalidate()

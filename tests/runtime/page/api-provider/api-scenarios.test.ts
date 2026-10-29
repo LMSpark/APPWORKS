@@ -10,6 +10,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     dataSpace: {get design() {return api.current.service}, get runtime() {return api.current.state.runtime}}},
   createLowcodeProjectGateways: () => ({scenarioViews: {readScope: () => 'scope', readText: async (id: string) => pagedata[id] ?? null,
     writeText: async () => {throw new Error('pages must not write scenario files')}}}),
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected design file upload')},
 }))
 const {loadLowcodeRuntimeScenario} = await import('@/lowcode/data-space/lowcode-data-space-runtime')
 

@@ -25,9 +25,10 @@ export function sourceChainFixture() {
     })
   }
   f.records.get('Base_DataSet')!.push({rowid: dictionaryConfig.scenarioId, Name: '字典编辑', inputParams: '[]'})
+  f.files.set(dictionaryConfig.scenarioId, JSON.stringify(dictionaryConfig))
   for (const [name, table] of Object.entries(dictionaryConfig.tables)) {
     const fields = name === '_Base_DictType' ? Object.keys(sourceCases[5].source)
-      : ['rowid', 'dictionaryId', 'val', 'txt', 'secondValue', 'thirdValue', 'fourthvalue', 'fiveValue', 'ordIdx']
+      : ['rowid', 'typeid', 'val', 'txt', 'secondValue', 'thirdValue', 'fourthvalue', 'fiveValue', 'ordIdx']
     f.addModel(dictionaryConfig.scenarioId, table.modelBinding.modelId, name, fields)
   }
   return f

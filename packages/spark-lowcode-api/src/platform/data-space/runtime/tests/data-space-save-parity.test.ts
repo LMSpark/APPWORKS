@@ -5,6 +5,7 @@ import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } fro
 import { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceRequest } from '../protocol/data-space-request'
+import { LowcodeApiError } from '../../../../core/lowcode-api-error'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 
@@ -145,6 +146,17 @@ describe('SPARK same-scenario save request', () => {
     await expect(request.save({ changes: [first] })).rejects.toThrow('不可写')
     expect(first.context.rows).toEqual([{ id: 1 }])
     expect(first.context.buildSaveRequest(first.changes)[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('signed-1')
+    expect(http.calls).toHaveLength(1)
+  })
+
+  it('keeps a non-zero business rejection definitive instead of marking it unconfirmed', async () => {
+    const { http, request, change } = fixture()
+    const first = change()
+    http.response = { Code: 400, Message: '服务端明确拒绝修改' }
+    await expect(request.save({ changes: [first] })).rejects.toMatchObject({
+      name: 'LowcodeApiError', code: 400, message: '服务端明确拒绝修改',
+    })
+    expect(first.context.rows).toEqual([{ id: 1 }])
     expect(http.calls).toHaveLength(1)
   })
 

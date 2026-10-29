@@ -181,7 +181,13 @@ export class DataSpaceRequest {
           if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
           return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
         })
-      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('服务端已返回但保存结果无法确认', cause)}
+      } catch (cause) {
+        // A non-zero AjaxResult code is a definitive rejection. Preserve it so
+        // callers can leave the draft editable; only ambiguous/malformed
+        // responses require an original-attempt verification flow.
+        if (cause instanceof LowcodeApiError && cause.code !== 0) throw cause
+        throw new DataSpaceSaveUnconfirmedError('服务端已返回但保存结果无法确认', cause)
+      }
     } finally {
       this.assertCurrent(captured)
       targets.forEach(target => target.context.assertIdentity(target.identity))

@@ -3915,3 +3915,10 @@ flowchart TD
 - **标准组件差距：**`src/views/tenant/AppList.vue` 的卡片目录已用标准 `RendererList` 和 DataView 字段/动作子节点，但页头、创建弹窗及表单仍直接用 Element Plus。应用创建当前因缺少正式保存合同而 fail-closed；在没有正式资源/DataView 身份前不造临时模型或页面级提交通道。此壳层页面的组件替换尚未完成，需沿仓内 ClassModel 与标准字段组件合同继续收敛。
 - **现场边界：**CUA 当前浏览器清单没有 SPA 标签，故本轮只能确认源码和本地回归，不能确认登录态、服务器端 app-list 实际 URL 或动态 cfg 项目三文件读取/持久化。当前反馈为需重新登录；没有远端写入，未修改、启动或部署 Java。
 - **续查补证：**本轮新开可见 SPA 标签访问 `/apps/homepage/app-list`，未认证状态被重定向到公开首页；同一标签随后只导航到 `/login`，AX 页面显示登录表单及已选企业“领码科技”，没有输入或提交账号信息。登录页现留在 `http://127.0.0.1:5273/login` 供用户手动恢复会话；真实 cfg 树与服务端三文件读回仍未验。
+
+### 2026-10-30 cfg 节点文件按需 DataView 加载
+
+- **根因与 RED：**选中 cfg 节点后，`selectNode()` 仍调用 `ProjectWorkspace.selectPage()`，该路径经旧 `ProjectPageFileGateway` 提前并行读取 `rule.json`、`script.js`、`style.css`；右侧编辑器随后又按活动标签读取 7AB `ProjectToolFile` DataView。新增回归先失败并记录三次旧 gateway 读取，确认重复查询及非展示文件的提前加载。
+- **修复：**节点选择只绑定当前 PageTool 身份并保留活动页面 ID；文件正文留给活动文件 DataView。预览继续在用户打开/刷新预览时按正式 DataView 读取所需三文件。AI 编辑需要完整 PageTool 时，改为按 `ProjectToolFile` DataView 读取并验证行身份后再 hydrate，避免移除旧节点读取后破坏 AI 前置条件。
+- **回归：**`tests/app/dev/dev-state-page-file-closed-loop.test.ts`、`tests/app/dev/use-dev-state-page-data-history.test.ts`、`tests/app/dev/dev-preview-tab-loop.test.ts`：**3 files / 107 tests passed**。相关 TypeScript ESLint、`pnpm run typecheck` 与 `git diff --check` 退出 0。全仓未重跑。
+- **范围：**这是本仓节点选择和组件数据链的定向证据，不代表真实 SPA cfg 项目读取、保存、重开或版本回读已在线验收。SPA 会话需重新登录；没有远端业务写入，未修改、启动或部署 Java。

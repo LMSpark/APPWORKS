@@ -564,12 +564,13 @@ describe('tool and shared scenario editing owners',()=>{
   state.project.selectNode(null)
   release?.([]);await rejected
  })
- it('still loads a scene when a cfg tool load fails',async()=>{
+ it('loads a scene without eagerly loading cfg tool files',async()=>{
   httpGet.mockImplementation(async(url:string)=>{if(!url.startsWith('scenario:'))throw new Error('tool file missing');return {content:fixtureText(20)}})
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene')
-  expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(true)
+  expect(state.activePageId.value).toBe('orders-page')
+  expect(state.statusMessages.value.some(item=>item.text.includes('工具 orders-page 文件加载失败'))).toBe(false)
  })
  beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
  afterEach(()=>{vi.useRealTimers()})

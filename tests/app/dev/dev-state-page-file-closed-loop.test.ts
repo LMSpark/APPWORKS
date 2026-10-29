@@ -37,7 +37,7 @@ const httpFns = vi.hoisted(() => ({
     response: { use: vi.fn() },
   },
 }))
-const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
+const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),legacyReads:[] as Array<{pageId:string;fileName:string}>,upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
 
 const navTreeState = vi.hoisted(() => ({
   tree: null as ProjectBlueprintTreeData | null,
@@ -114,6 +114,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
     return {
       pageFiles: {
         readPageFile: async (command: { pageId: string; fileName: string }) => {
+          pageFiles.legacyReads.push(command)
           const stored=pageFiles.files.get(`${command.pageId}/${command.fileName}`)
           if(stored!==undefined)return stored
           const response = await httpFns.get(`${pageFileKey}/${command.pageId}/${command.fileName}`)
@@ -367,6 +368,7 @@ describe('DevState 页面文件闭环', () => {
     vi.clearAllMocks()
     httpFns.scopeToken='fixture-token'
     pageFiles.files.clear()
+    pageFiles.legacyReads.length=0
     httpFns.requestFull.mockImplementation(requestFullFromGet)
     httpFns.clearCache.mockImplementation(() => undefined)
     httpFns.interceptors.request.use.mockImplementation(() => () => undefined)
@@ -376,6 +378,30 @@ describe('DevState 页面文件闭环', () => {
     blueprintRuntime.load.mockImplementation(async ({projectId,scenarioId}:{projectId:string;scenarioId:string})=>
       scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet():createBlueprintRuntimeDataSet(projectId,blueprintRuntimeTrees.get(projectId)).dataSet)
     vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:createDictionaryRuntimeDataSet()}))
+  })
+
+  it('selecting a cfg node binds its page without eager reads through the legacy page-file gateway', async () => {
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      pageFiles.files.set('demo/rule.json','{"rule":"active"}')
+      pageFiles.files.set('demo/script.js','script')
+      pageFiles.files.set('demo/style.css','style')
+
+      await state.selectNode(state.treeData.value[0]!)
+
+      expect(state.activePageId.value).toBe('demo')
+      expect(state.project.getActivePage()?.pageId).toBe('demo')
+      expect(pageFiles.legacyReads).toEqual([])
+      expect(state.project.getActivePage()?.isLoaded).toBe(false)
+
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'rule.json'})
+      expect(view.currentRow?.['text']).toBe('{"rule":"active"}')
+      expect(pageFiles.legacyReads).toEqual([])
+    } finally { scope.stop() }
   })
 
   it('builtin Dev 主树使用完整仓内记录且不查询冲突的 Base_NavigationInfo 数据库树',async()=>{

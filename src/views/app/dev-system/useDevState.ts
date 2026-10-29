@@ -1288,6 +1288,26 @@ export function useDevState() {
     addStatus('AI 工具调用已中止', 'warning')
   }
 
+  async function hydrateActivePageToolFromDataViews(pageId: string): Promise<void> {
+    const workspace=currentEditor.value,scope=currentScopeKey(),page=workspace.project.getActivePage()
+    if(page?.pageId!==pageId||activePageId.value!==pageId)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: AI 编辑页面已切换')
+    const dirtyFiles=new Set(page.getDirtyFileNames())
+    for(const fileName of pageFileNames){
+      const view=await loadPageToolFileDataView({pageId,fileName})
+      if(currentEditor.value!==workspace||currentScopeKey()!==scope||activePageId.value!==pageId||workspace.project.getActivePage()!==page)
+        throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI 编辑期间页面或项目已切换')
+      const row=view.currentRow
+      if(row?.['pageId']!==pageId||row['fileName']!==fileName)
+        throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 的 DataView 身份或文本无效`)
+      const id=view.getPkKey(row)
+      if(id===undefined)throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 缺少稳定身份`)
+      const edited=view.getEditingRow(id)??row,text=edited['text']
+      if(typeof text!=='string')throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 的文本无效`)
+      if(!dirtyFiles.has(fileName))page.hydrateFileText(fileName,text)
+    }
+    page.markLoaded()
+  }
+
   async function runPageDesignAi(options: PageDesignAiRunOptions): Promise<void> {
     const pageId = activePageId.value.trim()
     const description = options.description.trim()
@@ -1306,6 +1326,7 @@ export function useDevState() {
 
     try {
       addStatus(`AI 开始编辑页面 ${pageId}`, 'info')
+      await hydrateActivePageToolFromDataViews(pageId)
       const result = await runPageDesignAiSession({
         ...options,
         pageId,
@@ -1714,8 +1735,10 @@ export function useDevState() {
     loadNodeToForm(node)
     const pageId = resolvePageNodePageId(node)
     if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
-      try { await editor.selectPage(pageId); persistActivePageId(pageId) }
-      catch(error) { addStatus(`工具 ${pageId} 文件加载失败: ${String(error)}`, 'error') }
+      // loadNodeToForm binds the active page identity. File contents are loaded
+      // lazily by the active file's ProjectToolFile DataView, or by preview when
+      // all three files are actually needed.
+      persistActivePageId(pageId)
     }
   }
 

@@ -5,7 +5,7 @@ import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
 import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
-import {assembleDefinitionFixtures} from './definition-resource.fixture'
+import {assembleDefinitionFixtures, createConfirmedMetadataFixture} from './definition-resource.fixture'
 import {DataSpaceQueryContext} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {DataSpaceQueryTable} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 
@@ -59,10 +59,10 @@ function fixture(text: string | null = initial, withModelCatalog = false) {
     const http = new NoQueries()
     const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http,
       readScope: () => ({token: scope, headers: {}})}), http)
-    const metadata = DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: withModelCatalog ? {
+    const metadata = createConfirmedMetadataFixture(targetId, withModelCatalog ? {
       Base_DataModel: {modelBinding: {modelId: 'FIXTURE-MODEL', modelName: 'Base_DataModel'},
         columns: ['rowid', 'dataSetId', 'Name'].map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})), views: {default: {}}},
-    } : {}})
+    } : {})
     const service = new LowcodeDataSpaceViewDesign({workspace,
       loadMetadata: async (id, executors) => {expect(id).toBe(targetId); return assembleDefinitionFixtures(metadata, id, executors)},
       assertScope: () => {if (scope !== 'SCOPE') throw new Error('STALE_SCOPE')},

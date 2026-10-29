@@ -5,8 +5,8 @@
  * AI用途：标签页等布局需要标准数据成员绑定时复用；视图实例变化须以 scopeKey 重建消费子树。
  */
 import {computed, shallowReactive, shallowRef, toRef, watch} from 'vue'
-import {resolveDataViewCapabilities, type DataRow} from '@spark-appworks/spark-data'
-import {DATA_ROW, DATA_SOURCE, useSparkPageComponent} from '../../internal'
+import {DataMember, resolveDataViewCapabilities, type DataRow} from '@spark-appworks/spark-data'
+import {DATA_MEMBER, DATA_ROW, DATA_SOURCE, useSparkPageComponent} from '../../internal'
 import type {SparkNodeProps, SparkTableModelProps} from '../../shared-types'
 import type {SparkNodeInput} from '../../../core/useSparkComponent'
 import {useContainerDataSource} from '../data-views/view-data-source'
@@ -31,6 +31,9 @@ export function useLayoutDataContext(
   const component = useSparkPageComponent(props)
   const {sparkConsume, sparkProvide, sparkRemove} = component
   const inheritedView = sparkConsume(DATA_SOURCE), inheritedRow = sparkConsume(DATA_ROW)
+  const inheritedMember = sparkConsume(DATA_MEMBER)
+  const dataMember = computed(() => props.dataMember ?? inheritedMember?.() ?? DataMember.CurrentRow)
+  sparkProvide(DATA_MEMBER, () => dataMember.value)
   const state = useContainerDataSource({dataViewKey: toRef(props, 'dataViewKey'), externalDataSource: () => props.dataSource,
     inheritedDataSource: () => inheritedView, sparkConsume, skipAutoLoadEffect: options.autoLoad !== true})
   const scopeKey = shallowRef(0)
@@ -54,9 +57,9 @@ export function useLayoutDataContext(
     if (props.dataSource === undefined && props.dataViewKey === undefined && props.dataMember === undefined && props.dataField === undefined && inheritedRow !== null) return inheritedRow
     const source = state.resolvedView.value
     if (!source) return null
-    if (aggregateError.value && (props.dataMember === 'aggregateResult' || props.dataMember === 'selectionAggregateResult')) return null
+    if (aggregateError.value && (dataMember.value === DataMember.AggregateResult || dataMember.value === DataMember.SelectionAggregateResult)) return null
     return resolveDataViewCapabilities({dataViewKey: `${source.tableName}@${source.viewId}`,
-      dataMember: props.dataMember ?? 'currentRow', dataField: props.dataField}, source.dataSet).dataRow
+      dataMember: dataMember.value, dataField: props.dataField}, source.dataSet).dataRow
   })
   watch(row, value => {
     syncReactiveRow(rowMirror, value, true)

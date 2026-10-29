@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import {withDefinitionResources} from './definition-resource.fixture'
+import {createConfirmedMetadataFixture, withDefinitionResources} from './definition-resource.fixture'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
@@ -41,7 +41,7 @@ function fixture(initial: string | null = namedText, configureMetadata?: (dataSe
   const assemble = vi.fn<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['assemble']>(async ({scenarioId, config, fileExecutors, modelScope}) => assembler.assemble({
     config: modelScope === undefined ? config : config.selectModelScope(modelScope, []),
     space: {dataSpaceId: scenarioId, name: scenarioId}, models: [formalModel], relations: [], ...(fileExecutors ? {fileExecutors} : {})}))
-  const loadMetadata = withDefinitionResources(async () => DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {}}))
+  const loadMetadata = withDefinitionResources(async id => createConfirmedMetadataFixture(id))
   const service = new LowcodeDataSpaceViewDesign({ workspace, readModel, assemble,
     loadMetadata: async (...args) => {const dataSet = await loadMetadata(...args); configureMetadata?.(dataSet); return dataSet},
     assertScope: () => { if (scope !== 'current') throw new Error('STALE_SCOPE') } })

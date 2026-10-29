@@ -29,7 +29,10 @@ function formal(name: string, fields: string[]): FormalModel {
       primaryKey: field === 'rowid', description: field, output: true, computed: false, order, orderType: '', raw: {},
     }))}
 }
-const models = [formal('Base_DataSet', ['rowid', 'Name', 'description', 'inputParams']),
+const baseDataSet = formal('Base_DataSet', ['rowid', 'Name', 'description', 'inputParams'])
+const models = [{...baseDataSet, id: '8D1AB14DD8277F3E7017CD38F77B09FDp000',
+  fields: baseDataSet.fields.map(field => ({...field, id: `8D1AB14DD8277F3E7017CD38F77B09FDp000-${field.name}`,
+    modelId: '8D1AB14DD8277F3E7017CD38F77B09FDp000'}))},
   formal('Base_DataModel', ['rowid', 'dataSetId', 'Name', 'MetaName', 'ShortName', 'Type', 'description', 'Filter', 'RequestComplete', 'OutputType', 'parentField', 'PrimaryKeyFields', 'hasChildField', 'selfType', 'topValue', 'cacheType', 'IsBusiness', 'IsBusinessMain', 'DbId', 'DbName', 'JoinType', 'ForeignKeyFields', 'JoinFilter', 'PId', 'addApi', 'updateApi', 'deleteApi', 'items', 'updatetime', 'updateuser']),
   formal('Base_DataModel_Field', ['rowid', 'dataSetId', 'dataModelId', 'Name', 'type', 'FieldType', 'ValueFun', 'description', 'IsPKey', 'IsOutput', 'AsName', 'Expression', 'allowAIAdd', 'OrderType', 'Order', 'Group']),
   formal('Base_DataModel_Relation', ['rowid', 'dataSetId', 'parentModId', 'childModId', 'parentTable', 'childTable', 'filter', 'depType', 'cascadeDel', 'updatetime', 'updateuser'])]

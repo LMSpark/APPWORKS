@@ -1,11 +1,46 @@
 import {readFileSync} from 'node:fs'
-import {DataSet, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, RequestState, type DataView} from '@spark-appworks/spark-data'
+
+/** Formal metadata fixture with a query-authorized target row and optional database tables. */
+export function createConfirmedMetadataFixture(targetId: string, tables: Record<string, unknown> = {}): DataSet {
+  const config = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
+  return DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {
+    Base_DataSet: {modelBinding: config.tables.Base_DataSet.modelBinding,
+      columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
+      views: {default: {autoLoad: false, queryContext: {dataSpaceId: targetId}}}},
+    ...tables,
+  }})
+}
 
 /** 测试元数据装配同样读取正式配置声明，不复制一套文件模型字段。 */
-export function assembleDefinitionFixtures(dataSet: DataSet, targetId: string,
-  executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): DataSet {
+export async function assembleDefinitionFixtures(dataSet: DataSet, targetId: string,
+  executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet> {
   if (!executors) throw new Error('missing definition resource executors')
   const config = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
+  const baseTable = dataSet.getTable('Base_DataSet'), officialBinding = config.tables.Base_DataSet.modelBinding
+  if (!baseTable || baseTable.modelBinding?.modelId !== officialBinding.modelId
+    || baseTable.modelBinding?.modelName !== 'Base_DataSet') {
+    dataSet.destroy()
+    throw new Error('missing formal Base_DataSet fixture binding')
+  }
+  const target = dataSet.getView('Base_DataSet', 'default')
+  if (!target) {dataSet.destroy(); throw new Error('missing formal Base_DataSet fixture view')}
+  if (target.queryContext['dataSpaceId'] !== targetId) {
+    target.configure({queryContext: {...target.queryContext, dataSpaceId: targetId}})
+  }
+  if (target.requestState !== RequestState.Loaded) {
+    target.bindQueryExecutor({executeQuery: async () => ({rows: [{rowid: targetId}], total: 1,
+      rowKey: row => String(row['rowid']),
+      assertIdentity: identity => {if (identity.scenarioId !== dataSet.scenarioId || identity.metaName !== 'Base_DataSet') throw new Error('formal Base_DataSet fixture identity mismatch')},
+      fieldAccess: (_key, field) => ({read: field === 'rowid' ? 'visible' : 'invisible', write: 'denied',
+        component: field === 'rowid' ? 'readonly' : 'hidden', required: false, writeMode: 'readonly'}),
+      readFieldAccess: (_row, field) => field === 'rowid' ? 'visible' : 'invisible',
+      addActionState: () => 'disabled', editActionState: () => 'disabled', deleteActionState: () => 'disabled',
+      createChildActionState: () => 'disabled', viewActionState: () => 'enabled',
+    })})
+    await target.requestData()
+    if (target.loadingError) {const error = target.loadingError; dataSet.destroy(); throw error}
+  }
   const templates = DataSet.fromJson({scenarioId: dataSet.scenarioId, dataSetName: 'definitions', tables:
     Object.fromEntries(Object.entries(config.tables).filter(([, value]) => (value as {resourceType?: string}).resourceType === 'file'))})
   try {
@@ -27,5 +62,5 @@ export function assembleDefinitionFixtures(dataSet: DataSet, targetId: string,
 /** 自制数据库夹具补装同一配置中的文件声明；真正的生产加载器自行完成装配。 */
 export function withDefinitionResources(load: (id: string, executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>) => Promise<DataSet>) {
   return async (id: string, executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet> =>
-    assembleDefinitionFixtures(await load(id, executors), id, executors)
+    await assembleDefinitionFixtures(await load(id, executors), id, executors)
 }

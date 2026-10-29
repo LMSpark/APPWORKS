@@ -3891,3 +3891,10 @@ flowchart TD
 - **本轮合并定向结果：**两处前条修正文件、导航同步及 provider 共 **4 files / 153 passed**；应用目录文件另 **1 file / 51 passed**。TypeScript typecheck、涉及测试文件 ESLint、`git diff --check` 退出 0。没有运行全仓第二遍，因此不能把旧全仓快照折算成“修复后全仓”数字。
 - **未完成项：**旧全仓快照中其余失败现象包括正式 Base_DataSet 目标夹具不完整、Tabs 视图上下文断言、view-parameter mock 缺正式导出，以及数据空间设计页面初始化被执行范围/后续宿主网络夹具阻断。曾在数据空间字段页面尝试登录夹具，进一步暴露测试挂载依赖宿主 API 的 `Network Error`；该未完成试验已撤回，页面测试仍需完整 mock 正式宿主输入后再恢复。其余失败须沿真实断言逐项处理，不能放宽运行时身份守卫或将它们称为基线。
 - **状态：**全仓 JSON 是修正前快照；当前全仓结果未知。仅以上定向测试通过；真实 SPA cfg 项目在线验收仍等待已认证会话。未触碰 Java。
+
+### 2026-10-30 Base_DataSet 目标夹具与布局成员上下文复核
+
+- **正式目标身份夹具：**原元数据设计测试在进入真实查询前被 `DATA_SPACE_DESIGN_TARGET_UNCONFIRMED` 截断；现在从数据空间设计页正式 `Base_DataSet` modelBinding 读取目标，并经 DataView 查询确认唯一 rowid 后再装配定义资源。系统页夹具同步使用 pagedata 声明的正式 Base_DataSet 模型 ID。相关 6 个元数据/视图设计文件 **235/235 passed**，不是仅由手工 ID 使守卫放行。
+- **视图参数 mock：**补上现有 `isBlueprintViewAttachedToRuntime` 测试导出；此前缺导出造成的参数设计测试错误消失。
+- **布局成员链：**标准布局上下文新增内部 DataMember 语义继承，字段读取继承父级成员，修复 `rows`、`selectedRows` 下使用 DataView 当前行冒充字段行。进一步核对 `spark-data` 的 `readDataViewInputValue(view, dataField)` 合同后确认：`value + name` 是正式输入值字段映射，会按当前行字段读出 `Alpha`，即使 `DATA_ROW` 不提供行上下文；该结果不是旁路。测试已分别断言集合成员不借用当前行、Value 字段映射保留正式读值。Tabs + 参数输入两个定向套件 **18/18 passed**。
+- **检查：**当前变更文件 ESLint 与 `pnpm run typecheck` 退出 0；六个 Base_DataSet 套件退出 0。全仓未重跑；在线 cfg 项目仍需重新认证后的 SPA 只读验收，用户此前表示该标签需要重新登录。Java 未修改/启动。

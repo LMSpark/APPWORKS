@@ -157,9 +157,12 @@ describe('standard tabs DataView context', () => {
     expect(wrapper.get('input').element.value).toBe('Alpha')
   })
 
-  it.each(['rows', 'selectedRows', 'value'] as const)('does not invent a row from the %s member', async member => {
+  it.each(['rows', 'selectedRows', 'value'] as const)('respects the %s member without exposing a row context', async member => {
     const {wrapper} = await fixture({member})
     expect(wrapper.get('output').text()).toBe('default:none')
-    expect(wrapper.find('input').exists() ? wrapper.get('input').element.value : wrapper.text()).not.toContain('Alpha')
+    const fieldValue = wrapper.find('input').exists() ? wrapper.get('input').element.value : wrapper.text()
+    // Value + field is the formal selected input mapping; the other collection members must not use currentRow.
+    if (member === 'value') expect(fieldValue).toBe('Alpha')
+    else expect(fieldValue).not.toContain('Alpha')
   })
 })

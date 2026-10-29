@@ -6,7 +6,7 @@
  */
 import {computed, inject, onScopeDispose, readonly, shallowRef, toRaw, watch} from 'vue'
 import {DataMember, resolveDataViewMember, type DataRow} from '@spark-appworks/spark-data'
-import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, useSparkConsume} from '../../internal'
+import {DATA_MEMBER, DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, useSparkConsume} from '../../internal'
 import type {SparkFieldSemanticProps} from '../../shared-types'
 import type {FieldComposableProps} from './field-composable-props'
 import {resolveDataViewEditingRow} from './dataViewEditing'
@@ -21,6 +21,7 @@ export type FieldValueBindingProps = FieldComposableProps<Pick<SparkFieldSemanti
 export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
   const {sparkConsume} = useSparkConsume()
   const inheritedRow = sparkConsume(DATA_ROW), inheritedSource = sparkConsume(DATA_SOURCE)
+  const inheritedMember = sparkConsume(DATA_MEMBER)
   const runtime = sparkConsume(PAGE_RUNTIME)
   const revision = shallowRef(0)
   let generation = 0, disposed = false
@@ -30,7 +31,7 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
     || !!cell || props.editOnDblclick === true && fieldContext.value === 'table')
   const fieldName = computed(() => props.dataField ?? props.field ?? '')
   const member = computed(() => {
-    const value = props.dataMember ?? DataMember.CurrentRow
+    const value = props.dataMember ?? inheritedMember?.() ?? DataMember.CurrentRow
     if (!Object.values(DataMember).some(candidate => candidate === value)) {
       throw new Error(`DATA_VIEW_MEMBER: 无效数据成员 ${value}`)
     }

@@ -29,7 +29,7 @@ import {
   type ContextSnapshot,
   type PermissionMode,
 } from '@spark-appworks/spark-utils'
-import { DataView, isDataRow, type DataRow } from '@spark-appworks/spark-data'
+import { DataView, isDataRow, type DataMember, type DataRow } from '@spark-appworks/spark-data'
 import type { PageRuntime } from '@spark-appworks/spark-project-model'
 import type {
   PageServiceCapability,
@@ -207,6 +207,8 @@ function isSubtreeFieldPolicy(value: unknown): value is SubtreeFieldPolicy {
 export const PAGE_RUNTIME = defineCapability<PageRuntime>('spark:capability:page-runtime', isPageRuntime)
 export const DATA_SOURCE = defineCapability<DataView>('spark:capability:data-source', isDataView)
 export const DATA_ROW = defineCapability<DataRow>('spark:capability:data-row', isDataRow)
+export const DATA_MEMBER = defineCapability<() => DataMember>('spark:capability:data-member',
+  (value): value is () => DataMember => isCallable(value))
 
 export const MODULE_CONTEXT = defineCapability<ModuleContextCapability>('spark:capability:module-context', isModuleContextCapability)
 export const PAGE_COMPONENT_REGISTRY = defineCapability<PageComponentRegistry>('spark:capability:page-component-registry', isPageComponentRegistry)

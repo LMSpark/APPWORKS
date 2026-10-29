@@ -32,6 +32,7 @@ export {
   PAGE_RUNTIME,
   DATA_SOURCE,
   DATA_ROW,
+  DATA_MEMBER,
   PAGE_COMPONENT_REGISTRY,
   MODULE_CONTEXT,
 } from '../core/index.js'

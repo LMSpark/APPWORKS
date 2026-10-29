@@ -8,7 +8,7 @@ import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/l
 import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import {LowcodeDataSpaceViewMetadata} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-metadata'
 
-import {withDefinitionResources} from '../view-design/definition-resource.fixture'
+import {createConfirmedMetadataFixture, withDefinitionResources} from '../view-design/definition-resource.fixture'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type FormalRelations = Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
@@ -91,7 +91,7 @@ function fixture(text: string | null = initial) {
       return assembler.assemble({config, space: {dataSpaceId: scenarioId, name: formalSpaceName}, models, relations})
     }
     const service = new LowcodeDataSpaceViewDesign({workspace, assemble, assertScope: () => undefined,
-      loadMetadata: withDefinitionResources(async () => DataSet.fromJson({scenarioId: 'META', dataSetName: 'META', tables: {}})),
+      loadMetadata: withDefinitionResources(async targetId => createConfirmedMetadataFixture(targetId)),
       readModel: async input => {
         const found = models.find(candidate => candidate.id === input.modelId)
         if (!found) throw new Error('formal model missing')

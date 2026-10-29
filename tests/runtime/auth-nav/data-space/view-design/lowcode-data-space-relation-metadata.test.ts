@@ -1,4 +1,4 @@
-import {withDefinitionResources} from './definition-resource.fixture'
+import {createConfirmedMetadataFixture, withDefinitionResources} from './definition-resource.fixture'
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, DataViewFilter, DataViewFilterCodec, RequestState, type DataResourceRelation} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
@@ -55,10 +55,10 @@ function fixture(text: string | null = initial) {
           if (failAfterWrite) {failAfterWrite = false; throw new Error('response lost')}
         }},
     })
-    const metadata = DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {
+    const metadata = createConfirmedMetadataFixture('SPACE', {
       Base_DataModel_Relation: {tableName: 'Base_DataModel_Relation', resourceType: 'static-data', columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}],
         views: {default: {rows: [{rowid: 'DBREL', filter: 'retained original'}]}}},
-    }})
+    })
     const http = new NoRequests()
     const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http,
       readScope: () => ({token: scope, headers: {}})}), http)

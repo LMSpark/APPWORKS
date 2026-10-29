@@ -1,4 +1,4 @@
-import {withDefinitionResources} from './definition-resource.fixture'
+import {createConfirmedMetadataFixture, withDefinitionResources} from './definition-resource.fixture'
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet, type DataViewFieldCascade} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
@@ -59,7 +59,7 @@ function fixture(text: string | null = initial) {
     const http = new QueryHttp()
     const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http,
       readScope: () => ({token: scope, headers: {}})}), http)
-    const metadata = DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {}})
+    const metadata = createConfirmedMetadataFixture('SPACE')
     const service = new LowcodeDataSpaceViewDesign({workspace, loadMetadata: withDefinitionResources(async () => metadata),
       assertScope: () => {if (scope !== 'SCOPE') throw new Error('STALE_SCOPE')}, readModel: async input => {
         const model = models.find(item => item.id === input.modelId)

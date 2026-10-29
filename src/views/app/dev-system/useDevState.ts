@@ -1664,7 +1664,9 @@ export function useDevState() {
       addStatus(hasAnyDirty.value ? '本轮提交已确认，仍有新修改待保存' : '全部保存已确认', hasAnyDirty.value ? 'info' : 'success')
     } catch (cause) {
       if (currentEditor.value === workspace && currentScopeKey() === scope) addStatus(
-        `${stage}保存未完成：${String(cause)}。已确认部分保留，未确认修改仍待处理${stage === '场景定义' ? '' : '；后续场景定义尚未提交'}${workspace.unconfirmedPageFiles.length || pageToolFileCommands?.hasUnconfirmedSave ? '；再次保存先核验原工具提交' : ''}`, 'error')
+        `${stage}保存未完成：${String(cause)}。已确认部分保留，未确认修改仍待处理${stage === '场景定义' ? '' : '；后续场景定义尚未提交'}${workspace.unconfirmedPageFiles.length || pageToolFileCommands?.hasUnconfirmedSave
+          || (blueprintWorkspaceDataView.value !== undefined && hasUnconfirmedPageFileViews(blueprintWorkspaceDataView.value.dataSet))
+          ? '；再次保存先核验原工具提交' : ''}`, 'error')
     } finally {allSaving.value = false; scenarioDefinitionRevision.value++}
   }
 

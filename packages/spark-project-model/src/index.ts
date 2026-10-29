@@ -69,6 +69,7 @@ export {
   findNodeById,
   findNodeLocation,
   normalizePageIdFromPath,
+  parseConfigToolPageId,
   normalizeBlueprintTree,
 } from './blueprint/project-blueprint-tree'
 

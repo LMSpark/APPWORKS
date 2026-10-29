@@ -3,6 +3,8 @@ import { computed, defineComponent, ref, toRaw } from 'vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
+import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
+import {useDevFileEditor} from '@/views/app/dev-system/composables/useDevFileEditor'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
@@ -350,6 +352,22 @@ describe('tool and shared scenario editing owners',()=>{
     expect(state.pageDataDirty.value).toBe(false)
   } finally {wrapper.unmount()}
  })
+ it('releases the reload lock when installing a document invalidates history work', async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
+  const previous=state.scenarioDefinitionDocument.value
+  const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
+  const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:true,SparkJsonEditor:true}}})
+  try {
+   await flushPromises()
+   await wrapper.findAll('button').find(button=>button.text()==='重新加载')!.trigger('click')
+   await flushPromises()
+   expect(state.scenarioDefinitionDocument.value).not.toBe(previous)
+   expect(wrapper.findAll('button').find(button=>button.text()==='重新加载')!.attributes('disabled')).toBeUndefined()
+   expect(wrapper.get('[data-test="scene-history"]').attributes('disabled')).toBeUndefined()
+  } finally {wrapper.unmount()}
+ })
  it('keeps the standard save action available to verify a lost receipt without discarding the draft', async()=>{
   let remote=fixtureText(20)
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}))
@@ -385,7 +403,13 @@ describe('tool and shared scenario editing owners',()=>{
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const page=state.project.getActivePage()!
   state.project.markBlueprintClean('node')
-  page.setFileText('script.js','console.log("first")')
+  const fileView=await state.loadPageToolFileDataView({pageId:page.pageId,fileName:'script.js'}),fileRow=fileView.currentRow,fileId=fileRow&&fileView.getPkKey(fileRow)
+  if(fileId===null||fileId===undefined)throw new Error('fixture file row has no DataView identity')
+  await fileView.editRowById(fileId,{text:'console.log("first")'})
+  state.stagePageToolFileDataView({pageId:page.pageId,fileName:'script.js',text:'console.log("first")'})
+  expect(state.isPageToolFileDirty('script.js')).toBe(true)
+  expect(state.isPageToolFileDirty('rule.json')).toBe(false)
+  expect(state.hasAnyFileDirty.value).toBe(true)
   await state.writeScenarioViewText(fixtureText(77))
   const saving=state.saveAll()
   await vi.waitFor(()=>expect(httpPut.mock.calls.some(call=>call[0]==='scenario:scene')).toBe(true))
@@ -407,6 +431,8 @@ describe('tool and shared scenario editing owners',()=>{
   httpPut.mockImplementation(async(url:string,payload:{content:string})=>{remote.set(url,payload.content)})
   await state.saveAll()
   expect(httpPut).toHaveBeenCalledTimes(3)
+  expect(httpPut.mock.calls.filter(call=>String(call[0]).endsWith('/script.js'))).toHaveLength(1)
+  expect(httpPut.mock.calls.some(call=>String(call[0]).endsWith('/rule.json')||String(call[0]).endsWith('/style.css'))).toBe(false)
   expect(JSON.parse(remote.get('scenario:scene')!).tables.Orders.views.default.pageSize).toBe(88)
   expect(state.pageDataDirty.value).toBe(false)
   expect(state.statusMessages.value[0]?.text).toBe('全部保存已确认')
@@ -422,7 +448,10 @@ describe('tool and shared scenario editing owners',()=>{
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const page=state.project.getActivePage()!
   state.project.markBlueprintClean('node')
-  state.project.writePageFile({fileName:'script.js',text:'submitted'})
+  const fileView=await state.loadPageToolFileDataView({pageId:page.pageId,fileName:'script.js'}),fileRow=fileView.currentRow,fileId=fileRow&&fileView.getPkKey(fileRow)
+  if(fileId===null||fileId===undefined)throw new Error('fixture file row has no DataView identity')
+  await fileView.editRowById(fileId,{text:'submitted'})
+  state.stagePageToolFileDataView({pageId:page.pageId,fileName:'script.js',text:'submitted'})
   await state.writeScenarioViewText(fixtureText(77))
   const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{SparkJsonEditor:true}}})
   try {
@@ -543,7 +572,50 @@ describe('tool and shared scenario editing owners',()=>{
  })
  beforeEach(()=>{isolateAppProjectWorkspaceForTest();localStorage.clear();httpGet.mockReset();httpPut.mockReset();httpGet.mockResolvedValue({content:''});readModels.mockReset();previewLoad.mockReset();vi.spyOn(LowcodeDictionary,'loadEditor').mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:LowcodeDictionary.editorScenarioId,tables:{_Base_DictType:{modelBinding:{modelId:`${LowcodeDictionary.editorScenarioId}dictionary`,modelName:'_Base_DictType'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'Name',type:'string'}],views:{default:{}}}}})}))})
  afterEach(()=>{vi.useRealTimers()})
- it('loads exactly three tool files and retains clean undo baselines',async()=>{const state=createDevStateWithConfigPages();httpGet.mockImplementation(async()=>({content:''}));await ensureDevStateActivePageLoaded(state);await ensureDevStateActivePageLoaded(state);expect(httpGet.mock.calls).toHaveLength(3);expect(httpGet.mock.calls.map(call=>String(call[0]))).not.toContainEqual(expect.stringContaining('pagedata.json'));state.project.writePageFile({fileName:'script.js',text:'A'});expect(state.project.undoPageFile('script.js')).toBe(true);expect(state.project.readDirtyProjection().dirtyFiles.has('script.js')).toBe(false)})
+ it('opens the active file through its DataView without loading PageTool owner text',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'owner duplicate':''}))
+  const state=createDevStateWithConfigPages()
+  const ownerLoad=vi.spyOn(state.editor,'ensureActivePageFilesLoaded')
+  const fileViewLoad=vi.spyOn(state,'loadPageToolFileDataView')
+  const wrapper=shallowMount(DevFileEditor,{props:{state},global:{stubs:{RendererForm:true,FieldJson:true,FieldCodeEditor:true,RendererButton:true,RendererTabs:true,RendererTabPane:true,DisplayEmpty:true,DisplayAlert:true,NavIcon:true}}})
+  try{
+   await flushPromises()
+   expect(ownerLoad).not.toHaveBeenCalled()
+   expect(fileViewLoad.mock.calls.map(([input])=>input.fileName)).toEqual(['rule.json'])
+   const fileView=await fileViewLoad.mock.results[0]?.value as unknown as {currentRow:Record<string,unknown>|null;tableName:string;viewId:string}
+   expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'rule.json'})
+   expect(fileView.tableName).toBe('PageToolFileSave')
+   expect(fileView.viewId).toBe('page-orders-page-rule.json')
+  }finally{wrapper.unmount()}
+ })
+ it('reads the active editor text from the file DataView draft without requiring a PageTool mirror',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/script.js')?'saved baseline':''}))
+  const state=createDevStateWithConfigPages()
+  await ensureDevStateActivePageLoaded(state)
+  const view=await state.loadPageToolFileDataView({pageId:state.activePageId.value,fileName:'script.js'})
+  const row=view.currentRow,id=row&&view.getPkKey(row)
+  if(id===null||id===undefined)throw new Error('file row missing')
+  await view.editRowById(id,{text:'DataView draft'})
+  const editor=useDevFileEditor(state,ref('script.js'))
+  expect(editor.text.value).toBe('DataView draft')
+ })
+ it('builds preview content from the file DataView draft without requiring a PageTool mirror',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/script.js')?'saved baseline':''}))
+  const state=createDevStateWithConfigPages()
+  await ensureDevStateActivePageLoaded(state)
+  const view=await state.loadPageToolFileDataView({pageId:state.activePageId.value,fileName:'script.js'})
+  const row=view.currentRow,id=row&&view.getPkKey(row)
+  if(id===null||id===undefined)throw new Error('file row missing')
+  await view.editRowById(id,{text:'DataView draft'})
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  try {
+   await flushPromises()
+   const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as {tool:{getFileText(name:'script.js'):string}}
+   expect(runtime.tool.getFileText('script.js')).toBe('DataView draft')
+  } finally {wrapper.unmount()}
+ })
+ it('loads only the requested tool file DataView and leaves other files unloaded',async()=>{const state=createDevStateWithConfigPages();const ownerLoad=vi.spyOn(state.editor,'ensureActivePageFilesLoaded');const fileView=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'});expect(ownerLoad).not.toHaveBeenCalled();expect(fileView.tableName).toBe('PageToolFileSave');expect(fileView.viewId).toBe('page-orders-page-script.js');expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'script.js'});expect(state.pageFileNames).toEqual(['rule.json','script.js','style.css'])})
  it('loads scene views through the scene gateway and undoes to a clean shared baseline',async()=>{let remote=fixtureText(20);httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}));httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content});const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene');await state.writeScenarioViewText(fixtureText(50));expect(state.pageDataDirty.value).toBe(true);expect(await state.scenarioDefinitionDocument.value?.undo()).toBe(true);state.scenarioDefinitionRevision.value++;expect(state.pageDataDirty.value).toBe(false);await state.writeScenarioViewText(fixtureText(70));await state.saveScenarioViewText();expect(JSON.parse(remote)).toEqual(JSON.parse(fixtureText(70)));expect(state.pageDataDirty.value).toBe(false);expect(state.project.readDirtyProjection().dirtyFiles).not.toContain('pagedata.json')})
  it('rejects model structure edits and preserves the last valid scene document',async()=>{httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}));const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();const previous=state.scenarioDefinitionDocument.value?.getText();await expect(state.writeScenarioViewText(JSON.stringify({scenarioId:'scene',tables:{Orders:{columns:[],views:{default:{}}}}}))).rejects.toThrow();expect(state.scenarioDefinitionDocument.value?.getText()).toBe(previous);expect(state.pageDataDirty.value).toBe(false)})
 })

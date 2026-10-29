@@ -14,7 +14,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         <div class="dev-project-picker">
           <NavHostProjectPicker :state="state" />
         </div>
-        <DisplayTag :content="`${state.tenantId}/${state.projectId}`" tag-type="info" size="small" effect="plain" />
+        <DisplayTag :content="state.projectId" tag-type="info" size="small" effect="plain" />
         <DisplayTag v-if="state.hasAnyDirty.value" content="未保存" tag-type="warning" size="small" effect="dark" />
       </div>
       <div class="dev-header__right">
@@ -204,9 +204,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-.dev-project-picker__tenant {
-  width: 132px;
 }
 .dev-project-picker__project {
   width: 180px;

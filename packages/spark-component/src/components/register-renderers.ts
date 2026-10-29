@@ -52,7 +52,7 @@ import {
 
 // ── 核心字段 ──
 import {
-  FieldText, FieldTextarea, FieldJson, FieldNumber, FieldDate, FieldSelect, FieldValueFunction,
+  FieldText, FieldTextarea, FieldCodeEditor, FieldJson, FieldNumber, FieldDate, FieldSelect, FieldValueFunction,
   FieldMultiSelect, FieldRadio, FieldCheckbox, FieldCheckboxGroup, FieldSwitch,
   FieldHtmlEditor, FieldSlider, FieldRate, FieldColor, FieldIcon, FieldImage,
   FieldFilePath, FieldFileBrowser, FieldUpload, FieldEntityPicker, FieldUserPicker,
@@ -145,6 +145,7 @@ const CORE_COMPONENTS: Array<readonly [string, unknown]> = [
   // 核心字段
   ['r-text', FieldText],
   ['r-textarea', FieldTextarea],
+  ['r-code-editor', FieldCodeEditor],
   ['r-number', FieldNumber],
   ['r-date', FieldDate],
   ['r-select', FieldSelect],

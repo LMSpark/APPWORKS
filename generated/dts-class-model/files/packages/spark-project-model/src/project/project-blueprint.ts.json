@@ -40,9 +40,6 @@
         "id": {
           "type": "string"
         },
-        "tenantId": {
-          "type": "string"
-        },
         "name": {
           "type": "string"
         },
@@ -722,7 +719,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:47:24.485Z",
+  "generatedAt": "2026-10-29T15:39:29.931Z",
   "models": {
     "ProjectBlueprint": {
       "name": "ProjectBlueprint",
@@ -774,17 +771,12 @@
             },
             {
               "name": "projectId",
-              "jsdoc": "项目唯一标识，与租户内存储锚点一致。",
+              "jsdoc": "项目唯一标识，作为工作区存储锚点。",
               "readable": true,
               "writable": false
             },
             {
               "name": "id",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "tenantId",
               "readable": true,
               "writable": false
             },

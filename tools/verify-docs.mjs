@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -95,7 +93,6 @@ const legacyMarkdownAllowlist = new Set([
   'docs/SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md',
   'docs/architecture/DATAFLOW_ARCHITECTURE.md',
   'docs/architecture/PERMISSION_SYSTEM.md',
-  'docs/architecture/PLATFORM_TENANT_ROUTING.md',
   'docs/architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md',
   'docs/guides/COMPONENT_DEVELOPMENT.md',
   'docs/guides/CONDITION_EXPRESSION.md',

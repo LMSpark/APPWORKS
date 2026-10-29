@@ -28,24 +28,10 @@ AI用途：需要理解 spark code editor 的实际渲染结构、slot/toolbar/�
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { Extension } from '@codemirror/state'
 import type { EditorView } from '@codemirror/view'
+import type { SparkCodeEditorProps } from './SparkCodeEditor.props'
 
-/** SparkCodeEditor 组件属性，描述代码内容、语言和编辑器外观。 */
-type Props = {
-  /** 编辑器内容 */
-  modelValue?: string
-  /** 语言模式；当前只加载脚本与样式两类 CodeMirror language package。 */
-  language?: 'javascript' | 'css'
-  /** 是否只读 */
-  readOnly?: boolean
-  /** 编辑器高度 */
-  height?: number | string
-  /** Tab 缩进空格数 */
-  tabSize?: number
-  /** 是否自动换行 */
-  lineWrapping?: boolean}
-
-const props = withDefaults(defineProps<Props>(), {
-  value: '',
+const props = withDefaults(defineProps<SparkCodeEditorProps>(), {
+  modelValue: '',
   language: 'javascript',
   readOnly: false,
   height: 360,

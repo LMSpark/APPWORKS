@@ -28,7 +28,7 @@ import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkN
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {parseTenantScope} from '@/services/tenant-scope'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import ApiConfigPage from './api-config-page.vue'
 import ApiInterfaceListPage from './api-interface-list-page.vue'
 
@@ -40,7 +40,7 @@ const editing = ref<EditView | ''>('')
 const configProviderId = ref(''), interfaceProviderId = ref('')
 let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const projectId = computed(() => parseTenantScope(route.path)?.projectId ?? '')
+const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
 const key = (viewId: string, table = 'Base_InterfaceProvider') => buildDataViewKey(table, viewId, scenarioId.value)
 const view = (viewId: string): DataView | undefined => {revision.value; return dataSet?.getView('Base_InterfaceProvider', viewId)}
 const editView = computed(() => editing.value ? view(editing.value) : undefined)

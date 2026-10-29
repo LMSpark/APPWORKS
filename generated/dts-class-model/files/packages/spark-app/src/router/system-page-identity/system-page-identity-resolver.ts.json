@@ -22,7 +22,7 @@
       "title": "SystemPageIdentityScope",
       "enum": [
         "public",
-        "tenant",
+        "application",
         "platform"
       ]
     },
@@ -269,14 +269,14 @@
       }
     }
   },
-  "generatedAt": "2026-10-09T09:18:00.627Z",
+  "generatedAt": "2026-10-29T09:01:17.419Z",
   "models": {
     "SystemPageIdentityScope": {
       "name": "SystemPageIdentityScope",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'public' | 'tenant' | 'platform'",
+        "declarationTypeText": "'public' | 'application' | 'platform'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -284,7 +284,7 @@
           },
           {
             "kind": "union",
-            "typeText": "'tenant'"
+            "typeText": "'application'"
           },
           {
             "kind": "union",

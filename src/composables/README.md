@@ -5,7 +5,7 @@
 ## 当前内容
 
 - 原会话相关 composable 已迁移到 `packages/spark-component/src/composables/`。
-- `useTenantRouter.ts`：租户作用域路由拼接与页面跳转辅助。
+- `useApplicationRouter.ts`：应用路径拼接与页面跳转辅助。
 - `useNotifications.ts`：通知/消息相关组合逻辑。
 
 ## 放置原则

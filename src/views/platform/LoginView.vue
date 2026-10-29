@@ -195,7 +195,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { buildTenantPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
@@ -240,8 +240,8 @@ function goHome() {
   void router.replace('/')
 }
 
-function getUserHomePath(enterpriseName: string): string {
-  return buildTenantPath({ tenantId: enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
+function getUserHomePath(): string {
+  return buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
 }
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
@@ -259,9 +259,9 @@ async function handleLogin() {
   loading.value = true
   errorMsg.value = ''
   try {
-    const session = await lowcodeApi.platform.login(loginForm)
+    await lowcodeApi.platform.login(loginForm)
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '登录失败'
   } finally {
@@ -327,13 +327,13 @@ async function handleRegister() {
       email: regForm.channel === 'EMAIL' ? regForm.contact : '',
       verificationCode: regForm.verificationCode,
     })
-    const session = await lowcodeApi.platform.login({
+    await lowcodeApi.platform.login({
       enterpriseName: regForm.enterpriseName,
       account: regForm.account,
       password: regForm.password,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '注册失败'
   } finally {
@@ -402,13 +402,13 @@ async function handleRegisterTenant() {
       phone: tenantForm.channel === 'MOBILE' ? tenantForm.verificationAccount : '',
       email: tenantForm.channel === 'EMAIL' ? tenantForm.verificationAccount : '',
     })
-    const session = await lowcodeApi.platform.login({
+    await lowcodeApi.platform.login({
       enterpriseName: tenantForm.domainKey,
       account: tenantForm.administratorAccount,
       password: tenantForm.administratorPassword,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '租户注册失败'
   } finally {

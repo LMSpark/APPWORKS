@@ -161,7 +161,7 @@ export class BlueprintWorkspaceDataView {
 
   public get projectId(): string {return this.#projectId}
   /** Standard component binding for this owner: formal model key, or the exact trusted local-file DataView. */
-  public get standardComponentBinding(): Readonly<{dataViewKey?: string; dataSource?: DataView}> {
+  public get standardComponentBinding(): Readonly<{dataViewKey?: string}> {
     const scenarioId=this.view.dataSet?.scenarioId
     const modelName=this.view.dataTable?.modelBinding?.modelName
     if(scenarioId&&modelName)return {dataViewKey:buildDataViewKey(modelName,this.view.viewId,scenarioId)}
@@ -169,7 +169,7 @@ export class BlueprintWorkspaceDataView {
       &&this.view.tableName===BUILTIN_BLUEPRINT_NODE_TABLE_NAME
       &&this.view.dataTable?.resourceType==='file'
       &&this.view.dataTable.resourceId===BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
-      &&!this.view.dataTable.modelBinding)return {dataSource:this.view}
+      &&!this.view.dataTable.modelBinding)return {dataViewKey:buildDataViewKey(this.view.tableName,this.view.viewId,scenarioId)}
     return {}
   }
   /** Rebind the parked owner to a newly acquired same-project DevSystem scope. */

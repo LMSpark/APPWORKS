@@ -95,7 +95,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-26T23:11:43.242Z",
+  "generatedAt": "2026-10-29T15:39:49.580Z",
   "models": {
     "ActivatePageDesignAgentWorkflowOptions": {
       "name": "ActivatePageDesignAgentWorkflowOptions",

@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-10-29",
+  "browser": "http://127.0.0.1:5273",
+  "frontendApplicationScope": "/apps/{projectId}",
+  "successfulApplicationSwitches": [
+    {
+      "projectId": "D99A1DCE9894698799101EFD70F8FC76",
+      "name": "元数据管理",
+      "route": "/apps/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page?__sparkNavigationId=78C58A7FE34F2987267A1E8AF10B2990",
+      "renderedDataViewRows": [
+        "sqlserver本地测试库",
+        "LM数据库服务器",
+        "金仓数据库服务器",
+        "达梦数据库服务器",
+        "dify数据库"
+      ]
+    },
+    {
+      "projectId": "BE7C7452A333B0EB675F1EACBA035E8F",
+      "name": "AI 交付工单系统",
+      "route": "/apps/BE7C7452A333B0EB675F1EACBA035E8F/dashboard",
+      "targetPage": "管理仪表板"
+    }
+  ],
+  "builtinBlueprint": {
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "devSystemRoute": "/apps/D99A1DCE9894698799101EFD70F8FC76/dev?__sparkNavigationId=appworks-tool-dev",
+    "runtimeSource": "src/lowcode/lowcode-runtime.ts readBuiltinProjectBlueprintTree -> 7AB RepositoryScenario DataView -> BuiltinBlueprintNodeResource -> BlueprintWorkspaceDataView.loadProjectTree",
+    "treeNodeCount": 85,
+    "moduleCount": 14,
+    "pageCount": 71,
+    "vueTargetCount": 42,
+    "cfgTargetCount": 0,
+    "actualSidebarItems": [
+      "服务器管理",
+      "数据库管理",
+      "表和视图管理"
+    ]
+  },
+  "scenarioHistory": {
+    "source": "90A82E287930A234FEC3E687C94A93EA",
+    "selectedNode": "90A82E287930A234FEC3E687C94A93EA",
+    "versions": [
+      "1__pagedata.json",
+      "2__pagedata.json"
+    ],
+    "previewedVersion": 1,
+    "previewContains": "Base_DataSet@catalog.pageSize=10",
+    "switchedToScenario": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "switchedScenarioHistoryCount": 0,
+    "switchedBackVersionList": [
+      "1__pagedata.json",
+      "2__pagedata.json"
+    ],
+    "mutations": "none during this verification"
+  },
+  "dynamicProject": {
+    "projectId": "BE7C7452A333B0EB675F1EACBA035E8F",
+    "treeNodeCount": 4,
+    "publishedTargets": [
+      "/delivery/work-items",
+      "/delivery/work-items/:workItemId"
+    ],
+    "cfgTargetCount": 0
+  },
+  "failedApplicationSwitch": {
+    "targetApplicationId": "00BE6ED455CD4BD7B785C61A12A1E67D",
+    "result": "blocked-before-route-navigation",
+    "error": "蓝图 DataView 父节点闭包缺失：0F6317265D4A2F3BFAA31F4F6DC311FA -> 05F5F4DC24CE42FB815359EB84FFD33D"
+  }
+}

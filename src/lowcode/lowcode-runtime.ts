@@ -15,7 +15,7 @@ import { createRequest, isRecord } from '@spark-appworks/spark-utils'
 import {DataSet} from '@spark-appworks/spark-data'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
@@ -131,9 +131,9 @@ function assertRemoteToolFilesAllowed(projectId: string): void {
 
 export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
   const items = getVuePageOptions()
-    .filter((page) => page.scope === 'tenant')
+    .filter((page) => page.scope === 'catalog')
     .map((page) => ({
-      id: `appworks-tenant-${page.path.slice(1)}`,
+      id: `appworks-application-${page.path.slice(1)}`,
       title: page.title,
       itemKind: 'system-page' as const,
       path: page.path,
@@ -187,6 +187,7 @@ function runtimeTargetProjection(
 ): RuntimeTargetProjection {
   const target = (record.navigation?.target ?? '')
   if (target.startsWith('cfg:')) {
+    if (!ProjectModel.parseConfigToolPageId(target)) throw new Error(`蓝图节点 ${record.nodeId} 的配置工具目标无效：${target}`)
     const query = new URLSearchParams()
     if (record.dataSpace?.scenarioId) query.set('scenarioId', record.dataSpace.scenarioId)
     const parameters = query.toString()
@@ -246,7 +247,7 @@ function buildRuntimeNavigationItem(
     ...(target.path === undefined ? {} : { path: target.path }),
     ...(record.dataSpace?.scenarioId === undefined ? {} : { blueprintScenarioId: record.dataSpace.scenarioId }),
     ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
-      projectId: record.projectId, pageId: record.navigation.target.slice(4),
+      projectId: record.projectId, pageId: ProjectModel.parseConfigToolPageId(record.navigation.target),
       ...(typeof record.source['VersionId'] === 'string' && record.source['VersionId'].trim() ? { versionId: record.source['VersionId'] } : {}),
     } } : {}),
     ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),

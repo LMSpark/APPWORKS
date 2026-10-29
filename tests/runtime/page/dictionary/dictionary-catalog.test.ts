@@ -17,7 +17,7 @@ import DictionarySetting from '@/views/features/data-platform/structured-config/
 import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {parseTenantScope} from '@/services/tenant-scope'
+import {parseApplicationPathScope} from '@/services/application-scope'
 import {defineComponent, h} from 'vue'
 import {RouterView} from 'vue-router'
 
@@ -139,10 +139,10 @@ async function openCatalog(routePath = '/catalog') {
   config.global.stubs = stubs
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const tenantScope = parseTenantScope(routePath)
+  const tenantScope = parseApplicationPathScope(routePath)
   const dynamic = createDynamicRouter({
     router, pageComponent: DictionaryCatalog, componentMap: {'/catalog': DictionaryCatalog},
-    ...(tenantScope ? {tenantPathPrefix: '/t/:tenantId/:projectId'} : {}),
+    ...(tenantScope ? {applicationPathPrefix: '/apps/:projectId'} : {}),
     loadNavigation: async () => ({
       id: 'root', title: 'Root', childPlacement: 'header',
       ...(tenantScope ? {projectId: tenantScope.projectId} : {}),
@@ -525,7 +525,7 @@ describe('dictionary catalog formal view assembly', () => {
   })
 
   it('opens the selected dictionary data workspace from its catalog host', async () => {
-    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog')
+    const {wrapper, router} = await openCatalog('/apps/PROJ/catalog')
     const table = wrapper.findComponent(RendererTable)
     await table.get('.el-table__body .el-table__row').trigger('click')
     await flushPromises()
@@ -534,7 +534,7 @@ describe('dictionary catalog formal view assembly', () => {
     await flushPromises()
     const dataPage = wrapper.findComponent(DictionaryData)
     expect(dataPage.exists()).toBe(true)
-    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.path).toBe('/apps/PROJ/catalog')
     expect(router.currentRoute.value.query).toEqual({})
     expect(dataPage.text()).toContain('当前方案：配色（D1）')
     expect(dataPage.findComponent(RendererTable).text()).toContain('白')
@@ -641,7 +641,7 @@ describe('dictionary catalog formal view assembly', () => {
     http.dictionaryRows.push({rowid: 'D2', AppId: 'OTHER-APP', TypeName: '第二字典', createuser: 'U-ROW', StructureTypeID: 'S1'})
     const hosts: AiDataEntryHost[] = [], attachments: AiDataEntryAttachment[] = []
     captureDictionaryAiOwner(hosts, attachments)
-    const {wrapper, router, dynamic} = await openCatalog('/t/ENT/PROJ/catalog')
+    const {wrapper, router, dynamic} = await openCatalog('/apps/PROJ/catalog')
     const catalogTable = wrapper.findComponent(RendererTable)
     await catalogTable.findAll('.el-table__body .el-table__row')[0]!.trigger('click')
     await flushPromises()
@@ -689,7 +689,7 @@ describe('dictionary catalog formal view assembly', () => {
     http.failAiCreate = true
     const hosts: AiDataEntryHost[] = [], attachments: AiDataEntryAttachment[] = []
     captureDictionaryAiOwner(hosts, attachments)
-    const {wrapper, router, dynamic} = await openCatalog('/t/ENT/PROJ/catalog')
+    const {wrapper, router, dynamic} = await openCatalog('/apps/PROJ/catalog')
     const catalogTable = wrapper.findComponent(RendererTable)
     await catalogTable.get('.el-table__body .el-table__row').trigger('click')
     await flushPromises()
@@ -774,7 +774,7 @@ describe('dictionary catalog formal view assembly', () => {
       val: '代码', txt: '名称', secondValue: '色号', thirdValue: '类别', fourthvalue: 'D2用途', fiveValue: 'D2说明', functiondesc: ''})
     dictionaryHttp.records['_Base_DictData']!.push({rowid: 'E2', typeid: 'D2', ordIdx: 1, val: '20', txt: '黑',
       exVal_1: '#000', exVal_2: '基础', exVal_3: '', exVal_4: 'D2原值'})
-    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog')
+    const {wrapper, router} = await openCatalog('/apps/PROJ/catalog')
     const catalogTable = wrapper.findComponent(RendererTable)
     const catalogRows = catalogTable.findAll('.el-table__body .el-table__row')
     expect(catalogRows).toHaveLength(2)
@@ -822,7 +822,7 @@ describe('dictionary catalog formal view assembly', () => {
     expect(d2Page.text()).toContain('当前方案：双目标（D2）')
     expect(d2Page.text()).toContain('D2用途')
     expect(d2Page.findComponent(RendererTable).text()).toContain('黑')
-    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.path).toBe('/apps/PROJ/catalog')
     expect(router.currentRoute.value.query).toEqual({})
 
     await d2Page.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
@@ -877,7 +877,7 @@ describe('dictionary catalog formal view assembly', () => {
       val: '代码', txt: '名称', secondValue: '色号', thirdValue: '类别', fourthvalue: 'D2用途', fiveValue: 'D2说明', functiondesc: ''})
     dictionaryHttp.records['_Base_DictData']!.push({rowid: 'E2', typeid: 'D2', ordIdx: 1, val: '20', txt: '黑',
       exVal_1: '#000', exVal_2: '基础', exVal_3: '', exVal_4: 'D2原值'})
-    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog?retain=yes')
+    const {wrapper, router} = await openCatalog('/apps/PROJ/catalog?retain=yes')
     const catalogTable = wrapper.findComponent(RendererTable)
     await catalogTable.findAll('.el-table__body .el-table__row')[0]!.trigger('click'); await flushPromises()
     await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click'); await flushPromises()
@@ -919,7 +919,7 @@ describe('dictionary catalog formal view assembly', () => {
     expect(sets.at(-1)).not.toBe(dataSetD1)
     expect(dataPageD2.text()).toContain('当前方案：双目标（D2）')
     expect(dataPageD2.findComponent(RendererTable).text()).toContain('黑')
-    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.path).toBe('/apps/PROJ/catalog')
     expect(router.currentRoute.value.query).toEqual({retain: 'yes'})
     expect(dictionaryHttp.records['_Base_DictData']![0]).toMatchObject({rowid: 'C', ordIdx: 3})
     expect(dictionaryHttp.records['_Base_DictData']!.find(row => row['rowid'] === 'E2')?.['exVal_4']).toBe('D2原值')

@@ -51,9 +51,6 @@
       "type": "object",
       "title": "UploadProjectPlanningAttachmentCommand",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         },
@@ -63,14 +60,13 @@
         }
       },
       "required": [
-        "tenantId",
         "projectId",
         "file"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-09T22:51:40.575Z",
+  "generatedAt": "2026-10-29T09:40:32.829Z",
   "models": {
     "ProjectPlanningAttachmentUploadResult": {
       "name": "ProjectPlanningAttachmentUploadResult",
@@ -126,21 +122,16 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    tenantId: string;\n    projectId: string;\n    file: File;\n}>",
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    file: File;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    tenantId: string;\n    projectId: string;\n    file: File;\n}>",
+            "typeText": "Readonly<{\n    projectId: string;\n    file: File;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "projectId",
               "readable": true,

@@ -34,9 +34,6 @@
       "type": "object",
       "title": "HeadlessProjectPlanningEditorScope",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         }
@@ -44,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T03:12:55.177Z",
+  "generatedAt": "2026-10-29T15:42:19.604Z",
   "models": {
     "ProjectPlanningEditorResolveContext": {
       "name": "ProjectPlanningEditorResolveContext",
@@ -76,25 +73,19 @@
       "jsdoc": "Headless Project Planning Editor Scope 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户 ID，用于多租户场景下隔离 API 请求的作用域；未提供时从用户会话推断。 */\n    tenantId?: string;\n    /** 项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。 */\n    projectId?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到当前项目或应用目录。 */\n    projectId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户 ID，用于多租户场景下隔离 API 请求的作用域；未提供时从用户会话推断。 */\n    tenantId?: string;\n    /** 项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。 */\n    projectId?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到当前项目或应用目录。 */\n    projectId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "tenantId",
-              "jsdoc": "租户 ID，用于多租户场景下隔离 API 请求的作用域；未提供时从用户会话推断。",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "projectId",
-              "jsdoc": "项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。",
+              "jsdoc": "项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到当前项目或应用目录。",
               "readable": true,
               "writable": false
             }

@@ -48,9 +48,6 @@
         "projectId": {
           "type": "string"
         },
-        "tenantId": {
-          "type": "string"
-        },
         "closable": {
           "enum": [
             false,
@@ -99,14 +96,14 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T05:42:51.403Z",
+  "generatedAt": "2026-10-29T09:56:24.173Z",
   "models": {
     "TabPage": {
       "name": "TabPage",
       "jsdoc": "一个已打开页面的标签投影；工具实例用 instanceId 定位，fullPath 保留调用参数。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    id: string;\n    path: string;\n    title: string;\n    icon?: string;\n    name?: string;\n    runtimeName?: string;\n    systemPage?: boolean;\n    projectId?: string;\n    tenantId?: string;\n    closable: boolean;\n    fullPath: string;\n}",
+        "declarationTypeText": "{\n    id: string;\n    path: string;\n    title: string;\n    icon?: string;\n    name?: string;\n    runtimeName?: string;\n    systemPage?: boolean;\n    projectId?: string;\n    closable: boolean;\n    fullPath: string;\n}",
         "members": {
           "attributes": [
             {
@@ -146,11 +143,6 @@
             },
             {
               "name": "projectId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "tenantId",
               "readable": true,
               "writable": false
             },

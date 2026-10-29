@@ -264,9 +264,6 @@
           "properties": {
             "dataViewKey": {
               "type": "string"
-            },
-            "dataSource": {
-              "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
             }
           },
           "additionalProperties": false
@@ -771,7 +768,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T03:53:19.485Z",
+  "generatedAt": "2026-10-29T15:02:39.985Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",

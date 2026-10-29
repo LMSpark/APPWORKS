@@ -28,9 +28,6 @@
       "type": "object",
       "title": "ProjectPlanningRunInput",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         },
@@ -59,9 +56,6 @@
       "type": "object",
       "title": "ProjectPlanningAgentInput",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectScopeKey": {
           "type": "string"
         },
@@ -362,29 +356,23 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T15:22:51.935Z",
+  "generatedAt": "2026-10-29T15:39:49.579Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
       "jsdoc": "Project Planning Run Input 的输入数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
+            "typeText": "Readonly<{\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "租户标识；用于后端附件读取 scope 校验。",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "projectId",
               "jsdoc": "项目唯一标识。",
@@ -418,22 +406,16 @@
       "jsdoc": "Host inputContract 用可变数组，满足 JsonParams。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
+            "typeText": "Readonly<{\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "租户标识；用于后端附件读取 scope 校验。",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "projectScopeKey",
               "jsdoc": "Agent 输入的身份键（通常等于 projectId）。",

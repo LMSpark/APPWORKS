@@ -41,9 +41,8 @@ export const CrossProjectRefPage = defineComponent({
         const match = /^@app:([^/]+)(\/.*)$/.exec(target)
         const projectId = match?.[1] ?? props.route.params['projectId']
         const path = match?.[2] ?? target
-        const tenantId = props.route.params['tenantId']
-        if (typeof projectId !== 'string' || typeof tenantId !== 'string' || !path.startsWith('/')) throw new Error('引用缺少项目或租户请求作用域')
-        const resolved = router.resolve(`/t/${encodeURIComponent(tenantId)}/${encodeURIComponent(projectId)}${path}`)
+        if (typeof projectId !== 'string' || !path.startsWith('/')) throw new Error('引用缺少项目请求作用域')
+        const resolved = router.resolve(`/apps/${encodeURIComponent(projectId)}${path}`)
         const result = await router.replace({ path: resolved.path, query: { ...props.route.query, ...resolved.query }, hash: resolved.hash || props.route.hash })
         if (result) throw new Error('引用导航未完成')
       } catch (failure) { error.value = failure instanceof Error ? failure.message : String(failure) }

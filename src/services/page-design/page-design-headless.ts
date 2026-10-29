@@ -9,7 +9,7 @@ import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import {loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 /** Page Design Editor Resolve Context 的运行上下文。 */

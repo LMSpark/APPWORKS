@@ -51,12 +51,12 @@ function fixture() {
       space: {dataSpaceId: scenarioId, name: scenarioId}, models: [model], relations: []}).dataSet
   }
   const page = defineComponent({render: () => h('div')})
-  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/t/:projectId/__tool/:pageId',
+  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/apps/:projectId/__tool/:pageId',
     component: page, meta: {type: 'config-page', programmaticTool: true}}]})
   const pool = new PageRuntimePool({pageComponent: page, readNavTree: () => null, refreshRoutes: async () => undefined,
     readPageFile: async ({fileName}) => fileName === 'rule.json' ? '[]' : '', loadScenario: ({scenarioId}) => load(scenarioId)})
   const open = async (query: LocationQueryRaw) => {
-    await router.push({path: '/t/APP/__tool/shared', query})
+    await router.push({path: '/apps/APP/__tool/shared', query})
     const call = pool.getPageRuntime(router.currentRoute.value)
     if (!call) throw new Error('missing runtime')
     calls.push(call)

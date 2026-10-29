@@ -201,7 +201,7 @@ async function openSelected(): Promise<void> {
         }
       } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
     }
-    try {await props.state.openEditingProject({tenantId: props.state.tenantId, projectId: value})}
+    try {await props.state.openEditingProject({projectId: value})}
     catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
   } finally {if (own === generation) busy.value = false}
 }

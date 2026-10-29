@@ -5,5 +5,6 @@
  * AI用途：需要发现 editors 对外暴露哪些子模块时，从本模块进入，再跳到具体 props、Vue 或 zero-code 文件。
  */
 export { default as SparkCodeEditor } from './SparkCodeEditor.vue'
+export type { SparkCodeEditorProps } from './SparkCodeEditor.props'
 export { default as SparkJsonEditor } from './SparkJsonEditor.vue'
 export { default as JsonTreeEditor } from './JsonTreeEditor.vue'

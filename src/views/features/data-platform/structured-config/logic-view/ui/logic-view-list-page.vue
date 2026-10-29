@@ -18,7 +18,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,8 +51,8 @@ function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createView(): void {void openDesignRoute(crypto.randomUUID().replaceAll('-', '').toUpperCase())}
 async function openDesign(): Promise<void> {if (selected.value) await openDesignRoute(selected.value)}
 async function openDesignRoute(viewId: string): Promise<void> {
-  const scope = parseTenantScope(route.path)
-  const path = scope ? buildTenantPath(scope, designPath) : designPath
+  const scope = parseApplicationPathScope(route.path)
+  const path = scope ? buildApplicationPath(scope, designPath) : designPath
   await router.push({path, query: {viewId}})
 }
 watch(scenarioId, async id => {

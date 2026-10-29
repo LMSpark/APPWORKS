@@ -101,10 +101,10 @@ function calls(name:string) {return executeQuery.mock.calls.filter(([view])=>vie
 function last(name='Base_DataSet'):QueryParams {return calls(name).at(-1)![1] as QueryParams}
 async function owner() {const value=await LowcodeDataSpaceCatalog.load({projectId:'app-a',scenarioId:'SCENE'});disposals.push(()=>value.dispose());return value}
 function button(wrapper:ReturnType<typeof mount>,text:string) {const found=wrapper.findAll('button').find(item=>item.text()===text);if(!found)throw new Error(`Missing ${text}`);return found}
-const path='/t/TENANT/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
+const path='/apps/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
 async function page(scenarioId='SCENE') {
   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:CatalogPage,meta:{blueprintScenarioId:scenarioId}},
-    {path:'/t/TENANT/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
+    {path:'/apps/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
   await router.push(`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`)
   const registry=Spark.createRegistry()
   for(const [type,component] of [['r-text',FieldText],['r-select',FieldSelect],['r-button',RendererButton],['r-filter',RendererFilter],['r-toolbar',RendererToolbar]] as const)registry.register({type,component})
@@ -127,6 +127,25 @@ beforeEach(()=>{
 })
 afterEach(()=>{disposals.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
 describe('native DataView catalog',()=>{
+  it('deletes only the selected catalog row through the original DataView after the model preflight',async()=>{
+    const fixture=writable();fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
+    const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'删除').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('仅删除空间记录')
+    const deleteButtons=wrapper.findAll('button').filter(item=>item.text()==='删除')
+    await deleteButtons.at(-1)!.trigger('click');await flushPromises()
+    expect(calls('Base_DataModel').map(([view])=>view.viewId)).toContain('catalogDeleteCheck')
+    expect(fixture.writes).toBe(1)
+    expect(fixture.rows.map(row=>row['rowid'])).toEqual(['OTHER'])
+  })
+  it('cancels catalog deletion without staging or submitting a DataView change',async()=>{
+    const fixture=writable(),{wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'删除').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('确认删除数据空间“Directory item”吗')
+    await button(wrapper,'取消').trigger('click');await flushPromises()
+    expect(fixture.writes).toBe(0)
+    expect(fixture.rows.map(row=>row['rowid'])).toEqual(['TARGET'])
+  })
   it('rejects a delete when the selection changes during the formal model preflight query',async()=>{
     const fixture=writable();fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
     const {wrapper}=await page(),view=fixture.dataSet?.getView('Base_DataSet','catalog')
@@ -418,20 +437,22 @@ describe('catalog navigation bindings and API information',()=>{
 })
 
 describe('catalog page entry',()=>{
-  it('offers original row actions on the bound row without a prior selection',async()=>{
+  it('opens the native designer dialog for the bound row without changing the route',async()=>{
     const {wrapper,router}=await page(),row=wrapper.get('tbody tr')
     const design=row.findAll('button').find(item=>item.text()==='设计')
     expect(design).toBeDefined();expect(design!.attributes('disabled')).toBeUndefined()
     const before=router.currentRoute.value.fullPath
     await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.fullPath).toBe(before)
-    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARGET'),{timeout:20000})
+    expect((wrapper.vm as any).$?.setupState?.designId).toBe('TARGET')
+    expect(openDesign).not.toHaveBeenCalled()
   })
-  it('targets the clicked row rather than a different selected row',async()=>{
+  it('opens the native designer for the clicked row rather than a different selection',async()=>{
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'
       ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0],rowid:'SECOND',Name:'Second'}]:defaults[view.tableName]??[]))
     const {wrapper,router}=await page(),rows=wrapper.findAll('tbody tr');await rows[0]!.trigger('click');await flushPromises()
     await rows[1]!.findAll('button').find(item=>item.text()==='设计')!.trigger('click');await flushPromises()
-    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('SECOND'),{timeout:20000});expect(openDesign).not.toHaveBeenCalledWith('TARGET')
+    expect((wrapper.vm as any).$?.setupState?.designId).toBe('SECOND')
+    expect(openDesign).not.toHaveBeenCalled();expect(router.currentRoute.value.path).toContain('/data-set-list-page')
     void router
   })
   it('closes a delayed binding query without keeping the list busy or publishing its late error',async()=>{
@@ -499,19 +520,19 @@ describe('catalog page entry',()=>{
     })
     const {wrapper,router}=await page()
     const stale=context(oldView,[{rowid:'APP',AppDesc:'Obsolete application'}])
-    await router.push('/t/TENANT/app-a/second');await flushPromises();release(stale);await flushPromises()
+    await router.push('/apps/app-a/second');await flushPromises();release(stale);await flushPromises()
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('OTHER@Base_DataSet@catalog')
     expect(wrapper.text()).toContain('Current application');expect(wrapper.text()).not.toContain('Obsolete application')
   })
-  it('binds standard components to the formal route space and opens the designer in a dialog with the selected target only',async()=>{
+  it('binds standard components to the formal route space and passes only the selected target to the designer dialog',async()=>{
     const {wrapper,router}=await page();expect(loadScenario).toHaveBeenCalledWith({projectId:'app-a',scenarioId:'SCENE'})
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('SCENE@Base_DataSet@catalog')
     expect(wrapper.text()).toContain('Creator');expect(wrapper.text()).toContain('Application');expect(button(wrapper,'编辑').attributes('disabled')).toBeDefined()
     const before=router.currentRoute.value.fullPath
     await wrapper.get('tbody tr').trigger('click');await flushPromises();await button(wrapper,'设计').trigger('click');await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe(before)
-    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARGET'),{timeout:20000})
-    expect(openDesign).not.toHaveBeenCalledWith('UNTRUSTED')
+    expect((wrapper.vm as any).$?.setupState?.designId).toBe('TARGET')
+    expect(document.body.textContent).not.toContain('UNTRUSTED')
   })
   it('retains standard OR/application filters across paging and resets them',async()=>{
     const {wrapper}=await page();await wrapper.get('input[placeholder="搜索名称或 ID"]').setValue(' FIND ');await flushPromises()

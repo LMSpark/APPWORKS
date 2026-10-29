@@ -19,7 +19,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
 
 const route = useRoute()
@@ -50,8 +50,8 @@ function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createFlow(): void {void openDesignRoute(crypto.randomUUID().replaceAll('-', '').toUpperCase())}
 async function openDesign(): Promise<void> {if (selected.value) await openDesignRoute(selected.value)}
 async function openDesignRoute(workflowId: string): Promise<void> {
-  const scope = parseTenantScope(route.path)
-  const path = scope ? buildTenantPath(scope, designPath) : designPath
+  const scope = parseApplicationPathScope(route.path)
+  const path = scope ? buildApplicationPath(scope, designPath) : designPath
   await router.push({path, query: {workflowId}})
 }
 watch(scenarioId, async id => {

@@ -15,8 +15,6 @@ import {readLowcodeApplicationById} from '@/lowcode/lowcode-application-catalog'
 
 /** 项目详情：从后端 API 读取的项目元数据投影 */
 export type ProjectDetail = {
-  /** 租户 ID，多租户隔离标识 */
-  tenantId: string
   /** 项目 ID，项目唯一标识 */
   projectId: string
   /** 项目名称 */
@@ -101,19 +99,10 @@ function resolveRootModuleId(nav: RuntimeNavigation): string | null {
 }
 
 export async function loadProjectRuntimeSettings(
-  tenantId: string,
   projectId: string,
 ): Promise<ProjectRuntimeSettings> {
-  const session = lowcodeApi.session.get()
-  if (session?.enterprise.shortName !== tenantId) {
-    throw new Error('lowcode 应用设置路由企业与当前会话不一致')
-  }
   const initialScope = lowcodeApi.readRequestScope()
   const assertCurrent = (): void => {
-    const currentSession = lowcodeApi.session.get()
-    if (currentSession?.enterprise.shortName !== tenantId) {
-      throw new Error('lowcode 应用设置路由企业与当前会话不一致')
-    }
     let currentToken: string
     try {currentToken = lowcodeApi.readRequestScope().token}
     catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 应用设置读取身份已失效')}
@@ -134,7 +123,6 @@ export async function loadProjectRuntimeSettings(
     throw error
   }
   const project: ProjectDetail = {
-    tenantId,
     projectId,
     name: application.name,
     ...(typeof application.isDefault === 'boolean'
@@ -156,8 +144,6 @@ export async function loadProjectRuntimeSettings(
 
 /** 保存项目运行时设置的命令参数 */
 export type SaveProjectRuntimeSettingsCommand = Readonly<{
-  /** 租户 ID */
-  tenantId: string
   /** 项目 ID */
   projectId: string
   /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */

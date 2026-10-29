@@ -1,5 +1,7 @@
 # RendererTree 最小异步 drop 合同与显示回滚
 
+> **历史分析，禁止作为当前实施合同。** 本文的 RED 建议和“未改代码、未执行测试”范围描述指向实施前状态；后续已在标准 `RendererTree` 加入可取消异步 drop、过期回调拦截和按当前 DataView 投影恢复显示。本轮复核 `tests/ui/renderer/renderer-toolbar.test.ts` 与 `tests/app/dev/dev-site-tree-move.test.ts` 为 38/38 通过。当前状态与剩余缺口以 `notes/data-space-retirement-ledger.md` 的 2026-10-29 树实施记录及最新源码为准。
+
 结论：需要的是标准树内部“重新从当前DataView派生显示”的机制，不是回滚正式行、重新查询或操作Element Plus私有store。新可取消callback本身还不够：蓝图owner只暂存editing patch，当前树投影不消费editing，成功委派也会显示旧结构。以下为只读方案/行为RED建议，未改代码、未执行测试。工作树固定C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks；HEAD 4c5f937c726bca92220684451289c6478213e2a8，writer源码WIP，本报告不签其新增实现。
 
 ## 已核实际机制

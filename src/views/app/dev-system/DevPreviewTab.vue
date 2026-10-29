@@ -83,9 +83,17 @@ async function refresh():Promise<void> {
     const pageId = props.state.activePageId.value
     const workspace = props.state.editor
     const active = props.state.project.getActivePage()
-    if (!pageId || !active || active.pageId !== pageId || !active.isLoaded) throw new Error('请先选择一个已加载的配置页面')
+    if (!pageId || !active || active.pageId !== pageId) throw new Error('请先选择一个配置页面')
+    const fileViews=await Promise.all(props.state.pageFileNames.map(fileName=>props.state.loadPageToolFileDataView({pageId,fileName})))
+    if(current!==generation||props.state.activePageId.value!==pageId)throw new Error('PAGE_PREVIEW_STALE: 预览文件读取期间编辑目标已改变')
     const tool = new PageTool({pageId})
-    for(const name of props.state.pageFileNames)tool.hydrateFileText(name,active.getFileText(name))
+    for(let index=0;index<props.state.pageFileNames.length;index++){
+      const fileName=props.state.pageFileNames[index]!
+      const view=fileViews[index]!,row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?row:view.getEditingRow(id)??row
+      if(!edited||edited['pageId']!==pageId||edited['fileName']!==fileName||typeof edited['text']!=='string')throw new Error(`PAGE_PREVIEW_FILE: ${fileName} 的 DataView 行身份或文本无效`)
+      if(view.hasUnconfirmedSave)throw new Error(`PAGE_PREVIEW_FILE_UNKNOWN: ${fileName} 的保存回执仍待核验`)
+      tool.hydrateFileText(fileName,edited['text'])
+    }
     tool.markLoaded()
     const mainScenarioId = props.state.selectedNode.value?.dataSpace?.scenarioId
     const ids = new Set<string>(mainScenarioId ? [mainScenarioId] : [])
@@ -110,7 +118,7 @@ async function refresh():Promise<void> {
     assertCurrent()
     runtime.materialize()
     const path=`/__page/${pageId}`
-    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({tenantId:props.state.tenantId,projectId:props.state.projectId,pageId}),query:Object.freeze({}),hash:''})
+    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({projectId:props.state.projectId,pageId}),query:Object.freeze({}),hash:''})
     previewRuntime.value=runtime
   } catch(error) {
     runtime?.dispose()
@@ -139,11 +147,9 @@ function scheduleLiveRefresh() {
 watch(
   [
     () => props.state.activePageId.value,
-    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('rule.json') },
+    () => props.state.externalDataViewRevision.value,
     () => props.state.selectedNode.value?.dataSpace?.scenarioId,
     () => { void props.state.scenarioDefinitionRevision.value; return props.state.scenarioDefinitionDocument.value?.getText() },
-    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('script.js') },
-    () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('style.css') },
   ],
   scheduleLiveRefresh,
 )

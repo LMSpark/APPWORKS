@@ -1,7 +1,9 @@
 import {defineComponent, h, nextTick, ref} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {RequestState} from '@spark-appworks/spark-data'
+import {DataSet, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
+import {PAGE_RUNTIME, Spark, useSparkComponent} from '@spark-appworks/spark-component'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import RendererDialog from '@/../packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.vue'
 import NodeBasicInfo from '@/views/app/dev-system/components/NodeBasicInfo.vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
@@ -37,12 +39,13 @@ const FieldSelectStub = defineComponent({
 })
 const DesignerStub = defineComponent({setup: () => () => h('div', {'data-testid': 'designer'})})
 const InputStub = defineComponent({setup: () => () => h('input')})
-const AlertStub = defineComponent({props: {title: String}, setup: props => () => h('p', props.title)})
+const AlertStub = defineComponent({props: {title: String,description:String}, setup: props => () => h('p', props.title??props.description)})
 const FormItemStub = defineComponent({props: {label: String}, setup: (props, {slots}) => () => h('div', [props.label, slots['default']?.()])})
 
 let candidate: Record<string, unknown>
 let wrapper: ReturnType<typeof mount> | undefined
 let activeView: {currentRow: Record<string, unknown> | null; setCurrentRow: (row: Record<string, unknown> | null) => void} | undefined
+let activeBlueprintDataSet:DataSet|undefined
 
 function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenName?: boolean; targetWritable?: boolean; catalogMissing?: boolean} = {}) {
   const selectedNode = ref({nodeId: 'PAGE-A', dataSpace: {scenarioId: 'SCENE-OLD', models: []}})
@@ -80,16 +83,23 @@ function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenNam
       write: 'denied',
     })),
   }
+  activeBlueprintDataSet=DataSet.fromJson({scenarioId:BLUEPRINT_SCENARIO_ID,tables:{Base_NavigationInfo:{
+    modelBinding:{modelId:`${BLUEPRINT_SCENARIO_ID}p000`,modelName:'Base_NavigationInfo'},
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'conid',type:'string'}],views:{default:{rows:[]}},
+  }}})
+  const blueprintView=activeBlueprintDataSet.getView('Base_NavigationInfo','default')!
+  expect(resolveDataViewKey(BLUEPRINT_KEY,activeBlueprintDataSet)).toBe(blueprintView)
   let completeRefresh: (() => void) | undefined
-  const runtime = {instanceId: 'runtime-A', isLoaded: true, resolveView: vi.fn((key: string) =>
-    !options.catalogMissing && key === CATALOG_KEY ? view : undefined)}
+  const runtime = {instanceId: 'runtime-A', isLoaded: true, getDataSet:vi.fn((scenarioId:string)=>scenarioId===BLUEPRINT_SCENARIO_ID?activeBlueprintDataSet:undefined),
+    dispose:vi.fn(),materialize:vi.fn(),resolveView: vi.fn((key: string) =>
+      !options.catalogMissing && key === CATALOG_KEY ? view : resolveDataViewKey(key,activeBlueprintDataSet))}
   const state = {
     selectedNode,
     projectId: 'APP-A',
     pageDataDirty: ref(false),
     sceneBindingPending: ref(true),
     blueprintPageRuntime: ref(runtime),
-    blueprintWorkspaceDataView: ref({view: {tableName: 'Base_NavigationInfo', viewId: 'default', dataSet: {scenarioId: BLUEPRINT_SCENARIO_ID}}}),
+    blueprintWorkspaceDataView: ref({projectId:'APP-A',standardComponentBinding:{dataViewKey:BLUEPRINT_KEY},view:blueprintView}),
     blueprintNodeFieldAccess: vi.fn((field: string) => ({read: true, write: field !== 'conid' || options.targetWritable !== false})),
     blueprintNodeSectionWritable: vi.fn(() => true),
     blueprintDraft: draft,
@@ -98,16 +108,17 @@ function makeState(options: {refreshError?: Error; deferred?: boolean; hiddenNam
     recordChange(value: unknown) { changes.push(value) },
   }
   activeView = view
-  wrapper = mount(NodeBasicInfo, {
-    props: {state: state as never, sections: ['data-space']},
-    global: {stubs: {RendererButton: ButtonStub, RendererDialog: DialogStub, RendererFilter: FilterStub,
+  const Host=defineComponent({setup(){useSparkComponent({type:'scene-picker-test-host'}).sparkProvide(PAGE_RUNTIME,runtime as unknown as PageRuntime)
+    return()=>h(NodeBasicInfo,{state:state as never,sections:['data-space']})}})
+  wrapper = mount(Host, {
+    global: {plugins:[Spark.createPlugin()],stubs: {RendererButton: ButtonStub, RendererDialog: DialogStub, RendererFilter: FilterStub,
       RendererTable: TableStub, FieldSelect: FieldSelectStub, IconPicker: true, ElInput: InputStub,
       ElAlert: AlertStub, ElDivider: true, ElFormItem: FormItemStub}},
   })
   return {state, view, runtime, selectedNode, changes, completeRefresh: () => completeRefresh?.()}
 }
 
-afterEach(() => {wrapper?.unmount(); wrapper = undefined; activeView = undefined})
+afterEach(() => {wrapper?.unmount(); wrapper = undefined; activeView = undefined; activeBlueprintDataSet?.destroy(); activeBlueprintDataSet=undefined})
 
 async function openPicker(): Promise<void> {
   const open = wrapper!.findAll('button').find(button => button.text().includes('场景'))
@@ -143,7 +154,7 @@ describe('development blueprint scene picker', () => {
     expect(field.attributes('data-blueprint-key')).toBe(BLUEPRINT_KEY)
     expect(field.attributes('data-field')).toBe('conid')
     expect(field.attributes('data-option-key')).toBe(CATALOG_KEY)
-    expect(runtime.resolveView).not.toHaveBeenCalled()
+    expect(runtime.resolveView).toHaveBeenCalledWith(BLUEPRINT_KEY)
     expect(view.refresh).not.toHaveBeenCalled()
 
     await openPicker()

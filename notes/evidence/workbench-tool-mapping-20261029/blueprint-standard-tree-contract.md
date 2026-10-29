@@ -1,5 +1,7 @@
 # Dev 蓝图标准树：窄合同与可行映射
 
+> **历史分析，禁止作为当前实施合同。** 本文写于树消费者实施前；其中“动态蓝图拖放缺少可取消组件合同”等结论已被后续 `RendererTree` 实现与回归覆盖。当前依据为 `packages/spark-component/src/components/containers/data-views/RendererTree/`、`tests/ui/renderer/renderer-toolbar.test.ts`、`tests/app/dev/dev-site-tree-move.test.ts` 及 `notes/data-space-retirement-ledger.md` 的 2026-10-29 树实施记录。其余历史建议须逐项按当前源码复核。
+
 结论：可用现有 RendererTree 绑定原 BlueprintWorkspaceDataView.view 展示平面85行；隐藏真实根显示84不需要新属性，已有 TreeConfig.rootParentValue 可以表达。不能只替换 :data 来源。动态蓝图拖放仍有明确组件合同缺口：默认 drop 无取消钩子且丢弃目标 sibling index，不能承接正式蓝图 owner.moveNode。无须因此为 readonly builtin 发明第二份树数据。
 
 范围/身份：唯一工作树 C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks，HEAD 4c5f937c726bca92220684451289c6478213e2a8；当前 builtin source/owner 有写者未提交变更，以下 owner 文件按本次读取版本。只读，无生成、测试、UI或服务执行。本文是可实施映射及待验证边界，不是实施完成声明。

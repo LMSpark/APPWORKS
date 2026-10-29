@@ -477,9 +477,6 @@
       "type": "object",
       "title": "ProjectInfo",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         },
@@ -526,9 +523,6 @@
       "title": "ProjectInfoInput",
       "properties": {
         "name": {
-          "type": "string"
-        },
-        "tenantId": {
           "type": "string"
         },
         "projectType": {
@@ -579,7 +573,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.374Z",
+  "generatedAt": "2026-10-29T15:39:29.929Z",
   "models": {
     "ProjectBlueprintDirtyScope": {
       "name": "ProjectBlueprintDirtyScope",
@@ -935,15 +929,9 @@
       "jsdoc": "固定项目身份及项目信息，不替代正式蓝图节点四组合同。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 租户 ID；多租户环境下用于隔离项目。 */\n    tenantId?: string | undefined;\n    /** 项目唯一 ID。 */\n    projectId: string;\n    /** 项目名称。 */\n    name: string;\n    /** 项目类型标识。 */\n    projectType: string;\n    /** 项目图标名。 */\n    icon?: string | undefined;\n    /** 项目描述，供项目蓝图、规划和 AI 设计理解项目目标。 */\n    description: string;\n    /** 策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。 */\n    planningAttachmentRef?: string | undefined;\n    /** 项目首页交付节点 ID。 */\n    homeNodeId?: string | undefined;\n    /** 项目排序值。 */\n    order: number;\n    /** 项目创建时间。 */\n    createdAt?: string | undefined;\n    /** 项目更新时间。 */\n    updatedAt?: string | undefined;\n}",
+        "declarationTypeText": "{\n    /** 项目唯一 ID。 */\n    projectId: string;\n    /** 项目名称。 */\n    name: string;\n    /** 项目类型标识。 */\n    projectType: string;\n    /** 项目图标名。 */\n    icon?: string | undefined;\n    /** 项目描述，供项目蓝图、规划和 AI 设计理解项目目标。 */\n    description: string;\n    /** 策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。 */\n    planningAttachmentRef?: string | undefined;\n    /** 项目首页交付节点 ID。 */\n    homeNodeId?: string | undefined;\n    /** 项目排序值。 */\n    order: number;\n    /** 项目创建时间。 */\n    createdAt?: string | undefined;\n    /** 项目更新时间。 */\n    updatedAt?: string | undefined;\n}",
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "租户 ID；多租户环境下用于隔离项目。",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "projectId",
               "jsdoc": "项目唯一 ID。",

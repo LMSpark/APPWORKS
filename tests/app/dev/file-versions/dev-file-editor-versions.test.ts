@@ -4,12 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
-const fixture = vi.hoisted(() => ({ save: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), text: 'saved file contents' }))
+const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), text: 'saved file contents' }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
     isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: computed(() => (state as typeof state & {restoredText?: ReturnType<typeof ref<string>>}).restoredText?.value ?? fixture.text),
-    isFileDirty: () => state.dirty.value, save: fixture.save, refresh: vi.fn(),
+    isFileDirty: () => state.dirty.value, save: fixture.save, refresh: fixture.refresh,
   }),
 }))
 vi.mock('@spark-appworks/spark-component', async () => {
@@ -17,10 +17,12 @@ vi.mock('@spark-appworks/spark-component', async () => {
   const passive = (name: string) => defineComponent({name, setup(_, {slots}) {return () => h('div', slots['default']?.())}})
   const button = defineComponent({name: 'RendererButton', props: {label: String, disabled: Boolean}, emits: ['click'],
     setup(props, {emit}) {return () => h('button', {disabled: props.disabled, onClick: () => emit('click')}, props.label)}})
+  const form = defineComponent({name: 'RendererForm', props: {dataViewKey: String}, setup(_, {slots}) {return () => h('div', slots['default']?.())}})
+  const fieldCodeEditor = defineComponent({name: 'FieldCodeEditor', props: {dataViewKey: String, dataMember: String, dataField: String, label: String, language: String}, template: '<textarea />'})
   return {__v_isRef: false, SparkCodeEditor: passive('SparkCodeEditor'), JsonTreeEditor: passive('JsonTreeEditor'), PAGE_RUNTIME: 'PAGE_RUNTIME',
     useSparkComponent: () => ({sparkProvide: fixture.sparkProvide, sparkRemove: fixture.sparkRemove}),
-    RendererButton: button, RendererForm: passive('RendererForm'), RendererTabs: passive('RendererTabs'), RendererTabPane: passive('RendererTabPane'),
-    FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'), DisplayAlert: passive('DisplayAlert'),
+    RendererButton: button, RendererForm: form, RendererTabs: passive('RendererTabs'), RendererTabPane: passive('RendererTabPane'),
+    FieldCodeEditor: fieldCodeEditor, FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'), DisplayAlert: passive('DisplayAlert'),
     DisplayEmpty: defineComponent({name: 'DisplayEmpty', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
     RendererTable: defineComponent({name: 'RendererTable', props: {dataViewKey: String, actions: Object}, setup(props, {slots}) { return () => h('div', {class: 'bound-table'}, [
       h('button', {onClick: () => (props.actions as {children: {props: {onClick: (row: unknown) => void}}[]})['children'][0]?.props.onClick({
@@ -43,14 +45,14 @@ function deferred<T>() {
   return { promise, resolve }
 }
 
-function setup(hasFormalVersionBinding = true) {
+function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.css' = 'script.js') {
   const rows = [{versionKey: '["page-A","script.js",2]', pageId: 'page-A', fileName: 'script.js', version: 2, snapshotFileName: '2__script.js', lastModified: null}]
   const view = {queryContext: {}, rows, loadingError: null, refresh: vi.fn().mockResolvedValue(undefined), deleteActionState: () => 'disabled'}
   const versionResource = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => item.tableName === 'ProjectToolVersion')
   const dataSet = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', getView: vi.fn((tableName: string) =>
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
   const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
-  const fileView={createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
+  const fileView={tableName:'PageToolFileSave',viewId:`page-page-A-${activeFile}`,dataSet:{scenarioId:'7AB874097A1E8711A42FD845939A6E05'},rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
   const state = {
     activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
     restoredText: ref(fixture.text),
@@ -58,13 +60,15 @@ function setup(hasFormalVersionBinding = true) {
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
     blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
-    loadPageToolFileDataView: vi.fn().mockResolvedValue(fileView),
+    loadPageToolFileDataView: vi.fn(async ({pageId, fileName}: {pageId: string; fileName: string}) => pageId === 'page-A'
+      ? fileView
+      : {...fileView, viewId: `page-${pageId}-${fileName}`}),
     restorePageToolVersion: vi.fn().mockResolvedValue('restored text'),
     editor: {},
   }
   state.restorePageToolVersion.mockImplementation(async()=>{state.restoredText.value='restored text';return 'restored text'})
   const wrapper = mount({ ...DevFileEditor, props: ['state', 'activeFile', 'showTabs'] }, {
-    props: { state, activeFile: 'script.js', showTabs: false },
+    props: { state, activeFile, showTabs: false },
     global: { directives: { loading: () => {} }, stubs: {
       ElButton: Button, ElTooltip: Slot, ElButtonGroup: Slot, ElInput: true, ElEmpty: true,
       ElTag: true, NavIcon: true, SparkCodeEditor: true, JsonTreeEditor: true, DevDataSetDesigner: true,
@@ -79,7 +83,68 @@ function setup(hasFormalVersionBinding = true) {
 }
 
 describe('DevFileEditor snapshot identity', () => {
-  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset(); fixture.text = 'saved file contents' })
+  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.refresh.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset(); fixture.text = 'saved file contents' })
+
+  it('loads script.js into a DataView and renders the standard bound code field', async () => {
+    const {state, wrapper, fileView} = setup()
+    await flushPromises()
+    expect(state.loadPageToolFileDataView).toHaveBeenCalledWith({pageId: 'page-A', fileName: 'script.js'})
+    expect(wrapper.findComponent({name: 'RendererForm'}).props('dataViewKey')).toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-script.js')
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props()).toMatchObject({
+      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-script.js',
+      dataMember: 'currentRow', dataField: 'text', label: 'script.js', language: 'javascript',
+    })
+    wrapper.unmount()
+  })
+
+  it('switches the same standard field binding to style.css and its CSS mode', async () => {
+    const {state, wrapper} = setup(true, 'style.css')
+    await flushPromises()
+    expect(state.loadPageToolFileDataView).toHaveBeenCalledWith({pageId: 'page-A', fileName: 'style.css'})
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props()).toMatchObject({
+      dataViewKey: '7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-A-style.css',
+      dataMember: 'currentRow', dataField: 'text', label: 'style.css', language: 'css',
+    })
+    wrapper.unmount()
+  })
+
+  it('does not let an old file refresh replace the active page DataView after a page switch', async () => {
+    const {state, wrapper, click} = setup()
+    await flushPromises()
+    const refresh = deferred<void>()
+    fixture.refresh.mockReturnValueOnce(refresh.promise)
+
+    await click('重新加载')
+    state.activePageId.value = 'page-B'
+    await flushPromises()
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+
+    refresh.resolve()
+    await flushPromises()
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+    wrapper.unmount()
+  })
+
+  it('ignores a file DataView response that arrives after the active page changes', async () => {
+    const {state, wrapper, click, fileView} = setup()
+    await flushPromises()
+    const staleView = deferred<typeof fileView>()
+    state.loadPageToolFileDataView.mockImplementationOnce(async () => staleView.promise)
+
+    await click('重新加载')
+    state.activePageId.value = 'page-B'
+    await flushPromises()
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+
+    staleView.resolve(fileView)
+    await flushPromises()
+    expect(wrapper.findComponent({name: 'FieldCodeEditor'}).props('dataViewKey'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@PageToolFileSave@page-page-B-script.js')
+    wrapper.unmount()
+  })
 
   it('queries the formal ProjectToolVersion DataView and binds the standard table to it', async () => {
     const { state, wrapper, click, view } = setup()

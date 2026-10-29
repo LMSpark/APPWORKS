@@ -19,8 +19,8 @@
       "title": "PageScope",
       "enum": [
         "public",
-        "tenant",
-        "app"
+        "app",
+        "catalog"
       ]
     },
     "VuePageConfigEntry": {
@@ -121,14 +121,14 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T22:55:58.387Z",
+  "generatedAt": "2026-10-29T09:04:35.169Z",
   "models": {
     "PageScope": {
       "name": "PageScope",
       "jsdoc": "Page Scope 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'public' | 'tenant' | 'app'",
+        "declarationTypeText": "'public' | 'catalog' | 'app'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -136,7 +136,7 @@
           },
           {
             "kind": "union",
-            "typeText": "'tenant'"
+            "typeText": "'catalog'"
           },
           {
             "kind": "union",
@@ -151,11 +151,11 @@
       "jsdoc": "Vue Page Config Entry 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 明确声明的同一 Vue Router route-record 兼容路径；不会创建第二个页面 owner。 */\n    aliases?: readonly string[];\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n    dataSpaceId?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 明确声明的同一 Vue Router route-record 兼容路径；不会创建第二个页面 owner。 */\n    aliases?: readonly string[];\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面来源范围；public 用于登录前页面，catalog 用于应用目录，app 用于已选应用中的工具页。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n    dataSpaceId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 明确声明的同一 Vue Router route-record 兼容路径；不会创建第二个页面 owner。 */\n    aliases?: readonly string[];\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n    dataSpaceId?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 明确声明的同一 Vue Router route-record 兼容路径；不会创建第二个页面 owner。 */\n    aliases?: readonly string[];\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面来源范围；public 用于登录前页面，catalog 用于应用目录，app 用于已选应用中的工具页。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n    dataSpaceId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -193,7 +193,7 @@
             },
             {
               "name": "scope",
-              "jsdoc": "页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。",
+              "jsdoc": "页面来源范围；public 用于登录前页面，catalog 用于应用目录，app 用于已选应用中的工具页。",
               "readable": true,
               "writable": false
             },

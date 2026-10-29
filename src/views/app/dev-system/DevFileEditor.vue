@@ -30,35 +30,33 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         <SparkComponent.RendererTabPane v-for="(f,index) in props.state.pageFileNames" :key="f" :name="f" :label="`${fileEditor.isFileDirty(f) ? '● ' : ''}${f}`" :index="index" />
       </SparkComponent.RendererTabs>
 
-      <div class="editor-body" v-loading="!fileEditor.isReady.value || ruleDataViewLoading">
+      <div class="editor-body" v-loading="!fileEditor.isReady.value || fileDataViewLoading">
         <div class="editor-area">
           <SparkComponent.RendererForm
             v-if="resolvedActiveFile === 'rule.json'"
-            v-bind="ruleDataView ? {dataSource:ruleDataView} : {}"
+            v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}"
             :auto-columns="false"
             :show-data-view-meta="false"
             context-data-member="currentRow"
             class="code-input code-input--json"
           >
-            <SparkComponent.FieldJson v-if="ruleDataView" data-member="currentRow" data-field="text" label="页面规则" mode="tree" :schema="RULE_JSON_SCHEMA" :tree-policy="rulePolicy" height="100%" @update:model-value="stageRuleFile" @editing-change="ruleEditing=$event" />
-            <SparkComponent.DisplayAlert v-else-if="fileViewError" title="规则文件 DataView 加载失败" :description="fileViewError" alert-type="error" />
-            <SparkComponent.DisplayAlert v-else title="正在载入规则文件 DataView…" alert-type="info" />
+            <SparkComponent.FieldJson v-if="fileViewKey" :data-view-key="fileViewKey" data-member="currentRow" data-field="text" label="页面规则" mode="tree" :schema="RULE_JSON_SCHEMA" :tree-policy="rulePolicy" height="100%" @update:model-value="stageFile" @editing-change="ruleEditing=$event" />
+            <SparkComponent.DisplayAlert v-else-if="fileViewError" title="文件 DataView 加载失败" :description="fileViewError" alert-type="error" />
+            <SparkComponent.DisplayAlert v-else title="正在载入文件 DataView…" alert-type="info" />
           </SparkComponent.RendererForm>
-          <SparkComponent.SparkCodeEditor
+          <SparkComponent.RendererForm
             v-else-if="isCodeFile(resolvedActiveFile)"
-            :model-value="fileEditor.text.value"
-            :language="resolveCodeLanguage(resolvedActiveFile)"
-            readonly
+            v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}"
+            :auto-columns="false"
+            :show-data-view-meta="false"
+            context-data-member="currentRow"
             class="code-input code-input--code"
-            height="100%"
-          />
-          <SparkComponent.FieldTextarea
-            v-else
-            :model-value="fileEditor.text.value"
-            :autosize="{ minRows: 30, maxRows: 60 }"
-            readonly
-            class="code-input"
-          />
+          >
+            <SparkComponent.FieldCodeEditor v-if="fileViewKey" :data-view-key="fileViewKey" data-member="currentRow" data-field="text" :label="resolvedActiveFile" :language="resolveCodeLanguage(resolvedActiveFile)" height="100%" @update:model-value="stageFile" />
+            <SparkComponent.DisplayAlert v-else-if="fileViewError" title="文件 DataView 加载失败" :description="fileViewError" alert-type="error" />
+            <SparkComponent.DisplayAlert v-else title="正在载入文件 DataView…" alert-type="info" />
+          </SparkComponent.RendererForm>
+          <SparkComponent.DisplayAlert v-else title="不支持的工具文件类型" :description="fileViewError || `没有可供 ${resolvedActiveFile} 使用的文件 DataView`" alert-type="error" />
         </div>
 
         <!-- ── 版本侧栏（内联） ── -->
@@ -129,12 +127,13 @@ const creatingVersion = ref(false)
 const versionBusy = computed(() => creatingVersion.value || restoringVersion.value !== null || props.state.pageIoBusy.value)
 let versionRevision = 0
 let disposed = false
-onBeforeUnmount(() => {ruleDataView.value=undefined;disposed = true; versionRevision++; fileViewRevision++; sparkRemove(SparkComponent.PAGE_RUNTIME) })
+onBeforeUnmount(() => {fileDataView.value=undefined;disposed = true; versionRevision++; fileViewRevision++; sparkRemove(SparkComponent.PAGE_RUNTIME) })
 const resolvedActiveFile = computed<PageToolFileName>(() => props.activeFile ?? localActiveFile.value)
 const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
-const ruleDataView=shallowRef<DataView>()
-const ruleDataViewLoading=ref(false)
+const fileDataView=shallowRef<DataView>()
+const fileDataViewLoading=ref(false)
+const fileViewKey=computed(()=>{const view=fileDataView.value;const dataSet=view?.dataSet;return view&&dataSet?buildDataViewKey(view.tableName,view.viewId,dataSet.scenarioId):undefined})
 const ruleEditing=ref(false)
 const fileViewError=ref('')
 let fileViewRevision=0
@@ -178,16 +177,16 @@ watch([resolvedActiveFile, () => props.state.activePageId.value], () => {
   showVersionPanel.value = false
 })
 
-watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value],async([pageId,ready])=>{
+watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value,resolvedActiveFile],async([pageId,ready,fileName])=>{
   const current=++fileViewRevision
-  ruleDataView.value=undefined;fileViewError.value='';ruleEditing.value=false
+  fileDataView.value=undefined;fileViewError.value='';ruleEditing.value=false
   if(!pageId||!ready)return
-  ruleDataViewLoading.value=true
+  fileDataViewLoading.value=true
   try{
-    const view=await props.state.loadPageToolFileDataView({pageId,fileName:'rule.json'})
-    if(current===fileViewRevision&&props.state.activePageId.value===pageId)ruleDataView.value=view
+    const view=await props.state.loadPageToolFileDataView({pageId,fileName})
+    if(current===fileViewRevision&&props.state.activePageId.value===pageId&&resolvedActiveFile.value===fileName)fileDataView.value=view
   }catch(error){if(current===fileViewRevision)fileViewError.value=error instanceof Error?error.message:String(error)}
-  finally{if(current===fileViewRevision)ruleDataViewLoading.value=false}
+  finally{if(current===fileViewRevision)fileDataViewLoading.value=false}
 },{immediate:true})
 
 function isCodeFile(name: string): boolean {
@@ -204,26 +203,28 @@ function saveFile() {
 
 async function refreshFile() {
   const pageId=props.state.activePageId.value
-  if(pageId&&resolvedActiveFile.value==='rule.json'&&ruleDataView.value){
-    const view=ruleDataView.value,row=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']==='rule.json'),id=row&&view.getPkKey(row)
+  const fileName=resolvedActiveFile.value
+  const revision=fileViewRevision
+  const isCurrentTarget=()=>revision===fileViewRevision&&props.state.activePageId.value===pageId&&resolvedActiveFile.value===fileName
+  if(pageId&&fileDataView.value){
+    const view=fileDataView.value,row=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']===fileName),id=row&&view.getPkKey(row)
     if(view.hasUnconfirmedSave){fileViewError.value='原文件提交仍待核验，暂不能取消';return}
     if(id!==undefined&&view.dirtyTracking.hasPendingChanges(id))view.discardPendingChanges([id])
-    const baseline=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']==='rule.json')
-    if(typeof baseline?.['text']==='string')props.state.project.writePageFile({pageId,fileName:'rule.json',text:baseline['text']})
   }
   try{
     await fileEditor.refresh()
-    if(pageId&&resolvedActiveFile.value==='rule.json'){
-      ruleDataView.value=undefined
-      ruleDataView.value=await props.state.loadPageToolFileDataView({pageId,fileName:'rule.json',discardPending:true})
+    if(pageId&&isCurrentTarget()){
+      fileDataView.value=undefined
+      const refreshedView=await props.state.loadPageToolFileDataView({pageId,fileName,discardPending:true})
+      if(isCurrentTarget())fileDataView.value=refreshedView
     }
-  }catch(error){fileViewError.value=error instanceof Error?error.message:String(error)}
+  }catch(error){if(isCurrentTarget())fileViewError.value=error instanceof Error?error.message:String(error)}
 }
 
-function stageRuleFile(value:string):void{
+function stageFile(value:string):void{
   const pageId=props.state.activePageId.value
   if(!pageId)return
-  try{props.state.stagePageToolFileDataView({pageId,fileName:'rule.json',text:value});fileViewError.value=''}
+  try{props.state.stagePageToolFileDataView({pageId,fileName:resolvedActiveFile.value,text:value});fileViewError.value=''}
   catch(error){fileViewError.value=error instanceof Error?error.message:String(error)}
 }
 

@@ -3718,3 +3718,132 @@ flowchart TD
 - **当前分支回归：**`scenario-definition-resource.test.ts`、`use-dev-state-page-data-history.test.ts`、`lowcode-data-space-runtime.test.ts` 合跑 3 files / 155 tests 通过。覆盖历史目录/预览、快照恢复只生成定义 DataView 草稿并由显式保存落盘、unknown attempt 面板关闭重开保留、迟到结果/目标切换守卫，以及 builtin 场景历史走仓内开发宿主且不回退远端文件 API。
 - **与 SPA 证据区分：**仓内历史实现和回归在当前分支复核通过；旧证据目录仍保留真实 SPA 历史创建、预览、恢复、显式保存、重开及切换截图/回读。当前新 SPA 标签仍为未认证登录页，本轮没有新增长期服务现场验证，也没有远端写入。
 - **当前顺序：**历史片在当前分支已有代码与测试证据；继续 builtin/动态树与正式工具三文件映射。真实 cfg 应用样本及其发布版本现场读回仍是待验项。
+
+### 2026-10-29 脚本与样式字段并入 SPARK data 编辑链
+
+- **实现差距：**DevFileEditor 的 `rule.json` 已绑定 PageToolFileSave DataView；`script.js`、`style.css` 却仍以 `modelValue` + `readonly` 方式渲染 SparkCodeEditor，没有字段级 DataView 读写。
+- **标准组件补齐：**增加可复用字段组件 `FieldCodeEditor`（`r-code-editor`），通过 `useBasicFieldState` 和 `FieldContextRenderer` 消费视图字段、权限与编辑状态，底层只复用现有 SparkCodeEditor。DevFileEditor 按当前 `pageId + fileName` 装载对应 file DataView，并用 `场景ID@PageToolFileSave@page-{pageId}-{fileName}` 完整键绑定 `currentRow.text`；接纳后的变更继续由既有 PageToolFileSave DataSet 提交。
+- **真实组件回归：**新增真实 DataSet/PageRuntime 组件夹具，覆盖字段读取、DataView 草稿写入、原行未提交值保留和 readonly 不产生编辑；DevFileEditor 面板回归覆盖 `script.js`、`style.css` 的正式视图键、字段配置及 CSS/JavaScript 模式切换。相关 3 files / 87 tests 通过。
+- **标准产物与构建：**正式 ClassModel 生成成功（994 DTS / 2050 symbols / 1644 entries）；FieldCodeEditor 声明包含 `dataViewKey`、`dataMember`、`dataField`，该新组件无语义缺口。改动文件 ESLint、`pnpm run typecheck`、`pnpm run build` 均退出 0。构建仍输出既有 VueUse PURE annotation、chunk size 与 CodeMirror dynamic import 提示。
+- **SPA 现场范围：**用户恢复登录后的本地标签显示“应用列表”，URL 为 `/apps/homepage/app-list`，当前页面应用路由使用 `/apps`，不含 `/t/{tenant}` 前缀。现场确认的是路由/列表呈现；本轮未进入 cfg 页面、未读取工具三文件或发布 VersionId，也未写远端数据。真实 cfg 项目与发布持久回读仍待验。
+
+### 2026-10-29 本轮登录 SPA 平台目录入口复验
+
+- **登录现场：**复用用户确认已登录的 SPA，页面身份为王涛。平台应用管理正式 DataView 加载 62/62 行，目录显示 `00BE6ED455CD4BD7B785C61A12A1E67D`「数据资产管理」。
+- **平台目录入口：**由平台目录行执行“进入”后，界面回执 `进入应用失败: 应用管理页缺少项目切换服务`。该入口当前没有完成项目切换。
+- **应用列表入口：**从应用列表卡片执行正式“进入应用”后，壳身份切为 `00BE6ED455CD4BD7B785C61A12A1E67D`，但目标系统页显示 `无法确定系统页面 / 原页面身份已失效`。没有可交给 DevSystem 的树，因此本次不判定 00BE 当前 cfg 数量，也没有读取工具三文件或发布 VersionId。
+- **范围：**仅只读导航；未修改远端记录。两处入口错误分别记录，不能据此断定目标应用没有 cfg。现场摘录见 `notes/evidence/repository-scenario-history-20261029/spa-20261029-platform-catalog-application-entry.json`。
+
+### 2026-10-29 文件编辑 DataView 标准字段复核与全仓门禁
+
+- **代码闭环复核：**`script.js`、`style.css` 与 `rule.json` 现都由 `DevFileEditor` 按当前文件加载对应 PageToolFileSave DataView，并通过仓内 `RendererForm + FieldCodeEditor/FieldJson` 绑定 `currentRow.text`；普通保存仍提交 DataSet 变更。`FieldCodeEditor` 公共字段链读写正式字段，受 readonly/字段权限约束，底层只复用标准 `SparkCodeEditor`。
+- **目录规则修正：**首次 `verify:rules` 指出新测试使 `tests/runtime/page` 超过既有目录限制。将真实 DataSet/PageRuntime 组件回归移到已有 `tests/runtime/page/runtime/`，该目录为 10 个文件，父目录回到基线；`verify:dirs` 通过，没有改动目录限额。
+- **复核结果：**相关三文件 87 tests 通过；新增字段组件及文件版本测试 ESLint `--max-warnings=0` 通过；全仓 `pnpm run generate:class-model-surface` 成功（994 DTS / 2050 symbols / 1644 entries）；`pnpm run typecheck`、全仓 `pnpm run lint`、`pnpm run verify:rules` 与 `pnpm run build` 均退出 0。rules 保留既有 AI model spec 2 warnings / 1 info；build 有既有 CodeMirror 动态导入及 chunk 提示。
+- **SPA 会话变化：**Vite 5273 确认为唯一实施工作树启动。本轮 CUA 重建标签后，应用列表被重定向到登录页；未输入账号/密码。登录页留存供后续恢复，现场文件为 `notes/evidence/repository-scenario-history-20261029/spa-20261029-session-reopen-login-required.json`。因此本轮没有动态 cfg 项目树、三文件或 VersionId 的真实新读回。
+- **范围声明：**本片只验证文件 DataView 代码编辑能力与当前全仓门禁，不替代完整元数据平台/开发工作台目标；当前工作树仍含其它未提交产品改动，未混合提交。
+
+### 2026-10-29 PageTool 文件 DataView 按文件隔离
+
+- **真实代码缺口：**`PageToolFileSave` 原先用 `page-{pageId}` 作为唯一编辑视图，再用 `queryContext.fileName` 改查当前文件。不同文件因此共用一套 DataView 编辑/unknown-save 状态；页面切换 `script.js` 与 `style.css` 时未保存文本可能被视图目标变更阻断或污染。
+- **修正：**文件视图身份改为 `page-{encodeURIComponent(pageId)}-{encodeURIComponent(fileName)}`，运行时仍保持完整 `scenarioId@PageToolFileSave@viewId` 绑定。加载、暂存、恢复、保存均定位同一 page+file 视图；DataSet 只提交本文件 DataView 的精确变更 ID。
+- **有效回归：**新增真实 DevState/DataSet 回归：先改 script 再改 style，两份 DataView 草稿保持独立，分别 saveChanges；断言对应文件持久化内容与提交视图 ID 精确匹配。DevFileEditor 字段绑定测试现断言 script/style 的完整键各含对应文件身份。最终定向回归 3 files / 88 tests 通过；首次运行暴露缺少局部解构及旧测试 mock 键，修正后通过。
+- **门禁：**ClassModel 官方生成成功（994 DTS / 2050 symbols / 1644 entries）；全仓 typecheck、lint、verify:rules 与 build 退出 0。rules 留有既有 AI model spec 2 warnings / 1 info；build 留有既有 CodeMirror 动态导入与 chunk 提示。目录门禁为通过状态，没有扩大 baseline。
+- **SPA/交付边界：**本地服务仍来自唯一工作树，但当前 SPA 标签处于未登录页；本片未做真实线上文件持久回读/重开，也未提交或推送。真实 cfg 项目树与发布 VersionId 的线上验收仍待解决。此片的文件身份/读写/门禁证据不能替代完整目标。
+
+### 2026-10-29 PageTool 普通保存只接受 DataView 草稿
+
+- **有效 RED：**新增回归仅通过 `PageTool.setFileText` 写入运行投影、不编辑文件 DataView，然后执行普通保存。旧路径会把 PageTool 文本提升为 DataView 草稿并成功保存；回归先以“预期拒绝但实际成功”失败，证明该旁路真实存在。
+- **修正与回归：**`savePageToolFile` 的默认提交文本改从当前 page+file DataView 编辑行读取；显式命令文本仍只用于工具命令调用。运行时 PageTool 投影须与选定 DataView 草稿一致，否则拒绝保存。原 unknown-save 回归改为先用 DataView 编辑并同步投影，再验证未知回执核验，避免依赖 owner-only 草稿。
+- **验证：**PageTool 闭环、DevFileEditor 版本及真实 `FieldCodeEditor` 三组回归 89/89 通过。官方 ClassModel 生成成功（994 DTS / 2050 symbols / 1644 entries）；typecheck、lint、verify:rules、build 均退出 0。规则扫描的 AI model spec 留有既有 2 warnings / 1 info；build 留有既有 VueUse PURE annotation、CodeMirror 动态导入及 chunk 提示。
+- **范围：**本片验证 PageTool 文件普通保存的 SPARK data 单一草稿来源；未验证真实 SPA cfg 项目树或发布工具三文件 VersionId 回读，亦未提交/推送。唯一实施工作树仍含广泛其它工作中改动，未整体暂存。
+
+### 2026-10-29 PageTool DataView 单一保存链与未知回执恢复
+
+- **有效失败证据：**复核历史恢复、工具工作文件与 builtin/工具资源的 9 个相关测试文件时，276 项中 6 项失败。追踪发现外部 DevSystem 会话先用一个泛化 `DataSet.saveChanges` 保存 PageTool 文件 DataView，之后 `saveAll` 又按 PageTool 脏投影进入逐文件保存，导致 DataView 基线先变而 PageTool 保存基线未变，报 `PAGE_TOOL_FILE_CONFLICT`；未知上传回执恢复还会在已确认后先刷新带脏修改的 DataView，导致 `DATA_VIEW_UNSAVED_CHANGES`。两者都是多入口/顺序错误，不是远端服务错误。
+- **修正：**删除 `savePendingPageFiles` 泛化文件保存器；外部工作区只保存蓝图/命令 DataView，PageTool 文件变更统一由逐文件 `savePageToolFile` 以精确视图 ID 处理。未知文件提交经同一 DataView source read-only 核验；若原文本已确认，则继续原 `DataSet.saveChanges` 消费来源适配回执，不先清除 attempt 或刷新，文本不匹配时保留后续草稿并拒绝交付。另使无效/未解析 cfg 页面触发交付时显式报出当前项目/页面身份错误，仍不发快照 I/O。
+- **回归调整：**历史并发保存夹具改为先编辑真实文件 DataView、再通过 DevState 同步 PageTool 投影，以反映标准字段路径；未恢复 owner 文本回填。未知 attempt 场景继续验证文件与场景定义分阶段提交、保存/取消场景草稿、原快照只上传一次。
+- **当前验证：**相关 PageTool 文件历史、命令、字段编辑器、发布交付、场景历史、builtin 蓝图加载/引用树、ProjectToolResource 与低代码运行时测试合跑 **9 files / 276 tests passed**。ClassModel 正式生成（994 DTS / 2050 symbols / 1644 entries）以及 typecheck、lint、verify:rules、build 均退出 0。verify:rules 的 AI model spec 留有既有 2 warnings / 1 info；build 留有既有 VueUse PURE annotation、CodeMirror dynamic import 与 chunk 提示。
+- **范围与未完成项：**本轮 CUA 仍显示 `127.0.0.1:5273/login`。`computer-use` 技能禁止代填认证表单，已请用户在标签内手动登录；真实 SPA cfg 节点及发布三文件/VersionId 服务端读回未验。仓内 builtin 源码回归仍只证明本地 D99 蓝图 DataView 85 行，不证明生产应用目录或完整树行为。没有修改/启动 Java，也没有提交/推送；工作树仍有广泛前序改动，尚未安全拆分暂存。
+
+### 2026-10-29 工具资源与场景历史当前分支复核
+
+- **当前源码合同复核：**场景定义历史的 list/preview/create/attempt 核验经 `DataView` 来源生命周期公开方法调用；来源 attempt、存储 owner 与快照适配状态收在 `spark-data` 文件资源适配器内。工具工作文件正式声明为 file DataTable，由 `ProjectToolResource` 的查询/保存 executor 绑定 SPARK data；发布版本目录是只读 `ProjectToolVersion` DataView。业务组件仍需通过标准视图和字段绑定消费，底层文件存储适配不构成页面第二保存入口。
+- **当前分支回归：**重跑文件资源适配、PageTool 命令与编辑器、交付、历史、场景加载、导航及工具资源 9 个测试文件，**9 files / 276 tests passed**。
+- **真实 SPA 状态：**接续前次可见 IAB 登录页状态，新开应用目录标签仍重定向至平台公开首页；随后 Computer Use 因 Windows 浏览器 URL 可信度不足停止。未输入凭据、未读取或修改远端数据。动态 `cfg:` 树、三份工具文件持久回读及发布 `VersionId` 仍无本轮现场证据。
+- **剩余边界：**该回归只证明仓内合同和本分支实现，不证明真实动态 cfg 应用已找到或通过 SPA 读写、重开与目标切换验收。工作树仍有广泛未提交改动，未暂存或提交。
+
+### 2026-10-29 树拖放历史合同说明退役
+
+- **当前源码与回归复核：**`RendererTree` 现公开可等待的 `onNodeDrop` 并支持 `control.cancel`，pending 期间阻止重入，绑定释放/替换后不再应用旧默认移动，settle 后从当前 DataView 重建投影。新增树用例覆盖同 DataView 编辑父级/顺序显示、丢弃恢复、拒绝/异常恢复以及迟到结果；DevSystem 消费继续通过仓内标准树与原蓝图 DataView。
+- **当前分支验证：**`tests/app/dev/dev-site-tree-move.test.ts` 与 `tests/ui/renderer/renderer-toolbar.test.ts`：**2 files / 38 tests passed**。这属于仓内组件/消费者行为证据，不是现场 DOM 拖放或 SPA 发布数据证据。
+- **说明退役：**在 `notes/evidence/workbench-tool-mapping-20261029/blueprint-standard-tree-contract.md` 与 `blueprint-tree-drop-contract.md` 顶部增加历史分析标记；其实施前“缺少可取消 drop 合同/未实现”结论不再作为当前状态，报告其余设计建议仍须按源码核实。唯一台账继续是阶段状态真源。
+- **未验收项：**真实 Element Plus 拖放操作及动态 cfg 应用整页行为仍需登录 SPA 核验；本轮未改正式远端数据、未涉及 Java、未提交或推送。工作树保持广泛未提交状态。
+- **门禁补充：**生成 ClassModel shard 已包含 `RendererTree.onNodeDrop` / `TreeNodeDropHandler`；完整 `pnpm run verify:rules` 退出 0，覆盖目录、ClassModel、文档、lowcode contracts 等检查及 49 项 ClassModel 自测。AI model spec 保留既有 2 warnings / 1 info；涉及本次文档的 `git diff --check` 通过。
+
+### 2026-10-29 工具文件 owner 镜像仍是未完成迁移（已由下方实现记录更新）
+
+- **当前事实：**字段编辑确实落在 `PageToolFileSave` DataView 并由 `DataSet.saveChanges` 保存；但 `useDevState.ts` 的 `stagePageToolFileDataView`、`savePageToolFile` 和取消路径仍分别调用 `project.writePageFile`、比较 `PageTool.getFileText/getSavedFileText`、调用 `markFileSaved`。`DevFileEditor.vue` 取消时把 DataView 基线写回 PageTool。`DevPreviewTab.vue` 与 `useDevFileEditor.ts` 从 `project.readPageFileText` 取文本，`BlueprintWorkspace.vue` 发布前/上传后也从 PageTool 读取三文件；`ProjectBlueprint` 预览快照仍以 PageTool 文件值生成。
+- **目标差距：**DataView 是当前字段编辑及提交入口，但 PageTool 仍保存第二份业务文本投影并被预览/发布消费者读取；因此不能把“页面编辑已走 DataView”或“owner已清除”记为完成。`ProjectWorkspace`/文件来源适配内部仍需负责远端读写、版本和回执；页面侧的 PageTool 镜像/读取链应逐消费者迁到真实文件 DataView 后删除。
+- **回归约束：**现有 `dev-preview-tab-loop.test.ts` 和历史测试仍通过 `project.writePageFile/readPageFileText` 驱动断言，属于需要随迁移改写的旧路径证据；交付测试也通过 PageTool 文本模拟文件。下一片应先对预览、编辑取消与发布的 DataView 身份/异步切换设有效 RED，按需分别加载文件视图，只对已改动文件提交，然后删除页面依赖并复核三文件工作态、恢复与发布版本读取。
+- **证据范围：**本轮只读源码追踪，没有改产品代码或运行该专项测试；SPA 中真实 cfg 三文件仍未现场验收。
+
+### 2026-10-29 PageTool 镜像读取有效 RED
+
+- **测试反例：**在 `use-dev-state-page-data-history.test.ts` 中加载真实文件 DataView，直接用 `DataView.editRowById` 将 `script.js` 草稿改成 `DataView draft`，不调用 PageTool 同步方法；再读取 `useDevFileEditor.text`。这是字段写入后的可达 DataView 状态，不是伪造权限/模型分支。
+- **有效失败：**`pnpm exec vitest run tests/app/dev/use-dev-state-page-data-history.test.ts -t "reads the active editor text from the file DataView draft" --reporter=dot`：1 failed / 26 skipped。断言期望 `DataView draft`，实际 `saved baseline`，定位到 `useDevFileEditor` 仍读取 `project.readPageFileText`。首次运行因 fixture 把普通文本也用于 rule.json 导致解析错误；随后将夹具限定为仅 script 返回基线并复跑，得到上述针对产品差距的有效 RED。
+- **写入分工：**此 RED 仅为测试证据；尚未修改产品源码。需要由单一产品写者把编辑器文本、预览与发布输入逐步改为当前正式 file DataView，保持按文件异步加载、按变更保存、身份/释放/迟到保护，然后删除 PageTool 镜像依赖并将此 RED 转绿。
+
+### 2026-10-29 PageTool 镜像消费者编辑器与预览双 RED
+
+- **复合验证：**在 `use-dev-state-page-data-history.test.ts` 进一步增加 DevPreviewTab 用例：真实 script DataView 草稿不经 PageTool 同步，断言创建给 SparkPageRenderer 的实际 `PageRuntime.tool` 文本应等于该草稿。
+- **当前结果：**两个测试合跑得到 **1 file / 2 failed / 26 skipped**。编辑器读取 `useDevFileEditor.text` 和预览装配 `PageRuntime.tool.getFileText('script.js')` 都期望 `DataView draft`、实际为 `saved baseline`；两条失败指向 PageTool 投影仍是文本读取真源。预览 fixture 已 stub 标准外围组件，无额外控制台警告参与失败。
+- **门槛：**这是一组刻意保留的有效 RED，不把当前分支记为测试全绿；ESLint 与 diff check 另行确认后进入单写者实施。
+
+### 2026-10-29 SPA 会话再次恢复状态
+
+- **浏览器观察：**用户确认恢复会话后，当前 CUA 清单仅有 Chrome 新标签与空的 IAB 标签列表，没有可复用的 SPA 登录标签。新建 `http://127.0.0.1:5273/apps/homepage/app-list` 标签后，SPA 回落到平台首页 `/`，无已认证工作区，页面提供 `/login` 链接。
+- **范围：**未尝试自动登录、未填入凭据、未执行应用数据操作。随后 `getState()` 未列出新建 IAB 标签，按其返回的标签 ID 调用 `getTab("8", {browser:"iab"})` 返回“Tab not found in browser 2”；因此不能确认标签持续打开，用户需在自身浏览器恢复登录。当前仍无法从 SPA 读取真实 cfg 树、工具三文件或发布版本。此前已登录标签上的历史证据保持其原有时间和范围，不视作当前会话已恢复。
+
+### 2026-10-29 工具文件编辑器/预览改用按需 DataView
+
+- **有效 RED：**真实挂载 `DevFileEditor` 后监听 `state.editor.ensureActivePageFilesLoaded`，断言编辑器打开活动文件时不调用 PageTool owner loader；旧实现调用了一次。命令 `pnpm exec vitest run tests/app/dev/use-dev-state-page-data-history.test.ts -t "opens the active file through its DataView without loading PageTool owner text" --reporter=dot`：1 failed / 28 skipped，失败点为 owner loader 被调用。
+- **实现与边界：**编辑器活动文件由 `PageToolFileSave` DataView 按 `pageId + fileName` 懒加载；文件文本、脏态、取消与保存输入来自对应 DataView。预览显式加载当前页面的三个文件 DataView，验证行身份/文本/未知回执后，仅将其文本装配到临时 `PageTool` 供 `PageRuntime` 运行。页面编辑、预览和发布流程不再调用 `ensureActivePageFilesLoaded`、`readPageFileText`、`getFileText`、`writePageFile` 或 `markFileSaved`；`ProjectWorkspace` 内部文件资源读写适配仍保留。此结论是页面消费者迁移证据，不代表 PageTool 类型或运行时临时对象被删除。
+- **验证：**编辑器 DataView 单文件懒加载、预览三文件 DataView 加载、保存和发布相关测试四文件合跑 **163/163 passed**；改动文件 ESLint `--no-cache --max-warnings=0`、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 均退出 0。规则扫描保留 AI model spec 既有 2 warnings / 1 info。`git diff --check` 无空白错误（Git 仅报告工作树 LF/CRLF 转换提示）。
+- **范围与未完成项：**本轮未提交/推送、未修改/启动 Java；工作树仍有广泛未提交更改，未安全拆分暂存。真实 SPA 当前需重新登录，cfg 项目三文件服务端持久回读、关闭重开、发布 `VersionId` 与目标切换仍未验收；本地回归不替代线上证据。
+
+### 2026-10-29 builtin 蓝图树与节点面板统一完整 DataViewKey
+
+- **有效 RED：**将 builtin 树用例从断言传入 DataView 对象改为断言完整身份键 `7AB874097A1E8711A42FD845939A6E05@RepositoryBlueprintNode@default`，并先验证 `resolveDataViewKey(key, dataSet) === owner.view`。旧组件实际 props 的 `dataViewKey` 为 `undefined`，只通过 `dataSource` 传对象；定向运行 1 failed / 1 skipped，失败位置为 RendererTree 未收到完整 key。
+- **实现与绑定范围：**`BlueprintWorkspaceDataView.standardComponentBinding` 对正式动态 `Base_NavigationInfo` 继续取绑定模型名；对已校验的 builtin 只读文件资源，使用场景 ID、语义 DataTable 名 `RepositoryBlueprintNode` 与视图 ID 生成完整 key。树、子字段、行操作以及 NodeBasicInfo、NodeLayoutConfig、NodeStateConfig、NodeTargetConfig 均仅使用该 key；删除对象直传 fallback。公开 getter 类型收窄为只包含 `dataViewKey?`。ClassModel 正式生成产物已刷新，目标属性 schema 不再包含 `dataSource`，且 `additionalProperties:false`。
+- **显示修复：**该片复测还证实 DataPlanningPane 将已保存场景 ID 传给标准 DisplayText 的 `model-value` 不符合其 `value` 合同，导致显示占位符。已改用 `value`；场景绑定仍 pending 时继续显示警示且不挂载设计器。
+- **回归与门禁：**树、面板、交付、场景选择等写者回归 8 files / 247 passed；主控独立复跑树、交付、导航对齐、场景 picker、DevState 文件闭环 5 files / **148 passed**。公开合同变化后运行 `pnpm run generate:class-model-surface`：994 DTS / 2050 symbols / 1644 classIndex entries / 3416 semantic gaps；生成器产出保留。改动文件 ESLint、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 通过；规则扫描保留 AI model spec 既有 2 warnings / 1 info，构建保留 CodeMirror dynamic import 警告。
+- **现场与交付边界：**本片未提交/推送、未改/启动 Java。SPA 登录状态未能在本片建立/确认；真实动态 cfg 项目树、三文件工作文本、发布快照与 `VersionId` 持久回读仍未验证。工作树仍有广泛未提交改动，未整体暂存；当前离线 DataView 合同不代替真实 SPA 证据。
+
+### 2026-10-29 开发工作台状态提示复用标准组件与清理废弃页面
+
+- `BlueprintWorkspace.vue` 的自动保存提示改为仓内标准 `DisplayTag`，只展示 `useDevState` 当前状态：pending、saving、saved、error；状态机仍由原工作台数据链维护。补充四状态组件呈现用例。先以旧页面实现运行定向 RED，失败于未呈现标准标签；改动后主控独立复跑 `blueprint-workspace-delivery` 与 `dev-system-header-save` 两文件，**65/65 passed**。
+- 删除无消费者的 `DevNodeProps.vue` 与旧 `blueprint-workspace/PlanningPane.vue`，同步删除 ClassModel 生成分片和测试中失效的 stub；正式 `DevSystem.vue` 导航入口仍指向现存页面。仓内搜索无实际页面/配置引用，生成分片均不存在。
+- 生成器、改动文件 ESLint、typecheck、verify:rules、build 在写者执行均通过；既有 AI-model warnings 与 CodeMirror dynamic-import 警告按原范围保留。`git diff --check` 无空白错误，只有工作树 LF/CRLF 转换提示。
+- 本片未提交/推送、未修改/启动 Java。仍需恢复真实 SPA 登录后，核验 cfg 项目、工具三文件保存/重开和发布版本回读；当前本地组件回归不替代该项验收。工作树存在广泛未提交更改，未拆分暂存。
+
+### 2026-10-29 编辑器旧页面刷新与项目规划身份收敛
+
+- **编辑器迟到响应 RED：**挂载真实 `DevFileEditor`，对页面 A 的 `fileEditor.refresh()` 延迟响应期间切换至页面 B；旧实现会把 A 的文件视图覆盖到 B。定向用例 `pnpm exec vitest run tests/app/dev/file-versions/dev-file-editor-versions.test.ts -t "old file refresh replace" --reporter=dot --silent` 为 **1 failed / 13 skipped**，失败在活动 DataView 身份变成 page-A。
+- **修正与回归：**刷新保存 page/file/revision 目标快照，只在异步步骤后仍匹配当前目标时应用结果或错误；另覆盖 DataView 加载响应迟到后的切页保护。文件历史、PageTool 文件历史、文件闭环、发布交付四文件合跑 **181 tests passed**。
+- **项目规划身份 RED：**provider/headless 用例分别证明缺 tenant 输入时 provider 拒绝运行，且 headless 会从 enterpriseName 推导并写入工作区 tenant。命令 `pnpm exec vitest run tests/app/services/project-planning-agent-run-provider.test.ts tests/app/services/project-planning-headless.test.ts -t "without tenant input|does not infer project tenant" --reporter=dot --silent` 为 **2 failed**，均落在旧 tenant 合同断言。
+- **身份收敛：**`ProjectInfo`、`ProjectDesign`、`ProjectBlueprint`、headless/workflow/agent scope 采用 projectId；requestId 继续隔离单次运行。未找到 project-planning 的服务端调用要求 tenantId 的证据；enterpriseName 不再被推作租户。平台租户管理、登录/API 传输语义及 DataSet/API route context 中真实 tenant 字段不在本改动范围。应用路由测试已无 `/t/:tenantId` 或 `tenantPathPrefix` 测试夹具命中。
+- **综合回归与门禁：**项目规划、DevSystem 文件/发布、路由与应用切换共 **12 files / 259 tests passed**。改动文件 ESLint 退出 0，`pnpm run typecheck`、`pnpm run verify:rules` 与 `pnpm run build` 退出 0。规则扫描保留 AI model spec 既有 2 warnings / 1 info；构建保留 CodeMirror 动态导入提示。运行 `pnpm run generate:class-model-surface` 刷新派生分片及 `.dts-manifest.json`；没有手改生成文件。生成器输出因执行器截断未能从原日志核录计数；生成后的 ClassModel 校验由 verify:rules 通过。
+- **边界：**本轮不涉及 Java、远端数据、提交或推送。SPA 登录态仍不可用，因此没有真实页面服务端读回/持久化证据；上述结果只证明当前仓源码和行为测试。工作树仍包含广泛前序改动，未拆分暂存。
+
+### 2026-10-29 改动测试组复跑结果更正
+
+- **更正此前较窄范围：**前条项目规划/开发工作台回归为 12 files / 259 tests；它不是全量改动测试组结果，不能代替主控发现的全组回归。
+- **两个有效差异与修复：**字典目录路由应为 `/apps/{projectId}/catalog`，fixture 原使用 `/apps/ENT/PROJ/catalog`，因多出企业段导致页面未挂载；现统一为 `/apps/PROJ/catalog`，保留同应用项目身份及 query 行为。API provider 页面模块 mock 缺少当前公开导出 `lowcodeDesignFileUpload`；补充 upload fixture 哨兵，确保这些页面测试不会误走文件写入。
+- **验证：**定向 `pnpm exec vitest run tests/runtime/page/dictionary/dictionary-catalog.test.ts tests/runtime/page/api-provider/api-pages.test.ts --reporter=dot --silent`：**2 files / 51 tests passed**。全部当前改动测试候选路径组重新运行：Vitest 实际发现并执行 **35 files / 715 tests passed**；候选列表中含一条已删除测试文件路径，故输入路径 36、实际执行文件 35。两份改动测试文件 ESLint 退出 0。
+- **范围：**修复仅在测试路由及模块 mock fixture；未改生产页面逻辑。本机源码/测试证据，不代表 SPA 真实服务端验收。
+
+### 2026-10-30 变更测试组与全仓回归检查点
+
+- **改动范围回归：**当前工作树改动测试候选中，Vitest 执行 **35 files / 715 tests passed**；相关 typecheck、verify:rules、build、改动 ESLint 与 ClassModel 生成结果见前序逐片证据。
+- **全仓回归：**`pnpm exec vitest run --reporter=dot --silent` 执行 **375 files / 6,984 tests**，其中 **24 files failed、345 tests failed、6,639 passed**。当前仅有截断输出及少数失败样例，尚未完成全部失败分类，不能断言为基线失败，也不能宣称全仓通过。继续实施前需分类失败文件并判断与本批改动的关系。
+- **提交边界：**本次将当前同一迁移链的工作树作为中间检查点推送，目的是保留可恢复进度；提交不表示业务目标完成或全仓验收通过。真实 SPA 登录与 cfg 项目三文件保存/重开/版本回读仍待用户恢复登录后现场验收。未改、启动或部署 Java，未执行正式远端业务数据写入。

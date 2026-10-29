@@ -118,7 +118,6 @@ function mountDevSystem() {
       stubs: {
         AiToolApprovalPanel: ApprovalPanelStub,
         ProjectBlueprintTree: true,
-        DevNodeProps: true,
         DevFileEditor: true,
         DevPreviewTab: true,
         BlueprintWorkspace: true,

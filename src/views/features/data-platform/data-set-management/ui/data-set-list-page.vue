@@ -62,7 +62,7 @@ import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkN
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
-import {parseTenantScope} from '@/services/tenant-scope'
+import {parseApplicationPathScope} from '@/services/application-scope'
 
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps
@@ -81,7 +81,7 @@ const owner = shallowRef<LowcodeDataSpaceCatalog>(), ready = ref(false), loading
 const busy = ref(false), actionError = ref(''), message = ref(''), bindingsOpen = ref(false), bindingsReady = ref(false)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const projectId = computed(() => parseTenantScope(route.path)?.projectId ?? '')
+const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
 const catalogKey = computed(() => buildDataViewKey('Base_DataSet', 'catalog', scenarioId.value))
 const appsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'catalogApps', scenarioId.value))
 const listError = computed(() => {revision.value; return owner.value?.view.loadingError?.message ?? ''})

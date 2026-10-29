@@ -77,7 +77,7 @@ async function createGuardRouter() {
   const dynamic = createDynamicRouter({
     router,
     pageComponent: page,
-    tenantPathPrefix: '/t/:tenantId/:projectId',
+    applicationPathPrefix: '/apps/:projectId',
     loadNavigation: () => loadNavigation(),
     componentMap: { '/dashboard': page },
   })
@@ -124,7 +124,7 @@ describe('ProjectNavigationGuard', () => {
     expect(router.currentRoute.value.path).toBe('/about')
     await router.push('/platform')
     expect(router.currentRoute.value.path).toBe('/')
-    await router.push('/t/acme/APP-A/dashboard?view=private#section')
+    await router.push('/apps/APP-A/dashboard?view=private#section')
     expect(router.currentRoute.value.path).toBe('/')
     expect(router.currentRoute.value.query).toEqual({})
   })
@@ -135,26 +135,18 @@ describe('ProjectNavigationGuard', () => {
     await router.push('/about')
     expect(router.currentRoute.value.path).toBe('/about')
     await router.push('/platform')
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard')
     await router.push('/not-tenant?source=direct#top')
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard')
-  })
-
-  it('corrects a mismatched tenant while preserving its query and hash', async () => {
-    const { router } = await createGuardRouter()
-
-    await router.push('/t/other/APP-A/dashboard?filter=one#section')
-
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard?filter=one#section')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard')
   })
 
   it('does not select or refresh when the URL already matches the current application', async () => {
     const { router, dynamic } = await createGuardRouter()
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
 
-    await router.push('/t/acme/APP-A/dashboard?view=one#part')
+    await router.push('/apps/APP-A/dashboard?view=one#part')
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard?view=one#part')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard?view=one#part')
     expect(vi.mocked(activateLowcodeApplication)).not.toHaveBeenCalled()
     expect(vi.mocked(enterLowcodeApplicationCatalog)).not.toHaveBeenCalled()
     expect(testState.cancelPendingSelection).toHaveBeenCalledOnce()
@@ -165,13 +157,13 @@ describe('ProjectNavigationGuard', () => {
     const { router, dynamic } = await createGuardRouter()
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
 
-    await router.push('/t/acme/APP-B/dashboard?tab=reports#chart')
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-B/dashboard?tab=reports#chart')
+    await router.push('/apps/APP-B/dashboard?tab=reports#chart')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-B/dashboard?tab=reports#chart')
     expect(vi.mocked(activateLowcodeApplication)).toHaveBeenCalledOnce()
     expect(refresh).toHaveBeenCalledOnce()
 
-    await router.push('/t/acme/homepage/dashboard?tab=catalog#top')
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/homepage/dashboard?tab=catalog#top')
+    await router.push('/apps/homepage/dashboard?tab=catalog#top')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/homepage/dashboard?tab=catalog#top')
     expect(vi.mocked(enterLowcodeApplicationCatalog)).toHaveBeenCalledOnce()
     expect(testState.principal?.applicationId).toBeNull()
     expect(refresh).toHaveBeenCalledTimes(2)
@@ -179,7 +171,7 @@ describe('ProjectNavigationGuard', () => {
 
   it('cancels an activation that completes after a newer same-app query navigation', async () => {
     const { router, dynamic } = await createGuardRouter()
-    await router.push('/t/acme/APP-A/dashboard?before=activation')
+    await router.push('/apps/APP-A/dashboard?before=activation')
     const originalInstance = dynamic.getSystemPageInstance(router.currentRoute.value)
     expect(originalInstance).toBeDefined()
     let releaseActivation: (() => void) | undefined
@@ -196,14 +188,14 @@ describe('ProjectNavigationGuard', () => {
     const dispose = vi.spyOn(dynamic, 'disposePageRuntimes')
     const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
-    const oldNavigation = router.push('/t/acme/APP-B/dashboard?from=A#old')
+    const oldNavigation = router.push('/apps/APP-B/dashboard?from=A#old')
     await vi.waitFor(() => expect(releaseActivation).toBeDefined())
 
-    await router.push('/t/acme/APP-A/dashboard?from=B#current')
+    await router.push('/apps/APP-A/dashboard?from=B#current')
     releaseActivation?.()
     await oldNavigation
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard?from=B#current')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard?from=B#current')
     expect(testState.principal?.applicationId).toBe('APP-A')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
     expect(reset).not.toHaveBeenCalled()
@@ -216,13 +208,13 @@ describe('ProjectNavigationGuard', () => {
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
     testState.principal = { enterpriseName: 'acme', applicationId: 'APP-B' }
 
-    await router.push('/t/acme/APP-B/dashboard?view=latest#owner')
+    await router.push('/apps/APP-B/dashboard?view=latest#owner')
 
     expect(testState.principal?.applicationId).toBe('APP-B')
     expect(vi.mocked(activateLowcodeApplication)).toHaveBeenCalledOnce()
     expect(refresh).toHaveBeenCalledOnce()
     expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-B/dashboard?view=latest#owner')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-B/dashboard?view=latest#owner')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
   })
 
@@ -237,7 +229,7 @@ describe('ProjectNavigationGuard', () => {
       return navigationFor('APP-A')
     })
 
-    const outcome = await router.push('/t/acme/APP-B/dashboard?view=wrong-owner').then(
+    const outcome = await router.push('/apps/APP-B/dashboard?view=wrong-owner').then(
       () => ({ error: null }),
       (error: unknown) => ({ error }),
     )
@@ -256,17 +248,17 @@ describe('ProjectNavigationGuard', () => {
     let rejectActivation: ((reason: unknown) => void) | undefined
     const staleError = new Error('late activation failure')
     testState.activation = () => new Promise((_resolve, reject) => { rejectActivation = reject })
-    const oldNavigation = router.push('/t/acme/APP-B/dashboard?from=A#old').then(
+    const oldNavigation = router.push('/apps/APP-B/dashboard?from=A#old').then(
       () => undefined,
       (error: unknown) => error,
     )
     await vi.waitFor(() => expect(rejectActivation).toBeDefined())
 
-    await router.push('/t/acme/APP-A/dashboard?from=B#current')
+    await router.push('/apps/APP-A/dashboard?from=B#current')
     rejectActivation?.(staleError)
     await oldNavigation
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-A/dashboard?from=B#current')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard?from=B#current')
     expect(errors).not.toContain(staleError)
   })
 
@@ -280,17 +272,17 @@ describe('ProjectNavigationGuard', () => {
       return loadCount === 1 ? oldRefresh.promise : newRefresh.promise
     })
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
-    const oldNavigation = router.push('/t/acme/APP-B/dashboard?from=A#old')
+    const oldNavigation = router.push('/apps/APP-B/dashboard?from=A#old')
     await vi.waitFor(() => expect(refresh).toHaveBeenCalledOnce())
 
-    const newNavigation = router.push('/t/acme/APP-B/dashboard?from=B#current')
+    const newNavigation = router.push('/apps/APP-B/dashboard?from=B#current')
     await vi.waitFor(() => expect(refresh).toHaveBeenCalledTimes(2))
     oldRefresh.resolve(navigationFor('APP-A'))
     await oldNavigation
     newRefresh.resolve(navigationFor('APP-B'))
     await newNavigation
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-B/dashboard?from=B#current')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-B/dashboard?from=B#current')
     expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
   })
 
@@ -305,20 +297,20 @@ describe('ProjectNavigationGuard', () => {
     })
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
     const staleError = new Error('late navigation failure')
-    const oldNavigation = router.push('/t/acme/APP-B/dashboard?from=A#old').then(
+    const oldNavigation = router.push('/apps/APP-B/dashboard?from=A#old').then(
       () => undefined,
       (error: unknown) => error,
     )
     await vi.waitFor(() => expect(refresh).toHaveBeenCalledOnce())
 
-    const newNavigation = router.push('/t/acme/APP-B/dashboard?from=B#current')
+    const newNavigation = router.push('/apps/APP-B/dashboard?from=B#current')
     await vi.waitFor(() => expect(refresh).toHaveBeenCalledTimes(2))
     oldRefresh.reject(staleError)
     await oldNavigation
     newRefresh.resolve(navigationFor('APP-B'))
     await newNavigation
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/APP-B/dashboard?from=B#current')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-B/dashboard?from=B#current')
     expect(errors).not.toContain(staleError)
     expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
   })
@@ -328,7 +320,7 @@ describe('ProjectNavigationGuard', () => {
     const activationError = new Error('activation failed')
     testState.activation = () => Promise.reject(activationError)
 
-    await expect(activationFixture.router.push('/t/acme/APP-B/dashboard')).rejects.toBe(activationError)
+    await expect(activationFixture.router.push('/apps/APP-B/dashboard')).rejects.toBe(activationError)
     expect(activationFixture.errors).toContain(activationError)
 
     const refreshFixture = await createGuardRouter()
@@ -339,7 +331,7 @@ describe('ProjectNavigationGuard', () => {
     const refreshError = new Error('refresh failed')
     refreshFixture.setLoadNavigation(() => Promise.reject(refreshError))
 
-    await expect(refreshFixture.router.push('/t/acme/APP-B/dashboard')).rejects.toBe(refreshError)
+    await expect(refreshFixture.router.push('/apps/APP-B/dashboard')).rejects.toBe(refreshError)
     expect(refreshFixture.errors).toContain(refreshError)
   })
 
@@ -349,7 +341,7 @@ describe('ProjectNavigationGuard', () => {
     setLoadNavigation(() => gate.promise)
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
     const receiptError = new Error('selection receipt expired')
-    const navigation = router.push('/t/acme/APP-B/dashboard?from=A#old')
+    const navigation = router.push('/apps/APP-B/dashboard?from=A#old')
     await vi.waitFor(() => expect(refresh).toHaveBeenCalledOnce())
     testState.receiptError = receiptError
     gate.resolve(navigationFor('APP-B'))
@@ -364,7 +356,7 @@ describe('ProjectNavigationGuard', () => {
     const clean = vi.spyOn(dynamic, 'assertPageRuntimesClean').mockImplementation(() => { throw dirtyError })
     const reset = vi.spyOn(dynamic, 'resetSystemPageInstances')
 
-    await expect(router.push('/t/acme/APP-B/dashboard')).rejects.toBe(dirtyError)
+    await expect(router.push('/apps/APP-B/dashboard')).rejects.toBe(dirtyError)
 
     expect(clean).toHaveBeenCalledOnce()
     expect(reset).not.toHaveBeenCalled()

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:composables/useApplicationRouter",
+    "sourcePath": "src/composables/useApplicationRouter.ts",
+    "sourceFile": "src/composables/useApplicationRouter.ts",
+    "packageName": "app",
+    "modulePath": "composables/useApplicationRouter",
+    "jsdoc": "@module app:composables/useApplicationRouter\n职责：提供主应用 useApplicationRouter 能力，按应用 projectId 解析和构建前端路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 composables/useApplicationRouter。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-29T10:08:23.584Z",
+  "models": {}
+}

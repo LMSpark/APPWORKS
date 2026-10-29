@@ -24,9 +24,6 @@
       "type": "object",
       "title": "ProjectDetail",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         },
@@ -53,7 +50,6 @@
         }
       },
       "required": [
-        "tenantId",
         "projectId",
         "name",
         "icon",
@@ -147,9 +143,6 @@
       "type": "object",
       "title": "SaveProjectRuntimeSettingsCommand",
       "properties": {
-        "tenantId": {
-          "type": "string"
-        },
         "projectId": {
           "type": "string"
         },
@@ -161,7 +154,6 @@
         }
       },
       "required": [
-        "tenantId",
         "projectId",
         "current",
         "input"
@@ -204,22 +196,16 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T15:42:42.245Z",
+  "generatedAt": "2026-10-29T09:55:57.339Z",
   "models": {
     "ProjectDetail": {
       "name": "ProjectDetail",
       "jsdoc": "项目详情：从后端 API 读取的项目元数据投影",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 租户 ID，多租户隔离标识 */\n    tenantId: string;\n    /** 项目 ID，项目唯一标识 */\n    projectId: string;\n    /** 项目名称 */\n    name: string;\n    /** 应用目录提供可读分类时的项目类型；未返回 IsSys 时缺省。 */\n    projectType?: string;\n    /** 项目图标资源标识 */\n    icon: string;\n    /** 项目描述 */\n    description: string;\n    /** 首页节点 ID，null 表示未配置首页 */\n    homeNodeId: string | null;\n    /** 项目排序权重，数值越小越靠前 */\n    order: number;\n}",
+        "declarationTypeText": "{\n    /** 项目 ID，项目唯一标识 */\n    projectId: string;\n    /** 项目名称 */\n    name: string;\n    /** 应用目录提供可读分类时的项目类型；未返回 IsSys 时缺省。 */\n    projectType?: string;\n    /** 项目图标资源标识 */\n    icon: string;\n    /** 项目描述 */\n    description: string;\n    /** 首页节点 ID，null 表示未配置首页 */\n    homeNodeId: string | null;\n    /** 项目排序权重，数值越小越靠前 */\n    order: number;\n}",
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "租户 ID，多租户隔离标识",
-              "readable": true,
-              "writable": true
-            },
             {
               "name": "projectId",
               "jsdoc": "项目 ID，项目唯一标识",
@@ -367,22 +353,16 @@
       "jsdoc": "保存项目运行时设置的命令参数",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 租户 ID */\n    tenantId: string;\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 租户 ID */\n    tenantId: string;\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
+            "typeText": "Readonly<{\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "租户 ID",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "projectId",
               "jsdoc": "项目 ID",

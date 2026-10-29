@@ -53,14 +53,14 @@ import { ElMessage } from 'element-plus'
 import type { TabPage } from '@spark-appworks/spark-app'
 import NavIcon from '@/components/NavIcon.vue'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { parseTenantScope } from '@/services/tenant-scope'
+import { parseApplicationPathScope } from '@/services/application-scope'
 
 const router = useRouter()
 const route = useRoute()
 const projectSwitchService = inject(PROJECT_SWITCH_KEY, null)
 
 function parseScopedProjectId(path: string): string | null {
-  return parseTenantScope(path)?.projectId ?? null
+  return parseApplicationPathScope(path)?.projectId ?? null
 }
 
 async function navigateTab(fullPath: string): Promise<void> {

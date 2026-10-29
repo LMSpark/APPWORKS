@@ -38,14 +38,15 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
 }))
 vi.mock('@/lowcode/lowcode-application-catalog', () => ({
   loadLowcodeApplicationCatalog: state.applicationCatalogLoad,
+  getFormalModelView: (dataSet: {getView: () => unknown}) => dataSet.getView(),
 }))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {application: {get: () => ({application: {id: 'APP'}})}, platform: {listEnterprises: state.listEnterprises, login: state.login}},
   readLowcodePrincipal: () => ({enterpriseName: 'acme'}),
 }))
-vi.mock('@/services/tenant-scope', () => ({
-  parseTenantScope: () => ({tenantId: 'acme', projectId: state.projectId}),
-  buildTenantPath: () => '/target', APPLICATION_CATALOG_PROJECT_ID: 'homepage',
+vi.mock('@/services/application-scope', () => ({
+  parseApplicationPathScope: () => ({projectId: state.projectId}),
+  buildApplicationPath: () => '/target', APPLICATION_CATALOG_PROJECT_ID: 'homepage',
 }))
 
 const EmptyPage = defineComponent({setup: () => () => h('div')})
@@ -122,7 +123,7 @@ describe('AppList DataView routing', () => {
     expect(state.applicationCatalogLoad).toHaveBeenCalledOnce()
     expect(state.loadedScenarioIds).toEqual(['7AB874097A1E8711A42FD845939A6E05'])
     expect(state.dataViewLoad).toHaveBeenCalledOnce()
-    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
+    expect(wrapper.get('[data-testid="scenario-list"]').attributes('data-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@catalogApps')
     expect(wrapper.text()).toContain('Alpha')
     const visible = wrapper.get('[data-testid="scenario-list"]').attributes('data-visible-children')
     expect(visible).not.toContain('app-home-tag')
@@ -138,7 +139,7 @@ describe('AppList DataView routing', () => {
     expect(list.attributes('data-toolbar-has-explicit-binding')).toBe('false')
     expect(list.attributes('data-toolbar-children')).toBe('app-home-tag,app-standard-tag,app-switch,app-current-tag,app-settings,app-delete')
     expect(list.attributes('data-switch-has-handler')).toBe('true')
-    expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@default')
+    expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@catalogApps')
     expect(list.attributes('data-description-field')).toBe('Memo')
   })
 

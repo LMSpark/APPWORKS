@@ -10,7 +10,6 @@ const runtime = vi.hoisted(() => ({
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {
-    session: {get: () => ({enterprise: {shortName: 'Tenant'}})},
     readRequestScope: () => ({token: runtime.token, headers: {}}),
   },
   readLowcodeRuntimeNavigation: runtime.readNavigation,
@@ -37,18 +36,12 @@ describe('project runtime settings application catalog owner', () => {
       id: 'APP-1', name: '财务管理', code: 'finance', description: '财务系统说明', isDefault: false,
     })
 
-    const settings = await loadProjectRuntimeSettings('Tenant', 'APP-1')
+    const settings = await loadProjectRuntimeSettings('APP-1')
 
     expect(catalog.readById).toHaveBeenCalledWith('APP-1', expect.any(Function))
     expect(settings.project).toMatchObject({
       projectId: 'APP-1', name: '财务管理', description: '财务系统说明', projectType: 'application',
     })
-  })
-
-  it('keeps the session tenant scope guard ahead of application lookup', async () => {
-    await expect(loadProjectRuntimeSettings('other-tenant', 'APP-1'))
-      .rejects.toThrow('lowcode 应用设置路由企业与当前会话不一致')
-    expect(catalog.readById).not.toHaveBeenCalled()
   })
 
   it('rejects an application result after the authenticated request scope changes', async () => {
@@ -58,7 +51,7 @@ describe('project runtime settings application catalog owner', () => {
       return {id: 'APP-1', name: '财务管理', isDefault: false}
     })
 
-    await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+    await expect(loadProjectRuntimeSettings('APP-1'))
       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(runtime.readNavigation).not.toHaveBeenCalled()
   })
@@ -70,7 +63,7 @@ describe('project runtime settings application catalog owner', () => {
       return {id: 'ROOT-1', projectId: 'APP-1', title: '导航', childPlacement: 'header', items: []}
     })
 
-    await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+    await expect(loadProjectRuntimeSettings('APP-1'))
       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
   })
 
@@ -80,7 +73,7 @@ describe('project runtime settings application catalog owner', () => {
       throw new Error('late catalog failure')
     })
 
-    await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+    await expect(loadProjectRuntimeSettings('APP-1'))
       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
   })
 
@@ -91,7 +84,7 @@ describe('project runtime settings application catalog owner', () => {
       throw new Error('late navigation failure')
     })
 
-    await expect(loadProjectRuntimeSettings('Tenant', 'APP-1'))
+    await expect(loadProjectRuntimeSettings('APP-1'))
       .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
   })
 
@@ -99,6 +92,6 @@ describe('project runtime settings application catalog owner', () => {
     const failure = new Error('catalog query failed')
     catalog.readById.mockRejectedValue(failure)
 
-    await expect(loadProjectRuntimeSettings('Tenant', 'APP-1')).rejects.toBe(failure)
+    await expect(loadProjectRuntimeSettings('APP-1')).rejects.toBe(failure)
   })
 })

@@ -41,9 +41,6 @@
         "projectId": {
           "type": "string"
         },
-        "tenantId": {
-          "type": "string"
-        },
         "name": {
           "type": "string"
         },
@@ -358,7 +355,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.387Z",
+  "generatedAt": "2026-10-29T15:39:29.930Z",
   "models": {
     "ProjectBlueprintDesignNodeEditResult": {
       "name": "ProjectBlueprintDesignNodeEditResult",
@@ -405,11 +402,6 @@
           "attributes": [
             {
               "name": "projectId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "tenantId",
               "readable": true,
               "writable": false
             },

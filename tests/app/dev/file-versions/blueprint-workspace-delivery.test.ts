@@ -37,10 +37,10 @@ const TestInput = defineComponent({props:{modelValue:null,disabled:Boolean,type:
 const TestFormItem = defineComponent({props:{label:String},template:'<div class="form-item"><span>{{label}}</span><slot /></div>'})
 const TestAlert = defineComponent({props:{title:String},template:'<div>{{title}}</div>'})
 const TestEmpty = defineComponent({props:{description:String},template:'<div>{{description}}</div>'})
+const AutoSaveTag = defineComponent({name:'DisplayTag',props:['content','tagType','effect','size'],template:'<span data-test-autosave-tag :data-type="tagType">{{content}}</span>'})
 const StandardField = defineComponent({props:['dataViewKey','dataMember','dataField','optionDataViewKey','optionValueField','optionLabelField','readonly','clearable','label'],template:'<div data-test-standard-field>{{label}}</div>'})
 const StandardRenderer = defineComponent({props:['dataViewKey','label','disabled','modelValue','title','width','closeDisabled','children','highlightCurrentRow'],emits:['click','update:modelValue'],template:'<button data-test-standard-renderer @click="$emit(\'click\',$event)">{{label}}<slot /></button>'})
 const Delivery = defineComponent({ props: ['canPublish'], emits: ['save'], template: '<button @click="$emit(\'save\')">交付</button>' })
-const Planning = defineComponent({props:['modelValue','fieldAccess'],emits:['update:modelValue'],template:'<div v-if="fieldAccess.read"><input data-testid="planning" :disabled="!fieldAccess.write" :value="modelValue" @input="$emit(\'update:modelValue\',$event.target.value)"></div><span v-else>无读取权限</span>'})
 const scenarioId = '7AB874097A1E8711A42FD845939A6E05'
 const initialRow = (target = 'cfg:tool-A', versionId = 'rule=1;script=1;style=1'): DataRow => ({rowid: 'node-A', SysId: 'APP-A',
   memo: 'planning', htmlDesc: '', conid: 'scene-A', NavigationUrl: target, VersionId: versionId, DifficultyFactor: 1,
@@ -80,13 +80,13 @@ function projectedActivePageId(target: string): string {
       capability: {name: 'tool-A'}, navigation: {title: 'tool-A', target, order: 0, publishInMenu: true, showChildren: true, beginGroup: false}, source: {}}]})
   return blueprint.readBlueprintProjection().pageDeliveries.find(node => node.nodeId === 'node-A')?.pageId ?? ''
 }
-function setup(options: Parameters<typeof createDataSet>[0] = {}) {
+function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus:'idle'|'pending'|'saving'|'saved'|'error'='saved') {
   const dataSet = createDataSet(options)
   const target = options.target ?? 'cfg:tool-A'
   const pageRuntime={instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>dataSet,
     resolveView:()=>dataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime
   let owner: BlueprintWorkspaceDataView | undefined
-  let activeSnapshotFile='rule.json'
+  const fileViews=new Map<string,{currentRow:DataRow;createSourceVersion:(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>Promise<{state:string;version:number;fileName:string;message:null}>;acknowledgeSourceHistoryAttempt:()=>void;getPkKey:(row:DataRow)=>string;getEditingRow:()=>DataRow|null;editRowById:(id:string,patch:DataRow)=>Promise<void>;dirtyTracking:{hasPendingChanges:()=>boolean};hasEditingChanges:()=>boolean;hasUnconfirmedSave:boolean}>()
   const blueprintWorkspaceDataView=shallowRef<BlueprintWorkspaceDataView>()
   const accessRevision = ref(0)
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
@@ -103,12 +103,16 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       return current
     }),
     loadPageToolFileDataView: vi.fn(async ({pageId,fileName}:{pageId:string;fileName:string})=>{
-      activeSnapshotFile=fileName
-      const fileView={currentRow:{text:state.project.readPageFileText(fileName)},createSourceVersion:async(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>{
-        const result=await api.createSnapshot({pageId,customPath:`${state.projectId}/${pageId}`,fileName:activeSnapshotFile,
-          text:state.project.readPageFileText(activeSnapshotFile),onAttempt})
+      const existing=fileViews.get(fileName)
+      if(existing)return existing
+      const fileView={currentRow:{pageId,fileName,text:fileName==='script.js'?'':`text:${fileName}`},editingRow:null as DataRow|null,getPkKey:(row:DataRow)=>String(row['fileName']),getEditingRow:()=>fileView.editingRow,
+        editRowById:async(_id:string,patch:DataRow)=>{fileView.editingRow={...fileView.currentRow,...patch}},
+        dirtyTracking:{hasPendingChanges:()=>fileView.editingRow!==null},hasEditingChanges:()=>fileView.editingRow!==null,hasUnconfirmedSave:false,createSourceVersion:async(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>{
+        const result=await api.createSnapshot({pageId,customPath:`${state.projectId}/${pageId}`,fileName,
+          text:fileView.currentRow['text'],onAttempt})
         return {state:'confirmed',version:result.version,fileName:result.fileName,message:null}
       },acknowledgeSourceHistoryAttempt:vi.fn()}
+      fileViews.set(fileName,fileView)
       return fileView
     }),
     refreshBlueprintTreeProjection: vi.fn(),
@@ -119,14 +123,16 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
     blueprintNodeFieldAccess: (field:string) => {void accessRevision.value;return {read:owner?.canRead(field)??false,write:owner?.canWrite(field)??false}},
     blueprintNodeSectionWritable: () => false,
     markBlueprintDirty: vi.fn(() => { accessRevision.value++ }),
-    project: { readPageFileText: vi.fn((name: string) => name === 'script.js' ? '' : `text:${name}`) },
+    autoSaveStatus: ref(autoSaveStatus),
+    project: {},
   }
   const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-workspace-test-host'}).sparkProvide(PAGE_RUNTIME,pageRuntime)
     return ()=>h(BlueprintWorkspace,{state:state as never})}})
   const wrapper = mount(Host, {
     global: {
       directives: { loading: () => {} }, stubs: {
-        RendererTabs: Slot, RendererTabPane: TabPane, DisplayEmpty: TestEmpty, ElAlert: TestAlert, PlanningPane: Planning, PrototypePane: true,
+        RendererTabs: Slot, RendererTabPane: TabPane, DisplayEmpty: TestEmpty, ElAlert: TestAlert, PrototypePane: true,
+        DisplayTag: AutoSaveTag,
         EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
         NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: defineComponent({template:'<div data-test-node-state-stub />'}),
         ElDivider: true, ElFormItem: TestFormItem, ElInput: TestInput, ElSelect: true, ElSwitch: true, ElOption: true, IconPicker: true,
@@ -134,10 +140,31 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}) {
       },
     },
   })
-  return { state, wrapper, dataSet, workspaceOwner: () => owner }
+  return { state, wrapper, dataSet, workspaceOwner: () => owner, fileViews }
 }
 
 describe('BlueprintWorkspace runtime mount lifecycle', () => {
+  it.each([
+    {status:'idle' as const,content:undefined,tagType:undefined,effect:undefined},
+    {status:'pending' as const,content:'待保存…',tagType:'info',effect:'plain'},
+    {status:'saving' as const,content:'保存中…',tagType:'info',effect:'dark'},
+    {status:'saved' as const,content:'已自动保存',tagType:'success',effect:'plain'},
+    {status:'error' as const,content:'保存失败',tagType:'danger',effect:'plain'},
+  ])('maps autosave state $status to the shared DisplayTag presentation',({status,content,tagType,effect})=>{
+    const {wrapper,dataSet,workspaceOwner}=setup({},status)
+    try{
+      const tag=wrapper.findComponent(AutoSaveTag)
+      if(status==='idle')expect(tag.exists()).toBe(false)
+      else{
+        expect(tag.exists()).toBe(true)
+        expect(tag.props('content')).toBe(content)
+        expect(tag.props('tagType')).toBe(tagType)
+        expect(tag.props('effect')).toBe(effect)
+        expect(tag.props('size')).toBe('small')
+      }
+    }finally{wrapper.unmount();workspaceOwner()?.dispose();dataSet.destroy()}
+  })
+
   it('waits for the target PAGE_RUNTIME to be provided before mounting the DataView form subtree',async()=>{
     const dataSet=createDataSet()
     const runtime=new PageRuntime({pageId:'blueprint-runtime-gate-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
@@ -354,7 +381,7 @@ describe('BlueprintWorkspace file delivery', () => {
   it('stops after a target switch without publishing the uploaded snapshot', async () => {
     let finish!: () => void
     api.createSnapshot.mockImplementationOnce(async (input:{onAttempt?:(result:{version:number;fileName:string})=>void})=>{input.onAttempt?.({version:8,fileName:'8__rule.json'});return await new Promise(resolve=>{finish=()=>resolve({version:8,fileName:'8__rule.json'})})})
-    const { wrapper, state } = setup(); await flushPromises()
+    const { wrapper, state,fileViews } = setup(); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
     state.selectedNode.value = { nodeId: 'node-B' }; await flushPromises()
     finish(); await flushPromises()
@@ -414,9 +441,10 @@ describe('BlueprintWorkspace file delivery', () => {
   it('preserves a confirmed snapshot but stops publishing edits made during upload', async () => {
     let finish!: () => void
     api.createSnapshot.mockImplementationOnce(async (input:{onAttempt?:(result:{version:number;fileName:string})=>void})=>{input.onAttempt?.({version:8,fileName:'8__rule.json'});return await new Promise(resolve=>{finish=()=>resolve({version:8,fileName:'8__rule.json'})})})
-    const { wrapper, state } = setup(); await flushPromises()
+    const { wrapper, state,fileViews } = setup(); await flushPromises()
     await wrapper.findComponent(Delivery).find('button').trigger('click'); await flushPromises()
-    state.project.readPageFileText.mockReturnValue('edited')
+    await fileViews.get('rule.json')!.editRowById('rule.json',{text:'edited'})
+    expect(fileViews.get('rule.json')!.hasEditingChanges()).toBe(true)
     finish(); await flushPromises()
     expect(state.addStatus).toHaveBeenCalledWith(expect.stringContaining('已确认快照：8__rule.json'), 'error')
     wrapper.unmount()
@@ -560,13 +588,15 @@ describe('Blueprint editor owner-view field bindings', () => {
     await owner.loadProjectTree()
     await owner.load(node.rowid)
     const state={projectId:application.id,selectedNode:ref({nodeId:node.rowid}),blueprintPageRuntime:shallowRef(runtime),blueprintWorkspaceDataView:shallowRef(owner),
-      blueprintDraft:owner.nodeData(),blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),
+      blueprintDraft:{...owner.nodeData(),kind:'module',navigation:{title:node.FunName,target:'cfg:tool',icon:'Document'}},blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),
       blueprintNodeSectionWritable:()=>false,markBlueprintDirty:vi.fn(),notifyExternalDataViewChanged:vi.fn(),
-      loadNavigationDictionaryOptions:vi.fn().mockResolvedValue(undefined),pageDataDirty:ref(false)}
+      loadNavigationDictionaryOptions:vi.fn().mockResolvedValue(undefined),pageDataDirty:ref(false),pageList:ref([]),handlePathChange:vi.fn(),
+      linkProbeInfo:ref(null),linkProbeLoading:ref(false),probeLinkTarget:vi.fn(),createPageForSelectedNode:vi.fn(),addStatus:vi.fn()}
     const FormProbe=defineComponent({name:'RendererForm',props:['dataViewKey','dataSource'],template:'<div><slot /></div>'})
     const FieldProbe=(name:string)=>defineComponent({name,props:['dataViewKey','dataMember','dataField'],template:'<span />'})
     const Host=defineComponent({setup(){useSparkComponent({type:'builtin-owner-field-binding-host'}).sparkProvide(PAGE_RUNTIME,runtime)
-      return()=>h('div',[h(NodeBasicInfo,{state:state as never,sections:['capability']}),h(NodeStateConfig,{state:state as never})])}})
+      return()=>h('div',[h(NodeBasicInfo,{state:state as never,sections:['capability']}),h(NodeStateConfig,{state:state as never}),
+        h(NodeTargetConfig,{state:state as never}),h(NodeLayoutConfig,{state:state as never})])}})
     const wrapper=mount(Host,{global:{plugins:[Spark.createPlugin()],stubs:{
       RendererForm:FormProbe,FieldText:FieldProbe('FieldText'),FieldTextarea:FieldProbe('FieldTextarea'),FieldSelect:FieldProbe('FieldSelect'),
       FieldAutocomplete:FieldProbe('FieldAutocomplete'),FieldRadio:FieldProbe('FieldRadio'),FieldNumber:FieldProbe('FieldNumber'),FieldCheckbox:FieldProbe('FieldCheckbox'),
@@ -577,11 +607,18 @@ describe('Blueprint editor owner-view field bindings', () => {
       expect(owner.view.tableName).toBe(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)
       expect(owner.value('name')).toBe(node.name)
       expect(dataSet.getView('Base_NavigationInfo','default')?.currentRow?.['name']).toBe('DB-conflict-name')
-      expect(wrapper.getComponent(FormProbe).props('dataSource')).toBe(owner.view)
-      expect(wrapper.getComponent(FormProbe).props('dataViewKey')).toBeUndefined()
-      expect(wrapper.findAllComponents({name:'FieldText'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
-      expect(wrapper.findAllComponents({name:'FieldTextarea'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
-      expect(wrapper.findAllComponents({name:'FieldSelect'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===undefined)).toBe(true)
+      const builtinKey=buildDataViewKey(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default',scenario.scenarioId)
+      expect(runtime.resolveView(builtinKey)).toBe(owner.view)
+      expect(wrapper.getComponent(FormProbe).props('dataSource')).toBeUndefined()
+      expect(wrapper.getComponent(FormProbe).props('dataViewKey')).toBe(builtinKey)
+      expect(wrapper.findAllComponents({name:'FieldText'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===builtinKey)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldTextarea'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===builtinKey)).toBe(true)
+      expect(wrapper.findAllComponents({name:'FieldSelect'}).every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===builtinKey)).toBe(true)
+      const radioFields=wrapper.findAllComponents({name:'FieldRadio'})
+      expect(radioFields.length).toBeGreaterThan(0)
+      expect(radioFields.every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===builtinKey)).toBe(true)
+      expect(wrapper.findAllComponents(FormProbe).length).toBeGreaterThanOrEqual(4)
+      expect(wrapper.findAllComponents(FormProbe).every(form=>form.props('dataViewKey')===builtinKey&&form.props('dataSource')===undefined)).toBe(true)
     }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })
 })

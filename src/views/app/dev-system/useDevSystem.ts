@@ -12,8 +12,8 @@
  */
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useTenantRouter } from '@/composables/useTenantRouter'
-import { buildTenantPath } from '@/services/tenant-scope'
+import { useApplicationRouter } from '@/composables/useApplicationRouter'
+import { buildApplicationPath } from '@/services/application-scope'
 import { useDevState, type DevWorkspaceTab } from './useDevState'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { onPageConfigChange } from '@/services/sse-events'
@@ -23,7 +23,7 @@ export function canLeaveDevSystem(hasPendingPageFileSave: boolean): boolean {
 }
 
 export function useDevSystem() {
-  const { router } = useTenantRouter()
+  const { router } = useApplicationRouter()
   const state = useDevState()
   onBeforeRouteLeave(() => {
     if (canLeaveDevSystem(state.hasPendingDevSystemWrite())) return true
@@ -94,7 +94,7 @@ export function useDevSystem() {
 
   // ─── 动作方法 ──────────────────────────────────────────
   function previewPage(pageId: string) {
-    void router.push(buildTenantPath({ tenantId: state.tenantId, projectId: state.projectId }, `/${pageId}`))
+    void router.push(buildApplicationPath({ projectId: state.projectId }, `/${pageId}`))
   }
 
   function switchToPreview() {
@@ -115,7 +115,8 @@ export function useDevSystem() {
 
   function isWorkspaceTabDirty(name: PageToolFileName): boolean {
     void state.projectRevision.value
-    return state.project.readDirtyProjection().dirtyFiles.has(name)
+    void state.externalDataViewRevision.value
+    return state.isPageToolFileDirty(name)
   }
 
   return {

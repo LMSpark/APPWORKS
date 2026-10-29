@@ -136,9 +136,9 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
 
   // ── 路由变化 → 重算活动路径 + 模块上下文 ──
 
-  /** 从实际路由路径中剥离工作台前缀（/t/:tenantId/:projectId/xxx 或 /platform/xxx → /xxx） */
+  /** 从实际路由路径中剥离工作台前缀（/apps/:projectId/xxx 或 /platform/xxx → /xxx） */
   function stripWorkspacePrefix(path: string): string {
-    const match = /^\/t\/[^/]+\/[^/]+(.*)$/.exec(path)
+    const match = /^\/apps\/[^/]+(.*)$/.exec(path)
     if (match) return match[1] ?? '/'
     if (path === PLATFORM_PATH_PREFIX) return '/'
     if (path.startsWith(`${PLATFORM_PATH_PREFIX}/`)) return path.slice(PLATFORM_PATH_PREFIX.length) || '/'
@@ -162,35 +162,25 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     return target.kind === 'route' ? target.path : null
   }
 
-  /** 为裸路径添加当前租户+项目前缀（/xxx → /t/{tenantId}/{projectId}/xxx） */
-  function addTenantPrefix(path: string): string {
+  /** 为裸路径添加当前应用前缀（/xxx → /apps/{projectId}/xxx） */
+  function addApplicationPrefix(path: string): string {
     const normalized = normalizePath(path)
-    const tenantId = route.params['tenantId']
     const projectId = route.params['projectId']
 
-    // 兼容导航里写了模板路径的场景：替换为当前真实值
-    if (normalized.startsWith('/t/:tenantId')) {
-      const resolvedTenant = typeof tenantId === 'string' && tenantId ? tenantId : 'default'
+    // 兼容导航里写了应用模板路径的场景：替换为当前应用 ID。
+    if (normalized.startsWith('/apps/:projectId')) {
       const resolvedProject = typeof projectId === 'string' && projectId ? projectId : 'homepage'
-      // 先替换完整模板 /t/:tenantId/:projectId，再兜底只有 :tenantId 的情况
-      const replaced = normalized.includes('/t/:tenantId/:projectId')
-        ? normalized.replace('/t/:tenantId/:projectId', `/t/${resolvedTenant}/${resolvedProject}`)
-        : normalized.replace('/t/:tenantId', `/t/${resolvedTenant}/${resolvedProject}`)
-      return normalizePath(replaced)
+      return normalizePath(normalized.replace('/apps/:projectId', `/apps/${resolvedProject}`))
     }
 
-    // 已有真实租户前缀 → 直接返回
-    if (normalized.startsWith('/t/')) return normalized
+    if (normalized.startsWith('/apps/')) return normalized
     if (normalized === PLATFORM_PATH_PREFIX || normalized.startsWith(`${PLATFORM_PATH_PREFIX}/`)) return normalized
 
     if (route.path === PLATFORM_PATH_PREFIX || route.path.startsWith(`${PLATFORM_PATH_PREFIX}/`)) {
       return normalizePath(`${PLATFORM_PATH_PREFIX}${normalized}`)
     }
 
-    if (typeof tenantId === 'string' && tenantId) {
-      const resolvedProject = typeof projectId === 'string' && projectId ? projectId : 'homepage'
-      return normalizePath(`/t/${tenantId}/${resolvedProject}${normalized}`)
-    }
+    if (typeof projectId === 'string' && projectId) return normalizePath(`/apps/${projectId}${normalized}`)
     return normalized
   }
 
@@ -449,13 +439,9 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * ──────────────────────────────────────────── */
 
   function pushNamedRoute(command: NamedRoutePush): void {
-    const tenantId = route.params['tenantId']
     const projectId = route.params['projectId']
     const params: Record<string, string> = {}
-    if (command.routePath.startsWith('/t/')) {
-      if (typeof tenantId === 'string' && tenantId) {
-        params['tenantId'] = tenantId
-      }
+    if (command.routePath.startsWith('/apps/')) {
       if (typeof projectId === 'string' && projectId) {
         params['projectId'] = projectId
       }
@@ -488,17 +474,11 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
 
     const refNodeId = node.id
     await refreshRoutes().catch(() => null)
-    const tenantId = route.params['tenantId']
     const projectId = route.params['projectId']
-    if (
-      typeof tenantId === 'string' && tenantId &&
-      typeof projectId === 'string' && projectId &&
-      ensureCrossProjectRefHostRoute()
-    ) {
+    if (typeof projectId === 'string' && projectId && ensureCrossProjectRefHostRoute()) {
       void router.push({
         name: CROSS_PROJECT_REF_HOST_ROUTE_NAME,
         params: {
-          tenantId,
           projectId,
           refNodeId,
         },
@@ -506,7 +486,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       return
     }
 
-    const targetPath = addTenantPrefix(target.path)
+    const targetPath = addApplicationPrefix(target.path)
     void router.push(targetPath)
   }
 
@@ -527,7 +507,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       }
     }
 
-    const targetPath = addTenantPrefix(path)
+    const targetPath = addApplicationPrefix(path)
     const resolvedAlias = router.resolve(targetPath).matched.find(record => record.aliasOf !== undefined
       && record.meta['systemPageIdentityHost'] === true)
     if (resolvedAlias) {
@@ -544,7 +524,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
         }
       }
       visit(navRoot.items)
-      const formalPath = target.kind === 'route' ? addTenantPrefix(target.path) : ''
+      const formalPath = target.kind === 'route' ? addApplicationPrefix(target.path) : ''
       const aliasOf = resolvedAlias.aliasOf
       if (aliasOf === undefined) throw new Error('系统页面 alias 缺少正式目标路由')
       const canonicalPath = aliasOf.path
@@ -634,13 +614,13 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       try {
         const parsed = new URL(url, window.location.origin)
         if (parsed.origin === window.location.origin) {
-          // 解析目标路径中的 projectId：/t/{tenantId}/{projectId}/...
+          // 解析目标路径中的 projectId：/apps/{projectId}/...
           const segments = parsed.pathname.replace(/^\/+/, '').split('/')
-          const targetProjectId = segments[0] === 't' && segments.length >= 3 ? segments[2] : undefined
+          const targetProjectId = segments[0] === 'apps' ? segments[1] : undefined
           const currentProjectId = typeof route.params['projectId'] === 'string' ? route.params['projectId'] : undefined
           if (targetProjectId && currentProjectId && targetProjectId !== currentProjectId && _options?.onCrossAppNavigate) {
             // 跨项目：提取 projectId 之后的路径段
-            const innerPath = `/${segments.slice(3).join('/')}${parsed.search}${parsed.hash}`
+            const innerPath = `/${segments.slice(2).join('/')}${parsed.search}${parsed.hash}`
             void _options.onCrossAppNavigate(targetProjectId, innerPath)
           } else {
             void router.push(parsed.pathname + parsed.search + parsed.hash)

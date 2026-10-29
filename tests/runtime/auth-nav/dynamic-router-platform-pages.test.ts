@@ -22,7 +22,7 @@ async function setup(navigation: RuntimeNavigation = TOOL_NAV) {
   const readPageFile = async (command: PageFileReadCommand) => { requests.push(command); return command.fileName === 'rule.json' ? '[]' : '' }
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
   const loadScenario = vi.fn(async ({ scenarioId }: RuntimeScenarioLoadCommand) => DataSet.fromJson({ scenarioId, dataSetName: scenarioId, tables: {} }))
-  const dynamic = createDynamicRouter({ router, readPageFile, pageComponent: DummyPage, tenantPathPrefix: '/t/:tenantId/:projectId', loadNavigation: async () => navigation, loadScenario })
+  const dynamic = createDynamicRouter({ router, readPageFile, pageComponent: DummyPage, applicationPathPrefix: '/apps/:projectId', loadNavigation: async () => navigation, loadScenario })
   await dynamic.registerRoutes()
   return { router, dynamic, requests, loadScenario }
 }
@@ -84,7 +84,7 @@ function navigationHarness(options: NavigationHarnessOptions = {}) {
       isPlatformNavigationEnabled: () => true,
     } : {}),
     ...(options.preAuth === undefined ? {} : { preAuthNavTree: options.preAuth }),
-    tenantPathPrefix: '/t/:tenantId/:projectId' })
+    applicationPathPrefix: '/apps/:projectId' })
   return { router, dynamic, loads, platformLoads, platformLoadCount: () => platformLoadCount }
 }
 
@@ -111,9 +111,9 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(dynamic.getNavTree()?.id).toBe('newer')
     expect(router.getRoutes().find(route => route.name === 'nav-newer')?.meta['title']).toBe('newer')
     expect(router.getRoutes().some(route => route.name === 'nav-older')).toBe(false)
-    expect(dynamic.getRegisteredRoutes()).toContain('/t/:tenantId/:projectId/newer')
-    expect(dynamic.getRegisteredRoutes()).not.toContain('/t/:tenantId/:projectId/older')
-    expect(dynamic.getRegisteredRoutes()).not.toContain('/t/:tenantId/:projectId/baseline')
+    expect(dynamic.getRegisteredRoutes()).toContain('/apps/:projectId/newer')
+    expect(dynamic.getRegisteredRoutes()).not.toContain('/apps/:projectId/older')
+    expect(dynamic.getRegisteredRoutes()).not.toContain('/apps/:projectId/baseline')
   })
 
   it('does not publish an older success while a newer refresh is pending', async () => {
@@ -156,7 +156,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(dynamic.getNavTree()?.id).toBe('newer')
     expect(router.getRoutes().some(route => route.name === 'nav-newer')).toBe(true)
     expect(router.getRoutes().some(route => route.name === 'nav-public-login')).toBe(false)
-    expect(dynamic.getRegisteredRoutes()).toContain('/t/:tenantId/:projectId/newer')
+    expect(dynamic.getRegisteredRoutes()).toContain('/apps/:projectId/newer')
     expect(dynamic.getRegisteredRoutes()).not.toContain('/login')
   })
 
@@ -250,7 +250,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(dynamic.getNavTree()).toEqual(PRE_AUTH_NAV)
     expect(router.getRoutes().some(route => route.name === 'nav-authorized')).toBe(false)
     expect(dynamic.getRegisteredRoutes()).toContain('/login')
-    expect(dynamic.getRegisteredRoutes()).not.toContain('/t/:tenantId/:projectId/authorized')
+    expect(dynamic.getRegisteredRoutes()).not.toContain('/apps/:projectId/authorized')
   })
 
   it('retains the committed tree when refresh or register fails without pre-auth navigation', async () => {
@@ -276,7 +276,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
     expect(dynamic.getNavTree()?.id).toBe('committed')
     expect(router.getRoutes().some(route => route.name === 'nav-committed')).toBe(true)
-    expect(dynamic.getRegisteredRoutes()).toContain('/t/:tenantId/:projectId/committed')
+    expect(dynamic.getRegisteredRoutes()).toContain('/apps/:projectId/committed')
   })
 
   it('restores managed route snapshots after a synchronous addRoute failure', async () => {
@@ -333,7 +333,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
     expect(dynamic.getNavTree()).toEqual(PRE_AUTH_NAV)
     expect(dynamic.getRegisteredRoutes()).toContain('/login')
-    expect(dynamic.getRegisteredRoutes()).not.toContain('/t/:tenantId/:projectId/authorized')
+    expect(dynamic.getRegisteredRoutes()).not.toContain('/apps/:projectId/authorized')
     expect(router.getRoutes().some(route => route.name === 'nav-authorized')).toBe(false)
     expect(router.getRoutes().some(route => route.name === 'nav-refresh-candidate')).toBe(false)
     expect(router.getRoutes().some(route => route.name === 'nav-malformed-node')).toBe(false)
@@ -350,13 +350,13 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     next.resolve(pageNavigation('second'))
     await dynamic.refreshRoutes()
     expect(router.getRoutes().some(route => route.meta['crossProjectRefHost'] === true)).toBe(true)
-    expect(dynamic.getRegisteredRoutes()).toContain('/t/:tenantId/:projectId/__ref/:refNodeId')
+    expect(dynamic.getRegisteredRoutes()).toContain('/apps/:projectId/__ref/:refNodeId')
   })
 
   it('falls back to pre-auth only when navigation returns 401', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => { throw Object.assign(new Error('Unauthorized'), { status: 401 }) }, preAuthNavTree: PRE_AUTH_NAV, tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/demo/template-dsl': DummyPage } })
+      loadNavigation: async () => { throw Object.assign(new Error('Unauthorized'), { status: 401 }) }, preAuthNavTree: PRE_AUTH_NAV, applicationPathPrefix: '/apps/:projectId', componentMap: { '/demo/template-dsl': DummyPage } })
     await dynamic.registerRoutes()
     expect(dynamic.getRegisteredRoutes()).toContain('/login')
     expect(dynamic.getRegisteredRoutes()).toContain('/demo/template-dsl')
@@ -366,7 +366,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('registers paths without query and creates no runtime during registration', async () => {
     const { router, dynamic, requests, loadScenario } = await setup()
     const route = router.getRoutes().find(item => item.name === 'nav-orders-node')
-    expect(route?.path).toBe('/t/:tenantId/:projectId/__page/orders-node')
+    expect(route?.path).toBe('/apps/:projectId/__page/orders-node')
     expect(route?.meta['pageId']).toBe('orders-tool')
     expect(route?.meta).not.toHaveProperty('dataSpaceBinding')
     expect(dynamic.getPageRuntimeNames()).toEqual([])
@@ -376,7 +376,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
   it('loads independent scenarios and published files once per call; reordered query reactivates the instance', async () => {
     const { router, dynamic, requests, loadScenario } = await setup()
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1&additionalScenarioIds=S3&additionalScenarioIds=S2&zero=0&bare&blank=')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1&additionalScenarioIds=S3&additionalScenarioIds=S2&zero=0&bare&blank=')
     const first = dynamic.getPageRuntime(router.currentRoute.value)
     if (!first) throw new Error('missing runtime')
     await first.load()
@@ -384,19 +384,19 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(requests).toHaveLength(3)
     expect(requests.every(command => command.versionId === 'rule=2;script=1;style=3' && command.pageId === 'orders-tool' && command.projectId === 'APP')).toBe(true)
     expect(first.getDataSet('S1')).not.toBe(first.getDataSet('S2'))
-    await router.push('/t/T/APP/__page/orders-node?blank=&bare&zero=0&additionalScenarioIds=S2&additionalScenarioIds=S3&scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?blank=&bare&zero=0&additionalScenarioIds=S2&additionalScenarioIds=S3&scenarioId=S1')
     expect(dynamic.getPageRuntime(router.currentRoute.value)).toBe(first)
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S2')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S2')
     const second = dynamic.getPageRuntime(router.currentRoute.value)
     expect(second?.instanceId).not.toBe(first.instanceId)
-    await router.push('/t/T/APP/__page/orders-node-2?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node-2?scenarioId=S1')
     expect(dynamic.getPageRuntime(router.currentRoute.value)?.instanceId).not.toBe(first.instanceId)
     expect(dynamic.getPageRuntimeNames()).toHaveLength(3)
   })
 
   it.each(['scenarioId', 'scenarioId=', 'scenarioId=S1&scenarioId=S2', 'additionalScenarioIds=', 'additionalScenarioIds=S1&additionalScenarioIds=S1', 'scenarioId=S1&additionalScenarioIds=S1'])('rejects ambiguous call parameters %s', async query => {
     const { router, dynamic, loadScenario } = await setup()
-    await router.push(`/t/T/APP/__page/orders-node?${query}`)
+    await router.push(`/apps/APP/__page/orders-node?${query}`)
     expect(() => dynamic.getPageRuntime(router.currentRoute.value)).toThrow()
     expect(loadScenario).not.toHaveBeenCalled()
     expect(dynamic.getPageRuntimeNames()).toEqual([])
@@ -405,7 +405,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('retains more than ten calls and refuses dirty closure before releasing any state', async () => {
     const { router, dynamic } = await setup()
     for (let index = 0; index < 12; index++) {
-      await router.push(`/t/T/APP/__page/orders-node?scenarioId=S${index}`)
+      await router.push(`/apps/APP/__page/orders-node?scenarioId=S${index}`)
       dynamic.getPageRuntime(router.currentRoute.value)
     }
     expect(dynamic.getPageRuntimeNames()).toHaveLength(12)
@@ -425,7 +425,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
   it('marks configuration changes without replacing or destroying the current instance', async () => {
     const { router, dynamic } = await setup()
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
     const current = dynamic.getPageRuntime(router.currentRoute.value)
     dynamic.markPageConfigPending('orders-tool')
     expect(dynamic.getPageRuntime(router.currentRoute.value)).toBe(current)
@@ -435,7 +435,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {
     const navigation: RuntimeNavigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const { router, dynamic, requests } = await setup(navigation)
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
     const current = dynamic.getPageRuntime(router.currentRoute.value)
     if (!current) throw new Error('missing runtime')
     await current.load()
@@ -463,12 +463,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'docs', title: 'Docs', itemKind: 'link', linkTarget: 'iframe', path: 'https://example.com/docs' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, loadNavigation: async () => navigation,
-      tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/dashboard': DummyPage } })
+      applicationPathPrefix: '/apps/:projectId', componentMap: { '/dashboard': DummyPage } })
     await dynamic.registerRoutes()
-    const host = router.getRoutes().find(route => route.path === '/t/:tenantId/:projectId/dashboard')
+    const host = router.getRoutes().find(route => route.path === '/apps/:projectId/dashboard')
     expect(host?.meta['type']).toBe('system-page')
     expect(host?.meta).not.toHaveProperty('nodeId')
-    await router.push('/t/T/APP/dashboard')
+    await router.push('/apps/APP/dashboard')
     expect(router.currentRoute.value.meta['nodeId']).toBe('dashboard')
     expect(router.getRoutes().find(route => route.name === 'nav-docs')?.meta['linkUrl']).toBe('https://example.com/docs')
     expect(dynamic.getPageRuntimeNames()).toEqual([])
@@ -483,12 +483,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
         itemKind: 'system-page', path: '/shared?view=two', tool: { projectId: 'APP', pageId: 'page-two' } },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
 
     await dynamic.registerRoutes()
-    const hosts = router.getRoutes().filter(route => route.path === '/t/:tenantId/:projectId/shared')
-    await router.push('/t/T/APP/shared?view=two')
+    const hosts = router.getRoutes().filter(route => route.path === '/apps/:projectId/shared')
+    await router.push('/apps/APP/shared?view=two')
 
     expect(hosts).toHaveLength(1)
     expect(hosts[0]?.meta).not.toHaveProperty('nodeId')
@@ -510,12 +510,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'page-two', title: 'Page Two', itemKind: 'page', path: '/shared?view=two', tool: { projectId: 'APP', pageId: 'tool-two' } },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
 
     await dynamic.registerRoutes()
     const hosts = router.getRoutes().filter(route => route.meta['systemPageIdentityHost'] === true)
-    await router.push('/t/T/APP/shared?view=two&__sparkNavigationId=page-two')
+    await router.push('/apps/APP/shared?view=two&__sparkNavigationId=page-two')
 
     expect(hosts).toHaveLength(1)
     expect(router.currentRoute.value.meta['nodeId']).toBe('page-two')
@@ -528,44 +528,44 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'scenario-view', title: 'Scenario View', itemKind: 'system-page', path: '/shared?scenarioId=S1' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
     await dynamic.registerRoutes()
 
-    await router.push('/t/T/APP/shared?__sparkNavigationId=scenario-view')
+    await router.push('/apps/APP/shared?__sparkNavigationId=scenario-view')
 
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
-    await router.push('/t/T/APP/shared')
+    await router.push('/apps/APP/shared')
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
   })
 
-  it('rejects a tenant marker when the route project differs from the committed navigation project', async () => {
+  it('rejects an application marker when the route project differs from the committed navigation project', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const navigation: RuntimeNavigation = { id: 'root', projectId: 'APP-A', title: 'App A', childPlacement: 'header', items: [
-      { id: 'tenant-view', title: 'Tenant View', itemKind: 'system-page', path: '/shared' },
+      { id: 'application-view', title: 'Application View', itemKind: 'system-page', path: '/shared' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
     await dynamic.registerRoutes()
 
-    await router.push('/t/T/APP-B/shared?__sparkNavigationId=tenant-view')
+    await router.push('/apps/APP-B/shared?__sparkNavigationId=application-view')
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
     expect(router.currentRoute.value.meta).not.toHaveProperty('nodeId')
 
-    await router.push('/t/T/APP-A/shared?__sparkNavigationId=tenant-view')
+    await router.push('/apps/APP-A/shared?__sparkNavigationId=application-view')
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('resolved')
-    expect(router.currentRoute.value.meta['nodeId']).toBe('tenant-view')
+    expect(router.currentRoute.value.meta['nodeId']).toBe('application-view')
 
     const unscopedRouter = createRouter({ history: createMemoryHistory(), routes: [] })
     const unscopedNavigation: RuntimeNavigation = { id: 'catalog', title: 'Catalog', childPlacement: 'header', items: [
       { id: 'catalog-view', title: 'Catalog View', itemKind: 'system-page', path: '/shared' },
     ] }
     const unscopedDynamic = createDynamicRouter({ router: unscopedRouter, pageComponent: DummyPage,
-      loadNavigation: async () => unscopedNavigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => unscopedNavigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
     await unscopedDynamic.registerRoutes()
-    await unscopedRouter.push('/t/T/APP-B/shared?__sparkNavigationId=catalog-view')
+    await unscopedRouter.push('/apps/APP-B/shared?__sparkNavigationId=catalog-view')
     expect(unscopedRouter.currentRoute.value.meta['systemPageIdentityState']).toBe('resolved')
   })
 
@@ -575,11 +575,11 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'hash-view', title: 'Hash View', itemKind: 'system-page', path: '/shared#details?mode=A' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
     await dynamic.registerRoutes()
 
-    await router.push('/t/T/APP/shared?__sparkNavigationId=hash-view#details?mode=A')
+    await router.push('/apps/APP/shared?__sparkNavigationId=hash-view#details?mode=A')
 
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('resolved')
     expect(router.currentRoute.value.hash).toBe('#details?mode=A')
@@ -591,11 +591,11 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'forged-view', title: 'Forged View', itemKind: 'system-page', path: '/shared?__sparkNavigationId=other' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': DummyPage } })
 
     await expect(dynamic.registerRoutes()).rejects.toThrow('系统页面目标使用保留身份参数：forged-view')
-    expect(router.getRoutes().some(route => route.path === '/t/:tenantId/:projectId/shared')).toBe(false)
+    expect(router.getRoutes().some(route => route.path === '/apps/:projectId/shared')).toBe(false)
   })
 
   it('shows an identity error and mounts no business page for ambiguous or invalid markers', async () => {
@@ -613,11 +613,11 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'view-two', title: 'View Two', itemKind: 'system-page', path: '/shared?view=two' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => navigation, tenantPathPrefix: '/t/:tenantId/:projectId',
+      loadNavigation: async () => navigation, applicationPathPrefix: '/apps/:projectId',
       componentMap: { '/shared': BusinessPage } })
     const App = defineComponent({ setup: () => () => h(RouterView) })
     await dynamic.registerRoutes()
-    await router.push('/t/T/APP/shared?__sparkNavigationId=missing')
+    await router.push('/apps/APP/shared?__sparkNavigationId=missing')
     const wrapper = mount(App, { global: { plugins: [router] } })
 
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
@@ -626,9 +626,9 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(businessMounts).toBe(0)
 
     for (const path of [
-      '/t/T/APP/shared?view=one&__sparkNavigationId=view-two',
-      '/t/T/APP/shared?__sparkNavigationId=view-one&__sparkNavigationId=view-two',
-      '/t/T/APP/shared?unrelated=value',
+      '/apps/APP/shared?view=one&__sparkNavigationId=view-two',
+      '/apps/APP/shared?__sparkNavigationId=view-one&__sparkNavigationId=view-two',
+      '/apps/APP/shared?unrelated=value',
     ]) {
       await router.push(path)
       await nextTick()

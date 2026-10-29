@@ -20,7 +20,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/excel-import/lowcode-excel-import'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,8 +49,8 @@ const fields = computed<SparkNode[]>(() => [
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 async function openEditor(): Promise<void> {
   if (!selected.value) return
-  const scope = parseTenantScope(route.path)
-  const path = scope ? buildTenantPath(scope, editorPath) : editorPath
+  const scope = parseApplicationPathScope(route.path)
+  const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
   await router.push({path, query: {importConfigId: selected.value}})
 }
 watch(scenarioId, async id => {

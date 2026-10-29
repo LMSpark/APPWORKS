@@ -385,7 +385,7 @@ describe('DevState 页面文件闭环', () => {
     conflict.capability.name='数据库冲突根'
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:applicationId},{force:true})
+      await state.openEditingProject({projectId:applicationId},{force:true})
       const fixture=createBlueprintRuntimeDataSet(applicationId,conflict)
       blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>
         scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet()
@@ -429,7 +429,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView()
       const tree=await owner.loadProjectTree()
       expect(tree.children?.find(item=>item.nodeId==='GROUPED-PAGE')?.navigation?.beginGroup).toBe(true)
@@ -442,7 +442,7 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const selected=state.selectedNode.value!
       const owner=await state.loadBlueprintWorkspaceDataView()
       await state.selectNode(selected)
@@ -461,7 +461,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const selected=state.treeData.value[0]!
       await state.selectNode(selected)
       expect(state.persistedDataSpaceId.value).toBe('SCENE-SAVED')
@@ -478,7 +478,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.addRootNode()
       expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('通过 Base_NavigationInfo DataView 保存')
       await vi.waitFor(()=>expect(fixture.save).toHaveBeenCalled())
@@ -495,7 +495,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.addRootNode()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(state.statusMessages.value.map(message=>message.text).join('\n')).toContain('不允许新增字段 name')
@@ -507,7 +507,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!
       await state.addChildNode(parent)
       expect(pageFiles.upload).not.toHaveBeenCalled()
@@ -522,7 +522,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.addChildNode(state.treeData.value[0]!)
       expect(pageFiles.upload).not.toHaveBeenCalled()
       expect(fixture.save).not.toHaveBeenCalled()
@@ -535,7 +535,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.addChildNode(state.treeData.value[0]!)
       expect(pageFiles.upload).not.toHaveBeenCalled()
       expect(fixture.save).not.toHaveBeenCalled()
@@ -548,7 +548,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!
       await state.addChildNode(parent)
       expect(state.statusMessages.value.map(item=>item.text).join('\n')).toContain('已在')
@@ -567,7 +567,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const fields=(title:string,order:string,id:string)=>({name:title,FunName:title,funCode:id,conType:'Navitem',conid:'',
@@ -594,7 +594,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const formalRoot=owner.treeProjection(),leaf=formalRoot.children[0]!
@@ -618,7 +618,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
       const root=owner.treeProjection(),leaf=root.children[0]!,updated={...leaf,capability:{...leaf.capability,name:'Partial revised',description:'Partial memo'}}
       const creates=[
@@ -643,7 +643,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
       const root=owner.treeProjection(),leaf=root.children[0]!
       vi.spyOn(owner.view.validator!,'validateColumns').mockImplementation(row=>row['memo']==='REJECT-MIXED'?{valid:false,errors:[{message:'validator rejects mixed memo'}]} as never:{valid:true,errors:[]} as never)
@@ -661,7 +661,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView();await owner.loadProjectTree()
       const root=owner.treeProjection(),leaf=root.children[0]!,updated={...leaf,capability:{...leaf.capability,name:'Confirmed revised',description:'Confirmed memo'}}
       await expect(owner.addAndUpdateChildNodes([{nodeId:'MIXED-CONFIRMED',parentNodeId:root.nodeId,fields:{name:'Mixed confirmed',FunName:'Mixed confirmed',funCode:'MIXED-CONFIRMED',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:mixed-confirmed'}}],[updated])).rejects.toThrow('transport timeout')
@@ -684,7 +684,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
       await owner.loadProjectTree()
       const fields=(title:string,id:string)=>({name:title,FunName:title,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
@@ -718,7 +718,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       await owner.load('MOVE-A')
@@ -751,7 +751,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       await owner.load('MOVE-A')
@@ -773,7 +773,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
       await owner.loadProjectTree()
       const action=owner.view.createChildActionState.bind(owner.view)
@@ -798,7 +798,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
       await owner.loadProjectTree()
       const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
@@ -823,7 +823,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const refresh=owner.view.refresh.bind(owner.view)
@@ -838,7 +838,7 @@ describe('DevState 页面文件闭环', () => {
       expect(owner.hasUnconfirmedSave).toBe(false)
       expect(owner.hasPendingBlueprintCommand).toBe(true)
       expect(state.hasPendingDevSystemWrite()).toBe(true)
-      expect(await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-B'},{force:true})).toBe(false)
+      expect(await state.openEditingProject({projectId:'APP-B'},{force:true})).toBe(false)
       expect(state.blueprintWorkspaceDataView.value?.projectId).toBe('APP-A')
     }finally{ownerScope.stop()}
   })
@@ -848,7 +848,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const fields={name:'New',FunName:'New',funCode:'NEW',conType:'Navitem',FunOrderValue:'1',NavigationUrl:'cfg:new'}
@@ -865,7 +865,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const add=owner.view.addChildRow.bind(owner.view)
@@ -893,7 +893,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),[parentA,parentB]=state.treeData.value
       await owner.loadProjectTree()
       const add=owner.view.addChildRow.bind(owner.view),remove=owner.view.removeRow.bind(owner.view)
@@ -924,7 +924,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
@@ -945,7 +945,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await state.loadBlueprintWorkspaceDataView(),root=state.treeData.value[0]!
       await owner.loadProjectTree()
       const fields=(id:string)=>({name:id,FunName:id,funCode:id,conType:'Navitem',FunOrderValue:'1',NavigationUrl:`cfg:${id.toLowerCase()}`})
@@ -970,7 +970,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!
       await state.addChildNode(parent)
       expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(true)
@@ -990,7 +990,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
       await state.addChildNode(parent)
       expect(owner.hasPendingChildCreate).toBe(true)
@@ -1020,7 +1020,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
       await state.addChildNode(parent)
       const id=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
@@ -1046,7 +1046,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
       await state.addChildNode(parent)
       const id=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
@@ -1082,7 +1082,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!,owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       const refresh=owner.view.refresh.bind(owner.view)
@@ -1107,7 +1107,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const parent=state.treeData.value[0]!
       await state.addChildNode(parent)
       expect(state.blueprintWorkspaceDataView.value?.hasPendingChildCreate).toBe(false)
@@ -1127,7 +1127,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.addRootNode()
       expect(state.blueprintWorkspaceDataView.value?.hasUnconfirmedSave).toBe(true)
       const firstId=fixture.save.mock.calls[0]?.[0].changes[0]?.changes.added?.[0]?.['rowid']
@@ -1145,7 +1145,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
       await state.selectNode(node)
       httpFns.put.mockClear()
@@ -1167,7 +1167,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
       await state.selectNode(node)
       httpFns.put.mockClear()
@@ -1182,7 +1182,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
       httpFns.post.mockClear();httpFns.delete.mockClear()
       const dataSetSave=vi.spyOn(fixture.dataSet,'saveChanges')
@@ -1207,7 +1207,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
       await state.selectNode(node)
       httpFns.post.mockClear();httpFns.delete.mockClear()
@@ -1232,7 +1232,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       const node=state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
       await state.selectNode(node)
       pageFiles.upload.mockImplementationOnce(async(command)=>{
@@ -1246,7 +1246,7 @@ describe('DevState 页面文件闭环', () => {
       expect(commandId).toBeTruthy()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(pageFiles.upload).toHaveBeenCalledTimes(1)
-      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await expect(state.openEditingProject({projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
       await state.saveAll()
       expect(fixture.save).not.toHaveBeenCalled()
       expect(fileView?.rows.find(row=>row['action']==='create')?.['commandId']).toBe(commandId)
@@ -1262,7 +1262,7 @@ describe('DevState 页面文件闭环', () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A')
     mockBlueprintScenarioFixture(fixture.dataSet)
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     const node=first.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!
     await first.selectNode(node)
     pageFiles.upload.mockImplementationOnce(async(command)=>{
@@ -1277,7 +1277,7 @@ describe('DevState 页面文件闭环', () => {
 
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try{
-      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      await expect(second.openEditingProject({projectId:'APP-A'},{force:true})).resolves.toBe(true)
       const recovered=await second.loadBlueprintWorkspaceDataView()
       expect(recovered).toBe(originalOwner)
       expect(second.blueprintPageRuntime.value).toBe(runtime)
@@ -1296,7 +1296,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.selectNode(state.selectedNode.value!)
       expect(state.blueprintDraft.capability.name).toBeUndefined()
       expect(()=>{state.blueprintDraft.capability.name='Should not write'}).toThrow(/权限|字段|不能编辑/)
@@ -1311,7 +1311,7 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
-      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      await expect(state.openEditingProject({projectId:'APP-A'},{force:true})).resolves.toBe(true)
       expect(blueprintRuntime.load).toHaveBeenCalledWith({projectId:'APP-A',scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY})
       expect(fixture.readAllPages()).toBe(true)
       expect(state.blueprintWorkspaceDataView.value?.hasTreeProjection).toBe(true)
@@ -1322,7 +1322,7 @@ describe('DevState 页面文件闭环', () => {
   })
 
   it('首载 DataView 失败时隐藏缓存树且不回退 ProjectWorkspace gateway', async () => {
-    const cached=getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})
+    const cached=getAppProjectBlueprintWorkspace({projectId:'APP-A'})
     cached.project.replaceBlueprintTree(blueprintRoot([node('STALE-NODE','缓存节点','cfg:stale','APP-A')],'APP-A'))
     const fixture=createBlueprintRuntimeDataSet('APP-A')
     let failBlueprintLoad=true
@@ -1334,7 +1334,7 @@ describe('DevState 页面文件闭环', () => {
     const ownerScope=effectScope()
     const state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       expect(state.treeData.value).toEqual([])
       expect(httpFns.get).not.toHaveBeenCalled()
       expect(state.statusMessages.value.some(item=>item.text.includes('fixture DataView unavailable'))).toBe(true)
@@ -1352,7 +1352,7 @@ describe('DevState 页面文件闭环', () => {
     const fixture=createBlueprintRuntimeDataSet('homepage',root)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
-    await state.openEditingProject({tenantId:'tenant-a',projectId:'homepage'},{force:true})
+    await state.openEditingProject({projectId:'homepage'},{force:true})
     await state.selectNode(state.selectedNode.value!)
     state.blueprintDraft.navigation!.title='尚未保存的基本信息'
     state.markBlueprintDirty()
@@ -1376,8 +1376,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeById(leaf.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除')||item.text.includes('删除节点失败'))).toBe(true))
@@ -1394,8 +1394,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeById(deniedRoot.children![0]!.nodeId)
       await nextTick()
@@ -1412,8 +1412,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeById(parent.nodeId)
       await nextTick()
@@ -1427,8 +1427,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeById('OTHER-PROJECT')
       await nextTick()
@@ -1443,8 +1443,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       state.removeNodeById(leaf.nodeId)
@@ -1471,7 +1471,7 @@ describe('DevState 页面文件闭环', () => {
     const fixture=createBlueprintRuntimeDataSet('APP-A',root,{deleteAllowed:true},true)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     const firstOwner=await first.loadBlueprintWorkspaceDataView()
     const runtime=first.blueprintPageRuntime.value
     await firstOwner.loadProjectTree()
@@ -1482,7 +1482,7 @@ describe('DevState 页面文件闭环', () => {
     expect(runtime?.destroyed).toBe(false)
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try {
-      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})).resolves.toBe(true)
+      await expect(second.openEditingProject({projectId:'APP-A'},{force:true})).resolves.toBe(true)
       httpFns.scopeToken='different-auth-context'
       expect((await import('@/lowcode/lowcode-runtime')).lowcodeApi.readRequestScope().token).toBe('different-auth-context')
       await expect(second.loadBlueprintWorkspaceDataView()).rejects.toThrow('认证请求作用域已变化')
@@ -1512,7 +1512,7 @@ describe('DevState 页面文件闭环', () => {
       try{return await nativeSave(command)}catch(error){accepted();await settlePromise;throw error}
     })
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
     await owner.loadProjectTree()
     const deletion=owner.removeLeafNode(leaf.nodeId,'APP-A',leaf.parentNodeId)
@@ -1527,7 +1527,7 @@ describe('DevState 页面文件闭环', () => {
 
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try{
-      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await second.openEditingProject({projectId:'APP-A'},{force:true})
       const recovered=await second.loadBlueprintWorkspaceDataView()
       expect(recovered).toBe(owner)
       expect(second.blueprintPageRuntime.value).toBe(runtime)
@@ -1553,19 +1553,19 @@ describe('DevState 页面文件闭环', () => {
       const next=createBlueprintRuntimeDataSet(projectId).dataSet;opened.push(next);return next
     })
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     const firstOwner=await first.loadBlueprintWorkspaceDataView(),firstRuntime=first.blueprintPageRuntime.value
     firstScope.stop()
     expect(firstRuntime?.destroyed).toBe(true)
 
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try{
-      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await second.openEditingProject({projectId:'APP-A'},{force:true})
       const sameProjectOwner=await second.loadBlueprintWorkspaceDataView()
       expect(sameProjectOwner).not.toBe(firstOwner)
       expect(second.blueprintPageRuntime.value).not.toBe(firstRuntime)
       expect(sameProjectOwner.dataSet).not.toBe(opened[0])
-      await expect(second.openEditingProject({tenantId:'tenant-a',projectId:'APP-B'},{force:true})).resolves.toBe(true)
+      await expect(second.openEditingProject({projectId:'APP-B'},{force:true})).resolves.toBe(true)
       const otherProjectOwner=await second.loadBlueprintWorkspaceDataView()
       expect(otherProjectOwner.projectId).toBe('APP-B')
       expect(otherProjectOwner).not.toBe(sameProjectOwner)
@@ -1575,17 +1575,17 @@ describe('DevState 页面文件闭环', () => {
 
   it('同项目 SPA scope 重叠时拒绝第二个活动 owner lease，旧 scope 清理后可重新 acquire',async()=>{
     const ownerScope=effectScope(),ownerState=ownerScope.run(()=>useDevState())!
-    await ownerState.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await ownerState.openEditingProject({projectId:'APP-A'},{force:true})
     const original=await ownerState.loadBlueprintWorkspaceDataView()
     const overlappingScope=effectScope(),overlapping=overlappingScope.run(()=>useDevState())!
     try{
-      await overlapping.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await overlapping.openEditingProject({projectId:'APP-A'},{force:true})
       await expect(overlapping.loadBlueprintWorkspaceDataView()).rejects.toThrow('DEV_SYSTEM_OWNER_LEASE_ACTIVE')
     }finally{overlappingScope.stop()}
     ownerScope.stop()
     const nextScope=effectScope(),next=nextScope.run(()=>useDevState())!
     try{
-      await next.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await next.openEditingProject({projectId:'APP-A'},{force:true})
       const acquired=await next.loadBlueprintWorkspaceDataView()
       expect(acquired).not.toBe(original)
     }finally{nextScope.stop()}
@@ -1598,8 +1598,8 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       const owner=await state.loadBlueprintWorkspaceDataView()
       await owner.loadProjectTree()
       state.removeNodeById(leaf.nodeId)
@@ -1622,13 +1622,13 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try {
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.loadBlueprint()
       pageFiles.files.set('mounted-page/rule.json','[]')
-      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('已删除'))).toBe(true))
-      expect('deleteNode' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      expect('deleteNode' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       expect(httpFns.delete).not.toHaveBeenCalled()
       expect(fixture.save).toHaveBeenCalled()
     } finally {ownerScope.stop()}
@@ -1646,9 +1646,9 @@ describe('DevState 页面文件闭环', () => {
     pageFiles.files.set('guard-page/rule.json','{}')
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       state.removeNodeById('OTHER-PROJECT')
       await nextTick()
       expect(fixture.save).not.toHaveBeenCalled()
@@ -1664,7 +1664,7 @@ describe('DevState 页面文件闭环', () => {
     pageFiles.files.set('fail-page/rule.json','{}')
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
       state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
@@ -1682,9 +1682,9 @@ describe('DevState 页面文件闭环', () => {
     pageFiles.remove.mockRejectedValueOnce(Error('explicit file delete rejection'))
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>/部分成功|蓝图.*已删除.*文件/.test(item.text))).toBe(true))
       const fileView=fixture.dataSet.getView('PageToolFilesCommand')
@@ -1692,7 +1692,7 @@ describe('DevState 页面文件闭环', () => {
       expect(typeof commandId).toBe('string')
       expect(fixture.save).toHaveBeenCalled()
       expect(state.statusMessages.value.some(item=>item.text.includes('部分成功'))).toBe(true)
-      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await expect(state.openEditingProject({projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
       await state.saveAll()
       expect(fileView?.rows.find(row=>row['action']==='delete')?.['commandId']).toBe(commandId)
       expect(pageFiles.remove).toHaveBeenCalledTimes(2)
@@ -1707,15 +1707,15 @@ describe('DevState 页面文件闭环', () => {
     pageFiles.files.set('unknown-page/rule.json','{}')
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.loadBlueprintWorkspaceDataView().then(owner=>owner.loadProjectTree())
-      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({tenantId:'tenant-a',projectId:'APP-A'})).toBe(false)
+      expect('removeMountedPage' in getAppProjectBlueprintWorkspace({projectId:'APP-A'})).toBe(false)
       state.removeNodeById(mounted.nodeId)
       await vi.waitFor(()=>expect(state.statusMessages.value.some(item=>item.text.includes('删除节点失败'))).toBe(true))
       expect([...pageFiles.files.keys()]).toContain('unknown-page/rule.json')
       expect(pageFiles.remove).not.toHaveBeenCalled()
       expect(fixture.save.mock.calls[0]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['MOUNTED-UNKNOWN'])
-      await expect(state.openEditingProject({tenantId:'tenant-a',projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
+      await expect(state.openEditingProject({projectId:'OTHER-PROJECT'},{force:true})).resolves.toBe(false)
       await state.saveAll()
       expect(fixture.save).toHaveBeenCalledTimes(2)
       expect(fixture.save.mock.calls[1]?.[0].changes[0]?.changes.deleted?.map(row=>row['rowid'])).toEqual(['MOUNTED-UNKNOWN'])
@@ -1731,7 +1731,7 @@ describe('DevState 页面文件闭环', () => {
     pageFiles.files.set('scope-delete-page/rule.json','{}')
     pageFiles.remove.mockRejectedValueOnce(Error('temporary file delete failure'))
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     const owner=await first.loadBlueprintWorkspaceDataView(),runtime=first.blueprintPageRuntime.value
     await owner.loadProjectTree()
     first.removeNodeById(mounted.nodeId)
@@ -1744,7 +1744,7 @@ describe('DevState 页面文件闭环', () => {
 
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try{
-      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await second.openEditingProject({projectId:'APP-A'},{force:true})
       const recovered=await second.loadBlueprintWorkspaceDataView()
       expect(recovered).toBe(owner)
       expect(second.blueprintPageRuntime.value).toBe(runtime)
@@ -1781,13 +1781,13 @@ describe('DevState 页面文件闭环', () => {
     expect(state.project.getActivePage()?.isLoaded).toBe(false)
   })
 
-  it('通过文件命令 DataView 恢复版本并同步同一个 PageTool', async () => {
+  it('通过文件命令 DataView 恢复版本并回读同一个文件 DataView', async () => {
     const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.selectNode(state.treeData.value[0]!)
       pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
       pageFiles.files.set('demo/script.js','working baseline');pageFiles.files.set('demo/style.css','.restored { color: red; }')
@@ -1795,36 +1795,39 @@ describe('DevState 页面文件闭环', () => {
       const page=state.project.getActivePage()!
       expect(page.pageId).toBe('demo')
       page.hydrateFileText('script.js','working baseline')
+      const fileView=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'}),fileRow=fileView.currentRow,fileId=fileRow&&fileView.getPkKey(fileRow)
+      if(fileId===null||fileId===undefined)throw new Error('fixture file row has no DataView identity')
       pageFiles.files.set('demo/4__script.js','restored text')
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!
       const save=vi.spyOn(dataSet,'saveChanges')
       await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:4,assertCurrent:()=>{}}))
         .resolves.toBe('restored text')
       expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFilesCommand',viewId:'default',ids:[expect.any(String)]}]})
-      expect(page.getFileText('script.js')).toBe('restored text')
-      expect(page.getSavedFileText('script.js')).toBe('restored text')
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('restored text')
+      expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
       expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(false)
       expect(pageFiles.files.get('demo/4__script.js')).toBe('restored text')
       expect('restoreRemotePageVersion' in state.editor).toBe(false)
       pageFiles.files.set('demo/5__script.js','second restored text')
       pageFiles.restoreWorkingFile.mockImplementationOnce(async(command:{pageId:string;fileName:string;text:string})=>{
         pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)
-        page.setFileText('script.js','new local edit')
+        await fileView.editRowById(fileId,{text:'new local edit'})
+        state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'new local edit'})
       })
       await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:5,assertCurrent:()=>{}}))
         .rejects.toThrow('PAGE_TOOL_RESTORE_REMOTE_CONFIRMED_LOCAL_CHANGED')
       expect(pageFiles.files.get('demo/script.js')).toBe('second restored text')
-      expect(page.getFileText('script.js')).toBe('new local edit')
-      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(true)
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('new local edit')
+      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(false)
     }finally{ownerScope.stop()}
   })
 
-  it('确认后 UI 目标变更时保留恢复回执，SPA 重开后交付到原 PageTool', async () => {
+  it('确认后 UI 目标变更时保留恢复回执，SPA 重开后回读原文件 DataView', async () => {
     const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root)
     mockBlueprintScenarioFixture(fixture.dataSet)
     const firstScope=effectScope(),first=firstScope.run(()=>useDevState())!
-    await first.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+    await first.openEditingProject({projectId:'APP-A'},{force:true})
     await first.selectNode(first.treeData.value[0]!)
     pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
     pageFiles.files.set('demo/script.js','working baseline');pageFiles.files.set('demo/style.css','')
@@ -1842,7 +1845,7 @@ describe('DevState 页面文件闭环', () => {
     const input={projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js' as const,version:4,
       assertCurrent:()=>{if(!uiCurrent)throw new Error('UI target switched')}}
     await expect(first.restorePageToolVersion(input)).rejects.toThrow('UI target switched')
-    expect(page.getFileText('script.js')).toBe('working baseline')
+    expect(first.readPageToolFileDataViewText('demo','script.js')).toBe('working baseline')
     expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
     expect(first.hasPendingDevSystemWrite()).toBe(true)
     firstScope.stop()
@@ -1850,14 +1853,14 @@ describe('DevState 页面文件闭环', () => {
 
     const secondScope=effectScope(),second=secondScope.run(()=>useDevState())!
     try{
-      await second.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await second.openEditingProject({projectId:'APP-A'},{force:true})
       const owner=await second.loadBlueprintWorkspaceDataView()
       expect(owner.dataSet).toBe(dataSet)
       await second.selectNode(second.treeData.value[0]!)
       expect(second.project.getActivePage()).toBe(page)
       await expect(second.restorePageToolVersion({...input,assertCurrent:()=>{}})).resolves.toBe('restored text')
-      expect(page.getFileText('script.js')).toBe('restored text')
-      expect(page.getSavedFileText('script.js')).toBe('restored text')
+      expect(second.readPageToolFileDataViewText('demo','script.js')).toBe('restored text')
+      expect(pageFiles.files.get('demo/script.js')).toBe('restored text')
       expect(second.hasPendingDevSystemWrite()).toBe(false)
       expect(dataSet.saveChanges).toHaveBeenCalledTimes(1)
     }finally{secondScope.stop()}
@@ -1869,14 +1872,17 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.selectNode(state.treeData.value[0]!)
       pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
       pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','.restored { color: red; }')
       await ensureDevStateActivePageLoaded(state)
       const page=state.project.getActivePage()!
       page.hydrateFileText('script.js','baseline');pageFiles.files.set('demo/1__script.js','snapshot')
-      page.setFileText('script.js','dirty')
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'}),row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture file row has no DataView identity')
+      await view.editRowById(id,{text:'dirty'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'dirty'})
       await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:1,assertCurrent:()=>{}}))
         .rejects.toThrow('PAGE_TOOL_RESTORE_LOCAL_PENDING')
       pageFiles.upload.mockImplementationOnce(async(command:{pageId:string;fileName:string;text:string})=>{
@@ -1885,7 +1891,6 @@ describe('DevState 页面文件闭环', () => {
         throw error
       })
       await expect(state.savePageToolFile({pageId:'demo',fileName:'script.js'})).rejects.toThrow('timeout after accept')
-      page.hydrateFileText('script.js','dirty')
       await expect(state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:1,assertCurrent:()=>{}}))
         .rejects.toThrow('PAGE_TOOL_RESTORE_LOCAL_PENDING')
       expect(pageFiles.upload).toHaveBeenCalledOnce()
@@ -1901,7 +1906,7 @@ describe('DevState 页面文件闭环', () => {
     mockBlueprintScenarioFixture(fixture.dataSet)
     const scope=effectScope(),state=scope.run(()=>useDevState())!
     try{
-      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
       await state.selectNode(state.treeData.value[0]!)
       pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
       pageFiles.files.set('demo/script.js','before');pageFiles.files.set('demo/style.css','')
@@ -1912,13 +1917,110 @@ describe('DevState 页面文件闭环', () => {
       if(id===null||id===undefined)throw new Error('fixture file row has no DataView identity')
       await view.editRowById(id,{text:'submitted'})
       state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'submitted'})
-      expect(page.getSavedFileText('script.js')).toBe('before')
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('submitted')
       expect(view.dirtyTracking.getOriginal(id)?.['text']).toBe('before')
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
       await state.savePageToolFile({pageId:'demo',fileName:'script.js'})
-      expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'page-demo',ids:[id]}]})
+      expect(save).toHaveBeenCalledWith({views:[{tableName:'PageToolFileSave',viewId:'page-demo-script.js',ids:[id]}]})
       expect(pageFiles.files.get('demo/script.js')).toBe('submitted')
-      expect(page.getSavedFileText('script.js')).toBe('submitted')
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('submitted')
+    }finally{scope.stop()}
+  })
+
+  it('keeps script and style drafts in separate file DataViews and saves each exact change',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','script baseline');pageFiles.files.set('demo/style.css','style baseline')
+      await ensureDevStateActivePageLoaded(state)
+      const page=state.project.getActivePage()!
+      page.hydrateFileText('script.js','script baseline');page.hydrateFileText('style.css','style baseline')
+
+      const scriptView=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const scriptRow=scriptView.currentRow,scriptId=scriptRow&&scriptView.getPkKey(scriptRow)
+      if(scriptId===null||scriptId===undefined)throw new Error('fixture script row has no DataView identity')
+      await scriptView.editRowById(scriptId,{text:'script edited'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'script edited'})
+
+      const styleView=await state.loadPageToolFileDataView({pageId:'demo',fileName:'style.css'})
+      const styleRow=styleView.currentRow,styleId=styleRow&&styleView.getPkKey(styleRow)
+      if(styleId===null||styleId===undefined)throw new Error('fixture style row has no DataView identity')
+      await styleView.editRowById(styleId,{text:'style edited'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'style.css',text:'style edited'})
+
+      expect(scriptView).not.toBe(styleView)
+      expect(scriptView.viewId).toBe('page-demo-script.js')
+      expect(styleView.viewId).toBe('page-demo-style.css')
+      expect(scriptView.getEditingRow(scriptId)?.['text']).toBe('script edited')
+      expect(styleView.getEditingRow(styleId)?.['text']).toBe('style edited')
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
+      await state.savePageToolFile({pageId:'demo',fileName:'script.js'})
+      await state.savePageToolFile({pageId:'demo',fileName:'style.css'})
+      expect(save).toHaveBeenNthCalledWith(1,{views:[{tableName:'PageToolFileSave',viewId:'page-demo-script.js',ids:[scriptId]}]})
+      expect(save).toHaveBeenNthCalledWith(2,{views:[{tableName:'PageToolFileSave',viewId:'page-demo-style.css',ids:[styleId]}]})
+      expect(pageFiles.files.get('demo/script.js')).toBe('script edited')
+      expect(pageFiles.files.get('demo/style.css')).toBe('style edited')
+    }finally{scope.stop()}
+  })
+
+  it('Save All independently submits a node DataView draft and the changed file DataView only',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','before');pageFiles.files.set('demo/style.css','unchanged')
+      await ensureDevStateActivePageLoaded(state)
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      owner.update('memo','node change')
+      state.markBlueprintDirty()
+      const fileView=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const fileId=fileView.currentRow&&fileView.getPkKey(fileView.currentRow)
+      if(fileId===null||fileId===undefined)throw new Error('fixture file row has no DataView identity')
+      await fileView.editRowById(fileId,{text:'file change'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'file change'})
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
+      await state.saveAll()
+      expect(save.mock.calls.some(([command])=>command?.views?.some(view=>view.tableName==='PageToolFileSave'&&view.viewId==='page-demo-script.js'))).toBe(true)
+      expect(pageFiles.files.get('demo/script.js')).toBe('file change')
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.fileName==='script.js')).toHaveLength(1)
+      expect(pageFiles.upload.mock.calls.some(([command])=>command.fileName==='rule.json'||command.fileName==='style.css')).toBe(false)
+      expect(state.statusMessages.value[0]?.text).toBe('全部保存已确认')
+    }finally{scope.stop()}
+  })
+
+  it('does not promote a PageTool-only draft into the file DataView during ordinary save',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','saved baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const page=state.project.getActivePage()!;page.hydrateFileText('script.js','saved baseline')
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
+
+      page.setFileText('script.js','PageTool-only draft')
+      await expect(state.savePageToolFile({pageId:'demo',fileName:'script.js'})).resolves.toBeUndefined()
+
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      expect(id).toBeDefined()
+      expect(view.hasEditingChanges()).toBe(false)
+      expect(save).not.toHaveBeenCalled()
+      expect(pageFiles.files.get('demo/script.js')).toBe('saved baseline')
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('saved baseline')
     }finally{scope.stop()}
   })
 
@@ -2043,7 +2145,7 @@ describe('DevState 页面文件闭环', () => {
     expect(httpMock.post).not.toHaveBeenCalledWith('project-blueprint:homepage', expect.anything())
   })
 
-  it('可打开其他租户项目模型编辑，保存时不刷新当前 APP 导航', async () => {
+  it('可打开其他应用模型编辑，保存时不刷新当前 APP 导航', async () => {
     const state = useDevState()
     const delegatedRoot: ProjectBlueprintTreeData = {
       ...blueprintRoot([], 'delegated-app'),
@@ -2055,12 +2157,9 @@ describe('DevState 页面文件闭环', () => {
     const fixture=createBlueprintRuntimeDataSet('delegated-app',delegatedRoot)
     mockBlueprintScenarioFixture(fixture.dataSet)
 
-    state.projectPicker.tenantId = 'tenant-b'
-    state.projectPicker.projectId = 'delegated-app'
+        state.projectPicker.projectId = 'delegated-app'
 
     await expect(state.openProjectPickerScope()).resolves.toBe(true)
-
-    expect(state.tenantId).toBe('tenant-b')
     expect(state.projectId).toBe('delegated-app')
     expect(state.treeData.value[0]?.nodeId).toBe('delegated-node')
     expect(state.activePageId.value).toBe('delegated-page')

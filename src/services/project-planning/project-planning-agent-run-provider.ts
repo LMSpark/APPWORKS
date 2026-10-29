@@ -154,9 +154,8 @@ function createBlueprintArtifact(status: AiDeliveryArtifact['status']): AiDelive
 }
 
 type ProjectPlanningAgentRunScope = Readonly<{
-  tenantId: string
   projectId: string
-  scopeKey: string
+  projectScopeKey: string
   agentScopeKey: string
   saveBlueprintAfterRun: boolean
 }>
@@ -165,10 +164,7 @@ export const prepareProjectPlanningAgentRun: AiAgentRunPrepare<AiAgentHost> = as
   if (event.alias !== PROJECT_PLANNING_MODULE_ID) return bridgeHost
 
   const scope = readProjectPlanningAgentRunScope(event.args, event.requestId)
-  const editor = createHeadlessProjectPlanningEditor({
-    tenantId: scope.tenantId,
-    projectId: scope.projectId,
-  })
+  const editor = createHeadlessProjectPlanningEditor({projectId: scope.projectId})
   const runtime = new PageRuntime({
     pageId: 'project-planning-agent-run',
     scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
@@ -265,9 +261,8 @@ function createScopedProjectPlanningHost(
           ...(result.resultExtras ?? {}),
           ...createAiDeliveryResultExtras(deliveryResult),
           projectPlanning: {
-            tenantId: scope.tenantId,
             projectId: scope.projectId,
-            projectScopeKey: scope.scopeKey,
+            projectScopeKey: scope.projectScopeKey,
             agentScopeKey: scope.agentScopeKey,
             blueprintDirty: editor.project.blueprintDirty,
             savedBlueprint: deliveryResult.status === 'saved',
@@ -313,17 +308,14 @@ function readProjectPlanningAgentRunScope(
   args: Record<string, unknown>,
   requestId?: string,
 ): ProjectPlanningAgentRunScope {
-  const tenantId = readRequiredString(args, 'tenantId')
   const projectId = readRequiredString(args, 'projectId')
   const saveBlueprintAfterRun = readOptionalBoolean(args, 'saveBlueprintAfterRun') === true
-  const scopeKey = `${tenantId}:${projectId}`
   return {
-    tenantId,
     projectId,
-    scopeKey,
+    projectScopeKey: projectId,
     agentScopeKey: requestId === undefined || requestId.trim().length === 0
-      ? scopeKey
-      : `${scopeKey}:${requestId.trim()}`,
+      ? projectId
+      : `${projectId}:${requestId.trim()}`,
     saveBlueprintAfterRun,
   }
 }

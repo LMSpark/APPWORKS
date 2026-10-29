@@ -7,7 +7,6 @@ const fixtures = vi.hoisted(() => ({
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeApi: {
-    session: {get: () => ({enterprise: {shortName: 'Tenant'}})},
     readRequestScope: () => ({token: 'scope-1', headers: {}}),
   },
   readLowcodeRuntimeNavigation: async () => fixtures.navigation,
@@ -22,7 +21,7 @@ describe('project settings with incomplete application classification', () => {
   it('omits projectType when the application directory has no readable classification', async () => {
     fixtures.application = {id: 'APP-1', name: 'Beta'}
 
-    const settings = await loadProjectRuntimeSettings('Tenant', 'APP-1')
+    const settings = await loadProjectRuntimeSettings('APP-1')
 
     expect(settings.project).not.toHaveProperty('projectType')
   })
@@ -33,7 +32,7 @@ describe('project settings with incomplete application classification', () => {
   ] as const)('preserves known IsSys classification %s', async (isDefault, projectType) => {
     fixtures.application = {id: 'APP-1', name: 'Beta', isDefault}
 
-    const settings = await loadProjectRuntimeSettings('Tenant', 'APP-1')
+    const settings = await loadProjectRuntimeSettings('APP-1')
 
     expect(settings.project.projectType).toBe(projectType)
   })

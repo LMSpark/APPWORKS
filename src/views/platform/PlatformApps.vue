@@ -44,7 +44,7 @@ import {PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent, type RTo
 import {lowcodeApi, lowcodeEnterpriseDisplayName, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {buildTenantPath} from '@/services/tenant-scope'
+import {buildApplicationPath} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 
 const MODEL = 'Base_AppSystemList'
@@ -160,7 +160,7 @@ async function enterProject(project: {projectId: string; name: string}): Promise
     if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
     const receipt = await projectSwitch.switchAndReload(project.projectId)
     receipt.assertCurrent()
-    const failure = await router.push(buildTenantPath({tenantId: principal.enterpriseName, projectId: project.projectId}, getNavHomePath()))
+    const failure = await router.push(buildApplicationPath({projectId: project.projectId}, getNavHomePath()))
     receipt.assertCurrent()
     if (failure) throw new Error('应用页面导航未完成')
   } catch (cause) {ElMessage.error(`进入应用失败: ${cause instanceof Error ? cause.message : String(cause)}`)}

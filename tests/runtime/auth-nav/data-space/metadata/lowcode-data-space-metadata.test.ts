@@ -12,7 +12,7 @@ import type { RequestConfig } from '@spark-appworks/spark-utils'
 
 const mocks = vi.hoisted(() => ({
   scope: vi.fn(), readSpaceDefinition: vi.fn(), readModelBatch: vi.fn(), readRelations: vi.fn(), request: vi.fn(),
-  readConfiguration: vi.fn(), gateways: vi.fn(),
+  readConfiguration: vi.fn(), gateways: vi.fn(), fileUpload: {uploadWorkingText: vi.fn()},
 }))
 
 vi.mock('@/lowcode/lowcode-runtime', async () => {
@@ -28,7 +28,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
     readRequestScope: mocks.scope,
     dataSpace: {design: {readSpaceDefinition: mocks.readSpaceDefinition, readModelBatch: mocks.readModelBatch, readRelations: mocks.readRelations},
       runtime: new DataSpaceRuntimeApi({http, readScope: mocks.scope})},
-  }, createLowcodeProjectGateways: mocks.gateways }
+  }, createLowcodeProjectGateways: mocks.gateways, lowcodeDesignFileUpload: mocks.fileUpload }
 })
 
 import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -844,16 +844,16 @@ describe('data-space metadata DataSet', () => {
     expect((await openMetadataSession()).view.rows[0]?.['inputParams']).toBe('[]')
   })
 
-  it.each(['lost-response', 'server-rejection'])('resolves native recovery without replaying a %s', async failure => {
+  it.each(['lost-response', 'server-rejection'])('holds a %s result for native verification before any replay', async failure => {
     const {rows, raw, space} = declarationRows()
     installRows(rows, {loseSaveResponse: failure === 'lost-response', rejectSave: failure === 'server-rejection'})
     const {session, view} = await openMetadataSession()
     session.stageInputParameters({expectedValue: raw, value: []})
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/response lost|server rejected/)
-    expect(session.getInputParameterState()).toMatchObject({status: failure === 'lost-response' ? 'unknown' : 'unsubmitted', pending: true})
+    expect(session.getInputParameterState()).toMatchObject({status: 'unknown', pending: true})
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验|PENDING/)
     if (failure === 'lost-response') await expect(session.reloadInputParameters({discardPending: false})).resolves.toEqual([])
-    else await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow(/本地|PENDING/)
+    else await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
     expect(saveRequests()).toHaveLength(1)
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     await session.reloadInputParameters({discardPending: true})
@@ -1232,7 +1232,7 @@ describe('data-space metadata DataSet', () => {
     expect(first.scenarioId).toBe(DATA_SPACE_DESIGN_FORM_KEY)
     expect(first.dataSetName).toBe('元数据正式空间')
     expect(mocks.readSpaceDefinition).toHaveBeenCalledWith(expect.objectContaining({
-      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: DATA_SPACE_DESIGN_FORM_KEY}))
+      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: DATA_SPACE_DESIGN_FORM_KEY}), undefined)
     for (const tableName of tables) {
       const table = first.getTable(tableName)
       expect(table?.columns.some(column => column.name === 'rowid')).toBe(true)

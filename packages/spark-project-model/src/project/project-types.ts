@@ -154,8 +154,6 @@ export type ProjectPlanningCompletionResult = Readonly<{
 
 /** 固定项目身份及项目信息，不替代正式蓝图节点四组合同。 */
 export type ProjectInfo = {
-  /** 租户 ID；多租户环境下用于隔离项目。 */
-  tenantId?: string | undefined
   /** 项目唯一 ID。 */
   projectId: string
   /** 项目名称。 */

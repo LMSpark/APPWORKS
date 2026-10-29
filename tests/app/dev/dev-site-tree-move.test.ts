@@ -2,9 +2,9 @@ import {defineComponent, h, ref, shallowRef} from 'vue'
 import {mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {describe, expect, it, vi} from 'vitest'
-import {DataSet, type DataRow} from '@spark-appworks/spark-data'
+import {DataSet, buildDataViewKey, resolveDataViewKey, type DataRow} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {PAGE_RUNTIME, RendererTree, Spark, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldText, PAGE_RUNTIME, RendererButton, RendererTree, Spark, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
 import {BlueprintWorkspaceDataView, isBlueprintViewAttachedToRuntime} from '@/services/project/blueprint-workspace-dataview'
@@ -38,10 +38,10 @@ function createOwner():{owner:BlueprintWorkspaceDataView;dataSet:DataSet} {
   return {owner:new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>undefined),dataSet}
 }
 
-function createBuiltinFileOwner():{owner:BlueprintWorkspaceDataView;dataSet:DataSet} {
+function createBuiltinFileOwner(nodeName='Orders'):{owner:BlueprintWorkspaceDataView;dataSet:DataSet} {
   const rows:DataRow[]=[
     {rowid:'ROOT',SysId:'D99A1DCE9894698799101EFD70F8FC76',prowid:'000000',FunOrderValue:0,name:'AppWorks',FunName:'AppWorks',conType:'Model',NavigationImageWxz:'Grid',NavigationUrl:'',ChildItemLocation:'Left'},
-    {rowid:'NODE-A',SysId:'D99A1DCE9894698799101EFD70F8FC76',prowid:'ROOT',FunOrderValue:0,name:'Orders',FunName:'Orders',conType:'Navitem',NavigationImageWxz:'Document',NavigationUrl:'cfg:orders',ChildItemLocation:'Left'},
+    {rowid:'NODE-A',SysId:'D99A1DCE9894698799101EFD70F8FC76',prowid:'ROOT',FunOrderValue:0,name:nodeName,FunName:nodeName,conType:'Navitem',NavigationImageWxz:'Document',NavigationUrl:'cfg:orders',ChildItemLocation:'Left'},
   ]
   const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','conType','NavigationImageWxz','NavigationUrl','ChildItemLocation']
   const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:{
@@ -67,18 +67,25 @@ function createBuiltinFileOwner():{owner:BlueprintWorkspaceDataView;dataSet:Data
 }
 
 describe('ProjectBlueprintTree standard DataView consumer',()=>{
-  it('binds a local file owner through the standard dataSource contract without inventing a model key',async()=>{
+  it('binds a local file owner through its exact resource DataView key',async()=>{
     const {owner,dataSet}=createBuiltinFileOwner()
     await owner.loadProjectTree()
     const runtime=new PageRuntime({pageId:'builtin-project-blueprint-tree-consumer',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY],
       mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,loadScenario:async()=>dataSet})
     await runtime.load()
     expect(isBlueprintViewAttachedToRuntime(runtime,LOWCODE_APPLICATION_CATALOG_FORM_KEY,owner)).toBe(true)
-    const other=createBuiltinFileOwner()
+    const fileViewKey=buildDataViewKey(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,owner.view.viewId,LOWCODE_APPLICATION_CATALOG_FORM_KEY)
+    expect(resolveDataViewKey(fileViewKey,dataSet)).toBe(owner.view)
+    const other=createBuiltinFileOwner('Other App')
     expect(isBlueprintViewAttachedToRuntime(runtime,LOWCODE_APPLICATION_CATALOG_FORM_KEY,other.owner)).toBe(false)
-    other.owner.dispose();other.dataSet.destroy()
+    const otherRuntime=new PageRuntime({pageId:'other-builtin-project-blueprint-tree-consumer',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+      mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,loadScenario:async()=>other.dataSet})
+    await otherRuntime.load()
+    expect(otherRuntime.resolveView(fileViewKey)).toBe(other.owner.view)
+    expect(otherRuntime.resolveView(fileViewKey)).not.toBe(owner.view)
+    other.owner.dispose();otherRuntime.dispose();other.dataSet.destroy()
     const state={projectId:'D99A1DCE9894698799101EFD70F8FC76',project:{rootNode:{id:'ROOT'}},blueprintWorkspaceDataView:shallowRef(owner),blueprintLoading:ref(false),
-      selectedNode:ref(null),addRootNode:vi.fn(),openProjectPlanningDocumentImportDialog:vi.fn(),childCreateActionState:()=> 'disabled',
+      selectedNode:ref(null),addRootNode:vi.fn(),openProjectPlanningDocumentImportDialog:vi.fn(),childCreateActionState:()=> 'enabled',
       addChildNodeById:vi.fn(),selectNodeById:vi.fn(),moveBlueprintNodeRelative:vi.fn(),removeNodeById:vi.fn(),addStatus:vi.fn()} as unknown as DevState
     const registry=Spark.createRegistry();registry.register({type:'r-tree',component:RendererTree})
     const Host=defineComponent({setup(){useSparkComponent({type:'builtin-project-blueprint-tree-host'}).sparkProvide(PAGE_RUNTIME,runtime)
@@ -86,8 +93,13 @@ describe('ProjectBlueprintTree standard DataView consumer',()=>{
     const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry})]}})
     try{
       const tree=wrapper.findComponent(RendererTree)
-      expect(tree.props('dataViewKey')).toBeUndefined()
-      expect(tree.props('dataSource')).toBe(owner.view)
+      expect(tree.props('dataViewKey')).toBe(fileViewKey)
+      expect(tree.props('dataSource')).toBeUndefined()
+      const fieldNodes=wrapper.findAllComponents(FieldText)
+      expect(fieldNodes.length).toBeGreaterThan(0)
+      expect(fieldNodes.every(field=>field.props('dataViewKey')===fileViewKey&&!('dataSource' in field.props()))).toBe(true)
+      const boundActions=wrapper.findAllComponents(RendererButton).filter(button=>button.props('dataViewKey')===fileViewKey)
+      expect(boundActions.length).toBeGreaterThan(0)
       expect(tree.text()).toContain('Orders')
     }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })

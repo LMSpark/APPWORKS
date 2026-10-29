@@ -16,6 +16,8 @@
 3. 字段共享组合函数在 `fields/context/`、`fields/options/`、`fields/data-components/composables/`
 4. 编辑器入口 `editors/`
 
+页面脚本与样式等字符串字段使用 `FieldCodeEditor`，通过完整 `dataViewKey`、`currentRow` 和字段名绑定；它复用标准字段权限及编辑链。底层 `SparkCodeEditor` 只负责代码输入表面，不承担页面数据读写或保存。
+
 命名约定：
 
 1. `actions`：交互动作、按钮行为、弹窗能力、选择器能力

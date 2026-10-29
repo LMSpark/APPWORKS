@@ -20,7 +20,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()
 const router = useRouter()
@@ -60,8 +60,8 @@ async function openEditor(): Promise<void> {
   if (selected.value) await openEditorRoute(selected.value, false)
 }
 async function openEditorRoute(codeDesignId: string, create: boolean): Promise<void> {
-  const scope = parseTenantScope(route.path)
-  const path = scope ? buildTenantPath(scope, editorPath) : editorPath
+  const scope = parseApplicationPathScope(route.path)
+  const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
   await router.push({path, query: {codeDesignId, ...(create ? {create: '1'} : {})}})
 }
 watch(scenarioId, async id => {

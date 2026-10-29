@@ -13,7 +13,7 @@ import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import {loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 // --- project-switch ---
@@ -30,9 +30,7 @@ export const PROJECT_SWITCH_KEY: InjectionKey<ProjectSwitchService> = Symbol('pr
 
 /** Project Workspace Scope 的语义模型。 */
 export type ProjectWorkspaceScope = {
-  /** 租户 ID，用于多租户 API 隔离；作为 ProjectWorkspace 缓存键的一部分（tenantId:projectId）。 */
-  tenantId: string
-  /** 项目 ID，标识 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。 */
+  /** 应用 ID，标识 ProjectWorkspace 绑定的应用；未提供时回退到用户当前应用或 homepage。 */
   projectId: string
 }
 
@@ -43,19 +41,15 @@ const projectBlueprintWorkspaces = new Map<string, ProjectWorkspace>()
 
 function resolveProjectScope(scope?: Partial<ProjectApiScope>): ProjectWorkspaceScope {
   const principal = readLowcodePrincipal()
-  const scopedTenantId = scope?.tenantId?.trim()
   const scopedProjectId = scope?.projectId?.trim()
-  const tenantId = scopedTenantId && scopedTenantId.length > 0
-    ? scopedTenantId
-    : (principal?.enterpriseName ?? 'platform')
   const projectId = scopedProjectId && scopedProjectId.length > 0
     ? scopedProjectId
     : (principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
-  return { tenantId, projectId }
+  return { projectId }
 }
 
 function toScopeKey(scope: ProjectWorkspaceScope): string {
-  return `${scope.tenantId}:${scope.projectId}`
+  return scope.projectId
 }
 
 function createScopedProjectWorkspace(scope: ProjectWorkspaceScope): ProjectWorkspace {
@@ -65,7 +59,6 @@ function createScopedProjectWorkspace(scope: ProjectWorkspaceScope): ProjectWork
     scenarioDefinitions: loadLowcodeScenarioDefinitions,
   })
   workspace.project.replaceProjectInfo({
-    tenantId: scope.tenantId,
     projectId: scope.projectId,
   })
   return workspace

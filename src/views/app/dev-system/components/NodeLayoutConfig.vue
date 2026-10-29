@@ -29,11 +29,9 @@ const blueprintComponentBinding=computed(()=>{
   return owner?.projectId===state.projectId?owner.standardComponentBinding:undefined
 })
 const blueprintViewKey=computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
-const blueprintDirectSource=computed(()=>blueprintComponentBinding.value?.dataSource)
-const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
-  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
 const blueprintFieldProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
-const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
+const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value))
 const placementOptions=[
   {value:'Top',label:'顶部'},
   {value:'Left',label:'左侧'},

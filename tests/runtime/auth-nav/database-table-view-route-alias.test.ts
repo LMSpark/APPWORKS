@@ -8,7 +8,7 @@ import {DATABASE_TABLE_VIEW_SCENARIO_ID} from '../page/database/database-table-v
 
 const CANONICAL_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'
 const LEGACY_PATH = '/DataBaseManage/TableAndView'
-const TENANT_PREFIX = '/t/:tenantId/:projectId'
+const APPLICATION_PREFIX = '/apps/:projectId'
 const TABLE_VIEW_NODE_ID = 'table-view-target'
 
 const hosts: Array<ReturnType<typeof createDynamicRouter>> = []
@@ -37,7 +37,7 @@ async function setup(loadNavigation: () => Promise<RuntimeNavigation>) {
   const componentAliases = getVuePageRouteAliases()
   expect(componentMap[CANONICAL_PATH]).toBeDefined()
   const dynamic = createDynamicRouter({router, pageComponent: componentMap[CANONICAL_PATH]!, componentMap,
-    componentAliases, tenantPathPrefix: TENANT_PREFIX, loadNavigation})
+    componentAliases, applicationPathPrefix: APPLICATION_PREFIX, loadNavigation})
   hosts.push(dynamic)
   return {router, dynamic}
 }
@@ -53,15 +53,15 @@ describe('database TableAndView legacy Router alias', () => {
     const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode()]))
     await dynamic.registerRoutes()
 
-    const canonicalRoutePath = `/t/TENANT/APP${CANONICAL_PATH}`
-    const legacyRoutePath = `/t/TENANT/APP${LEGACY_PATH}`
-    const canonicalRecord = router.getRoutes().find(route => route.path === TENANT_PREFIX + CANONICAL_PATH)
-    const aliasRecord = router.getRoutes().find(route => route.path === TENANT_PREFIX + LEGACY_PATH)
+    const canonicalRoutePath = `/apps/APP${CANONICAL_PATH}`
+    const legacyRoutePath = `/apps/APP${LEGACY_PATH}`
+    const canonicalRecord = router.getRoutes().find(route => route.path === APPLICATION_PREFIX + CANONICAL_PATH)
+    const aliasRecord = router.getRoutes().find(route => route.path === APPLICATION_PREFIX + LEGACY_PATH)
     expect(aliasRecord, 'the declared legacy path must be a Vue Router alias route').toBeDefined()
     expect(aliasRecord?.aliasOf?.path).toBe(canonicalRecord?.path)
     const resolvedAlias = router.resolve(`${legacyRoutePath}?databaseId=DB-A`)
     expect(resolvedAlias.path).toBe(legacyRoutePath)
-    expect(resolvedAlias.matched[0]?.path).toBe(TENANT_PREFIX + LEGACY_PATH)
+    expect(resolvedAlias.matched[0]?.path).toBe(APPLICATION_PREFIX + LEGACY_PATH)
     expect(resolvedAlias.matched[0]?.aliasOf?.path).toBe(canonicalRecord?.path)
 
     let canonicalInstanceId: string | undefined
@@ -72,12 +72,12 @@ describe('database TableAndView legacy Router alias', () => {
       expect(route.path).toBe(path)
       expect(route.fullPath).toBe(`${path}?databaseId=${databaseId}`)
       expect(route.matched[0]?.aliasOf?.path).toBe(databaseId === 'DB-A' ? canonicalRecord?.path : undefined)
-      expect(route.matched[0]?.meta['systemPageIdentityPath']).toBe(TENANT_PREFIX + CANONICAL_PATH)
+      expect(route.matched[0]?.meta['systemPageIdentityPath']).toBe(APPLICATION_PREFIX + CANONICAL_PATH)
       const instance = dynamic.getSystemPageInstance(route)
       expect(route.query['databaseId']).toBe(databaseId)
       expect(route.meta['nodeId']).toBe(TABLE_VIEW_NODE_ID)
       expect(route.meta['blueprintScenarioId']).toBe(DATABASE_TABLE_VIEW_SCENARIO_ID)
-      expect(route.meta['systemPageIdentityPath']).toBe(TENANT_PREFIX + CANONICAL_PATH)
+      expect(route.meta['systemPageIdentityPath']).toBe(APPLICATION_PREFIX + CANONICAL_PATH)
       expect(instance).toBeDefined()
       if (databaseId === 'DB-CANONICAL') canonicalInstanceId = instance?.instanceId
       expect(SystemPageIdentityResolver.forRouter(router).resolveComponent(route)).toBe(instance?.view)
@@ -101,14 +101,14 @@ describe('database TableAndView legacy Router alias', () => {
     const secondOwner = {...formalTableViewNode(), id: 'table-view-target-2', title: '表和视图管理副入口'}
     const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode(), secondOwner]))
     await expect(dynamic.registerRoutes()).resolves.toBeUndefined()
-    expect(router.getRoutes().filter(route => route.path === TENANT_PREFIX + LEGACY_PATH)).toHaveLength(1)
+    expect(router.getRoutes().filter(route => route.path === APPLICATION_PREFIX + LEGACY_PATH)).toHaveLength(1)
   })
 
   it('resolves the shared legacy alias only when navigation supplies the selected formal owner marker', async () => {
     const secondOwner = {...formalTableViewNode(), id: 'table-view-target-2', title: '表和视图管理副入口'}
     const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode(), secondOwner]))
     await dynamic.registerRoutes()
-    const legacyRoutePath = `/t/TENANT/APP${LEGACY_PATH}`
+    const legacyRoutePath = `/apps/APP${LEGACY_PATH}`
     await router.push(`${legacyRoutePath}?databaseId=DB-A`)
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
     expect(router.currentRoute.value.meta['systemPageIdentityError']).toMatch(/多个导航项/)
@@ -122,7 +122,7 @@ describe('database TableAndView legacy Router alias', () => {
     const {router, dynamic} = await setup(async () => rootNavigation([]))
     await dynamic.registerRoutes()
 
-    const legacyRoutePath = `/t/TENANT/APP${LEGACY_PATH}`
+    const legacyRoutePath = `/apps/APP${LEGACY_PATH}`
     expect(router.resolve(`${legacyRoutePath}?databaseId=DB-A`).matched).toHaveLength(0)
     await router.push(`${legacyRoutePath}?databaseId=DB-A`)
     expect(router.currentRoute.value.matched).toHaveLength(0)
@@ -137,16 +137,16 @@ describe('database TableAndView legacy Router alias', () => {
     const {router, dynamic} = await setup(async () => rootNavigation([formalTableViewNode(), conflict]))
 
     await expect(dynamic.registerRoutes()).rejects.toThrow(/alias|别名|冲突/i)
-    expect(router.getRoutes().some(route => route.path === TENANT_PREFIX + LEGACY_PATH)).toBe(false)
+    expect(router.getRoutes().some(route => route.path === APPLICATION_PREFIX + LEGACY_PATH)).toBe(false)
   })
 
   it('removes the legacy alias when a route refresh removes its formal owner', async () => {
     let current = rootNavigation([formalTableViewNode()])
     const {router, dynamic} = await setup(async () => current)
     await dynamic.registerRoutes()
-    const legacyRoutePath = `/t/TENANT/APP${LEGACY_PATH}`
-    const aliasRecord = router.getRoutes().find(route => route.path === TENANT_PREFIX + LEGACY_PATH)
-    expect(aliasRecord?.aliasOf?.path).toBe(TENANT_PREFIX + CANONICAL_PATH)
+    const legacyRoutePath = `/apps/APP${LEGACY_PATH}`
+    const aliasRecord = router.getRoutes().find(route => route.path === APPLICATION_PREFIX + LEGACY_PATH)
+    expect(aliasRecord?.aliasOf?.path).toBe(APPLICATION_PREFIX + CANONICAL_PATH)
 
     current = rootNavigation([])
     await dynamic.refreshRoutes()

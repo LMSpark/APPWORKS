@@ -114,7 +114,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
 import { lowcodeApi, lowcodeEnterpriseDisplayName } from '@/lowcode/lowcode-runtime'
-import { buildTenantPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import TenantConfigPanel from './TenantConfigPanel.vue'
@@ -317,7 +317,7 @@ async function enterTenant(row: PlatformTenant): Promise<void> {
   try {
     const receipt = await projectSwitch.switchAndReload(projectId)
     receipt.assertCurrent()
-    await router.push(buildTenantPath({ tenantId: row.tenantId, projectId }, getNavHomePath()))
+    await router.push(buildApplicationPath({ projectId }, getNavHomePath()))
   } catch (error: unknown) {
     ElMessage.error(`进入租户失败: ${errorMessage(error)}`)
   }

@@ -7,7 +7,7 @@ AI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式
 <template>
   <section class="stage-pane">
     <RendererForm v-if="fieldAccess.read" :auto-columns="false" :show-data-view-meta="false" label-width="110px">
-      <DisplayText label="已保存场景" :model-value="state.persistedDataSpaceId.value || '未绑定'" tag="span" />
+      <DisplayText label="已保存场景" :value="state.persistedDataSpaceId.value || '未绑定'" tag="span" />
     </RendererForm>
     <DisplayAlert v-if="!fieldAccess.read" title="当前查询没有返回场景字段或读取权限" alert-type="warning" />
     <DisplayAlert v-if="state.sceneBindingPending.value" title="场景绑定尚未通过顶栏保存并正式回读；请先保存或取消节点修改，再加载设计器。" alert-type="warning" />

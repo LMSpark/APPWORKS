@@ -11,6 +11,12 @@ import type { ProjectPageSurface, ProjectDescriptionContext, ProjectBlueprintTre
 
 export function normalizePageIdFromPath(path: string | undefined | null): string { return path ? path.replace(/^cfg:/, '').replace(/^\/+/, '').split('?')[0]?.trim() ?? '' : '' }
 export function normalizeConfigPageId(value: string | undefined | null): string { return value?.trim() ?? '' }
+export function parseConfigToolPageId(target: string | undefined | null): string {
+  if (!target?.startsWith('cfg:')) return ''
+  const pageId = target.slice(4)
+  return pageId.length > 0 && pageId.trim() === pageId && pageId !== '.' && pageId !== '..'
+    && !/[\\/%\u0000-\u001f\u007f?#]/.test(pageId) ? pageId : ''
+}
 export function isConfigNodeKind(kind: RuntimeNavigationItemKind | undefined | null): boolean { return kind === 'page' }
 export function resolveProjectPageSurface(node: ProjectBlueprintTreeNodeData): ProjectPageSurface {
   const kind = projectNodeDeliveryKind(node)
@@ -40,7 +46,7 @@ export function findNodeLocation(nodes: readonly ProjectBlueprintTreeNodeData[],
 export function resolvePageNodePageId(node: ProjectBlueprintTreeNodeData | null | undefined): string {
   if (!node || projectNodeDeliveryKind(node) !== 'page') return ''
   const target = node.navigation?.target
-  return target?.startsWith('cfg:') === true ? normalizePageIdFromPath(target) : target?.startsWith('/__page/') === true ? normalizePageIdFromPath(target.slice('/__page/'.length)) : ''
+  return target?.startsWith('cfg:') === true ? parseConfigToolPageId(target) : target?.startsWith('/__page/') === true ? normalizePageIdFromPath(target.slice('/__page/'.length)) : ''
 }
 export function resolveNavPageSummaryId(node: ProjectBlueprintTreeNodeData): string { return resolvePageNodePageId(node) || (projectNodeDeliveryKind(node) === 'system-page' ? normalizePageIdFromPath(node.navigation?.target) : '') }
 export function findConfigNodeByPageId(nodes: readonly ProjectBlueprintTreeNodeData[], pageId: string): ProjectBlueprintTreeNodeData | null { return findPageNodeByPageId(nodes, pageId) }

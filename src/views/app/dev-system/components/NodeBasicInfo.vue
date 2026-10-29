@@ -80,11 +80,9 @@ const blueprintComponentBinding = computed(()=>{
   return owner?.projectId===props.state.projectId?owner.standardComponentBinding:undefined
 })
 const blueprintViewKey = computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
-const blueprintDirectSource = computed(()=>blueprintComponentBinding.value?.dataSource)
-const blueprintContainerProps = computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
-  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintContainerProps = computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
 const blueprintFieldProps = computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
-const blueprintBindingReady = computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
+const blueprintBindingReady = computed(()=>Boolean(blueprintViewKey.value))
 /** Selects blueprint domains for the shared DataView-backed editor; omitted means every section. */
 type Section = 'capability' | 'navigation' | 'navigation-target' | 'data-space' | 'prototype'
 const props = defineProps<{state:DevState;sections?:readonly Section[]}>()

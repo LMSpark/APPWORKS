@@ -6,6 +6,8 @@
  */
 export { default as FieldText } from './text/FieldText/FieldText.vue'
 export { default as FieldTextarea } from './text/FieldTextarea/FieldTextarea.vue'
+export { default as FieldCodeEditor } from './text/FieldCodeEditor/FieldCodeEditor.vue'
+export type { RCodeEditorProps } from './text/FieldCodeEditor/FieldCodeEditor.props'
 export { default as FieldJson } from './text/FieldJson/FieldJson.vue'
 export type { RJsonProps } from './text/FieldJson/FieldJson.props'
 export { default as FieldHtmlEditor } from './text/FieldHtmlEditor/FieldHtmlEditor.vue'

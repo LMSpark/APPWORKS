@@ -1,18 +1,16 @@
-# 平台、企业、项目蓝图与运行路由
+# 平台、应用、项目蓝图与运行路由
 
-AppWorks 以 lowcode 会话中的企业和应用身份建立运行作用域。项目蓝图表达完整项目策划；运行导航只是蓝图经过运行候选筛选和后端授权后的输出。
+AppWorks 前端路由以应用身份建立运行作用域，不在 URL 中表达租户。登录会话和后端继续负责认证上下文。项目蓝图表达完整项目策划；运行导航只是蓝图经过运行候选筛选和后端授权后的输出。
 
 ## 层级
 
 ```text
 平台
-  -> 企业 enterprise
-      -> 应用 project
-          -> 项目蓝图 ProjectBlueprint
-              -> 模块 / 需求 / 原型 / 数据空间 / 页面 / 子页面 / 报表 / 流程 / 动作
+  -> 应用 project
+      -> 项目蓝图 ProjectBlueprint
+          -> 模块 / 需求 / 原型 / 数据空间 / 页面 / 子页面 / 报表 / 流程 / 动作
 ```
 
-- 企业身份来自 lowcode 登录会话。
 - 应用身份来自 lowcode 应用目录和当前会话。
 - 蓝图平铺记录来自平台数据库；前端只投影树，不创建第二套身份。
 - 运行菜单由 `RuntimeNavigation` / `RuntimeNavigationItem` 表达，不等于完整项目蓝图。
@@ -42,10 +40,10 @@ AppWorks 以 lowcode 会话中的企业和应用身份建立运行作用域。�
 URL 形式：
 
 ```text
-/t/{enterpriseShortName}/{projectId}/{pagePath}
+/apps/{projectId}/{pagePath}
 ```
 
-`src/services/tenant-scope.ts` 只负责解析和构造作用域路径。真实企业和应用必须与 lowcode 会话对账；浏览器不得从 cookie、任意 query 或本地默认值发明平台身份。
+`src/services/application-scope.ts` 只负责解析和构造应用路径。应用身份与 lowcode 会话对账；前端不从 URL 解析或维护租户路由身份。
 
 ## 项目切换
 

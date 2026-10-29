@@ -4,14 +4,19 @@
  * 边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
  * AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/composables/useDevFileEditor。
  */
-import { computed, watch, type Ref } from 'vue'
+import { computed, type Ref } from 'vue'
 import type { DevState } from '../useDevState'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 
-/** 页面内容页签绑定 — 内存读写经 ProjectBlueprint，加载/保存经 ProjectWorkspace。 */
+/** 页面内容页签绑定 — 文本与编辑状态经文件 DataView，持久化经 DataSet/ProjectWorkspace。 */
 export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageToolFileName>>) {
-  const editor = state.editor
   const project = state.project
+  function fileState(name:PageToolFileName){
+    void state.externalDataViewRevision.value
+    const pageId=state.activePageId.value
+    if(!pageId)return undefined
+    try{return state.pageToolFileDataViewState(pageId,name)}catch{return undefined}
+  }
 
   function alignActivePage(): boolean {
     const pageId = state.activePageId.value.trim()
@@ -23,39 +28,37 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
   }
 
   const isReady = computed(() => {
-    void state.projectRevision.value
-    return project.isActivePageLoaded()
+    const pageId=state.activePageId.value
+    return pageId!==''&&project.getActivePage()?.pageId===pageId
   })
-  const isDirty = computed(() => isFileDirty(activeFile.value))
-  const isUnconfirmed = computed(() => {
-    void state.projectRevision.value
-    return editor.unconfirmedPageFiles.some(item => item.pageId === state.activePageId.value && item.fileName === activeFile.value)
-  })
+  const isDirty = computed(() => fileState(activeFile.value)?.dirty ?? false)
+  const isUnconfirmed = computed(() => fileState(activeFile.value)?.unconfirmed ?? false)
   const canUndo = computed(() => {
     void state.projectRevision.value
-    return project.canUndoPageFile(activeFile.value)
+    return fileState(activeFile.value)?.view.dirtyTracking.hasPendingChanges() ?? false
   })
   const canRedo = computed(() => {
     void state.projectRevision.value
-    return project.canRedoPageFile(activeFile.value)
+    return false
   })
   const text = computed(() => {
     void state.projectRevision.value
-    return project.readPageFileText(activeFile.value)
+    void state.externalDataViewRevision.value
+    const pageId=state.activePageId.value
+    if(!pageId)return ''
+    return state.readPageToolFileDataViewText(pageId,activeFile.value)
   })
 
   async function ensureLoaded(options?: { forceReload?: boolean }) {
-    if (!state.activePageId.value) return
-    if (options?.forceReload !== true && project.isActivePageLoaded()) return
+    const pageId=state.activePageId.value
+    if (!pageId) return
     if (!alignActivePage()) return
-    const loadOptions: { forceReload?: boolean } = {}
-    if (options?.forceReload === true) loadOptions.forceReload = true
-    await editor.ensureActivePageFilesLoaded(loadOptions)
+    await state.loadPageToolFileDataView({pageId,fileName:activeFile.value,forceReload:options?.forceReload===true})
   }
 
   function isFileDirty(name: PageToolFileName): boolean {
     void state.projectRevision.value
-    return project.readDirtyProjection().dirtyFiles.has(name)
+    return fileState(name)?.dirty ?? false
   }
 
   async function save() {
@@ -80,15 +83,6 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     try {await ensureLoaded({ forceReload: true })}
     catch (cause) {state.addStatus(`文件重载未完成：${String(cause)}`, 'error'); throw cause}
   }
-
-  watch(
-    () => state.activePageId.value,
-    (pageId) => {
-      if (!pageId) return
-      void ensureLoaded().catch(cause => state.addStatus(`工具文件加载失败：${String(cause)}`, 'error'))
-    },
-    { immediate: true },
-  )
 
   return {
     isReady,

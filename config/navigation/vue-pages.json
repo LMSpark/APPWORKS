@@ -57,7 +57,7 @@
       "path": "/settings",
       "title": "设置",
       "icon": "Setting",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/tenant/Settings.vue"
     },
     {
@@ -81,7 +81,7 @@
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/tenant/AppList.vue"
     },
     {
@@ -98,7 +98,7 @@
       "path": "/tenants",
       "title": "租户管理",
       "icon": "OfficeBuilding",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/platform/PlatformTenantManagement.vue",
       "description": "平台租户管理工作台"
     },
@@ -106,7 +106,7 @@
       "path": "/apps",
       "title": "平台应用管理",
       "icon": "Grid",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/platform/PlatformApps.vue",
       "description": "跨租户项目入口"
     },

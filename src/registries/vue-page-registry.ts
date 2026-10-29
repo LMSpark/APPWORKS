@@ -19,7 +19,7 @@ const VUE_PAGES_PROTOCOL = 'spark-appworks.vue-pages'
 const VUE_PAGES_SCHEMA_VERSION = 1
 
 /** Page Scope 的语义模型。 */
-export type PageScope = 'public' | 'tenant' | 'app'
+export type PageScope = 'public' | 'catalog' | 'app'
 
 /** Vue Page Config Entry 的语义模型。 */
 type VuePageConfigEntry = Readonly<{
@@ -33,7 +33,7 @@ type VuePageConfigEntry = Readonly<{
   icon?: string
   /** 页面描述；用于导航提示和 AI 理解页面功能。 */
   description?: string
-  /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */
+  /** 页面来源范围；public 用于登录前页面，catalog 用于应用目录，app 用于已选应用中的工具页。 */
   scope: PageScope
   /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */
   source: string
@@ -57,7 +57,7 @@ type VuePageEntry = Readonly<Omit<VuePageConfigEntry, 'path'> & {
   load: () => Promise<{ default: Component }>
 }>
 
-const PAGE_SCOPE_VALUES: ReadonlySet<string> = new Set(['public', 'tenant', 'app'])
+const PAGE_SCOPE_VALUES: ReadonlySet<string> = new Set(['public', 'catalog', 'app'])
 
 const vuePageModules = import.meta.glob<{ default: Component }>('../views/**/*.vue')
 const vuePagesConfig = parseVuePagesConfig(vuePagesDocument)
@@ -65,7 +65,7 @@ const vuePagesConfig = parseVuePagesConfig(vuePagesDocument)
 /**
  * 路径 -> Vue 组件页面注册表。
  *
- * key 是不含租户前缀的应用内路径；entry.load 由 source 绑定到 Vite 动态 import。
+ * key 是不含应用前缀的应用内路径；entry.load 由 source 绑定到 Vite 动态 import。
  */
 const VUE_PAGE_REGISTRY: Readonly<Record<string, VuePageEntry>> = Object.fromEntries(
   vuePagesConfig.pages.map(page => [page.path, createVuePageEntry(page)]),
@@ -234,7 +234,7 @@ function parseVuePage(value: unknown, path: string): VuePageConfigEntry {
   }
   const scope = requiredString(page, 'scope', path)
   if (!PAGE_SCOPE_VALUES.has(scope)) {
-    throw new Error(`${path}.scope must be one of public, tenant, app.`)
+    throw new Error(`${path}.scope must be one of public, catalog, app.`)
   }
   const hidden = optionalBoolean(page, 'hidden', path)
   const shellTool = optionalBoolean(page, 'shellTool', path)
@@ -302,8 +302,8 @@ function isPlainRecord(value: unknown): value is Readonly<Record<string, unknown
 }
 
 function readPageScope(value: string, path: string): PageScope {
-  if (value === 'public' || value === 'tenant' || value === 'app') return value
-  throw new Error(`${path}.scope must be one of public, tenant, app.`)
+  if (value === 'public' || value === 'catalog' || value === 'app') return value
+  throw new Error(`${path}.scope must be one of public, catalog, app.`)
 }
 
 function requiredString(

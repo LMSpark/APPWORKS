@@ -7,6 +7,8 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
 <template>
   <section v-if="state.selectedNode.value" class="blueprint-workspace" v-loading="loading">
     <div class="blueprint-workspace__actions">
+      <DisplayTag v-if="autoSavePresentation" :content="autoSavePresentation.content" :tag-type="autoSavePresentation.tagType"
+        size="small" :effect="autoSavePresentation.effect" />
       <RendererButton label="取消节点修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
       <RendererButton label="保存节点修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')" />
     </div>
@@ -32,10 +34,11 @@ import {
   type LowcodeBlueprintFileName,
 } from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import {DisplayEmpty, PAGE_RUNTIME, RendererButton, RendererTabPane, RendererTabs, useSparkComponent} from '@spark-appworks/spark-component'
+import {DisplayEmpty, DisplayTag, PAGE_RUNTIME, RendererButton, RendererTabPane, RendererTabs, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import type { DataView } from '@spark-appworks/spark-data'
 import PrototypePane from './PrototypePane.vue'
 import BlueprintReadonlyInfo from './BlueprintReadonlyInfo.vue'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY as BLUEPRINT_SCENARIO_ID } from '@spark-appworks/spark-lowcode-api'
@@ -59,6 +62,15 @@ const activeStage = ref('basic')
 const activeExtension = ref('estimate')
 const loading = ref(false)
 const saving = ref(false)
+const autoSavePresentation = computed(() => {
+  switch (props.state.autoSaveStatus?.value ?? 'idle') {
+    case 'pending': return {content:'待保存…',tagType:'info' as const,effect:'plain' as const}
+    case 'saving': return {content:'保存中…',tagType:'info' as const,effect:'dark' as const}
+    case 'saved': return {content:'已自动保存',tagType:'success' as const,effect:'plain' as const}
+    case 'error': return {content:'保存失败',tagType:'danger' as const,effect:'plain' as const}
+    default: return undefined
+  }
+})
 let loadRevision = 0
 let disposed = false
 const session = shallowRef<BlueprintWorkspaceDataView>()
@@ -158,7 +170,8 @@ function cancelEdits(): void {
 async function saveDelivery() {
   const nodeId = props.state.selectedNode.value?.nodeId
   const pageId = props.state.activePageId.value
-  if (!nodeId || !pageId || saving.value || loading.value) return
+  if (!nodeId || saving.value || loading.value) return
+  if (!pageId) {props.state.addStatus('交付工具身份必须与当前项目及页面一致', 'error'); return}
   const projectId = props.state.projectId
   const current = session.value
   if (!current || !deliveryAccess.value) {props.state.addStatus('发布交付要求当前 DataView 可读 NavigationUrl、VersionId 且允许写 VersionId', 'warning'); return}
@@ -167,11 +180,21 @@ async function saveDelivery() {
   const originalNavigationUrl = String(current.value('NavigationUrl') ?? '')
   let expectedVersionId = String(current.value('VersionId') ?? '')
   const originalWorkspace = readyWorkspace.value
-  const texts = new Map((['rule.json', 'script.js', 'style.css'] as const).map(name => [name, props.state.project.readPageFileText(name)]))
+  const fileNames=['rule.json','script.js','style.css'] as const satisfies readonly LowcodeBlueprintFileName[]
+  let fileViews=new Map<LowcodeBlueprintFileName,DataView>()
   const written: string[] = []
   const confirmed: string[] = []
   const attemptedSnapshots: string[] = []
   const attemptedReferences: string[] = []
+  const readFileText=(fileName:LowcodeBlueprintFileName):string=>{
+    const view=fileViews.get(fileName)
+    const row=view?.currentRow,id=row&&view?.getPkKey(row)
+    const edited=id===null||id===undefined?row:view?.getEditingRow(id)??row
+    if(!view||!row||!edited||row['pageId']!==pageId||row['fileName']!==fileName||typeof edited['text']!=='string')throw new Error(`${fileName} 文件 DataView 身份或文本无效`)
+    if(view.dirtyTracking.hasPendingChanges(id!)||view.hasEditingChanges(id!))throw new Error(`${fileName} 存在未保存的文件 DataView 修改，不能发布`)
+    if(view.hasUnconfirmedSave)throw new Error(`${fileName} 的文件 DataView 提交回执仍待核验，不能发布`)
+    return edited['text']
+  }
   const assertTarget = (allowOnlyOwnedVersionPatch = false) => {
     if (disposed || props.state.selectedNode.value?.nodeId !== nodeId || props.state.activePageId.value !== pageId
       || props.state.projectId !== projectId || lowcodeApi.readRequestScope().token !== scopeToken
@@ -206,19 +229,22 @@ async function saveDelivery() {
   }
   saving.value = true
   try {
+    const loadingPageId=pageId
+    fileViews=new Map(await Promise.all(fileNames.map(async fileName=>[fileName,await props.state.loadPageToolFileDataView({pageId:loadingPageId,fileName})] as const)))
+    assertTarget()
+    const texts = new Map(fileNames.map(name=>[name,readFileText(name)]))
     const runtimeTarget = String(current.value('NavigationUrl') ?? '')
     if (lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId || !pageId || pageId.trim() !== pageId
       || pageId === '.' || pageId === '..' || /[\\/%\u0000-\u001f\u007f?#]/.test(pageId)
       || runtimeTarget !== `cfg:${pageId}`) throw new Error('交付工具身份必须与当前项目及页面一致')
     let versions = parseLowcodeBlueprintFileVersions(fileVersions.value)
-    for (const fileName of ['rule.json', 'script.js', 'style.css'] as const satisfies readonly LowcodeBlueprintFileName[]) {
+    for (const fileName of fileNames) {
       assertTarget()
       const text = texts.get(fileName)
       if (text === undefined) throw new Error('交付文本缺失')
-      if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 交付期间已修改`)
       const fileView=await props.state.loadPageToolFileDataView({pageId,fileName})
       assertTarget()
-      if(fileView.currentRow?.['text']!==text)throw new Error(`${fileName} 保存基线与文件 DataView 不一致`)
+      if(readFileText(fileName)!==text)throw new Error(`${fileName} 交付期间 DataView 已修改`)
       const history=await fileView.createSourceVersion(attempt=>{
         if(typeof attempt.fileName==='string'&&!attemptedSnapshots.includes(attempt.fileName))attemptedSnapshots.push(attempt.fileName)
       })
@@ -229,7 +255,7 @@ async function saveDelivery() {
       written.push(versionedName)
       assertTarget()
       fileView.acknowledgeSourceHistoryAttempt()
-      if (text !== props.state.project.readPageFileText(fileName)) throw new Error(`${fileName} 上传期间已修改，未更新发布引用`)
+      if (readFileText(fileName)!==text) throw new Error(`${fileName} 上传期间 DataView 已修改，未更新发布引用`)
       versions = Object.freeze({ ...versions, [lowcodeBlueprintFileVersionKey(fileName)]: version })
       attemptedReferences.push(versionedName)
       expectedVersionId = encodeLowcodeBlueprintFileVersions(versions)

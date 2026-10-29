@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 991,
+  "scannedFileCount": 992,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -6202,6 +6202,26 @@
         "componentDirectory": "editors"
       }
     },
+    "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts": {
+      "file": "files/packages/spark-component/src/components/editors/SparkCodeEditor.props.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/editors/SparkCodeEditor.props",
+        "sourcePath": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+        "sourceFile": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/editors/SparkCodeEditor.props",
+        "jsdoc": "@module @spark-appworks/spark-component:components/editors/SparkCodeEditor.props\n职责：声明通用代码编辑器的语言与呈现属性。\n边界：不负责数据绑定；字段级绑定由 FieldCodeEditor 承接。\nAI用途：需要在可复用字段容器中编辑代码文本时，查看此输入表面属性；页面数据必须经 FieldCodeEditor 绑定。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SparkCodeEditorProps"
+        ],
+        "componentName": "SparkCodeEditor",
+        "componentType": "code-editor",
+        "componentLevel": "infrastructure",
+        "componentLayer": "editor",
+        "componentDirectory": "editors"
+      }
+    },
     "packages/spark-component/src/components/editors/SparkCodeEditor.vue": {
       "file": "files/packages/spark-component/src/components/editors/SparkCodeEditor.vue.json",
       "module": {
@@ -7425,6 +7445,44 @@
         "symbols": [],
         "componentName": "FieldAutocomplete",
         "componentType": "r-autocomplete",
+        "componentLevel": "field-level",
+        "componentLayer": "data-field",
+        "componentDirectory": "fields/data-components"
+      }
+    },
+    "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts": {
+      "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props",
+        "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props\n职责：声明绑定DataView字段的代码编辑器属性。\n边界：字段读取、写入及权限由标准字段链承接，编辑器只处理代码文本。\nAI用途：编辑页面脚本或样式时，按正式DataView视图、currentRow成员和text字段配置此组件。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RCodeEditorProps"
+        ],
+        "componentName": "FieldCodeEditor",
+        "componentType": "r-code-editor",
+        "componentLevel": "field-level",
+        "componentLayer": "data-field",
+        "componentDirectory": "fields/data-components"
+      }
+    },
+    "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.vue": {
+      "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.vue.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor",
+        "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.vue",
+        "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.vue",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor\n职责：实现绑定DataView字段的标准代码编辑器。\n边界：字段权限、编辑覆盖及写回复用通用字段链；本组件不保存文件或定义文件业务规则。\nAI用途：需要在标准字段容器中编辑脚本或样式文本时，查看本模块及SparkCodeEditor指南。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [],
+        "componentName": "FieldCodeEditor",
+        "componentType": "r-code-editor",
         "componentLevel": "field-level",
         "componentLayer": "data-field",
         "componentDirectory": "fields/data-components"
@@ -12129,7 +12187,7 @@
         "sourceFile": "src/App.vue",
         "packageName": "app",
         "modulePath": "App",
-        "jsdoc": "@module app:App\n职责：提供主应用 App 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 App。",
+        "jsdoc": "@module app:App\n职责：提供主应用 App 能力，围绕模块入口、副作用注册或内部组合逻辑连接视图、服务、布局和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 App。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -12199,6 +12257,19 @@
         "symbols": []
       }
     },
+    "src/composables/useApplicationRouter.ts": {
+      "file": "files/src/composables/useApplicationRouter.ts.json",
+      "module": {
+        "name": "app:composables/useApplicationRouter",
+        "sourcePath": "src/composables/useApplicationRouter.ts",
+        "sourceFile": "src/composables/useApplicationRouter.ts",
+        "packageName": "app",
+        "modulePath": "composables/useApplicationRouter",
+        "jsdoc": "@module app:composables/useApplicationRouter\n职责：提供主应用 useApplicationRouter 能力，按应用 projectId 解析和构建前端路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 composables/useApplicationRouter。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/composables/useNotifications.ts": {
       "file": "files/src/composables/useNotifications.ts.json",
       "module": {
@@ -12214,19 +12285,6 @@
           "DesktopNotificationPermission",
           "OfflineNotificationStatus"
         ]
-      }
-    },
-    "src/composables/useTenantRouter.ts": {
-      "file": "files/src/composables/useTenantRouter.ts.json",
-      "module": {
-        "name": "app:composables/useTenantRouter",
-        "sourcePath": "src/composables/useTenantRouter.ts",
-        "sourceFile": "src/composables/useTenantRouter.ts",
-        "packageName": "app",
-        "modulePath": "composables/useTenantRouter",
-        "jsdoc": "@module app:composables/useTenantRouter\n职责：提供主应用 useTenantRouter 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 composables/useTenantRouter。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
       }
     },
     "src/layout/AppBreadcrumb.vue": {
@@ -13971,6 +14029,21 @@
         ]
       }
     },
+    "src/services/application-scope.ts": {
+      "file": "files/src/services/application-scope.ts.json",
+      "module": {
+        "name": "app:services/application-scope",
+        "sourcePath": "src/services/application-scope.ts",
+        "sourceFile": "src/services/application-scope.ts",
+        "packageName": "app",
+        "modulePath": "services/application-scope",
+        "jsdoc": "Application Path Scope 的语义模型。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ApplicationPathScope"
+        ]
+      }
+    },
     "src/services/class-model-artifacts/artifact-urls.ts": {
       "file": "files/src/services/class-model-artifacts/artifact-urls.ts.json",
       "module": {
@@ -14319,21 +14392,6 @@
         ]
       }
     },
-    "src/services/tenant-scope.ts": {
-      "file": "files/src/services/tenant-scope.ts.json",
-      "module": {
-        "name": "app:services/tenant-scope",
-        "sourcePath": "src/services/tenant-scope.ts",
-        "sourceFile": "src/services/tenant-scope.ts",
-        "packageName": "app",
-        "modulePath": "services/tenant-scope",
-        "jsdoc": "@module app:services/tenant-scope\n职责：提供主应用 tenant-scope 能力，围绕 TenantProjectScope 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 services/tenant-scope。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "TenantProjectScope"
-        ]
-      }
-    },
     "src/services/workflow-designs.ts": {
       "file": "files/src/services/workflow-designs.ts.json",
       "module": {
@@ -14495,19 +14553,6 @@
         "symbols": []
       }
     },
-    "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue": {
-      "file": "files/src/views/app/dev-system/blueprint-workspace/PlanningPane.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/blueprint-workspace/PlanningPane",
-        "sourcePath": "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue",
-        "sourceFile": "src/views/app/dev-system/blueprint-workspace/PlanningPane.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/blueprint-workspace/PlanningPane",
-        "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/PlanningPane\n职责：编辑当前能力功能策划说明。\n边界：只编辑传入文本并发出保存动作，不自行构造蓝图节点或IO。\nAI用途：为正式节点补充能力说明并提交父工作台保存。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue": {
       "file": "files/src/views/app/dev-system/blueprint-workspace/PrototypePane.vue.json",
       "module": {
@@ -14660,19 +14705,6 @@
         "packageName": "app",
         "modulePath": "views/app/dev-system/DevFileEditor",
         "jsdoc": "@module app:views/app/dev-system/DevFileEditor\n职责：提供 DevSystem 的 DevFileEditor 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevFileEditor。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/dev-system/DevNodeProps.vue": {
-      "file": "files/src/views/app/dev-system/DevNodeProps.vue.json",
-      "module": {
-        "name": "app:views/app/dev-system/DevNodeProps",
-        "sourcePath": "src/views/app/dev-system/DevNodeProps.vue",
-        "sourceFile": "src/views/app/dev-system/DevNodeProps.vue",
-        "packageName": "app",
-        "modulePath": "views/app/dev-system/DevNodeProps",
-        "jsdoc": "@module app:views/app/dev-system/DevNodeProps\n职责：提供 DevSystem 的 DevNodeProps 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevNodeProps。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16234,7 +16266,7 @@
         "sourceFile": "src/views/tenant/AppList.vue",
         "packageName": "app",
         "modulePath": "views/tenant/AppList",
-        "jsdoc": "@module app:views/tenant/AppList\n职责：提供主应用 AppList 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。",
+        "jsdoc": "@module app:views/tenant/AppList\n职责：提供主应用 AppList 能力，围绕应用目录连接视图、服务、布局和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16247,7 +16279,7 @@
         "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",
         "packageName": "app",
         "modulePath": "views/tenant/AppProjectSettingsDialog",
-        "jsdoc": "@module app:views/tenant/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppProjectSettingsDialog。",
+        "jsdoc": "@module app:views/tenant/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕应用设置连接视图、服务和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppProjectSettingsDialog。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -17271,6 +17303,10 @@
     "AppEnvironment": {
       "sourcePath": "packages/spark-app/src/types.ts",
       "file": "files/packages/spark-app/src/types.ts.json"
+    },
+    "ApplicationPathScope": {
+      "sourcePath": "src/services/application-scope.ts",
+      "file": "files/src/services/application-scope.ts.json"
     },
     "AppLoggerApi": {
       "sourcePath": "packages/spark-app/src/logger/index.ts",
@@ -21216,6 +21252,10 @@
       "sourcePath": "packages/spark-component/src/components/fields/data-components/choice/FieldCheckTag/FieldCheckTag.props.ts",
       "file": "files/packages/spark-component/src/components/fields/data-components/choice/FieldCheckTag/FieldCheckTag.props.ts.json"
     },
+    "RCodeEditorProps": {
+      "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts",
+      "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts.json"
+    },
     "RCollapseProps": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapse.props.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapse.props.ts.json"
@@ -22008,6 +22048,10 @@
       "sourcePath": "packages/spark-utils/src/capability/core.ts",
       "file": "files/packages/spark-utils/src/capability/core.ts.json"
     },
+    "SparkCodeEditorProps": {
+      "sourcePath": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+      "file": "files/packages/spark-component/src/components/editors/SparkCodeEditor.props.ts.json"
+    },
     "SparkCrudDataContainerProps": {
       "sourcePath": "packages/spark-component/src/components/shared-types.ts",
       "file": "files/packages/spark-component/src/components/shared-types.ts.json"
@@ -22455,10 +22499,6 @@
     "TenantInfo": {
       "sourcePath": "packages/spark-app/src/types.ts",
       "file": "files/packages/spark-app/src/types.ts.json"
-    },
-    "TenantProjectScope": {
-      "sourcePath": "src/services/tenant-scope.ts",
-      "file": "files/src/services/tenant-scope.ts.json"
     },
     "TextLoadOptions": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",
@@ -23759,6 +23799,18 @@
           "directory": "fields/data-components"
         }
       },
+      "RCodeEditorProps": {
+        "className": "RCodeEditorProps",
+        "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts",
+        "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldCodeEditor/FieldCodeEditor.props.ts.json",
+        "component": {
+          "name": "FieldCodeEditor",
+          "type": "r-code-editor",
+          "level": "field-level",
+          "layer": "data-field",
+          "directory": "fields/data-components"
+        }
+      },
       "RCollapseProps": {
         "className": "RCollapseProps",
         "sourcePath": "packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapse.props.ts",
@@ -24863,6 +24915,18 @@
           "name": "SparkAiDataEntry"
         }
       },
+      "SparkCodeEditorProps": {
+        "className": "SparkCodeEditorProps",
+        "sourcePath": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+        "file": "files/packages/spark-component/src/components/editors/SparkCodeEditor.props.ts.json",
+        "component": {
+          "name": "SparkCodeEditor",
+          "type": "code-editor",
+          "level": "infrastructure",
+          "layer": "editor",
+          "directory": "editors"
+        }
+      },
       "TableRowClassContext": {
         "className": "TableRowClassContext",
         "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts",
@@ -25149,6 +25213,9 @@
       "FieldCheckTag": [
         "RCheckTagProps"
       ],
+      "FieldCodeEditor": [
+        "RCodeEditorProps"
+      ],
       "FieldColor": [
         "RColorProps"
       ],
@@ -25414,11 +25481,17 @@
       "SparkAiDataEntry": [
         "SparkAiDataEntryProps"
       ],
+      "SparkCodeEditor": [
+        "SparkCodeEditorProps"
+      ],
       "TreeNodeSummary": [
         "RTreeNodeSummaryProps"
       ]
     },
     "byType": {
+      "code-editor": [
+        "SparkCodeEditorProps"
+      ],
       "display-calendar": [
         "RDisplayCalendarProps"
       ],
@@ -25481,6 +25554,9 @@
       "r-checkbox-group": [
         "CheckboxGroupMultiValue",
         "RCheckboxGroupProps"
+      ],
+      "r-code-editor": [
+        "RCodeEditorProps"
       ],
       "r-collapse": [
         "RCollapseProps",
@@ -25811,6 +25887,7 @@
         "RCheckboxGroupProps",
         "RCheckboxProps",
         "RCheckTagProps",
+        "RCodeEditorProps",
         "RColorProps",
         "RDateProps",
         "REntityPickerProps",
@@ -25843,7 +25920,8 @@
       ],
       "infrastructure": [
         "BeforeRenderContext",
-        "BeforeRenderState"
+        "BeforeRenderState",
+        "SparkCodeEditorProps"
       ],
       "table-level": [
         "AggregateResultState",
@@ -25927,6 +26005,7 @@
         "RCheckboxGroupProps",
         "RCheckboxProps",
         "RCheckTagProps",
+        "RCodeEditorProps",
         "RColorProps",
         "RDateProps",
         "REntityPickerProps",
@@ -26008,6 +26087,9 @@
         "TreeNodeDropHandler",
         "TreeNodeDropType",
         "TreeTableRowsInput"
+      ],
+      "editor": [
+        "SparkCodeEditorProps"
       ],
       "field-support": [
         "RTreeNodeSummaryProps"
@@ -26198,6 +26280,9 @@
         "RSkeletonProps",
         "RTimelineItemProps"
       ],
+      "editors": [
+        "SparkCodeEditorProps"
+      ],
       "fields/data-components": [
         "CascaderPath",
         "CascaderValue",
@@ -26214,6 +26299,7 @@
         "RCheckboxGroupProps",
         "RCheckboxProps",
         "RCheckTagProps",
+        "RCodeEditorProps",
         "RColorProps",
         "RDateProps",
         "REntityPickerProps",

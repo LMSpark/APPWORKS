@@ -319,6 +319,7 @@ describe('RendererForm and RendererDetail toolbar integration', () => {
     const runtime = new PageRuntime({pageId: 'blueprint-capability-fields', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], loadScenario: async () => ds})
     await runtime.load()
     const state = {projectId: 'project-1', selectedNode: ref(undefined), blueprintPageRuntime: ref(runtime),
+      blueprintWorkspaceDataView: ref({projectId:'project-1',standardComponentBinding:{dataViewKey:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_NavigationInfo@default`},view}),
       blueprintDraft: {nodeId: 'node-1', kind: 'page', capability: {name: '能力', description: '描述'}},
       blueprintNodeFieldAccess: () => ({read: true, write: true}), markBlueprintDirty: () => undefined}
     const Host = defineComponent({setup() {useSparkComponent({type: 'blueprint-capability-host'}).sparkProvide(PAGE_RUNTIME, runtime)

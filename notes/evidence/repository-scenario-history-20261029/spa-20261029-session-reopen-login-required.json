@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-10-29",
+  "url": "http://127.0.0.1:5273/login",
+  "pageTitle": "登录 - SPARK",
+  "visibleControls": ["企业", "登录账号", "密码", "登 录"],
+  "authenticatedSession": false,
+  "authenticationAttempt": "none",
+  "serverProcess": {
+    "pid": 2876,
+    "executable": "C:/Users/lgf22/AppData/Local/fnm_multishells/16432_1793277958399/node.exe",
+    "entrypoint": "C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks/node_modules/.bin/../vite/bin/vite.js",
+    "port": 5273
+  },
+  "writes": "none"
+}

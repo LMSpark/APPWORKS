@@ -22,24 +22,17 @@
         "state": {
           "type": "object",
           "properties": {
-            "tenantId": {
-              "type": "string"
-            },
             "projectId": {
               "type": "string"
             },
             "projectPicker": {
               "type": "object",
               "properties": {
-                "tenantId": {
-                  "type": "string"
-                },
                 "projectId": {
                   "type": "string"
                 }
               },
               "required": [
-                "tenantId",
                 "projectId"
               ],
               "additionalProperties": false
@@ -456,6 +449,10 @@
               "type": "object",
               "title": "import(\"vue\").Ref<number, number>"
             },
+            "externalDataViewRevision": {
+              "type": "object",
+              "title": "import(\"vue\").Ref<number, number>"
+            },
             "pageDataError": {
               "type": "object",
               "title": "import(\"vue\").Ref<string | null, string | null>"
@@ -560,6 +557,10 @@
               "type": "object",
               "title": "import(\"vue\").ComputedRef<boolean>"
             },
+            "isPageToolFileDirty": {
+              "type": "object",
+              "title": "(fileName: PageToolFileName) => boolean"
+            },
             "hasAnyDirty": {
               "type": "object",
               "title": "import(\"vue\").ComputedRef<boolean>"
@@ -610,7 +611,15 @@
             },
             "loadPageToolFileDataView": {
               "type": "object",
-              "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
+              "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; forceReload?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
+            },
+            "readPageToolFileDataViewText": {
+              "type": "object",
+              "title": "(pageId: string, fileName: PageToolFileName) => string"
+            },
+            "pageToolFileDataViewState": {
+              "type": "object",
+              "title": "(pageId: string, fileName: PageToolFileName) => { view: import(\"@spark-appworks/spark-data\").DataView; row: import(\"@spark-appworks/spark-data\").DataRow; id: string | number; dirty: boolean; unconfirmed: boolean; }"
             },
             "stagePageToolFileDataView": {
               "type": "object",
@@ -766,7 +775,6 @@
             }
           },
           "required": [
-            "tenantId",
             "projectId",
             "projectPicker",
             "treeData",
@@ -787,6 +795,7 @@
             "pageIoBusy",
             "allSaving",
             "projectRevision",
+            "externalDataViewRevision",
             "pageDataError",
             "scenarioDefinitionDocument",
             "scenarioDefinitionRevision",
@@ -813,6 +822,7 @@
             "projectPlanningAttachmentRef",
             "projectPlanningAiTimeline",
             "hasAnyFileDirty",
+            "isPageToolFileDirty",
             "hasAnyDirty",
             "hasPendingDevSystemWrite",
             "registerExternalDataViewSession",
@@ -826,6 +836,8 @@
             "loadBlueprintWorkspaceDataView",
             "savePageToolFile",
             "loadPageToolFileDataView",
+            "readPageToolFileDataViewText",
+            "pageToolFileDataViewState",
             "stagePageToolFileDataView",
             "restorePageToolVersion",
             "loadNavigationDictionaryOptions",
@@ -939,7 +951,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T06:38:25.146Z",
+  "generatedAt": "2026-10-29T14:25:01.639Z",
   "models": {
     "DevSystemCtx": {
       "name": "DevSystemCtx",

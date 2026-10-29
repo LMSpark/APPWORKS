@@ -91,7 +91,7 @@ function createRunResult(): AiAgentHostRunResult {
       sessionId: 'session-1',
       scope: {
         businessRegistrationId: 'projectPlanning',
-        businessInstanceId: 'lmspark:hr-enterprise-planning-smoke',
+        businessInstanceId: 'hr-enterprise-planning-smoke',
       },
     } as never,
   }
@@ -129,11 +129,10 @@ describe('prepareProjectPlanningAgentRun', () => {
     mocks.synchronize.mockClear()
   })
 
-  it('normalizes tenant-scoped Agent Run args into app tool input', async () => {
+  it('normalizes application-scoped Agent Run args into app tool input', async () => {
     const editor = createEditor()
     mocks.createHeadlessProjectPlanningEditor.mockReturnValue(editor)
     const args = {
-      tenantId: 'lmspark',
       projectId: 'hr-enterprise-planning-smoke',
       requirement: '产品需求',
       saveBlueprintAfterRun: false,
@@ -147,11 +146,10 @@ describe('prepareProjectPlanningAgentRun', () => {
     host.dryRun('projectPlanning', args as JsonParams)
 
     expect(mocks.createHeadlessProjectPlanningEditor).toHaveBeenCalledWith({
-      tenantId: 'lmspark',
       projectId: 'hr-enterprise-planning-smoke',
     })
     expect(mocks.delegateHost.dryRun).toHaveBeenCalledWith('projectPlanning', {
-      projectScopeKey: 'lmspark:hr-enterprise-planning-smoke:request-1',
+      projectScopeKey: 'hr-enterprise-planning-smoke:request-1',
       projectId: 'hr-enterprise-planning-smoke',
       requirement: '产品需求',
       blueprintNodes: [
@@ -191,7 +189,6 @@ describe('prepareProjectPlanningAgentRun', () => {
       requestId: 'request-2',
       alias: 'projectPlanning',
       args: {
-        tenantId: 'lmspark',
         projectId: 'hr-enterprise-planning-smoke',
         requirement: '产品需求',
       },
@@ -222,7 +219,6 @@ describe('prepareProjectPlanningAgentRun', () => {
       requestId: 'request-3',
       alias: 'projectPlanning',
       args: {
-        tenantId: 'lmspark',
         projectId: 'hr-enterprise-planning-smoke',
         requirement: '产品需求',
         saveBlueprintAfterRun: true,
@@ -250,7 +246,6 @@ describe('prepareProjectPlanningAgentRun', () => {
       requestId: 'request-rollback',
       alias: 'projectPlanning',
       args: {
-        tenantId: 'lmspark',
         projectId: 'hr-enterprise-planning-smoke',
         requirement: '产品需求',
         saveBlueprintAfterRun: true,
@@ -275,14 +270,26 @@ describe('prepareProjectPlanningAgentRun', () => {
     })
   })
 
-  it('fails fast when tenantId is missing', async () => {
-    await expect(prepareProjectPlanningAgentRun({
+  it('derives project planning run identity from projectId and requestId without tenant input', async () => {
+    const editor = createEditor()
+    mocks.createHeadlessProjectPlanningEditor.mockReturnValue(editor)
+    const args = { projectId: 'hr-enterprise-planning-smoke', requirement: '产品需求' }
+    const host = await prepareProjectPlanningAgentRun({
       requestId: 'request-4',
       alias: 'projectPlanning',
-      args: {
-        projectId: 'hr-enterprise-planning-smoke',
-      },
-    }, {} as AiAgentHost)).rejects.toThrow(/tenantId/u)
+      args,
+    }, {} as AiAgentHost)
+    host.dryRun('projectPlanning', args as JsonParams)
+
+    expect(mocks.createHeadlessProjectPlanningEditor).toHaveBeenCalledWith({projectId:'hr-enterprise-planning-smoke'})
+    expect(mocks.delegateHost.dryRun).toHaveBeenCalledWith('projectPlanning', expect.objectContaining({
+      projectScopeKey: 'hr-enterprise-planning-smoke:request-4',
+      projectId: 'hr-enterprise-planning-smoke',
+    }))
+    expect(mocks.delegateHost.dryRun.mock.calls.at(-1)?.[1]).not.toHaveProperty('tenantId')
+    const result = await host.run('projectPlanning', {} as JsonParams)
+    expect(result.resultExtras?.['projectPlanning']).not.toHaveProperty('tenantId')
+    expect(result.resultExtras?.['projectPlanning']).toMatchObject({projectScopeKey:'hr-enterprise-planning-smoke'})
   })
 
   it('releases the DataView owner and runtime when the formal tree query fails closed', async () => {
@@ -293,7 +300,7 @@ describe('prepareProjectPlanningAgentRun', () => {
     await expect(prepareProjectPlanningAgentRun({
       requestId: 'request-query-failure',
       alias: 'projectPlanning',
-      args: { tenantId: 'lmspark', projectId: 'hr-enterprise-planning-smoke' },
+      args: { projectId: 'hr-enterprise-planning-smoke' },
     }, {} as AiAgentHost)).rejects.toThrow('正式蓝图查询失败')
 
     expect(mocks.ownerDispose).toHaveBeenCalledOnce()

@@ -12,7 +12,6 @@ import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '../../navigation/runtime-naviga
 
 type SystemPageRouteKeyInput = Readonly<{
   scope: string
-  tenantId?: string
   projectId?: string
   nodeId: string
   path: string
@@ -69,7 +68,7 @@ function canonicalSystemPageRouteKey(input: SystemPageRouteKeyInput): string {
   const query = Object.fromEntries(Object.entries(input.query)
     .filter(([key]) => key !== SYSTEM_PAGE_NAVIGATION_ID_QUERY)
     .sort(([left], [right]) => left.localeCompare(right)))
-  return JSON.stringify([input.scope, input.tenantId ?? null, input.projectId ?? null, input.nodeId, input.path, stableValue(query), input.hash])
+  return JSON.stringify([input.scope, input.projectId ?? null, input.nodeId, input.path, stableValue(query), input.hash])
 }
 
 function ownerFingerprint(owner: SystemPageIdentityOwner): string {
@@ -120,11 +119,9 @@ export class SystemPageIdentityPool {
   #nextId = 0
 
   get(route: RouteLocationNormalizedLoaded, owner: SystemPageIdentityOwner): SystemPageInstance {
-    const tenantId = typeof route.params['tenantId'] === 'string' ? route.params['tenantId'] : undefined
     const projectId = typeof route.params['projectId'] === 'string' ? route.params['projectId'] : owner.projectId
     const key = canonicalSystemPageRouteKey({
       scope: owner.scope,
-      ...(tenantId === undefined ? {} : { tenantId }),
       ...(projectId === undefined ? {} : { projectId }),
       nodeId: owner.nodeId,
       path: route.path,

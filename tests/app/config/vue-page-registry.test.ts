@@ -24,8 +24,8 @@ describe('Vue page registry', () => {
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
       pages: [
-        {path: '/configured', title: 'Configured', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: ' SPACE-ID '},
-        {path: '/unconfigured', title: 'Unconfigured', scope: 'tenant', source: 'src/views/tenant/Settings.vue'},
+        {path: '/configured', title: 'Configured', scope: 'catalog', source: 'src/views/tenant/Settings.vue', dataSpaceId: ' SPACE-ID '},
+        {path: '/unconfigured', title: 'Unconfigured', scope: 'catalog', source: 'src/views/tenant/Settings.vue'},
       ],
     })
 
@@ -37,7 +37,7 @@ describe('Vue page registry', () => {
     expect(() => parseVuePagesConfig({
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
-      pages: [{path: '/blank', title: 'Blank', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: '   '}],
+      pages: [{path: '/blank', title: 'Blank', scope: 'catalog', source: 'src/views/tenant/Settings.vue', dataSpaceId: '   '}],
     })).toThrow('dataSpaceId must be a non-empty string')
   })
 
@@ -46,8 +46,8 @@ describe('Vue page registry', () => {
       protocol: 'spark-appworks.vue-pages',
       schemaVersion: 1,
       pages: [
-        {path: '/same', title: 'First', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-1'},
-        {path: '/same', title: 'Second', scope: 'tenant', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-2'},
+        {path: '/same', title: 'First', scope: 'catalog', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-1'},
+        {path: '/same', title: 'Second', scope: 'catalog', source: 'src/views/tenant/Settings.vue', dataSpaceId: 'SPACE-2'},
       ],
     })).toThrow('duplicated page path "/same"')
   })

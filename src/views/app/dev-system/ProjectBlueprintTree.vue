@@ -64,11 +64,9 @@ const deletingNodeId = ref('')
 const owner = computed(() => state.blueprintWorkspaceDataView.value)
 const componentBinding = computed(() => owner.value?.projectId === state.projectId ? owner.value.standardComponentBinding : undefined)
 const viewKey = computed(() => componentBinding.value?.dataViewKey ?? '')
-const directDataSource = computed(() => componentBinding.value?.dataSource)
-const containerBindingProps = computed(() => viewKey.value ? {dataViewKey: viewKey.value}
-  : directDataSource.value ? {dataSource: directDataSource.value} : {})
+const containerBindingProps = computed(() => viewKey.value ? {dataViewKey: viewKey.value} : {})
 const fieldBindingProps = computed(() => viewKey.value ? {dataViewKey: viewKey.value} : {})
-const viewBindingReady = computed(() => Boolean(viewKey.value || directDataSource.value))
+const viewBindingReady = computed(() => Boolean(viewKey.value))
 const selectedNodeId = computed(() => state.selectedNode.value?.nodeId ?? null)
 const canAddRoot = computed(() => {
   const current = owner.value

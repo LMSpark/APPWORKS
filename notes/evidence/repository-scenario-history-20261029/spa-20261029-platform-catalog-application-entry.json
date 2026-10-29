@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-10-29",
+  "session": "authenticated local SPA tab, user-confirmed login",
+  "routeBefore": "/apps/homepage/apps?__sparkNavigationId=appworks-application-apps",
+  "formalApplicationCatalog": {
+    "view": "platform application management page",
+    "rows": 62,
+    "total": 62,
+    "selectedTarget": {
+      "projectId": "00BE6ED455CD4BD7B785C61A12A1E67D",
+      "name": "数据资产管理"
+    },
+    "enterResult": "进入应用失败: 应用管理页缺少项目切换服务"
+  },
+  "applicationListEntry": {
+    "action": "selected first application card and invoked its formal 进入应用 action",
+    "resultingShellIdentity": "00BE6ED455CD4BD7B785C61A12A1E67D",
+    "systemPageResult": "无法确定系统页面；原页面身份已失效，请从导航菜单重新选择。",
+    "navigationTree": "not available to DevSystem; no cfg count or tool-file/version readback can be asserted"
+  },
+  "writes": "none; read-only navigation and inspection",
+  "boundary": "The platform application-management entry failure and the application-list system-page identity failure are separate observed UI results. Neither proves the target application has zero cfg nodes."
+}

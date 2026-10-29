@@ -1,5 +1,5 @@
 {
-  "gapCount": 3416,
+  "gapCount": 3414,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -3885,24 +3885,12 @@
     {
       "kind": "attribute",
       "className": "TabPage",
-      "memberName": "tenantId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "TabPage.tenantId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-app/src/navigation/useTabPages.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-app/src/navigation/useTabPages.ts",
-      "declarationLine": 11,
-      "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "TabPage",
       "memberName": "closable",
       "reason": "missing-jsdoc",
       "chainBreak": "TabPage.closable 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/navigation/useTabPages.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/navigation/useTabPages.ts",
-      "declarationLine": 12,
+      "declarationLine": 11,
       "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
       "declarationKind": "interface"
     },
@@ -3914,7 +3902,7 @@
       "chainBreak": "TabPage.fullPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/navigation/useTabPages.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/navigation/useTabPages.ts",
-      "declarationLine": 13,
+      "declarationLine": 12,
       "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
       "declarationKind": "interface"
     },
@@ -3926,7 +3914,7 @@
       "chainBreak": "UseTabPagesOptions.navigate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/navigation/useTabPages.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/navigation/useTabPages.ts",
-      "declarationLine": 19,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
       "declarationKind": "typeAlias"
     },
@@ -18896,7 +18884,7 @@
       "chainBreak": "SummaryOptions.descriptionContext 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/blueprint/project-blueprint-tree.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
       "declarationKind": "interface"
     },
@@ -18908,7 +18896,7 @@
       "chainBreak": "TreeNodeLike.id 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/blueprint/project-blueprint-tree.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
       "declarationKind": "interface"
     },
@@ -18920,7 +18908,7 @@
       "chainBreak": "TreeNodeLike.pid 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/blueprint/project-blueprint-tree.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
-      "declarationLine": 30,
+      "declarationLine": 31,
       "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
       "declarationKind": "interface"
     },
@@ -18932,7 +18920,7 @@
       "chainBreak": "TreeNodeLike.toNodeData 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/blueprint/project-blueprint-tree.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
-      "declarationLine": 31,
+      "declarationLine": 32,
       "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
       "declarationKind": "interface"
     },
@@ -20530,24 +20518,12 @@
     {
       "kind": "attribute",
       "className": "ProjectBlueprint",
-      "memberName": "tenantId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectBlueprint.tenantId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 43,
-      "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "ProjectBlueprint",
       "memberName": "name",
       "reason": "missing-jsdoc",
       "chainBreak": "ProjectBlueprint.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 44,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20559,7 +20535,7 @@
       "chainBreak": "ProjectBlueprint.title 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 45,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20571,7 +20547,7 @@
       "chainBreak": "ProjectBlueprint.projectType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 46,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20583,7 +20559,7 @@
       "chainBreak": "ProjectBlueprint.icon 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 47,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20595,7 +20571,7 @@
       "chainBreak": "ProjectBlueprint.description 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 48,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20607,7 +20583,7 @@
       "chainBreak": "ProjectBlueprint.homeNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 49,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20619,7 +20595,7 @@
       "chainBreak": "ProjectBlueprint.homeNode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 50,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20631,7 +20607,7 @@
       "chainBreak": "ProjectBlueprint.rootNode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 51,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20643,7 +20619,7 @@
       "chainBreak": "ProjectBlueprint.order 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 52,
+      "declarationLine": 51,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20655,7 +20631,7 @@
       "chainBreak": "ProjectBlueprint.createdAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 53,
+      "declarationLine": 52,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20667,7 +20643,7 @@
       "chainBreak": "ProjectBlueprint.updatedAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 54,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20679,7 +20655,7 @@
       "chainBreak": "ProjectBlueprint.projectInfo 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 55,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20691,7 +20667,7 @@
       "chainBreak": "ProjectBlueprint.blueprintDraft 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 60,
+      "declarationLine": 59,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20703,7 +20679,7 @@
       "chainBreak": "ProjectBlueprint.isBlueprintEditing 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 61,
+      "declarationLine": 60,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20715,7 +20691,7 @@
       "chainBreak": "ProjectBlueprint.blueprintDirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 62,
+      "declarationLine": 61,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20727,7 +20703,7 @@
       "chainBreak": "ProjectBlueprint.subscribe 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 63,
+      "declarationLine": 62,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20739,7 +20715,7 @@
       "chainBreak": "ProjectBlueprint.forEachNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 73,
+      "declarationLine": 72,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20751,7 +20727,7 @@
       "chainBreak": "ProjectBlueprint.replaceProjectInfo 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 74,
+      "declarationLine": 73,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20763,7 +20739,7 @@
       "chainBreak": "ProjectBlueprint.findNodeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 83,
+      "declarationLine": 82,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20775,7 +20751,7 @@
       "chainBreak": "ProjectBlueprint.findNodeLocation 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 84,
+      "declarationLine": 83,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20787,7 +20763,7 @@
       "chainBreak": "ProjectBlueprint.findPageTool 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 85,
+      "declarationLine": 84,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20799,7 +20775,7 @@
       "chainBreak": "ProjectBlueprint.closePageDesign 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 92,
+      "declarationLine": 91,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20811,7 +20787,7 @@
       "chainBreak": "ProjectBlueprint.addRootModule 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 122,
+      "declarationLine": 121,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20823,7 +20799,7 @@
       "chainBreak": "ProjectBlueprint.addChildPage 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 123,
+      "declarationLine": 122,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20835,7 +20811,7 @@
       "chainBreak": "ProjectBlueprint.refreshNavRefs 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 126,
+      "declarationLine": 125,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20847,7 +20823,7 @@
       "chainBreak": "ProjectBlueprint.toTree 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 127,
+      "declarationLine": 126,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20859,7 +20835,7 @@
       "chainBreak": "ProjectBlueprint.replaceBlueprintTree 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 128,
+      "declarationLine": 127,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20871,7 +20847,7 @@
       "chainBreak": "ProjectBlueprint.selectNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 132,
+      "declarationLine": 131,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20883,7 +20859,7 @@
       "chainBreak": "ProjectBlueprint.beginBlueprintDraft 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 141,
+      "declarationLine": 140,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20895,7 +20871,7 @@
       "chainBreak": "ProjectBlueprint.discardBlueprintDraft 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 142,
+      "declarationLine": 141,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20907,7 +20883,7 @@
       "chainBreak": "ProjectBlueprint.markBlueprintClean 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 143,
+      "declarationLine": 142,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20919,7 +20895,7 @@
       "chainBreak": "ProjectBlueprint.applyBlueprintNodeEdit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 144,
+      "declarationLine": 143,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20931,7 +20907,7 @@
       "chainBreak": "ProjectBlueprint.undoPageFile 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 164,
+      "declarationLine": 163,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20943,7 +20919,7 @@
       "chainBreak": "ProjectBlueprint.redoPageFile 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 165,
+      "declarationLine": 164,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20955,7 +20931,7 @@
       "chainBreak": "ProjectBlueprint.markPageFileChanged 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 173,
+      "declarationLine": 172,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20967,7 +20943,7 @@
       "chainBreak": "ProjectBlueprint.markPageLoadedChanged 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 174,
+      "declarationLine": 173,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20979,7 +20955,7 @@
       "chainBreak": "ProjectBlueprint.readActivePageProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 180,
+      "declarationLine": 179,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -20991,7 +20967,7 @@
       "chainBreak": "ProjectBlueprint.readDirtyProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-blueprint.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-blueprint.ts",
-      "declarationLine": 181,
+      "declarationLine": 180,
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "declarationKind": "class"
     },
@@ -21034,24 +21010,12 @@
     {
       "kind": "attribute",
       "className": "ProjectBlueprintDesign",
-      "memberName": "tenantId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ProjectBlueprintDesign.tenantId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 18,
-      "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "attribute",
-      "className": "ProjectBlueprintDesign",
       "memberName": "name",
       "reason": "missing-jsdoc",
       "chainBreak": "ProjectBlueprintDesign.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 19,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21063,7 +21027,7 @@
       "chainBreak": "ProjectBlueprintDesign.projectType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 20,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21075,7 +21039,7 @@
       "chainBreak": "ProjectBlueprintDesign.icon 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 21,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21087,7 +21051,7 @@
       "chainBreak": "ProjectBlueprintDesign.description 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 22,
+      "declarationLine": 21,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21099,7 +21063,7 @@
       "chainBreak": "ProjectBlueprintDesign.homeNodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 23,
+      "declarationLine": 22,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21111,7 +21075,7 @@
       "chainBreak": "ProjectBlueprintDesign.homeNode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 24,
+      "declarationLine": 23,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21123,7 +21087,7 @@
       "chainBreak": "ProjectBlueprintDesign.rootNode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 25,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21135,7 +21099,7 @@
       "chainBreak": "ProjectBlueprintDesign.order 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 26,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21147,7 +21111,7 @@
       "chainBreak": "ProjectBlueprintDesign.createdAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 27,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21159,7 +21123,7 @@
       "chainBreak": "ProjectBlueprintDesign.updatedAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 28,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21171,7 +21135,7 @@
       "chainBreak": "ProjectBlueprintDesign.projectInfo 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 29,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21183,7 +21147,7 @@
       "chainBreak": "ProjectBlueprintDesign.blueprintTree 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 30,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21195,7 +21159,7 @@
       "chainBreak": "ProjectBlueprintDesign.pages 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 31,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21207,7 +21171,7 @@
       "chainBreak": "ProjectBlueprintDesign.flatRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 32,
+      "declarationLine": 31,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21219,7 +21183,7 @@
       "chainBreak": "ProjectBlueprintDesign.getChildNodes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 33,
+      "declarationLine": 32,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21231,7 +21195,7 @@
       "chainBreak": "ProjectBlueprintDesign.forEachNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 34,
+      "declarationLine": 33,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21243,7 +21207,7 @@
       "chainBreak": "ProjectBlueprintDesign.replaceProjectInfo 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 35,
+      "declarationLine": 34,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21255,7 +21219,7 @@
       "chainBreak": "ProjectBlueprintDesign.replaceBlueprintTree 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 36,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21267,7 +21231,7 @@
       "chainBreak": "ProjectBlueprintDesign.replaceBlueprintChildren 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 37,
+      "declarationLine": 36,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21279,7 +21243,7 @@
       "chainBreak": "ProjectBlueprintDesign.findNodeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 38,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21291,7 +21255,7 @@
       "chainBreak": "ProjectBlueprintDesign.findNodeLocation 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 39,
+      "declarationLine": 38,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21303,7 +21267,7 @@
       "chainBreak": "ProjectBlueprintDesign.findPageTool 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 40,
+      "declarationLine": 39,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21315,7 +21279,7 @@
       "chainBreak": "ProjectBlueprintDesign.openPageDesign 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 41,
+      "declarationLine": 40,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21327,7 +21291,7 @@
       "chainBreak": "ProjectBlueprintDesign.closePageDesign 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 42,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21339,7 +21303,7 @@
       "chainBreak": "ProjectBlueprintDesign.applyBlueprintNodeEdit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 43,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21351,7 +21315,7 @@
       "chainBreak": "ProjectBlueprintDesign.readPlanningProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 44,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21363,7 +21327,7 @@
       "chainBreak": "ProjectBlueprintDesign.addRootModule 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 45,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21375,7 +21339,7 @@
       "chainBreak": "ProjectBlueprintDesign.addChildPage 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 46,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21387,7 +21351,7 @@
       "chainBreak": "ProjectBlueprintDesign.removeNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 47,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21399,7 +21363,7 @@
       "chainBreak": "ProjectBlueprintDesign.refreshNavRefs 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 48,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -21411,7 +21375,7 @@
       "chainBreak": "ProjectBlueprintDesign.toTree 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-project-model/src/project/project-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-project-model/src/project/project-design.ts",
-      "declarationLine": 49,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
       "declarationKind": "class"
     },
@@ -36032,6 +35996,29 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "module",
+      "className": "app:services/application-scope",
+      "moduleName": "app:services/application-scope",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/application-scope 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/application-scope.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/application-scope.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/application-scope.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "ApplicationPathScope",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ApplicationPathScope.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/services/application-scope.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/application-scope.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/services/application-scope.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "attribute",
       "className": "PageDesignDeliveryContext",
       "memberName": "requestId",
@@ -36231,7 +36218,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 103,
+      "declarationLine": 99,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36243,7 +36230,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.blueprintTree 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 104,
+      "declarationLine": 100,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36255,7 +36242,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.flatRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 105,
+      "declarationLine": 101,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36267,7 +36254,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readProjectPlanningInput 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 106,
+      "declarationLine": 102,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36279,7 +36266,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readBlueprintPlanningInputs 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 107,
+      "declarationLine": 103,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36291,7 +36278,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readBlueprintNodePlanningInput 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 108,
+      "declarationLine": 104,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36303,7 +36290,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.readPlanningProjection 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 109,
+      "declarationLine": 105,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36315,7 +36302,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.getChildNodes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 110,
+      "declarationLine": 106,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "typeAlias"
     },
@@ -36327,7 +36314,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.findNodeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 111,
+      "declarationLine": 107,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "typeAlias"
     },
@@ -36339,7 +36326,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.completeProjectPlanning 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 112,
+      "declarationLine": 108,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36351,7 +36338,7 @@
       "chainBreak": "ProjectPlanningBlueprintFacade.replaceBlueprintChildren 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-agent-workflow-binding.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
-      "declarationLine": 113,
+      "declarationLine": 109,
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "declarationKind": "interface"
     },
@@ -36441,24 +36428,12 @@
     {
       "kind": "attribute",
       "className": "UploadProjectPlanningAttachmentCommand",
-      "memberName": "tenantId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "UploadProjectPlanningAttachmentCommand.tenantId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/services/project-planning/project-planning-attachments.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/project-planning/project-planning-attachments.ts",
-      "declarationLine": 16,
-      "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "UploadProjectPlanningAttachmentCommand",
       "memberName": "projectId",
       "reason": "missing-jsdoc",
       "chainBreak": "UploadProjectPlanningAttachmentCommand.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-attachments.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-attachments.ts",
-      "declarationLine": 17,
+      "declarationLine": 16,
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
       "declarationKind": "interface"
     },
@@ -36470,7 +36445,7 @@
       "chainBreak": "UploadProjectPlanningAttachmentCommand.file 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project-planning/project-planning-attachments.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project-planning/project-planning-attachments.ts",
-      "declarationLine": 18,
+      "declarationLine": 17,
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
       "declarationKind": "interface"
     },
@@ -36871,7 +36846,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 81,
+      "declarationLine": 80,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36883,7 +36858,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.row 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 82,
+      "declarationLine": 81,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36895,7 +36870,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasTreeProjection 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 83,
+      "declarationLine": 82,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36907,7 +36882,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dirty 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 84,
+      "declarationLine": 83,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36919,7 +36894,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 85,
+      "declarationLine": 84,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36931,7 +36906,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.isBusy 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 88,
+      "declarationLine": 87,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36943,7 +36918,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.load 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 89,
+      "declarationLine": 88,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36955,7 +36930,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasOutput 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 110,
+      "declarationLine": 109,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36967,7 +36942,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingRootCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 111,
+      "declarationLine": 110,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36979,7 +36954,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.hasPendingChildCreate 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 112,
+      "declarationLine": 111,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -36991,7 +36966,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.assertCanAddChild 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 122,
+      "declarationLine": 121,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37003,7 +36978,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.preflightChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 124,
+      "declarationLine": 123,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37015,7 +36990,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.addChildNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 125,
+      "declarationLine": 124,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37027,7 +37002,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 142,
+      "declarationLine": 141,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37039,7 +37014,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canRead 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 143,
+      "declarationLine": 142,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37051,7 +37026,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWrite 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 144,
+      "declarationLine": 143,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37063,7 +37038,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.canWriteFields 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 145,
+      "declarationLine": 144,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37075,7 +37050,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.value 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 146,
+      "declarationLine": 145,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37087,7 +37062,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.update 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 147,
+      "declarationLine": 146,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37099,7 +37074,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 150,
+      "declarationLine": 149,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37111,7 +37086,7 @@
       "chainBreak": "BlueprintWorkspaceDataView.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/blueprint-workspace-dataview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/blueprint-workspace-dataview.ts",
-      "declarationLine": 154,
+      "declarationLine": 153,
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "declarationKind": "class"
     },
@@ -37215,7 +37190,7 @@
       "chainBreak": "ProjectApiScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/project-shell.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/project-shell.ts",
-      "declarationLine": 24,
+      "declarationLine": 22,
       "sourceFile": "src/services/project/project-shell.ts",
       "declarationKind": "typeAlias"
     },
@@ -39707,7 +39682,7 @@
       "chainBreak": "ExternalDataViewSession.isDirty 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 37,
+      "declarationLine": 38,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39719,7 +39694,7 @@
       "chainBreak": "ExternalDataViewSession.hasUnconfirmedSave 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 38,
+      "declarationLine": 39,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39731,7 +39706,7 @@
       "chainBreak": "ExternalDataViewSession.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39743,7 +39718,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 40,
+      "declarationLine": 41,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39755,7 +39730,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNodeRelative 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 41,
+      "declarationLine": 42,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39767,7 +39742,7 @@
       "chainBreak": "ExternalDataViewSession.treeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 46,
+      "declarationLine": 47,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39779,7 +39754,7 @@
       "chainBreak": "ExternalDataViewSession.hasTreeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 47,
+      "declarationLine": 48,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -39791,7 +39766,7 @@
       "chainBreak": "ExternalDataViewSession.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 48,
+      "declarationLine": 49,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },

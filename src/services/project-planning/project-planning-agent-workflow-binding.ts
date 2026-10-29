@@ -30,8 +30,6 @@ function isPureLeafMoveBatch(commands:readonly ProjectBlueprintReplacementComman
 
 /** Project Planning Run Input 的输入数据。 */
 export type ProjectPlanningRunInput = Readonly<{
-  /** 租户标识；用于后端附件读取 scope 校验。 */
-  tenantId?: string
   /** 项目唯一标识。 */
   projectId: string
   /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */
@@ -44,8 +42,6 @@ export type ProjectPlanningRunInput = Readonly<{
 
 /** Host inputContract 用可变数组，满足 JsonParams。 */
 export type ProjectPlanningAgentInput = Readonly<{
-  /** 租户标识；用于后端附件读取 scope 校验。 */
-  tenantId?: string
   /** Agent 输入的身份键（通常等于 projectId）。 */
   projectScopeKey: string
   /** 项目唯一标识。 */
@@ -174,7 +170,6 @@ export function resolveProjectPlanningRunInput(
   })
 
   return {
-    ...(project.tenantId === undefined ? {} : { tenantId: project.tenantId }),
     projectId: project.projectId,
     requirement,
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),
@@ -200,7 +195,6 @@ export function formatProjectPlanningPromptContext(input: ProjectPlanningRunInpu
   const lines = [
     '项目策划输入（短需求 + 附件详细说明）：',
     '策划阶段不涉及页面四文件，只产出完整项目蓝图。',
-    ...(input.tenantId === undefined ? [] : [`tenantId: ${input.tenantId}`]),
     `projectId: ${input.projectId}`,
     'projectRequirement:',
     input.requirement,
@@ -258,7 +252,6 @@ export function buildProjectPlanningAgentInput(
 ): ProjectPlanningAgentInput {
   const scoped = resolveScopedProjectPlanningRunInput(project, options)
   return {
-    ...(scoped.tenantId === undefined ? {} : { tenantId: scoped.tenantId }),
     projectScopeKey: scoped.projectId,
     projectId: scoped.projectId,
     requirement: scoped.requirement,

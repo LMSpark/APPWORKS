@@ -85,11 +85,11 @@ export type DynamicRouterOptions = {
   componentAliases?: Readonly<Record<string, readonly string[]>>
 
   /**
-   * 租户路径前缀（如 '/t/:tenantId'）。
-   * 设置后，config 页面路由自动加此前缀，使所有业务路由统一在租户 URL 下。
+   * 应用路径前缀（如 '/apps/:projectId'）。
+   * 设置后，config 页面路由自动加此前缀，使业务路由统一在应用 URL 下。
    * system-page 路由不受影响（DB 中已含完整路径）。
    */
-  tenantPathPrefix?: string
+  applicationPathPrefix?: string
 
   /**
    * 导航数据加载函数 — 导航树作为路由的唯一来源。
@@ -139,7 +139,7 @@ export type DynamicRouterOptions = {
 }
 
 type RouteRegistrationOptions = {
-  skipTenantPrefix?: boolean
+  skipApplicationPrefix?: boolean
   routePathPrefix?: string
   routeNamePrefix?: string
   systemPageScope?: SystemPageIdentityScope
@@ -158,10 +158,10 @@ export class DynamicRouter {
   private staticComponentMap: Map<string, Component> = new Map()
   /** canonical system-page path → explicit alias paths from the Vue page registry */
   private staticComponentAliases: Map<string, readonly string[]> = new Map()
-  /** 租户路径前缀（如 '/t/:tenantId'），config 路由自动加此前缀 */
-  private tenantPathPrefix: string
-  /** tenantPathPrefix 的实体路径匹配（如 '^/t/[^/]+'） */
-  private tenantPathRegex: RegExp | null
+  /** 应用路径前缀（如 '/apps/:projectId'），config 路由自动加此前缀 */
+  private applicationPathPrefix: string
+  /** applicationPathPrefix 的实体路径匹配（如 '^/apps/[^/]+'） */
+  private applicationPathRegex: RegExp | null
   /** 导航数据加载函数（提供后从导航树派生路由） */
   private _loadNavigation: (() => Promise<RuntimeNavigation>) | undefined
   /** 平台工作台导航数据加载函数 */
@@ -170,7 +170,7 @@ export class DynamicRouter {
   private _isPlatformNavigationEnabled: () => boolean
   /** 登录前本地导航树 */
   private _preAuthNavTree: RuntimeNavigation | null = null
-  private _tenantNavTree: RuntimeNavigation | null = null
+  private _appNavTree: RuntimeNavigation | null = null
   private _platformNavTree: RuntimeNavigation | null = null
   /** 认证状态检查回调 */
   private _isAuthenticated: () => boolean
@@ -193,9 +193,9 @@ constructor(options: DynamicRouterOptions) {
     }
 
     this.pageComponent = options.pageComponent
-    this.tenantPathPrefix = options.tenantPathPrefix ?? ''
-    this.tenantPathRegex = this.tenantPathPrefix
-      ? this.createTenantPathRegex(this.tenantPathPrefix)
+    this.applicationPathPrefix = options.applicationPathPrefix ?? ''
+    this.applicationPathRegex = this.applicationPathPrefix
+      ? this.createApplicationPathRegex(this.applicationPathPrefix)
       : null
 
     // 导航加载函数（统一数据源）
@@ -294,7 +294,7 @@ constructor(options: DynamicRouterOptions) {
     return withLeadingSlash.replace(/\/+$/, '')
   }
 
-  private createTenantPathRegex(prefix: string): RegExp {
+  private createApplicationPathRegex(prefix: string): RegExp {
     const escaped = prefix
       .split('/')
       .filter(Boolean)
@@ -303,12 +303,12 @@ constructor(options: DynamicRouterOptions) {
     return new RegExp(`^/${escaped}(?=/|$)`)
   }
 
-  private addTenantPrefix(path: string): string {
+  private addApplicationPrefix(path: string): string {
     const normalizedPath = this.normalizePath(path)
-    if (!this.tenantPathPrefix) return normalizedPath
-    if (normalizedPath.startsWith(this.tenantPathPrefix)) return normalizedPath
-    if (this.tenantPathRegex?.test(normalizedPath)) return normalizedPath
-    return this.normalizePath(`${this.tenantPathPrefix}${normalizedPath}`)
+    if (!this.applicationPathPrefix) return normalizedPath
+    if (normalizedPath.startsWith(this.applicationPathPrefix)) return normalizedPath
+    if (this.applicationPathRegex?.test(normalizedPath)) return normalizedPath
+    return this.normalizePath(`${this.applicationPathPrefix}${normalizedPath}`)
   }
 
   private addRoutePathPrefix(prefix: string, path: string): string {
@@ -330,16 +330,15 @@ constructor(options: DynamicRouterOptions) {
     if (this.isCurrentPlatformRoute() && this._platformNavTree !== null) {
       return this._platformNavTree
     }
-    return this._tenantNavTree ?? this._preAuthNavTree
+    return this._appNavTree ?? this._preAuthNavTree
   }
 
   private buildScopedRefPath(path: string, targetProjectId: string): string {
     const normalizedPath = this.normalizePath(path)
-    if (!this.tenantPathPrefix) return normalizedPath
+    if (!this.applicationPathPrefix) return normalizedPath
 
-    const segments = this.tenantPathPrefix.split('/').filter(Boolean)
+    const segments = this.applicationPathPrefix.split('/').filter(Boolean)
     const resolvedSegments = segments.map((segment) => {
-      if (segment === ':tenantId') return ':tenantId'
       if (segment === ':projectId') return targetProjectId
       return segment
     })
@@ -347,10 +346,10 @@ constructor(options: DynamicRouterOptions) {
     return this.normalizePath(`/${resolvedSegments.join('/')}${normalizedPath}`)
   }
 
-  private registerCrossProjectRefHostRoute(skipTenantPrefix = false): void {
-    if (skipTenantPrefix) return
+  private registerCrossProjectRefHostRoute(skipApplicationPrefix = false): void {
+    if (skipApplicationPrefix) return
 
-    const routePath = this.addTenantPrefix('/__ref/:refNodeId')
+    const routePath = this.addApplicationPrefix('/__ref/:refNodeId')
     const existing = this.router.getRoutes().find(route => route.name === CROSS_PROJECT_REF_HOST_ROUTE_NAME)
     const existingDefaultProps = readProperty(existing?.props, 'default')
     if (existing?.meta['crossProjectRefHost'] === true && typeof existingDefaultProps === 'function') {
@@ -414,11 +413,11 @@ constructor(options: DynamicRouterOptions) {
       return
     }
 
-    let tenantNavTree: RuntimeNavigation
+    let appNavTree: RuntimeNavigation
     let platformNavTree: RuntimeNavigation | null = null
     const preAuthNavTree = this._preAuthNavTree
     try {
-      tenantNavTree = await this._loadNavigation()
+      appNavTree = await this._loadNavigation()
       if (generation !== this.registrationGeneration) return
       if (this._loadPlatformNavigation && this._isPlatformNavigationEnabled()) {
         platformNavTree = await this._loadPlatformNavigation()
@@ -442,7 +441,7 @@ constructor(options: DynamicRouterOptions) {
 
     if (generation === this.registrationGeneration) {
       try {
-        this.commitNavigation(tenantNavTree, platformNavTree, null)
+        this.commitNavigation(appNavTree, platformNavTree, null)
       } catch (error: unknown) {
         if (refresh && generation === this.registrationGeneration && preAuthNavTree !== null) {
           this.commitNavigation(null, null, preAuthNavTree)
@@ -454,15 +453,15 @@ constructor(options: DynamicRouterOptions) {
   }
 
   private assertSystemPageAliasAvailability(
-    tenantNavTree: RuntimeNavigation | null,
+    appNavTree: RuntimeNavigation | null,
     platformNavTree: RuntimeNavigation | null,
     publicNavTree: RuntimeNavigation | null,
   ): void {
     const routeOwners = new Map<string, Array<Readonly<{nodeId: string; scope: string | undefined; component: unknown; isPage: boolean}>>>()
     const aliasDeclarations: Array<Readonly<{canonicalPath: string; nodeId: string; scope: string | undefined; component: unknown; aliases: readonly string[]}>> = []
     const scopes: Array<Readonly<{tree: RuntimeNavigation; options: RouteRegistrationOptions}>> = []
-    if (publicNavTree) scopes.push({tree: publicNavTree, options: {skipTenantPrefix: true}})
-    if (tenantNavTree) scopes.push({tree: tenantNavTree, options: {}})
+    if (publicNavTree) scopes.push({tree: publicNavTree, options: {skipApplicationPrefix: true}})
+    if (appNavTree) scopes.push({tree: appNavTree, options: {}})
     if (platformNavTree) scopes.push({tree: platformNavTree, options: {routePathPrefix: this.platformPathPrefix}})
 
     const visit = (items: readonly RuntimeNavigationItem[], options: RouteRegistrationOptions): void => {
@@ -519,15 +518,15 @@ constructor(options: DynamicRouterOptions) {
   private mapNavigationRoutePath(relativePath: string, options: RouteRegistrationOptions): string {
     return options.routePathPrefix !== undefined
       ? this.addRoutePathPrefix(options.routePathPrefix, relativePath)
-      : options.skipTenantPrefix === true
+      : options.skipApplicationPrefix === true
         ? relativePath
-        : this.addTenantPrefix(relativePath)
+        : this.addApplicationPrefix(relativePath)
   }
 
-  private commitNavigation(tenantNavTree: RuntimeNavigation | null, platformNavTree: RuntimeNavigation | null, publicNavTree: RuntimeNavigation | null): void {
-    this.assertSystemPageAliasAvailability(tenantNavTree, platformNavTree, publicNavTree)
+  private commitNavigation(appNavTree: RuntimeNavigation | null, platformNavTree: RuntimeNavigation | null, publicNavTree: RuntimeNavigation | null): void {
+    this.assertSystemPageAliasAvailability(appNavTree, platformNavTree, publicNavTree)
     const previousRoutes = new Set(this.registeredRoutes)
-    const previousTenantNavTree = this._tenantNavTree
+    const previousAppNavTree = this._appNavTree
     const previousPlatformNavTree = this._platformNavTree
     const previousNavTree = this._navTree
     const previousNavRouteMap = this._navRouteMap
@@ -535,22 +534,22 @@ constructor(options: DynamicRouterOptions) {
     const nextSystemPageOwners: SystemPageIdentityOwner[] = []
     try {
       this.registeredRoutes.clear()
-      this._tenantNavTree = tenantNavTree
+      this._appNavTree = appNavTree
       this._platformNavTree = platformNavTree
       this._navTree = publicNavTree ?? this.activeNavTree()
       this._navRouteMap = new WeakMap()
 
       if (publicNavTree !== null) {
-        this.registerRoutesFromNav(publicNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public',
+        this.registerRoutesFromNav(publicNavTree.items, { skipApplicationPrefix: true, routeNamePrefix: 'public',
           systemPageScope: 'public', systemPageOwners: nextSystemPageOwners })
       } else {
-        if (tenantNavTree !== null) {
-          this.registerRoutesFromNav(tenantNavTree.items, {
-            systemPageScope: 'tenant',
-            ...(tenantNavTree.projectId === undefined ? {} : { systemPageProjectId: tenantNavTree.projectId }),
+        if (appNavTree !== null) {
+          this.registerRoutesFromNav(appNavTree.items, {
+            systemPageScope: 'application',
+            ...(appNavTree.projectId === undefined ? {} : { systemPageProjectId: appNavTree.projectId }),
             systemPageOwners: nextSystemPageOwners,
           })
-          routerLogger.info('运行导航路由注册完成', { nodeCount: tenantNavTree.items.length })
+          routerLogger.info('运行导航路由注册完成', { nodeCount: appNavTree.items.length })
         }
         if (platformNavTree !== null) {
           this.registerRoutesFromNav(platformNavTree.items, {
@@ -581,7 +580,7 @@ constructor(options: DynamicRouterOptions) {
       for (const route of previousRouteSnapshots) this.router.addRoute(route)
       this.registeredRoutes.clear()
       for (const path of previousRoutes) this.registeredRoutes.add(path)
-      this._tenantNavTree = previousTenantNavTree
+      this._appNavTree = previousAppNavTree
       this._platformNavTree = previousPlatformNavTree
       this._navTree = previousNavTree
       this._navRouteMap = previousNavRouteMap
@@ -618,14 +617,14 @@ constructor(options: DynamicRouterOptions) {
    * - nodeKind='system-action' → 不注册路由（动作按钮，由 AppHeader 处理）
    * - nodeKind='system-page' 或路径命中 componentMap → 静态组件路由
    * - 其他页面类节点 → pageComponent (PageRenderer)
-   * @param options 路由注册作用域；public 跳过租户前缀，platform 使用 /platform 前缀
+   * @param options 路由注册作用域；public 跳过应用前缀，platform 使用 /platform 前缀
    */
   private registerRoutesFromNav(nodes: RuntimeNavigationItem[], options: RouteRegistrationOptions = {}): void {
-    const skipTenantPrefix = options.skipTenantPrefix === true
+    const skipApplicationPrefix = options.skipApplicationPrefix === true
     const routePathPrefix = options.routePathPrefix
-    this.registerCrossProjectRefHostRoute(skipTenantPrefix || routePathPrefix !== undefined)
-    if (!skipTenantPrefix && routePathPrefix === undefined) {
-      const toolPath = this.addTenantPrefix('/__tool/:pageId')
+    this.registerCrossProjectRefHostRoute(skipApplicationPrefix || routePathPrefix !== undefined)
+    if (!skipApplicationPrefix && routePathPrefix === undefined) {
+      const toolPath = this.addApplicationPrefix('/__tool/:pageId')
       if (!this.registeredRoutes.has(toolPath)) {
         this.router.addRoute({ path: toolPath, name: 'spark-page-tool-call', component: this.pageComponent,
           props: resolvedRoute => ({ pageRuntime: this.getPageRuntime(resolvedRoute), routeSnapshot: resolvedRoute }),
@@ -655,7 +654,7 @@ constructor(options: DynamicRouterOptions) {
       const component = this.staticComponentMap.get(relativePath)
       const useStaticComponent = target.routeKind === 'page' && (node.itemKind === 'system-page' || component !== undefined)
       const pageId = resolveNavRoutePageId(node, rawNodePath)
-      // 平台级路由（preAuth）不加前缀，远程导航树路由统一加租户前缀
+      // 平台级路由（preAuth）不加前缀，应用导航树路由统一加应用前缀
       const routePath = this.mapNavigationRoutePath(relativePath, options)
       const isIdentityHost = target.routeKind === 'page' && component !== undefined
       const aliasRoutePaths = isIdentityHost

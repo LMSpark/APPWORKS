@@ -39,7 +39,7 @@ describe('NodeStateConfig navigation display attributes',()=>{
       tableName:owner.view.tableName,columns:owner.view.columns}
     const ownerWithoutModelName={projectId:owner.projectId,view:dataViewWithoutModelName} as unknown as BlueprintWorkspaceDataView
     const loadNavigationDictionaryOptions=vi.fn(async()=>{})
-    const state={blueprintDraft:{navigation:{displayMode:'compact',horizontalAlignment:'center'}},blueprintWorkspaceDataView:shallowRef(ownerWithoutModelName),
+    const state={projectId:'APP-A',blueprintDraft:{navigation:{displayMode:'compact',horizontalAlignment:'center'}},blueprintWorkspaceDataView:shallowRef(ownerWithoutModelName),
       blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:true})),notifyExternalDataViewChanged:vi.fn(),loadNavigationDictionaryOptions}
     const FormStub=defineComponent({template:'<form><slot /></form>'})
     const wrapper=mount(NodeStateConfig,{props:{state:state as unknown as DevState},global:{stubs:{RendererForm:FormStub,RendererDivider:true,
@@ -57,7 +57,7 @@ describe('NodeStateConfig navigation display attributes',()=>{
     await owner.load('NODE-1')
     const notifyExternalDataViewChanged=vi.fn()
     const loadNavigationDictionaryOptions=vi.fn(async()=>{})
-    const state={blueprintDraft:{navigation:{title:'Reports',order:1,publishInMenu:true,showChildren:true,beginGroup:false,displayMode:'compact',horizontalAlignment:'center'}},
+    const state={projectId:'APP-A',blueprintDraft:{navigation:{title:'Reports',order:1,publishInMenu:true,showChildren:true,beginGroup:false,displayMode:'compact',horizontalAlignment:'center'}},
       blueprintWorkspaceDataView:shallowRef(owner),blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:true})),notifyExternalDataViewChanged,loadNavigationDictionaryOptions}
     const FieldSelectStub=defineComponent({props:['dataViewKey','dataMember','dataField','optionDataViewKey','optionValueField','optionLabelField','readonly'],emits:['update:modelValue'],template:'<button :data-field="dataField" :disabled="readonly" />'})
     const FieldStub=defineComponent({props:['dataViewKey','dataMember','dataField'],template:'<span />'})
@@ -84,7 +84,7 @@ describe('NodeStateConfig navigation display attributes',()=>{
   it('hides unreadable dictionary values and keeps readable values readonly without write permission',async()=>{
     const {owner,dataSet}=createOwner()
     await owner.load('NODE-1')
-    const state={blueprintDraft:{navigation:{displayMode:'compact',horizontalAlignment:'center'}},blueprintWorkspaceDataView:shallowRef(owner),
+    const state={projectId:'APP-A',blueprintDraft:{navigation:{displayMode:'compact',horizontalAlignment:'center'}},blueprintWorkspaceDataView:shallowRef(owner),
       blueprintNodeFieldAccess:(field:string)=>({read:field!=='NavigationShowType',write:false}),notifyExternalDataViewChanged:vi.fn(),loadNavigationDictionaryOptions:vi.fn(async()=>{})}
     const FieldSelectStub=defineComponent({props:['dataField','readonly','label'],template:'<label>{{label}}<input :data-field="dataField" :disabled="readonly" /></label>'})
     const FormStub=defineComponent({template:'<form><slot /></form>'})

@@ -97,14 +97,14 @@ flowchart BT
 ## 启动与路由
 
 1. `src/main.ts` 做前置准备：清理损坏的本地存储键、注册内置插件（Element Plus、VXE Table）、构建 `config/navigation/vue-pages.json` 的页面注册表、与 lowcode 会话对账。
-2. 调用 `SparkApp.start(...)`，宿主注入 `loadNavigation`（`readLowcodeRuntimeNavigation`）、`readPageFile`、`loadScenario` 和租户路径前缀 `/t/:tenantId/:projectId`。
+2. 调用 `SparkApp.start(...)`，宿主注入 `loadNavigation`（`readLowcodeRuntimeNavigation`）、`readPageFile`、`loadScenario` 和应用路径前缀 `/apps/:projectId`。
 3. `SparkApp.start` 依次：创建 Vue 应用与主题 → 安装 Spark 插件 → 注册内置 renderer → 动态导入 `virtual:spark-components` 注册业务扩展组件 → 创建 `PageContentLoader` 与 `DynamicRouter` → `bootstrap`。
 4. 路由守卫在 `beforeMount` 中安装：
-   - 未登录：访问 `/t/*` 或平台工作区路径一律回平台首页，非公开页也回平台首页。
-   - 已登录：企业与会话不一致时改写为当前企业的同名路径；应用与会话不一致时切换到 URL 中的应用；非 `/t/` 路径导向当前租户首页（`about` 这类公开工具页除外）。
+   - 未登录：访问 `/apps/*` 或平台工作区路径一律回平台首页，非公开页也回平台首页。
+   - 已登录：应用与会话不一致时切换到 URL 中的应用；非 `/apps/` 路径导向当前应用首页（`about` 这类公开工具页除外）。
    - 守卫之后还会校验当前作用域路径是否在导航树内，不在则替换到项目首页。
 
-路径语法是 `/t/{enterpriseShortName}/{projectId}/{pagePath}`，解析与构造只在 `src/services/tenant-scope.ts`。平台级导航由 `isPlatformNavigationEnabled` 控制，默认关闭。
+路径语法是 `/apps/{projectId}/{pagePath}`，解析与构造只在 `src/services/application-scope.ts`。平台级导航由 `isPlatformNavigationEnabled` 控制，默认关闭。
 
 ## 运行导航装配
 
@@ -176,6 +176,6 @@ flowchart BT
 
 - [SPARK_PAGE_CONFIG_ARCHITECTURE.md](SPARK_PAGE_CONFIG_ARCHITECTURE.md)：项目模型、节点与配置页内容模型。
 - [DATAFLOW_ARCHITECTURE.md](DATAFLOW_ARCHITECTURE.md)：从项目节点到渲染运行时的数据流。
-- [PLATFORM_TENANT_ROUTING.md](PLATFORM_TENANT_ROUTING.md)：企业、应用、蓝图与运行路由。
+- [platform-application-routing.md](platform-application-routing.md)：应用、蓝图与运行路由。
 - [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)：权限快照、字段权限与动作权限。
 - [../../packages/README.md](../../packages/README.md)：包索引与 SSOT 分层。

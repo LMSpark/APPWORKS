@@ -37,11 +37,9 @@ const blueprintComponentBinding=computed(()=>{
   return owner?.projectId===props.state.projectId?owner.standardComponentBinding:undefined
 })
 const blueprintViewKey=computed(()=>blueprintComponentBinding.value?.dataViewKey??'')
-const blueprintDirectSource=computed(()=>blueprintComponentBinding.value?.dataSource)
-const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}
-  :blueprintDirectSource.value?{dataSource:blueprintDirectSource.value}: {})
+const blueprintContainerProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
 const blueprintFieldProps=computed(()=>blueprintViewKey.value?{dataViewKey:blueprintViewKey.value}: {})
-const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value||blueprintDirectSource.value))
+const blueprintBindingReady=computed(()=>Boolean(blueprintViewKey.value))
 const toolId=computed(()=>{
   const target=props.state.blueprintDraft.navigation?.target ?? ''
   return target.startsWith('cfg:')?target.slice(4).trim():''

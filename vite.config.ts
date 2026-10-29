@@ -116,7 +116,7 @@ export default defineConfig(({ command, mode }) => {
               proxyReq.removeHeader('Accept-Encoding')
             }
           })
-          proxy.on('proxyRes', (proxyRes) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             const contentType = proxyRes.headers['content-type']
             if (typeof contentType === 'string' && contentType.includes('text/event-stream')) {
               proxyRes.headers['X-Accel-Buffering'] = 'no'

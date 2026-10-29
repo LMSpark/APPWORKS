@@ -21,7 +21,7 @@ async function setup(navigation: RuntimeNavigation = TOOL_NAV) {
   const readPageFile = async (command: PageFileReadCommand) => { requests.push(command); return command.fileName === 'rule.json' ? '[]' : '' }
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
   const loadScenario = vi.fn(async ({ scenarioId }: RuntimeScenarioLoadCommand) => DataSet.fromJson({ scenarioId, dataSetName: scenarioId, tables: {} }))
-  const dynamic = createDynamicRouter({ router, readPageFile, pageComponent: DummyPage, tenantPathPrefix: '/t/:tenantId/:projectId', loadNavigation: async () => navigation, loadScenario })
+  const dynamic = createDynamicRouter({ router, readPageFile, pageComponent: DummyPage, applicationPathPrefix: '/apps/:projectId', loadNavigation: async () => navigation, loadScenario })
   await dynamic.registerRoutes()
   return { router, dynamic, requests, loadScenario }
 }
@@ -30,7 +30,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('falls back to pre-auth only when navigation returns 401', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage,
-      loadNavigation: async () => { throw Object.assign(new Error('Unauthorized'), { status: 401 }) }, preAuthNavTree: PRE_AUTH_NAV, tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/demo/template-dsl': DummyPage } })
+      loadNavigation: async () => { throw Object.assign(new Error('Unauthorized'), { status: 401 }) }, preAuthNavTree: PRE_AUTH_NAV, applicationPathPrefix: '/apps/:projectId', componentMap: { '/demo/template-dsl': DummyPage } })
     await dynamic.registerRoutes()
     expect(dynamic.getRegisteredRoutes()).toContain('/login')
     expect(dynamic.getRegisteredRoutes()).toContain('/demo/template-dsl')
@@ -40,7 +40,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('registers paths without query and creates no runtime during registration', async () => {
     const { router, dynamic, requests, loadScenario } = await setup()
     const route = router.getRoutes().find(item => item.name === 'nav-orders-node')
-    expect(route?.path).toBe('/t/:tenantId/:projectId/__page/orders-node')
+    expect(route?.path).toBe('/apps/:projectId/__page/orders-node')
     expect(route?.meta['pageId']).toBe('orders-tool')
     expect(route?.meta).not.toHaveProperty('dataSpaceBinding')
     expect(dynamic.getPageRuntimeNames()).toEqual([])
@@ -50,7 +50,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
   it('loads independent scenarios and published files once per call; reordered query reactivates the instance', async () => {
     const { router, dynamic, requests, loadScenario } = await setup()
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1&additionalScenarioIds=S3&additionalScenarioIds=S2&zero=0&bare&blank=')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1&additionalScenarioIds=S3&additionalScenarioIds=S2&zero=0&bare&blank=')
     const first = dynamic.getPageRuntime(router.currentRoute.value)
     if (!first) throw new Error('missing runtime')
     await first.load()
@@ -58,19 +58,19 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(requests).toHaveLength(3)
     expect(requests.every(command => command.versionId === 'rule=2;script=1;style=3' && command.pageId === 'orders-tool' && command.projectId === 'APP')).toBe(true)
     expect(first.getDataSet('S1')).not.toBe(first.getDataSet('S2'))
-    await router.push('/t/T/APP/__page/orders-node?blank=&bare&zero=0&additionalScenarioIds=S2&additionalScenarioIds=S3&scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?blank=&bare&zero=0&additionalScenarioIds=S2&additionalScenarioIds=S3&scenarioId=S1')
     expect(dynamic.getPageRuntime(router.currentRoute.value)).toBe(first)
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S2')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S2')
     const second = dynamic.getPageRuntime(router.currentRoute.value)
     expect(second?.instanceId).not.toBe(first.instanceId)
-    await router.push('/t/T/APP/__page/orders-node-2?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node-2?scenarioId=S1')
     expect(dynamic.getPageRuntime(router.currentRoute.value)?.instanceId).not.toBe(first.instanceId)
     expect(dynamic.getPageRuntimeNames()).toHaveLength(3)
   })
 
   it.each(['scenarioId', 'scenarioId=', 'scenarioId=S1&scenarioId=S2', 'additionalScenarioIds=', 'additionalScenarioIds=S1&additionalScenarioIds=S1', 'scenarioId=S1&additionalScenarioIds=S1'])('rejects ambiguous call parameters %s', async query => {
     const { router, dynamic, loadScenario } = await setup()
-    await router.push(`/t/T/APP/__page/orders-node?${query}`)
+    await router.push(`/apps/APP/__page/orders-node?${query}`)
     expect(() => dynamic.getPageRuntime(router.currentRoute.value)).toThrow()
     expect(loadScenario).not.toHaveBeenCalled()
     expect(dynamic.getPageRuntimeNames()).toEqual([])
@@ -79,7 +79,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('retains more than ten calls and refuses dirty closure before releasing any state', async () => {
     const { router, dynamic } = await setup()
     for (let index = 0; index < 12; index++) {
-      await router.push(`/t/T/APP/__page/orders-node?scenarioId=S${index}`)
+      await router.push(`/apps/APP/__page/orders-node?scenarioId=S${index}`)
       dynamic.getPageRuntime(router.currentRoute.value)
     }
     expect(dynamic.getPageRuntimeNames()).toHaveLength(12)
@@ -99,7 +99,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
 
   it('marks configuration changes without replacing or destroying the current instance', async () => {
     const { router, dynamic } = await setup()
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
     const current = dynamic.getPageRuntime(router.currentRoute.value)
     dynamic.markPageConfigPending('orders-tool')
     expect(dynamic.getPageRuntime(router.currentRoute.value)).toBe(current)
@@ -109,7 +109,7 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   it('reloads the latest published files in the retained instance and rejects changed tool identity', async () => {
     const navigation: RuntimeNavigation = { ...TOOL_NAV, items: [...TOOL_NAV.items] }
     const { router, dynamic, requests } = await setup(navigation)
-    await router.push('/t/T/APP/__page/orders-node?scenarioId=S1')
+    await router.push('/apps/APP/__page/orders-node?scenarioId=S1')
     const current = dynamic.getPageRuntime(router.currentRoute.value)
     if (!current) throw new Error('missing runtime')
     await current.load()
@@ -137,12 +137,12 @@ describe('DynamicRouter formal routes and runtime calls', () => {
       { id: 'docs', title: 'Docs', itemKind: 'link', linkTarget: 'iframe', path: 'https://example.com/docs' },
     ] }
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, loadNavigation: async () => navigation,
-      tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/dashboard': DummyPage } })
+      applicationPathPrefix: '/apps/:projectId', componentMap: { '/dashboard': DummyPage } })
     await dynamic.registerRoutes()
-    const host = router.getRoutes().find(route => route.path === '/t/:tenantId/:projectId/dashboard')
+    const host = router.getRoutes().find(route => route.path === '/apps/:projectId/dashboard')
     expect(host?.meta['type']).toBe('system-page')
     expect(host?.meta).not.toHaveProperty('nodeId')
-    await router.push('/t/T/APP/dashboard')
+    await router.push('/apps/APP/dashboard')
     expect(router.currentRoute.value.meta['nodeId']).toBe('dashboard')
     expect(router.getRoutes().find(route => route.name === 'nav-docs')?.meta['linkUrl']).toBe('https://example.com/docs')
     expect(dynamic.getPageRuntimeNames()).toEqual([])

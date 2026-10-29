@@ -1,6 +1,6 @@
 <!--
 @module app:views/tenant/AppList
-职责：提供主应用 AppList 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
+职责：提供主应用 AppList 能力，围绕应用目录连接视图、服务、布局和应用路由。
 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
 AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。
 -->
@@ -38,7 +38,6 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
     <AppProjectSettingsDialog
       v-if="settingsTarget"
       v-model="settingsVisible"
-      :tenant-id="tenantId"
       :project-id="settingsTarget.projectId"
       :project-name="settingsTarget.name"
       @saved="loadProjects"
@@ -70,14 +69,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 
 <script setup lang="ts">
 /**
- * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；属于租户路由页，不允许作为 SparkNode 组件配置生成。
+ * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；不作为 SparkNode 组件配置生成。
  */
 import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { buildTenantPath, parseTenantScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { buildApplicationPath, parseApplicationPathScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, RendererList, useSparkComponent } from '@spark-appworks/spark-component'
@@ -96,7 +95,7 @@ type ProjectItem = {
 const router = useRouter()
 const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
-const { sparkProvide } = useSparkComponent({ type: 'tenant-app-list' })
+const { sparkProvide } = useSparkComponent({ type: 'app-list' })
 const showCreateDialog = ref(false)
 const creating = ref(false)
 const settingsVisible = ref(false)
@@ -108,10 +107,6 @@ let active = true
 let generation = 0
 let unsubscribe: (() => void) | undefined
 
-const tenantId = computed(() => {
-  const fromRoute = parseTenantScope(route.path)?.tenantId
-  return fromRoute ?? readLowcodePrincipal()?.enterpriseName ?? ''
-})
 const blueprintScenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
 const scenarioId = computed(() => blueprintScenarioId.value || getBuiltinScenarioResource('projectBlueprint').scenarioId)
 const scenarioViewId = computed(() => blueprintScenarioId.value ? 'default' : 'catalogApps')
@@ -182,7 +177,7 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
   scenarioView.value = null
   runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
   const isBlueprintScenario = Boolean(blueprintScenarioId.value)
-  const projectId = parseTenantScope(route.path)?.projectId ?? ''
+  const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
   if (isBlueprintScenario && !projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
   try {
     const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
@@ -270,7 +265,7 @@ async function handleSwitch(project: ProjectItem) {
     if (!principal) throw new Error('未登录，无法切换应用')
     const receipt = await getProjectSwitch().switchAndReload(project.projectId)
     receipt.assertCurrent()
-    const failure = await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
+    const failure = await router.push(buildApplicationPath({ projectId: project.projectId }, getNavHomePath()))
     receipt.assertCurrent()
     if (failure) throw new Error('应用页面导航未完成')
     ElMessage.success(`已切换到「${project.name}」`)

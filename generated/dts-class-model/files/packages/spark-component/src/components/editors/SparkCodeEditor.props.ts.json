@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/editors/SparkCodeEditor.props",
+    "sourcePath": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+    "sourceFile": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/editors/SparkCodeEditor.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/editors/SparkCodeEditor.props\n职责：声明通用代码编辑器的语言与呈现属性。\n边界：不负责数据绑定；字段级绑定由 FieldCodeEditor 承接。\nAI用途：需要在可复用字段容器中编辑代码文本时，查看此输入表面属性；页面数据必须经 FieldCodeEditor 绑定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkCodeEditorProps"
+    ],
+    "componentName": "SparkCodeEditor",
+    "componentType": "code-editor",
+    "componentLevel": "infrastructure",
+    "componentLayer": "editor",
+    "componentDirectory": "editors"
+  },
+  "$defs": {
+    "SparkCodeEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkCodeEditorProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "modelValue": {
+          "type": "string"
+        },
+        "language": {
+          "enum": [
+            "css",
+            "javascript"
+          ]
+        },
+        "readOnly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "height": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "tabSize": {
+          "type": "number"
+        },
+        "lineWrapping": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-29T13:14:16.752Z",
+  "models": {
+    "SparkCodeEditorProps": {
+      "name": "SparkCodeEditorProps",
+      "jsdoc": "SparkCodeEditor 受控编辑器属性。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SparkCodeEditor",
+        "type": "code-editor",
+        "level": "infrastructure",
+        "layer": "editor",
+        "directory": "editors"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 编辑器内容；单独使用时通过 update:modelValue 输出。 */\n    modelValue?: string;\n    /** 当前支持JavaScript和CSS语法。 */\n    language?: 'javascript' | 'css';\n    /** 禁止输入。 */\n    readOnly?: boolean;\n    /** 编辑器高度。 */\n    height?: number | string;\n    /** Tab缩进空格数。 */\n    tabSize?: number;\n    /** 是否自动换行。 */\n    lineWrapping?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 编辑器内容；单独使用时通过 update:modelValue 输出。 */\n    modelValue?: string;\n    /** 当前支持JavaScript和CSS语法。 */\n    language?: 'javascript' | 'css';\n    /** 禁止输入。 */\n    readOnly?: boolean;\n    /** 编辑器高度。 */\n    height?: number | string;\n    /** Tab缩进空格数。 */\n    tabSize?: number;\n    /** 是否自动换行。 */\n    lineWrapping?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "编辑器内容；单独使用时通过 update:modelValue 输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "language",
+              "jsdoc": "当前支持JavaScript和CSS语法。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readOnly",
+              "jsdoc": "禁止输入。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "height",
+              "jsdoc": "编辑器高度。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tabSize",
+              "jsdoc": "Tab缩进空格数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineWrapping",
+              "jsdoc": "是否自动换行。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

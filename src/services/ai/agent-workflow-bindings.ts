@@ -175,10 +175,8 @@ function createProjectPlanningPromptInput(input: JsonParams): ProjectPlanningAge
   if (!Array.isArray(blueprintNodesValue)) {
     throw new Error('projectPlanning prompt input requires blueprintNodes array.')
   }
-  const tenantId = readOptionalStringInput(input, 'tenantId')
   const planningAttachmentRef = readOptionalStringInput(input, 'planningAttachmentRef')
   return {
-    ...(tenantId === undefined ? {} : { tenantId }),
     projectScopeKey: readRequiredStringInput(input, 'projectScopeKey'),
     projectId: readRequiredStringInput(input, 'projectId'),
     requirement: readRequiredStringInput(input, 'requirement'),

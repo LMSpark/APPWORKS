@@ -3626,6 +3626,13 @@ flowchart TD
 - **修正：**`DataBaseManage` 旧别名跳转将 `tenantPrefix` 改为 `applicationPrefix`，并将正则收窄为 `/apps/{projectId}`，不再误取后续页面段。
 - **核对边界：**登录会话和 SPARK API 传输合同里的服务端身份字段仍属于接口边界；它们不作为前端页面/路由/应用工作区身份。未据此宣称仓内所有历史“租户”文本或后端字段已删除。
 
+### 2026-10-29 应用切换后首页身份失配待证
+
+- **只读调用链：**`AppList.handleSwitch` 先调用注入的 `switchAndReload(projectId)`，再通过 `getNavHomePath()` 读取当前 DynamicRouter 导航树首页，并将其交给 `buildApplicationPath({projectId}, homePath)` 后 `router.push`。壳的 `switchAndReload` 先切换 lowcode 应用身份、设置 `activeProjectId`，再经 `reloadNavigation → reloadAndSyncNavigation → DynamicRouter.refreshRoutes` 装配并提交新导航树；`getNavHomePath()` 读取该 DynamicRouter 的活动树 `homePath`。`ProjectNavigationGuard` 若后续 URL projectId 与 principal applicationId 不同，会以 URL projectId 再切应用并刷新路由。
+- **可证行为与候选解释：**`buildApplicationPath` 对已经匹配 `/apps/{projectId}` 形状的输入原样返回。若切换后目标导航树 `homePath` 实际仍为旧 `/apps/homepage/app-list`，则目标构造不会改写其应用段，可能导致重复导航留在原 URL；正式导航投影通常从运行页面路径产生 `/...` 相对子路径，但本轮没有捕获目标应用正式导航 DataView/授权投影的实际首页值。
+- **阶段结论：**仅凭“切换后 principal 为 465068D50BA1090EC50B5D489D19CECB、URL 仍为 `/apps/homepage/app-list`、旧系统页身份失效”无法区分首页值错误、push 返回 duplicated/cancelled、守卫重新选择旧应用或导航刷新失败。仓内源码显示可疑输入下存在路径保留行为，但不能证明本次现场实际返回了该输入；未构造伪造目标导航夹具、未写测试或产品代码、未运行测试/lint。
+- **所需证据：**同一现场一次切换期间记录脱敏后的 target principal `applicationId`、`getNavTree()?.projectId`、正式 `homePath`、`getNavHomePath()` 值、`buildApplicationPath` 生成的目标、`router.push` 返回的 NavigationFailure 或异常、切换前后 `router.currentRoute.fullPath`，并保留目标导航 DataView 行及授权导航投影对应的首页节点。取得证据后再决定是否存在产品 bug 和能否用真实合同夹具复现；不以 fallback 或临时合成导航证明修复。
+
 ### 2026-10-29 数据库目录应用路径回归
 
 - **回归与 RED：**在数据库目录测试中新增 `/apps/APP/DataBaseManage/DataBaseManage/index` 来源路径，断言“管理”跳转保留恰好一个 `/apps/APP` 前缀。临时以旧 `/t/{tenant}/{project}` 前缀提取逻辑运行该用例，实际导航丢失 `/apps/APP`，用例失败；未保留临时代码。
@@ -3638,3 +3645,12 @@ flowchart TD
 - **完整受影响回归：**数据库目录、DevSystem 头部保存、导航宿主项目选择、应用路径解析、路由守卫、应用切换与表视图旧别名 7 files / 82 tests 通过；正式 ClassModel 生成成功（991 DTS / 2049 symbols / 1642 entries），`pnpm run typecheck`、`pnpm run lint`、`pnpm run verify:rules` 和 `pnpm run build` 均退出 0。规则扫描保留 AI model spec 2 warnings / 1 info；构建保留既有 vendor PURE annotation、chunk size 和 CodeMirror dynamic import 提示。
 - **提交：**仅将应用路径前缀修正、三份前端 projectId-only 测试和本台账组成提交 `45ef2883a`，已推送 `origin/codex/ai-data-entry`；其他既有未提交工作未纳入该提交。
 - **真实 SPA 当前观察：**本轮用户回复已登录，但 Codex 可见的 Chrome 仍为新标签；在 IAB 打开 `http://127.0.0.1:5273/apps/homepage/app-list` 后被重定向到 `/`，再打开登录入口看到账号登录表单。这证明当前 IAB 会话尚未认证，不能读取真实导航树或 cfg 三文件；已将登录表单保留为交接标签，未输入或传输凭据。
+
+### 2026-10-29 登录后 SPA 验收续查
+
+- **登录与范围：**复用用户刚确认已登录的本地 SPA 标签；页面身份显示王涛。全程只读，没有修改远端数据或配置。
+- **应用列表：**刷新 `/apps/homepage/app-list` 后壳与登录态恢复，但目录没有渲染任何应用卡片；切换过程中可见错误“蓝图 DataView 父节点闭包缺失：0F6317265D4A2F3BFAA31F4F6DC311FA -> 05F5F4DC24CE42FB815359EB84FFD33D”。因此本轮无法通过目录交互发现目标 cfg 应用。
+- **D99 工作台：**沿已记录的正式应用 ID 打开 `/apps/D99A1DCE9894698799101EFD70F8FC76/dev?__sparkNavigationId=appworks-tool-dev` 后，页面显示“仓内蓝图尚未接入该资源”“项目蓝图 DataView 尚未就绪”“0 页面”。树未加载成功，不能据此宣称该应用当前 0 cfg，也不能复用旧的 85 节点快照作为本轮状态。
+- **BE7C 工作台：**打开既有记录中的 `/apps/BE7C7452A333B0EB675F1EACBA035E8F/dev?__sparkNavigationId=appworks-tool-dev` 后页面保持空白；没有可读取的导航树或 cfg 节点证据。
+- **结论：**用户登录已确认，但实时目录/蓝图 DataView 目前不能提供可验收的正式节点数据。真实 cfg 项目的工具三文件、发布 `VersionId` 和持久回读仍未验证；先保留为未完成，不按树为空推断无 cfg，也不绕过数据完整性检查或写远端记录。
+- **补充复核：**应用列表页主体为空后，通过顶栏“平台应用管理”打开正式应用 DataView，读取到 62 行/62 总数，登录企业为领码科技；其中“元数据管理”对应 D99。经该表“进入”后应用 principal 切到 D99，但旧平台页路由提示“应用范围已切换，请重新选择页面”；重新点正式顶栏导航后进入 D99 服务器管理页且读到 5 条 DataView 行，证明平台应用目录及 D99 普通业务页可用。再从 D99 顶栏进入“开发工作台”，仍显示“项目蓝图 DataView 尚未就绪、0 页面”。这把失败范围收窄到 DevSystem 项目蓝图数据未就绪；仍不足以判断节点/Cfg 数量。

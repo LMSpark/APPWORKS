@@ -3706,3 +3706,9 @@ flowchart TD
 - **身份状态：**当前新建 IAB 标签显示 SPARK 登录页，未呈现已认证工作区；未提交表单、未读取或传输预填凭据。该标签已保留供用户接管。
 - **代码侧复核：**仓内应用导航构造与解析使用 `/apps/{projectId}`；路由相关源码无 `/t/...` 或 `buildTenantPath` 使用。剩余租户字段集中在独立平台租户管理页及现有身份/API上下文，未将其改写为应用页面身份。
 - **状态：**本轮无 SPA 数据写入。由于当前可见标签未认证，不能继续确认实时目录、cfg 三文件或发布版本回读；此前登录会话证据仍以各自台账条目范围为准。
+
+### 2026-10-29 工具三文件与发布目录仓内合同回归
+
+- **仓内映射：**`data-space-design/pagedata.json` 将工作/发布文件声明为 file DataTable；`ProjectToolResource` 按页面 ID、文件名与可选发布版本读取，工作文件文本差异经 DataView/DataSet 保存。允许的正式文件名为 `rule.json`、`script.js`、`style.css`。DevSystem 的版本面板绑定 7AB 场景正式 `ProjectToolVersion` DataView，只读查询版本目录并按当前 `pageId + fileName` 切换目标。
+- **合同回归：**项目工具资源、发布版本资源、DevFileEditor 版本面板、DevSystem 文件闭环和低代码场景加载器 5 files / 128 tests 通过。覆盖正式视图身份、工作文本改动/取消/保存/重开、未知提交不重放、发布快照只读及 7AB 正式版本视图绑定。
+- **证据边界：**这些是仓内 DataView/资源合同测试，不是当前 SPA 的动态 cfg 项目文件读取、三文件持久回读或目标切换证据。当前可见 SPA 标签仍停在登录页；未写远端数据。真实 cfg 项目和发布 `VersionId` 现场验收继续未完成。

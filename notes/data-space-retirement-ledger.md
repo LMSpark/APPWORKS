@@ -3712,3 +3712,9 @@ flowchart TD
 - **仓内映射：**`data-space-design/pagedata.json` 将工作/发布文件声明为 file DataTable；`ProjectToolResource` 按页面 ID、文件名与可选发布版本读取，工作文件文本差异经 DataView/DataSet 保存。允许的正式文件名为 `rule.json`、`script.js`、`style.css`。DevSystem 的版本面板绑定 7AB 场景正式 `ProjectToolVersion` DataView，只读查询版本目录并按当前 `pageId + fileName` 切换目标。
 - **合同回归：**项目工具资源、发布版本资源、DevFileEditor 版本面板、DevSystem 文件闭环和低代码场景加载器 5 files / 128 tests 通过。覆盖正式视图身份、工作文本改动/取消/保存/重开、未知提交不重放、发布快照只读及 7AB 正式版本视图绑定。
 - **证据边界：**这些是仓内 DataView/资源合同测试，不是当前 SPA 的动态 cfg 项目文件读取、三文件持久回读或目标切换证据。当前可见 SPA 标签仍停在登录页；未写远端数据。真实 cfg 项目和发布 `VersionId` 现场验收继续未完成。
+
+### 2026-10-29 场景历史顺序复核（当前 worktree）
+
+- **当前分支回归：**`scenario-definition-resource.test.ts`、`use-dev-state-page-data-history.test.ts`、`lowcode-data-space-runtime.test.ts` 合跑 3 files / 155 tests 通过。覆盖历史目录/预览、快照恢复只生成定义 DataView 草稿并由显式保存落盘、unknown attempt 面板关闭重开保留、迟到结果/目标切换守卫，以及 builtin 场景历史走仓内开发宿主且不回退远端文件 API。
+- **与 SPA 证据区分：**仓内历史实现和回归在当前分支复核通过；旧证据目录仍保留真实 SPA 历史创建、预览、恢复、显式保存、重开及切换截图/回读。当前新 SPA 标签仍为未认证登录页，本轮没有新增长期服务现场验证，也没有远端写入。
+- **当前顺序：**历史片在当前分支已有代码与测试证据；继续 builtin/动态树与正式工具三文件映射。真实 cfg 应用样本及其发布版本现场读回仍是待验项。

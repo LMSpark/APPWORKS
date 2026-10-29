@@ -3883,3 +3883,11 @@ flowchart TD
 - **定向验证：**`pnpm exec vitest run tests/runtime/page/catalog/data-space-four-file.test.ts tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts --reporter=dot --silent`：**2 files / 146 tests passed**。这覆盖修正后的两份测试文件，不重新定义上述全仓快照数值。两文件 ESLint `--no-cache --max-warnings=0` 与 `git diff --check` 退出 0。
 - **剩余失败现状（需逐项继续核，不宣称基线）：**快照中尚有 16 个失败文件。主要错误族为：若干页面/系统测试缺正式登录执行身份（navigation-sync、page-design-editor-provider、字段编辑/关系/批量 UI）；元数据设计夹具未提供可唯一确认的正式 Base_DataSet；应用目录 fixture 相对 repository-scenarios URL 解析失败；renderer-tabs DataView 行上下文期望不符；view-parameter-input mock 缺 `isBlueprintViewAttachedToRuntime`。其余页面挂载失败均须先区分上述初始化错误与页面行为。详细原始错误保留在 ignored artifact `artifacts/vitest-full-post-mapping-20261030.json`。
 - **交付边界：**本条只记录全仓报告和两处测试夹具/断言修正；未声称全仓通过或这些剩余项都是历史失败。真实 SPA cfg 项目、三文件在线持久化及重开仍需认证会话验收；未修改、启动或部署 Java。
+
+### 2026-10-30 全量回归中登录/仓内资源测试夹具的定向复核
+
+- **有效会话夹具：**`navigation-sync.test.ts` 与 `page-design-editor-provider.test.ts` 直接创建真实工作区，需一个有效登录身份及明确选中的应用上下文；仅有页面导航 mock 不满足 `createLowcodeProjectGateways` 的正式执行范围。新增共享测试 helper，身份 role 为空，不引入页面租户参数或角色分支；两文件定向复跑 **7/7 passed**。
+- **Node 仓内场景读取：**`lowcode-application-catalog.test.ts` 使用正式仓内场景 DataView，但测试环境中的 Node fetch 不能解析浏览器相对 `/__spark/repository-scenarios` URL。测试专用 fetch stub 只服务于注册表登记的场景路径并计算正式文本 SHA-256；该文件 **51/51 passed**。未修改生产资源客户端。
+- **本轮合并定向结果：**两处前条修正文件、导航同步及 provider 共 **4 files / 153 passed**；应用目录文件另 **1 file / 51 passed**。TypeScript typecheck、涉及测试文件 ESLint、`git diff --check` 退出 0。没有运行全仓第二遍，因此不能把旧全仓快照折算成“修复后全仓”数字。
+- **未完成项：**旧全仓快照中其余失败现象包括正式 Base_DataSet 目标夹具不完整、Tabs 视图上下文断言、view-parameter mock 缺正式导出，以及数据空间设计页面初始化被执行范围/后续宿主网络夹具阻断。曾在数据空间字段页面尝试登录夹具，进一步暴露测试挂载依赖宿主 API 的 `Network Error`；该未完成试验已撤回，页面测试仍需完整 mock 正式宿主输入后再恢复。其余失败须沿真实断言逐项处理，不能放宽运行时身份守卫或将它们称为基线。
+- **状态：**全仓 JSON 是修正前快照；当前全仓结果未知。仅以上定向测试通过；真实 SPA cfg 项目在线验收仍等待已认证会话。未触碰 Java。

@@ -3,6 +3,7 @@ import {DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/sp
 import {DataSet} from '@spark-appworks/spark-data'
 import {Request, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {lowcodeApi, lowcodeHttp} from '@/lowcode/lowcode-runtime'
+import {installRepositoryScenarioTestFetch} from '../../../../support/helpers/authenticated-lowcode-session'
 import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
 
 const priorSession = lowcodeApi.session.get()
@@ -75,6 +76,7 @@ async function requireNavigationRootReader(): Promise<(systemId: string, assertC
 }
 
 beforeEach(() => {
+  installRepositoryScenarioTestFetch()
   vi.spyOn(DataSpaceDesignApi.prototype, 'readRelations').mockResolvedValue([])
   lowcodeApi.application.clear()
   queryRows = [{rowid: 'APP-1', AppDesc: 'Alpha', AppName: 'alpha'}]
@@ -115,6 +117,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   lowcodeApi.session.clear()
   if (priorSession) lowcodeApi.session.save(priorSession)
   lowcodeApi.application.clear()

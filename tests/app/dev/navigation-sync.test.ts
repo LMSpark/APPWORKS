@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
@@ -32,6 +32,7 @@ import {
 } from '@/services/project/project-shell'
 import { getAppProjectWorkspace } from '@/services/project/project-shell'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
+import { installAuthenticatedLowcodeTestSession, restoreLowcodeTestSession } from '../../support/helpers/authenticated-lowcode-session'
 
 const sampleNav: RuntimeNavigation = {
   title: 'root',
@@ -43,11 +44,13 @@ const sampleNav: RuntimeNavigation = {
 
 describe('navigation-sync', () => {
   beforeEach(() => {
+    installAuthenticatedLowcodeTestSession()
     resetAppProjectWorkspace()
     navTreeState.tree = { ...sampleNav, items: [...sampleNav.items] }
     navTreeState.refreshCalls = 0
     navTreeState.refresh = null
   })
+  afterEach(() => restoreLowcodeTestSession())
 
   it('syncCommittedNavigation updates only the runtime shell', () => {
     const shellWrites: RuntimeNavigation[] = []

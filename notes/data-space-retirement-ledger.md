@@ -3907,3 +3907,10 @@ flowchart TD
 - **当前门禁：**原生页面与 metadata 夹具改动 ESLint、`pnpm run typecheck`、`git diff --check` 通过。按 RED 修正后在 `d322bafe4` 全仓复跑：**940 files / 6,985 tests passed，0 failed**。JSON 为 `artifacts/vitest-full-after-d322bafe4.json`，覆盖旧快照全部 7 个失败文件及其他当前套件。
 - **正式规则/构建门禁：**`pnpm run verify:rules` 首次指出生成的 `backend-api-contracts/appworks-consumer-ledger.json` 过期；执行正式 `pnpm run generate:lowcode-contracts`（611 endpoints / 208 consumers），保留生成 diff 后重新运行，完整规则门禁退出 0。AI model spec 保留 2 个既有 warnings 与 1 个 info。随后 `pnpm run build` 退出 0，Vite 输出非致命 bundle/dynamic-import notices。没有修改任何 ClassModel 源声明，因此无需生成 ClassModel。
 - **未完成项：**全仓测试及本地正式门禁当前通过不等于目标完成。SPA cfg 项目登录、真实 ProjectToolFile 三文件读写/服务端回读、关闭重开、发布版本回读与目标切换仍待授权登录会话现场验收；之后继续完整页面业务语义与配置驱动审计。未改、启动或部署 Java。
+
+### 2026-10-30 app-list 路由与前端租户边界复核
+
+- **路由源码：**`src/services/application-scope.ts` 只解析 `/apps/:projectId`，`buildApplicationPath({projectId:'homepage'}, '/app-list')` 生成 `/apps/homepage/app-list`；旧 `/t/acme/homepage/app-list` 被识别为无应用 scope。`App.vue` 与项目导航守卫同样使用 `/apps/`。未发现 `/t/` 兼容路由或将 tenant 放进应用路径的实现。
+- **现有回归：**`pnpm exec vitest run tests/runtime/auth-nav/application-scope.test.ts tests/app/views/tenant/app-list-dataview.test.ts --reporter=dot --silent` 通过，**2 files / 11 tests**。app-list 的目录查询绑定正式 `Base_AppSystemList` DataView；目录与页面路由使用 project/app ID，不由前端租户参数选定。
+- **标准组件差距：**`src/views/tenant/AppList.vue` 的卡片目录已用标准 `RendererList` 和 DataView 字段/动作子节点，但页头、创建弹窗及表单仍直接用 Element Plus。应用创建当前因缺少正式保存合同而 fail-closed；在没有正式资源/DataView 身份前不造临时模型或页面级提交通道。此壳层页面的组件替换尚未完成，需沿仓内 ClassModel 与标准字段组件合同继续收敛。
+- **现场边界：**CUA 当前浏览器清单没有 SPA 标签，故本轮只能确认源码和本地回归，不能确认登录态、服务器端 app-list 实际 URL 或动态 cfg 项目三文件读取/持久化。当前反馈为需重新登录；没有远端写入，未修改、启动或部署 Java。

@@ -1,0 +1,8 @@
+{
+  "phase": "source owner review before correction",
+  "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+  "tabId": "4",
+  "url": "http://127.0.0.1:5273/t/NewApp/BE7C7452A333B0EB675F1EACBA035E8F/dev?__sparkNavigationId=appworks-tool-dev",
+  "visibleMessage": "应用启动失败 / BUILTIN_BLUEPRINT_IDENTITY: 仓内蓝图节点资源只能由 AppWorks 7AB 场景装配",
+  "action": "read existing HMR page; no business writes"
+}

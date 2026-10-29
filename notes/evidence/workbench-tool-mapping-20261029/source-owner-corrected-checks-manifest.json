@@ -1,0 +1,22 @@
+[
+  {
+    "name": "appworks-builtin-root-source-freeze-01.log",
+    "sha256": "29A1CE5F0B59CBB0C0BFB6F4C34BE7BEE13E46066255F370E7E2CB3E9DC9CF25",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-focused-03.log",
+    "sha256": "C935AAFD521C13422D02A50E37B6478D1BFEE83FDF321AAA4F5D8B7F04727224",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-source-tests-02.log",
+    "sha256": "1ED37D2233009E5F10EB9EB05443D4764366B8DF1536A7BCA98483B99E50EBFB",
+    "bytes": 427
+  },
+  {
+    "name": "appworks-builtin-typecheck-03.log",
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962",
+    "bytes": 62
+  }
+]

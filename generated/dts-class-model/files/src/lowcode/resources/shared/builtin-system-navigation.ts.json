@@ -7,13 +7,188 @@
     "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/shared/builtin-system-navigation",
-    "jsdoc": "app 的 lowcode/resources/shared/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinSystemNavigation（共 1 个 symbol）。",
+    "jsdoc": "app 的 lowcode/resources/shared/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintRecord, BuiltinSystemNavigation（共 2 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
+      "BuiltinBlueprintRecord",
       "BuiltinSystemNavigation"
     ]
   },
   "$defs": {
+    "BuiltinBlueprintField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BuiltinBlueprintField",
+      "enum": [
+        "name",
+        "funCode",
+        "FunName",
+        "FunOrderValue",
+        "prowid",
+        "NavigationImageWxz",
+        "MobileUrl",
+        "IsShowChildItem",
+        "NavigationShowType",
+        "ChildItemLocation",
+        "HorizontalAlignment",
+        "memo",
+        "htmlDesc",
+        "conid",
+        "conType",
+        "DifficultyFactor",
+        "Manhour",
+        "Number",
+        "Sum",
+        "Total",
+        "personCharge",
+        "status",
+        "NavigationUrl",
+        "VersionId",
+        "IsShowAtNav",
+        "NavigationType",
+        "SysId",
+        "rowid"
+      ]
+    },
+    "BlueprintValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "BlueprintValue",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "BuiltinBlueprintRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuiltinBlueprintRecord",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "funCode": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "FunName": {
+          "type": "string"
+        },
+        "FunOrderValue": {
+          "type": "number"
+        },
+        "prowid": {
+          "type": "string"
+        },
+        "NavigationImageWxz": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "MobileUrl": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "IsShowChildItem": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "NavigationShowType": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "ChildItemLocation": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "HorizontalAlignment": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "memo": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "htmlDesc": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "conid": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "conType": {
+          "enum": [
+            "Model",
+            "Navitem"
+          ]
+        },
+        "DifficultyFactor": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "Manhour": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "Number": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "Sum": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "Total": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "personCharge": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "status": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "NavigationUrl": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "VersionId": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "IsShowAtNav": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "NavigationType": {
+          "$ref": "#/$defs/BlueprintValue"
+        },
+        "SysId": {
+          "type": "string"
+        },
+        "rowid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "funCode",
+        "FunName",
+        "FunOrderValue",
+        "prowid",
+        "NavigationImageWxz",
+        "MobileUrl",
+        "IsShowChildItem",
+        "NavigationShowType",
+        "ChildItemLocation",
+        "HorizontalAlignment",
+        "memo",
+        "htmlDesc",
+        "conid",
+        "conType",
+        "DifficultyFactor",
+        "Manhour",
+        "Number",
+        "Sum",
+        "Total",
+        "personCharge",
+        "status",
+        "NavigationUrl",
+        "VersionId",
+        "IsShowAtNav",
+        "NavigationType",
+        "SysId",
+        "rowid"
+      ],
+      "additionalProperties": false
+    },
     "NavigationNode": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -68,6 +243,18 @@
         "navigationRootId": {
           "type": "string"
         },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BuiltinBlueprintRecord"
+          }
+        },
+        "publishedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "nodes": {
           "type": "array",
           "items": {
@@ -77,13 +264,101 @@
       },
       "required": [
         "navigationRootId",
+        "records",
+        "publishedNodeIds",
         "nodes"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T20:48:23.219Z",
+  "generatedAt": "2026-10-29T00:37:41.855Z",
   "models": {
+    "BuiltinBlueprintField": {
+      "name": "BuiltinBlueprintField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof BUILTIN_BLUEPRINT_BUSINESS_FIELDS[number]",
+        "members": {}
+      }
+    },
+    "BlueprintValue": {
+      "name": "BlueprintValue",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number | null",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          },
+          {
+            "kind": "union",
+            "typeText": "null"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "BuiltinBlueprintRecord": {
+      "name": "BuiltinBlueprintRecord",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<BuiltinBlueprintField, BlueprintValue> & {\n    rowid: string;\n    SysId: string;\n    prowid: string;\n    conType: 'Model' | 'Navitem';\n    name: string;\n    FunName: string;\n    FunOrderValue: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<BuiltinBlueprintField, BlueprintValue> & {\n    rowid: string;\n    SysId: string;\n    prowid: string;\n    conType: 'Model' | 'Navitem';\n    name: string;\n    FunName: string;\n    FunOrderValue: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "SysId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FunOrderValue",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "NavigationNode": {
       "name": "NavigationNode",
       "jsdoc": "",
@@ -148,11 +423,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    navigationRootId: string;\n    nodes: readonly NavigationNode[];\n}>",
+        "declarationTypeText": "Readonly<{\n    navigationRootId: string;\n    records: readonly BuiltinBlueprintRecord[];\n    publishedNodeIds: readonly string[];\n    nodes: readonly NavigationNode[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    navigationRootId: string;\n    nodes: readonly NavigationNode[];\n}>",
+            "typeText": "Readonly<{\n    navigationRootId: string;\n    records: readonly BuiltinBlueprintRecord[];\n    publishedNodeIds: readonly string[];\n    nodes: readonly NavigationNode[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -160,6 +435,16 @@
           "attributes": [
             {
               "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "records",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publishedNodeIds",
               "readable": true,
               "writable": false
             },

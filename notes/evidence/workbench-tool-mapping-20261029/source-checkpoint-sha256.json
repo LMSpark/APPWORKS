@@ -1,0 +1,50 @@
+[
+  {
+    "path": "config/navigation/appworks-system.json",
+    "sha256": "4C57E57FADB4E31A421FEF270C6A21897EEB9B3186722A170D47FA24085A3F50"
+  },
+  {
+    "path": "config/pages/application/project-blueprint/pagedata.json",
+    "sha256": "BB830AD7E03CAC0584759E25B5B53C3967443F5175867BDB579063361BEC6110"
+  },
+  {
+    "path": "config/schemas/system-navigation.schema.json",
+    "sha256": "001B2C6D9248DA56CFF36C3868976F02FC24B55D55C4BAD0BEF07A1E40AA2C6C"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "sha256": "1D4118CD88D7A30D36B3A8D97EA280D844AC94DDFB20F9D92B3C8214C3033FA4"
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "sha256": "769312580CD91C8FB5C8BC509334A1397FFCDE059E1CA3F3238FD49C20518083"
+  },
+  {
+    "path": "src/lowcode/resources/shared/builtin-system-navigation.ts",
+    "sha256": "200AC1FBEE8CBE46FD5A1B25F0C8C939C743A0789E35D8B2343D06FC7219870E"
+  },
+  {
+    "path": "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts",
+    "sha256": "14538B29E04126C1E2B88B26AED8373D367E322F8FB2D99456B9978231CA6169"
+  },
+  {
+    "path": "src/services/project/blueprint-workspace-dataview.ts",
+    "sha256": "F632FE6D345D7694642886DA45CD952569D8A0EB1087B4353BC3052ECC9001C2"
+  },
+  {
+    "path": "tests/app/dev/dev-state-page-file-closed-loop.test.ts",
+    "sha256": "7A0958E307AD7AF840C88CA94568BF37CA4913F3476175D2E181AC875D8E6001"
+  },
+  {
+    "path": "tests/app/lowcode/resources/application/builtin-system-navigation.test.ts",
+    "sha256": "EA514FD6746F8E44FC22760B9BBBD0024691ACACCC778524FB1D28FB2BF6E25D"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts",
+    "sha256": "2DB6FC5A83BC6517C0D1128D5F1104B663E5672E50B072BDD685720449D62C23"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+    "sha256": "8A2565D41746DE3AF3D085A4AD66630047386094CB2EE93DCD5FF0F927D28181"
+  }
+]

@@ -3664,7 +3664,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T19:07:35.458Z"
+      "sourceModifiedAt": "2026-10-29T00:33:55.264Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -3849,7 +3849,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-28T22:46:25.128Z"
+      "sourceModifiedAt": "2026-10-29T00:37:41.854Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4036,10 +4036,15 @@
       "shardFile": "files/src/lowcode/resources/shared/ai-data-entry-host.ts.json",
       "sourceModifiedAt": "2026-10-24T20:18:50.902Z"
     },
+    "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts": {
+      "sourceFile": "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts",
+      "shardFile": "files/src/lowcode/resources/shared/builtin-blueprint-node-resource.ts.json",
+      "sourceModifiedAt": "2026-10-29T00:10:14.198Z"
+    },
     "src/lowcode/resources/shared/builtin-system-navigation.ts": {
       "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
       "shardFile": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json",
-      "sourceModifiedAt": "2026-10-28T20:48:23.219Z"
+      "sourceModifiedAt": "2026-10-29T00:37:41.855Z"
     },
     "src/lowcode/resources/shared/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/shared/file-resource-query-parameters.ts",
@@ -4214,7 +4219,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-27T17:07:04.985Z"
+      "sourceModifiedAt": "2026-10-29T00:33:55.265Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4274,7 +4279,7 @@
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue.json",
-      "sourceModifiedAt": "2026-10-27T16:56:25.270Z"
+      "sourceModifiedAt": "2026-10-28T23:45:24.878Z"
     },
     "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
@@ -4529,7 +4534,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-28T22:52:08.539Z"
+      "sourceModifiedAt": "2026-10-28T23:15:31.375Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -4629,7 +4634,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue.json",
-      "sourceModifiedAt": "2026-10-28T22:38:32.185Z"
+      "sourceModifiedAt": "2026-10-28T22:57:53.545Z"
     },
     "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.props.ts",

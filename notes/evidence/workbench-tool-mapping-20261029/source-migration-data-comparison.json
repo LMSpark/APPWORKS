@@ -1,0 +1,13 @@
+{
+  "scope": "Frozen source review; source data only, not full integration acceptance",
+  "baselineCommit": "4c5f937c726bca92220684451289c6478213e2a8",
+  "sourceSha256": "4C57E57FADB4E31A421FEF270C6A21897EEB9B3186722A170D47FA24085A3F50",
+  "capturedSha256": "944E98C5C86749394425B38137958081EF71BAE82A8C90AD1B6F875274FC8885",
+  "recordCount": 85,
+  "businessFieldCount": 28,
+  "rawDifferences": [],
+  "publishedCount": 26,
+  "publishedIdsAndOrderEqual": true,
+  "projectedMenuDifferences": [],
+  "note": "Raw null values preserved. Menu conid only uses existing projection to empty string."
+}

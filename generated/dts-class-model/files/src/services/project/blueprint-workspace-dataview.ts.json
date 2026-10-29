@@ -7,7 +7,7 @@
     "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
     "packageName": "app",
     "modulePath": "services/project/blueprint-workspace-dataview",
-    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。\n边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。",
+    "jsdoc": "@module app:services/project/blueprint-workspace-dataview\n职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。\n边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。\n字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "BlueprintNodeFormData",
@@ -725,7 +725,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-27T17:07:04.985Z",
+  "generatedAt": "2026-10-29T00:33:55.265Z",
   "models": {
     "OptionalFormFields": {
       "name": "OptionalFormFields",

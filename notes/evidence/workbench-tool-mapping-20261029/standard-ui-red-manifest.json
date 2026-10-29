@@ -1,0 +1,62 @@
+[
+  {
+    "name": "appworks-builtin-ui-red-field-binding-01.log",
+    "sha256": "202AB5B2607A18DDBE0B2FF81514C60A863FBB8C7DAF7016A657071E557B1A0E",
+    "bytes": 2101
+  },
+  {
+    "name": "appworks-builtin-ui-red-field-binding-02.log",
+    "sha256": "901065BBE2539C3C52316BDB73751E12168BA37907B2C93DC2B14332F1607688",
+    "bytes": 2196
+  },
+  {
+    "name": "appworks-builtin-ui-red-field-binding-03.log",
+    "sha256": "7036EC86760AE5C466A9C5AFB65B245087801FE54B7C37ED3AC6129327A8912B",
+    "bytes": 2669
+  },
+  {
+    "name": "appworks-builtin-ui-red-field-binding-04.log",
+    "sha256": "0777C2A375A6241EFC0A8F410E9C299D8102C8313585529660C09EA2FD8F7E3E",
+    "bytes": 2801
+  },
+  {
+    "name": "appworks-builtin-ui-red-navhost-01.log",
+    "sha256": "C8781CAF284DA8BBD7F796594FD8CB0F223673B8D7A7049B0DDB318D2DE5B3A1",
+    "bytes": 1638
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-drop-01.log",
+    "sha256": "23D0B5FF04CDD14D5CCABD11A8F284F68F94BF5BC0B02BDBEC54FA47DDA58448",
+    "bytes": 1683
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-edit-01.log",
+    "sha256": "DAA8314C3B0D7801D636D60E924D0895DEA7464C25EA7C9E8826D5557BD2883E",
+    "bytes": 1647
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-edit-02.log",
+    "sha256": "DBCCCC1433E5069068086EE7AE2B30C77C8DB20366614DAAEB75FC58D1B01E98",
+    "bytes": 1704
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-edit-03.log",
+    "sha256": "1C405186EC16F6484593F5B195984A73EE2BC430A3BB319FFD43AD58333F9019",
+    "bytes": 1704
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-edit-04.log",
+    "sha256": "C30A413D2EB1376E47672A6681A6939E4175D5285F5712098D9F3B4D30A7F682",
+    "bytes": 1703
+  },
+  {
+    "name": "appworks-builtin-ui-red-tree-edit-05.log",
+    "sha256": "EBF3408B3B14BE5B96F82309011267C6FD2FCB898E138BF702F6EBE131EF3392",
+    "bytes": 1661
+  },
+  {
+    "name": "appworks-builtin-root-ui-red-01.log",
+    "sha256": "4D7A9576D35336BF5AA79C12B2213732E75550E4276C604A7EAE4B54EEA49710",
+    "bytes": 6202
+  }
+]

@@ -25,8 +25,22 @@
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "pageSize": 1,
-          "queryConfig": {"fields": ["rowid", "SysId", "prowid"], "allPages": true, "distinct": true, "maxRows": 2},
-          "sortExpression": [{"field": "rowid", "direction": "asc"}]
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "SysId",
+              "prowid"
+            ],
+            "allPages": true,
+            "distinct": true,
+            "maxRows": 2
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
         }
       }
     },
@@ -36,13 +50,23 @@
         "modelName": "Base_AppSystemList"
       },
       "views": {
-        "default": {"autoLoad": false},
+        "default": {
+          "autoLoad": false
+        },
         "catalogApps": {
           "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
-          "queryConfig": {"allPages": true, "distinct": true},
-          "sortExpression": [{"field": "rowid", "direction": "asc"}]
+          "queryConfig": {
+            "allPages": true,
+            "distinct": true
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
         }
       }
     },
@@ -72,20 +96,244 @@
       "resourceType": "file",
       "resourceId": "project:tool-version",
       "columns": [
-        {"name": "versionKey", "label": "版本身份", "type": "string", "required": true, "isPrimaryKey": true},
-        {"name": "pageId", "label": "工具ID", "type": "string", "required": true},
-        {"name": "fileName", "label": "文件名", "type": "string", "required": true},
-        {"name": "version", "label": "版本号", "type": "number", "required": true},
-        {"name": "snapshotFileName", "label": "快照文件名", "type": "string"},
-        {"name": "lastModified", "label": "修改时间", "type": "number"}
+        {
+          "name": "versionKey",
+          "label": "版本身份",
+          "type": "string",
+          "required": true,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "pageId",
+          "label": "工具ID",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "label": "文件名",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "version",
+          "label": "版本号",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "snapshotFileName",
+          "label": "快照文件名",
+          "type": "string"
+        },
+        {
+          "name": "lastModified",
+          "label": "修改时间",
+          "type": "number"
+        }
       ],
       "views": {
         "default": {
           "autoLoad": false,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
-          "queryContext": {"pageId": "", "fileName": "rule.json"},
-          "queryConfig": {"allPages": true, "maxRows": 50000}
+          "queryContext": {
+            "pageId": "",
+            "fileName": "rule.json"
+          },
+          "queryConfig": {
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "RepositoryBlueprintNode": {
+      "resourceType": "file",
+      "resourceId": "repository:navigation:appworks-system:records",
+      "columns": [
+        {
+          "name": "Manhour",
+          "label": "Manhour",
+          "type": "number"
+        },
+        {
+          "name": "NavigationUrl",
+          "label": "NavigationUrl",
+          "type": "string"
+        },
+        {
+          "name": "funCode",
+          "label": "funCode",
+          "type": "string"
+        },
+        {
+          "name": "Sum",
+          "label": "Sum",
+          "type": "number"
+        },
+        {
+          "name": "personCharge",
+          "label": "personCharge",
+          "type": "string"
+        },
+        {
+          "name": "FunName",
+          "label": "FunName",
+          "type": "string"
+        },
+        {
+          "name": "IsShowChildItem",
+          "label": "IsShowChildItem",
+          "type": "number"
+        },
+        {
+          "name": "Number",
+          "label": "Number",
+          "type": "number"
+        },
+        {
+          "name": "conid",
+          "label": "conid",
+          "type": "string"
+        },
+        {
+          "name": "MobileUrl",
+          "label": "MobileUrl",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "label": "status",
+          "type": "string"
+        },
+        {
+          "name": "FunOrderValue",
+          "label": "FunOrderValue",
+          "type": "number"
+        },
+        {
+          "name": "Total",
+          "label": "Total",
+          "type": "number"
+        },
+        {
+          "name": "memo",
+          "label": "memo",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "label": "name",
+          "type": "string"
+        },
+        {
+          "name": "ChildItemLocation",
+          "label": "ChildItemLocation",
+          "type": "string"
+        },
+        {
+          "name": "SysId",
+          "label": "SysId",
+          "type": "string"
+        },
+        {
+          "name": "NavigationShowType",
+          "label": "NavigationShowType",
+          "type": "number"
+        },
+        {
+          "name": "NavigationImageWxz",
+          "label": "NavigationImageWxz",
+          "type": "string"
+        },
+        {
+          "name": "NavigationType",
+          "label": "NavigationType",
+          "type": "number"
+        },
+        {
+          "name": "conType",
+          "label": "conType",
+          "type": "string"
+        },
+        {
+          "name": "rowid",
+          "label": "rowid",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "VersionId",
+          "label": "VersionId",
+          "type": "string"
+        },
+        {
+          "name": "IsShowAtNav",
+          "label": "IsShowAtNav",
+          "type": "number"
+        },
+        {
+          "name": "HorizontalAlignment",
+          "label": "HorizontalAlignment",
+          "type": "string"
+        },
+        {
+          "name": "DifficultyFactor",
+          "label": "DifficultyFactor",
+          "type": "number"
+        },
+        {
+          "name": "prowid",
+          "label": "prowid",
+          "type": "string"
+        },
+        {
+          "name": "htmlDesc",
+          "label": "htmlDesc",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryConfig": {
+            "fields": [
+              "Manhour",
+              "NavigationUrl",
+              "funCode",
+              "Sum",
+              "personCharge",
+              "FunName",
+              "IsShowChildItem",
+              "Number",
+              "conid",
+              "MobileUrl",
+              "status",
+              "FunOrderValue",
+              "Total",
+              "memo",
+              "name",
+              "ChildItemLocation",
+              "SysId",
+              "NavigationShowType",
+              "NavigationImageWxz",
+              "NavigationType",
+              "conType",
+              "rowid",
+              "VersionId",
+              "IsShowAtNav",
+              "HorizontalAlignment",
+              "DifficultyFactor",
+              "prowid",
+              "htmlDesc"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
         }
       }
     }

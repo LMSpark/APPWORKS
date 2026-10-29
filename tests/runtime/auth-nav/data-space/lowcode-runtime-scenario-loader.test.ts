@@ -1,8 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {readFileSync} from 'node:fs'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
+import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/shared/builtin-system-navigation'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
@@ -34,6 +38,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
     design: {listFiles: mocks.listFiles, readTextFile: mocks.readTextFile},
   },
   lowcodeHttp: http,
+  lowcodeDesignFileUpload: vi.fn(),
   createLowcodeProjectGateways: () => ({ scenarioViews: { readText: mocks.readText } }),
   }
 })
@@ -72,6 +77,68 @@ describe('loadLowcodeRuntimeScenario', () => {
     expect(mocks.request).not.toHaveBeenCalled()
   })
 
+  it('registers the declared builtin blueprint file DataView through the normal scenario loader',async()=>{
+    const application=getBuiltinApplicationDescriptor(),scene=getBuiltinScenarioResource('projectBlueprint')
+    const page=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{resourceType?:string;resourceId?:string;columns?:Array<{name:string;type:string}>;views?:Record<string,unknown>}>}
+    const table=page.tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]
+    mocks.readRequestScope.mockReturnValue(scope('builtin-token',application.id))
+    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:table}}))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'仓内项目蓝图'})
+    mocks.readRelations.mockResolvedValue([])
+    const dataSet=await loadLowcodeRuntimeScenario({projectId:application.id,scenarioId:scene.scenarioId})
+    try{
+      const view=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default')!
+      expect(view.dataTable?.resourceType).toBe('file')
+      expect(view.dataTable?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
+      expect(view.dataTable?.columns.map(column=>column.name).filter(name=>name!=='_pk').sort())
+        .toEqual([...BUILTIN_BLUEPRINT_BUSINESS_FIELDS].sort())
+      view.queryConfig={...view.queryConfig,allPages:true,maxRows:100}
+      await view.refresh()
+      expect(view.rows).toHaveLength(85)
+      expect(view.rows.find(row=>row['rowid']===application.id)).toMatchObject({name:'DataSchemaManage',conType:'Model',NavigationUrl:null,htmlDesc:null})
+      expect(mocks.readModelBatch).not.toHaveBeenCalled()
+      expect(mocks.request).not.toHaveBeenCalled()
+    }finally{dataSet.destroy()}
+  })
+
+  it('does not fall back to database models when the builtin blueprint file DataView is absent',async()=>{
+    const application=getBuiltinApplicationDescriptor(),scene=getBuiltinScenarioResource('projectBlueprint')
+    mocks.readRequestScope.mockReturnValue(scope('builtin-token',application.id))
+    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId:scene.scenarioId,tables:{}}))
+    await expect(loadLowcodeRuntimeScenario({projectId:application.id,scenarioId:scene.scenarioId}))
+      .rejects.toThrow('BUILTIN_BLUEPRINT_SOURCE_MISSING')
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+    expect(mocks.readModelBatch).not.toHaveBeenCalled()
+    expect(mocks.request).not.toHaveBeenCalled()
+  })
+
+  it('assembles the full shared 7AB scenario for a dynamic app without reading builtin blueprint rows',async()=>{
+    const scene=getBuiltinScenarioResource('projectBlueprint')
+    const scenario=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{modelBinding?:{modelId:string;modelName:string}} >}
+    const configuredModels=Object.values(scenario.tables).flatMap(table=>table.modelBinding?[table.modelBinding]:[])
+    const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
+      'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
+      'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
+    mocks.readRequestScope.mockReturnValue(scope('dynamic-token','APP-A'))
+    mocks.readText.mockResolvedValue(JSON.stringify(scenario))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'动态应用共享蓝图空间'})
+    mocks.readRelations.mockResolvedValue([])
+    mocks.readModelBatch.mockImplementation(async({metaNames}:{metaNames:string[]})=>metaNames.map(metaName=>{
+      const binding=configuredModels.find(model=>model.modelName===metaName)
+      if(!binding)throw new Error(`fixture model missing: ${metaName}`)
+      return {id:binding.modelId,name:metaName,metaName,sourceName:`source_${metaName}`,sourceId:'DB',sourceType:'table',
+        primaryKey:'rowid',businessMain:false,raw:{},fields:fields.map((name,index)=>({id:`${binding.modelId}-${name}`,modelId:binding.modelId,
+          name,canonicalName:name,type:'string',primaryKey:name==='rowid',description:'',output:true,computed:false,order:index,orderType:'',raw:{}}))}
+    }))
+    const dataSet=await loadLowcodeRuntimeScenario({projectId:'APP-A',scenarioId:scene.scenarioId})
+    try{
+      expect(dataSet.getTable('Base_NavigationInfo')?.modelBinding?.modelName).toBe('Base_NavigationInfo')
+      expect(dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
+      expect(mocks.readModelBatch).toHaveBeenCalledOnce()
+      expect(mocks.request).not.toHaveBeenCalled()
+    }finally{dataSet.destroy()}
+  })
+
   it('scopes legacy preview model reads after reading real relationships, leaving unrelated bindings untouched', async () => {
     const {text} = relationFixture('rowid')
     const input = JSON.parse(text)
@@ -81,7 +148,7 @@ describe('loadLowcodeRuntimeScenario', () => {
     try {
       expect(mocks.readRelations).toHaveBeenCalledOnce()
       expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
-        dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']})
+        dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']}, undefined)
       expect(result.dataSet.getTable('Unavailable')).toBeUndefined()
       expect(result.dataSet.resourceRelations).toHaveLength(1)
       expect(result.diagnostics).toEqual([])
@@ -147,7 +214,7 @@ describe('loadLowcodeRuntimeScenario', () => {
     try {
       if (fileOnly) expect(mocks.readModelBatch).not.toHaveBeenCalled()
       else expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
-        dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']})
+        dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']}, undefined)
       expect(mocks.readSpaceDefinition).toHaveBeenCalledOnce()
       expect(mocks.readRelations).not.toHaveBeenCalled(); expect(executeQuery).not.toHaveBeenCalled()
       expect(assembly.dataSet.getTable('FileDefinitions')?.resourceId).toBe('pagedata.json')
@@ -219,7 +286,7 @@ describe('loadLowcodeRuntimeScenario', () => {
     const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', config: full, modelScope: 'PARENT'})
     try {
       expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
-        dataSpaceId: 'SCENE', metaNames: related ? ['PARENT', 'CHILD'] : ['PARENT']})
+        dataSpaceId: 'SCENE', metaNames: related ? ['PARENT', 'CHILD'] : ['PARENT']}, undefined)
       expect(assembly.diagnostics).toEqual([])
       expect(assembly.dataSet.getView('PARENT', 'default')).toBeDefined()
       expect(assembly.dataSet.getView('CHILD', 'default') !== undefined).toBe(related)
@@ -236,7 +303,7 @@ describe('loadLowcodeRuntimeScenario', () => {
     const config: {scenarioId: string; tables: Record<string, unknown>} = JSON.parse(text)
     config.tables['ParentCopy'] = {modelBinding: {modelId: 'PARENT', modelName: 'PARENT'}, views: {default: {}, compact: {pageSize: 7}}}
     const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', config: new ScenarioViewConfig('SCENE', JSON.stringify(config))})
-    expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']})
+    expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD']}, undefined)
     expect(assembly.dataSet.getView('ParentCopy', 'compact')?.pageSize).toBe(7)
     expect(assembly.dataSet.getView('ParentCopy', 'default')).not.toBe(assembly.dataSet.getView('PARENT', 'default'))
     assembly.dataSet.destroy()
@@ -323,7 +390,7 @@ describe('loadLowcodeRuntimeScenario', () => {
     expect(dataSet.scenarioId).toBe('SCENE')
     expect(dataSet.dataSetName).toBe('正式场景名称')
     expect(mocks.readSpaceDefinition).toHaveBeenCalledWith(expect.objectContaining({
-      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: 'SCENE'}))
+      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: 'SCENE'}), undefined)
     expect(mocks.readModelBatch).not.toHaveBeenCalled()
     dataSet.destroy()
   })

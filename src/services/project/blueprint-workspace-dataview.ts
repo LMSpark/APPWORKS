@@ -1,11 +1,14 @@
 /**
  * @module app:services/project/blueprint-workspace-dataview
- * 职责：让蓝图阶段字段共用正式 Base_NavigationInfo DataView 的查询、编辑覆盖、取消和 DataSet 保存。
- * 边界：不扩展模型字段/输出，不复制业务草稿；字段读写仅由正式 DataView 查询结果授权。
+ * 职责：通过当前项目的蓝图 DataView 统一查询、编辑覆盖、取消和 DataSet 保存，并提供同源树投影。
+ * 边界：动态项目绑定正式 Base_NavigationInfo，仓内 AppWorks 绑定RepositoryBlueprintNode文件视图；不复制业务草稿。
+ * 字段读写只依据当前 DataView 查询结果，不将仓内只读资源解释为数据库权限。
  */
 import {DataViewFilter, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',
@@ -91,6 +94,9 @@ function sameWireValue(left:unknown,right:unknown):boolean{
 export class BlueprintWorkspaceDataView {
   readonly view: DataView
   #projectId: string
+  #tableName = MODEL_NAME
+  #viewId = VIEW_NAME
+  #readOnlySource = false
   #nodeId = ''
   #revision = 0
   #disposed = false
@@ -116,14 +122,26 @@ export class BlueprintWorkspaceDataView {
     this.#projectId = projectId.trim()
     if (!this.#projectId) throw new Error('蓝图 DataView 缺少项目身份')
     if (dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY) throw new Error('蓝图 DataView 场景身份不匹配')
-    const table = dataSet.getTable(MODEL_NAME)
-    const view = dataSet.getView(MODEL_NAME, VIEW_NAME)
-    if (!table || !view || table.modelBinding?.modelName !== MODEL_NAME || !table.modelBinding.modelId.trim()) {
-      throw new Error('蓝图 DataView 未绑定正式 Base_NavigationInfo 模型')
+    const repositoryTable=dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)
+    const repositoryView=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,VIEW_NAME)
+    if(this.#projectId===getBuiltinApplicationDescriptor().id){
+      if(!repositoryTable||!repositoryView
+        ||repositoryTable.resourceType!=='file'||repositoryTable.resourceId!==BUILTIN_BLUEPRINT_NODE_RESOURCE_ID||repositoryTable.modelBinding){
+        throw new Error('BUILTIN_BLUEPRINT_IDENTITY: 仓内蓝图文件视图不能绑定到当前项目或模型')
+      }
+      this.#tableName=BUILTIN_BLUEPRINT_NODE_TABLE_NAME
+      this.#readOnlySource=true
+      this.view=repositoryView
+    }else{
+      const table = dataSet.getTable(MODEL_NAME)
+      const view = dataSet.getView(MODEL_NAME, VIEW_NAME)
+      if (!table || !view || table.modelBinding?.modelName !== MODEL_NAME || !table.modelBinding.modelId.trim()) {
+        throw new Error('蓝图 DataView 未绑定正式 Base_NavigationInfo 模型')
+      }
+      this.view = view
     }
-    this.view = view
     this.view.commitMode = 'staged'
-    const queryOutputFields = new Set(view.queryColumns.map(column => column.name))
+    const queryOutputFields = new Set(this.view.queryColumns.map(column => column.name))
     const queryFields = BLUEPRINT_WORKSPACE_FIELD_NAMES.filter(field => queryOutputFields.has(field))
     this.#queryOutputFields = new Set(queryFields)
     if (!queryOutputFields.has('rowid') || !queryOutputFields.has('SysId')) {
@@ -233,7 +251,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Delete one ordinary leaf through the current project tree DataView and confirm it by readback. */
   public async removeLeafNode(nodeId:string,expectedProjectId:string,expectedParentNodeId:string):Promise<ProjectBlueprintTreeData>{
-    this.assertUsable()
+    this.assertWritable()
     const targetId=nodeId.trim(),projectId=expectedProjectId.trim(),parentId=expectedParentNodeId.trim()
     if(!targetId||!projectId||!parentId)throw new Error('蓝图 DataView 删除目标身份不完整')
     if(projectId!==this.#projectId)throw new Error('蓝图 DataView 删除目标项目身份不匹配')
@@ -295,7 +313,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Temporarily widens this same DataView to project rows and stages a permission-checked move. */
   public async moveNode(nodeId: string, parentId: string | null, index: number): Promise<void> {
-    this.assertUsable()
+    this.assertWritable()
     if (this.isBusy || this.hasUnconfirmedSave) throw new Error('蓝图 DataView 正在保存或回执待核验，不能移动节点')
     if (this.dirty) throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     if (!Number.isSafeInteger(index) || index < 0) throw new Error('蓝图节点位置无效')
@@ -346,7 +364,7 @@ export class BlueprintWorkspaceDataView {
   /** Preflight, stage and save one AI pure leaf-move/reorder command through this DataView. */
   public async applyLeafMoveBatch(options:BlueprintLeafMoveBatchOptions):Promise<void>{
     const {beforeTree,commands,expectedTree,beforeStage}=options
-    this.assertUsable()
+    this.assertWritable()
     if(commands.length===0||!commands.some(command=>command.kind==='move'))throw new Error('蓝图 DataView 仅接受含移动命令的纯 move/reorder 批次')
     if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedIds.length>0||this.#pendingChildBatch!==undefined||this.#unconfirmedDeleteId!==undefined)throw new Error('蓝图 DataView 正在保存或原命令待核验')
     if(this.dirty||!this.#treeQueryLoaded)throw new Error('蓝图 DataView 移动批次要求干净且已完整加载的项目树')
@@ -439,7 +457,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Create an unmounted root module through the current formal Base_NavigationInfo query owner. */
   public async addRootModule(): Promise<void> {
-    this.assertUsable()
+    this.assertWritable()
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     if (this.hasUnconfirmedSave) {
       if (this.#unconfirmedRootId === undefined) throw new Error('蓝图 DataView 存在其他未确认保存')
@@ -527,7 +545,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Preflight and submit stable leaf IDs under multiple existing parents in one DataSet batch. */
   public async addChildNodesAcrossParents(children:readonly BlueprintChildNodeCreateAtParent[]):Promise<ReadonlyArray<string|number>>{
-    this.assertUsable()
+    this.assertWritable()
     if(children.length<2)throw new Error('蓝图 DataView 批量新增至少需要两个叶节点')
     if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)throw new Error('蓝图 DataView 正在保存或存在原子节点命令待核验')
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
@@ -610,7 +628,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Preflight, stage, and save creates plus existing leaf updates as one DataSet view batch. */
   public async addAndUpdateChildNodes(children:readonly BlueprintChildNodeCreateAtParent[],updates:readonly BlueprintNodeFormData[],beforeStage?:()=>boolean):Promise<ReadonlyArray<string|number>>{
-    this.assertUsable()
+    this.assertWritable()
     if(children.length===0||updates.length===0)throw new Error('蓝图 DataView 混合命令必须同时包含新增和更新')
     if(this.isBusy||this.hasUnconfirmedSave||this.#unconfirmedChildId!==undefined||this.#pendingChildBatch!==undefined)throw new Error('蓝图 DataView 正在保存或存在原子节点命令待核验')
     if(this.dirty||!this.#treeQueryLoaded)throw new Error('蓝图 DataView 混合命令要求干净且已完整加载的项目树')
@@ -816,7 +834,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   public assertCanAddChild(parentNodeId:string):void{
-    this.assertUsable()
+    this.assertWritable()
     if(this.isBusy||this.hasUnconfirmedSave)throw new Error('蓝图 DataView 正在保存或回执待核验')
     if(this.dirty)throw new Error('蓝图 DataView 有未保存修改，请先保存或取消')
     const parent=this.requireCurrentParent(parentNodeId)
@@ -845,6 +863,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   public async addChildNode(parentNodeId:string,input:Record<string,unknown>,explicitNodeId?:string):Promise<string|number>{
+    this.assertWritable()
     if(this.hasPendingChildCreate){
       const id=this.#unconfirmedChildId
       if(id===undefined)throw new Error('蓝图子节点待核验身份缺失')
@@ -985,6 +1004,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Apply a domain projection by diffing through the canonical wire mapper and preflighting every changed field. */
   public updateNodeData(next:BlueprintNodeFormData):void {
+    this.assertWritable()
     const patch=this.preflightNodeData(next),row=this.currentRow(),key=this.requireRowKey(row)
     for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(key,field,value)
   }
@@ -1006,6 +1026,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Stage preflighted existing-node updates on their formal DataView row identities. */
   public updateNodeDataBatch(prepared:readonly BlueprintNodeDataBatchItem[]):void{
+    this.assertWritable()
     if(prepared.length<2||new Set(prepared.map(item=>item.nodeId)).size!==prepared.length)throw new Error('蓝图 DataView 多节点暂存身份无效')
     for(const item of prepared){const row=this.view.rows.find(candidate=>this.view.getPkKey(candidate)===item.key);if(row?.['rowid']!==item.nodeId||row['SysId']!==this.#projectId)throw new Error(`蓝图 DataView 多节点暂存身份已变化 ${item.nodeId}`)}
     try{for(const {key,patch} of prepared)for(const [field,value] of Object.entries(patch))this.view.updateEditingValue(key,field,value)}
@@ -1024,6 +1045,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Save exactly the requested preflighted rows through this DataSet and verify every changed field. */
   public async saveNodes(nodeIds:readonly string[]):Promise<void>{
+    this.assertWritable()
     if(nodeIds.length<2||new Set(nodeIds).size!==nodeIds.length)throw new Error('蓝图 DataView 多节点保存身份无效')
     const ids=nodeIds.map(nodeId=>{
       const row=this.view.rows.find(candidate=>candidate['rowid']===nodeId&&candidate['SysId']===this.#projectId)
@@ -1062,9 +1084,10 @@ export class BlueprintWorkspaceDataView {
     if(!this.#treeQueryLoaded)throw new Error('蓝图 DataView 尚未加载完整项目树行')
     for(const field of ['rowid','SysId','prowid','FunOrderValue'])if(!this.hasOutput(field))throw new Error(`蓝图 DataView 未输出树投影字段 ${field}`)
     if(!this.hasOutput('name')&&!this.hasOutput('FunName'))throw new Error('蓝图 DataView 未输出树节点名称')
-    const fields=['rowid','SysId','prowid','FunOrderValue','name','funCode','FunName','conType','memo','personCharge','status',
-      'NavigationUrl','NavigationImageWxz','MobileUrl','NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment',
-      'IsShowAtNav','IsShowChildItem','BeginGroup','conid','htmlDesc','VersionId']
+    const fields=['Manhour','NavigationUrl','funCode','Sum','personCharge','FunName','IsShowChildItem','Number','conid',
+      'MobileUrl','status','FunOrderValue','Total','memo','name','ChildItemLocation','SysId','NavigationShowType',
+      'NavigationImageWxz','NavigationType','conType','rowid','VersionId','IsShowAtNav','BeginGroup','HorizontalAlignment',
+      'DifficultyFactor','prowid','htmlDesc']
     const rows=this.view.rows.map(row=>{
       for(const field of ['rowid','SysId','prowid','FunOrderValue'])if(this.view.fieldAccess(row,field).read!=='visible')throw new Error(`蓝图 DataView 无权读取树投影字段 ${field}`)
       if(!['name','FunName'].some(field=>this.hasOutput(field)&&this.view.fieldAccess(row,field).read==='visible'))throw new Error('蓝图 DataView 无权读取树节点名称')
@@ -1117,6 +1140,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   public update(field: string, value: unknown): void {
+    this.assertWritable()
     if (this.isBusy) throw new Error('查询或保存期间不能编辑蓝图字段')
     if (this.hasUnconfirmedSave) throw new Error('蓝图 DataView 保存结果未确认，请先通过原 DataSet 保存入口核验')
     const row = this.currentRow()
@@ -1146,7 +1170,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   public async save(): Promise<void> {
-    this.assertUsable()
+    this.assertWritable()
     if(this.isBusy)throw new Error('蓝图 DataView 正在查询或保存')
     if(this.#unconfirmedDeleteId!==undefined){
       const id=String(this.#unconfirmedDeleteId),parentId=this.#unconfirmedDeleteParentId
@@ -1173,6 +1197,7 @@ export class BlueprintWorkspaceDataView {
 
   /** Save only the selected node; any staged changes on other rows remain untouched. */
   public async saveSelectedNode():Promise<void>{
+    this.assertWritable()
     if(this.hasUnconfirmedSave||this.#unconfirmedIds.length>0){
       if(this.#unconfirmedIds.length!==1||this.#unconfirmedIds[0]!==this.#nodeId)throw new Error('蓝图 DataView 核验须包含原提交全部节点')
       await this.saveIds([this.#nodeId])
@@ -1186,7 +1211,7 @@ export class BlueprintWorkspaceDataView {
   }
 
   private async saveIds(targetIds?:Array<string|number>,expectedSavedCount?:number): Promise<void> {
-    this.assertUsable()
+    this.assertWritable()
     if(this.#batchStageBlocked)throw new Error('蓝图 DataView 批量暂存回滚未确认，保存已阻断')
     if (this.isBusy) throw new Error('蓝图 DataView 正在查询或保存')
     const targetNodeId=this.#nodeId, revision=this.#revision
@@ -1303,8 +1328,18 @@ export class BlueprintWorkspaceDataView {
   private assertUsable(): void {
     if (this.#disposed) throw new Error('蓝图 DataView 已释放')
     this.assertCurrent()
-    if (this.dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || this.dataSet.getView(MODEL_NAME, VIEW_NAME) !== this.view) {
+    const table=this.dataSet.getTable(this.#tableName)
+    const tableValid=this.#readOnlySource
+      ? table?.resourceType==='file'&&table.resourceId===BUILTIN_BLUEPRINT_NODE_RESOURCE_ID&&!table.modelBinding
+      : table?.modelBinding?.modelName===MODEL_NAME&&Boolean(table.modelBinding.modelId.trim())
+    if (this.dataSet.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY || !tableValid
+      || this.dataSet.getView(this.#tableName, this.#viewId) !== this.view) {
       throw new Error('蓝图 DataView 场景或视图身份已变化')
     }
+  }
+
+  private assertWritable():void{
+    this.assertUsable()
+    if(this.#readOnlySource)throw new Error('BUILTIN_BLUEPRINT_READ_ONLY: 仓内蓝图来源当前只读，不能新增、移动、修改或删除')
   }
 }

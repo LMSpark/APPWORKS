@@ -1,0 +1,37 @@
+[
+  {
+    "name": "appworks-builtin-root-source-focused-01.log",
+    "sha256": "861CA399D496F5B039740D4D8A545B0E27492D3934C32FCAE0611E01196FE548",
+    "bytes": 441
+  },
+  {
+    "name": "appworks-builtin-root-typecheck-01.log",
+    "sha256": "F86688EA8AACA435178D31C6D84D1977ADA51CFBC44687A56CD117F1486B5771",
+    "bytes": 764
+  },
+  {
+    "name": "appworks-builtin-root-dynamic-regression-red-01.log",
+    "sha256": "4A293F6204EEC76A3E921A0E690470741FCB84D6F195CF33CF0F801E9FBF9277",
+    "bytes": 3034
+  },
+  {
+    "name": "appworks-builtin-dynamic-owner-red-02.log",
+    "sha256": "853C7BC6D9EA80D0B2D4E533E9DBBC5F278D1676D6ECCE3AF5A5E47CD1990EA8",
+    "bytes": 1634
+  },
+  {
+    "name": "appworks-dynamic-begingroup-red-01.log",
+    "sha256": "FEB031B96926D57980C1CFA3F8F65DC1674181DCF2F0D956B33EFFC0BB7AF86C",
+    "bytes": 1999
+  },
+  {
+    "name": "appworks-builtin-dynamic-loader-red-01.log",
+    "sha256": "A3728CDBFC4B6C7388EDED832106F7380527A40D898620D75739379A8DEFD32F",
+    "bytes": 1712
+  },
+  {
+    "name": "appworks-builtin-reference-dataset-leak-red-01.log",
+    "sha256": "1F33478EB213E359AEF3E24BB72EC0C8CD5527C3B8EF65A613B13D3724C220AC",
+    "bytes": 1738
+  }
+]

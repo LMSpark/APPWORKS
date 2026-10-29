@@ -11,8 +11,9 @@ import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
-import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
+import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {readBuiltinSystemNavigation} from '@/lowcode/resources/shared/builtin-system-navigation'
+import {BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
@@ -81,6 +82,7 @@ function deferred<T>(): Readonly<{
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   navigationRootReader.read.mockReset()
   lowcodeApi.application.clear()
   lowcodeApi.session.clear()
@@ -224,6 +226,12 @@ describe('project reference application catalog owner', () => {
 
   it('loads the complete builtin blueprint for a cross-project reference through the existing gateway', async () => {
     saveExecutionScope('APP-CURRENT')
+    const scene=getBuiltinScenarioResource('projectBlueprint')
+    const text=readFileSync(scene.path,'utf8')
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))
+    const sourceRevision=[...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('')
+    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({resourceId:scene.resourceId,scenarioId:scene.scenarioId,text,sourceRevision}),
+      {status:200,headers:{'Content-Type':'application/json'}})))
     const readBlueprint = vi.spyOn(lowcodeApi.blueprint, 'readRecords').mockResolvedValue([])
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
 
@@ -231,6 +239,7 @@ describe('project reference application catalog owner', () => {
 
     const nodeIds:string[]=[]
     const collect=(node:typeof blueprint):void=>{
+      if(typeof node.nodeId!=='string')throw new Error('builtin blueprint projection has no node identity')
       nodeIds.push(node.nodeId)
       for(const child of node.children??[])collect(child as typeof blueprint)
     }
@@ -238,6 +247,27 @@ describe('project reference application catalog owner', () => {
     expect(nodeIds).toHaveLength(builtinBlueprintRecords.rows.length)
     expect(new Set(nodeIds)).toEqual(new Set(builtinBlueprintRecords.rows.map(row=>String(row['rowid']))))
     expect(readBlueprint).not.toHaveBeenCalled()
+  })
+
+  it('destroys the temporary builtin DataSet when its declared node view cannot project identities',async()=>{
+    saveExecutionScope('APP-CURRENT')
+    const scene=getBuiltinScenarioResource('projectBlueprint')
+    const config=JSON.parse(readFileSync(scene.path,'utf8')) as {tables:Record<string,{resourceType:string;resourceId:string;columns:Array<{name:string}>;views:Record<string,unknown>}>}
+    const table=JSON.parse(JSON.stringify(config.tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME])) as typeof config.tables[string]
+    table.columns=table.columns.filter(column=>column.name!=='rowid'&&column.name!=='SysId')
+    const text=JSON.stringify({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:table}})
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))
+    const sourceRevision=[...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('')
+    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({resourceId:scene.resourceId,scenarioId:scene.scenarioId,text,sourceRevision}),
+      {status:200,headers:{'Content-Type':'application/json'}})))
+    const createDataSet=vi.spyOn(DataSet,'fromJson')
+    const gateway=createLowcodeProjectGateways('APP-CURRENT')
+
+    await expect(gateway.projectReferences.loadProjectBlueprint(builtinBlueprintRecords.applicationId)).rejects.toThrow('蓝图 DataView 缺少正式可输出的 rowid 或 SysId')
+
+    const workspaceDataSet=createDataSet.mock.results.map(result=>result.value).find(dataSet=>dataSet?.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME))
+    expect(workspaceDataSet).toBeDefined()
+    expect(workspaceDataSet?.destroyed).toBe(true)
   })
 })
 

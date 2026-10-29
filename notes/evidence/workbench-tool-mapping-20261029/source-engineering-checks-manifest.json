@@ -1,0 +1,272 @@
+[
+  {
+    "name": "appworks-builtin-ai-codegen-05.log",
+    "sha256": "64D256A3DA13ECF87A0643FD9DD26076F077A74EF4F606024ED293821D4F2064",
+    "bytes": 94
+  },
+  {
+    "name": "appworks-builtin-blueprint-cross-reference-red-01.log",
+    "sha256": "C5221A1DF72278D7C40B9708DE28F9D3C3A5E82802D715AAEFC67E7C2CDFB701",
+    "bytes": 1262
+  },
+  {
+    "name": "appworks-builtin-blueprint-cross-reference-red-02.log",
+    "sha256": "43FA6B62799597D0F8810DB4C64439B040898DFAB98DF348AC2B9F52093D6F3D",
+    "bytes": 1627
+  },
+  {
+    "name": "appworks-builtin-blueprint-dev-owner-red-01.log",
+    "sha256": "E9EAEE69116093A7D3448AEAB85A43E7E95F51A6CEA95EB13C5765163A099405",
+    "bytes": 8599
+  },
+  {
+    "name": "appworks-builtin-blueprint-root-cross-reference-red.log",
+    "sha256": "0206A42578EB05FA442661E5C9A7A49F630326AD3749C6997CBA452718DE86B1",
+    "bytes": 1637
+  },
+  {
+    "name": "appworks-builtin-blueprint-root-dev-owner-red.log",
+    "sha256": "088A75DFF3E921B2F849D6D2363582B64278A8B30DD3BFE491464EC9485CC61A",
+    "bytes": 8607
+  },
+  {
+    "name": "appworks-builtin-blueprint-source-green-01.log",
+    "sha256": "B4B31CE3E3FEA2F60458AE5738EC145760A18094961E45CB8EC1B1610EE2AA1A",
+    "bytes": 2021
+  },
+  {
+    "name": "appworks-builtin-blueprint-source-green-02.log",
+    "sha256": "659C6249B743FDCF7417BC8916633B1FBCEAE4E8F6D05E2E29F0575CD4D655E6",
+    "bytes": 433
+  },
+  {
+    "name": "appworks-builtin-blueprint-source-red-01.log",
+    "sha256": "F8469CD81B9168DACCB03FC68ABE9259938995D32E8492F68A1949D314EDE70B",
+    "bytes": 76163
+  },
+  {
+    "name": "appworks-builtin-class-model-04.log",
+    "sha256": "0F8C0C595F05E6AB5BBE5A678B3DE355B69A618F79B285AD98B539E218DA46D2",
+    "bytes": 5928
+  },
+  {
+    "name": "appworks-builtin-class-model-05.log",
+    "sha256": "7512E8FDDF71F41F355EF92ADEA45A49C0583C9633F7EF9F0145934B47CF56AD",
+    "bytes": 5928
+  },
+  {
+    "name": "appworks-builtin-class-model-06.log",
+    "sha256": "CBBAE973A519B1076460C0CE299228DD5C70C9CCA1A910D1CBA6C666222C84DE",
+    "bytes": 5928
+  },
+  {
+    "name": "appworks-builtin-cross-reference-green-01.log",
+    "sha256": "986FEF4EA05D55479269BF771D5EDE2E682820E4B6F61058AAB19003F939C434",
+    "bytes": 425
+  },
+  {
+    "name": "appworks-builtin-cross-reference-green-02.log",
+    "sha256": "D7A78DD12FB6134FF2F238DBFF709C0F6AC5E196FBDFCCD72FFF6697F1E4C3F3",
+    "bytes": 436
+  },
+  {
+    "name": "appworks-builtin-dynamic-loader-red-01.log",
+    "sha256": "A3728CDBFC4B6C7388EDED832106F7380527A40D898620D75739379A8DEFD32F",
+    "bytes": 1712
+  },
+  {
+    "name": "appworks-builtin-dynamic-owner-red-01.log",
+    "sha256": "02C6A74E601370A9B459B646670DCA823E0DDF9812412025F201D8F0230FDD44",
+    "bytes": 3189
+  },
+  {
+    "name": "appworks-builtin-dynamic-owner-red-02.log",
+    "sha256": "853C7BC6D9EA80D0B2D4E533E9DBBC5F278D1676D6ECCE3AF5A5E47CD1990EA8",
+    "bytes": 1634
+  },
+  {
+    "name": "appworks-builtin-dynamic-regressions-green-01.log",
+    "sha256": "C729146B150422200BB0554D9032314D7FB5424D63A3E58A4F858184A5C9B1D3",
+    "bytes": 1858
+  },
+  {
+    "name": "appworks-builtin-dynamic-regressions-green-02.log",
+    "sha256": "C9FEF4CF0098C5C267087426CB8AAAB05EBFAF7E065C9AF5221AADCDC3E1A433",
+    "bytes": 8782
+  },
+  {
+    "name": "appworks-builtin-final-targeted-01.log",
+    "sha256": "BE4B6D355F1E9563514E272ED10212C9CC5022C6C2EC09835AEFA3DDA80A63F2",
+    "bytes": 1893
+  },
+  {
+    "name": "appworks-builtin-final-targeted-02.log",
+    "sha256": "7706B7B5C432FE1D952FC46D4231F6536F2ECE783E760BCCB19AEE0B514C6E1D",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-focused-03.log",
+    "sha256": "C935AAFD521C13422D02A50E37B6478D1BFEE83FDF321AAA4F5D8B7F04727224",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-lowcode-contracts-02.log",
+    "sha256": "62E1835513C08C701E0E4183085B03A2B97A08787B541DFAD5E31E9210367908",
+    "bytes": 102
+  },
+  {
+    "name": "appworks-builtin-lowcode-contracts-03.log",
+    "sha256": "62E1835513C08C701E0E4183085B03A2B97A08787B541DFAD5E31E9210367908",
+    "bytes": 102
+  },
+  {
+    "name": "appworks-builtin-reference-dataset-leak-red-01.log",
+    "sha256": "1F33478EB213E359AEF3E24BB72EC0C8CD5527C3B8EF65A613B13D3724C220AC",
+    "bytes": 1738
+  },
+  {
+    "name": "appworks-builtin-root-dynamic-regression-red-01.log",
+    "sha256": "4A293F6204EEC76A3E921A0E690470741FCB84D6F195CF33CF0F801E9FBF9277",
+    "bytes": 3034
+  },
+  {
+    "name": "appworks-builtin-root-source-focused-01.log",
+    "sha256": "861CA399D496F5B039740D4D8A545B0E27492D3934C32FCAE0611E01196FE548",
+    "bytes": 441
+  },
+  {
+    "name": "appworks-builtin-root-source-freeze-01.log",
+    "sha256": "29A1CE5F0B59CBB0C0BFB6F4C34BE7BEE13E46066255F370E7E2CB3E9DC9CF25",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-root-source-gates-01.log",
+    "sha256": "E16D398473451AD02EDC159D2F47275FDFF75C161124CD65CCF63A4A468CA5E5",
+    "bytes": 1071
+  },
+  {
+    "name": "appworks-builtin-root-source-gates-02.log",
+    "sha256": "6C138658FFE210F02F021DDF080EFC241AF455CDE05133CA2CC983C8B9E88EEA",
+    "bytes": 1350
+  },
+  {
+    "name": "appworks-builtin-root-source-gates-03.log",
+    "sha256": "BC6EED389D8515A4F36E67064F6E4B8101635E613AC7FD3C5D4993BDAF69E2CC",
+    "bytes": 31521
+  },
+  {
+    "name": "appworks-builtin-root-typecheck-01.log",
+    "sha256": "F86688EA8AACA435178D31C6D84D1977ADA51CFBC44687A56CD117F1486B5771",
+    "bytes": 764
+  },
+  {
+    "name": "appworks-builtin-runtime-loader-debug-01.log",
+    "sha256": "DAEDA8BECA60E31679F269AB0217533811F2F420B4CEB276E276ECC40394C42A",
+    "bytes": 2488
+  },
+  {
+    "name": "appworks-builtin-runtime-loader-green-01.log",
+    "sha256": "2B04B8C9A227F5E37ADA39F9F307B22EA56B037BC14462D8ECDBF757B03C523B",
+    "bytes": 2219
+  },
+  {
+    "name": "appworks-builtin-runtime-loader-green-02.log",
+    "sha256": "1D6EA756F4EC36B58F6C0584420707F40237D83F31370D917A59A5B9DFBBD9D9",
+    "bytes": 1816
+  },
+  {
+    "name": "appworks-builtin-runtime-loader-green-03.log",
+    "sha256": "6BEDEE4A1D87F9F515D0FCBBABBF55EBFD816ED8A4CC02273C2E43347F59763B",
+    "bytes": 435
+  },
+  {
+    "name": "appworks-builtin-source-lint-03.log",
+    "sha256": "4FD193DFC2562FB702811694D71D49B70B3EBCD2E09A03EBC39B8CAA3C367C39",
+    "bytes": 275
+  },
+  {
+    "name": "appworks-builtin-source-lint-04.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "bytes": 0
+  },
+  {
+    "name": "appworks-builtin-source-lint-05.log",
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "bytes": 0
+  },
+  {
+    "name": "appworks-builtin-source-loader-full-01.log",
+    "sha256": "754280D6970C900ABC38C0831D0EAC1A4D6DAB5FD66E2001870DE1F9F5CAD384",
+    "bytes": 8782
+  },
+  {
+    "name": "appworks-builtin-source-owner-debug-01.log",
+    "sha256": "E790D9ED433FECAEAEDB45DA0570A203B18E11B76FC6D1E92AFA3F4662D4F22F",
+    "bytes": 3274
+  },
+  {
+    "name": "appworks-builtin-source-owner-final-01.log",
+    "sha256": "1EF00F04B0780FA66F358CF36E8660571B3C5E9E078E311F5A1D1D5583C04296",
+    "bytes": 1951
+  },
+  {
+    "name": "appworks-builtin-source-owner-final-02.log",
+    "sha256": "A1277B937E806EA166C34832E90D821285A6F79D0EA65E95127C57131B90D804",
+    "bytes": 13053
+  },
+  {
+    "name": "appworks-builtin-source-owner-green-01.log",
+    "sha256": "B1587616A683EFE49E8AE3F0BC860755EB12862B584974BF64F51ACC9802CC25",
+    "bytes": 3411
+  },
+  {
+    "name": "appworks-builtin-source-owner-green-02.log",
+    "sha256": "02EE0164E81008A255BCDCD9708D8401BF2869CCA83285F4FE4CCC7F6C62A25F",
+    "bytes": 2547
+  },
+  {
+    "name": "appworks-builtin-source-owner-green-03.log",
+    "sha256": "B45ABCE18B2542ECD7EECF06B162EF9A2409B53B3493AB5B0291CE6885FAC8CE",
+    "bytes": 2584
+  },
+  {
+    "name": "appworks-builtin-source-owner-green-04.log",
+    "sha256": "C2C862EACA4A3300255D0A034B9D7B7CDF5DB5D298E722EF60F0246DE90D4689",
+    "bytes": 436
+  },
+  {
+    "name": "appworks-builtin-source-regression-03.log",
+    "sha256": "F010405B89E0FF2DB579C10EC24C58E167F1815843D184E1A08202915078A9E1",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-source-regression-04.log",
+    "sha256": "B5AB94BDA4C10E57F83E21AEDDFA0CFB0AE9DB6D75BF54B89F341F7136850AC7",
+    "bytes": 429
+  },
+  {
+    "name": "appworks-builtin-source-tests-02.log",
+    "sha256": "1ED37D2233009E5F10EB9EB05443D4764366B8DF1536A7BCA98483B99E50EBFB",
+    "bytes": 427
+  },
+  {
+    "name": "appworks-builtin-typecheck-02.log",
+    "sha256": "4AD285A46454DAE77FE6175810D45ADC097350BD41993EEE17563C6D114177F0",
+    "bytes": 273
+  },
+  {
+    "name": "appworks-builtin-typecheck-03.log",
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962",
+    "bytes": 62
+  },
+  {
+    "name": "appworks-builtin-typecheck-04.log",
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962",
+    "bytes": 62
+  },
+  {
+    "name": "appworks-builtin-typecheck-05.log",
+    "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962",
+    "bytes": 62
+  }
+]

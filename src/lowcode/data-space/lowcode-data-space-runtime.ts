@@ -12,7 +12,8 @@ import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
-import {isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/shared/builtin-blueprint-node-resource'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -124,8 +125,19 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  const toolTables = isRecord(tables) ? Object.entries(ProjectToolResource.resources).filter(([name, id]) => {
   const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
  }) : []
+ const builtinBlueprintTable = isRecord(tables) ? tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] : undefined
+ const declaresBuiltinBlueprint = isRecord(builtinBlueprintTable) && builtinBlueprintTable['resourceType'] === 'file'
+  && builtinBlueprintTable['resourceId'] === BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
+ const builtinBlueprintScenario = scenarioId === getBuiltinScenarioResource('projectBlueprint').scenarioId
+ if (isBuiltinApplication(projectId) && builtinBlueprintScenario && !declaresBuiltinBlueprint) {
+  throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 7AB 蓝图场景未声明仓内蓝图节点 DataView')
+ }
+ const builtinBlueprintOwner = isBuiltinApplication(projectId) && builtinBlueprintScenario
  const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
   definition.createExecutor({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})]))
+ if (declaresBuiltinBlueprint) registeredFileExecutors[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] = builtinBlueprintOwner
+  ? new BuiltinBlueprintNodeResource({applicationId: projectId, scenarioId, assertCurrent}).executor
+  : {executeQuery: () => Promise.reject(new Error('BUILTIN_BLUEPRINT_IDENTITY: 当前应用不能读取 AppWorks 仓内蓝图节点'))}
  if (!declared.length && !hasReference && !toolTables.length) return registeredFileExecutors
  const workspace = owner ?? new ProjectWorkspace({projectId, ...createLowcodeProjectGateways(projectId)})
  const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: scenarioId, assertCurrent,

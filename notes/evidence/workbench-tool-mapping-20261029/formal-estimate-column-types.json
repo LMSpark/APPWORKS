@@ -1,0 +1,37 @@
+{
+  "scope": "Read-only current dynamic Base_NavigationInfo DataView metadata; no data writes",
+  "observed": {
+    "projectId": "BE7C7452A333B0EB675F1EACBA035E8F",
+    "tableName": "Base_NavigationInfo",
+    "modelBinding": {
+      "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+      "modelName": "Base_NavigationInfo"
+    },
+    "fields": [
+      {
+        "name": "Manhour",
+        "type": "float"
+      },
+      {
+        "name": "Sum",
+        "type": "decimal"
+      },
+      {
+        "name": "Number",
+        "type": "int"
+      },
+      {
+        "name": "Total",
+        "type": "decimal"
+      },
+      {
+        "name": "VersionId",
+        "type": "varchar"
+      },
+      {
+        "name": "DifficultyFactor",
+        "type": "float"
+      }
+    ]
+  }
+}

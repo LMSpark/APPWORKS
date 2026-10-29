@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { effectScope, nextTick, watchEffect } from 'vue'
-import { DataSet } from '@spark-appworks/spark-data'
+import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
@@ -17,6 +17,10 @@ import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
 import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
+import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import { getBuiltinScenarioResource } from '@/registries/builtin-application-registry'
+import { BUILTIN_BLUEPRINT_BUSINESS_FIELDS } from '@/lowcode/resources/shared/builtin-system-navigation'
+import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 
 const httpFns = vi.hoisted(() => ({
   get: vi.fn(),
@@ -189,10 +193,16 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     item.children?.forEach((child,index)=>collect(child,item.nodeId,index))
   }
   collect(root,'000000',0)
-  const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables:{Base_NavigationInfo:{
+  const tables:Record<string,unknown>={Base_NavigationInfo:{
     modelBinding:{modelId:`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}p000`,modelName:'Base_NavigationInfo'},
     columns:fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid',...(access.requiredFields?.includes(name)?{required:true}:{})})),views:{default:{autoLoad:false}},
-  }}})
+  }}
+  const builtinScenarioId=getBuiltinScenarioResource('projectBlueprint').scenarioId
+  if(projectId===builtinBlueprintRecords.applicationId)tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]={
+    resourceType:'file',resourceId:BUILTIN_BLUEPRINT_NODE_RESOURCE_ID,
+    columns:builtinBlueprintRecords.businessFields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{autoLoad:false}},
+  }
+  const dataSet=DataSet.fromJson({scenarioId:projectId===builtinBlueprintRecords.applicationId?builtinScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables})
   let allPagesRequested=false
   let queryCount=0
   const hiddenFields=new Set(access.hiddenFields??[]),readonlyFields=new Set(access.readonlyFields??[])
@@ -271,7 +281,47 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
     },
     save,hasUnconfirmedSave:()=>unknownReceipt,
   })
+  if(projectId===builtinBlueprintRecords.applicationId){
+    const repositoryView=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)!
+    new BuiltinBlueprintNodeResource({applicationId:projectId,scenarioId:builtinScenarioId,assertCurrent:()=>undefined}).bind(repositoryView)
+  }
   return {dataSet,readAllPages:()=>allPagesRequested,readQueryCount:()=>queryCount,save}
+}
+
+function createDynamicBlueprintDataSetFromFullScenario(){
+  const scenario=JSON.parse(readFileSync('config/pages/application/project-blueprint/pagedata.json','utf8')) as {tables:Record<string,Record<string,unknown>>}
+  const tables=JSON.parse(JSON.stringify(scenario.tables)) as Record<string,Record<string,unknown>>
+  for(const table of Object.values(tables)){
+    if(!Array.isArray(table['columns']))table['columns']=[]
+    if(typeof table['views']!=='object'||table['views']===null||Array.isArray(table['views']))table['views']={default:{autoLoad:false}}
+    else if(!Object.hasOwn(table['views'],'default'))(table['views'] as Record<string,unknown>)['default']={autoLoad:false}
+  }
+  const fields=['rowid','SysId','prowid','FunOrderValue','name','FunName','funCode','NavigationUrl','NavigationImageWxz','MobileUrl',
+    'NavigationType','ChildItemLocation','NavigationShowType','HorizontalAlignment','IsShowAtNav','IsShowChildItem','BeginGroup',
+    'conid','conType','memo','htmlDesc','VersionId','DifficultyFactor','Manhour','Number','Sum','Total','personCharge','status']
+  const base=tables['Base_NavigationInfo']!
+  base['columns']=fields.map(name=>({name,type:'string',isPrimaryKey:name==='rowid'}))
+  const dataSet=DataSet.fromJson({scenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,tables})
+  const view=dataSet.getView('Base_NavigationInfo','default')!
+  const rows:DataRow[]=[{...Object.fromEntries(fields.map(field=>[field,''])),rowid:'DYNAMIC-ROOT',SysId:'APP-A',
+    prowid:'000000',FunOrderValue:0,name:'动态应用',FunName:'动态应用',conType:'Model'}]
+  let queryCount=0
+  const result=(selected:DataRow[])=>({rows:selected,total:selected.length,countReported:true,resultPrimaryKey:'rowid',
+    assertIdentity(identity:{scenarioId:string;metaName:string}){if(identity.scenarioId!==LOWCODE_APPLICATION_CATALOG_FORM_KEY||identity.metaName!=='Base_NavigationInfo')throw new Error('dynamic blueprint identity mismatch')},
+    rowKey:(row:Readonly<DataRow>)=>row['rowid'],
+    fieldAccess:(key:unknown,field:string)=>selected.some(row=>row['rowid']===key&&Object.hasOwn(row,field))
+      ? {read:'visible' as const,write:'allowed' as const,component:'editable' as const,required:false,writeMode:'editable' as const}
+      : {read:'invisible' as const,write:'denied' as const,component:'hidden' as const,required:false,writeMode:'readonly' as const},
+    readFieldAccess:(row:Readonly<DataRow>,field:string)=>Object.hasOwn(row,field)?'visible' as const:'invisible' as const,
+    addActionState:()=>'enabled' as const,editActionState:()=>'enabled' as const,deleteActionState:()=>'enabled' as const,
+    createChildActionState:()=>'enabled' as const,viewActionState:()=>'enabled' as const})
+  const save=vi.fn(async(command:Parameters<NonNullable<Parameters<typeof view.bindQueryExecutor>[0]['save']>>[0])=>command.changes.map(change=>{
+    const changed=[...(change.changes.changed??[])]
+    for(const patch of changed){const row=rows.find(item=>item['rowid']===patch['rowid']);if(row)Object.assign(row,patch)}
+    return {metaName:change.identity.metaName,added:[],changed,deleted:[],changedFields:changed.map(row=>Object.keys(row)),context:result(rows)}
+  }))
+  view.bindQueryExecutor({queryColumns:current=>current.columns,executeQuery:async()=>{queryCount++;return result(rows)},save})
+  return {dataSet,view,save,readQueryCount:()=>queryCount,rootId:'DYNAMIC-ROOT'}
 }
 
 async function requestFullFromGet(config: { url: string }): Promise<Record<string, unknown>> {
@@ -332,11 +382,13 @@ describe('DevState 页面文件闭环', () => {
     conflict.nodeId=applicationId
     conflict.parentNodeId='000000'
     conflict.capability.name='数据库冲突根'
-    const fixture=createBlueprintRuntimeDataSet(applicationId,conflict)
-    mockBlueprintScenarioFixture(fixture.dataSet)
     const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
     try{
       await state.openEditingProject({tenantId:'tenant-a',projectId:applicationId},{force:true})
+      const fixture=createBlueprintRuntimeDataSet(applicationId,conflict)
+      blueprintRuntime.load.mockImplementation(async ({scenarioId}:{scenarioId:string})=>
+        scenarioId===DATA_SPACE_CATALOG_SCENARIO_ID?createDataSpaceCatalogRuntimeDataSet()
+          :scenarioId===LowcodeDictionary.editorScenarioId?createDictionaryRuntimeDataSet():fixture.dataSet)
       const owner=await state.loadBlueprintWorkspaceDataView()
       const tree=await owner.loadProjectTree()
       const nodes:ProjectBlueprintTreeNodeData[]=[]
@@ -349,6 +401,37 @@ describe('DevState 页面文件闭环', () => {
         rowid:applicationId,SysId:applicationId,name:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['name'],
         conType:builtinBlueprintRecords.rows.find(row=>row['rowid']===applicationId)?.['conType'],
       })
+    }finally{ownerScope.stop()}
+  })
+
+  it('完整7AB场景含仓内节点声明时动态Dev仍沿正式Base_NavigationInfo查询保存',async()=>{
+    const fixture=createDynamicBlueprintDataSetFromFullScenario()
+    const owner=new BlueprintWorkspaceDataView(fixture.dataSet,'APP-A',()=>undefined)
+    try{
+      expect(owner.view).toBe(fixture.view)
+      expect(owner.view.tableName).toBe('Base_NavigationInfo')
+      expect((await owner.loadProjectTree()).nodeId).toBe('DYNAMIC-ROOT')
+      expect(fixture.readQueryCount()).toBe(1)
+      await owner.load(fixture.rootId)
+      owner.update('memo','dynamic owner saved')
+      await owner.save()
+      expect(fixture.save).toHaveBeenCalledOnce()
+      expect(owner.value('memo')).toBe('dynamic owner saved')
+      expect(fixture.dataSet.getTable(BUILTIN_BLUEPRINT_NODE_TABLE_NAME)?.resourceId).toBe(BUILTIN_BLUEPRINT_NODE_RESOURCE_ID)
+    }finally{owner.dispose();fixture.dataSet.destroy()}
+  })
+
+  it('保留动态 Base_NavigationInfo 节点的 BeginGroup 投影字段',async()=>{
+    const grouped={...node('GROUPED-PAGE','分组页面','cfg:grouped','APP-A'),
+      navigation:{...node('GROUPED-PAGE','分组页面','cfg:grouped','APP-A').navigation!,beginGroup:true}}
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([grouped],'APP-A'))
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const ownerScope=effectScope(),state=ownerScope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({tenantId:'tenant-a',projectId:'APP-A'},{force:true})
+      const owner=await state.loadBlueprintWorkspaceDataView()
+      const tree=await owner.loadProjectTree()
+      expect(tree.children?.find(item=>item.nodeId==='GROUPED-PAGE')?.navigation?.beginGroup).toBe(true)
     }finally{ownerScope.stop()}
   })
 

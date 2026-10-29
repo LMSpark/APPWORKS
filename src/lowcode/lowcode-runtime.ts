@@ -11,7 +11,8 @@ import type {
 } from '@spark-appworks/spark-app'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
 import * as ProjectModel from '@spark-appworks/spark-project-model'
-import { createRequest } from '@spark-appworks/spark-utils'
+import { createRequest, isRecord } from '@spark-appworks/spark-utils'
+import {DataSet} from '@spark-appworks/spark-data'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
@@ -19,11 +20,12 @@ import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowc
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
-import {isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {readRepositoryScenarioText} from './resources/shared/repository-scenarios/repository-scenario-resource'
 import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/shared/repository-scenarios/repository-scenario-host-client'
 import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/shared/builtin-system-navigation'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from './resources/shared/builtin-blueprint-node-resource'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -539,7 +541,7 @@ function projectBlueprintRecordNode(
 
 async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise<ProjectModel.ProjectBlueprintTreeData> {
   if (isBuiltinApplication(projectId)) {
-    throw new Error('BUILTIN_BLUEPRINT_SOURCE_UNAVAILABLE: AppWorks 程序蓝图定义来自仓内注册表')
+    return readBuiltinProjectBlueprintTree(projectId)
   }
   const records = await lowcodeApi.blueprint.readRecords(projectId)
   const recordIds = new Set(records.map(record => record.nodeId))
@@ -570,6 +572,42 @@ async function readLowcodeProjectBlueprintEditorTree(projectId: string): Promise
     ...root,
     children: root.children ?? [],
   }
+}
+
+async function readBuiltinProjectBlueprintTree(projectId:string):Promise<ProjectModel.ProjectBlueprintTreeData>{
+  const descriptor=getBuiltinApplicationDescriptor()
+  if(projectId!==descriptor.id)throw new Error('BUILTIN_BLUEPRINT_IDENTITY: 跨项目引用目标不是仓内 AppWorks')
+  const scope=lowcodeApi.readRequestScope()
+  const assertCurrent=():void=>{
+    let current:ReturnType<typeof lowcodeApi.readRequestScope>
+    try{current=lowcodeApi.readRequestScope()}
+    catch{throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内蓝图引用所属请求作用域已失效')}
+    if(current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId']){
+      throw new Error('SPARK_EXECUTION_SCOPE_STALE: 仓内蓝图引用所属请求作用域已变化')
+    }
+  }
+  assertCurrent()
+  const scene=getBuiltinScenarioResource('projectBlueprint')
+  const text=await readRepositoryScenarioText(scene,assertCurrent)
+  assertCurrent()
+  const config=new ProjectModel.ScenarioViewConfig(scene.scenarioId,text).toJSON()
+  const configuredTables=config['tables']
+  const configured=isRecord(configuredTables)?configuredTables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:undefined
+  if(!isRecord(configured)||configured['resourceType']!=='file'
+    ||configured['resourceId']!==BUILTIN_BLUEPRINT_NODE_RESOURCE_ID||Object.hasOwn(configured,'modelBinding')){
+    throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 7AB 未声明仓内蓝图文件 DataView')
+  }
+  const dataSet=DataSet.fromJson({scenarioId:scene.scenarioId,tables:{[BUILTIN_BLUEPRINT_NODE_TABLE_NAME]:configured}})
+  let owner:BlueprintWorkspaceDataView|undefined
+  try{
+    const view=dataSet.getView(BUILTIN_BLUEPRINT_NODE_TABLE_NAME,'default')
+    if(!view)throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 仓内蓝图文件 DataView 不存在')
+    new BuiltinBlueprintNodeResource({applicationId:projectId,scenarioId:scene.scenarioId,assertCurrent}).bind(view)
+    owner=new BlueprintWorkspaceDataView(dataSet,projectId,assertCurrent)
+    const tree=await owner.loadProjectTree()
+    assertCurrent()
+    return tree
+  }finally{owner?.dispose();dataSet.destroy()}
 }
 
 /** 固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。 */

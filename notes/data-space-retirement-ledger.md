@@ -3949,3 +3949,11 @@ flowchart TD
 - **组件及旧入口：**移除本页未接通的创建表单、设置/删除入口和设置弹窗挂载；原操作没有可证明的正式 DataView 提交合同，继续显示为可操作入口会误导用户。页头改用 `RendererPageHeader`，补上 `LayoutDataContextProps`，经 `useLayoutDataContext()` 绑定当前正式 DataView 并把同一上下文提供给标准子组件；正式 ClassModel 生成物已刷新，页头属性产物明确列出 `dataViewKey/dataMember/dataField/children`。
 - **有效验证：**目录/租户路径/应用切换/页头数据上下文定向组 **8 files / 142 tests passed**；进一步 AppList、runtime binding、页头 renderer 三组 **3 files / 41 tests passed**。`pnpm run typecheck`、改动 TS/Vue ESLint、`pnpm run verify:rules`、`pnpm run build` 与 `git diff --check` 均退出 0；构建保留依赖 PURE 注解、无效动态导入和大 chunk 提示，AI model spec 保留既有 2 warnings 与 1 info。
 - **现场与未完成：**本轮重启了仓内 Vite 前端并只读打开 `/apps/homepage/app-list`；未认证请求落到公开首页，再打开 `/login` 可见登录表单。未输入或提交登录信息，登录页已留给用户手动恢复会话。没有真实动态 cfg 项目现场、工具三文件服务端回读/关闭重开/版本快照/目标切换的新证据；上述均未完成。没有远端业务数据写入，未修改、启动或部署 Java。此前全仓 Vitest 基线失败分类仍以本台账较早条目为准，本片没有重跑全仓套件。
+
+### 2026-10-30 工具文件命令 owner 尚未清除：源码复核
+
+- **正式映射已覆盖的路径：**DevSystem 在 7AB `ProjectToolFile` 上由 `createPageFileResourceView()` 建立按 `pageId + fileName` 隔离的 FileResource DataView；文本读取、字段编辑、常规保存及历史快照读取使用该表的 DataView / DataSet 生命周期。实现位于 `src/services/project/page-tool-file-dataview.ts`，正式表配置在 `config/pages/application/project-blueprint/pagedata.json`。
+- **仍残留的业务侧 owner：**`src/lowcode/resources/shared/page-tool-files-command.ts` 的 `PageToolFileCommands` 构造器动态创建 `PageToolFilesCommand` 命令表与 `PageToolFilesDirectory` 目录表，经 `bindDataSetCommandSubmit()` 安装另一组文件资源 command executor；提交实现仍调用 `createPageToolFilesIo()` 的 upload/remove/list/read/readVersion 等操作。DevSystem 在 `useDevState.ts` 将该实例保存在 `pageToolFileCommands` / `DevSystemOwnerBundle.fileCommands`，用于新建子页、补偿、整页删除、版本恢复、脏状态和保存协调。
+- **判定：**虽然后述命令以动态 DataView 和 `DataSet.saveChanges()` 包装，二张命令/目录表并非 7AB pagedata 的正式 `ProjectToolFile` 语义映射，命令 executor 也持有文件 I/O；因此不能把这部分描述成“所有三文件生命周期都通过正式 ProjectToolFile DataView”。“配置入口统一到 SPARK data”的目标尚未完整达成。原文件 owner 应只留在文件资源适配内部；页面的命令暂存、取消、状态和提交责任需进一步迁回正式 SPARK data 资源链，并维持每个文件各自回执、未知结果核验及删除/新建的部分成功语义，不得假定跨来源事务。
+- **树组件核对：**`ProjectBlueprintTree.vue` 的 `RendererTree` 与行字段组件基于当前 `BlueprintWorkspaceDataView` 的正式 `dataViewKey`；树首载调用 `owner.loadProjectTree()`，并核对项目 scope。此处“owner”指查询 DataView 会话，不是文件存储 owner。尚未执行登录 SPA 的 cfg 项目现场读取/保存/关闭重开验收，因当前标签要求重新登录。
+- **证据范围：**只读源码核对；未改产品代码、未运行测试、未执行远端写入，也未修改或启动 Java。下一步是以正式 FileResource/DataView 行为合同逐项承接 create/delete/restore 和未知回执，再删除动态命令/目录表及其页面状态协调；在线 cfg 验收待登录会话恢复后继续。

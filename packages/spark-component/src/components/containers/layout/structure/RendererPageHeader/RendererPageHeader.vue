@@ -7,6 +7,7 @@ AI用途：需要理解 renderer page header 的实际渲染结构、slot/toolba
 <template>
   <el-page-header
     v-if="isVisible"
+    :key="scopeKey"
     :title="title"
     :icon="icon"
     :content="content"
@@ -27,9 +28,10 @@ AI用途：需要理解 renderer page header 的实际渲染结构、slot/toolba
  * @description 页面头部组件。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, useSparkPageComponent } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 import type { RPageHeaderProps } from './RendererPageHeader.props'
 import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 const props = withDefaults(defineProps<RPageHeaderProps>(), {
   type: 'r-page-header',
@@ -41,7 +43,7 @@ defineEmits<{
   back: []
 }>()
 
-const { isVisible } = useSparkPageComponent(props)
+const { isVisible, scopeKey } = useLayoutDataContext(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>

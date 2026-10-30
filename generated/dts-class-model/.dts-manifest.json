@@ -1359,12 +1359,12 @@
     "packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.props.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.121Z"
+      "sourceModifiedAt": "2026-10-29T19:19:10.469Z"
     },
     "packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/layout/structure/RendererPageHeader/RendererPageHeader.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.121Z"
+      "sourceModifiedAt": "2026-10-30T00:30:00.649Z"
     },
     "packages/spark-component/src/components/containers/layout/structure/RendererSection/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/structure/RendererSection/index.ts",
@@ -4281,6 +4281,11 @@
       "shardFile": "files/src/services/workflow-designs.ts.json",
       "sourceModifiedAt": "2026-10-27T18:50:02.032Z"
     },
+    "src/views/app/AppList.vue": {
+      "sourceFile": "src/views/app/AppList.vue",
+      "shardFile": "files/src/views/app/AppList.vue.json",
+      "sourceModifiedAt": "2026-10-30T00:28:43.736Z"
+    },
     "src/views/app/CapabilityDemo.vue": {
       "sourceFile": "src/views/app/CapabilityDemo.vue",
       "shardFile": "files/src/views/app/CapabilityDemo.vue.json",
@@ -4945,11 +4950,6 @@
       "sourceFile": "src/views/platform/TenantConfigPanel.vue",
       "shardFile": "files/src/views/platform/TenantConfigPanel.vue.json",
       "sourceModifiedAt": "2026-08-09T22:53:30.711Z"
-    },
-    "src/views/tenant/AppList.vue": {
-      "sourceFile": "src/views/tenant/AppList.vue",
-      "shardFile": "files/src/views/tenant/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-29T10:16:11.670Z"
     },
     "src/views/tenant/AppProjectSettingsDialog.vue": {
       "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",

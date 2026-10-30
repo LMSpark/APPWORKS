@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {defineComponent, h} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
-import AppList from '@/views/tenant/AppList.vue'
+import AppList from '@/views/app/AppList.vue'
 import LoginView from '@/views/platform/LoginView.vue'
 
 const state = vi.hoisted(() => ({
@@ -90,6 +90,10 @@ const RendererListStub = defineComponent({
     }
   },
 })
+const RendererPageHeaderStub = defineComponent({
+  props: {dataViewKey: {type: String, default: ''}, title: {type: String, default: ''}},
+  setup(props) { return () => h('header', {'data-testid': 'standard-page-header', 'data-view-key': props.dataViewKey}, props.title) },
+})
 const mounted: Array<{unmount: () => void}> = []
 afterEach(() => { mounted.splice(0).forEach(item => item.unmount()); state.allPages = true; state.distinct = true; state.projectId = 'APP'; state.loadedScenarioIds = []; state.rows = [{rowid: 'APP-1', AppName: 'alpha', AppDesc: 'Alpha', IsSys: 0}]; vi.clearAllMocks() })
 
@@ -101,7 +105,7 @@ async function mountAt(path: string, blueprintScenarioId?: string) {
     {path: '/target', component: EmptyPage},
   ]})
   await router.push(path)
-  const wrapper = mount(AppList, {global: {plugins: [router], stubs: {AppProjectSettingsDialog: true, RendererList: RendererListStub}}})
+  const wrapper = mount(AppList, {global: {plugins: [router], stubs: {RendererList: RendererListStub, RendererPageHeader: RendererPageHeaderStub}}})
   mounted.push(wrapper)
   await flushPromises()
   return {wrapper, router}
@@ -130,6 +134,8 @@ describe('AppList DataView routing', () => {
     expect(visible).not.toContain('app-standard-tag')
     expect(visible).not.toContain('app-delete')
     const list = wrapper.get('[data-testid="scenario-list"]')
+    expect(wrapper.get('[data-testid="standard-page-header"]').attributes('data-view-key'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@catalogApps')
     expect(list.attributes('data-grid-gap')).toBe('20')
     expect(list.attributes('data-item-grid-gap')).toBe('0')
     expect(list.attributes('data-columns')).toBe('4')
@@ -137,7 +143,10 @@ describe('AppList DataView routing', () => {
     expect(list.attributes('data-toolbar-wrap')).toBe('true')
     expect(list.attributes('data-toolbar-span')).toBe('24')
     expect(list.attributes('data-toolbar-has-explicit-binding')).toBe('false')
-    expect(list.attributes('data-toolbar-children')).toBe('app-home-tag,app-standard-tag,app-switch,app-current-tag,app-settings,app-delete')
+    expect(list.attributes('data-toolbar-children')).toBe('app-home-tag,app-standard-tag,app-switch,app-current-tag')
+    expect(wrapper.text()).not.toContain('创建应用')
+    expect(list.attributes('data-visible-children')).not.toContain('app-settings')
+    expect(list.attributes('data-visible-children')).not.toContain('app-delete')
     expect(list.attributes('data-switch-has-handler')).toBe('true')
     expect(list.attributes('data-switch-view-key')).toBe('7AB874097A1E8711A42FD845939A6E05@Base_AppSystemList@catalogApps')
     expect(list.attributes('data-description-field')).toBe('Memo')

@@ -4,7 +4,8 @@ import { resolve } from 'node:path'
 import { defineComponent, h, markRaw, ref, type App, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { PAGE_RUNTIME_SERVICES, Spark, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
+import ElementPlus from 'element-plus'
+import { DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererPageHeader, Spark, SparkComponentRenderer, SparkPageRenderer, registerAllRenderers, useSparkComponent, useSparkConsume, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
 import { DataSet, RequestState, SparkData, type SparkNode } from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
@@ -209,6 +210,47 @@ describe('configured DataView query completion', () => {
     wrapper.unmount(); await flushPromises()
     expect(signal.aborted).toBe(true)
     expect(onRuntimeError).not.toHaveBeenCalled()
+  })
+})
+
+describe('standard page header DataView context', () => {
+  it('provides its bound DataView context to rendered children', async () => {
+    registerAllRenderers()
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    const pageRuntime = createPageRuntime({
+      rule: [],
+      data: SparkData.createDataSet({dataSetName: 'page-header-context', tables: {Users: {tableName: 'Users', columns: [{name: 'id', type: 'string'}], views: {
+        default: {rows: [{id: 'u-1'}]},
+      }}}}),
+    })
+    try {
+      await pageRuntime.load()
+      const view = pageRuntime.getDataSet('test-scene')?.getView('Users', 'default')
+      if (!view) throw new Error('Expected the page DataView')
+      view.setCurrentRowById('u-1')
+      const Probe = defineComponent({name: 'PageHeaderDataContextProbe', setup() {
+        const {sparkConsume} = useSparkConsume()
+        const source = sparkConsume(DATA_SOURCE)
+        const row = sparkConsume(DATA_ROW)
+        return () => h('span', {class: 'page-header-data-context'}, `${source?.viewId ?? 'none'}:${String(row?.['id'] ?? 'none')}`)
+      }})
+      Spark.register('page-header-data-context-probe', Probe)
+      const Host = defineComponent({setup() {
+        const {sparkProvide} = useSparkComponent({type: 'page-header-data-context-test'})
+        sparkProvide(PAGE_RUNTIME, pageRuntime)
+        return () => h(RendererPageHeader, {
+          dataViewKey: 'test-scene@Users@default', title: '应用管理',
+          children: [{type: 'page-header-data-context-probe'}],
+        })
+      }})
+      const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+      await flushPromises()
+      expect(wrapper.get('.page-header-data-context').text()).toBe('default:u-1')
+      wrapper.unmount()
+    } finally {
+      Spark.getRegistry().unregister('page-header-data-context-probe')
+      restoreSparkRendererStub()
+    }
   })
 })
 

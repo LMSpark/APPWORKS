@@ -8,7 +8,7 @@ import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import { PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererList, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 
-const source = readFileSync(resolve(process.cwd(), 'src/views/tenant/AppList.vue'), 'utf8')
+const source = readFileSync(resolve(process.cwd(), 'src/views/app/AppList.vue'), 'utf8')
 const buttonProps = readFileSync(resolve(process.cwd(), 'packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts'), 'utf8')
 const scenarioTemplate = source
 const runtimes: PageRuntime[] = []
@@ -51,8 +51,10 @@ describe('AppList formal scenario data binding', () => {
     expect(source).toContain('dataSource.fieldAccess(row, fieldName).read === \'visible\'')
     expect(source).toContain('onClick')
     expect(source).toContain('handleSwitch')
-    expect(source).toContain('handleDelete')
-    expect(source).toContain('openSettings')
+    expect(source).not.toContain('handleDelete')
+    expect(source).not.toContain('openSettings')
+    expect(source).not.toContain('AppProjectSettingsDialog')
+    expect(source).not.toContain('创建应用')
     expect(buttonProps).toContain('onClick?: (...args: unknown[]) => unknown')
     expect(source).toContain('暂无描述')
   })

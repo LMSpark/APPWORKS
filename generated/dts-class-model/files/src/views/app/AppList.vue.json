@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/AppList",
+    "sourcePath": "src/views/app/AppList.vue",
+    "sourceFile": "src/views/app/AppList.vue",
+    "packageName": "app",
+    "modulePath": "views/app/AppList",
+    "jsdoc": "@module app:views/app/AppList\n职责：提供主应用 AppList 能力，围绕应用目录连接视图、服务、布局和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppList。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T00:28:43.736Z",
+  "models": {}
+}

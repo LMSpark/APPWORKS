@@ -1,22 +1,19 @@
 <!--
-@module app:views/tenant/AppList
+@module app:views/app/AppList
 职责：提供主应用 AppList 能力，围绕应用目录连接视图、服务、布局和应用路由。
 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
-AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppList。
+AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppList。
 -->
 <template>
   <div class="app-list-page">
     <p v-if="runtimeError" role="alert">{{ runtimeError }}</p>
-    <el-page-header content="应用管理" @back="$router.go(-1)">
-      <template #icon>
-        <span style="font-size: 20px">📱</span>
-      </template>
-      <template #extra>
-        <el-button type="primary" @click="showCreateDialog = true">
-          ➕ 创建应用
-        </el-button>
-      </template>
-    </el-page-header>
+    <RendererPageHeader
+      v-if="scenarioView && !runtimeError"
+      :data-view-key="scenarioDataViewKey"
+      title="返回"
+      content="应用管理"
+      @back="router.go(-1)"
+    />
 
     <div class="app-list-content">
       <RendererList
@@ -35,35 +32,6 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       />
     </div>
 
-    <AppProjectSettingsDialog
-      v-if="settingsTarget"
-      v-model="settingsVisible"
-      :project-id="settingsTarget.projectId"
-      :project-name="settingsTarget.name"
-      @saved="loadProjects"
-    />
-
-    <!-- 创建应用弹窗 -->
-    <el-dialog v-model="showCreateDialog" title="创建应用" width="480px">
-      <el-form :model="createForm" label-width="80px">
-        <el-form-item label="应用 ID">
-          <el-input v-model="createForm.projectId" placeholder="英文标识，如 my-app" />
-        </el-form-item>
-        <el-form-item label="应用名称">
-          <el-input v-model="createForm.name" placeholder="显示名称" />
-        </el-form-item>
-        <el-form-item label="图标">
-          <el-input v-model="createForm.icon" placeholder="Emoji 图标" />
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="createForm.description" type="textarea" :rows="3" placeholder="应用描述" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showCreateDialog = false">取消</el-button>
-        <el-button type="primary" :loading="creating" @click="handleCreate">创建</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -73,18 +41,17 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
  */
 import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildApplicationPath, parseApplicationPathScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
-import { PAGE_RUNTIME, RendererList, useSparkComponent } from '@spark-appworks/spark-component'
+import { PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {getFormalModelView, loadLowcodeApplicationCatalog} from '@/lowcode/lowcode-application-catalog'
-import AppProjectSettingsDialog from './AppProjectSettingsDialog.vue'
 
 type ProjectItem = {
   projectId: string
@@ -96,10 +63,6 @@ const router = useRouter()
 const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const { sparkProvide } = useSparkComponent({ type: 'app-list' })
-const showCreateDialog = ref(false)
-const creating = ref(false)
-const settingsVisible = ref(false)
-const settingsTarget = ref<ProjectItem | null>(null)
 const runtimeError = ref('')
 const scenarioView = shallowRef<DataView | null>(null)
 let runtime: PageRuntime | undefined
@@ -151,21 +114,12 @@ const scenarioRowChildren = computed<SparkNode[]>(() => {
       button('app-standard-tag', '应用', { disabled: true, buttonType: 'info', onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1) }),
       button('app-switch', '进入应用', { buttonType: 'primary', onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') !== currentProjectId.value), onClick: (row: DataRow) => handleSwitch(projectFromRow(row)) }),
       button('app-current-tag', '当前应用', { disabled: true, buttonType: 'success', onBeforeRender: condition('rowid', row => String(row['rowid'] ?? '') === currentProjectId.value) }),
-      button('app-settings', '设置', { onClick: (row: DataRow) => openSettings(projectFromRow(row)) }),
-      button('app-delete', '删除', { buttonType: 'danger', text: true, onBeforeRender: condition('IsSys', row => Number(row['IsSys'] ?? 0) !== 1), onClick: (row: DataRow) => handleDelete(projectFromRow(row)) }),
       ],
     },
   ]
 })
 
 const currentProjectId = computed(() => lowcodeApi.application.get()?.application.id ?? APPLICATION_CATALOG_PROJECT_ID)
-
-const createForm = ref({
-  projectId: '',
-  name: '',
-  icon: 'Box',
-  description: '',
-})
 
 async function loadProjects() {
   return loadScenarioProjects(scenarioId.value)
@@ -235,30 +189,6 @@ function getProjectSwitch() {
   return projectSwitch
 }
 
-function openSettings(project: ProjectItem): void {
-  ElMessage.warning(`“${project.name}”设置需要 lowcode 治理写入合同；当前只读接入不会调用旧 AppWorks 后端`)
-}
-
-async function handleCreate() {
-  const { projectId, name, icon, description } = createForm.value
-  if (!projectId.trim()) {
-    ElMessage.warning('请输入应用 ID')
-    return
-  }
-  creating.value = true
-  try {
-    void name
-    void icon
-    void description
-    throw new Error('lowcode 现有应用写入接口未提供写前镜像、journal、readback 与补偿合同，已阻止创建')
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '创建失败'
-    ElMessage.error(msg)
-  } finally {
-    creating.value = false
-  }
-}
-
 async function handleSwitch(project: ProjectItem) {
   try {
     const principal = readLowcodePrincipal()
@@ -271,19 +201,6 @@ async function handleSwitch(project: ProjectItem) {
     ElMessage.success(`已切换到「${project.name}」`)
   } catch (error: unknown) {
     ElMessage.error(error instanceof Error ? error.message : '切换应用失败')
-  }
-}
-
-async function handleDelete(project: ProjectItem) {
-  try {
-    await ElMessageBox.confirm(`确定删除应用「${project.name}」？此操作不可恢复。`, '删除确认', {
-      type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-    })
-    ElMessage.error('lowcode 现有应用删除接口未提供写前镜像、journal、readback 与补偿合同，已阻止删除')
-  } catch (error) {
-    if (error instanceof Error && error.message) ElMessage.error(error.message)
   }
 }
 

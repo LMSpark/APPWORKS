@@ -3942,3 +3942,10 @@ flowchart TD
 - **修复：**`agent.workflow.pageDesign/design.json` 的页面入口改为 `ProjectWorkspace.getActivePageTool()`，只取得 `preparePageDesignAgentRun()` 已通过 7AB `ProjectToolFile` DataView 读取并装载的活动工具；同步更新其任务说明和正式 `definition.json` 投影。工作流不再自行加载工具文件。
 - **验证：**`page-design-sop.test.ts` **7/7 passed**，其中包含 design→definition 投影一致性及所有图端点必须是真实成员；`pnpm run verify:workflow-designs`、`pnpm run typecheck`、`pnpm run verify:rules`、`pnpm run build` 均退出 0。修复后全量 Vitest JSON `artifacts/vitest-full-after-workflow-fix.json`：**940 files / 6,986 tests passed，0 failed**。Build 保留依赖注释、chunk 大小及动态导入告警；规则扫描保留 AI model spec 2 warnings / 1 info。
 - **范围：**这是仓内工作流合同修复；headless AI 编辑的自动保存仍因缺少同一 DataView owner 而 fail-closed，不能通过 PageTool 或 workspace 直写绕过；真实 cfg 项目 SPA 保存/回读仍待登录会话验收。无远端业务写入，未修改、启动或部署 Java。
+
+### 2026-10-30 AppList 页面迁出 tenant 目录并复用标准页头
+
+- **源码收敛：**应用目录页从 `src/views/tenant/AppList.vue` 移至 `src/views/app/AppList.vue`；`vue-pages.json` 的目录和隐藏应用系统页均指向仓内新位置。可见目录项仍为 `catalog` scope，使 `lowcodeApplicationCatalogNavigation()` 保留其应用工场入口；scope 不是租户身份。路径仍由应用 scope 构造为 `/apps/homepage/app-list`，`/t/...` 不作为前端路径合同。应用目录模型/视图继续使用 `PageRuntime → DataSet/DataView → RendererList`。
+- **组件及旧入口：**移除本页未接通的创建表单、设置/删除入口和设置弹窗挂载；原操作没有可证明的正式 DataView 提交合同，继续显示为可操作入口会误导用户。页头改用 `RendererPageHeader`，补上 `LayoutDataContextProps`，经 `useLayoutDataContext()` 绑定当前正式 DataView 并把同一上下文提供给标准子组件；正式 ClassModel 生成物已刷新，页头属性产物明确列出 `dataViewKey/dataMember/dataField/children`。
+- **有效验证：**目录/租户路径/应用切换/页头数据上下文定向组 **8 files / 142 tests passed**；进一步 AppList、runtime binding、页头 renderer 三组 **3 files / 41 tests passed**。`pnpm run typecheck`、改动 TS/Vue ESLint、`pnpm run verify:rules`、`pnpm run build` 与 `git diff --check` 均退出 0；构建保留依赖 PURE 注解、无效动态导入和大 chunk 提示，AI model spec 保留既有 2 warnings 与 1 info。
+- **现场与未完成：**本轮重启了仓内 Vite 前端并只读打开 `/apps/homepage/app-list`；未认证请求落到公开首页，再打开 `/login` 可见登录表单。未输入或提交登录信息，登录页已留给用户手动恢复会话。没有真实动态 cfg 项目现场、工具三文件服务端回读/关闭重开/版本快照/目标切换的新证据；上述均未完成。没有远端业务数据写入，未修改、启动或部署 Java。此前全仓 Vitest 基线失败分类仍以本台账较早条目为准，本片没有重跑全仓套件。

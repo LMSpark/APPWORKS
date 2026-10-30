@@ -82,14 +82,14 @@
       "title": "应用列表",
       "icon": "Grid",
       "scope": "catalog",
-      "source": "src/views/tenant/AppList.vue"
+      "source": "src/views/app/AppList.vue"
     },
     {
       "path": "/features/application/application-manager/ui/application-manager-page",
       "title": "应用系统列表",
       "icon": "Grid",
       "scope": "app",
-      "source": "src/views/tenant/AppList.vue",
+      "source": "src/views/app/AppList.vue",
       "description": "AppWorks 系统导航登记的原生应用目录页面；正式目录记录仍通过SPARK data读取",
       "hidden": true,
       "shellTool": false

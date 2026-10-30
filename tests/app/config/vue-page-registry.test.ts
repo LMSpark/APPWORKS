@@ -106,7 +106,7 @@ describe('Vue page registry', () => {
     expect(getVuePageEntry('/dbms')?.source)
       .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
-      .toBe('src/views/tenant/AppList.vue')
+      .toBe('src/views/app/AppList.vue')
   })
 
   it('does not load page modules while building the component map', async () => {

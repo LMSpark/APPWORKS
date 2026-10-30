@@ -9,7 +9,7 @@ import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '.
 import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
 import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
 import App from '@/App.vue'
-import AppList from '@/views/tenant/AppList.vue'
+import AppList from '@/views/app/AppList.vue'
 import PlatformTenantManagement from '@/views/platform/PlatformTenantManagement.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
 
@@ -369,7 +369,7 @@ describe('App project selection owner', () => {
     const success = vi.spyOn(ElMessage, 'success')
     const wrapper = mount(AppList, { global: {
       plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service },
-      stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
+      stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()
@@ -395,7 +395,7 @@ describe('App project selection owner', () => {
       return receipt
     }) }
     const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
+      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()
@@ -420,7 +420,7 @@ describe('App project selection owner', () => {
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
     const cancel = router.beforeEach(() => false)
     const wrapper = mount(AppList, { global: {
-      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, AppProjectSettingsDialog: true, RendererList: RendererListProbe },
+      plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true, RendererList: RendererListProbe, RendererPageHeader: true },
     } })
     mountedWrappers.push(wrapper)
     await flushPromises()

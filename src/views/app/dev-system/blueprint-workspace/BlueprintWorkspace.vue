@@ -10,8 +10,8 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
     <div class="blueprint-workspace__actions">
       <DisplayTag v-if="autoSavePresentation" :content="autoSavePresentation.content" :tag-type="autoSavePresentation.tagType"
         size="small" :effect="autoSavePresentation.effect" />
-      <RendererButton v-bind="workspaceBinding" label="取消节点修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
-      <RendererButton v-bind="workspaceBinding" label="保存节点修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')" />
+      <RendererButton v-bind="workspaceBinding" label="取消蓝图修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
+      <RendererButton v-bind="workspaceBinding" label="保存蓝图修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('蓝图修改')" />
     </div>
     <RendererTabs v-model="activeStage" v-bind="workspaceBinding" data-member="currentRow" class="blueprint-workspace__tabs" toolbar-placement="header">
       <RendererTabPane label="基本信息" name="basic" :index="0"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></RendererTabPane>
@@ -176,7 +176,7 @@ async function save(label: string): Promise<void> {
     if (disposed || props.state.projectId !== projectId || props.state.selectedNode.value?.nodeId !== nodeId) throw new Error('保存已提交，但工作区目标随后发生变化')
     props.state.refreshBlueprintTreeProjection()
     props.state.notifyExternalDataViewChanged()
-    props.state.addStatus(`${label}已通过 Base_NavigationInfo DataView 保存并读回；保存范围为当前节点全部暂存字段`, 'success')
+    props.state.addStatus(`${label}已通过 Base_NavigationInfo DataView 保存并读回；保存范围为当前树 DataView 的全部待处理行`, 'success')
   } catch (error) {
     props.state.addStatus(`${label} DataView 保存失败或回执待核验: ${String(error)}`, 'error')
   } finally { saving.value = false }

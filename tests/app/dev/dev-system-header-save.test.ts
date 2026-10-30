@@ -57,7 +57,18 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
     workTab: ref('props'),
     previewRefreshToken: ref(0),
     currentWorkspaceFile: ref(null),
-    pageDesignAiPrompt: ref(''),
+    pageDesignPromptViewKey: ref(''),
+    pageDesignPromptScopeKey: ref('unbound'),
+    initiatingProjectDataViewKey: ref('APP@Base_NavigationInfo@default'),
+    blueprintTreeScopeKey: ref('runtime:APP@Base_NavigationInfo@default'),
+    headerActionScopeKey: ref('runtime:APP@NODE-A@dbms@APP@Base_NavigationInfo@default'),
+    headerActions: {
+      saveAll: vi.fn(),
+      preview: vi.fn(),
+      runPageDesignAi: vi.fn(),
+      previewPage: vi.fn(),
+    },
+    notifyPageDesignPromptChanged: vi.fn(),
     canPreviewCurrentPage: ref(true),
     canSaveFromHeader: ref(true),
     canRunPageDesignAi: ref(false),
@@ -72,8 +83,9 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
 }
 
 const ButtonStub = defineComponent({
+  props: {label:String},
   emits: ['click'],
-  template: '<button type="button" @click="$emit(\'click\')"><slot /></button>',
+  template: '<button type="button" @click="$emit(\'click\')">{{ label }}<slot /></button>',
 })
 
 const PassthroughStub = defineComponent({
@@ -122,6 +134,9 @@ function mountDevSystem() {
         DevPreviewTab: true,
         BlueprintWorkspace: true,
         ProjectPlanningDocumentImportDialog: true,
+        RendererButton: ButtonStub,
+        RendererForm: true,
+        FieldText: true,
         ElButton: ButtonStub,
         ElEmpty: true,
         ElInput: true,
@@ -149,7 +164,7 @@ describe('DevSystem header save action', () => {
 
     await saveButton!.trigger('click')
 
-    expect(devSystemCtx.saveAll).toHaveBeenCalledOnce()
+    expect(devSystemCtx.headerActions.saveAll).toHaveBeenCalledOnce()
   })
 
   it('mounts the generic AI tool approval panel from app state', async () => {

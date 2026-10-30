@@ -7,7 +7,7 @@
     "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
     "packageName": "app",
     "modulePath": "views/app/dev-system/useDevSystem",
-    "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
+    "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DevSystemCtx"
@@ -483,7 +483,7 @@
             },
             "listScenarioVersions": {
               "type": "object",
-              "title": "() => ReturnType<import(\"@spark-appworks/spark-data\").DataView[\"listSourceVersions\"]>"
+              "title": "() => ReturnType<DataView[\"listSourceVersions\"]>"
             },
             "previewScenarioVersion": {
               "type": "object",
@@ -611,11 +611,11 @@
             },
             "getPageToolFileDataView": {
               "type": "object",
-              "title": "(pageId: string, fileName: PageToolFileName) => import(\"@spark-appworks/spark-data\").DataView"
+              "title": "(pageId: string, fileName: PageToolFileName) => DataView"
             },
             "loadPageToolFileDataView": {
               "type": "object",
-              "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; forceReload?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
+              "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; forceReload?: boolean; }) => Promise<DataView>"
             },
             "readPageToolFileDataViewText": {
               "type": "object",
@@ -623,7 +623,7 @@
             },
             "pageToolFileDataViewState": {
               "type": "object",
-              "title": "(pageId: string, fileName: PageToolFileName) => { view: import(\"@spark-appworks/spark-data\").DataView; row: import(\"@spark-appworks/spark-data\").DataRow; id: string | number; dirty: boolean; unconfirmed: boolean; }"
+              "title": "(pageId: string, fileName: PageToolFileName) => { view: DataView; row: import(\"@spark-appworks/spark-data\").DataRow; id: string | number; dirty: boolean; unconfirmed: boolean; }"
             },
             "stagePageToolFileDataView": {
               "type": "object",
@@ -896,9 +896,33 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<\"rule.json\" | \"script.js\" | \"style.css\" | null>"
         },
-        "pageDesignAiPrompt": {
+        "pageDesignPromptViewKey": {
           "type": "object",
-          "title": "import(\"vue\").Ref<string, string>"
+          "title": "UseDateFormatReturn"
+        },
+        "pageDesignPromptScopeKey": {
+          "type": "object",
+          "title": "UseDateFormatReturn"
+        },
+        "headerActionScopeKey": {
+          "type": "object",
+          "title": "UseDateFormatReturn"
+        },
+        "headerActions": {
+          "type": "object",
+          "title": "import(\"vue\").ComputedRef<{ preview: () => void; saveAll: () => void; runPageDesignAi: () => void; previewPage: (pageId: string) => void; }>"
+        },
+        "initiatingProjectDataViewKey": {
+          "type": "object",
+          "title": "UseDateFormatReturn"
+        },
+        "blueprintTreeScopeKey": {
+          "type": "object",
+          "title": "UseDateFormatReturn"
+        },
+        "notifyPageDesignPromptChanged": {
+          "type": "object",
+          "title": "() => void"
         },
         "canPreviewCurrentPage": {
           "type": "object",
@@ -916,22 +940,6 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<\"保存\" | \"全部保存\">"
         },
-        "previewPage": {
-          "type": "object",
-          "title": "(pageId: string) => void"
-        },
-        "switchToPreview": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "saveAll": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "runPageDesignAi": {
-          "type": "object",
-          "title": "() => Promise<void>"
-        },
         "isWorkspaceTabDirty": {
           "type": "object",
           "title": "(name: PageToolFileName) => boolean"
@@ -942,21 +950,23 @@
         "workTab",
         "previewRefreshToken",
         "currentWorkspaceFile",
-        "pageDesignAiPrompt",
+        "pageDesignPromptViewKey",
+        "pageDesignPromptScopeKey",
+        "headerActionScopeKey",
+        "headerActions",
+        "initiatingProjectDataViewKey",
+        "blueprintTreeScopeKey",
+        "notifyPageDesignPromptChanged",
         "canPreviewCurrentPage",
         "canSaveFromHeader",
         "canRunPageDesignAi",
         "headerSaveLabel",
-        "previewPage",
-        "switchToPreview",
-        "saveAll",
-        "runPageDesignAi",
         "isWorkspaceTabDirty"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T14:25:01.639Z",
+  "generatedAt": "2026-10-30T10:46:39.381Z",
   "models": {
     "DevSystemCtx": {
       "name": "DevSystemCtx",

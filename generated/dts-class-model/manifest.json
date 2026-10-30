@@ -14661,7 +14661,7 @@
         "sourceFile": "src/views/app/dev-system/DevSystem.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/DevSystem",
-        "jsdoc": "@module app:views/app/dev-system/DevSystem\n职责：提供 DevSystem 的 DevSystem 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSystem。",
+        "jsdoc": "@module app:views/app/dev-system/DevSystem\n职责：提供 DevSystem 的 DevSystem 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSystem。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14718,7 +14718,7 @@
         "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/ProjectBlueprintTree",
-        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；领域操作只接收稳定行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
+        "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；异步事件与删除确认固定本次运行时、项目及行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14763,7 +14763,7 @@
         "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
         "packageName": "app",
         "modulePath": "views/app/dev-system/useDevSystem",
-        "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
+        "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DevSystemCtx"

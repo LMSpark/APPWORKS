@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/ProjectBlueprintTree.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/ProjectBlueprintTree",
-    "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；领域操作只接收稳定行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
+    "jsdoc": "@module app:views/app/dev-system/ProjectBlueprintTree\n职责：通过当前项目蓝图 DataView 显示及操作项目导航树。\n边界：RendererTree 直接绑定本次 PAGE_RUNTIME 中的正式树视图；异步事件与删除确认固定本次运行时、项目及行身份。\nAI用途：检查开发系统主树的正式视图绑定、节点选择与相对拖放委派。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-29T14:56:05.258Z",
+  "generatedAt": "2026-10-30T10:38:38.930Z",
   "models": {}
 }

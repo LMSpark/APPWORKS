@@ -1,7 +1,7 @@
 <!--
 @module app:views/app/dev-system/DevSystem
 职责：提供 DevSystem 的 DevSystem 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。
-边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
+边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。
 AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSystem。
 -->
 <template>
@@ -17,33 +17,49 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         <DisplayTag :content="state.projectId" tag-type="info" size="small" effect="plain" />
         <DisplayTag v-if="state.hasAnyDirty.value" content="未保存" tag-type="warning" size="small" effect="dark" />
       </div>
-      <div class="dev-header__right">
-        <FieldText
-          v-if="state.activePageId.value"
-          v-model="pageDesignAiPrompt"
-          class="dev-ai-input"
-          clearable
-          placeholder="描述 AI 编辑需求"
-        />
+      <div v-if="initiatingProjectDataViewKey" :key="headerActionScopeKey" class="dev-header__right">
+        <RendererForm
+          v-if="pageDesignPromptViewKey"
+          :key="pageDesignPromptScopeKey"
+          :data-view-key="pageDesignPromptViewKey"
+          :show-data-view-meta="false"
+          :show-aggregate-summary="false"
+          :show-selection-summary="false"
+          :auto-columns="false"
+          :grid-columns="1"
+          class="dev-ai-input-form"
+        >
+          <FieldText
+            :data-view-key="pageDesignPromptViewKey"
+            data-member="currentRow"
+            data-field="businessPrompt"
+            class="dev-ai-input"
+            clearable
+            placeholder="描述 AI 编辑需求"
+            @update:model-value="notifyPageDesignPromptChanged"
+          />
+        </RendererForm>
         <RendererButton
-          v-if="state.activePageId.value"
+          v-if="state.activePageId.value && initiatingProjectDataViewKey"
+          :data-view-key="initiatingProjectDataViewKey"
           label="AI 编辑"
           icon="MagicStick"
           button-size="small"
           button-type="primary"
           :loading="state.pageDesignAiRunning.value"
           :disabled="!canRunPageDesignAi"
-          @click="runPageDesignAi"
+          @click="headerActions.runPageDesignAi"
         />
-        <RendererButton label="预览页面" icon="Search" button-size="small" @click="switchToPreview" :disabled="!canPreviewCurrentPage" />
+        <RendererButton :data-view-key="initiatingProjectDataViewKey" label="预览页面" icon="Search" button-size="small" @click="headerActions.preview" :disabled="!canPreviewCurrentPage" />
         <RendererButton
-          v-if="canSaveFromHeader"
+          v-if="canSaveFromHeader && initiatingProjectDataViewKey"
+          :data-view-key="initiatingProjectDataViewKey"
           :label="headerSaveLabel"
           icon="FolderChecked"
           button-size="small"
           button-type="success"
           :loading="state.allSaving.value || state.blueprintSaving.value || state.pageIoBusy.value"
-          @click="saveAll"
+          @click="headerActions.saveAll"
         />
       </div>
     </div>
@@ -52,7 +68,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     <div class="dev-body" v-loading="state.blueprintLoading.value">
       <!-- 左栏：项目蓝图树 -->
       <div class="dev-body__tree">
-        <ProjectBlueprintTree :state="state" />
+        <ProjectBlueprintTree :key="blueprintTreeScopeKey" :state="state" />
       </div>
 
       <!-- 中栏：工作区 -->
@@ -90,13 +106,15 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           </div>
           <div class="workspace-footer__right">
             <RendererButton
-              v-if="state.activePageId.value"
+              v-if="state.activePageId.value && initiatingProjectDataViewKey"
+              :key="headerActionScopeKey"
+              :data-view-key="initiatingProjectDataViewKey"
               :label="`/${state.activePageId.value}`"
               icon="Connection"
               button-size="small"
               button-type="success"
               link
-              @click="previewPage(state.activePageId.value)"
+              @click="headerActions.previewPage(state.activePageId.value)"
             />
           </div>
         </div>
@@ -108,6 +126,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
     <ProjectPlanningDocumentImportDialog
       v-model="state.projectPlanningDocumentImportDialogVisible.value"
       :state="state"
+      :data-view-key="initiatingProjectDataViewKey"
     />
 
     <!-- ═══ 底部状态栏 ═══ -->
@@ -130,7 +149,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, watch } from 'vue'
-import { AiToolApprovalPanel,DisplayTag,FieldText,PAGE_RUNTIME,RendererButton,useSparkComponent } from '@spark-appworks/spark-component'
+import { AiToolApprovalPanel,DisplayTag,FieldText,PAGE_RUNTIME,RendererButton,RendererForm,useSparkComponent } from '@spark-appworks/spark-component'
 import { useDevSystem } from './useDevSystem'
 import ProjectBlueprintTree from './ProjectBlueprintTree.vue'
 import BlueprintWorkspace from './blueprint-workspace/BlueprintWorkspace.vue'
@@ -140,15 +159,17 @@ import NavHostProjectPicker from './nav-host-project-picker/NavHostProjectPicker
 
 const {
   state,
-  pageDesignAiPrompt,
+  pageDesignPromptViewKey,
+  pageDesignPromptScopeKey,
+  notifyPageDesignPromptChanged,
+  initiatingProjectDataViewKey,
+  blueprintTreeScopeKey,
+  headerActionScopeKey,
+  headerActions,
   canPreviewCurrentPage,
   canSaveFromHeader,
   canRunPageDesignAi,
   headerSaveLabel,
-  previewPage,
-  switchToPreview,
-  saveAll,
-  runPageDesignAi,
 } = useDevSystem()
 
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'dev-system-page-runtime-host'})
@@ -217,6 +238,7 @@ onMounted(() => {
 .dev-ai-input {
   width: min(360px, 34vw);
 }
+.dev-ai-input-form { width: min(360px, 34vw); }
 
 .dev-ai-approvals {
   flex-shrink: 0;

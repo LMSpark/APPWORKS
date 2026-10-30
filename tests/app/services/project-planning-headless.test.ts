@@ -16,7 +16,7 @@ describe('headless project planning workspace identity',()=>{
 
   it('uses projectId only and does not infer project tenant identity from enterpriseName',()=>{
     mocks.readLowcodePrincipal.mockReturnValue({enterpriseName:'enterprise-is-not-a-tenant-id',applicationId:'session-project'})
-    mocks.createLowcodeProjectGateways.mockReturnValue({pageFiles:{readPageFile:async()=>''},blueprint:{}})
+    mocks.createLowcodeProjectGateways.mockReturnValue({blueprint:{}})
 
     const editor=createHeadlessProjectPlanningEditor({projectId:'target-project'})
 

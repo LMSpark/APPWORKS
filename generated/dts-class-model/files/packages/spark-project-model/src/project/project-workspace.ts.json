@@ -394,34 +394,6 @@
       ],
       "additionalProperties": false
     },
-    "ProjectWorkspacePageFileChange": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ProjectWorkspacePageFileChange",
-      "properties": {
-        "pageId": {
-          "type": "string"
-        },
-        "fileName": {
-          "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-        },
-        "expectedText": {
-          "type": "string"
-        },
-        "text": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "$defs": {
-        "method.assertCurrent.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.assertCurrent.return": true
-      }
-    },
     "ProjectWorkspaceOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -429,9 +401,6 @@
       "properties": {
         "projectId": {
           "type": "string"
-        },
-        "pageFiles": {
-          "$ref": "../io/page-file-api.ts.json#/$defs/ProjectPageFileGateway"
         },
         "blueprint": {
           "$ref": "../io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
@@ -445,7 +414,6 @@
       },
       "required": [
         "projectId",
-        "pageFiles",
         "blueprint"
       ],
       "additionalProperties": false,
@@ -479,25 +447,6 @@
       "properties": {
         "project": {
           "$ref": "project-blueprint.ts.json#/$defs/ProjectBlueprint"
-        },
-        "unconfirmedPageFiles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "pageId": {
-                "type": "string"
-              },
-              "fileName": {
-                "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-              }
-            },
-            "required": [
-              "pageId",
-              "fileName"
-            ],
-            "additionalProperties": false
-          }
         },
         "hasPendingScenarioVersionAttempt": {
           "type": "boolean"
@@ -749,38 +698,6 @@
             }
           ]
         },
-        "method.previewPageFileRemote.params": {
-          "type": "object",
-          "properties": {
-            "pageId": {
-              "type": "string"
-            },
-            "fileName": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            },
-            "versionId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.previewPageFileRemote.return": {
-          "type": "object",
-          "title": "Promise<string>"
-        },
-        "method.savePageFileChange.params": {
-          "type": "object",
-          "properties": {
-            "command": {
-              "$ref": "#/$defs/ProjectWorkspacePageFileChange"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.savePageFileChange.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.ingestBlueprintTree.params": {
           "type": "object",
           "properties": {
@@ -869,7 +786,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T18:30:43.588Z",
+  "generatedAt": "2026-10-30T05:09:18.446Z",
   "models": {
     "ScenarioViewVersionAttempt": {
       "name": "ScenarioViewVersionAttempt",
@@ -1486,72 +1403,17 @@
         }
       }
     },
-    "ProjectWorkspacePageFileChange": {
-      "name": "ProjectWorkspacePageFileChange",
-      "jsdoc": "单个工具文件的明确原文更新。\npageId — 正式工具身份；fileName — 三文件中的目标文件；expectedText — 调用方已预览的远端原文；\ntext — 本次提交的完整新原文；assertCurrent — 每次异步边界核验调用身份及操作仍有效。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    fileName: PageToolFileName;\n    expectedText: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    fileName: PageToolFileName;\n    expectedText: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "pageId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fileName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "expectedText",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "text",
-              "readable": true,
-              "writable": false
-            }
-          ],
-          "methods": [
-            {
-              "name": "assertCurrent",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            }
-          ]
-        }
-      }
-    },
     "ProjectWorkspaceOptions": {
       "name": "ProjectWorkspaceOptions",
       "jsdoc": "Project Workspace Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 页面三文件语义网关。 */\n    pageFiles: ProjectPageFileGateway;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n    /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */\n    scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>;\n}",
+        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n    /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */\n    scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>;\n}",
         "members": {
           "attributes": [
             {
               "name": "projectId",
               "jsdoc": "project Id 标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "pageFiles",
-              "jsdoc": "页面三文件语义网关。",
               "readable": true,
               "writable": true
             },
@@ -1651,12 +1513,6 @@
             {
               "name": "project",
               "jsdoc": "project 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "unconfirmedPageFiles",
-              "jsdoc": "原工作文件提交尚未回读确认的目标；撤销本地文本不会把未知写入变成已取消。",
               "readable": true,
               "writable": false
             },
@@ -2071,71 +1927,6 @@
                   {
                     "type": "literal",
                     "value": null
-                  }
-                ]
-              }
-            },
-            {
-              "name": "previewPageFileRemote",
-              "jsdoc": "读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。",
-              "parameters": [
-                {
-                  "name": "pageId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                },
-                {
-                  "name": "versionId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "savePageFileChange",
-              "jsdoc": "按明确原文更新单个工具文件并精确回读；已是目标原文时只确认，不重放写入。无后端CAS，不能保证原子并发。",
-              "parameters": [
-                {
-                  "name": "command",
-                  "type": {
-                    "type": "reference",
-                    "name": "ProjectWorkspacePageFileChange",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
                   }
                 ]
               }

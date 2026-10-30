@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {createTestProjectToolFileExecutor, dataSpacePageFixture} from './data-space-page.fixture'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceArrayConfiguration} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration'
@@ -189,8 +189,7 @@ describe('array field references follow formal field identity',()=>{
       {type:'r-text',props:{dataViewKey:'B@Orders@shared',field:'code'}},
       {type:'r-json',props:{field:'document',mode:'rows',children:[{type:'r-text',props:{field:'code'}}]},children:[{type:'r-text',props:{field:'name'}}]},
     ]}));files.set('ONE/script.js','');files.set('ONE/style.css','')
-    const {owner,rename,writes}=await setup({pageFiles:{readPageFile:async command=>files.get(`${command.pageId}/${command.fileName}`)??'',
-      saveFileContent:async(id,name,text)=>{files.set(`${id}/${name}`,text);saves.push(`${id}/${name}`);if(lose){lose=false;throw new Error('tool receipt lost')}}},
+    const {owner,rename,writes}=await setup({projectToolFileExecutor:createTestProjectToolFileExecutor(files,saves,{afterWrite:()=>{if(lose){lose=false;throw new Error('tool receipt lost')}}}),
       blueprint:{}, blueprintTreeProjection:()=>({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[{
         nodeId:'ONE',parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:'One'},source:{},navigation:{target:'cfg:ONE',title:'One',order:0,publishInMenu:true,showChildren:true,beginGroup:false},
       }]})})

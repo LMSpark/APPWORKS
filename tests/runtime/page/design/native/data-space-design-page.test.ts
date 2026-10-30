@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElButton, ElInputNumber, ElSelect, ElOption, ElTabs, ElTabPane, ElRadioGroup, ElRadio, ElCheckbox, ElTree, ElPagination, ElTable, ElTableColumn} from 'element-plus'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
-import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
+import {createTestProjectToolFileExecutor, dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet, DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
@@ -383,13 +383,11 @@ describe('cached target reopening', () => {
 
 describe('file model workspace', () => {
   it('binds tool file request parameters to the native view and previews a published snapshot without saving it', async () => {
-    const f = fixture({overviewOnly: true, pageFiles: {readPageFile: async input => {
-      expect(input.pageId).toBe('ONE'); expect(input.fileName).toBe('rule.json')
-      return JSON.stringify({type: 'r-text', props: {label: input.versionId === 'v1' ? 'Published text' : 'Working text'}})
-    }}})
+    const published='style=3;rule=2;script=1',files=new Map([[`ONE/${published}/rule.json`,JSON.stringify({type:'r-text',props:{label:'Published text'}})]])
+    const f = fixture({overviewOnly: true, projectToolFileExecutor:createTestProjectToolFileExecutor(files,[])})
     f.stored.set('A', JSON.stringify({scenarioId: 'A', schemaVersion: 2, resourceRelations: [], tables: {
       ProjectToolFile: {...definitionConfig.tables.ProjectToolFile, views: {default: {}, toolRequests: {
-        queryContext: {pageId: 'ONE', fileName: 'rule.json', versionId: 'v1'}, commitMode: 'staged',
+        queryContext: {pageId: 'ONE', fileName: 'rule.json', versionId: published}, commitMode: 'staged',
       }}},
     }}))
     const {wrapper, instance} = await page('?scenarioId=A', true)

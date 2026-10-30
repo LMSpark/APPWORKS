@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page-tool/project-tool-resource",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page-tool/project-tool-resource\n职责：把蓝图工具清单和工具文件接入原生DataView查询及DataSet提交。\n边界：仅存储适配内部调用工作区IO；发布快照只读，不创建表或编辑副本。\nAI用途：工具依赖检查及工作文件维护复用同一SPARK data生命周期。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page-tool/project-tool-resource\n职责：把蓝图工具清单投影为只读 DataView。\n边界：ProjectToolFile 的查询、写入、版本及 attempt 均由 spark-data FileResource 适配器承接。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectToolResource"
@@ -20,6 +20,12 @@
       "title": "Executor",
       "properties": {
         "localAggregates": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveIndependently": {
           "enum": [
             false,
             true
@@ -152,23 +158,6 @@
       ],
       "additionalProperties": false
     },
-    "SaveCommand": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SaveCommand",
-      "properties": {
-        "changes": {
-          "type": "array",
-          "items": {
-            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQuerySaveChange"
-          }
-        }
-      },
-      "required": [
-        "changes"
-      ],
-      "additionalProperties": false
-    },
     "ProjectToolResource": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -250,28 +239,15 @@
         "method.executeQuery.return": {
           "type": "object",
           "title": "Promise<Result>"
-        },
-        "method.save.params": {
-          "type": "object",
-          "properties": {
-            "command": {
-              "$ref": "#/$defs/SaveCommand"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.save.return": {
-          "type": "object",
-          "title": "Promise<Awaited<ReturnType<NonNullable<Executor['save']>>>>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-27T22:24:16.101Z",
+  "generatedAt": "2026-10-30T05:04:28.243Z",
   "models": {
     "Executor": {
       "name": "Executor",
-      "jsdoc": "复用DataView的查询及保存适配协议。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
@@ -280,7 +256,7 @@
     },
     "Result": {
       "name": "Result",
-      "jsdoc": "原查询结果及其受保护的身份和读写能力。",
+      "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Awaited<ReturnType<Executor['executeQuery']>>",
@@ -294,22 +270,12 @@
         "members": {}
       }
     },
-    "SaveCommand": {
-      "name": "SaveCommand",
-      "jsdoc": "DataSet从视图捕获的原查询基线和本次变更。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Parameters<NonNullable<Executor['save']>>[0]",
-        "members": {}
-      }
-    },
     "ProjectToolResource": {
       "name": "ProjectToolResource",
-      "jsdoc": "正式配置声明的工具资源；编辑仅由查询视图承载，不伪造后端模型身份。",
+      "jsdoc": "只读工具目录投影；工具文件是独立 FileResource，不由此类读取或保存。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "每次异步边界核对宿主作用域；元数据空间身份与工具所属应用分别校验。",
           "signatureText": "constructor(options: Readonly<{\n        workspace: ProjectWorkspace;\n        metadataScenarioId: string;\n        assertCurrent(): void;\n        blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n    }>)",
           "parameters": [
             {
@@ -331,7 +297,6 @@
           "attributes": [
             {
               "name": "resources",
-              "jsdoc": "清单和文件是两个独立语义资源；两者都保留默认视图。",
               "readable": true,
               "writable": false
             }
@@ -339,7 +304,6 @@
           "methods": [
             {
               "name": "queryParameters",
-              "jsdoc": "工具文件参数与场景目标参数不同；缺省版本表示工作文件。",
               "parameters": [
                 {
                   "name": "resourceId",
@@ -386,7 +350,6 @@
             },
             {
               "name": "executeQuery",
-              "jsdoc": "原文读取后交给统一本地查询执行过滤、排序和投影；查询失败不会清空原视图。",
               "parameters": [
                 {
                   "name": "view",
@@ -411,48 +374,6 @@
                     "type": "reference",
                     "name": "Result",
                     "sourcePath": "packages/spark-project-model/src/page-tool/project-tool-resource.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "save",
-              "jsdoc": "只提交捕获的工作文件text差异；每个文件独立确认，失败保留DataView变更供显式接续。",
-              "parameters": [
-                {
-                  "name": "command",
-                  "type": {
-                    "type": "reference",
-                    "name": "SaveCommand",
-                    "sourcePath": "packages/spark-project-model/src/page-tool/project-tool-resource.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "Awaited",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "ReturnType",
-                        "typeArguments": [
-                          {
-                            "type": "reference",
-                            "name": "NonNullable",
-                            "typeArguments": [
-                              {
-                                "type": "unknown",
-                                "name": "Executor['save']"
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
                   }
                 ]
               }

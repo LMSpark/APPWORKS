@@ -92,7 +92,6 @@ export function dataSpaceChainFixture(options: {metadataCreate?: boolean} = {}) 
   const fileGateway = {readScope: () => scope, readText: async (id: string) => files.get(id) ?? null,
     writeText: async (id: string, text: string) => {expect([target, meta]).toContain(id); files.set(id, text); fileWrites.push(text)}}
   const workspace = () => new ProjectWorkspace({projectId: 'CHAIN-APP',
-    pageFiles: {readPageFile: async () => {throw new Error('unexpected page file read')}},
     blueprint: {}, scenarioViews: fileGateway})
   const signed = (name: string, row: Row) => ({...structuredClone(row), lingma_sys_key: `signature:${name}:${String(row['rowid'])}`,
     lingma_sys_params: {r: [], e: name === 'Base_DataSet' ? ['inputParams'] : name === 'Orders' && writable ? ['region', 'category', 'choice'] : [], h: [], m: [], d: false}})

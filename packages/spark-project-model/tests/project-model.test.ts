@@ -10,7 +10,6 @@ describe('ProjectBlueprint', () => {
   function createWorkspace(): ProjectWorkspace {
     return new ProjectWorkspace({
       projectId: 'crm',
-      pageFiles: { readPageFile: async () => '' },
       blueprint: {},
     })
   }
@@ -76,7 +75,7 @@ describe('ProjectBlueprint', () => {
   })
   it('retains the platform probeLink command', async () => {
     const probeLink = vi.fn(async () => ({ embeddable: true, reason: 'allowed' }))
-    const workspace = new ProjectWorkspace({ projectId: 'crm', pageFiles: { readPageFile: async () => '' }, blueprint: { probeLink } })
+    const workspace = new ProjectWorkspace({ projectId: 'crm', blueprint: { probeLink } })
     await expect(workspace.probeLink('https://example.test')).resolves.toEqual({ embeddable: true, reason: 'allowed' })
     expect(probeLink).toHaveBeenCalledWith('https://example.test')
   })

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 993,
+  "scannedFileCount": 992,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11423,22 +11423,6 @@
         ]
       }
     },
-    "packages/spark-project-model/src/io/page-file-api.ts": {
-      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-project-model:io/page-file-api",
-        "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
-        "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
-        "packageName": "@spark-appworks/spark-project-model",
-        "modulePath": "io/page-file-api",
-        "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件读取与保存的宿主语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace读取页面文件；文件写操作由正式SPARK data命令承接。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ProjectPageFileGateway",
-          "PageFileApi"
-        ]
-      }
-    },
     "packages/spark-project-model/src/io/project-blueprint-client.ts": {
       "file": "files/packages/spark-project-model/src/io/project-blueprint-client.ts.json",
       "module": {
@@ -11482,7 +11466,7 @@
         "sourceFile": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "page-tool/project-tool-resource",
-        "jsdoc": "@module @spark-appworks/spark-project-model:page-tool/project-tool-resource\n职责：把蓝图工具清单和工具文件接入原生DataView查询及DataSet提交。\n边界：仅存储适配内部调用工作区IO；发布快照只读，不创建表或编辑副本。\nAI用途：工具依赖检查及工作文件维护复用同一SPARK data生命周期。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:page-tool/project-tool-resource\n职责：把蓝图工具清单投影为只读 DataView。\n边界：ProjectToolFile 的查询、写入、版本及 attempt 均由 spark-data FileResource 适配器承接。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ProjectToolResource"
@@ -20671,10 +20655,6 @@
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
       "file": "files/packages/spark-component/src/runtime/app-services.ts.json"
     },
-    "PageFileApi": {
-      "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
-      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
-    },
     "PageFileCreateOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
@@ -21054,10 +21034,6 @@
     "ProjectNavigationGuard": {
       "sourcePath": "src/services/project/navigation/project-navigation-guard.ts",
       "file": "files/src/services/project/navigation/project-navigation-guard.ts.json"
-    },
-    "ProjectPageFileGateway": {
-      "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
-      "file": "files/packages/spark-project-model/src/io/page-file-api.ts.json"
     },
     "ProjectPageFileWriteCommand": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",

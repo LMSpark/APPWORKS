@@ -9,18 +9,13 @@
  * 领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。
  */
 
-import { PageFileApi, type ProjectPageFileGateway } from '../io/page-file-api'
-import { PageContentLoader } from '../io/page-content-loader'
 import type {
   ProjectBlueprintTreeData,
 } from '../blueprint/project-blueprint-node'
 import type { ProjectBlueprintGateway } from '../io/project-blueprint-client'
 import type { PageToolFileVersionSummary } from '../page/page-file'
-import {
-  assertNonEmptyPageId,
-  type PageToolFileName,
-} from '../page/page-file'
-import { PageTool } from '../page/page-tool'
+import type {PageToolFileName} from '../page/page-file'
+import type {PageTool} from '../page/page-tool'
 import { ProjectBlueprint } from './project-blueprint'
 import {ScenarioViewFile, ScenarioViewWriteNotAppliedError, type ScenarioViewSubmission} from '../scenario/scenario-view-file'
 import { ScenarioViewConfig } from '../scenario/scenario-view-config'
@@ -102,18 +97,6 @@ type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision:
 
 /** 场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。 */
 type ScenarioViewVersionCommand = Readonly<{ scenarioId: string; version: number }>
-/**
- * 单个工具文件的明确原文更新。
- * pageId — 正式工具身份；fileName — 三文件中的目标文件；expectedText — 调用方已预览的远端原文；
- * text — 本次提交的完整新原文；assertCurrent — 每次异步边界核验调用身份及操作仍有效。
- */
-type ProjectWorkspacePageFileChange = Readonly<{
-  pageId: string
-  fileName: PageToolFileName
-  expectedText: string
-  text: string
-  assertCurrent?: () => void
-}>
 /** 版本操作捕获的场景owner、请求scope和工作文本基线。 */
 type ScenarioViewVersionContext = Readonly<{ scenarioId: string; scope: string; file: ScenarioViewFile; text: string; revision: number; key: string }>
 type ScenarioVersionAttemptRecord = Readonly<{
@@ -134,8 +117,6 @@ function scenarioVersionStatus(state: ScenarioViewVersionAttemptStatus['state'],
 export type ProjectWorkspaceOptions = {
     /** project Id 标识。 */
 projectId: string
-    /** 页面三文件语义网关。 */
-pageFiles: ProjectPageFileGateway
     /** 项目蓝图语义网关。 */
 blueprint: ProjectBlueprintGateway
     /** 跨项目引用语义网关。 */
@@ -154,8 +135,6 @@ export class ProjectWorkspace {
 readonly project: ProjectBlueprint
   private readonly projectReferenceClient: ProjectReferenceClient | null
   private readonly blueprintGateway: ProjectBlueprintGateway
-  private readonly fileApi: PageFileApi
-  private readonly getContentLoader: () => PageContentLoader
   private readonly scenarioGateway: ScenarioViewGateway | undefined
   private readonly definitionLoader: ProjectWorkspaceOptions['scenarioDefinitions']
   private readonly definitionDataSets = new Map<string, DataSet>()
@@ -166,13 +145,6 @@ readonly project: ProjectBlueprint
   private readonly scenarioLoads = new Map<string, Promise<ScenarioViewFile>>()
   private readonly scenarioSaves = new Set<string>()
   private readonly scenarioVersionAttempts = new Map<string, ScenarioVersionAttemptRecord>()
-  private readonly pageFileSaves = new Set<string>()
-  private readonly unconfirmedToolSaves = new Map<string, {page: PageTool; name: PageToolFileName; text: string; baseline: string}>()
-
-  /** 原工作文件提交尚未回读确认的目标；撤销本地文本不会把未知写入变成已取消。 */
-  get unconfirmedPageFiles(): ReadonlyArray<{pageId: string; fileName: PageToolFileName}> {
-    return [...this.unconfirmedToolSaves.values()].map(item => ({pageId: item.page.pageId, fileName: item.name}))
-  }
   /** 原场景owner仍持有待提交或结果未知的快照attempt时，宿主不得释放该工作区。 */
   get hasPendingScenarioVersionAttempt(): boolean {
     let scope: string
@@ -185,19 +157,12 @@ readonly project: ProjectBlueprint
   /** 固定项目身份与真实IO能力，持有场景scope缓存并编排可验证保存。 */
 
 constructor(options: ProjectWorkspaceOptions) {
-    const fileApi = new PageFileApi(options.pageFiles)
     const projectReferenceClient = options.projectReferences === undefined
       ? undefined
       : new ProjectReferenceClient(options.projectReferences)
-    const pageContentLoader = new PageContentLoader({
-      projectId: options.projectId,
-      readPageFile: options.pageFiles.readPageFile,
-    })
     this.project = new ProjectBlueprint({ projectId: options.projectId })
     this.blueprintGateway = options.blueprint
     this.projectReferenceClient = projectReferenceClient ?? null
-    this.fileApi = fileApi
-    this.getContentLoader = () => pageContentLoader
     this.scenarioGateway = options.scenarioViews
     this.definitionLoader = options.scenarioDefinitions
   }
@@ -622,50 +587,6 @@ constructor(options: ProjectWorkspaceOptions) {
   public getActivePageTool(): PageTool | null { return this.project.getActivePage() }
 
   /** 只读远端正式蓝图，不覆盖本地策划草稿或活动页。 */
-  /** 读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。 */
-  public async previewPageFileRemote(pageId: string, fileName: PageToolFileName, versionId?: string): Promise<string> {
-    if (versionId !== undefined) {
-      if (!versionId.trim()) throw new Error('发布版本指针不能为空')
-      const reader = this.getContentLoader().getPageFileReader()
-      if (!reader) throw new Error('未提供工具文件读取能力')
-      return reader({projectId: this.project.projectId, pageId: assertNonEmptyPageId(pageId), fileName, versionId})
-    }
-    const result = await this.getContentLoader().loadPageFileContent(assertNonEmptyPageId(pageId), fileName, {forceReload: true})
-    if (!result.success || result.data === undefined) throw new Error(result.error ?? `${fileName} 读取失败`)
-    return result.data
-  }
-
-  /** 按明确原文更新单个工具文件并精确回读；已是目标原文时只确认，不重放写入。无后端CAS，不能保证原子并发。 */
-  public async savePageFileChange(command: ProjectWorkspacePageFileChange): Promise<void> {
-    const {fileName, expectedText, text} = command, pageId = assertNonEmptyPageId(command.pageId)
-    const key = JSON.stringify([pageId, fileName]), page = this.project.findPageTool(pageId)
-    if (this.unconfirmedToolSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具编辑提交')
-    const local = page?.getFileText(fileName)
-    const next = new PageTool({pageId}); next.hydrateFileText(fileName, text)
-    const check = () => {
-      command.assertCurrent?.()
-      if (this.project.findPageTool(pageId) !== page || page && (page.getDirtyFileNames().includes(fileName)
-        || page.getFileText(fileName) !== local)) {
-        throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑或已变化，不能覆盖')
-      }
-    }
-    check()
-    if (this.pageFileSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存')
-    this.pageFileSaves.add(key)
-    try {
-      const remote = await this.previewPageFileRemote(pageId, fileName); check()
-      if (remote !== text) {
-        if (remote !== expectedText) throw new Error('PAGE_TOOL_CONFLICT: 工具文件远端原文已变化')
-        await this.fileApi.saveFileContent(pageId, fileName, text); check()
-        const confirmed = await this.previewPageFileRemote(pageId, fileName); check()
-        if (confirmed !== text) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 工具文件回读未确认，请核验')
-      }
-      page?.hydrateFileText(fileName, text)
-      this.notifyPageFileChanged(pageId, fileName)
-    } finally {this.pageFileSaves.delete(key)}
-  }
-
-
     /** 加载项目蓝图。 */
 ingestBlueprintTree(
     root: ProjectBlueprintTreeData,

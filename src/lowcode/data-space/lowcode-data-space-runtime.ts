@@ -2,7 +2,7 @@
  * @module app:lowcode/data-space/lowcode-data-space-runtime
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
-import { DATA_SPACE_DESIGN_FORM_KEY, LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { createLowcodeProjectGateways, lowcodeApi, lowcodeDesignFileUpload, lowcodeHttp } from '../lowcode-runtime'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
 import { isRecord } from '@spark-appworks/spark-utils'
@@ -12,6 +12,7 @@ import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
+import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/shared/builtin-blueprint-node-resource'
 
@@ -70,9 +71,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  for (const [tableName, table] of Object.entries(tables)) {
   if (isRecord(table) && table['resourceType'] === 'file') {
    const executor = input.fileExecutors && Object.hasOwn(input.fileExecutors, tableName) ? input.fileExecutors[tableName] : undefined
-   const deferredToolFile = input.scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY
-    && tableName === 'ProjectToolFile' && table['resourceId'] === ProjectToolResource.resources.ProjectToolFile
-   if ((!executor || typeof executor.executeQuery !== 'function') && !deferredToolFile) throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
+   if (!executor || typeof executor.executeQuery !== 'function') throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
    continue
   }
   if (!isRecord(table) || !isRecord(table['modelBinding']) || typeof table['modelBinding']['modelName'] !== 'string') throw new Error('场景模型绑定不完整')
@@ -125,10 +124,6 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  const reference = isRecord(tables) ? tables[DataSpaceReferenceLayoutResource.tableName] : undefined
  const hasReference = isRecord(reference) && reference['resourceType'] === 'file' && reference['resourceId'] === DataSpaceReferenceLayoutResource.resourceId
  const toolTables = isRecord(tables) ? Object.entries(ProjectToolResource.resources).filter(([name, id]) => {
-  // DevSystem binds the formal ProjectToolFile table through spark-data's
-  // FileResource adapter so its read/edit/save/history lifecycle has one owner.
-  // The data-space designer still uses ProjectToolResource for its own query use cases.
-  if (scenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY && name === 'ProjectToolFile') return false
   const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
  }) : []
  const builtinBlueprintTable = isRecord(tables) ? tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] : undefined
@@ -158,7 +153,8 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  if (hasReference) executors[DataSpaceReferenceLayoutResource.tableName] = new DataSpaceReferenceLayoutResource({metadataScenarioId: scenarioId,
   assertCurrent, read: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout})
  const tools = new ProjectToolResource({workspace, metadataScenarioId: scenarioId, assertCurrent, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})
- for (const [name] of toolTables) executors[name] = tools
+ for (const [name] of toolTables) executors[name] = name === 'ProjectToolCatalog' ? tools
+  : createPageToolFileResourceExecutor({appId: projectId, workspace, assertCurrent})
  return executors
 }
 

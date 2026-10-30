@@ -59,6 +59,18 @@
             "null",
             "string"
           ]
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         }
       },
       "required": [
@@ -180,6 +192,29 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.onWriteConfirmed.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            },
+            "text": {
+              "type": "string"
+            },
+            "baseline": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/FileResourceSnapshot"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onWriteConfirmed.return": true,
         "method.isUnknown.params": {
           "type": "object",
           "properties": {
@@ -212,6 +247,42 @@
       },
       "additionalProperties": false,
       "$defs": {
+        "method.canWrite.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canWrite.return": {
+          "type": "boolean"
+        },
+        "method.canCreate.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canCreate.return": {
+          "type": "boolean"
+        },
+        "method.canDelete.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canDelete.return": {
+          "type": "boolean"
+        },
         "method.target.params": {
           "type": "object",
           "properties": {
@@ -226,7 +297,11 @@
         },
         "method.assertCurrent.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/FileResourceTarget"
+            }
+          },
           "additionalProperties": false
         },
         "method.assertCurrent.return": true
@@ -303,7 +378,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T03:50:33.003Z",
+  "generatedAt": "2026-10-30T05:13:46.805Z",
   "models": {
     "FileResourceTarget": {
       "name": "FileResourceTarget",
@@ -339,11 +414,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    text: string;\n    revision: string | null;\n}>",
+        "declarationTypeText": "Readonly<{\n    text: string;\n    revision: string | null;\n    fields?: Readonly<DataRow>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    text: string;\n    revision: string | null;\n}>",
+            "typeText": "Readonly<{\n    text: string;\n    revision: string | null;\n    fields?: Readonly<DataRow>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -356,6 +431,11 @@
             },
             {
               "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
               "readable": true,
               "writable": false
             }
@@ -397,11 +477,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    /** 投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。 */\n    onWriteConfirmed?(target: FileResourceTarget, text: string, baseline: FileResourceSnapshot | null): void;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -504,6 +584,48 @@
               }
             },
             {
+              "name": "onWriteConfirmed",
+              "jsdoc": "投影已确认的工作文件结果；必须是同步、幂等的本地状态通知，不执行第二次保存。",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "baseline",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "FileResourceSnapshot",
+                        "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "isUnknown",
               "parameters": [
                 {
@@ -528,11 +650,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    /** 由资源适配器按目标限制写入；用于只读快照及本地工具草稿冲突。 */\n    canWrite?(target: FileResourceTarget): boolean;\n    /** 新增与更新分开授权；未配置时沿用 canWrite。 */\n    canCreate?(target: FileResourceTarget): boolean;\n    /** 删除与内容写入分开授权；目录资源可只允许删除而不允许改正文。 */\n    canDelete?(target: FileResourceTarget): boolean;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(target?: FileResourceTarget): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(): void;\n}>",
+            "typeText": "Readonly<{\n    resourceId: string;\n    contentField: string;\n    revisionField?: string;\n    /** 由资源适配器按目标限制写入；用于只读快照及本地工具草稿冲突。 */\n    canWrite?(target: FileResourceTarget): boolean;\n    /** 新增与更新分开授权；未配置时沿用 canWrite。 */\n    canCreate?(target: FileResourceTarget): boolean;\n    /** 删除与内容写入分开授权；目录资源可只允许删除而不允许改正文。 */\n    canDelete?(target: FileResourceTarget): boolean;\n    target(view: DataView): FileResourceTarget;\n    transport: FileResourceTransport;\n    assertCurrent?(target?: FileResourceTarget): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -561,6 +683,60 @@
           ],
           "methods": [
             {
+              "name": "canWrite",
+              "jsdoc": "由资源适配器按目标限制写入；用于只读快照及本地工具草稿冲突。",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canCreate",
+              "jsdoc": "新增与更新分开授权；未配置时沿用 canWrite。",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canDelete",
+              "jsdoc": "删除与内容写入分开授权；目录资源可只允许删除而不允许改正文。",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
               "name": "target",
               "parameters": [
                 {
@@ -580,7 +756,19 @@
             },
             {
               "name": "assertCurrent",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "FileResourceTarget",
+                    "sourcePath": "packages/spark-data/src/query/file-resource-adapter.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

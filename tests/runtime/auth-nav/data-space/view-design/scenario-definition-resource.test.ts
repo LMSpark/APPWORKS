@@ -24,8 +24,7 @@ function fixture(text: string | null = JSON.stringify(initial)) {
   })
   const validate = vi.fn(async () => undefined)
   const open = () => {
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-      pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}, scenarioDefinitions: async () => dataSet,
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, scenarioDefinitions: async () => dataSet,
       scenarioViews: {readScope: () => scope, readText: async id => {expect(id).toBe('TARGET'); return stored},
         writeText: async (_id, next) => {
           if (rejectedWrite) {const error = rejectedWrite; rejectedWrite = undefined; throw error}
@@ -672,7 +671,6 @@ describe('formal definition resources through SPARK data', () => {
     const stored = new Map(['T1', 'T2'].map(id => [id, JSON.stringify({...initial, scenarioId: id})]))
     const writes: string[] = []
     const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-      pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
       scenarioViews: {readScope: () => 'scope', readText: async id => stored.get(id) ?? null,
         writeText: async (id, text) => {stored.set(id, text); writes.push(id)}}})
     const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: 'META', assertCurrent: () => {}, validate: async () => {}})

@@ -30,6 +30,12 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
   }
   const http = new NoRequest()
   return {
+  createPageToolFilesIo: () => ({list: async () => [], read: async () => null,
+    upload: async () => {throw new Error('unexpected ProjectToolFile upload')},
+    remove: async () => {throw new Error('unexpected ProjectToolFile remove')},
+    restoreWorkingFile: async () => {throw new Error('unexpected ProjectToolFile restore')},
+    listVersions: async () => [], uploadVersion: async () => {throw new Error('unexpected ProjectToolFile version upload')},
+    readVersion: async () => null}),
   lowcodeApi: {
     readRequestScope: mocks.readRequestScope,
     dataSpace: { design: { readSpaceDefinition: mocks.readSpaceDefinition,
@@ -139,7 +145,8 @@ describe('loadLowcodeRuntimeScenario', () => {
       expect(()=>toolFile?.bindQueryExecutor({executeQuery:async view=>({rows:[],total:0,assertIdentity:()=>undefined,
         rowKey:row=>row[view.primaryKey],fieldAccess:()=>({read:'invisible',write:'denied',component:'hidden',required:false,writeMode:'readonly'}),
         readFieldAccess:()=>'invisible',addActionState:()=>'disabled',editActionState:()=>'disabled',deleteActionState:()=>'disabled',
-        createChildActionState:()=>'disabled',viewActionState:()=>'hidden'})},{resource:{resourceType:'file',resourceId:'project:tool-file'}})).not.toThrow()
+        createChildActionState:()=>'disabled',viewActionState:()=>'hidden'})},{resource:{resourceType:'file',resourceId:'project:tool-file'}}))
+        .toThrow('DATA_VIEW_QUERY_IDENTITY')
       expect(mocks.readModelBatch).toHaveBeenCalledOnce()
       expect(mocks.request).not.toHaveBeenCalled()
     }finally{dataSet.destroy()}

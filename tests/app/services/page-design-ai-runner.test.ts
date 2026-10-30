@@ -19,7 +19,6 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
 function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
-    pageFiles: { readPageFile: async () => '', saveFileContent: async () => {} },
     blueprint: {},
   })
   editor.project.replaceBlueprintTree({

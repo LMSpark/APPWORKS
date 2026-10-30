@@ -98,7 +98,7 @@ describe('explicit file resource assembly', () => {
  it('queries, edits and saves a file alongside formal models, then consumes its persisted configuration in a fresh instance', async () => {
   let stored = text, scope = 'original'
   const writes: string[] = []
-  const workspace = new ProjectWorkspace({projectId: 'APP', pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
+  const workspace = new ProjectWorkspace({projectId: 'APP',
    blueprint: {}, scenarioViews: {readScope: () => scope,
     readText: async () => stored, writeText: async (_id, next) => {writes.push(next); stored = next}}})
   const file = await workspace.loadScenarioViews({scenarioId: 'SCENE'})
@@ -341,7 +341,6 @@ it('saves a named aggregate through the definition DataView, reopens and consume
  const definitionTable = metadata['tables']['DataViewDefinition']
  const open = () => {
   const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-   pageFiles: {readPageFile: async () => {throw new Error('Unexpected page read')}},
    scenarioViews: {readScope: () => 'scope', readText: async () => stored,
     writeText: async (_id, next) => {stored = next; writes.push(next)}}})
   const resource = new ScenarioDefinitionResource({workspace, metadataScenarioId: 'META', targetScenarioId: 'SCENE',

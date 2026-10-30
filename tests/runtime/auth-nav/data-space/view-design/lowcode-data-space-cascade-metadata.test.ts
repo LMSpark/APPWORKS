@@ -49,7 +49,7 @@ function fixture(text: string | null = initial) {
         type: name.startsWith('province') ? 'number' : 'string', primaryKey: name === 'id',
         description: '', output: true, computed: false, order, orderType: '', raw: {}}))}))
   const openOwner = () => {
-    const workspace = new ProjectWorkspace({projectId: 'APP', pageFiles: {readPageFile: async () => ''},
+    const workspace = new ProjectWorkspace({projectId: 'APP',
       blueprint: {}, scenarioViews: {
         readScope: () => scope, readText: async () => stored, writeText: async (id, text) => {
           expect(id).toBe('SPACE'); stored = text; writes++

@@ -66,7 +66,6 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
 function createEditor(projectId = 'hr-enterprise-planning-smoke'): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId,
-    pageFiles: { readPageFile: async () => '' },
     blueprint: {},
   })
   editor.project.replaceBlueprintTree({

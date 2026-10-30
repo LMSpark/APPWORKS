@@ -55,7 +55,7 @@ classDiagram
 
 ## IO、版本与发布
 
-`ProjectWorkspace` 编排蓝图节点 CRUD、工具文件 IO、场景配置 IO 与跨项目引用；包不拥有服务器 URL 或认证策略。`PageContentLoader` 只读取三文件，缓存清理使相关在途读取失效；旧结果不能回填缓存。
+`ProjectWorkspace` 编排蓝图节点 CRUD、场景配置 IO 与跨项目引用；工具文件查询、编辑、历史和保存由应用层适配器绑定至正式 `ProjectToolFile` FileResource DataView/DataSet。包不拥有服务器 URL 或认证策略。`PageContentLoader` 是独立只读缓存类；当前未发现生产调用方。实际应用启动从 `src/main.ts` 注入 `readLowcodePageFile`。缓存清理使相关在途读取失效；旧结果不能回填缓存。
 
 工具工作内容使用裸文件名。快照是后端真实 `N__filename` 文件，列表摘要为 version/fileName/lastModified；没有独立版本表。创建候选号是同文件已有最大编号加一，上传最终路径和字节回读确认成功后才产生已确认事实。编号不能推断发布指针或 current。
 

@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {createTestProjectToolFileExecutor, dataSpacePageFixture} from './data-space-page.fixture'
 const fixtures: ReturnType<typeof dataSpacePageFixture>[]=[]
 afterEach(()=>{vi.restoreAllMocks();fixtures.splice(0).forEach(f=>f.dispose())})
 async function setupForView(options:Parameters<typeof dataSpacePageFixture>[0],fieldViewId:'default'|'modelFields') {
@@ -148,8 +148,7 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
   it('updates bound tool files through their existing owners and resumes after a lost tool receipt',async()=>{
     const files=new Map<string,string>(),saves:string[]=[],pages=['ONE','TWO'];let lose=true
     for(const page of pages){files.set(`${page}/rule.json`,JSON.stringify({type:'r-table',props:{dataViewKey:'A@Orders@shared'}}));files.set(`${page}/script.js`,'');files.set(`${page}/style.css`,'')}
-    const {owner,view,writes,f}=await setup({pageFiles:{readPageFile:async command=>{const text=files.get(`${command.pageId}/${command.fileName}`);if(text===undefined)throw new Error('file unavailable');return text},
-      saveFileContent:async(id,name,text)=>{files.set(`${id}/${name}`,text);saves.push(`${id}/${name}`);if(lose){lose=false;throw new Error('tool receipt lost')}}},
+    const {owner,view,writes,f}=await setup({projectToolFileExecutor:createTestProjectToolFileExecutor(files,saves,{beforeRead:key=>{if(!files.has(key))throw new Error('file unavailable')},afterWrite:()=>{if(lose){lose=false;throw new Error('tool receipt lost')}}}),
       blueprintTreeProjection: async () => ({nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:pages.map(id=>({
         nodeId:id,parentNodeId:'ROOT',projectId:'APP',kind:'page',capability:{name:id},source:{},navigation:{target:`cfg:${id}`,title:id,order:0,publishInMenu:true,showChildren:true,beginGroup:false},
       }))})})

@@ -24,7 +24,12 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
     }
   }
   const http = new FixtureHttp()
-  return { lowcodeHttp: http, lowcodeApi: {
+  return { createPageToolFilesIo: () => ({list: async () => [], read: async () => null,
+    upload: async () => {throw new Error('unexpected ProjectToolFile upload')},
+    remove: async () => {throw new Error('unexpected ProjectToolFile remove')},
+    restoreWorkingFile: async () => {throw new Error('unexpected ProjectToolFile restore')},
+    listVersions: async () => [], uploadVersion: async () => {throw new Error('unexpected ProjectToolFile version upload')},
+    readVersion: async () => null}), lowcodeHttp: http, lowcodeApi: {
     readRequestScope: mocks.scope,
     dataSpace: {design: {readSpaceDefinition: mocks.readSpaceDefinition, readModelBatch: mocks.readModelBatch, readRelations: mocks.readRelations},
       runtime: new DataSpaceRuntimeApi({http, readScope: mocks.scope})},
@@ -143,7 +148,6 @@ async function openMetadataSession(targetId = 'SPACE') {
   const scope: unknown = mocks.scope()
   const token = record(scope)['token']
   const workspace = new ProjectWorkspace({projectId: 'APP-1',
-    pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
     blueprint: {},
     scenarioViews: {readScope: () => String(record(mocks.scope())['token']), readText: async () => null,
       writeText: async () => {throw new Error('declarations must not write pagedata')}},
@@ -184,7 +188,7 @@ describe('data-space metadata DataSet', () => {
       return JSON.stringify(configuration)
     })
     mocks.gateways.mockReturnValue({scenarioViews: {readText: mocks.readConfiguration},
-      blueprint: {}, pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}})
+      blueprint: {}})
     mocks.readModelBatch.mockImplementation(async ({metaNames}: {metaNames: string[]}) => metaNames.map(formalModel))
     mocks.readSpaceDefinition.mockImplementation(async ({dataSpaceId}: {dataSpaceId: string}) =>
       ({dataSpaceId, name: '元数据正式空间'}))
@@ -236,8 +240,7 @@ describe('data-space metadata DataSet', () => {
       writeText: async (target: string, text: string) => {
         stored.set(target, text); fileWrites.push(target)
         if (loseNext) {loseNext = false; throw new Error('response lost after metadata configuration write')}
-      }}, blueprint: {},
-      pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}}}
+      }}, blueprint: {}}
     mocks.gateways.mockReturnValue(gateways)
     const open = async (target: string) => {
       const assertScope = () => {expect(record(mocks.scope())['token']).toBe('SCOPE-1')}

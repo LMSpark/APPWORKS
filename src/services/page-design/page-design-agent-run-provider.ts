@@ -142,7 +142,6 @@ function createPageDesignDeliveryPort(
       const results = await Promise.allSettled(saves)
       const errors = results.flatMap(result => result.status === 'rejected' ? [toError(result.reason).message] : [])
       const remainingFiles = new Set(context.editor.project.findPageTool(context.pageId)?.getDirtyFileNames() ?? [])
-      for (const pending of context.editor.unconfirmedPageFiles) if (pending.pageId === context.pageId) remainingFiles.add(pending.fileName)
       const scenePending = scene !== null && scenarioId !== undefined && pendingDefinitionViews(scene, scenarioId).length > 0
       const artifacts: AiDeliveryArtifact[] = [...targetNames.map((name, index): AiDeliveryArtifact => ({kind: 'page-file', name,
         status: results[index]?.status === 'fulfilled' && !remainingFiles.has(name) ? 'saved' : 'dirty'})),
@@ -218,8 +217,7 @@ function createFilteredPageFileArtifacts(
 }
 
 function readDirtyPageFileNames(editor: ProjectWorkspace): PageToolFileName[] {
-  return [...new Set([...editor.project.readDirtyProjection().dirtyFiles,
-    ...editor.unconfirmedPageFiles.filter(item => item.pageId === editor.project.getActivePage()?.pageId).map(item => item.fileName)])]
+  return [...new Set(editor.project.readDirtyProjection().dirtyFiles)]
 }
 
 // --- agent run ---

@@ -77,7 +77,6 @@ function fixture(text: string | null = initial) {
   let formalSpaceName = '正式空间名称'
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
-      pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
       blueprint: {},
       scenarioViews: {readScope: () => 'SCOPE',
         readText: async scenarioId => stored.get(scenarioId) ?? null,

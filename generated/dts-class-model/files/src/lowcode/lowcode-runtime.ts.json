@@ -94,9 +94,6 @@
       "type": "object",
       "title": "LowcodeProjectGateways",
       "properties": {
-        "pageFiles": {
-          "$ref": "../../packages/spark-project-model/src/io/page-file-api.ts.json#/$defs/ProjectPageFileGateway"
-        },
         "blueprint": {
           "$ref": "../../packages/spark-project-model/src/io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
         },
@@ -108,7 +105,6 @@
         }
       },
       "required": [
-        "pageFiles",
         "blueprint",
         "projectReferences",
         "scenarioViews"
@@ -116,7 +112,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T01:28:06.703Z",
+  "generatedAt": "2026-10-30T04:46:38.211Z",
   "models": {
     "LowcodePrincipal": {
       "name": "LowcodePrincipal",
@@ -216,21 +212,16 @@
       "jsdoc": "固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageFiles: ProjectModel.ProjectPageFileGateway;\n    blueprint: ProjectModel.ProjectBlueprintGateway;\n    projectReferences: ProjectModel.ProjectReferenceGateway;\n    scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>;\n}>",
+        "declarationTypeText": "Readonly<{\n    blueprint: ProjectModel.ProjectBlueprintGateway;\n    projectReferences: ProjectModel.ProjectReferenceGateway;\n    scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageFiles: ProjectModel.ProjectPageFileGateway;\n    blueprint: ProjectModel.ProjectBlueprintGateway;\n    projectReferences: ProjectModel.ProjectReferenceGateway;\n    scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>;\n}>",
+            "typeText": "Readonly<{\n    blueprint: ProjectModel.ProjectBlueprintGateway;\n    projectReferences: ProjectModel.ProjectReferenceGateway;\n    scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
-            {
-              "name": "pageFiles",
-              "readable": true,
-              "writable": false
-            },
             {
               "name": "blueprint",
               "readable": true,

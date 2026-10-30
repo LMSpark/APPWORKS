@@ -74,7 +74,7 @@ flowchart BT
 | `spark-utils` | 框架无关底座：`HttpClientBase`、`Logger`、Capability 原语，以及跨包共用的字面量 SSOT（蓝图节点 kind、权限展示三态、运行导航表面类型） |
 | `spark-json-document` | JSON 值与路径、JSON Schema（Draft 2020-12）、不可变树编辑；JSON Schema 类型的唯一来源 |
 | `spark-data` | 页面级数据引擎：`DataSet` → `DataTable` → `DataView`，关系与级联、树、聚合、计算列、权限快照、`SparkNodeTree` |
-| `spark-project-model` | 项目蓝图、页面三文件、场景配置及页面调用生命周期，及其 IO 编排（`ProjectWorkspace`、`PageContentLoader`） |
+| `spark-project-model` | 项目蓝图、场景配置及页面调用生命周期；工具文件数据操作由 spark-data FileResource DataView/DataSet 承接；`PageContentLoader` 是独立只读缓存类，当前未发现生产调用方 |
 | `spark-component` | 组件注册表、能力上下文树、`SparkPageRenderer`、页面动作与绑定、权限判定 |
 | `spark-app` | 应用壳：启动、`DynamicRouter`、`RuntimeNavigation*` 合同、标签页、插件、主题 |
 | `spark-lowcode-api` | lowcode 前端 API 客户端与 wire 合同；`LowcodeApi` 聚合 blueprint / catalog / dataSpace / design / application / realtime / platform / permission / session |
@@ -98,7 +98,7 @@ flowchart BT
 
 1. `src/main.ts` 做前置准备：清理损坏的本地存储键、注册内置插件（Element Plus、VXE Table）、构建 `config/navigation/vue-pages.json` 的页面注册表、与 lowcode 会话对账。
 2. 调用 `SparkApp.start(...)`，宿主注入 `loadNavigation`（`readLowcodeRuntimeNavigation`）、`readPageFile`、`loadScenario` 和应用路径前缀 `/apps/:projectId`。
-3. `SparkApp.start` 依次：创建 Vue 应用与主题 → 安装 Spark 插件 → 注册内置 renderer → 动态导入 `virtual:spark-components` 注册业务扩展组件 → 创建 `PageContentLoader` 与 `DynamicRouter` → `bootstrap`。
+3. `SparkApp.start` 依次：创建 Vue 应用与主题 → 安装 Spark 插件 → 注册内置 renderer → 动态导入 `virtual:spark-components` 注册业务扩展组件 → 创建 `DynamicRouter` → `bootstrap`。页面文件读取由 `src/main.ts` 注入 `readLowcodePageFile`；`PageContentLoader` 是独立只读缓存类，当前未发现生产调用方。
 4. 路由守卫在 `beforeMount` 中安装：
    - 未登录：访问 `/apps/*` 或平台工作区路径一律回平台首页，非公开页也回平台首页。
    - 已登录：应用与会话不一致时切换到 URL 中的应用；非 `/apps/` 路径导向当前应用首页（`about` 这类公开工具页除外）。

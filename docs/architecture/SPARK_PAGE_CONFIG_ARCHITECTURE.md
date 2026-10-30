@@ -28,7 +28,7 @@ PageRuntime 构造入口接收 tool 或系统页 pageId（二选一）、scenari
 
 ## IO、版本与保存
 
-宿主提供 ProjectWorkspace 的蓝图、页面文件和引用 gateway；包不拥有服务器 URL 或认证策略。PageContentLoader 只读工具三文件，缓存清理同时使在途读取失效。
+宿主提供 ProjectWorkspace 的蓝图与引用 gateway；工具文件查询和保存绑定至正式 ProjectToolFile FileResource DataView/DataSet。包不拥有服务器 URL 或认证策略。应用启动由 `src/main.ts` 直接注入 `readLowcodePageFile`；`PageContentLoader` 是独立只读缓存类，当前未发现生产调用方，缓存清理同时使在途读取失效。
 
 工作文件用裸文件名，快照为后端真实 N__filename。列表摘要含 version/fileName/lastModified，没有独立版本表。创建候选编号后必须上传并读回最终字节；编号不表示发布状态。source.VersionId 的 rule/script/style 引用决定运行读取，缺段拒绝。恢复写回工作内容，dirty 目标拒绝覆盖，不修改发布引用。
 

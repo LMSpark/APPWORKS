@@ -25,6 +25,12 @@
             true
           ]
         },
+        "saveIndependently": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "invalidateQueryCache": {
           "type": "object",
           "title": "() => void"

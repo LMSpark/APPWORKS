@@ -200,6 +200,8 @@ type DataViewQueryResult = Readonly<{
 type DataViewQueryExecutor = Readonly<{
   /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */
   localAggregates?: boolean
+  /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */
+  saveIndependently?: boolean
   /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */
   invalidateQueryCache?(): void
   /** 释放本次页面缓存，不影响浏览器会话复用。 */
@@ -3005,31 +3007,34 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       for (const [executor, group] of groups) {
         const save = executor.save
         if (save === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要原查询 owner')
-        for (const {view, capture} of group) {
-          view.assertResultWritable()
-          if (view.currentQueryResult() !== capture.context || view.#queryExecutor !== capture.executor) {
-            throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
+        const batches = executor.saveIndependently ? group.map(item => [item]) : [group]
+        for (const batch of batches) {
+          for (const {view, capture} of batch) {
+            view.assertResultWritable()
+            if (view.currentQueryResult() !== capture.context || view.#queryExecutor !== capture.executor) {
+              throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
+            }
           }
-        }
-        const receipts = await save.call(executor, { changes: group.map(({ capture }) => ({ identity: capture.identity,
-          ...(capture.tableConfig === undefined ? {} : {tableConfig: capture.tableConfig}),
-          context: capture.context, changes: { added: capture.added.map(item => item.row),
-            changed: capture.changed.map(item => item.row), deleted: capture.deleted.map(item => item.row) } })) })
-        if (receipts.length !== group.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
-        const acceptances = group.map(({ view, capture }, index) => {
-          view.assertResultWritable()
-          if (view.#queryResult !== capture.context || view.#queryExecutor !== capture.executor) {
-            throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
+          const receipts = await save.call(executor, { changes: batch.map(({ capture }) => ({ identity: capture.identity,
+            ...(capture.tableConfig === undefined ? {} : {tableConfig: capture.tableConfig}),
+            context: capture.context, changes: { added: capture.added.map(item => item.row),
+              changed: capture.changed.map(item => item.row), deleted: capture.deleted.map(item => item.row) } })) })
+          if (receipts.length !== batch.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
+          const acceptances = batch.map(({ view, capture }, index) => {
+            view.assertResultWritable()
+            if (view.#queryResult !== capture.context || view.#queryExecutor !== capture.executor) {
+              throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
+            }
+            const receipt = receipts[index]
+            if (receipt?.metaName !== capture.identity.metaName) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少唯一模型回执')
+            const command = { ...capture, receipt }
+            view.validateQuerySaveReceipt(command)
+            return { view, command }
+          })
+          for (const {view, command} of acceptances) {
+            results.set(view, view.acceptQuerySaveReceipt(command))
+            view.#unconfirmedQuerySave = undefined
           }
-          const receipt = receipts[index]
-          if (receipt?.metaName !== capture.identity.metaName) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少唯一模型回执')
-          const command = { ...capture, receipt }
-          view.validateQuerySaveReceipt(command)
-          return { view, command }
-        })
-        for (const {view, command} of acceptances) {
-          results.set(view, view.acceptQuerySaveReceipt(command))
-          view.#unconfirmedQuerySave = undefined
         }
       }
       return targets.map(({ view }) => results.get(view) ?? { success: true, message: recovering ? '本轮仅核验原提交，此视图未派发' : '没有待提交的变更',

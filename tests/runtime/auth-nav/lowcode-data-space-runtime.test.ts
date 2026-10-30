@@ -186,12 +186,6 @@ describe('host scenario file request wiring', () => {
     expect(transport.request).not.toHaveBeenCalled()
   })
 
-  it('does not expose an ungoverned page-file version delete gateway', () => {
-    sceneWorkspace()
-    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    expect('deleteVersion' in gateway).toBe(false)
-  })
-
   it('does not expose raw blueprint loading while retaining project-reference projection', () => {
     sceneWorkspace()
     const gateways = runtime.createLowcodeProjectGateways('APP-1')
@@ -292,54 +286,6 @@ describe('host scenario file request wiring', () => {
     }
   })
 
-  it.each([
-    { fileName: 'rule.json' as const, versionId: undefined, expected: 'rule.json' },
-    { fileName: 'rule.json' as const, versionId: '2', expected: '2__rule.json' },
-    { fileName: 'rule.json' as const, versionId: 'style=3;rule=2;script=1', expected: '2__rule.json' },
-    { fileName: 'script.js' as const, versionId: 'style=3;rule=2;script=1', expected: '1__script.js' },
-    { fileName: 'style.css' as const, versionId: 'style=3;rule=2;script=1', expected: '3__style.css' },
-  ])('reads the exact tool file through the production gateway: $expected', async ({ fileName, versionId, expected }) => {
-    const workspace = sceneWorkspace()
-    transport.request.mockImplementation(async (config: RequestConfig) => ({
-      data: { Code: 200, Result: isRecord(config.data) ? config.data['fileName'] : null },
-      status: 200, statusText: 'OK', headers: {},
-    }))
-    await expect(workspace.previewPageFileRemote('orders', fileName, versionId)).resolves.toBe(expected)
-    expect(transport.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-      url: '/api/File/content/text',
-      data: expect.objectContaining({ appType: 'designfile', customPath: 'APP-1/orders', fileName: expected }),
-    }))
-  })
-
-  it.each(['', ' ', 'style=3', 'rule=1;rule=2', 'rule=-1', 'v1'])(
-    'rejects an invalid or incomplete published tool pointer before transport: %j', async versionId => {
-      const workspace = sceneWorkspace()
-      await expect(workspace.previewPageFileRemote('orders', 'rule.json', versionId)).rejects.toThrow()
-      expect(transport.request).not.toHaveBeenCalled()
-    },
-  )
-
-  it('does not fall back to the working tool file when a published snapshot is missing', async () => {
-    const workspace = sceneWorkspace()
-    transport.request.mockResolvedValue({
-      data: { Code: 404, Msg: '文件不存在', Result: null }, status: 200, statusText: 'OK', headers: {},
-    })
-    await expect(workspace.previewPageFileRemote('orders', 'script.js', 'script=4')).rejects.toMatchObject({ code: 404 })
-    expect(transport.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-      data: expect.objectContaining({ appType: 'designfile', customPath: 'APP-1/orders', fileName: '4__script.js' }),
-    }))
-  })
-
-  it('rejects tool file reads and writes from another application before transport', async () => {
-    sceneWorkspace('APP-2')
-    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.saveFileContent) throw new Error('missing tool file gateway')
-    await expect(gateway.readPageFile({ projectId: 'APP-1', pageId: 'orders', fileName: 'script.js' }))
-      .rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
-    await expect(gateway.saveFileContent('orders', 'script.js', 'changed')).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
-    expect(transport.request).not.toHaveBeenCalled()
-  })
-
   it('does not expose direct working-file save for an unsaved editor draft', async () => {
     const workspace = sceneWorkspace()
     const page = workspace.project.openPageDesign('orders')
@@ -427,32 +373,6 @@ describe('host scenario file request wiring', () => {
     transport.request.mockImplementation(async(config:RequestConfig)=>({data:{Code:200,Result:config.url === '/api/File/list'?[]:'changed remotely'},status:200,statusText:'OK',headers:{}}))
     await expect(gateway.createVersion({scenarioId:'SCENE-1',version:1,text:JSON.stringify({scenarioId:'SCENE-1',tables:{}}),onAttempt:()=>{}})).rejects.toThrow('CONFLICT')
     expect(transport.request.mock.calls.some(([config])=>config.url === '/api/File/UploadFile')).toBe(false)
-  })
-
-  it('does not expose direct page-file version list or create gateways', async () => {
-    sceneWorkspace()
-    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    expect('listVersions' in gateway).toBe(false)
-    expect('createVersion' in gateway).toBe(false)
-    expect(transport.request).not.toHaveBeenCalled()
-  })
-
-  it.each(['..', '../orders', 'parent\\orders'])(
-    'rejects invalid tool paths %j before transport', async pageId => {
-      sceneWorkspace()
-      const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-      if (!gateway.saveFileContent) throw new Error('missing tool gateway')
-      await expect(gateway.saveFileContent(pageId, 'script.js', 'text')).rejects.toThrow('合法路径段')
-      expect(transport.request).not.toHaveBeenCalled()
-    },
-  )
-
-  it('refuses the retired page-local pagedata write path', async () => {
-    sceneWorkspace()
-    const gateway = runtime.createLowcodeProjectGateways('APP-1').pageFiles
-    if (!gateway.saveFileContent) throw new Error('missing tool gateway')
-    await expect(Reflect.apply(gateway.saveFileContent, gateway, ['orders', 'pagedata.json', '{}'])).rejects.toThrow('场景文件')
-    expect(transport.request).not.toHaveBeenCalled()
   })
 
   it('routes builtin scenario history through the development host and never remote file APIs', async () => {
@@ -564,13 +484,8 @@ describe('host scenario file request wiring', () => {
     sceneWorkspace(applicationId)
     const gateway = runtime.createLowcodeProjectGateways(applicationId)
     const io = runtime.createPageToolFilesIo(applicationId)
-    expect(gateway.pageFiles).toBeDefined()
     expect(io).toBeDefined()
-    if (!gateway.pageFiles.saveFileContent) throw new Error('missing page-file save gateway')
-    await expect(gateway.pageFiles.readPageFile({projectId: applicationId, pageId: 'orders', fileName: 'script.js'}))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
-    await expect(gateway.pageFiles.saveFileContent('orders', 'script.js', 'text'))
-      .rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
+    expect(gateway).not.toHaveProperty('pageFiles')
     await expect(io.list(applicationId, 'orders')).rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
     await expect(io.read(applicationId, 'orders', 'script.js')).rejects.toThrow('BUILTIN_PAGE_FILE_SOURCE_UNAVAILABLE')
     await expect(io.upload({appId: applicationId, pageId: 'orders', fileName: 'script.js', text: 'text'}))

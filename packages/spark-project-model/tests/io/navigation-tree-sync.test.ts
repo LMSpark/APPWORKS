@@ -8,7 +8,7 @@ function node(id: string): ProjectBlueprintTreeNodeData {
 
 function workspace() {
   const root: ProjectBlueprintTreeData = {...node('root'), parentNodeId: '', children: [node('a')]}
-  const editor = new ProjectWorkspace({projectId: 'demo', pageFiles: {readPageFile: async () => ''}, blueprint: {}})
+  const editor = new ProjectWorkspace({projectId: 'demo', blueprint: {}})
   editor.project.replaceBlueprintTree(structuredClone(root))
   return {editor}
 }

@@ -613,7 +613,6 @@ async function readBuiltinProjectBlueprintTree(projectId:string):Promise<Project
 
 /** 固定应用工作区的工具、场景、蓝图与引用 IO；运行时仍核对当前请求 scope。 */
 export type LowcodeProjectGateways = Readonly<{
-  pageFiles: ProjectModel.ProjectPageFileGateway
   blueprint: ProjectModel.ProjectBlueprintGateway
   projectReferences: ProjectModel.ProjectReferenceGateway
   scenarioViews: NonNullable<ProjectModel.ProjectWorkspaceOptions['scenarioViews']>
@@ -674,23 +673,6 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
     return assertCurrent
   }
   return {
-    pageFiles: {
-      readPageFile: async command => {
-        if (command.projectId !== normalizedProjectId) {
-          throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工具文件读取不属于当前工作区')
-        }
-        return readLowcodePageFile(command)
-      },
-      saveFileContent: async (pageId, fileName, text) => {
-        assertRemoteToolFilesAllowed(normalizedProjectId)
-        if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
-          throw new Error('pagedata.json 必须通过场景文件保存')
-        }
-        await scenarioFileUpload.uploadWorkingText({
-          customPath: toolFilePath(normalizedProjectId, pageId), fileName, text,
-        })
-      },
-    },
     scenarioViews: {
       readScope: () => lowcodeApi.readRequestScope().token,
       readText: async scenarioId => {
@@ -864,7 +846,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
   }
 }
 
-/** Existing single-file API adapter for the spark-data page-tool-files command owner. */
+/** Storage transport used only by the spark-data ProjectToolFile DataView adapter. */
 export function createPageToolFilesIo(projectId:string){
   const appId=projectId.trim()
   return {

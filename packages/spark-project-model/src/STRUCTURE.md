@@ -5,7 +5,7 @@ blueprint/  ProjectBlueprintNode、正式分组 DTO、索引、树投影和编�
 page/       PageTool、三文件内容模型、PageRuntime
 scenario/   ScenarioViewConfig、ScenarioViewFile
 project/    ProjectBlueprint、ProjectBlueprintDesign、ProjectSession、ProjectWorkspace
-io/         蓝图/页面/引用 gateway、PageFileApi、PageContentLoader
+io/         蓝图/引用 gateway、PageContentLoader
 ```
 
 领域身份与生命周期见 [MODEL-HIERARCHY.md](./MODEL-HIERARCHY.md)。

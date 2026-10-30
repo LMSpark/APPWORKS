@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataView, resolveDataViewKey, type DataSet} from '@spark-appworks/spark-data'
 import {createModelRenameHandle, createModelRenameHost} from '../../../../../src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {createTestProjectToolFileExecutor, dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => fixtures.splice(0).forEach(f => f.dispose()))
@@ -28,10 +28,15 @@ function toolFixture() {
     files.set(`${id}/rule.json`, JSON.stringify({type: 'r-table', props: {dataViewKey: 'A@Orders@shared'}}))
     files.set(`${id}/script.js`, ''); files.set(`${id}/style.css`, '')
   }
-  const f = fixture({pageFiles: {
-    readPageFile: async command => {const key = `${command.pageId}/${command.versionId ? `${command.versionId}/` : ''}${command.fileName}`; if (denyRead === key || !files.has(key)) throw new Error('file unavailable'); return files.get(key)!},
-    saveFileContent: async (id, name, text) => {beforeSave?.(); saves.push(`${id}/${name}`); files.set(`${id}/${name}`, text); if (lose === id) {lose = ''; throw new Error('tool response lost')}},
-  }, blueprintTreeProjection: () => ({
+  const f = fixture({projectToolFileExecutor:createTestProjectToolFileExecutor(files,saves,{beforeRead:key=>{if(denyRead===key)throw new Error('file unavailable')},beforeWrite:()=>beforeSave?.(),afterWrite:key=>{if(lose===key.split('/')[0]){lose='';throw new Error('tool receipt lost')}
+      if(f?.workspaces[0]?.project.findPageTool(key.split('/')[0]??'')?.isDirty())throw new Error('本地编辑期间文件写入结果未知')},
+    canWrite:target=>!f?.workspaces[0]?.project.findPageTool(String(target.fields['pageId']))?.isDirty(),
+    snapshotFields:target=>{const page=f?.workspaces[0]?.project.findPageTool(String(target.fields['pageId'])),fileName=String(target.fields['fileName']);
+      const localText=fileName==='rule.json'||fileName==='script.js'||fileName==='style.css'?page?.getFileText(fileName)??null:null
+      return {localDirty:page?.isDirty()??false,localText}},
+    onWriteConfirmed:(target,text,baseline)=>{const page=f?.workspaces[0]?.project.findPageTool(String(target.fields['pageId'])),fileName=String(target.fields['fileName']);
+      if(fileName!=='rule.json'&&fileName!=='script.js'&&fileName!=='style.css')return
+      if(page&&page.getFileText(fileName)===(baseline?.fields?.['localText']??null))page.hydrateFileText(fileName,text)}}), blueprintTreeProjection: () => ({
     nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {},
     children: pages.map(id => ({nodeId: id, parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: id},
       source: {VersionId: versions.get(id)}, navigation: {target: targets.get(id) ?? `cfg:${id}`, title: id, order: 0,
@@ -283,7 +288,7 @@ describe('formal model registration rename', () => {
   it('recovers a partial tool save and lost reply without replaying confirmed files or DB', async () => {
     const t = toolFixture(), operation = (await t.f.open('A')).getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
-    t.lose('ONE'); await expect(operation.save()).rejects.toThrow('tool response lost')
+    t.lose('ONE'); await expect(operation.save()).rejects.toThrow('tool receipt lost')
     expect(operation.getState().status).toBe('configuration'); expect(t.saves).toEqual(['ONE/rule.json'])
     expect(await operation.verify()).toBe(true)
     expect(t.saves).toEqual(['ONE/rule.json', 'TWO/rule.json']); expect(writes(t.f)).toHaveLength(1)
@@ -337,17 +342,16 @@ describe('formal model registration rename', () => {
       filter: {dataViewKey: '#A@Orders@shared'}, additionalNodeSources: [{dataViewKey: 'A@Orders@shared', labelField: 'Name'}, {dataViewKey: 'B@Orders@shared'}], toolbar: {children: [{type: 'r-button', props: {dataViewKey: 'A@Orders@default', then: {action: 'refresh', dataViewKey: 'A@Orders@shared'}}}]}},
       children: [{type: 'r-select', props: {optionDataViewKey: 'A@Orders@shared', dataViewKey: 'B@Orders@shared'}},
         {type: 'r-text', props: {dataViewKey: 'OrdersAlias@shared', modelValue: {dataViewKey: 'A@Orders@shared'}}}]}
-    const files = new Map([['rule.json', JSON.stringify(rule)], ['script.js', ''], ['style.css', '.Orders { color: red; }']])
+    const files = new Map([['TOOL/rule.json', JSON.stringify(rule)], ['TOOL/script.js', ''], ['TOOL/style.css', '.Orders { color: red; }']])
     const saved: string[] = []
     const f = fixture({businessRows: {SalesOrders: [{rowid: 'O1', parentId: null}]},
-      pageFiles: {readPageFile: async command => {if (command.pageId !== 'TOOL') throw new Error('wrong tool'); return files.get(command.fileName)!},
-        saveFileContent: async (id, name, text) => {expect(id).toBe('TOOL'); saved.push(name); files.set(name, text)}},
+      projectToolFileExecutor:createTestProjectToolFileExecutor(files,saved),
       blueprintTreeProjection: () => ({nodeId: 'ROOT', parentNodeId: '', projectId: 'APP', kind: 'module', capability: {name: 'App'}, source: {}, children: [
         {nodeId: 'PAGE', parentNodeId: 'ROOT', projectId: 'APP', kind: 'page', capability: {name: 'Orders tool'}, source: {}, navigation: {target: 'cfg:TOOL', title: 'Orders tool', order: 0, publishInMenu: true, showChildren: true, beginGroup: false}},
       ]})})
     const session = await f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview(); await operation.save()
-    const persisted = JSON.parse(files.get('rule.json')!)
+    const persisted = JSON.parse(files.get('TOOL/rule.json')!)
     expect(persisted.props.dataViewKey).toBe('A@SalesOrders@shared')
     expect(persisted.props.filter.dataViewKey).toBe('A@SalesOrders@shared')
     expect(persisted.props.additionalNodeSources).toEqual([{dataViewKey: 'A@SalesOrders@shared', labelField: 'Name'}, {dataViewKey: 'B@Orders@shared'}])
@@ -356,7 +360,7 @@ describe('formal model registration rename', () => {
     expect(persisted.children[0].props).toEqual({optionDataViewKey: 'A@SalesOrders@shared', dataViewKey: 'B@Orders@shared'})
     expect(persisted.children[1].props).toEqual(rule.children[1]!.props)
     expect(persisted.props.label).toBe('A@Orders@shared')
-    expect(saved).toEqual(['rule.json']); expect(writes(f)).toHaveLength(1)
+    expect(saved).toEqual(['TOOL/rule.json']); expect(writes(f)).toHaveLength(1)
     const reopened = await f.open('A'),text=await readToolFile(reopened.metadataDataSet,'TOOL','rule.json'),definition=JSON.parse(text) as {props?:{dataViewKey?:string}}
     const view = resolveDataViewKey(String(definition.props?.dataViewKey), reopened.definitionDataSet!)!
     await view.refresh(); expect(view.rows).toMatchObject([{rowid: 'O1'}])

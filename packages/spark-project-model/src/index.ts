@@ -41,7 +41,6 @@ export type {
   ScenarioViewVersionAttemptStatus,
   ScenarioViewVersionCreateCommand,
 } from './project/project-workspace'
-export type { ProjectPageFileGateway } from './io/page-file-api'
 export type { ProjectBlueprintGateway } from './io/project-blueprint-client'
 export type { ProjectReferenceGateway } from './io/project-reference-client'
 export type {

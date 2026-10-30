@@ -43,7 +43,6 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
 function createEditor(projectId = 'demo'): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId,
-    pageFiles: { readPageFile: async () => '' },
     blueprint: {},
   })
   seedPlanningProject(editor.project)

@@ -182,7 +182,7 @@ export function useDevState() {
   function currentPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
     if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前 DataSet 未就绪')
-    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,assertCurrent:()=>assertOwnerBundleCurrent(bundle)})
+    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,workspace:bundle.workspace,assertCurrent:()=>assertOwnerBundleCurrent(bundle)})
   }
   function pageFileOperationScope(pageId:string){
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
@@ -215,29 +215,14 @@ export function useDevState() {
   }
   function hasPendingPageFileViews(dataSet:DataSet):boolean{return pendingPageToolFileTargets(dataSet).length>0}
   function hasUnconfirmedPageFileViews(dataSet:DataSet):boolean{return dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.viewId!=='default'&&view.hasUnconfirmedSave)===true}
-  async function savePendingPageFiles(workspace:ProjectBlueprintDomain.ProjectWorkspace,dataSet:DataSet):Promise<void>{
+  async function savePendingPageFiles(dataSet:DataSet):Promise<void>{
     const table=dataSet.getTable(PAGE_FILE_TABLE)
     if(!table)throw new Error('PAGE_TOOL_FILE_MAPPING: 正式 ProjectToolFile DataTable 缺失')
     for(const view of table.viewList){
       if(view.viewId==='default'||!view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave)continue
-      const pendingFiles=view.rows.flatMap(row=>{
-        const id=view.getPkKey(row)
-        if(id===undefined||!view.dirtyTracking.hasPendingChanges(id)&&!view.hasEditingChanges(id))return []
-        const pageId=row['pageId'],fileName=row['fileName']
-        if(typeof pageId!=='string'||!isPageToolFileName(fileName))return []
-        return [{pageId,fileName}]
-      })
       const result=await dataSet.saveChanges({views:[{tableName:PAGE_FILE_TABLE,viewId:view.viewId}]})
       if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存失败')
       if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
-      for(const {pageId,fileName} of pendingFiles){
-        const row=view.rows.find(candidate=>candidate['pageId']===pageId&&candidate['fileName']===fileName)
-        const text=row?.['text']
-        if(typeof text!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: 已保存文件未返回文本')
-        const page=workspace.project.findPageTool(pageId)
-        page?.hydrateFileText(fileName,text)
-        workspace.project.markPageFileChanged(pageId,fileName)
-      }
     }
   }
   function releaseBlueprintWorkspaceDataView():void{
@@ -295,7 +280,7 @@ export function useDevState() {
         assertOwnerBundleCurrent(parked)
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
-        if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(workspace,session.dataSet)
+        if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(session.dataSet)
         if(session.dirty)await session.save()
         refreshBlueprintTreeProjection()
         return
@@ -342,7 +327,7 @@ export function useDevState() {
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||hasPendingPageFileViews(session.dataSet)||!!pendingMountedPageDelete||!!pendingPageBindingCreate,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||hasUnconfirmedPageFileViews(session.dataSet),save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}
         if(pendingPageBindingCreate){await resumePendingPageBindingCreate();return}
-        if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(workspace,session.dataSet)
+        if(hasPendingPageFileViews(session.dataSet)||hasUnconfirmedPageFileViews(session.dataSet))await savePendingPageFiles(session.dataSet)
         if(session.dirty)await session.save()
         refreshBlueprintTreeProjection()
       },
@@ -978,7 +963,7 @@ export function useDevState() {
   const hasAnyDirty = computed(() => {
     void scenarioDefinitionRevision.value
     const fileDataSet=blueprintWorkspaceDataView.value?.dataSet
-    return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || editor.unconfirmedPageFiles.length > 0
+    return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || fileDataSet!==undefined&&hasUnconfirmedPageFileViews(fileDataSet)
       || fileDataSet!==undefined&&hasPendingPageFileViews(fileDataSet)
       || hasExternalDataViewChanges()
   })

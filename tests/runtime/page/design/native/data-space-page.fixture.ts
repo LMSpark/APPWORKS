@@ -9,9 +9,31 @@ import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/shared/agent-workflow-file-resource'
 import metadataConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
-import type {DataViewFilterTree} from '@spark-appworks/spark-data'
+import {createFileResourceAdapterExecutor, type DataView, type DataViewFilterTree, type FileResourceSnapshot, type FileResourceTarget} from '@spark-appworks/spark-data'
 import {defineComponent, h, type Component} from 'vue'
 import {useRoute} from 'vue-router'
+
+export function createTestProjectToolFileExecutor(files:Map<string,string>,saves:string[],hooks:Readonly<{
+  beforeRead?:(key:string)=>void;beforeWrite?:(key:string)=>void;afterWrite?:(key:string)=>void
+  canWrite?:(target:FileResourceTarget)=>boolean
+  snapshotFields?:(target:FileResourceTarget)=>Record<string,unknown>
+  onWriteConfirmed?:(target:FileResourceTarget,text:string,baseline:FileResourceSnapshot|null)=>void
+}>={}){
+  const fileKey=(target:{fields:Readonly<Record<string,unknown>>})=>{
+    const page=String(target.fields['pageId']??''),name=String(target.fields['fileName']??''),version=String(target.fields['versionId']??'')
+    return `${page}/${version?`${version}/`:''}${name}`
+  }
+  return createFileResourceAdapterExecutor({resourceId:'project:tool-file',contentField:'text',
+    target:view=>{
+      const pageId=view.queryContext['pageId'],fileName=view.queryContext['fileName'],versionId=view.queryContext['versionId']??''
+      if(typeof pageId!=='string'||typeof fileName!=='string'||typeof versionId!=='string')throw new Error('test file target incomplete')
+      return {key:JSON.stringify([pageId,fileName,versionId]),fields:{pageId,fileName,versionId}}
+    },canWrite:target=>target.fields['versionId']===''&&(hooks.canWrite?.(target)??true),
+    transport:{read:async target=>{const key=fileKey(target);hooks.beforeRead?.(key);const text=files.get(key),fields=hooks.snapshotFields?.(target);return text===undefined?null:{text,revision:'test-revision',...(fields?{fields}:{})}},
+      write:async({target,text})=>{const key=fileKey(target);hooks.beforeWrite?.(key);files.set(key,text);saves.push(key);hooks.afterWrite?.(key)},
+      onWriteConfirmed:(target,text,baseline)=>hooks.onWriteConfirmed?.(target,text,baseline),
+      isUnknown:error=>error instanceof Error&&(error.message==='tool receipt lost'||error.message.includes('本地编辑期间'))}})
+}
 
 /** 测试宿主：把路由 scenarioId 作为唯一 targetId 传入设计页（生产由数据空间目录对话框传入）。 */
 export function designPageHost(page: Component): Component {
@@ -40,7 +62,7 @@ const models = [{...baseDataSet, id: '8D1AB14DD8277F3E7017CD38F77B09FDp000',
 export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boolean; hidden?: boolean; broken?: boolean; hiddenFieldOwner?: boolean; unmatchedFieldOwner?: boolean; sourceInput?: boolean;
   deferDefinition?: boolean; assemblyGate?: Promise<void>; sharedWorkspace?: boolean; formalSourceInputs?: boolean;
   readLegacyLayout?: (id: string) => Promise<string | null>; formalProjection?: boolean; sourceFieldPermissions?: {h?: string[]; m?: string[]}; overviewOnly?: boolean;
-  pageFiles?: ProjectWorkspaceOptions['pageFiles']; blueprint?: ProjectWorkspaceOptions['blueprint'];
+  projectToolFileExecutor?: Parameters<DataView['bindQueryExecutor']>[0]; blueprint?: ProjectWorkspaceOptions['blueprint'];
   blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
   modelSources?: NonNullable<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['modelSources']>; allowModelAdd?: boolean; allowFieldAdd?: boolean; omitFieldReceipt?: boolean; omitFieldWrite?: boolean;
   allowSourceEdit?: boolean; allowModelRename?: boolean; allowFieldEdit?: boolean; allowRelationEdit?: boolean; omitRelationWrite?: boolean; omitRelationReceipt?: boolean;
@@ -442,7 +464,6 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
       CustomersAlias: {modelBinding: {modelId: 'M2', modelName: 'Customers'}, views: {default: {}, shared: {pageSize: 24}}},
     }}))
     const workspace = (options.sharedWorkspace ? workspaces.at(-1) : undefined) ?? new ProjectWorkspace({projectId: 'APP',
-      pageFiles: options.pageFiles ?? {readPageFile: async () => {throw new Error('not page files')}},
       blueprint: options.blueprint ?? {}, scenarioViews: {
         readScope: () => scope, readText: async id => stored.get(id) ?? null,
         writeText: async (id, text) => {
@@ -452,8 +473,9 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
         },
       }})
     const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, readLegacyLayout: options.readLegacyLayout ?? (async () => null),
-      fileResourceExecutors: Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
+      fileResourceExecutors: {...Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
         definition.createExecutor({applicationId: 'APP', api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(), listFileVersions: async () => []}, assertCurrent: assertScope})])),
+        ...(options.projectToolFileExecutor?{ProjectToolFile:options.projectToolFileExecutor}:{})},
       ...(options.modelSources ? {modelSources: options.modelSources} : {}),
       readModel: async input => {
         modelReads.push({...input})

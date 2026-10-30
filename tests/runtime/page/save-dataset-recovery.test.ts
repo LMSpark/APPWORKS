@@ -20,7 +20,6 @@ async function fixture() {
   let gate: Promise<void> | undefined
   const writes: string[] = []
   const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-    pageFiles: {readPageFile: async () => ''},
     scenarioViews: {readScope: () => 'scope', readText: async () => stored, writeText: async (_id, text) => {
       writes.push(text); stored = text; await gate
       if (lose) {lose = false; throw new Error('lost receipt')}

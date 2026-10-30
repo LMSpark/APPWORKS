@@ -80,7 +80,6 @@ function fixture(text: string | null = initial) {
   let readLayout = (): Promise<string | null> => Promise.resolve(legacyLayout)
   const openOwner = () => {
     const workspace = new ProjectWorkspace({projectId: 'APP',
-      pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
       blueprint: {},
       scenarioViews: {readScope: () => scope,
         readText: async scenarioId => {readReady?.(); await readGate; return stored.get(scenarioId) ?? null},

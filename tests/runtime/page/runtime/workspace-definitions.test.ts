@@ -7,8 +7,7 @@ describe('workspace definition DataSet lifetime', () => {
     const loaded = DataSet.fromJson({scenarioId: 'C', tables: {}}), late = DataSet.fromJson({scenarioId: 'C', tables: {}})
     let release!: (dataSet: DataSet) => void
     const waiting = new Promise<DataSet>(resolve => {release = resolve})
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-      pageFiles: {readPageFile: async () => ''}, scenarioViews: {readScope: () => 'scope', readText: async () => null},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, scenarioViews: {readScope: () => 'scope', readText: async () => null},
       scenarioDefinitions: async (_workspace, id) => id === 'T' ? loaded : waiting})
     await workspace.loadScenarioDefinitions({scenarioId: 'T'})
     const pending = workspace.loadScenarioDefinitions({scenarioId: 'OTHER'})
@@ -23,8 +22,7 @@ describe('workspace definition DataSet lifetime', () => {
   it('rejects a cached return across a request scope switch and releases its old DataSet', async () => {
     let scope = 'A'
     const loaded = DataSet.fromJson({scenarioId: 'FORMAL-C', tables: {}})
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-      pageFiles: {readPageFile: async () => ''}, scenarioViews: {readScope: () => scope, readText: async () => null},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, scenarioViews: {readScope: () => scope, readText: async () => null},
       scenarioDefinitions: async () => loaded})
     expect(await workspace.loadScenarioDefinitions({scenarioId: 'T'})).toBe(loaded)
     const returning = workspace.loadScenarioDefinitions({scenarioId: 'T'})
@@ -38,8 +36,7 @@ describe('workspace definition DataSet lifetime', () => {
     let scope = 'A', release!: (dataSet: DataSet) => void
     const pending = new Promise<DataSet>(resolve => {release = resolve})
     const loader = vi.fn(async () => pending)
-    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {},
-      pageFiles: {readPageFile: async () => ''}, scenarioViews: {readScope: () => scope, readText: async () => null},
+    const workspace = new ProjectWorkspace({projectId: 'APP', blueprint: {}, scenarioViews: {readScope: () => scope, readText: async () => null},
       scenarioDefinitions: loader})
     const calls = [workspace.loadScenarioDefinitions({scenarioId: 'T'}), workspace.loadScenarioDefinitions({scenarioId: 'T'})]
     await Promise.resolve(); expect(loader).toHaveBeenCalledOnce()

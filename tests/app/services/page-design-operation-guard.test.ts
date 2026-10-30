@@ -10,7 +10,6 @@ import { guardPageDesignEditor } from '@/services/page-design/page-design-operat
 function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
-    pageFiles: { readPageFile: async () => '' },
     blueprint: {},
   })
   editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
@@ -62,7 +61,7 @@ describe('guardPageDesignEditor', () => {
   it('does not expose ProjectWorkspace blueprint write methods', async () => {
     const root: ProjectBlueprintTreeData = { nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }
     const gateway: ProjectBlueprintGateway = {}
-    const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' }, blueprint: gateway })
+    const editor = new ProjectWorkspace({ projectId: 'demo', blueprint: gateway })
     editor.project.replaceBlueprintTree(root)
     const guarded = guardPageDesignEditor(editor, { blueprint: true })
     for (const name of ['addBlueprintNode', 'deleteNode', 'moveMountedPage', 'saveProjectLayout', 'saveSelectedBlueprintNode']) {
@@ -76,7 +75,6 @@ describe('guardPageDesignEditor', () => {
     const fileApi = { saveFileContent: vi.fn(async () => undefined) }
     const editor = new ProjectWorkspace({
       projectId: 'demo',
-      pageFiles: { readPageFile: async () => '', ...fileApi },
       blueprint: {},
     })
     const guarded = guardPageDesignEditor(editor, { script: true, style: true, nodeTree: true })
@@ -86,7 +84,6 @@ describe('guardPageDesignEditor', () => {
     expect('savePageFile' in editor).toBe(false)
     expect('saveDirtyPageFiles' in editor).toBe(false)
     expect('saveAll' in editor).toBe(false)
-    expect(() => guarded.savePageFileChange({ pageId: 'orders', fileName: 'script.js', expectedText: '', text: 'x' })).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
     expect('createRemotePageVersion' in editor).toBe(false)
     expect('listRemotePageVersions' in editor).toBe(false)
     expect('restoreRemotePageVersion' in guarded).toBe(false)

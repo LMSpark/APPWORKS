@@ -12,7 +12,7 @@ describe('projectPlanning formal node input', () => {
     const projectId='APP-A'
     const existing={nodeId:'existing',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'Existing'},navigation:{order:0,title:'Existing',publishInMenu:false,showChildren:false,beginGroup:false},source:{rowid:'existing',SysId:projectId,prowid:'root',name:'Existing',memo:'',conType:'Navitem',FunOrderValue:'0'}}
     const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[existing]}
-    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{}})
+    const editor=new ProjectWorkspace({projectId,blueprint:{}})
     editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
     let readback:ProjectBlueprintTreeData=root
     const saveMixedNodes=vi.fn(async(creates:readonly {nodeId:string;parentNodeId:string;fields:Record<string,unknown>}[],_updates:readonly {nodeId:string;capability:{name:string;description?:string};source:Record<string,unknown>}[])=>{
@@ -45,7 +45,7 @@ describe('projectPlanning formal node input', () => {
     const destinationSibling=node('destination-sibling','parent-b','page',0)
     const parentA=node('parent-a','root','module',0,[moving,sourceSibling]),parentB=node('parent-b','root','module',1,[destinationSibling])
     const root=node('root','','module',0,[parentA,parentB]) as ProjectBlueprintTreeData
-    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{}})
+    const editor=new ProjectWorkspace({projectId,blueprint:{}})
     editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
     const expectedMoving={...moving,parentNodeId:'parent-b',navigation:{...moving.navigation,order:0}}
     const expectedSourceSibling={...sourceSibling,navigation:{...sourceSibling.navigation,order:0}}
@@ -82,7 +82,7 @@ describe('projectPlanning formal node input', () => {
     const first={nodeId:'first',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'First'},source:{rowid:'first',SysId:projectId,prowid:'root',name:'First',memo:'',conType:'Navitem'}}
     const second={nodeId:'second',parentNodeId:'root',projectId,kind:'page' as const,capability:{name:'Second'},source:{rowid:'second',SysId:projectId,prowid:'root',name:'Second',memo:'',conType:'Navitem'}}
     const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[first,second]}
-    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{}})
+    const editor=new ProjectWorkspace({projectId,blueprint:{}})
     editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
     let readback=root
     const owner={projectId,hasTreeProjection:true,dirty:false,hasPendingChildCreate:false,hasUnconfirmedSave:false,hasPendingBlueprintCommand:false,
@@ -111,7 +111,6 @@ describe('projectPlanning formal node input', () => {
     const projectId = 'APP-A'
     const editor = new ProjectWorkspace({
       projectId,
-      pageFiles: { readPageFile: async () => '' },
       blueprint: {},
     })
     editor.project.replaceBlueprintTree({
@@ -153,7 +152,7 @@ describe('projectPlanning formal node input', () => {
 
     const nextRunFacade = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => editor }, { moduleInstanceId: projectId } as never)
     expect(nextRunFacade.completeProjectPlanning()).toMatchObject({ ok: false, code: 'PROJECT_PLANNING_BLUEPRINT_NOT_WRITTEN' })
-    const otherProject = new ProjectWorkspace({ projectId: 'APP-B', pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const otherProject = new ProjectWorkspace({ projectId: 'APP-B', blueprint: {} })
     otherProject.project.replaceBlueprintTree({ nodeId: 'root-b', parentNodeId: '', projectId: 'APP-B', kind: 'module', capability: { name: 'Root B' }, source: {}, children: [{ nodeId: 'b-node', parentNodeId: 'root-b', projectId: 'APP-B', kind: 'page', capability: { name: 'B' }, source: {} }] })
     otherProject.project.markBlueprintClean('root')
     const otherProjectFacade = resolveProjectPlanningDomainRoot({ getProjectPlanningEditor: () => otherProject, getDataViewCompletionResult: getCompletion }, { moduleInstanceId: 'APP-B' } as never)
@@ -162,7 +161,7 @@ describe('projectPlanning formal node input', () => {
 
   it('commits one existing leaf description update through the original DataView owner', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }] })
     editor.project.markBlueprintClean('root')
     let current = { ...editor.project.blueprintTree, children: [{ ...editor.project.blueprintTree.children[0]!, source: { rowid: 'existing', SysId: projectId, prowid: 'root', name: 'Existing', memo: '', conType: 'Navitem' } }] }
@@ -187,7 +186,7 @@ describe('projectPlanning formal node input', () => {
 
   it('keeps an unknown single-leaf update on the original owner and rejects a second command', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }] })
     editor.project.markBlueprintClean('root')
     const current = { ...editor.project.blueprintTree, children: [{ ...editor.project.blueprintTree.children[0]!, source: { rowid: 'existing', SysId: projectId, prowid: 'root', name: 'Existing', memo: '', conType: 'Navitem' } }] }
@@ -211,7 +210,7 @@ describe('projectPlanning formal node input', () => {
     const parentA={nodeId:'parent-a',parentNodeId:'root',projectId,kind:'module' as const,capability:{name:'A'},source:{},children:[leaf]}
     const parentB={nodeId:'parent-b',parentNodeId:'root',projectId,kind:'module' as const,capability:{name:'B'},source:{},children:[]}
     const root={nodeId:'root',parentNodeId:'',projectId,kind:'module' as const,capability:{name:'Root'},source:{},children:[parentA,parentB]}
-    const editor=new ProjectWorkspace({projectId,pageFiles:{readPageFile:async()=>''},blueprint:{}})
+    const editor=new ProjectWorkspace({projectId,blueprint:{}})
     editor.project.replaceBlueprintTree(root);editor.project.markBlueprintClean('root')
     const load=vi.fn(),updateNodeData=vi.fn(),saveSelectedNode=vi.fn(),applyLeafMoveBatch=vi.fn()
     const owner={projectId,hasTreeProjection:true,dirty:false,treeProjection:()=>root,load,updateNodeData,saveSelectedNode,applyLeafMoveBatch,view:{queryColumns:[]},hasOutput:()=>true}
@@ -230,7 +229,7 @@ describe('projectPlanning formal node input', () => {
 
   it('preflights every command in a mixed tree plan before the first DataView write', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [{ nodeId: 'existing', parentNodeId: 'root', projectId, kind: 'page', capability: { name: 'Existing' }, source: {} }] })
     editor.project.markBlueprintClean('root')
     const current = editor.project.blueprintTree
@@ -248,7 +247,7 @@ describe('projectPlanning formal node input', () => {
 
   it('marks the AI run partial when a later plan is rejected after the first DataView command', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
     editor.project.markBlueprintClean('root')
     let readback = editor.project.blueprintTree
@@ -290,7 +289,7 @@ describe('projectPlanning formal node input', () => {
 
   it('rejects blueprint payloads that the formal NavigationInfo wire cannot preserve', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
     editor.project.markBlueprintClean('root')
     let current = editor.project.blueprintTree
@@ -318,7 +317,7 @@ describe('projectPlanning formal node input', () => {
 
   it('rejects non-empty source payloads before the DataView command starts', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     editor.project.replaceBlueprintTree({ nodeId: 'root', parentNodeId: '', projectId, kind: 'module', capability: { name: 'Root' }, source: {}, children: [] })
     editor.project.markBlueprintClean('root')
     const addChildNode = vi.fn(async (_parentId: string, _fields: Record<string, unknown>, id?: string) => id ?? '')
@@ -334,7 +333,7 @@ describe('projectPlanning formal node input', () => {
 
   it('rejects duplicated existing node IDs instead of treating a missing node as unchanged', async () => {
     const projectId = 'APP-A'
-    const editor = new ProjectWorkspace({ projectId, pageFiles: { readPageFile: async () => '' }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId, blueprint: {} })
     const existing = [
       { nodeId: 'a', parentNodeId: 'root', projectId, kind: 'page' as const, capability: { name: 'A' }, source: {} },
       { nodeId: 'b', parentNodeId: 'root', projectId, kind: 'page' as const, capability: { name: 'B' }, source: {} },
@@ -356,7 +355,6 @@ describe('projectPlanning formal node input', () => {
     const projectId = 'APP-A'
     const editor = new ProjectWorkspace({
       projectId,
-      pageFiles: { readPageFile: async () => '' },
       blueprint: {},
     })
     editor.project.replaceBlueprintTree({

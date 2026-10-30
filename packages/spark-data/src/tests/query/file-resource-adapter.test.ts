@@ -1,6 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
-import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter, type FileResourceTransport} from '../../query/file-resource-adapter'
+import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor, type FileResourceTransport} from '../../query/file-resource-adapter'
 
 function fixture(rejectHistoryBeforeWrite=false) {
   const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
@@ -55,6 +55,90 @@ describe('DataView file resource adapter',()=>{
       expect(view.rows).toHaveLength(0)
       expect(write).not.toHaveBeenCalled()
       expect(remove).not.toHaveBeenCalled()
+    }finally{dataSet.destroy()}
+  })
+
+  it('routes a configured query clone through its own target instead of the empty declaration view',async()=>{
+    const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
+      columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
+        {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged'}}}}})
+    const declaration=dataSet.getView('Files')!,files=new Map([['["PAGE","rule.json"]','baseline']]),written:Array<{key:string;text:string}> = []
+    const read=vi.fn(async(target:{key:string;fields:Record<string,unknown>})=>{
+      const text=files.get(target.key);return text===undefined?null:{text,revision:'v1'}
+    })
+    const write=vi.fn(async(input:{target:{key:string};text:string})=>{written.push({key:input.target.key,text:input.text});files.set(input.target.key,input.text)})
+    const transport:FileResourceTransport={read,write,isUnknown:()=>false}
+    bindFileResourceAdapter(declaration,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+      target:view=>{
+        const pageId=view.queryContext['pageId'],fileName=view.queryContext['fileName']
+        return typeof pageId==='string'&&pageId&&typeof fileName==='string'&&fileName
+          ?{key:JSON.stringify([pageId,fileName]),fields:{pageId,fileName}}
+          :{key:'declaration-template',fields:{template:true}}
+      },transport})
+    try{
+      const query=declaration.createQueryView('page-PAGE-rule')
+      query.queryContext={pageId:'PAGE',fileName:'rule.json'}
+      await query.refresh()
+      await query.editRowById(query.getPkKey(query.rows[0]!)!,{text:'edited'})
+      await dataSet.saveChanges({views:[{tableName:'Files',viewId:query.viewId}]})
+      expect(written).toEqual([{key:JSON.stringify(['PAGE','rule.json']),text:'edited'}])
+    }finally{dataSet.destroy()}
+  })
+
+  it('locks each queried clone to its first complete target while allowing setup before its first query',async()=>{
+    const f=fixture()
+    try{
+      const query=f.view.createQueryView('clone')
+      query.queryContext={pageId:'PAGE',fileName:'rule.json'}
+      await query.loadFromServer({singleFlight:false})
+      query.queryContext={pageId:'OTHER',fileName:'script.js'}
+      await expect(query.loadFromServer({singleFlight:false})).rejects.toThrow('FILE_RESOURCE_IDENTITY')
+      expect(f.read).not.toHaveBeenCalledWith(expect.objectContaining({key:JSON.stringify(['OTHER','script.js'])}))
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not lock an unqueried clone while another same-source view enumerates peers',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh()
+      const clone=f.view.createQueryView('unqueried-clone')
+      await expect(f.view.createSourceVersion()).rejects.toThrow('timeout')
+      clone.queryContext={pageId:'OTHER',fileName:'script.js'}
+      await clone.loadFromServer({singleFlight:false})
+      expect(f.read).toHaveBeenCalledWith(expect.objectContaining({key:JSON.stringify(['OTHER','script.js'])}))
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('retains an immutable target signature when a target object is mutated in place',async()=>{
+    const f=fixture(),fields:{pageId:string;fileName:string}={pageId:'PAGE',fileName:'rule.json'}
+    try{
+      bindFileResourceAdapter(f.view,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+        target:()=>({key:JSON.stringify([fields.pageId,fields.fileName]),fields}),transport:f.transport})
+      await f.view.refresh()
+      fields.pageId='OTHER'
+      await expect(f.view.loadFromServer({singleFlight:false})).rejects.toThrow('FILE_RESOURCE_IDENTITY')
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('keeps a composite published pointer read-only while reading its exact target',async()=>{
+    const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
+      columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
+        {name:'versionId',type:'string'},{name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',
+          queryContext:{pageId:'PAGE',fileName:'rule.json',versionId:'rule=2;script=1;style=3'}}}}}})
+    const view=dataSet.getView('Files')!,pointer='rule=2;script=1;style=3',read=vi.fn(async(target:{fields:Record<string,unknown>})=>
+      ({text:`snapshot-${String(target.fields['versionId'])}`,revision:'snapshot'}))
+    const options={resourceId:'page-files',contentField:'text',revisionField:'revision',
+      target:(current:typeof view)=>({key:JSON.stringify([current.queryContext['pageId'],current.queryContext['fileName'],current.queryContext['versionId']]),
+        fields:{pageId:current.queryContext['pageId'],fileName:current.queryContext['fileName'],versionId:current.queryContext['versionId']}}),
+      transport:{read,write:vi.fn(async()=>undefined),isUnknown:()=>false},
+      canWrite:(target:{fields:Record<string,unknown>})=>target.fields['versionId']===''}
+    try{
+      bindFileResourceAdapter(view,options)
+      await view.refresh()
+      expect(read).toHaveBeenCalledWith(expect.objectContaining({fields:expect.objectContaining({versionId:pointer})}))
+      expect(view.rows[0]?.['text']).toBe(`snapshot-${pointer}`)
+      expect(view.fieldAccess(view.rows[0]!, 'text').write).toBe('denied')
+      expect(view.editActionState(view.rows[0]!)).toBe('disabled')
     }finally{dataSet.destroy()}
   })
 
@@ -160,6 +244,27 @@ describe('DataView file resource adapter',()=>{
     } finally {f.dataSet.destroy()}
   })
 
+  it('keeps an accepted removal attempt when receipt readback fails and verifies it without removing twice',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh();const id=f.view.getPkKey(f.view.rows[0]!)!
+      const originalRead=f.read.getMockImplementation()!
+      let failed=false
+      f.read.mockImplementation(async()=>{
+        const snapshot=await originalRead()
+        if(!failed&&snapshot===null){failed=true;const error=new Error('delete receipt unavailable') as Error & {response:{status:number}};error.response={status:503};throw error}
+        return snapshot
+      })
+      await f.view.removeRow(id)
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('delete receipt unavailable')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.remove).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('verifies an unknown accepted file deletion before accepting the same DataView receipt',async()=>{
     const f=fixture()
     try {
@@ -201,6 +306,91 @@ describe('DataView file resource adapter',()=>{
       expect(f.write).toHaveBeenCalledOnce()
       expect(f.view.hasUnconfirmedSave).toBe(false)
     } finally {f.dataSet.destroy()}
+  })
+
+  it('keeps an accepted write pending when receipt readback fails and verifies it without rewriting',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh();const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.editRowById(id,{text:'accepted-with-readback-error'})
+      const originalRead=f.read.getMockImplementation()!
+      let failReceiptRead=true
+      f.read.mockImplementation(async()=>{
+        if(failReceiptRead&&f.current.text==='accepted-with-readback-error'){
+          failReceiptRead=false
+          const error=new Error('receipt read unavailable') as Error & {response:{status:number}}
+          error.response={status:503}
+          throw error
+        }
+        return originalRead()
+      })
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('receipt read unavailable')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('serializes same-target writes from two query clones in one DataSet',async()=>{
+    const f=fixture();let finish:(()=>void)|undefined
+    const waiting=new Promise<void>(resolve=>{finish=resolve})
+    try{
+      await f.view.refresh()
+      const clone=f.view.createQueryView('same-target-clone')
+      clone.queryContext={...f.view.queryContext}
+      await clone.loadFromServer({singleFlight:false})
+      const firstId=f.view.getPkKey(f.view.rows[0]!)!,secondId=clone.getPkKey(clone.rows[0]!)!
+      await f.view.editRowById(firstId,{text:'first'})
+      await clone.editRowById(secondId,{text:'second'})
+      f.write.mockImplementationOnce(async({text})=>{await waiting;f.current.text=text;f.current.revision='v2'})
+      const first=f.dataSet.saveChanges({views:[{tableName:'Files',viewId:f.view.viewId,ids:[firstId]}]})
+      await vi.waitFor(()=>expect(f.write).toHaveBeenCalledOnce())
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:clone.viewId,ids:[secondId]}]})).rejects.toThrow('FILE_RESOURCE_SAVE_PENDING')
+      finish?.()
+      expect((await first).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.current.text).toBe('first')
+    }finally{finish?.();f.dataSet.destroy()}
+  })
+
+  it('accepts an earlier file receipt when a later file in the same DataSet is rejected',async()=>{
+    const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',columns:[
+      {name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
+      {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
+    const files=new Map([['rule.json','rule-old'],['script.js','script-old']]),writes:string[]=[]
+    let rejectScript=true
+    const transport:FileResourceTransport={
+      read:async target=>{const text=files.get(String(target.fields['fileName']));return text===undefined?null:{text,revision:'v1'}},
+      write:async({target,text})=>{const fileName=String(target.fields['fileName']);writes.push(fileName)
+        if(fileName==='script.js'&&rejectScript){rejectScript=false;throw new Error('explicit source rejection')}
+        files.set(fileName,text)},
+      isUnknown:()=>false,
+    }
+    const executor=createFileResourceAdapterExecutor({resourceId:'page-files',contentField:'text',revisionField:'revision',
+      target:view=>({key:JSON.stringify([view.queryContext['pageId'],view.queryContext['fileName']]),
+        fields:{pageId:view.queryContext['pageId'],fileName:view.queryContext['fileName']}}),transport})
+    try{
+      const first=dataSet.getView('Files')!
+      first.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:'page-files'}})
+      await first.refresh()
+      const second=first.createQueryView('script-file')
+      second.queryContext={pageId:'PAGE',fileName:'script.js'}
+      await second.loadFromServer({singleFlight:false})
+      await first.editRowById(first.getPkKey(first.rows[0]!)!,{text:'rule-new'})
+      await second.editRowById(second.getPkKey(second.rows[0]!)!,{text:'script-new'})
+      await expect(dataSet.saveChanges()).rejects.toThrow('explicit source rejection')
+      expect(first.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(second.dirtyTracking.hasPendingChanges()).toBe(true)
+      expect(files.get('rule.json')).toBe('rule-new')
+      expect(files.get('script.js')).toBe('script-old')
+      expect((await dataSet.saveChanges()).success).toBe(true)
+      expect(writes).toEqual(['rule.json','script.js','script.js'])
+      expect(files.get('script.js')).toBe('script-new')
+      expect(first.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(second.dirtyTracking.hasPendingChanges()).toBe(false)
+    }finally{dataSet.destroy()}
   })
 
   it('retains unknown write identity across DataView destruction and rebinds within the same DataSet',async()=>{

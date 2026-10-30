@@ -94,7 +94,6 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
 function createEditor(dirtyFileNames: readonly PageToolFileName[] = ['rule.json']): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
-    pageFiles: { readPageFile: async () => '' },
     blueprint: {},
   })
   editor.project.openPageDesign('orders')
@@ -149,11 +148,7 @@ function createDryRunResult(): AiAgentHostDryRunResult {
 describe('pageDesign actual working-file delivery', () => {
   it.each(['script.js', 'style.css'] as const)('preserves successful receipts when %s fails', async (failedName) => {
     const remoteFiles = new Map<string, string>()
-    const editor = new ProjectWorkspace({ projectId: 'demo',
-      pageFiles: { readPageFile: async () => '', saveFileContent: async (_pageId, fileName, text) => {
-        if (fileName === failedName) throw new Error(`write rejected: ${fileName}`)
-        remoteFiles.set(fileName, text)
-      } }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId: 'demo', blueprint: {} })
     const page = editor.project.openPageDesign('orders')
     page.markLoaded()
     editor.project.setActivePage('orders')
@@ -171,12 +166,7 @@ describe('pageDesign actual working-file delivery', () => {
   it('waits for a successful file after another fails and retains edits made during its save', async () => {
     let finishSave: () => void = () => { throw new Error('save has not started') }
     const saved: string[] = []
-    const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '',
-      saveFileContent: async (_pageId, fileName, text) => {
-        if (fileName === 'style.css') throw new Error('style rejected')
-        saved.push(text)
-        await new Promise<void>((resolve) => { finishSave = resolve })
-      } }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId: 'demo', blueprint: {} })
     const page = editor.project.openPageDesign('orders')
     page.markLoaded()
     editor.project.setActivePage('orders')
@@ -226,7 +216,7 @@ describe('preparePageDesignAgentRun', () => {
   })
   it('reports a recovered scene as still dirty until later edits are explicitly delivered', async () => {
     let remote = JSON.stringify({scenarioId:'SCENE-A',tables:{}}), writes = 0
-    const editor = new ProjectWorkspace({projectId:'demo',pageFiles:{readPageFile:async()=>''},
+    const editor = new ProjectWorkspace({projectId:'demo',
       blueprint:{},scenarioDefinitions:loadDefinitions,
       scenarioViews:{readScope:()=> 'tenant-A',readText:async()=>remote,writeText:async(_id,text)=>{
         remote=text; if(++writes===1)throw new Error('receipt lost')
@@ -260,7 +250,6 @@ describe('preparePageDesignAgentRun', () => {
     let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {} })
     let writes = 0
     const editor = new ProjectWorkspace({ projectId: 'demo',
-      pageFiles: { readPageFile: async () => '', saveFileContent: async () => {} },
       blueprint: {},
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
         writeText: async (_id, text) => { writes++; remote = text; throw new Error('scene write unconfirmed') } },
@@ -285,7 +274,7 @@ describe('preparePageDesignAgentRun', () => {
   it('shares manual and guarded AI DataView edits and confirms only explicit delivery by storage readback', async () => {
     let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {Orders: {modelBinding: {modelId: 'ORDER-ID', modelName: 'Orders'}, views: {default: {}}}} })
     const writes: string[] = []
-    const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' },
+    const editor = new ProjectWorkspace({ projectId: 'demo',
       blueprint: {},
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
         writeText: async (_id, text) => { writes.push(text); remote = text } },
@@ -462,10 +451,7 @@ describe('preparePageDesignAgentRun', () => {
 
   it('retains actual edits and the original error without claiming a rollback', async () => {
     const writes: string[] = []
-    const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: {
-      readPageFile: async ({ fileName }) => fileName === 'script.js' ? 'script A' : '',
-      saveFileContent: async (_pageId, _fileName, text) => { writes.push(text) },
-    }, blueprint: {} })
+    const editor = new ProjectWorkspace({ projectId: 'demo', blueprint: {} })
     const failure = new Error('run rejected')
     mocks.createHeadlessPageDesignEditor.mockReturnValue(editor)
     mocks.delegateHost.run.mockImplementationOnce(async () => {

@@ -160,7 +160,7 @@ describe('project reference application catalog owner', () => {
   it('uses the shared formal catalog reader and preserves reference exclusion and projection', async () => {
     saveExecutionScope('APP-CURRENT')
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
-    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
       blueprint: {}, projectReferences: gateway.projectReferences})
     const projects = await workspace.listReferenceProjects()
 
@@ -174,7 +174,7 @@ describe('project reference application catalog owner', () => {
   it('rejects reference candidates when the bound workspace is no longer the request application', async () => {
     saveExecutionScope('APP-OTHER')
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
-    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
       blueprint: {}, projectReferences: gateway.projectReferences})
 
     await expect(workspace.listReferenceProjects()).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
@@ -186,7 +186,7 @@ describe('project reference application catalog owner', () => {
     const pending = deferred<unknown[]>()
     applicationListReader.read.mockReturnValue(pending.promise)
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
-    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
       blueprint: {}, projectReferences: gateway.projectReferences})
 
     const result = workspace.listReferenceProjects()
@@ -201,7 +201,7 @@ describe('project reference application catalog owner', () => {
     const pending = deferred<unknown[]>()
     applicationListReader.read.mockReturnValue(pending.promise)
     const gateway = createLowcodeProjectGateways('APP-CURRENT')
-    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT', pageFiles: {readPageFile: vi.fn()},
+    const workspace = new ProjectWorkspace({projectId: 'APP-CURRENT',
       blueprint: {}, projectReferences: gateway.projectReferences})
 
     const result = workspace.listReferenceProjects()

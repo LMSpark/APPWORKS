@@ -752,7 +752,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     const f=createBlueprintDataViewFixture({rows:[root,first,second]})
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection(),requested=before.children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
       const result=await Promise.resolve(facade.replaceBlueprintChildren({children:requested}))
@@ -789,7 +789,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
       const originalAccess=owner.view.fieldAccess.bind(owner.view)
       vi.spyOn(owner.view,'fieldAccess').mockImplementation((row,field)=>row!==null&&row['rowid']==='NODE-2'&&field==='memo'?{...originalAccess(row,field),write:'denied',component:'readonly',writeMode:'readonly'} as never:originalAccess(row,field))
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const tryBeginDataViewBlueprintWrite=vi.fn(()=>true)
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner,tryBeginDataViewBlueprintWrite},{moduleInstanceId:'APP-1'} as never)
       const requested=owner.treeProjection().children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
@@ -810,7 +810,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
       const write=owner.view.updateEditingValue.bind(owner.view)
       vi.spyOn(owner.view,'updateEditingValue').mockImplementation((id,field,value)=>{if(id==='NODE-2')throw new Error('second overlay write failed');return write(id,field,value)})
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const requested=owner.treeProjection().children.map((node,index)=>({...node,capability:{...node.capability,description:`updated ${index+1}`}}))
       await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow('second overlay write failed')
@@ -828,7 +828,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
       const saveChanges=vi.spyOn(owner.dataSet,'saveChanges')
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection(),requested=before.children.map((node,index)=>({...node,capability:{...node.capability,description:`unknown ${index+1}`}}))
       await expect(facade.replaceBlueprintChildren({children:requested})).rejects.toThrow(/未确认.*保留原 DataView command/iu)
@@ -854,7 +854,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
       await owner.loadProjectTree()
       const validateColumns=vi.spyOn(owner.view.validator!,'validateColumns')
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection()
       const changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'AI updated description'}}
@@ -882,7 +882,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
       await owner.loadProjectTree()
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection(), changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'unknown update'}}
       const original=editor.project.blueprintTree
@@ -927,7 +927,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree();await owner.load('NODE-1')
       owner.update('memo','pre-existing edit')
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       expect(()=>resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)).toThrow(/无待保存修改/iu)
       expect(owner.view.getEditingPatch('NODE-1')).toEqual({memo:'pre-existing edit'})
       expect(f.save).not.toHaveBeenCalled()
@@ -945,7 +945,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{})
       await owner.loadProjectTree()
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection(), changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'denied update'}}
 
@@ -963,7 +963,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     try{
       const owner=new BlueprintWorkspaceDataView(f.dataSet,'APP-1',()=>{});await owner.loadProjectTree()
       vi.spyOn(owner.view.validator!,'validateColumns').mockReturnValue({valid:false,errors:[{message:'validator rejects memo'}]} as never)
-      const editor=new ProjectWorkspace({projectId:'APP-1',pageFiles:{readPageFile:async()=>''},blueprint:{}})
+      const editor=new ProjectWorkspace({projectId:'APP-1',blueprint:{}})
       const facade=resolveProjectPlanningDomainRoot({getProjectPlanningEditor:()=>editor,blueprintDataView:owner},{moduleInstanceId:'APP-1'} as never)
       const before=owner.treeProjection(),changed={...before.children[0]!,capability:{...before.children[0]!.capability,description:'invalid'}}
 

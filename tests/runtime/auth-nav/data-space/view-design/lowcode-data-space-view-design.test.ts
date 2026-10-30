@@ -31,7 +31,6 @@ function fixture(initial: string | null = namedText, configureMetadata?: (dataSe
   const writeText = vi.fn(async (_id: string, text: string) => { remote = text })
   const readText = vi.fn(async () => remote)
   const workspace = new ProjectWorkspace({ projectId: 'APP',
-    pageFiles: { readPageFile: async () => { throw new Error('unexpected page read') } },
     blueprint: {},
     scenarioViews: { readScope: () => scope, readText, writeText },
   })

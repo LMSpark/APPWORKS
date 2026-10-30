@@ -4274,12 +4274,12 @@
     "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
-      "sourceModifiedAt": "2026-10-26T22:33:48.619Z"
+      "sourceModifiedAt": "2026-10-30T15:15:07.706Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue.json",
-      "sourceModifiedAt": "2026-10-29T04:03:33.951Z"
+      "sourceModifiedAt": "2026-10-30T15:06:01.017Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",

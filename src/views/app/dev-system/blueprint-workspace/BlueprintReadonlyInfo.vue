@@ -1,32 +1,70 @@
 <template>
   <section class="readonly-info" aria-live="polite">
-    <DisplayAlert v-if="error" alert-type="error" :title="`只读查询失败：${error}`" />
-    <DisplayAlert v-else-if="loading" title="正在加载只读数据…" alert-type="info" />
-    <RendererTable v-else-if="loaded" :data-view-key="binding" :auto-columns="false" :show-data-view-meta="false" :show-aggregate-summary="false" :show-selection-summary="false" :show-pagination="true">
-      <FieldText v-for="field in fields" :key="field" data-member="currentRow" :data-field="field" :label="field" readonly />
-    </RendererTable>
+    <DisplayAlert v-if="bindingError" alert-type="error" :title="`只读查询失败：${bindingError}`" />
+    <template v-if="bindingSession">
+      <RendererButton :data-view-key="binding" label="重新加载" @click="reload" />
+      <RendererTable :data-view-key="binding" :auto-columns="false" :show-data-view-meta="true" :show-aggregate-summary="false" :show-selection-summary="false" :show-pagination="true">
+        <FieldText v-for="field in fields" :key="field" data-member="currentRow" :data-field="field" :label="field" readonly />
+      </RendererTable>
+    </template>
   </section>
 </template>
 
 <script setup lang="ts">
-import {onBeforeUnmount, ref, watch} from 'vue'
+import {onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
-import {DisplayAlert,FieldText, RendererTable} from '@spark-appworks/spark-component'
-import {queryBlueprintReadonlyView} from './blueprint-readonly-info'
+import {DisplayAlert, FieldText, RendererButton, RendererTable} from '@spark-appworks/spark-component'
+import {bindBlueprintReadonlyView} from './blueprint-readonly-info'
+
+type ReadonlyBinding = ReturnType<typeof bindBlueprintReadonlyView>
 
 const props=defineProps<{runtime:PageRuntime;nodeId:string;binding:string;fields:readonly string[];assertCurrent:(nodeId:string,runtime:PageRuntime)=>void}>()
-const loading=ref(false),loaded=ref(false),error=ref<string>()
+const bindingSession=shallowRef<ReadonlyBinding>()
+const bindingError=ref('')
 let revision=0
-watch(()=>[props.runtime.instanceId,props.nodeId,props.binding] as const,async([,nodeId,binding])=>{
+
+function reportLoadError(session:ReadonlyBinding, error:unknown):void {
+  if(bindingSession.value!==session||session.view.loadingError) return
+  bindingError.value=error instanceof Error?error.message:String(error)
+}
+
+function startLoad(session:ReadonlyBinding):void {
+  void session.load().then(()=>{
+    if(bindingSession.value===session)bindingError.value=''
+  },error=>reportLoadError(session,error))
+}
+
+watch([()=>props.runtime,()=>props.nodeId,()=>props.binding],([runtime,nodeId,binding])=>{
   const current=++revision
-  loaded.value=false;error.value=undefined
+  bindingSession.value?.release()
+  bindingSession.value=undefined
+  bindingError.value=''
   if(!nodeId)return
-  loading.value=true
-  try{const runtime=props.runtime;await queryBlueprintReadonlyView({runtime,binding,nodeId,assertCurrent:()=>props.assertCurrent(nodeId,runtime)});if(current===revision)loaded.value=true}
-  catch(failure){if(current===revision)error.value=failure instanceof Error?failure.message:String(failure)}
-  finally{if(current===revision)loading.value=false}
+  try{
+    const session=bindBlueprintReadonlyView({runtime,binding,nodeId,assertCurrent:()=>{
+      if(current!==revision)throw new Error('只读信息查询目标已切换')
+      props.assertCurrent(nodeId,runtime)
+    }})
+    if(current!==revision){session.release();return}
+    bindingSession.value=session
+    startLoad(session)
+  }catch(error){
+    if(current===revision)bindingError.value=error instanceof Error?error.message:String(error)
+  }
 },{immediate:true})
-onBeforeUnmount(()=>{revision++})
+
+function reload():void {
+  const session=bindingSession.value
+  if(!session)return
+  bindingError.value=''
+  startLoad(session)
+}
+
+onBeforeUnmount(()=>{
+  revision++
+  bindingSession.value?.release()
+  bindingSession.value=undefined
+})
 </script>
 
 <style scoped>

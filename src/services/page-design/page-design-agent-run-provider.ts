@@ -49,7 +49,7 @@ import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-spac
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {createPageToolFilesIo, lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
 import {isRecord} from '@spark-appworks/spark-utils'
 
@@ -259,9 +259,8 @@ export const preparePageDesignAgentRun: AiAgentRunPrepare<AiAgentHost> = async (
     editor.project.setActivePage(pageId)
     const page=editor.project.getActivePage()
     if(page?.pageId!==pageId)throw new Error('PAGE_DESIGN_TOOL_PAGE_MISSING: 配置页面身份无效')
-    const fileIo=createPageToolFilesIo(projectId)
     for(const fileName of PAGE_TOOL_FILE_NAMES){
-      const view=createPageFileResourceView({dataSet,appId:projectId,pageId,fileName,io:fileIo,assertCurrent})
+      const view=createPageFileResourceView({dataSet,appId:projectId,pageId,fileName,assertCurrent})
       view.queryContext={...view.queryContext,appId:projectId,pageId,fileName}
       await view.refresh();assertCurrent()
       const candidate:unknown=view.rows.find((item:unknown)=>isRecord(item)&&item['pageId']===pageId&&item['fileName']===fileName)

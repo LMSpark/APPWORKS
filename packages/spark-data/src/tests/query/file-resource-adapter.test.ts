@@ -1,16 +1,17 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
-import {bindFileResourceAdapter, type FileResourceTransport} from '../../query/file-resource-adapter'
+import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter, type FileResourceTransport} from '../../query/file-resource-adapter'
 
 function fixture(rejectHistoryBeforeWrite=false) {
   const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
     columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
       {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
   const view=dataSet.getView('Files')!
-  const current={text:'baseline',revision:'v1'}
+  const current:{text:string|null;revision:string|null}={text:'baseline',revision:'v1'}
   const versions=new Map<number,string>()
-  const read=vi.fn(async()=>({...current}))
+  const read=vi.fn(async()=>current.text===null?null:{text:current.text,revision:current.revision})
   const write=vi.fn(async(_input:{text:string})=>{current.text=_input.text;current.revision='v2'})
+  const remove=vi.fn(async()=>{current.text=null;current.revision=null})
   const history:NonNullable<FileResourceTransport['history']>={
     list:async target=>[...versions.keys()].map(version=>({version,fileName:`${version}__${String(target.fields['fileName'])}`,lastModified:null})),
     preview:async(_target,version)=>versions.get(Number(version))??'',
@@ -20,14 +21,82 @@ function fixture(rejectHistoryBeforeWrite=false) {
       versions.set(version,text);throw new Error('timeout')},
     verify:async(_target,attempt,expectedText)=>versions.get(Number(attempt.version))===expectedText,
   }
-  const transport:FileResourceTransport={read,write,history,isUnknown:error=>error instanceof Error&&error.message==='timeout'}
+  const transport:FileResourceTransport={read,write,remove,history,isUnknown:error=>error instanceof Error&&error.message==='timeout'}
   const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId:'page-files',contentField:'text',revisionField:'revision',
     target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),transport})
   bind(view)
-  return {dataSet,view,current,read,write,bind,versions,history}
+  return {dataSet,view,current,read,write,remove,bind,versions,history,transport}
 }
 
 describe('DataView file resource adapter',()=>{
+  it('rejects rebinding a file DataView to another target of the same resource',()=>{
+    const f=fixture()
+    try{
+      f.view.queryContext={pageId:'OTHER',fileName:'script.js'}
+      expect(()=>f.bind(f.view)).toThrow('FILE_RESOURCE_IDENTITY')
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not apply a query result after its bound file target changes in flight',async()=>{
+    let targetPage='PAGE',releaseRead:((value:{text:string;revision:string})=>void)|undefined
+    const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
+      columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
+        {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
+    const view=dataSet.getView('Files')!,read=vi.fn(()=>new Promise<{text:string;revision:string}>(resolve=>{releaseRead=resolve}))
+    const write=vi.fn(async()=>undefined),remove=vi.fn(async()=>undefined)
+    try{
+      bindFileResourceAdapter(view,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+        target:()=>({key:targetPage,fields:{pageId:targetPage,fileName:'rule.json'}}),transport:{read,write,remove,isUnknown:()=>false}})
+      const pending=view.refresh()
+      await vi.waitFor(()=>expect(releaseRead).toBeDefined())
+      targetPage='OTHER'
+      releaseRead?.({text:'stale target contents',revision:'old'})
+      await pending
+      expect(view.rows).toHaveLength(0)
+      expect(write).not.toHaveBeenCalled()
+      expect(remove).not.toHaveBeenCalled()
+    }finally{dataSet.destroy()}
+  })
+
+  it('allows a same-target rebind to refresh its transport and current-scope assertion',async()=>{
+    const f=fixture(),newRead=vi.fn(async()=>({text:'from replacement transport',revision:'v3'})),assertCurrent=vi.fn()
+    try{
+      bindFileResourceAdapter(f.view,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+        target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),
+        transport:{...f.transport,read:newRead},assertCurrent})
+      await f.view.refresh()
+      expect(newRead).toHaveBeenCalledOnce()
+      expect(assertCurrent).toHaveBeenCalled()
+      expect(f.view.rows[0]).toMatchObject({text:'from replacement transport',revision:'v3'})
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('keeps a directory query bound to its original resource target on rebind',()=>{
+    const f=fixture(),view=f.dataSet.getTable('Files')!.getOrCreateView('directory-PAGE')
+    const options={resourceId:'page-files',target:()=>({key:'APP/PAGE',fields:{appId:'APP',pageId:'PAGE'}}),list:async()=>['rule.json']}
+    try{
+      bindFileDirectoryQueryAdapter(view,options)
+      expect(()=>bindFileDirectoryQueryAdapter(view,{...options,target:()=>({key:'OTHER/PAGE',fields:{appId:'OTHER',pageId:'PAGE'}})}))
+        .toThrow('FILE_DIRECTORY_VIEW_IDENTITY')
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not apply a directory result after its bound target changes while listing',async()=>{
+    const f=fixture(),view=f.dataSet.getTable('Files')!.getOrCreateView('directory-PAGE')
+    let targetPage='PAGE',releaseList:((names:readonly string[])=>void)|undefined
+    const options={resourceId:'page-files',target:()=>({key:`APP/${targetPage}`,fields:{appId:'APP',pageId:targetPage}}),
+      list:vi.fn(()=>new Promise<readonly string[]>(resolve=>{releaseList=resolve}))}
+    try{
+      bindFileDirectoryQueryAdapter(view,options)
+      const pending=view.refresh()
+      await vi.waitFor(()=>expect(releaseList).toBeDefined())
+      targetPage='OTHER'
+      releaseList?.(['stale-extra.txt'])
+      await pending
+      expect(view.rows).toHaveLength(0)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('loads the bound resource into DataView and saves one changed text through its DataSet receipt',async()=>{
     const f=fixture()
     try {
@@ -39,6 +108,72 @@ describe('DataView file resource adapter',()=>{
       expect(result.success).toBe(true)
       expect(f.current.text).toBe('updated')
       expect(f.view.rows[0]).toMatchObject({text:'updated',revision:'v2'})
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('creates a missing file as a staged formal DataView row and accepts its DataSet receipt',async()=>{
+    const f=fixture()
+    try {
+      f.current.text=null
+      await f.view.refresh()
+      expect(f.view.rows).toHaveLength(0)
+      const created=await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'new file'})
+      expect(created).not.toHaveProperty('success')
+      const id=f.view.getPkKey(created as Record<string,unknown>)
+      expect(id).toBe(JSON.stringify(['PAGE','rule.json']))
+      const receipt=await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default',ids:[id!]}]})
+      expect(receipt.success).toBe(true)
+      expect(f.current.text).toBe('new file')
+      expect(f.view.rows).toEqual([expect.objectContaining({pageId:'PAGE',fileName:'rule.json',text:'new file',revision:'v2'})])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('verifies an unknown accepted file creation before accepting the same DataView receipt',async()=>{
+    const f=fixture()
+    try {
+      f.current.text=null
+      await f.view.refresh()
+      const created=await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'created once'}) as Record<string,unknown>
+      const id=f.view.getPkKey(created)!
+      f.write.mockImplementationOnce(async({text})=>{f.current.text=text;f.current.revision='v2';throw new Error('timeout')})
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('timeout')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      await expect(f.view.verifySourceWriteAttempt()).resolves.toEqual({state:'confirmed',text:'created once',message:null})
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+      expect(f.view.rows).toEqual([expect.objectContaining({text:'created once',revision:'v2'})])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('deletes a file through its bound DataView and confirms the empty source readback',async()=>{
+    const f=fixture()
+    try {
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      expect(await f.view.removeRow(id)).toBe(true)
+      const result=await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default',ids:[id]}]})
+      expect(result.success).toBe(true)
+      expect(f.remove).toHaveBeenCalledOnce()
+      expect(f.current.text).toBeNull()
+      expect(f.view.rows).toHaveLength(0)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('verifies an unknown accepted file deletion before accepting the same DataView receipt',async()=>{
+    const f=fixture()
+    try {
+      await f.view.refresh()
+      const id=f.view.getPkKey(f.view.rows[0]!)!
+      await f.view.removeRow(id)
+      f.remove.mockImplementationOnce(async()=>{f.current.text=null;f.current.revision=null;throw new Error('timeout')})
+      const input={views:[{tableName:'Files',viewId:'default',ids:[id]}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('timeout')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      await expect(f.view.verifySourceWriteAttempt()).resolves.toEqual({state:'confirmed',text:null,message:null})
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.remove).toHaveBeenCalledOnce()
+      expect(f.view.rows).toHaveLength(0)
     } finally {f.dataSet.destroy()}
   })
 

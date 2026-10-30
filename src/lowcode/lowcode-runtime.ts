@@ -869,9 +869,10 @@ export function createPageToolFilesIo(projectId:string){
   const appId=projectId.trim()
   return {
     list:async(app:string,page:string)=>{assertRemoteToolFilesAllowed(appId);if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配');return (await lowcodeApi.design.listFiles({appType:'designfile',folderPath:toolFilePath(appId,page)})).map(file=>file.name)},
-    read:async(app:string,page:string,name:'rule.json'|'script.js'|'style.css')=>{
+    read:async(app:string,page:string,name:string)=>{
       assertRemoteToolFilesAllowed(appId)
       if(app!==appId)throw new Error('FILE_SCOPE: appId 不匹配')
+      if(name.length===0||name!==name.trim()||name==='.'||name==='..'||/[\\/\u0000-\u001f\u007f]/.test(name))throw new Error('FILE_SCOPE: 文件名无效')
       try{return await lowcodeApi.design.readTextFile({appType:'designfile',customPath:toolFilePath(appId,page),fileName:name})}
       catch(error){if(error instanceof LowcodePlatform.LowcodeApiError&&error.code===404)return null;throw error}
     },

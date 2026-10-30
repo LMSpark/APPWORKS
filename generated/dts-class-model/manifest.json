@@ -13775,22 +13775,6 @@
         "symbols": []
       }
     },
-    "src/lowcode/resources/shared/page-tool-files-command.ts": {
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/page-tool-files-command",
-        "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-        "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/page-tool-files-command",
-        "jsdoc": "app 的 lowcode/resources/shared/page-tool-files-command 模块。\n导出 DtsTypeDeclarationModel symbol: PageToolRestoreInput, PageToolFileCommands（共 2 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "PageToolRestoreInput",
-          "PageToolFileCommands"
-        ]
-      }
-    },
     "src/lowcode/resources/shared/project-tool-version-resource.ts": {
       "file": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json",
       "module": {
@@ -14348,6 +14332,21 @@
         "jsdoc": "@module app:services/project/page-tool-file-dataview\n职责：将正式 ProjectToolFile DataTable 绑定到工作文件存储适配器。\n边界：只提供 SPARK data 的 FileResource 适配，不提供页面级读写或保存入口。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "src/services/project/page-tool-file-operations.ts": {
+      "file": "files/src/services/project/page-tool-file-operations.ts.json",
+      "module": {
+        "name": "app:services/project/page-tool-file-operations",
+        "sourcePath": "src/services/project/page-tool-file-operations.ts",
+        "sourceFile": "src/services/project/page-tool-file-operations.ts",
+        "packageName": "app",
+        "modulePath": "services/project/page-tool-file-operations",
+        "jsdoc": "app 的 services/project/page-tool-file-operations 模块。\n导出 DtsTypeDeclarationModel symbol: PageFileOperationScope（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "PageFileOperationScope"
+        ]
       }
     },
     "src/services/project/project-settings.ts": {
@@ -20680,6 +20679,10 @@
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
     },
+    "PageFileOperationScope": {
+      "sourcePath": "src/services/project/page-tool-file-operations.ts",
+      "file": "files/src/services/project/page-tool-file-operations.ts.json"
+    },
     "PageFileReadCommand": {
       "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
       "file": "files/packages/spark-project-model/src/io/page-content-loader.ts.json"
@@ -20776,10 +20779,6 @@
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
     },
-    "PageToolFileCommands": {
-      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
-    },
     "PageToolFileName": {
       "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
       "file": "files/packages/spark-project-model/src/page/page-file.ts.json"
@@ -20795,10 +20794,6 @@
     "PageToolOptions": {
       "sourcePath": "packages/spark-project-model/src/page/page-tool.ts",
       "file": "files/packages/spark-project-model/src/page/page-tool.ts.json"
-    },
-    "PageToolRestoreInput": {
-      "sourcePath": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "file": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json"
     },
     "PageUploadedFile": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",

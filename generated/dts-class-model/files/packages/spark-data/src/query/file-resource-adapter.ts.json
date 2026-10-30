@@ -130,7 +130,14 @@
                   "type": "string"
                 },
                 "baseline": {
-                  "$ref": "#/$defs/FileResourceSnapshot"
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/FileResourceSnapshot"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -144,6 +151,32 @@
           "additionalProperties": false
         },
         "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "target": {
+                  "$ref": "#/$defs/FileResourceTarget"
+                },
+                "baseline": {
+                  "$ref": "#/$defs/FileResourceSnapshot"
+                }
+              },
+              "required": [
+                "target",
+                "baseline"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -270,7 +303,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T06:51:06.042Z",
+  "generatedAt": "2026-10-30T03:50:33.003Z",
   "models": {
     "FileResourceTarget": {
       "name": "FileResourceTarget",
@@ -364,11 +397,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    read(target: FileResourceTarget): Promise<FileResourceSnapshot | null>;\n    write(input: Readonly<{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }>): Promise<void>;\n    remove?(input: Readonly<{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }>): Promise<void>;\n    isUnknown(error: unknown): boolean;\n    history?: Readonly<{\n        assertCanCreate?(target: FileResourceTarget): void | Promise<void>;\n        /** 只有明确的来源拒绝回执才能证明attempt未提交；其他捕获attempt后的异常视为结果未知。 */\n        isDefiniteRejection?(error: unknown): boolean;\n        list(target: FileResourceTarget): Promise<ReadonlyArray<Readonly<{\n            version: string | number;\n            fileName: string;\n            lastModified: number | null;\n        }>>>;\n        preview(target: FileResourceTarget, version: string | number): Promise<string>;\n        create(target: FileResourceTarget, text: string, onAttempt: (attempt: FileResourceHistoryAttempt) => void): Promise<void>;\n        verify(target: FileResourceTarget, attempt: FileResourceHistoryAttempt, expectedText: string): Promise<boolean>;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -425,7 +458,35 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot;\n    }"
+                        "name": "{\n        target: FileResourceTarget;\n        text: string;\n        baseline: FileResourceSnapshot | null;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "remove",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        target: FileResourceTarget;\n        baseline: FileResourceSnapshot;\n    }"
                       }
                     ]
                   }

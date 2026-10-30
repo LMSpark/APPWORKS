@@ -627,7 +627,7 @@
             },
             "restorePageToolVersion": {
               "type": "object",
-              "title": "(input: Omit<import(\"../../../lowcode/resources/shared/page-tool-files-command\").PageToolRestoreInput, \"baselineText\" | \"sourceText\"> & Readonly<{ projectId: string; }>) => Promise<string>"
+              "title": "(input: Readonly<{ projectId: string; pageId: string; customPath: string; fileName: PageToolFileName; version: number; assertCurrent: () => void; }>) => Promise<string>"
             },
             "loadNavigationDictionaryOptions": {
               "type": "object",

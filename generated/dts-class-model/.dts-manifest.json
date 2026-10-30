@@ -2699,7 +2699,7 @@
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-10-29T06:51:06.042Z"
+      "sourceModifiedAt": "2026-10-30T03:50:33.003Z"
     },
     "packages/spark-data/src/query/filter/data-view-filter-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",
@@ -3874,7 +3874,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-29T10:28:00.830Z"
+      "sourceModifiedAt": "2026-10-30T01:28:06.703Z"
     },
     "src/lowcode/resources/data-code/data-code-design-ops.ts": {
       "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
@@ -4081,11 +4081,6 @@
       "shardFile": "files/src/lowcode/resources/shared/navigation-authorization-resource.ts.json",
       "sourceModifiedAt": "2026-10-28T19:36:58.805Z"
     },
-    "src/lowcode/resources/shared/page-tool-files-command.ts": {
-      "sourceFile": "src/lowcode/resources/shared/page-tool-files-command.ts",
-      "shardFile": "files/src/lowcode/resources/shared/page-tool-files-command.ts.json",
-      "sourceModifiedAt": "2026-10-29T06:51:08.262Z"
-    },
     "src/lowcode/resources/shared/project-tool-version-resource.ts": {
       "sourceFile": "src/lowcode/resources/shared/project-tool-version-resource.ts",
       "shardFile": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json",
@@ -4179,7 +4174,7 @@
     "src/services/page-design/page-design-agent-run-provider.ts": {
       "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
       "shardFile": "files/src/services/page-design/page-design-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-29T18:25:28.367Z"
+      "sourceModifiedAt": "2026-10-30T01:19:49.797Z"
     },
     "src/services/page-design/page-design-agent-workflow-binding.ts": {
       "sourceFile": "src/services/page-design/page-design-agent-workflow-binding.ts",
@@ -4249,7 +4244,7 @@
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
       "shardFile": "files/src/services/project/blueprint-workspace-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-29T15:02:39.985Z"
+      "sourceModifiedAt": "2026-10-30T01:24:42.030Z"
     },
     "src/services/project/navigation/project-navigation-guard.ts": {
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
@@ -4259,7 +4254,12 @@
     "src/services/project/page-tool-file-dataview.ts": {
       "sourceFile": "src/services/project/page-tool-file-dataview.ts",
       "shardFile": "files/src/services/project/page-tool-file-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-29T18:23:07.762Z"
+      "sourceModifiedAt": "2026-10-30T03:40:08.062Z"
+    },
+    "src/services/project/page-tool-file-operations.ts": {
+      "sourceFile": "src/services/project/page-tool-file-operations.ts",
+      "shardFile": "files/src/services/project/page-tool-file-operations.ts.json",
+      "sourceModifiedAt": "2026-10-30T03:50:22.078Z"
     },
     "src/services/project/project-settings.ts": {
       "sourceFile": "src/services/project/project-settings.ts",
@@ -4429,7 +4429,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-29T18:26:52.178Z"
+      "sourceModifiedAt": "2026-10-30T01:33:46.485Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",

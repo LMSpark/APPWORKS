@@ -924,6 +924,11 @@ export class BlueprintWorkspaceDataView {
       if(id===undefined)throw new Error('蓝图子节点待核验身份缺失')
       if(explicitNodeId!==undefined&&explicitNodeId!==id)throw new Error('蓝图子节点待核验身份与本次稳定节点ID不一致')
       const patch=this.#unconfirmedPatches.get(id)??{}
+      const staged=this.view.rows.find(row=>this.view.getPkKey(row)===id&&row['SysId']===this.#projectId)
+      if(!staged||this.view.fieldAccess(staged,'prowid').read!=='visible'||staged['prowid']!==parentNodeId
+        ||Object.entries(patch).some(([field,value])=>this.view.fieldAccess(staged,field).read!=='visible'||!sameWireValue(staged[field],value))){
+        throw new Error('蓝图子节点原始身份、父级或字段回读无法确认')
+      }
       if(this.#childReceiptState!=='accepted'){
         try{
           const recovered=await this.dataSet.saveChanges({views:[{tableName:this.view.tableName,viewId:this.view.viewId,ids:[id]}]})

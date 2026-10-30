@@ -79,7 +79,7 @@ AI用途：模型节点的配置编辑、取消、保存回读与未知结果核
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {FieldText, FieldValueFunction, FieldSelect, FieldCheckbox, RendererSection, RendererTable, RendererForm, RendererButton} from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, RequestState, type DataRow} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
+import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 
 const props = defineProps<DataSpaceModelEditorProps>()

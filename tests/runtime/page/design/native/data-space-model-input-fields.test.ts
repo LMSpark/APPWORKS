@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState, getDataViewFilterFunctionDefinitions, type DataViewFilterValueFunction} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
+import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})

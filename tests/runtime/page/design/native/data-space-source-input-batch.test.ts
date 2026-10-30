@@ -1,8 +1,8 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
-import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
+import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/data-space-definition-save'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})

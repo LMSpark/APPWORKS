@@ -79,8 +79,8 @@ import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, Req
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import type {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview'
 import type {DataSpaceQueryPreviewProps} from './DataSpaceQueryPreview.props'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
-import {fileResourceQueryParameters} from '@/lowcode/resources/shared/file-resource-query-parameters'
+import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
 
 const {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDetail, RendererFilter, RendererForm, RendererSection, RendererTable, useSparkComponent} = SparkComponent
 const props = defineProps<DataSpaceQueryPreviewProps>()

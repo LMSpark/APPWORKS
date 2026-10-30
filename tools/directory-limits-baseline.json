@@ -11,29 +11,9 @@
     "files": 11,
     "dirs": 0
   },
-  "packages/spark-lowcode-api/src/platform/resources": {
-    "files": 0,
-    "dirs": 8
-  },
-  "src/lowcode/data-space/model-source": {
-    "files": 8,
-    "dirs": 12
-  },
-  "src/lowcode/resources": {
-    "files": 0,
-    "dirs": 10
-  },
-  "src/lowcode/resources/database": {
-    "files": 23,
-    "dirs": 0
-  },
   "tests/runtime/page": {
     "files": 11,
     "dirs": 8
-  },
-  "tests/runtime/page/database": {
-    "files": 15,
-    "dirs": 0
   },
   "tests/runtime/page/design/native": {
     "files": 26,

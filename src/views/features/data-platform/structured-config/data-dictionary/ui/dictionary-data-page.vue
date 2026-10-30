@@ -31,7 +31,7 @@ import {computed} from 'vue'
 import {DictionarySchema} from '@spark-appworks/spark-lowcode-api'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererDialog, RendererForm, RendererTable, SparkAiDataEntry, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 
 const props = withDefaults(defineProps<{

@@ -11,10 +11,10 @@ import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/shared/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/repository/agent-workflow-file-resource'
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/shared/builtin-blueprint-node-resource'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{

@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
+import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

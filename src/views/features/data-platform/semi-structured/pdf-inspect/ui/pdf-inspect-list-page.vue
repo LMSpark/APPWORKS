@@ -19,7 +19,7 @@ import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodePdfInspect} from '@/lowcode/resources/pdf-inspect/lowcode-pdf-inspect'
+import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()

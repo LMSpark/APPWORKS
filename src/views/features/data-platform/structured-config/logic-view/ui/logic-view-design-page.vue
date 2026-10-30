@@ -18,8 +18,8 @@
 import {computed} from 'vue'
 import {useRoute} from 'vue-router'
 import {JsonTreeEditor, RendererButton} from '@spark-appworks/spark-component'
-import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/logic-view/logic-view-design-ops'
-import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
+import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 
 const route = useRoute()

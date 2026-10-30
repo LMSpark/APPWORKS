@@ -40,7 +40,7 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import DictionarySetting from './dictionary-setting.vue'
 import DictionaryData from './dictionary-data-page.vue'
 

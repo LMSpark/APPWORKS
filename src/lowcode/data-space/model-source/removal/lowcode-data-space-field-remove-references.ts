@@ -6,7 +6,7 @@
  */
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceFilterMigration} from '../lowcode-data-space-filter-migration'
+import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-filter-migration'
 
 /** 字段结构变更的明确上下文；不会自动修改任何引用。 */
 type FieldReferenceChange = {

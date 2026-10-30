@@ -6,7 +6,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch, type ComputedRef} fro
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {setDesignScopeValue} from '@/lowcode/resources/shared/staged-design-file-view'
+import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 
 export type StagedDesignPageConfig = Readonly<{
   pageId: string

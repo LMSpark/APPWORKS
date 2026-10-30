@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
-import {LowcodeDataSpacePrimaryKey} from '@/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {LowcodeDataSpacePrimaryKey} from '@/lowcode/data-space/model-source/field/lowcode-data-space-primary-key'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []

@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
 import {defineComponent, h} from 'vue'
 import WorkflowDefinition from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
+import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 

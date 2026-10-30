@@ -6,7 +6,7 @@
  */
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceFilterMigration} from '../lowcode-data-space-filter-migration'
+import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-filter-migration'
 
 /** 只消费当前元数据视图的可读定义，不建立引用或权限缓存。 */
 export class LowcodeDataSpaceModelRemoveReferences {

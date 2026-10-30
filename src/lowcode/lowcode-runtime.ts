@@ -21,11 +21,11 @@ import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runt
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readRepositoryScenarioText} from './resources/shared/repository-scenarios/repository-scenario-resource'
-import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/shared/repository-scenarios/repository-scenario-host-client'
-import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/shared/builtin-system-navigation'
+import {readRepositoryScenarioText} from './resources/repository/scenarios/resource'
+import {createRepositoryScenarioVersion, listRepositoryScenarioVersions, readRepositoryScenarioVersion, writeRepositoryScenarioToHost} from './resources/repository/scenarios/host-client'
+import {builtinSystemApplication, readBuiltinNavigationRootId, readBuiltinSystemNavigation, type BuiltinSystemNavigation} from './resources/repository/builtin-system-navigation'
 import {readNavigationAuthorizationDataView} from './resources/shared/navigation-authorization-resource'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from './resources/shared/builtin-blueprint-node-resource'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from './resources/repository/builtin-blueprint-node-resource'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{

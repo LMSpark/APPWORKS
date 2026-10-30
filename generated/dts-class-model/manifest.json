@@ -11080,60 +11080,15 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts.json",
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts.json",
       "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/data-code/data-code-design-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts",
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/design-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/data-code/data-code-design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/data-code/data-code-design-client\n职责：编码方案设计 detail/save 的 HTTP 适配（参考 DataCodeEdit，路径以实服为准）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DataCodeDesignClient"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-schema",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/dictionary/dictionary-schema",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-schema\n职责：字典定义与条目字段的领域合同；不缩减为选项的值/文本二元组。\n边界：不持有业务行、不执行请求、不授予权限。字段名称来自现有字典存储合同。\nAI用途：生成字典设置、条目编辑与来源字段说明时复用完整字段映射。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DictionarySchema"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-workspace",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/dictionary/dictionary-workspace",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/dictionary/dictionary-workspace\n职责：字典专题的定义/条目业务约束，复用正式DataSet的查询、编辑覆盖及批量提交。\n边界：不发送HTTP、不保存第二份行数据、不把字典查询授权转换为元记录维护授权。\nAI用途：设计页绑定definition，独立数据页绑定entries并消费已保存标题，各自通过明确的保存方法提交。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DictionaryWorkspace"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/excel-import/excel-import-design-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/excel-import/excel-import-design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/excel-import/excel-import-design-client\nExcel 设计 JSON（参考 ExcelImportConfigConfigSet；URL 待实服核）。",
+        "modulePath": "platform/resources/semi-structured/excel-import/design-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/design-client\nExcel 设计 JSON（参考 ExcelImportConfigConfigSet；URL 待实服核）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ExcelImportDesignDocument",
@@ -11141,46 +11096,30 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts.json",
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts.json",
       "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/json-data/json-data-content-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts",
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/json-data/json-data-content-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/json-data/json-data-content-client",
+        "modulePath": "platform/resources/semi-structured/json-data/content-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "JsonDataContentClient"
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts.json",
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts.json",
       "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/logic-view/logic-view-design-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/logic-view/logic-view-design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/logic-view/logic-view-design-client\n职责：逻辑视图设计 JSON 的 read/write（ViewData 合同）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LogicViewDesignPayload",
-          "LogicViewDesignClient"
-        ]
-      }
-    },
-    "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/pdf-inspect/pdf-inspect-design-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
-        "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/pdf-inspect/pdf-inspect-design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/pdf-inspect/pdf-inspect-design-client\nPDF 规则设计（矩阵页；参考未进 inventory，URL 登记 api-gaps）。",
+        "modulePath": "platform/resources/semi-structured/pdf-inspect/design-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client\nPDF 规则设计（矩阵页；参考未进 inventory，URL 登记 api-gaps）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "PdfInspectRuleDocument",
@@ -11203,15 +11142,76 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts.json",
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts.json",
       "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/resources/workflow-definition/workflow-design-client",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/resources/workflow-definition/workflow-design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/workflow-definition/workflow-design-client\n职责：数据工作流设计 JSON 读写适配（参考 DataWorkFlowDesign，实服 URL 待核）。",
+        "modulePath": "platform/resources/structured-config/data-code/design-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client\n职责：编码方案设计 detail/save 的 HTTP 适配（参考 DataCodeEdit，路径以实服为准）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataCodeDesignClient"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/schema",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/dictionary/schema",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/schema\n职责：字典定义与条目字段的领域合同；不缩减为选项的值/文本二元组。\n边界：不持有业务行、不执行请求、不授予权限。字段名称来自现有字典存储合同。\nAI用途：生成字典设置、条目编辑与来源字段说明时复用完整字段映射。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DictionarySchema"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/workspace",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/dictionary/workspace",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/workspace\n职责：字典专题的定义/条目业务约束，复用正式DataSet的查询、编辑覆盖及批量提交。\n边界：不发送HTTP、不保存第二份行数据、不把字典查询授权转换为元记录维护授权。\nAI用途：设计页绑定definition，独立数据页绑定entries并消费已保存标题，各自通过明确的保存方法提交。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DictionaryWorkspace"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/logic-view/design-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图设计 JSON 的 read/write（ViewData 合同）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LogicViewDesignPayload",
+          "LogicViewDesignClient"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/workflow-definition/design-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client\n职责：数据工作流设计 JSON 读写适配（参考 DataWorkFlowDesign，实服 URL 待核）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "WorkflowDefinitionDesignPayload",
@@ -12560,15 +12560,34 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json",
+    "src/lowcode/data-space/model-source/data-space-definition-save.ts": {
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session",
-        "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+        "name": "app:lowcode/data-space/model-source/data-space-definition-save",
+        "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session",
-        "jsdoc": "@module lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session\n职责：计算字段新增的输入草稿、暂存、提交与精确回读（无独立命令类 FSM）。\n边界：局部输入视图不授权或持久化；新增经原元数据 DataView 和 DataSet 提交。",
+        "modulePath": "lowcode/data-space/model-source/data-space-definition-save",
+        "jsdoc": "@module app:lowcode/data-space/model-source/data-space-definition-save\n职责：组合模型和字段的原有保存阶段，统一通过DataSet提交。\n边界：不持有业务数据、权限或请求实现；各定义owner负责领域校验，原数据层负责提交回执。\nAI用途：模型工作区统一保存，所有阶段预检通过后才应用并派发一个批次。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataSpaceDefinitionCapture",
+          "DataSpaceDefinitionCaptureBatch",
+          "DataSpaceDefinitionRecoveryOptions",
+          "DataSpaceDefinitionSavePart",
+          "DataSpaceDefinitionSave"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
+        "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
+        "jsdoc": "@module lowcode/data-space/model-source/field/lowcode-data-space-field-create-session\n职责：计算字段新增的输入草稿、暂存、提交与精确回读（无独立命令类 FSM）。\n边界：局部输入视图不授权或持久化；新增经原元数据 DataView 和 DataSet 提交。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FieldCreateStatus",
@@ -12580,15 +12599,15 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json",
+    "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
-        "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+        "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
-        "jsdoc": "@module lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。",
+        "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FieldEditSessionInput",
@@ -12597,15 +12616,15 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts": {
-      "file": "files/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts.json",
+    "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/field-output/lowcode-data-space-field-output",
-        "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
+        "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-output",
+        "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/field-output/lowcode-data-space-field-output",
-        "jsdoc": "@module app:lowcode/data-space/model-source/field-output/lowcode-data-space-field-output\n职责：检查正式模型列与输出变更对当前空间配置的影响。\n边界：不保存、不迁移引用；数据库字段名与前端输出名分别检查。\nAI用途：字段提交前定位阻断引用，避免将别名误当来源字段重命名。",
+        "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-field-output",
+        "jsdoc": "@module app:lowcode/data-space/model-source/field/lowcode-data-space-field-output\n职责：检查正式模型列与输出变更对当前空间配置的影响。\n边界：不保存、不迁移引用；数据库字段名与前端输出名分别检查。\nAI用途：字段提交前定位阻断引用，避免将别名误当来源字段重命名。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FieldOutputValidateInput",
@@ -12614,15 +12633,15 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts": {
-      "file": "files/src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts.json",
+    "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/field-value/lowcode-data-space-field-value",
-        "sourcePath": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
+        "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-value",
+        "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/field-value/lowcode-data-space-field-value",
-        "jsdoc": "@module app:lowcode/data-space/model-source/field-value/lowcode-data-space-field-value\n职责：从正式元数据视图提供字段值函数引用目录并校验显式修改。\n边界：不执行值函数、不持有草稿、不保存；字段取正式Name，GetRefData输出引用取数据库来源名。\nAI用途：字段编辑复用原查询权限和函数合同，未知函数不被误当成后端不支持。",
+        "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-field-value",
+        "jsdoc": "@module app:lowcode/data-space/model-source/field/lowcode-data-space-field-value\n职责：从正式元数据视图提供字段值函数引用目录并校验显式修改。\n边界：不执行值函数、不持有草稿、不保存；字段取正式Name，GetRefData输出引用取数据库来源名。\nAI用途：字段编辑复用原查询权限和函数合同，未知函数不被误当成后端不支持。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FieldValueScope",
@@ -12630,85 +12649,20 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts.json",
+    "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-field-migration",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
+        "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-primary-key",
+        "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-field-migration",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-field-migration\n职责：按原正式字段身份迁移字段ValueFun中的本模型来源引用。\n边界：不解释SQL限定名、输出别名或不透明表达式，不执行值函数。\nAI用途：来源替换预览与保存共用的字段定义变换；写入仍归元数据DataView。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceFieldMigration"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-filter-migration",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-filter-migration",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-filter-migration\n职责：在正式wire过滤树上迁移已解析的字段和值函数引用。\n边界：不决定引用归属，不遍历常量内部对象，不重新投影未知扩展。\nAI用途：模型和关系共用无损遍历，各自提供上下文解析。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceFilterMigration"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-create-session",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-create-session",
-        "jsdoc": "@module lowcode/data-space/model-source/lowcode-data-space-model-create-session\n职责：从正式来源创建模型及所属字段，经原元数据 DataSet 按范围提交和核验（无独立命令类 FSM）。",
+        "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-primary-key",
+        "jsdoc": "@module app:lowcode/data-space/model-source/field/lowcode-data-space-primary-key\n职责：核定一次模型主键变更涉及的正式字段标记和提交前基线。\n边界：复用原DataView查询/编辑/权限，不修改物理主键，不保存场景文件。\nAI用途：模型配置保存时共同提交PrimaryKeyFields、IsPKey和必要IsOutput。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ModelCreateSources",
-          "ModelCreateStatus",
-          "ModelCreateFlow",
-          "ModelCreateLifecycle",
-          "ModelCreateHost",
-          "ModelCreateHostInput",
-          "ModelCreateHandle"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-dependencies",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-dependencies",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-dependencies\n职责：为模型/字段结构命令读取明确的依赖，保留C的正式查询、权限及提交责任方。\n边界：不预载字段default，不复制行；只读取显式依赖，具体命令负责引用改写与变更清单。\nAI用途：结构命令的预览、派发前检查和回读共用同一组DataView。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ModelDependenciesInput",
-          "LowcodeDataSpaceModelDependencies"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-migration",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-migration",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-migration\n职责：迁移数据库模型Filter中已确认的正式字段引用。\n边界：仅按注册Name解析模型；不推断物理表或SQL别名，不迁移后端Join配置。\nAI用途：生成逐模型预览delta，原元数据DataView负责授权和保存。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceModelMigration"
+          "PrimaryKeyScopeInput",
+          "PrimaryKeyPrepareInput",
+          "LowcodeDataSpacePrimaryKey"
         ]
       }
     },
@@ -12724,21 +12678,6 @@
         "jsdocSource": "inferred",
         "symbols": [
           "LowcodeDataSpaceModelSourceReader"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-relation-migration",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-relation-migration",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-relation-migration\n职责：按正式模型身份迁移数据库关系中的来源字段引用。\n边界：保留wire原文中的非引用值；不改关系端点，不将原生关系反向写库。\nAI用途：来源替换预览和提交共用同一结构化迁移，不对表达式做字符串替换。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceRelationMigration"
         ]
       }
     },
@@ -12763,15 +12702,97 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json",
+    "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts": {
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session",
-        "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
+        "name": "app:lowcode/data-space/model-source/migration/lowcode-data-space-field-migration",
+        "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session",
-        "jsdoc": "@module lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session\n职责：维护正式模型的描述、主键、业务标志和数组数据，经原元数据视图提交并接纳数据层回执（无独立命令类 FSM）。\n边界：主键联动正式字段标记，不改注册名或来源；不复制真源，未知提交只核验。",
+        "modulePath": "lowcode/data-space/model-source/migration/lowcode-data-space-field-migration",
+        "jsdoc": "@module app:lowcode/data-space/model-source/migration/lowcode-data-space-field-migration\n职责：按原正式字段身份迁移字段ValueFun中的本模型来源引用。\n边界：不解释SQL限定名、输出别名或不透明表达式，不执行值函数。\nAI用途：来源替换预览与保存共用的字段定义变换；写入仍归元数据DataView。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceFieldMigration"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts": {
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration",
+        "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration",
+        "jsdoc": "@module app:lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration\n职责：在正式wire过滤树上迁移已解析的字段和值函数引用。\n边界：不决定引用归属，不遍历常量内部对象，不重新投影未知扩展。\nAI用途：模型和关系共用无损遍历，各自提供上下文解析。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceFilterMigration"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts": {
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration",
+        "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration",
+        "jsdoc": "@module app:lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration\n职责：按正式模型身份迁移数据库关系中的来源字段引用。\n边界：保留wire原文中的非引用值；不改关系端点，不将原生关系反向写库。\nAI用途：来源替换预览和提交共用同一结构化迁移，不对表达式做字符串替换。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceRelationMigration"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-create-session",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-create-session",
+        "jsdoc": "@module lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\n职责：从正式来源创建模型及所属字段，经原元数据 DataSet 按范围提交和核验（无独立命令类 FSM）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ModelCreateSources",
+          "ModelCreateStatus",
+          "ModelCreateFlow",
+          "ModelCreateLifecycle",
+          "ModelCreateHost",
+          "ModelCreateHostInput",
+          "ModelCreateHandle"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies",
+        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies\n职责：为模型/字段结构命令读取明确的依赖，保留C的正式查询、权限及提交责任方。\n边界：不预载字段default，不复制行；只读取显式依赖，具体命令负责引用改写与变更清单。\nAI用途：结构命令的预览、派发前检查和回读共用同一组DataView。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ModelDependenciesInput",
+          "LowcodeDataSpaceModelDependencies"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session\n职责：维护正式模型的描述、主键、业务标志和数组数据，经原元数据视图提交并接纳数据层回执（无独立命令类 FSM）。\n边界：主键联动正式字段标记，不改注册名或来源；不复制真源，未知提交只核验。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ModelEditSessionInput",
@@ -12780,20 +12801,18 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts": {
-      "file": "files/src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts.json",
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key",
-        "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-migration",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key",
-        "jsdoc": "@module app:lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key\n职责：核定一次模型主键变更涉及的正式字段标记和提交前基线。\n边界：复用原DataView查询/编辑/权限，不修改物理主键，不保存场景文件。\nAI用途：模型配置保存时共同提交PrimaryKeyFields、IsPKey和必要IsOutput。",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-migration",
+        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-migration\n职责：迁移数据库模型Filter中已确认的正式字段引用。\n边界：仅按注册Name解析模型；不推断物理表或SQL别名，不迁移后端Join配置。\nAI用途：生成逐模型预览delta，原元数据DataView负责授权和保存。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "PrimaryKeyScopeInput",
-          "PrimaryKeyPrepareInput",
-          "LowcodeDataSpacePrimaryKey"
+          "LowcodeDataSpaceModelMigration"
         ]
       }
     },
@@ -12926,34 +12945,15 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/save/data-space-definition-save.ts": {
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json",
+    "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/save/data-space-definition-save",
-        "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
+        "name": "app:lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/save/data-space-definition-save",
-        "jsdoc": "@module app:lowcode/data-space/model-source/save/data-space-definition-save\n职责：组合模型和字段的原有保存阶段，统一通过DataSet提交。\n边界：不持有业务数据、权限或请求实现；各定义owner负责领域校验，原数据层负责提交回执。\nAI用途：模型工作区统一保存，所有阶段预检通过后才应用并派发一个批次。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DataSpaceDefinitionCapture",
-          "DataSpaceDefinitionCaptureBatch",
-          "DataSpaceDefinitionRecoveryOptions",
-          "DataSpaceDefinitionSavePart",
-          "DataSpaceDefinitionSave"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
-        "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
-        "jsdoc": "@module lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
+        "modulePath": "lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "SourceContractChange",
@@ -12968,15 +12968,15 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json",
+    "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
-        "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+        "name": "app:lowcode/data-space/model-source/source/lowcode-data-space-source-input-session",
+        "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
-        "jsdoc": "@module lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session\n职责：正式来源入参 ValueFun 编辑与原生批次提交（无独立命令类 FSM）。",
+        "modulePath": "lowcode/data-space/model-source/source/lowcode-data-space-source-input-session",
+        "jsdoc": "@module lowcode/data-space/model-source/source/lowcode-data-space-source-input-session\n职责：正式来源入参 ValueFun 编辑与原生批次提交（无独立命令类 FSM）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "SourceInputStatus",
@@ -13127,58 +13127,15 @@
         ]
       }
     },
-    "src/lowcode/resources/data-code/data-code-design-ops.ts": {
-      "file": "files/src/lowcode/resources/data-code/data-code-design-ops.ts.json",
+    "src/lowcode/resources/database/catalog/db-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/db-view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/data-code/data-code-design-ops",
-        "sourcePath": "src/lowcode/resources/data-code/data-code-design-ops.ts",
-        "sourceFile": "src/lowcode/resources/data-code/data-code-design-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/db-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/db-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/db-view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/data-code/data-code-design-ops",
-        "jsdoc": "@module app:lowcode/resources/data-code/data-code-design-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/data-code/lowcode-data-code.ts": {
-      "file": "files/src/lowcode/resources/data-code/lowcode-data-code.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/data-code/lowcode-data-code",
-        "sourcePath": "src/lowcode/resources/data-code/lowcode-data-code.ts",
-        "sourceFile": "src/lowcode/resources/data-code/lowcode-data-code.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/data-code/lowcode-data-code",
-        "jsdoc": "@module app:lowcode/resources/data-code/lowcode-data-code",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDataCode"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-copy-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-copy-view-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-copy-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-copy-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-copy-view-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-copy-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-copy-view-ops\n职责：复制物理表（_Base_TblList + Base_TblField 同一次 saveChanges，对齐参考 copyTable）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogCopyTableInput"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-db-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-db-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-db-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-db-view-ops\n职责：_base_dbInfo 单行新增编排（非 query/save owner）。",
+        "modulePath": "lowcode/resources/database/catalog/db-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/db-view-ops\n职责：_base_dbInfo 单行新增编排（非 query/save owner）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogDbEditState",
@@ -13186,115 +13143,54 @@
         ]
       }
     },
-    "src/lowcode/resources/database/database-catalog-field-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-field-metadata.ts.json",
+    "src/lowcode/resources/database/catalog/list-metadata.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/list-metadata.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-field-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-field-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-field-metadata.ts",
+        "name": "app:lowcode/resources/database/catalog/list-metadata",
+        "sourcePath": "src/lowcode/resources/database/catalog/list-metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/list-metadata.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-field-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-field-metadata\n职责：字段目录专题列与标准子组件（选项均经同一 DataSet 的正式模型 DataView）。",
+        "modulePath": "lowcode/resources/database/catalog/list-metadata",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/list-metadata\n职责：表/视图目录列表显式列子组件（对齐参考页主要列，不展示全部 autoColumns）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-field-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/object-design-metadata.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/object-design-metadata.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-field-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/object-design-metadata",
+        "sourcePath": "src/lowcode/resources/database/catalog/object-design-metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/object-design-metadata.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-field-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-field-view-ops\n职责：Base_TblField 字段目录 staged 保存编排（非 query/save owner）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogFieldViewId",
-          "DatabaseCatalogDesignSavePendingInput"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-list-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-list-metadata.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-list-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-list-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-list-metadata.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-list-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-list-metadata\n职责：表/视图目录列表显式列子组件（对齐参考页主要列，不展示全部 autoColumns）。",
+        "modulePath": "lowcode/resources/database/catalog/object-design-metadata",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/object-design-metadata\n职责：表/视图设计对话框头信息标准子组件（绑定 _Base_TblList / _Base_ViewList 当前选中行）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-object-design-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-object-design-metadata.ts.json",
+    "src/lowcode/resources/database/catalog/object-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/object-view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-object-design-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-object-design-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-object-design-metadata.ts",
+        "name": "app:lowcode/resources/database/catalog/object-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/object-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/object-view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-object-design-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-object-design-metadata\n职责：表/视图设计对话框头信息标准子组件（绑定 _Base_TblList / _Base_ViewList 当前选中行）。",
+        "modulePath": "lowcode/resources/database/catalog/object-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/object-view-ops\n职责：_Base_TblList / _Base_ViewList 目录行删除（模型 remove + saveChanges）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-object-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-object-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/relation/form-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/relation/form-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-object-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-object-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-object-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/relation/form-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-object-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-object-view-ops\n职责：_Base_TblList / _Base_ViewList 目录行删除（模型 remove + saveChanges）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-preview-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-preview-view-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-preview-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-preview-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-preview-view-ops\n职责：物理表数据预览（builtin tableData 语义 → GetData 物理表描述 + 只读命令 DataView）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogPreviewParams",
-          "DatabaseCatalogViewPreviewParams"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-register-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-register-view-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-register-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-register-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-register-view-ops\n职责：`POST /Table/registerTable/{dbid}`、`POST /View/registerView/{dbid}` 写命令编排。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseCatalogRegisterTableItem",
-          "DatabaseCatalogRegisterViewItem"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/database-catalog-relation-form-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-relation-form-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-catalog-relation-form-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-relation-form-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-relation-form-ops\n职责：Base_TblRln 单行编辑会话及多字段关系端点操作；字段值始终由原 DataView 持有。",
+        "modulePath": "lowcode/resources/database/catalog/relation/form-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/relation/form-ops\n职责：Base_TblRln 单行编辑会话及多字段关系端点操作；字段值始终由原 DataView 持有。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogTableContext",
@@ -13302,41 +13198,41 @@
         ]
       }
     },
-    "src/lowcode/resources/database/database-catalog-relation-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-relation-metadata.ts.json",
+    "src/lowcode/resources/database/catalog/relation/metadata.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/relation/metadata.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-relation-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-relation-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-relation-metadata.ts",
+        "name": "app:lowcode/resources/database/catalog/relation/metadata",
+        "sourcePath": "src/lowcode/resources/database/catalog/relation/metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/relation/metadata.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-relation-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-relation-metadata\n职责：Base_TblRln 关系列表标准子组件（同 DataSet 查询/删除/暂存保存）。",
+        "modulePath": "lowcode/resources/database/catalog/relation/metadata",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/relation/metadata\n职责：Base_TblRln 关系列表标准子组件（同 DataSet 查询/删除/暂存保存）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-relation-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-relation-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/relation/view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/relation/view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-relation-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-relation-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-relation-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/relation/view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/relation/view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/relation/view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-relation-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-relation-view-ops\n职责：Base_TblRln 按当前表 ID 查询（OR pktbid/fktbid）及目录删除。",
+        "modulePath": "lowcode/resources/database/catalog/relation/view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/relation/view-ops\n职责：Base_TblRln 按当前表 ID 查询（OR pktbid/fktbid）及目录删除。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-scenario.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json",
+    "src/lowcode/resources/database/catalog/scenario.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/scenario.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-scenario",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-scenario.ts",
+        "name": "app:lowcode/resources/database/catalog/scenario",
+        "sourcePath": "src/lowcode/resources/database/catalog/scenario.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/scenario.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-scenario",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-scenario\n职责：校验数据库目录宿主明确提供的正式 Base_DataSet.rowid，不推断或替换页面身份。\nAI用途：维护目录装配时，确保一次查询只属于本次正式导航绑定的数据空间。",
+        "modulePath": "lowcode/resources/database/catalog/scenario",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/scenario\n职责：校验数据库目录宿主明确提供的正式 Base_DataSet.rowid，不推断或替换页面身份。\nAI用途：维护目录装配时，确保一次查询只属于本次正式导航绑定的数据空间。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DatabaseCatalogLoadOptions",
@@ -13344,30 +13240,121 @@
         ]
       }
     },
-    "src/lowcode/resources/database/database-catalog-sync-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-sync-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/table-view.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table-view.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-sync-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-sync-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-sync-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/table-view",
+        "sourcePath": "src/lowcode/resources/database/catalog/table-view.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table-view.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-sync-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-sync-view-ops\n职责：`POST /Table/SyncMetaData/{dbid}/{tableid}` 写命令与未登记视图只读查询编排。",
+        "modulePath": "lowcode/resources/database/catalog/table-view",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table-view\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDatabaseTableView"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/copy-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/copy-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/copy-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/copy-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/copy-view-ops\n职责：复制物理表（_Base_TblList + Base_TblField 同一次 saveChanges，对齐参考 copyTable）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogCopyTableInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/field-metadata.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/field-metadata.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/field-metadata",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/field-metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/field-metadata.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/field-metadata",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-metadata\n职责：字段目录专题列与标准子组件（选项均经同一 DataSet 的正式模型 DataView）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/field-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/field-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/field-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/field-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-view-ops\n职责：Base_TblField 字段目录 staged 保存编排（非 query/save owner）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogFieldViewId",
+          "DatabaseCatalogDesignSavePendingInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/preview-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/preview-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/preview-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/preview-view-ops\n职责：物理表数据预览（builtin tableData 语义 → GetData 物理表描述 + 只读命令 DataView）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogPreviewParams",
+          "DatabaseCatalogViewPreviewParams"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/register-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/register-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/register-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/register-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/register-view-ops\n职责：`POST /Table/registerTable/{dbid}`、`POST /View/registerView/{dbid}` 写命令编排。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogRegisterTableItem",
+          "DatabaseCatalogRegisterViewItem"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/catalog/table/sync-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/sync-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/catalog/table/sync-view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/sync-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/sync-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/catalog/table/sync-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/sync-view-ops\n职责：`POST /Table/SyncMetaData/{dbid}/{tableid}` 写命令与未登记视图只读查询编排。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogSyncTableMetadataInput"
         ]
       }
     },
-    "src/lowcode/resources/database/database-catalog-table-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/table/view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/table/view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-table-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/table/view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/table/view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/table/view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-table-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-table-view-ops\n职责：_Base_TblList 注册表编排（非 query/save owner）。",
+        "modulePath": "lowcode/resources/database/catalog/table/view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/table/view-ops\n职责：_Base_TblList 注册表编排（非 query/save owner）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogTableEditState",
@@ -13375,72 +13362,43 @@
         ]
       }
     },
-    "src/lowcode/resources/database/database-catalog-workflow-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-workflow-metadata.ts.json",
+    "src/lowcode/resources/database/catalog/workflow/metadata.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/workflow/metadata.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-workflow-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-workflow-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-workflow-metadata.ts",
+        "name": "app:lowcode/resources/database/catalog/workflow/metadata",
+        "sourcePath": "src/lowcode/resources/database/catalog/workflow/metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/workflow/metadata.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-workflow-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-workflow-metadata\n职责：Base_WorkflowDefinition 列表标准子组件（同 FormKey 模型查询）。",
+        "modulePath": "lowcode/resources/database/catalog/workflow/metadata",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/workflow/metadata\n职责：Base_WorkflowDefinition 列表标准子组件（同 FormKey 模型查询）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/database/database-catalog-workflow-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-catalog-workflow-view-ops.ts.json",
+    "src/lowcode/resources/database/catalog/workflow/view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/catalog/workflow/view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-catalog-workflow-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-catalog-workflow-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-catalog-workflow-view-ops.ts",
+        "name": "app:lowcode/resources/database/catalog/workflow/view-ops",
+        "sourcePath": "src/lowcode/resources/database/catalog/workflow/view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/catalog/workflow/view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-catalog-workflow-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-catalog-workflow-view-ops\n职责：Base_WorkflowDefinition 按 tblid 及可选条件查询（模型 query）。",
+        "modulePath": "lowcode/resources/database/catalog/workflow/view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/catalog/workflow/view-ops\n职责：Base_WorkflowDefinition 按 tblid 及可选条件查询（模型 query）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DatabaseCatalogWorkflowQuery"
         ]
       }
     },
-    "src/lowcode/resources/database/database-server-catalog-metadata.ts": {
-      "file": "files/src/lowcode/resources/database/database-server-catalog-metadata.ts.json",
+    "src/lowcode/resources/database/dataset-extensions.ts": {
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/database-server-catalog-metadata",
-        "sourcePath": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
-        "sourceFile": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
+        "name": "app:lowcode/resources/database/dataset-extensions",
+        "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+        "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-server-catalog-metadata",
-        "jsdoc": "@module app:lowcode/resources/database/database-server-catalog-metadata\n职责：服务器目录专题列元数据（loadCatalog 装配后 patch DataTable.columns，供 autoColumns 消费）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/database/database-server-view-ops.ts": {
-      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/database-server-view-ops",
-        "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
-        "sourceFile": "src/lowcode/resources/database/database-server-view-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/database-server-view-ops",
-        "jsdoc": "@module app:lowcode/resources/database/database-server-view-ops\n职责：服务器目录页的 DataView 编排（非 query/save owner；后端 owner 仅在装配时 bind 到 DataView）。\n注册走 DatabaseServerRegister 写命令视图（/Db/registerServer）；编辑、删除走 Base_serverInfo 目录视图。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "DatabaseServerEditState",
-          "DatabaseServerEditingUi"
-        ]
-      }
-    },
-    "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts": {
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/database/lowcode-database-dataset-extensions",
-        "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-        "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/database/lowcode-database-dataset-extensions",
-        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-dataset-extensions\n职责：Db 专题命令视图端点映射；装配调用 spark-data DataSet 命令 helper。\n边界：仅供 lowcode-database-*.ts 调用；页面与 view-ops 只消费 DataView.refresh/saveChanges。",
+        "modulePath": "lowcode/resources/database/dataset-extensions",
+        "jsdoc": "@module app:lowcode/resources/database/dataset-extensions\n职责：Db 专题命令视图端点映射；装配调用 spark-data DataSet 命令 helper。\n边界：仅供本目录的 directory、server/resource、catalog/table-view 调用；页面与 view-ops 只消费 DataView.refresh/saveChanges。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AttachCatalogCommandViewsInput",
@@ -13454,206 +13412,299 @@
         ]
       }
     },
-    "src/lowcode/resources/database/lowcode-database-directory.ts": {
-      "file": "files/src/lowcode/resources/database/lowcode-database-directory.ts.json",
+    "src/lowcode/resources/database/directory.ts": {
+      "file": "files/src/lowcode/resources/database/directory.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/lowcode-database-directory",
-        "sourcePath": "src/lowcode/resources/database/lowcode-database-directory.ts",
-        "sourceFile": "src/lowcode/resources/database/lowcode-database-directory.ts",
+        "name": "app:lowcode/resources/database/directory",
+        "sourcePath": "src/lowcode/resources/database/directory.ts",
+        "sourceFile": "src/lowcode/resources/database/directory.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/lowcode-database-directory",
-        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-directory\n职责：按数据库维护页面的正式 DataSet 身份装配服务器与数据库目录 DataView。\nAI用途：为数据库目录列表提供真实主键、权限、分页、查询与暂存保存链。",
+        "modulePath": "lowcode/resources/database/directory",
+        "jsdoc": "@module app:lowcode/resources/database/directory\n职责：按数据库维护页面的正式 DataSet 身份装配服务器与数据库目录 DataView。\nAI用途：为数据库目录列表提供真实主键、权限、分页、查询与暂存保存链。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDatabaseDirectory"
         ]
       }
     },
-    "src/lowcode/resources/database/lowcode-database-server.ts": {
-      "file": "files/src/lowcode/resources/database/lowcode-database-server.ts.json",
+    "src/lowcode/resources/database/server/catalog-metadata.ts": {
+      "file": "files/src/lowcode/resources/database/server/catalog-metadata.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/lowcode-database-server",
-        "sourcePath": "src/lowcode/resources/database/lowcode-database-server.ts",
-        "sourceFile": "src/lowcode/resources/database/lowcode-database-server.ts",
+        "name": "app:lowcode/resources/database/server/catalog-metadata",
+        "sourcePath": "src/lowcode/resources/database/server/catalog-metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/server/catalog-metadata.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/lowcode-database-server",
-        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-server\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配 Base_serverInfo 目录 DataSet。",
+        "modulePath": "lowcode/resources/database/server/catalog-metadata",
+        "jsdoc": "@module app:lowcode/resources/database/server/catalog-metadata\n职责：服务器目录专题列元数据（loadCatalog 装配后 patch DataTable.columns，供 autoColumns 消费）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/database/server/resource.ts": {
+      "file": "files/src/lowcode/resources/database/server/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/server/resource",
+        "sourcePath": "src/lowcode/resources/database/server/resource.ts",
+        "sourceFile": "src/lowcode/resources/database/server/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/server/resource",
+        "jsdoc": "@module app:lowcode/resources/database/server/resource\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配 Base_serverInfo 目录 DataSet。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDatabaseServer"
         ]
       }
     },
-    "src/lowcode/resources/database/lowcode-database-table-view.ts": {
-      "file": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json",
+    "src/lowcode/resources/database/server/view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/server/view-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/database/lowcode-database-table-view",
-        "sourcePath": "src/lowcode/resources/database/lowcode-database-table-view.ts",
-        "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+        "name": "app:lowcode/resources/database/server/view-ops",
+        "sourcePath": "src/lowcode/resources/database/server/view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/server/view-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/database/lowcode-database-table-view",
-        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-table-view\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。",
+        "modulePath": "lowcode/resources/database/server/view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/server/view-ops\n职责：服务器目录页的 DataView 编排（非 query/save owner；后端 owner 仅在装配时 bind 到 DataView）。\n注册走 DatabaseServerRegister 写命令视图（/Db/registerServer）；编辑、删除走 Base_serverInfo 目录视图。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeDatabaseTableView"
+          "DatabaseServerEditState",
+          "DatabaseServerEditingUi"
         ]
       }
     },
-    "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
-      "file": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
+    "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json",
       "module": {
-        "name": "app:lowcode/resources/dictionary/lowcode-dictionary",
-        "sourcePath": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
-        "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
+        "name": "app:lowcode/resources/repository/agent-workflow-file-owner",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/dictionary/lowcode-dictionary",
-        "jsdoc": "@module app:lowcode/resources/dictionary/lowcode-dictionary\n职责：字典专题系统页的正式DataSet装配入口。\n边界：保留数据库模型真源，视图来自应用内场景配置；读写由原runtime owner执行。\nAI用途：原路径列表绑定导航场景，设置/条目共用已有字典数据编辑场景。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDictionary"
-        ]
-      }
-    },
-    "src/lowcode/resources/excel-import/excel-import-design-ops.ts": {
-      "file": "files/src/lowcode/resources/excel-import/excel-import-design-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/excel-import/excel-import-design-ops",
-        "sourcePath": "src/lowcode/resources/excel-import/excel-import-design-ops.ts",
-        "sourceFile": "src/lowcode/resources/excel-import/excel-import-design-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/excel-import/excel-import-design-ops",
-        "jsdoc": "@module app:lowcode/resources/excel-import/excel-import-design-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/excel-import/lowcode-excel-import.ts": {
-      "file": "files/src/lowcode/resources/excel-import/lowcode-excel-import.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/excel-import/lowcode-excel-import",
-        "sourcePath": "src/lowcode/resources/excel-import/lowcode-excel-import.ts",
-        "sourceFile": "src/lowcode/resources/excel-import/lowcode-excel-import.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/excel-import/lowcode-excel-import",
-        "jsdoc": "@module app:lowcode/resources/excel-import/lowcode-excel-import",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeExcelImport"
-        ]
-      }
-    },
-    "src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts": {
-      "file": "files/src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/json-data/lowcode-json-data-content-ops",
-        "sourcePath": "src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts",
-        "sourceFile": "src/lowcode/resources/json-data/lowcode-json-data-content-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/json-data/lowcode-json-data-content-ops",
-        "jsdoc": "@module app:lowcode/resources/json-data/lowcode-json-data-content-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/json-data/lowcode-json-data.ts": {
-      "file": "files/src/lowcode/resources/json-data/lowcode-json-data.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/json-data/lowcode-json-data",
-        "sourcePath": "src/lowcode/resources/json-data/lowcode-json-data.ts",
-        "sourceFile": "src/lowcode/resources/json-data/lowcode-json-data.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/json-data/lowcode-json-data",
-        "jsdoc": "@module app:lowcode/resources/json-data/lowcode-json-data",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeJsonData"
-        ]
-      }
-    },
-    "src/lowcode/resources/logic-view/logic-view-design-ops.ts": {
-      "file": "files/src/lowcode/resources/logic-view/logic-view-design-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/logic-view/logic-view-design-ops",
-        "sourcePath": "src/lowcode/resources/logic-view/logic-view-design-ops.ts",
-        "sourceFile": "src/lowcode/resources/logic-view/logic-view-design-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/logic-view/logic-view-design-ops",
-        "jsdoc": "@module app:lowcode/resources/logic-view/logic-view-design-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/logic-view/lowcode-logic-view.ts": {
-      "file": "files/src/lowcode/resources/logic-view/lowcode-logic-view.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/logic-view/lowcode-logic-view",
-        "sourcePath": "src/lowcode/resources/logic-view/lowcode-logic-view.ts",
-        "sourceFile": "src/lowcode/resources/logic-view/lowcode-logic-view.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/logic-view/lowcode-logic-view",
-        "jsdoc": "@module app:lowcode/resources/logic-view/lowcode-logic-view",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeLogicView"
-        ]
-      }
-    },
-    "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts": {
-      "file": "files/src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
-        "sourcePath": "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts",
-        "sourceFile": "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
-        "jsdoc": "@module app:lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodePdfInspect"
-        ]
-      }
-    },
-    "src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts": {
-      "file": "files/src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
-        "sourcePath": "src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts",
-        "sourceFile": "src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
-        "jsdoc": "@module app:lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/shared/agent-workflow-file-owner.ts": {
-      "file": "files/src/lowcode/resources/shared/agent-workflow-file-owner.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/agent-workflow-file-owner",
-        "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
-        "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/agent-workflow-file-owner",
-        "jsdoc": "app 的 lowcode/resources/shared/agent-workflow-file-owner 模块。\n导出 DtsTypeDeclarationModel symbol: AgentWorkflowFileDataViewOwner（共 1 个 symbol）。",
+        "modulePath": "lowcode/resources/repository/agent-workflow-file-owner",
+        "jsdoc": "app 的 lowcode/resources/repository/agent-workflow-file-owner 模块。\n导出 DtsTypeDeclarationModel symbol: AgentWorkflowFileDataViewOwner（共 1 个 symbol）。",
         "jsdocSource": "inferred",
         "symbols": [
           "AgentWorkflowFileDataViewOwner"
         ]
       }
     },
-    "src/lowcode/resources/shared/agent-workflow-file-resource.ts": {
-      "file": "files/src/lowcode/resources/shared/agent-workflow-file-resource.ts.json",
+    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
       "module": {
-        "name": "app:lowcode/resources/shared/agent-workflow-file-resource",
-        "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-        "sourceFile": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
+        "name": "app:lowcode/resources/repository/agent-workflow-file-resource",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/shared/agent-workflow-file-resource",
-        "jsdoc": "app 的 lowcode/resources/shared/agent-workflow-file-resource 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileResourceDefinition, AgentWorkflowFileResource（共 2 个 symbol）。",
+        "modulePath": "lowcode/resources/repository/agent-workflow-file-resource",
+        "jsdoc": "app 的 lowcode/resources/repository/agent-workflow-file-resource 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileResourceDefinition, AgentWorkflowFileResource（共 2 个 symbol）。",
         "jsdocSource": "inferred",
         "symbols": [
           "LowcodeFileResourceDefinition",
           "AgentWorkflowFileResource"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
+      "file": "files/src/lowcode/resources/repository/builtin-blueprint-node-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/builtin-blueprint-node-resource",
+        "sourcePath": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/builtin-blueprint-node-resource",
+        "jsdoc": "app 的 lowcode/resources/repository/builtin-blueprint-node-resource 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintNodeResource（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "BuiltinBlueprintNodeResource"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/builtin-system-navigation.ts": {
+      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/builtin-system-navigation",
+        "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
+        "sourceFile": "src/lowcode/resources/repository/builtin-system-navigation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/builtin-system-navigation",
+        "jsdoc": "app 的 lowcode/resources/repository/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintRecord, BuiltinSystemNavigation（共 2 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "BuiltinBlueprintRecord",
+          "BuiltinSystemNavigation"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/file-resource-query-parameters.ts": {
+      "file": "files/src/lowcode/resources/repository/file-resource-query-parameters.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/file-resource-query-parameters",
+        "sourcePath": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
+        "sourceFile": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/file-resource-query-parameters",
+        "jsdoc": "app 的 lowcode/resources/repository/file-resource-query-parameters 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+        "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/repository/project-tool-version-resource.ts": {
+      "file": "files/src/lowcode/resources/repository/project-tool-version-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/project-tool-version-resource",
+        "sourcePath": "src/lowcode/resources/repository/project-tool-version-resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/project-tool-version-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/project-tool-version-resource",
+        "jsdoc": "app 的 lowcode/resources/repository/project-tool-version-resource 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectToolVersionResource（共 1 个 symbol）。",
+        "jsdocSource": "inferred",
+        "symbols": [
+          "ProjectToolVersionResource"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/scenarios/host-client.ts": {
+      "file": "files/src/lowcode/resources/repository/scenarios/host-client.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/scenarios/host-client",
+        "sourcePath": "src/lowcode/resources/repository/scenarios/host-client.ts",
+        "sourceFile": "src/lowcode/resources/repository/scenarios/host-client.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/scenarios/host-client",
+        "jsdoc": "@module app:lowcode/resources/repository/scenarios/host-client\n职责：为仓内场景 SPARK data 资源适配器访问 Vite 开发宿主提供受约束的读写客户端。\n边界：GET读取新鲜文本；POST携带捕获的expectedText；仅精确资源的明确未应用响应可转成 typed 拒绝，超时/回读错误保持未知并且不重试。\nAI用途：仅由仓内场景资源执行器调用，不作为页面或通用文件API使用。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "CreateRepositoryScenarioVersionCommand"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/scenarios/protocol.ts": {
+      "file": "files/src/lowcode/resources/repository/scenarios/protocol.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/scenarios/protocol",
+        "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+        "sourceFile": "src/lowcode/resources/repository/scenarios/protocol.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/scenarios/protocol",
+        "jsdoc": "@module app:lowcode/resources/repository/scenarios/protocol\n仓内场景开发宿主与浏览器资源适配器之间唯一的传输合同。\n本模块只包含路径、DTO 和运行时结构校验，不依赖 Node 或宿主实现。\nAI用途：浏览器客户端、Vite插件和Node存储共享同一端点及请求/响应形状。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RepositoryScenarioSuccess",
+          "RepositoryScenarioHistoryList",
+          "RepositoryScenarioVersionSuccess",
+          "RepositoryScenarioFailure"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/scenarios/resource.ts": {
+      "file": "files/src/lowcode/resources/repository/scenarios/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/scenarios/resource",
+        "sourcePath": "src/lowcode/resources/repository/scenarios/resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/scenarios/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/scenarios/resource",
+        "jsdoc": "@module app:lowcode/resources/repository/scenarios/resource\n职责：把登记的仓内场景与导航JSON接入SPARK data文件DataView，并校验资源及视图身份。\n边界：开发态场景每次查询经host client读取新鲜文本；构建态消费打包文件。状态与持久化仍由SPARK data资源适配承接。\nAI用途：系统应用程序定义统一从本模块读取，不能直接读取配置文件或改走lowcode补救。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/repository/staged-design-file-view.ts": {
+      "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/staged-design-file-view",
+        "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
+        "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/staged-design-file-view",
+        "jsdoc": "@module app:lowcode/resources/repository/staged-design-file-view\n专用设计/内容：单 file 资源 DataView（staged + refresh/save），HTTP 仅在 load/persist 回调内。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "StagedDesignColumn",
+          "StagedDesignAttachOptions",
+          "SetDesignScopeValueInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/design-ops.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/design-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/design-ops",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/design-ops.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/design-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/design-ops",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/design-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/resource",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/resource",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/resource",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeExcelImport"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/json-data/content-ops.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/json-data/content-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/json-data/content-ops",
+        "sourcePath": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/json-data/content-ops",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/content-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/json-data/resource.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/json-data/resource",
+        "sourcePath": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/json-data/resource",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/resource",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeJsonData"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/design-ops",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/design-ops",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/design-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/pdf-inspect/resource",
+        "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/pdf-inspect/resource",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/pdf-inspect/resource",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodePdfInspect"
         ]
       }
     },
@@ -13673,50 +13724,6 @@
         ]
       }
     },
-    "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts": {
-      "file": "files/src/lowcode/resources/shared/builtin-blueprint-node-resource.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/builtin-blueprint-node-resource",
-        "sourcePath": "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts",
-        "sourceFile": "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/builtin-blueprint-node-resource",
-        "jsdoc": "app 的 lowcode/resources/shared/builtin-blueprint-node-resource 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintNodeResource（共 1 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "BuiltinBlueprintNodeResource"
-        ]
-      }
-    },
-    "src/lowcode/resources/shared/builtin-system-navigation.ts": {
-      "file": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/builtin-system-navigation",
-        "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
-        "sourceFile": "src/lowcode/resources/shared/builtin-system-navigation.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/builtin-system-navigation",
-        "jsdoc": "app 的 lowcode/resources/shared/builtin-system-navigation 模块。\n导出 DtsTypeDeclarationModel symbol: BuiltinBlueprintRecord, BuiltinSystemNavigation（共 2 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "BuiltinBlueprintRecord",
-          "BuiltinSystemNavigation"
-        ]
-      }
-    },
-    "src/lowcode/resources/shared/file-resource-query-parameters.ts": {
-      "file": "files/src/lowcode/resources/shared/file-resource-query-parameters.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/file-resource-query-parameters",
-        "sourcePath": "src/lowcode/resources/shared/file-resource-query-parameters.ts",
-        "sourceFile": "src/lowcode/resources/shared/file-resource-query-parameters.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/file-resource-query-parameters",
-        "jsdoc": "app 的 lowcode/resources/shared/file-resource-query-parameters 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-        "jsdocSource": "inferred",
-        "symbols": []
-      }
-    },
     "src/lowcode/resources/shared/navigation-authorization-resource.ts": {
       "file": "files/src/lowcode/resources/shared/navigation-authorization-resource.ts.json",
       "module": {
@@ -13730,93 +13737,15 @@
         "symbols": []
       }
     },
-    "src/lowcode/resources/shared/project-tool-version-resource.ts": {
-      "file": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json",
+    "src/lowcode/resources/structured-config/catalog.ts": {
+      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json",
       "module": {
-        "name": "app:lowcode/resources/shared/project-tool-version-resource",
-        "sourcePath": "src/lowcode/resources/shared/project-tool-version-resource.ts",
-        "sourceFile": "src/lowcode/resources/shared/project-tool-version-resource.ts",
+        "name": "app:lowcode/resources/structured-config/catalog",
+        "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/shared/project-tool-version-resource",
-        "jsdoc": "app 的 lowcode/resources/shared/project-tool-version-resource 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectToolVersionResource（共 1 个 symbol）。",
-        "jsdocSource": "inferred",
-        "symbols": [
-          "ProjectToolVersionResource"
-        ]
-      }
-    },
-    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts": {
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/repository-scenarios/repository-scenario-host-client",
-        "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
-        "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/repository-scenarios/repository-scenario-host-client",
-        "jsdoc": "@module app:lowcode/resources/shared/repository-scenarios/repository-scenario-host-client\n职责：为仓内场景 SPARK data 资源适配器访问 Vite 开发宿主提供受约束的读写客户端。\n边界：GET读取新鲜文本；POST携带捕获的expectedText；仅精确资源的明确未应用响应可转成 typed 拒绝，超时/回读错误保持未知并且不重试。\nAI用途：仅由仓内场景资源执行器调用，不作为页面或通用文件API使用。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "CreateRepositoryScenarioVersionCommand"
-        ]
-      }
-    },
-    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts": {
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/repository-scenarios/repository-scenario-protocol",
-        "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-        "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/repository-scenarios/repository-scenario-protocol",
-        "jsdoc": "@module app:lowcode/resources/shared/repository-scenarios/repository-scenario-protocol\n仓内场景开发宿主与浏览器资源适配器之间唯一的传输合同。\n本模块只包含路径、DTO 和运行时结构校验，不依赖 Node 或宿主实现。\nAI用途：浏览器客户端、Vite插件和Node存储共享同一端点及请求/响应形状。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "RepositoryScenarioSuccess",
-          "RepositoryScenarioHistoryList",
-          "RepositoryScenarioVersionSuccess",
-          "RepositoryScenarioFailure"
-        ]
-      }
-    },
-    "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts": {
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/repository-scenarios/repository-scenario-resource",
-        "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts",
-        "sourceFile": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-resource.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/repository-scenarios/repository-scenario-resource",
-        "jsdoc": "@module app:lowcode/resources/shared/repository-scenarios/repository-scenario-resource\n职责：把登记的仓内场景与导航JSON接入SPARK data文件DataView，并校验资源及视图身份。\n边界：开发态场景每次查询经host client读取新鲜文本；构建态消费打包文件。状态与持久化仍由SPARK data资源适配承接。\nAI用途：系统应用程序定义统一从本模块读取，不能直接读取配置文件或改走lowcode补救。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/shared/staged-design-file-view.ts": {
-      "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/shared/staged-design-file-view",
-        "sourcePath": "src/lowcode/resources/shared/staged-design-file-view.ts",
-        "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/shared/staged-design-file-view",
-        "jsdoc": "@module app:lowcode/resources/shared/staged-design-file-view\n专用设计/内容：单 file 资源 DataView（staged + refresh/save），HTTP 仅在 load/persist 回调内。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "StagedDesignColumn",
-          "StagedDesignAttachOptions",
-          "SetDesignScopeValueInput"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/structured-config-catalog.ts": {
-      "file": "files/src/lowcode/resources/structured-config/structured-config-catalog.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/structured-config-catalog",
-        "sourcePath": "src/lowcode/resources/structured-config/structured-config-catalog.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/structured-config-catalog.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/structured-config-catalog",
-        "jsdoc": "@module app:lowcode/resources/structured-config/structured-config-catalog\n职责：structured-config 专题目录页共用的 DataSet 装配（AppId 级联 + 选项模型刷新）。",
+        "modulePath": "lowcode/resources/structured-config/catalog",
+        "jsdoc": "@module app:lowcode/resources/structured-config/catalog\n职责：structured-config 专题目录页共用的 DataSet 装配（AppId 级联 + 选项模型刷新）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "StructuredCatalogModelOptions",
@@ -13825,32 +13754,103 @@
         ]
       }
     },
-    "src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts": {
-      "file": "files/src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts.json",
+    "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
+      "file": "files/src/lowcode/resources/structured-config/data-code/design-ops.ts.json",
       "module": {
-        "name": "app:lowcode/resources/workflow-definition/lowcode-workflow-definition",
-        "sourcePath": "src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts",
-        "sourceFile": "src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts",
+        "name": "app:lowcode/resources/structured-config/data-code/design-ops",
+        "sourcePath": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/workflow-definition/lowcode-workflow-definition",
-        "jsdoc": "@module app:lowcode/resources/workflow-definition/lowcode-workflow-definition",
+        "modulePath": "lowcode/resources/structured-config/data-code/design-ops",
+        "jsdoc": "@module app:lowcode/resources/structured-config/data-code/design-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/data-code/resource.ts": {
+      "file": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/data-code/resource",
+        "sourcePath": "src/lowcode/resources/structured-config/data-code/resource.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/data-code/resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/data-code/resource",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDataCode"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/dictionary/resource.ts": {
+      "file": "files/src/lowcode/resources/structured-config/dictionary/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/dictionary/resource",
+        "sourcePath": "src/lowcode/resources/structured-config/dictionary/resource.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/dictionary/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/dictionary/resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/dictionary/resource\n职责：字典专题系统页的正式DataSet装配入口。\n边界：保留数据库模型真源，视图来自应用内场景配置；读写由原runtime owner执行。\nAI用途：原路径列表绑定导航场景，设置/条目共用已有字典数据编辑场景。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDictionary"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/design-ops",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/design-ops",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/logic-view/resource.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/resource",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/resource.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/resource",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeLogicView"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/design-ops.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/design-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/design-ops",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/design-ops.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/design-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/design-ops",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/design-ops",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/resource",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/resource",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeWorkflowDefinition"
         ]
-      }
-    },
-    "src/lowcode/resources/workflow-definition/workflow-design-ops.ts": {
-      "file": "files/src/lowcode/resources/workflow-definition/workflow-design-ops.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/workflow-definition/workflow-design-ops",
-        "sourcePath": "src/lowcode/resources/workflow-definition/workflow-design-ops.ts",
-        "sourceFile": "src/lowcode/resources/workflow-definition/workflow-design-ops.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/workflow-definition/workflow-design-ops",
-        "jsdoc": "@module app:lowcode/resources/workflow-definition/workflow-design-ops",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
       }
     },
     "src/main.ts": {
@@ -14393,41 +14393,67 @@
         "symbols": []
       }
     },
-    "src/views/app/CapabilityDemo.vue": {
-      "file": "files/src/views/app/CapabilityDemo.vue.json",
+    "src/views/app/demo/CapabilityDemo.vue": {
+      "file": "files/src/views/app/demo/CapabilityDemo.vue.json",
       "module": {
-        "name": "app:views/app/CapabilityDemo",
-        "sourcePath": "src/views/app/CapabilityDemo.vue",
-        "sourceFile": "src/views/app/CapabilityDemo.vue",
+        "name": "app:views/app/demo/CapabilityDemo",
+        "sourcePath": "src/views/app/demo/CapabilityDemo.vue",
+        "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
         "packageName": "app",
-        "modulePath": "views/app/CapabilityDemo",
-        "jsdoc": "@module app:views/app/CapabilityDemo\n职责：提供主应用 CapabilityDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/CapabilityDemo。",
+        "modulePath": "views/app/demo/CapabilityDemo",
+        "jsdoc": "@module app:views/app/demo/CapabilityDemo\n职责：提供主应用 CapabilityDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/CapabilityDemo。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/views/app/CustomRTableDemo.vue": {
-      "file": "files/src/views/app/CustomRTableDemo.vue.json",
+    "src/views/app/demo/CustomRTableDemo.vue": {
+      "file": "files/src/views/app/demo/CustomRTableDemo.vue.json",
       "module": {
-        "name": "app:views/app/CustomRTableDemo",
-        "sourcePath": "src/views/app/CustomRTableDemo.vue",
-        "sourceFile": "src/views/app/CustomRTableDemo.vue",
+        "name": "app:views/app/demo/CustomRTableDemo",
+        "sourcePath": "src/views/app/demo/CustomRTableDemo.vue",
+        "sourceFile": "src/views/app/demo/CustomRTableDemo.vue",
         "packageName": "app",
-        "modulePath": "views/app/CustomRTableDemo",
-        "jsdoc": "@module app:views/app/CustomRTableDemo\n职责：提供主应用 CustomRTableDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/CustomRTableDemo。",
+        "modulePath": "views/app/demo/CustomRTableDemo",
+        "jsdoc": "@module app:views/app/demo/CustomRTableDemo\n职责：提供主应用 CustomRTableDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/CustomRTableDemo。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/views/app/Dashboard.vue": {
-      "file": "files/src/views/app/Dashboard.vue.json",
+    "src/views/app/demo/Dashboard.vue": {
+      "file": "files/src/views/app/demo/Dashboard.vue.json",
       "module": {
-        "name": "app:views/app/Dashboard",
-        "sourcePath": "src/views/app/Dashboard.vue",
-        "sourceFile": "src/views/app/Dashboard.vue",
+        "name": "app:views/app/demo/Dashboard",
+        "sourcePath": "src/views/app/demo/Dashboard.vue",
+        "sourceFile": "src/views/app/demo/Dashboard.vue",
         "packageName": "app",
-        "modulePath": "views/app/Dashboard",
-        "jsdoc": "@module app:views/app/Dashboard\n职责：提供主应用 Dashboard 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/Dashboard。",
+        "modulePath": "views/app/demo/Dashboard",
+        "jsdoc": "@module app:views/app/demo/Dashboard\n职责：提供主应用 Dashboard 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/Dashboard。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/demo/RFormCompareDemo.vue": {
+      "file": "files/src/views/app/demo/RFormCompareDemo.vue.json",
+      "module": {
+        "name": "app:views/app/demo/RFormCompareDemo",
+        "sourcePath": "src/views/app/demo/RFormCompareDemo.vue",
+        "sourceFile": "src/views/app/demo/RFormCompareDemo.vue",
+        "packageName": "app",
+        "modulePath": "views/app/demo/RFormCompareDemo",
+        "jsdoc": "@module app:views/app/demo/RFormCompareDemo\n职责：提供主应用 RFormCompareDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/RFormCompareDemo。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/demo/TemplateDslDemo.vue": {
+      "file": "files/src/views/app/demo/TemplateDslDemo.vue.json",
+      "module": {
+        "name": "app:views/app/demo/TemplateDslDemo",
+        "sourcePath": "src/views/app/demo/TemplateDslDemo.vue",
+        "sourceFile": "src/views/app/demo/TemplateDslDemo.vue",
+        "packageName": "app",
+        "modulePath": "views/app/demo/TemplateDslDemo",
+        "jsdoc": "@module app:views/app/demo/TemplateDslDemo\n职责：提供主应用 TemplateDslDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/demo/TemplateDslDemo。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14814,19 +14840,6 @@
         ]
       }
     },
-    "src/views/app/RFormCompareDemo.vue": {
-      "file": "files/src/views/app/RFormCompareDemo.vue.json",
-      "module": {
-        "name": "app:views/app/RFormCompareDemo",
-        "sourcePath": "src/views/app/RFormCompareDemo.vue",
-        "sourceFile": "src/views/app/RFormCompareDemo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/RFormCompareDemo",
-        "jsdoc": "@module app:views/app/RFormCompareDemo\n职责：提供主应用 RFormCompareDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/RFormCompareDemo。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/app/Settings.vue": {
       "file": "files/src/views/app/Settings.vue.json",
       "module": {
@@ -14836,19 +14849,6 @@
         "packageName": "app",
         "modulePath": "views/app/Settings",
         "jsdoc": "@module app:views/app/Settings\n职责：提供主应用 Settings 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/Settings。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/TemplateDslDemo.vue": {
-      "file": "files/src/views/app/TemplateDslDemo.vue.json",
-      "module": {
-        "name": "app:views/app/TemplateDslDemo",
-        "sourcePath": "src/views/app/TemplateDslDemo.vue",
-        "sourceFile": "src/views/app/TemplateDslDemo.vue",
-        "packageName": "app",
-        "modulePath": "views/app/TemplateDslDemo",
-        "jsdoc": "@module app:views/app/TemplateDslDemo\n职责：提供主应用 TemplateDslDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/TemplateDslDemo。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16393,12 +16393,12 @@
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts.json"
     },
     "AgentWorkflowFileDataViewOwner": {
-      "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-owner.ts",
-      "file": "files/src/lowcode/resources/shared/agent-workflow-file-owner.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json"
     },
     "AgentWorkflowFileResource": {
-      "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "file": "files/src/lowcode/resources/shared/agent-workflow-file-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json"
     },
     "AgentWorkflowGraph": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts",
@@ -17289,32 +17289,32 @@
       "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
     },
     "AttachCatalogCommandViewsInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachDatabaseDirectoryConnectionTestViewsInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachServerConnectionTestViewsInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachServerRegisterViewInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachTableRegisterCommandViewInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachTableSyncMetaDataViewInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttachViewRegisterCommandViewInput": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "AttributeGuide": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
@@ -17473,12 +17473,12 @@
       "file": "files/src/registries/builtin-application-registry.ts.json"
     },
     "BuiltinBlueprintNodeResource": {
-      "sourcePath": "src/lowcode/resources/shared/builtin-blueprint-node-resource.ts",
-      "file": "files/src/lowcode/resources/shared/builtin-blueprint-node-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
+      "file": "files/src/lowcode/resources/repository/builtin-blueprint-node-resource.ts.json"
     },
     "BuiltinBlueprintRecord": {
-      "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
-      "file": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
+      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json"
     },
     "BuiltinNavigationResource": {
       "sourcePath": "src/registries/builtin-application-registry.ts",
@@ -17493,8 +17493,8 @@
       "file": "files/src/registries/builtin-application-registry.ts.json"
     },
     "BuiltinSystemNavigation": {
-      "sourcePath": "src/lowcode/resources/shared/builtin-system-navigation.ts",
-      "file": "files/src/lowcode/resources/shared/builtin-system-navigation.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/builtin-system-navigation.ts",
+      "file": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json"
     },
     "ButtonTemplateProps": {
       "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",
@@ -17881,8 +17881,8 @@
       "file": "files/src/services/page-design/page-design-inline-delivery.ts.json"
     },
     "CreateRepositoryScenarioVersionCommand": {
-      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts",
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-host-client.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/scenarios/host-client.ts",
+      "file": "files/src/lowcode/resources/repository/scenarios/host-client.ts.json"
     },
     "CreateSimpleInputContractOptions": {
       "sourcePath": "packages/spark-ai/src/agent/business/business-kit.ts",
@@ -17937,76 +17937,76 @@
       "file": "files/packages/spark-component/src/components/containers/support/interactionControl.ts.json"
     },
     "DatabaseCatalogCopyTableInput": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-copy-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-copy-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/copy-view-ops.ts.json"
     },
     "DatabaseCatalogDbEditingUi": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/db-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/db-view-ops.ts.json"
     },
     "DatabaseCatalogDbEditState": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/db-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/db-view-ops.ts.json"
     },
     "DatabaseCatalogDesignSavePendingInput": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/field-view-ops.ts.json"
     },
     "DatabaseCatalogFieldViewId": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/field-view-ops.ts.json"
     },
     "DatabaseCatalogLoadOptions": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/scenario.ts",
+      "file": "files/src/lowcode/resources/database/catalog/scenario.ts.json"
     },
     "DatabaseCatalogPreviewParams": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-preview-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json"
     },
     "DatabaseCatalogRegisterTableItem": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-register-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/register-view-ops.ts.json"
     },
     "DatabaseCatalogRegisterViewItem": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-register-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-register-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/register-view-ops.ts.json"
     },
     "DatabaseCatalogRelationSession": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-relation-form-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/relation/form-ops.ts.json"
     },
     "DatabaseCatalogSyncTableMetadataInput": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-sync-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-sync-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/sync-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/sync-view-ops.ts.json"
     },
     "DatabaseCatalogTableContext": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-relation-form-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-relation-form-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/relation/form-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/relation/form-ops.ts.json"
     },
     "DatabaseCatalogTableEditingUi": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/view-ops.ts.json"
     },
     "DatabaseCatalogTableEditState": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/view-ops.ts.json"
     },
     "DatabaseCatalogViewPreviewParams": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-preview-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json"
     },
     "DatabaseCatalogWorkflowQuery": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-workflow-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-workflow-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/workflow/view-ops.ts",
+      "file": "files/src/lowcode/resources/database/catalog/workflow/view-ops.ts.json"
     },
     "DatabaseServerEditingUi": {
-      "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/server/view-ops.ts",
+      "file": "files/src/lowcode/resources/database/server/view-ops.ts.json"
     },
     "DatabaseServerEditState": {
-      "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
-      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json"
+      "sourcePath": "src/lowcode/resources/database/server/view-ops.ts",
+      "file": "files/src/lowcode/resources/database/server/view-ops.ts.json"
     },
     "DataBatchJobEvent": {
       "sourcePath": "src/services/sse-events.ts",
@@ -18017,8 +18017,8 @@
       "file": "files/src/services/sse-events.ts.json"
     },
     "DataCodeDesignClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts.json"
     },
     "DataColumn": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -18213,24 +18213,24 @@
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
     },
     "DataSpaceDefinitionCapture": {
-      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json"
     },
     "DataSpaceDefinitionCaptureBatch": {
-      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json"
     },
     "DataSpaceDefinitionRecoveryOptions": {
-      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json"
     },
     "DataSpaceDefinitionSave": {
-      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json"
     },
     "DataSpaceDefinitionSavePart": {
-      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
-      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json"
     },
     "DataSpaceDesignApi": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
@@ -18821,12 +18821,12 @@
       "file": "files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts.json"
     },
     "DictionarySchema": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-schema.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts.json"
     },
     "DictionaryWorkspace": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts.json"
     },
     "DirtyTrackingDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
@@ -19065,12 +19065,12 @@
       "file": "files/packages/spark-component/src/components/containers/support/useEventDefaults.ts.json"
     },
     "ExcelImportDesignClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts.json"
     },
     "ExcelImportDesignDocument": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts.json"
     },
     "ExecuteAiApiActionCommand": {
       "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
@@ -19105,52 +19105,52 @@
       "file": "files/packages/spark-component/src/components/fields/context/useFieldContext.ts.json"
     },
     "FieldCreateFlow": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldCreateHandle": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldCreateHost": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldCreateHostInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldCreateLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldCreateStatus": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json"
     },
     "FieldEditLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts.json"
     },
     "FieldEditSession": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts.json"
     },
     "FieldEditSessionInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts.json"
     },
     "FieldOption": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",
       "file": "files/packages/spark-component/src/components/fields/options/option-normalization.ts.json"
     },
     "FieldOutputValidateInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json"
     },
     "FieldOutputValidateReferencesInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json"
     },
     "FieldPermissionProps": {
       "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
@@ -19209,8 +19209,8 @@
       "file": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json"
     },
     "FieldValueScope": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts.json"
     },
     "FieldValueUpdateEmits": {
       "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts",
@@ -19313,8 +19313,8 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "FormalModel": {
-      "sourcePath": "src/lowcode/resources/structured-config/structured-config-catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/structured-config-catalog.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
+      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
     },
     "FormalTableRequestConfig": {
       "sourcePath": "packages/spark-data/src/core/formal-table-request-config.ts",
@@ -19457,8 +19457,8 @@
       "file": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json"
     },
     "JsonDataContentClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/json-data/json-data-content-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts.json"
     },
     "JsonDocument": {
       "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
@@ -19573,8 +19573,8 @@
       "file": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json"
     },
     "LoadStructuredCatalogInput": {
-      "sourcePath": "src/lowcode/resources/structured-config/structured-config-catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/structured-config-catalog.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
+      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
     },
     "LocalMutationDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/local-mutation-delegate.ts",
@@ -19585,12 +19585,12 @@
       "file": "files/packages/spark-utils/src/logger.ts.json"
     },
     "LogicViewDesignClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json"
     },
     "LogicViewDesignPayload": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json"
     },
     "LogLevel": {
       "sourcePath": "packages/spark-utils/src/logger.ts",
@@ -19701,8 +19701,8 @@
       "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
     },
     "LowcodeDatabaseDirectory": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-directory.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-directory.ts.json"
+      "sourcePath": "src/lowcode/resources/database/directory.ts",
+      "file": "files/src/lowcode/resources/database/directory.ts.json"
     },
     "LowcodeDatabaseField": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
@@ -19717,24 +19717,24 @@
       "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
     },
     "LowcodeDatabaseServer": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-server.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-server.ts.json"
+      "sourcePath": "src/lowcode/resources/database/server/resource.ts",
+      "file": "files/src/lowcode/resources/database/server/resource.ts.json"
     },
     "LowcodeDatabaseTable": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
       "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
     },
     "LowcodeDatabaseTableView": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-table-view.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/table-view.ts",
+      "file": "files/src/lowcode/resources/database/catalog/table-view.ts.json"
     },
     "LowcodeDatabaseView": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
       "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
     },
     "LowcodeDataCode": {
-      "sourcePath": "src/lowcode/resources/data-code/lowcode-data-code.ts",
-      "file": "files/src/lowcode/resources/data-code/lowcode-data-code.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/data-code/resource.ts",
+      "file": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json"
     },
     "LowcodeDataSpaceArrayConfiguration": {
       "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
@@ -19769,24 +19769,24 @@
       "file": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json"
     },
     "LowcodeDataSpaceFieldMigration": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts",
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts.json"
     },
     "LowcodeDataSpaceFieldOutput": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json"
     },
     "LowcodeDataSpaceFieldRemoveReferences": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
       "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts.json"
     },
     "LowcodeDataSpaceFieldValue": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts.json"
     },
     "LowcodeDataSpaceFilterMigration": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts",
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-filter-migration.ts.json"
     },
     "LowcodeDataSpaceInputParameterReferences": {
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
@@ -19797,12 +19797,12 @@
       "file": "files/src/lowcode/data-space/lowcode-data-space-metadata.ts.json"
     },
     "LowcodeDataSpaceModelDependencies": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json"
     },
     "LowcodeDataSpaceModelMigration": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts.json"
     },
     "LowcodeDataSpaceModelRemovalFilePlan": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
@@ -19825,8 +19825,8 @@
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts.json"
     },
     "LowcodeDataSpacePrimaryKey": {
-      "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
-      "file": "files/src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts.json"
     },
     "LowcodeDataSpaceQueryPreview": {
       "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
@@ -19837,8 +19837,8 @@
       "file": "files/src/lowcode/data-space/view-design/lowcode-data-space-relation-metadata.ts.json"
     },
     "LowcodeDataSpaceRelationMigration": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-relation-migration.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts",
+      "file": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts.json"
     },
     "LowcodeDataSpaceSourceCatalog": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts",
@@ -19881,8 +19881,8 @@
       "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json"
     },
     "LowcodeDictionary": {
-      "sourcePath": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
-      "file": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/dictionary/resource.ts",
+      "file": "files/src/lowcode/resources/structured-config/dictionary/resource.ts.json"
     },
     "LowcodeEnterprise": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
@@ -19905,8 +19905,8 @@
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "LowcodeExcelImport": {
-      "sourcePath": "src/lowcode/resources/excel-import/lowcode-excel-import.ts",
-      "file": "files/src/lowcode/resources/excel-import/lowcode-excel-import.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json"
     },
     "LowcodeFetch": {
       "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
@@ -19925,8 +19925,8 @@
       "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
     },
     "LowcodeFileResourceDefinition": {
-      "sourcePath": "src/lowcode/resources/shared/agent-workflow-file-resource.ts",
-      "file": "files/src/lowcode/resources/shared/agent-workflow-file-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json"
     },
     "LowcodeFileVersionSummary": {
       "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
@@ -19937,12 +19937,12 @@
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "LowcodeJsonData": {
-      "sourcePath": "src/lowcode/resources/json-data/lowcode-json-data.ts",
-      "file": "files/src/lowcode/resources/json-data/lowcode-json-data.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+      "file": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json"
     },
     "LowcodeLogicView": {
-      "sourcePath": "src/lowcode/resources/logic-view/lowcode-logic-view.ts",
-      "file": "files/src/lowcode/resources/logic-view/lowcode-logic-view.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/logic-view/resource.ts",
+      "file": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json"
     },
     "LowcodeLoginCredentials": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
@@ -19981,8 +19981,8 @@
       "file": "files/packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts.json"
     },
     "LowcodePdfInspect": {
-      "sourcePath": "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts",
-      "file": "files/src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
+      "file": "files/src/lowcode/resources/semi-structured/pdf-inspect/resource.ts.json"
     },
     "LowcodePlatformApi": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
@@ -20093,8 +20093,8 @@
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "LowcodeWorkflowDefinition": {
-      "sourcePath": "src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts",
-      "file": "files/src/lowcode/resources/workflow-definition/lowcode-workflow-definition.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json"
     },
     "MessageRowAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
@@ -20125,48 +20125,48 @@
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
     },
     "ModelCreateFlow": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateHandle": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateHost": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateHostInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateSources": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelCreateStatus": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json"
     },
     "ModelDependenciesInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json"
     },
     "ModelEditLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts.json"
     },
     "ModelEditSession": {
-      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts.json"
     },
     "ModelEditSessionInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts.json"
     },
     "ModelGuide": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
@@ -20245,32 +20245,32 @@
       "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts.json"
     },
     "ModelSourceEditFlow": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditHandle": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditHost": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditHostInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditRecoveryOptions": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModelSourceEditStatus": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModuleContextCapability": {
       "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
@@ -20729,12 +20729,12 @@
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
     "PdfInspectDesignClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts.json"
     },
     "PdfInspectRuleDocument": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts.json"
     },
     "PermissionActionContext": {
       "sourcePath": "packages/spark-data/src/script-types.ts",
@@ -20829,12 +20829,12 @@
       "file": "files/packages/spark-data/src/core/primary-key-generator.ts.json"
     },
     "PrimaryKeyPrepareInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
-      "file": "files/src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts.json"
     },
     "PrimaryKeyScopeInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
-      "file": "files/src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts",
+      "file": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-primary-key.ts.json"
     },
     "PrimaryKeyStrategy": {
       "sourcePath": "packages/spark-data/src/core/primary-key-generator.ts",
@@ -21081,8 +21081,8 @@
       "file": "files/packages/spark-project-model/src/page-tool/project-tool-resource.ts.json"
     },
     "ProjectToolVersionResource": {
-      "sourcePath": "src/lowcode/resources/shared/project-tool-version-resource.ts",
-      "file": "files/src/lowcode/resources/shared/project-tool-version-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/project-tool-version-resource.ts",
+      "file": "files/src/lowcode/resources/repository/project-tool-version-resource.ts.json"
     },
     "ProjectUiSettings": {
       "sourcePath": "src/services/project/project-settings.ts",
@@ -21241,8 +21241,8 @@
       "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue.json"
     },
     "RegistrationDefaultFieldsNotAppliedError": {
-      "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
-      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json"
+      "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",
+      "file": "files/src/lowcode/resources/database/dataset-extensions.ts.json"
     },
     "RemoveRowHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -21317,20 +21317,20 @@
       "file": "files/packages/spark-component/src/components/fields/data-components/picker/FieldEntityPicker/FieldEntityPicker.props.ts.json"
     },
     "RepositoryScenarioFailure": {
-      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+      "file": "files/src/lowcode/resources/repository/scenarios/protocol.ts.json"
     },
     "RepositoryScenarioHistoryList": {
-      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+      "file": "files/src/lowcode/resources/repository/scenarios/protocol.ts.json"
     },
     "RepositoryScenarioSuccess": {
-      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+      "file": "files/src/lowcode/resources/repository/scenarios/protocol.ts.json"
     },
     "RepositoryScenarioVersionSuccess": {
-      "sourcePath": "src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts",
-      "file": "files/src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/scenarios/protocol.ts",
+      "file": "files/src/lowcode/resources/repository/scenarios/protocol.ts.json"
     },
     "Request": {
       "sourcePath": "packages/spark-utils/src/http/Request.ts",
@@ -21365,8 +21365,8 @@
       "file": "files/packages/spark-component/src/page/actions/executor-helpers.ts.json"
     },
     "ResolveDatabaseCatalogDataSpaceIdInput": {
-      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
-      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+      "sourcePath": "src/lowcode/resources/database/catalog/scenario.ts",
+      "file": "files/src/lowcode/resources/database/catalog/scenario.ts.json"
     },
     "ResolvedButtonStyle": {
       "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",
@@ -21829,8 +21829,8 @@
       "file": "files/packages/spark-component/src/ai/types.ts.json"
     },
     "SetDesignScopeValueInput": {
-      "sourcePath": "src/lowcode/resources/shared/staged-design-file-view.ts",
-      "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
+      "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
     },
     "SetFieldAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
@@ -21877,36 +21877,36 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "SourceContractChange": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "SourceContractPlan": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "SourceInputHandle": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceInputHost": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceInputHostInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceInputLifecycle": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceInputStatus": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceInputValidateValueInput": {
-      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
-      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceProvenanceMeta": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
@@ -22265,12 +22265,12 @@
       "file": "files/packages/spark-component/src/components/shared-types.ts.json"
     },
     "StagedDesignAttachOptions": {
-      "sourcePath": "src/lowcode/resources/shared/staged-design-file-view.ts",
-      "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
+      "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
     },
     "StagedDesignColumn": {
-      "sourcePath": "src/lowcode/resources/shared/staged-design-file-view.ts",
-      "file": "files/src/lowcode/resources/shared/staged-design-file-view.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
+      "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
     },
     "StagedDesignPageConfig": {
       "sourcePath": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
@@ -22309,8 +22309,8 @@
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "StructuredCatalogModelOptions": {
-      "sourcePath": "src/lowcode/resources/structured-config/structured-config-catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/structured-config-catalog.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
+      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
     },
     "StructuredFieldRow": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
@@ -22641,8 +22641,8 @@
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowDefinitionDesignPayload": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts.json"
     },
     "WorkflowDefinitionReadResult": {
       "sourcePath": "src/services/workflow-designs.ts",
@@ -22661,8 +22661,8 @@
       "file": "files/src/services/workflow-designs.ts.json"
     },
     "WorkflowDesignClient": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts.json"
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts.json"
     },
     "WorkflowDesignDeleteResult": {
       "sourcePath": "src/services/workflow-designs.ts",

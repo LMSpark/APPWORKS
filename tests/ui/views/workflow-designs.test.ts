@@ -6,7 +6,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
 import type { WorkflowDesignDocument } from '@/services/workflow-designs'
-import type { AgentWorkflowFileDataViewOwner } from '@/lowcode/resources/shared/agent-workflow-file-owner'
+import type { AgentWorkflowFileDataViewOwner } from '@/lowcode/resources/repository/agent-workflow-file-owner'
 
 const mocks = vi.hoisted(() => ({
   listWorkflowDesigns: vi.fn(),
@@ -59,7 +59,7 @@ vi.mock('@/services/workflow-designs', async (importOriginal) => {
   }
 })
 
-vi.mock('@/lowcode/resources/shared/agent-workflow-file-owner', () => ({
+vi.mock('@/lowcode/resources/repository/agent-workflow-file-owner', () => ({
   createAgentWorkflowFileDataViewOwner: mocks.createOwner,
 }))
 

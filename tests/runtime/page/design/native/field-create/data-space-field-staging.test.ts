@@ -1,8 +1,8 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises} from '@vue/test-utils'
 import {getDataViewFilterFunctionDefinitions, type DataViewFilterValueFunction} from '@spark-appworks/spark-data'
-import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []

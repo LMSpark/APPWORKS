@@ -1,9 +1,9 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
-import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
-import {LowcodeJsonData} from '@/lowcode/resources/json-data/lowcode-json-data'
+import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
+import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

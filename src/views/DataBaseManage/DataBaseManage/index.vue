@@ -75,11 +75,11 @@ import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererFor
 import {useRoute} from 'vue-router'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDatabaseDirectory, DATABASE_DIRECTORY_COMMAND_INPUT_TABLE, DATABASE_DIRECTORY_LIST_FIELDS,
-  DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/lowcode-database-directory'
-import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
-import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/lowcode/resources/database/lowcode-database-directory'
-import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/lowcode-database-dataset-extensions'
-import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
+  DATABASE_DIRECTORY_UNREGISTERED_DATABASES_TABLE} from '@/lowcode/resources/database/directory'
+import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/server/resource'
+import {DATABASE_DIRECTORY_CONNECTION_TEST_INPUT_TABLE, DATABASE_DIRECTORY_CONNECTION_TEST_RESULT_TABLE} from '@/lowcode/resources/database/directory'
+import {captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
+import {DATABASE_SERVER_LIST_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
 import {
   databaseCatalogDbBeginCreate,
   databaseCatalogDbBeginEdit,
@@ -95,7 +95,7 @@ import {
   requireDatabaseCatalogDbView,
   requireDatabaseCatalogServerView,
   type DatabaseCatalogDbEditState,
-} from '@/lowcode/resources/database/database-catalog-db-view-ops'
+} from '@/lowcode/resources/database/catalog/db-view-ops'
 import RegisterDatabaseDialog from '@/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue'
 
 const TABLE_VIEW_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'

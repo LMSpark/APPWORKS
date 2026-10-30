@@ -1,0 +1,529 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/agent-workflow-file-owner",
+    "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
+    "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/agent-workflow-file-owner",
+    "jsdoc": "app 的 lowcode/resources/repository/agent-workflow-file-owner 模块。\n导出 DtsTypeDeclarationModel symbol: AgentWorkflowFileDataViewOwner（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "AgentWorkflowFileDataViewOwner"
+    ]
+  },
+  "$defs": {
+    "RequestScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestScope",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "token",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFileApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFileApi",
+      "properties": {
+        "listFiles": {
+          "type": "object",
+          "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
+        },
+        "readTextFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<string>"
+        },
+        "readFileBytes": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
+        }
+      },
+      "required": [
+        "listFiles",
+        "readTextFile",
+        "readFileBytes"
+      ],
+      "additionalProperties": false
+    },
+    "AgentWorkflowFileDataViewOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowFileDataViewOwner",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "catalogView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "directoryView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "designView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "definitionView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "documentView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.refreshDirectory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshDirectory.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadDocument.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "design.json",
+                "definition.json"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadDocument.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listWorkflowEntries.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listWorkflowEntries.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>"
+        },
+        "method.listWorkflowIds.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listWorkflowIds.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.readDocument.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "design.json",
+                "definition.json"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDocument.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    },
+    "OwnerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OwnerInput",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "api": {
+          "$ref": "#/$defs/WorkflowFileApi"
+        },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>"
+        },
+        "catalogScenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "#/$defs/RequestScope"
+        },
+        "method.loadScenario.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "scenarioId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "scenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenario.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T15:31:33.695Z",
+  "models": {
+    "RequestScope": {
+      "name": "RequestScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof lowcodeApi.readRequestScope>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof lowcodeApi.readRequestScope>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowFileApi": {
+      "name": "WorkflowFileApi",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AgentWorkflowFileDataViewOwner": {
+      "name": "AgentWorkflowFileDataViewOwner",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readonly runtime: PageRuntime;\n    readonly catalogView: DataView;\n    readonly dataSet: DataSet;\n    readonly directoryView: DataView;\n    readonly designView: DataView;\n    readonly definitionView: DataView;\n    readonly documentView: DataView;\n    refreshDirectory(): Promise<void>;\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    listWorkflowIds(): Promise<readonly string[]>;\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    dispose(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readonly runtime: PageRuntime;\n    readonly catalogView: DataView;\n    readonly dataSet: DataSet;\n    readonly directoryView: DataView;\n    readonly designView: DataView;\n    readonly definitionView: DataView;\n    readonly documentView: DataView;\n    refreshDirectory(): Promise<void>;\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    listWorkflowIds(): Promise<readonly string[]>;\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    dispose(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "directoryView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentView",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refreshDirectory",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadDocument",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "design.json"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "definition.json"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listWorkflowEntries",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        workflowId: string;\n        timestamp: string;\n    }"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listWorkflowIds",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readDocument",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "design.json"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "definition.json"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "OwnerInput": {
+      "name": "OwnerInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    applicationId: string;\n    readScope: () => RequestScope;\n    api: WorkflowFileApi;\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    catalogScenarioId: string;\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogScenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "RequestScope",
+                "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts"
+              }
+            },
+            {
+              "name": "loadScenario",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        scenarioId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

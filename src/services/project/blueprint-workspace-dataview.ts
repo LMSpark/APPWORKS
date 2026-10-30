@@ -8,7 +8,7 @@ import {buildDataViewKey, DataViewFilter, RequestState, type DataRow, type DataS
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY, lowcodeProjectBlueprintFields, normalizeLowcodeProjectBlueprintRecords, validateLowcodeProjectBlueprintRecords, type LowcodeProjectBlueprintRecord} from '@spark-appworks/spark-lowcode-api'
 import type {PageRuntime, ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData} from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 
 export const BLUEPRINT_WORKSPACE_FIELD_NAMES = Object.freeze([
   'rowid', 'SysId', 'prowid', 'FunOrderValue', 'name', 'funCode', 'FunName', 'memo', 'htmlDesc', 'conid', 'conType', 'NavigationUrl', 'VersionId',

@@ -2,7 +2,7 @@ import { DataViewFilter, RequestState, type DataSet, type DataView, type DataRow
 import type { PageDataSpaceModelSourceReader } from './lowcode-data-space-source-catalog'
 import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
-import { LowcodeDictionary } from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import { LowcodeDictionary } from '@/lowcode/resources/structured-config/dictionary/resource'
 
 type PageDataSpaceModelSourceQuery = Parameters<PageDataSpaceModelSourceReader['query']>[0]
 type PageDataSpaceModelSource = Parameters<PageDataSpaceModelSourceReader['prepare']>[0]

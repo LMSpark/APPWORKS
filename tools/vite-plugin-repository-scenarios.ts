@@ -9,7 +9,7 @@ import {isIP} from 'node:net'
 import {TLSSocket} from 'node:tls'
 import {normalizePath, type Plugin, type ViteDevServer} from 'vite'
 import {RepositoryScenarioStore, RepositoryScenarioStoreError, type RepositoryScenarioDescriptor} from './repository-scenario-store'
-import {isNonnegativeSafeInteger, REPOSITORY_SCENARIO_ENDPOINT} from '../src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol'
+import {isNonnegativeSafeInteger, REPOSITORY_SCENARIO_ENDPOINT} from '../src/lowcode/resources/repository/scenarios/protocol'
 
 const maximumBodyBytes = 1024 * 1024
 

@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
 import {defineComponent, h} from 'vue'
 import LogicViewList from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue'
-import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
+import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 

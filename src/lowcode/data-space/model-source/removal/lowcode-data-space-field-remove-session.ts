@@ -4,8 +4,8 @@
  * 边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。
  */
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
-import {LowcodeDataSpaceModelDependencies} from '../lowcode-data-space-model-dependencies'
+import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../data-space-definition-save'
+import {LowcodeDataSpaceModelDependencies} from '../model/lowcode-data-space-model-dependencies'
 import {LowcodeDataSpaceFieldRemoveReferences} from './lowcode-data-space-field-remove-references'
 
 export type FieldRemoveStatus = 'idle' | 'previewing' | 'ready' | 'staged' | 'saving' | 'unknown' | 'readback' | 'different'

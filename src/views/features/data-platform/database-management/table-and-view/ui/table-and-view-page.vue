@@ -120,11 +120,11 @@ import {
   databaseCatalogHasDesensitizationRules,
   databaseCatalogHasEncryptionDictionary,
   databaseCatalogHasFieldTypeDictionary,
-} from '@/lowcode/resources/database/database-catalog-field-metadata'
+} from '@/lowcode/resources/database/catalog/table/field-metadata'
 import {
   DATABASE_CATALOG_TABLE_DESIGN_HEADER_FIELDS,
   DATABASE_CATALOG_VIEW_DESIGN_FORM_FIELDS,
-} from '@/lowcode/resources/database/database-catalog-object-design-metadata'
+} from '@/lowcode/resources/database/catalog/object-design-metadata'
 import {
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
@@ -146,14 +146,14 @@ import {
   DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_VIEW_REGISTER_TABLE,
   LowcodeDatabaseTableView,
-} from '@/lowcode/resources/database/lowcode-database-table-view'
-import {DATABASE_CATALOG_RELATION_LIST_FIELDS} from '@/lowcode/resources/database/database-catalog-relation-metadata'
+} from '@/lowcode/resources/database/catalog/table-view'
+import {DATABASE_CATALOG_RELATION_LIST_FIELDS} from '@/lowcode/resources/database/catalog/relation/metadata'
 import {
   databaseCatalogHasRelationCatalog,
   databaseCatalogRelationCanDeleteSelected,
   databaseCatalogRelationDeleteSelected,
   databaseCatalogRelationRefreshForTable,
-} from '@/lowcode/resources/database/database-catalog-relation-view-ops'
+} from '@/lowcode/resources/database/catalog/relation/view-ops'
 import {
   type DatabaseCatalogRelationSession,
   type DatabaseCatalogTableContext,
@@ -166,10 +166,10 @@ import {
   databaseCatalogRelationPrepareCreate,
   databaseCatalogRelationPrepareEdit,
   databaseCatalogRelationSwitchRole,
-} from '@/lowcode/resources/database/database-catalog-relation-form-ops'
+} from '@/lowcode/resources/database/catalog/relation/form-ops'
 import {
   databaseCatalogSyncCommandInput,
-} from '@/lowcode/resources/database/database-catalog-db-view-ops'
+} from '@/lowcode/resources/database/catalog/db-view-ops'
 import RegisterDialog, {type RegisterObjectType} from './register-dialog.vue'
 import AddTableDialog from './add-table-dialog.vue'
 import CopyTableDialog from './copy-table-dialog.vue'
@@ -186,12 +186,12 @@ import {
   databaseCatalogTableEditing,
   databaseCatalogTableSaveEdit,
   type DatabaseCatalogTableEditState,
-} from '@/lowcode/resources/database/database-catalog-table-view-ops'
+} from '@/lowcode/resources/database/catalog/table/view-ops'
 import {
   databaseCatalogDesignCanSave,
   databaseCatalogDesignSavePending,
-} from '@/lowcode/resources/database/database-catalog-field-view-ops'
-import {databaseCatalogQueryUnregisteredViewNames, databaseCatalogSyncTableMetadata} from '@/lowcode/resources/database/database-catalog-sync-view-ops'
+} from '@/lowcode/resources/database/catalog/table/field-view-ops'
+import {databaseCatalogQueryUnregisteredViewNames, databaseCatalogSyncTableMetadata} from '@/lowcode/resources/database/catalog/table/sync-view-ops'
 import {
   databaseCatalogVerifyTableRegistration,
   databaseCatalogVerifyViewRegistration,
@@ -200,16 +200,16 @@ import {
   databaseCatalogSettleCommandInput,
   databaseCatalogRegisterTables,
   databaseCatalogRegisterViews,
-} from '@/lowcode/resources/database/database-catalog-register-view-ops'
+} from '@/lowcode/resources/database/catalog/table/register-view-ops'
 import {
   DATABASE_CATALOG_TABLE_LIST_FIELDS,
   DATABASE_CATALOG_VIEW_LIST_FIELDS,
-} from '@/lowcode/resources/database/database-catalog-list-metadata'
+} from '@/lowcode/resources/database/catalog/list-metadata'
 import {
   databaseCatalogCanDeleteRow,
   databaseCatalogDeleteRow,
-} from '@/lowcode/resources/database/database-catalog-object-view-ops'
-import {databaseCatalogCopyTable} from '@/lowcode/resources/database/database-catalog-copy-view-ops'
+} from '@/lowcode/resources/database/catalog/object-view-ops'
+import {databaseCatalogCopyTable} from '@/lowcode/resources/database/catalog/table/copy-view-ops'
 import {
   DATABASE_TABLE_PREVIEW_RESULT_TABLE,
   DATABASE_VIEW_PREVIEW_RESULT_TABLE,
@@ -217,16 +217,16 @@ import {
   databaseCatalogHasViewPreview,
   databaseCatalogPreviewRefresh,
   databaseCatalogViewPreviewRefresh,
-} from '@/lowcode/resources/database/database-catalog-preview-view-ops'
+} from '@/lowcode/resources/database/catalog/table/preview-view-ops'
 import {
   buildDatabaseCatalogWorkflowListFields,
   databaseCatalogHasWorkflowStatusDictionary,
-} from '@/lowcode/resources/database/database-catalog-workflow-metadata'
+} from '@/lowcode/resources/database/catalog/workflow/metadata'
 import {
   databaseCatalogHasWorkflowCatalog,
   databaseCatalogWorkflowRefreshForTable,
   type DatabaseCatalogWorkflowQuery,
-} from '@/lowcode/resources/database/database-catalog-workflow-view-ops'
+} from '@/lowcode/resources/database/catalog/workflow/view-ops'
 
 type RFilterProps = SparkComponent.RFilterProps
 type RToolbarProps = SparkComponent.RToolbarProps

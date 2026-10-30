@@ -7,7 +7,7 @@ import {LowcodeModelRelationAdapter} from '@/lowcode/data-space/lowcode-model-re
 import {LowcodeDataSpaceViewDesign, type LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/shared/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/repository/agent-workflow-file-resource'
 import metadataConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 import {createFileResourceAdapterExecutor, type DataView, type DataViewFilterTree, type FileResourceSnapshot, type FileResourceTarget} from '@spark-appworks/spark-data'
 import {defineComponent, h, type Component} from 'vue'

@@ -8,19 +8,19 @@
   "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts": {
     "command-status": 6
   },
-  "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
+  "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts": {
     "command-status": 5,
     "json-baseline": 1,
     "static-copy": 1
   },
-  "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {
+  "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts": {
     "command-status": 5
   },
-  "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts": {
+  "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
     "command-status": 7,
     "json-baseline": 1
   },
-  "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts": {
+  "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts": {
     "command-status": 4,
     "json-baseline": 1
   },
@@ -40,11 +40,11 @@
   "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
     "json-baseline": 1
   },
-  "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
+  "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts": {
     "command-status": 7,
     "json-baseline": 1
   },
-  "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
+  "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts": {
     "command-status": 5
   },
   "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {

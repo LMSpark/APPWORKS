@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {LowcodeDataSpaceFieldMigration} from '@/lowcode/data-space/model-source/lowcode-data-space-field-migration'
+import {LowcodeDataSpaceFieldMigration} from '@/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})

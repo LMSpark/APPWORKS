@@ -116,9 +116,9 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import type {DataSpaceFieldEditorProps} from './DataSpaceFieldEditor.props'
-import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
-import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
-import {verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
+import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session'
+import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
 
 type RTableProps = SparkComponent.RTableProps
 const {DisplayText, RendererButton, FieldCheckbox, FieldNumber, FieldSelect, FieldText, FieldTextarea, FieldValueFunction, RendererDialog, RendererForm, RendererTable, RendererSection} = SparkComponent

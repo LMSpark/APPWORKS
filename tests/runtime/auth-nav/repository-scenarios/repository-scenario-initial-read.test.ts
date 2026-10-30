@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {DataSet, DataViewLocalQuery, RequestState} from '@spark-appworks/spark-data'
 import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readRepositoryScenarioText} from '@/lowcode/resources/shared/repository-scenarios/repository-scenario-resource'
+import {readRepositoryScenarioText} from '@/lowcode/resources/repository/scenarios/resource'
 
 const scenarioId = '8D1AB14DD8277F3E7017CD38F77B09FD'
 const resource = resolveBuiltinScenarioResource(scenarioId)!

@@ -4146,3 +4146,11 @@ flowchart TD
 - **1031合并提交门禁完成：**最终verify exit 0，1190项相关回归通过；迁移的Settings仅清理15处原行尾空白后，目标ESLint通过，并重新正式生成ClassModel、复跑49项ClassModel门禁和最终build，均exit 0。diff check通过。合并提交包含原主线483cb504e及两份未提交内容的恢复提交作为父历史，实际产品差异限于上述已审查遗漏，原始改动仍可从历史追溯。按顺序先提交并推送origin/1031、核对远端，然后清理已合并本地旧分支；产品整合新实现继续暂停。
 - **1031发布与本地清理确认：**合并提交f62bafd22d17beb7588650e0a065af93ff7f72bb已推送origin/1031，ls-remote复核一致；首次远端复核曾遇TLS握手错误，重试成功，未降低TLS校验。随后逐支验证祖先关系，删除本地10-17、feat/agent-workflow-node-contract、master；恢复临时refs亦已移除，两份恢复提交仍由合并父历史保留。git worktree list仅D:/SPARK_AppWorks [1031]，git branch仅1031。旧C工作树Node进程3492已按命令行归属核对后停止。远程原有分支未删除。
 - **物理残留及交接边界：**C:/Users/lgf22/.codex/worktrees/ai-data-entry/SPARK_AppWorks仅残留.vite缓存；catalog-baseline-audit/SPARK_AppWorks仅残留依赖junction及其父目录，不再是Git工作树，也没有项目源代码。直接删除残留的命令被自动审批/执行策略拒绝（仅返回blocked by policy，未给出详细原因）；不通过其它解释器绕过，不宣称这两个目录已完全物理删除。外部恢复补丁/新增文件副本及配置冲突备份保留，完整目录为D:/SPARK_AppWorks-recovery/2026-10-30-before-local-cleanup-483cb504e。后续工作仅在D:/SPARK_AppWorks的1031分支进行，当前功能开发仍暂停。
+
+### 2026-10-31 物理表/视图预览查询合同核定（1031，未改产品）
+
+- **范围：**只核定库表页物理表预览与数据库视图预览能否改走正式 DataView 查询。页面 [table-and-view-page.vue](src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue) 仍绑定预览 DataView。执行器在 [database-catalog-preview-view-ops.ts](src/lowcode/resources/database/database-catalog-preview-view-ops.ts) 的 `fetchPhysicalPreviewPage` 与 `fetchViewPreviewPage`。
+- **正式合同：**`DataSpaceQueryIdentity` 只有 `scenarioId` 与 `metaName`，注释写明 metaName 是模型 Name，不是物理资源名。`captureDataSpaceViewQuery` 要求视图所属表已有 `modelBinding.modelId` 与 `modelName`。`DataSpaceQueryTable.buildRequest` 发出的表描述是 `Name=metaName`、`OutputType`、`Filter`、`inputParams`、`DISTINCT`、`IsBusinessMain` 与可选 `Fields`；没有 `Type`、`DbId`、`DbName`。权限与分页总数由 `DataSpaceQueryContext` 持有服务端回执。
+- **预览实际请求：**表预览发送 `Type=数据库表`、`DbId`/`DbName`、物理 `Name`、目录字段拼出的 `Fields` 与 `PrimaryKeyFields`；视图预览发送 `Type=数据库视图` 且主键固定 `rowid`。两者都是 `http.post('/api/DataOperation/GetData')`。`parseGetDataPage` 本地取 `Items`/`Count`。`readonlyQueryResult` 按返回键在本地合成只读 `fieldAccess`，不消费服务端字段权限。预览视图由 `ensureDataSetFileCommandView` 建成 file 资源，没有正式模型绑定。
+- **裁决：**把物理表名或视图名填进 `metaName` 会把物理资源名当成已注册模型。正式请求也带不上 `DbId`。现有查询合同表达不了这次预览。本轮不改产品、不新增协议、不伪造模型名、不改 Java。目录整理与登录/缓存/租户接口不在本片。
+- **仍缺：**任意物理表/视图的正式模型身份（数据空间、模型 Name、来源库与物理名的稳定对应）、服务端字段权限回执、以及经 `DataSpaceQueryContext` 校验的分页总数。这三项齐备前，预览执行器保持现状。

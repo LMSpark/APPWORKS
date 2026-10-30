@@ -6,7 +6,7 @@
 import {createHash, randomUUID} from 'node:crypto'
 import {mkdir, open, lstat, readFile, readdir, realpath, rename, unlink} from 'node:fs/promises'
 import path from 'node:path'
-import type {RepositoryScenarioFailure, RepositoryScenarioHistoryList, RepositoryScenarioSuccess, RepositoryScenarioVersionSuccess} from '../src/lowcode/resources/shared/repository-scenarios/repository-scenario-protocol'
+import type {RepositoryScenarioFailure, RepositoryScenarioHistoryList, RepositoryScenarioSuccess, RepositoryScenarioVersionSuccess} from '../src/lowcode/resources/repository/scenarios/protocol'
 
 /** 一项由 manifest 登记的仓内场景文件身份；path 必须是 config/pages 下的仓库相对 JSON 路径。 */
 export type RepositoryScenarioDescriptor = Readonly<{scenarioId: string; resourceId: string; path: string}>

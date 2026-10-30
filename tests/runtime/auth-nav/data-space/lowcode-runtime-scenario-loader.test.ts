@@ -5,8 +5,8 @@ import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
 import { PageRuntime, PageTool, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/shared/builtin-system-navigation'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),

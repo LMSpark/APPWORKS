@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/table/field-metadata",
+    "sourcePath": "src/lowcode/resources/database/catalog/table/field-metadata.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/table/field-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/table/field-metadata",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-metadata\n职责：字段目录专题列与标准子组件（选项均经同一 DataSet 的正式模型 DataView）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.759Z",
+  "models": {}
+}

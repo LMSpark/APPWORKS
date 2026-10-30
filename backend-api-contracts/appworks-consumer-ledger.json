@@ -887,92 +887,92 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/Codeing/GetCodeDesignDetail",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts",
-      "sourceLine": 12,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/Codeing/SaveCodeDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts",
-      "sourceLine": 17,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 358,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 377,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
-      "sourceLine": 624,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 38,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 63,
-      "scope": "publishable-lowcode-api"
-    },
-    {
       "expression": "/api/ExcelImport/ReadDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
       "sourceLine": 14,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ExcelImport/WriteDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
       "sourceLine": 24,
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/ViewData/GetView",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
-      "sourceLine": 14,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/ViewData/SaveView",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/logic-view/logic-view-design-client.ts",
-      "sourceLine": 21,
-      "scope": "publishable-lowcode-api"
-    },
-    {
       "expression": "/api/PdfInspect/ReadRule",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
       "sourceLine": 14,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/PdfInspect/WriteRule",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
       "sourceLine": 20,
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/Codeing/GetCodeDesignDetail",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+      "sourceLine": 12,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Codeing/SaveCodeDesign",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+      "sourceLine": 17,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture.ts",
+      "sourceLine": 38,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture.ts",
+      "sourceLine": 63,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.test.ts",
+      "sourceLine": 358,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.test.ts",
+      "sourceLine": 377,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.test.ts",
+      "sourceLine": 624,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ViewData/GetView",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+      "sourceLine": 14,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ViewData/SaveView",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+      "sourceLine": 21,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/DataWorkFlowDesign/read",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
       "sourceLine": 14,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataWorkFlowDesign/write",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
       "sourceLine": 20,
       "scope": "publishable-lowcode-api"
     },
@@ -1212,25 +1212,25 @@
     },
     {
       "expression": "/api/DataOperation/GetData",
-      "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
+      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "sourceLine": 170,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetData",
-      "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
+      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "sourceLine": 274,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Db/registerServer",
-      "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "sourceLine": 271,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Db/testConnection",
-      "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "sourceLine": 629,
       "scope": "app-composition"
     },
@@ -1242,13 +1242,13 @@
     },
     {
       "expression": "/api/test",
-      "sourceFile": "src/views/app/CapabilityDemo.vue",
+      "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
       "sourceLine": 213,
       "scope": "app-composition"
     },
     {
       "expression": "/api/demo",
-      "sourceFile": "src/views/app/CapabilityDemo.vue",
+      "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
       "sourceLine": 315,
       "scope": "app-composition"
     }

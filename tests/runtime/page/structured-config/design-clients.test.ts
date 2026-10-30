@@ -1,5 +1,5 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
-import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/shared/staged-design-file-view'
+import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataCodeDesignClient, LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient, ExcelImportDesignClient, PdfInspectDesignClient} from '@spark-appworks/spark-lowcode-api'
 import {StructuredCatalogHttp} from './structured-config-catalog.fixture'

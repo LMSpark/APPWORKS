@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/json-data/resource",
+    "sourcePath": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/json-data/resource",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/resource",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeJsonData"
+    ]
+  },
+  "$defs": {
+    "LowcodeJsonData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeJsonData",
+      "properties": {
+        "navigationScenarioId": true,
+        "catalogMetaName": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadCatalog.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadCatalog.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.loadPage.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPage.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.792Z",
+  "models": {
+    "LowcodeJsonData": {
+      "name": "LowcodeJsonData",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "navigationScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogMetaName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadCatalog",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadPage",
+              "jsdoc": "目录 + 内容编辑视图（页面唯一 DataSet 入口）。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

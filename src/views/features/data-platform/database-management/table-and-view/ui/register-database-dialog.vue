@@ -24,8 +24,8 @@
 
 <script setup lang="ts">
 import {RendererButton, RendererDialog, RendererForm} from '@spark-appworks/spark-component'
-import type {DatabaseCatalogDbEditingUi} from '@/lowcode/resources/database/database-catalog-db-view-ops'
-import {DATABASE_DIRECTORY_EDIT_FORM_FIELDS, DATABASE_DIRECTORY_FORM_FIELDS} from '@/lowcode/resources/database/lowcode-database-directory'
+import type {DatabaseCatalogDbEditingUi} from '@/lowcode/resources/database/catalog/db-view-ops'
+import {DATABASE_DIRECTORY_EDIT_FORM_FIELDS, DATABASE_DIRECTORY_FORM_FIELDS} from '@/lowcode/resources/database/directory'
 
 defineProps<{
   catalogKey: string

@@ -26,7 +26,7 @@ import {computed, ref, watch} from 'vue'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import type {DevState} from '../useDevState'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 
 const {DisplayAlert,FieldNumber,FieldRadio,FieldSelect,FieldSwitch,RendererDivider,RendererForm}=SparkComponent
 const props=defineProps<{state:DevState}>()

@@ -78,7 +78,7 @@ import {
   type RToolbarProps,
 } from '@spark-appworks/spark-component'
 import type {DataRow} from '@spark-appworks/spark-data'
-import type {DatabaseCatalogWorkflowQuery} from '@/lowcode/resources/database/database-catalog-workflow-view-ops'
+import type {DatabaseCatalogWorkflowQuery} from '@/lowcode/resources/database/catalog/workflow/view-ops'
 
 const props = defineProps<{
   title: string

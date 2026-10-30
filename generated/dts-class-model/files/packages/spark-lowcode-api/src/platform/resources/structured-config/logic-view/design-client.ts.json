@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/logic-view/design-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图设计 JSON 的 read/write（ViewData 合同）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LogicViewDesignPayload",
+      "LogicViewDesignClient"
+    ]
+  },
+  "$defs": {
+    "LogicViewDesignPayload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewDesignPayload",
+      "properties": {
+        "viewId": {
+          "type": "string"
+        },
+        "data": true
+      },
+      "required": [
+        "viewId",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "LogicViewDesignClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewDesignClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<LogicViewDesignPayload>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "payload": {
+              "$ref": "#/$defs/LogicViewDesignPayload"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.675Z",
+  "models": {
+    "LogicViewDesignPayload": {
+      "name": "LogicViewDesignPayload",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    viewId: string;\n    data: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    viewId: string;\n    data: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LogicViewDesignClient": {
+      "name": "LogicViewDesignClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LogicViewDesignPayload",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "payload",
+                  "type": {
+                    "type": "reference",
+                    "name": "LogicViewDesignPayload",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

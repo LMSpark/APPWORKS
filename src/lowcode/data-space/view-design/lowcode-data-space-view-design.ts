@@ -8,7 +8,7 @@ import { LowcodeDataSpaceViewLayout } from './lowcode-data-space-view-layout'
 import { LowcodeDataSpaceViewMetadata } from './lowcode-data-space-view-metadata'
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import { LowcodeDataSpaceViewFields } from './lowcode-data-space-view-fields'
-import { LowcodeDataSpaceFieldValue } from '../model-source/field-value/lowcode-data-space-field-value'
+import { LowcodeDataSpaceFieldValue } from '../model-source/field/lowcode-data-space-field-value'
 import { LowcodeDataSpaceRelationMetadata } from './lowcode-data-space-relation-metadata'
 import { LowcodeDataSpaceCascadeMetadata } from './lowcode-data-space-cascade-metadata'
 
@@ -17,27 +17,27 @@ import {
   type InputParameterEditHost, type ParameterEditStatus,
 } from '../input-parameters/lowcode-data-space-input-parameter-session'
 import { LowcodeDataSpaceInputParameterReferences, type InputParameterInspection } from '../input-parameters/lowcode-data-space-input-parameter-references'
-import {createSourceInputHandle, createSourceInputHost, type SourceInputHandle} from '../model-source/source-input/lowcode-data-space-source-input-session'
-import {createModelEditHandle, createModelEditHost, type ModelEditSession} from '../model-source/model-edit/lowcode-data-space-model-edit-session'
+import {createSourceInputHandle, createSourceInputHost, type SourceInputHandle} from '../model-source/source/lowcode-data-space-source-input-session'
+import {createModelEditHandle, createModelEditHost, type ModelEditSession} from '../model-source/model/lowcode-data-space-model-edit-session'
 import {createArrayHandle, createArrayHost, type ArrayDefinitionChange, type ArrayEditHandle} from '../model-source/array/lowcode-data-space-array-session'
 import { LowcodeDataSpaceArrayConfiguration } from '../model-source/array/lowcode-data-space-array-configuration'
 import {createModelRenameHandle, createModelRenameHost, type ModelRenameFilePlan, type ModelRenameHandle} from '../model-source/rename/lowcode-data-space-model-rename-session'
 import { LowcodeDataSpaceModelRenameTools } from '../model-source/rename/lowcode-data-space-model-rename-tools'
 import {createModelRemoveHandle, createModelRemoveHost, type LowcodeDataSpaceModelRemovalFilePlan, type ModelRemoveHandle} from '../model-source/removal/lowcode-data-space-model-remove-session'
-import {createFieldEditHandle, createFieldEditHost, type FieldEditSession} from '../model-source/field-edit/lowcode-data-space-field-edit-session'
-import {createFieldCreateHandle, createFieldCreateHost, type FieldCreateHandle} from '../model-source/field-create/lowcode-data-space-field-create-session'
+import {createFieldEditHandle, createFieldEditHost, type FieldEditSession} from '../model-source/field/lowcode-data-space-field-edit-session'
+import {createFieldCreateHandle, createFieldCreateHost, type FieldCreateHandle} from '../model-source/field/lowcode-data-space-field-create-session'
 import {createFieldRemoveHandle, createFieldRemoveHost, type FieldRemoveHandle} from '../model-source/removal/lowcode-data-space-field-remove-session'
 import { LowcodeDataSpaceFieldRemoveReferences } from '../model-source/removal/lowcode-data-space-field-remove-references'
-import { LowcodeDataSpaceFieldOutput } from '../model-source/field-output/lowcode-data-space-field-output'
-import {createModelCreateHandle, createModelCreateHost, type ModelCreateHandle, type ModelCreateSources} from '../model-source/lowcode-data-space-model-create-session'
+import { LowcodeDataSpaceFieldOutput } from '../model-source/field/lowcode-data-space-field-output'
+import {createModelCreateHandle, createModelCreateHost, type ModelCreateHandle, type ModelCreateSources} from '../model-source/model/lowcode-data-space-model-create-session'
 import {
   createModelSourceEditHandle,
   createModelSourceEditHost,
   type ModelSourceEditHandle,
   type SourceContractChange,
   type SourceContractPlan,
-} from '../model-source/source-edit/lowcode-data-space-model-source-edit-session'
-import { LowcodeDataSpaceModelDependencies } from '../model-source/lowcode-data-space-model-dependencies'
+} from '../model-source/source/lowcode-data-space-model-source-edit-session'
+import { LowcodeDataSpaceModelDependencies } from '../model-source/model/lowcode-data-space-model-dependencies'
 import { LowcodeDataSpaceQueryPreview } from './preview/lowcode-data-space-query-preview'
 import {LowcodeDataSpaceMetadata} from '../lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from '../lowcode-model-relation-adapter'

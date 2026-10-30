@@ -42,7 +42,7 @@
 import {computed} from 'vue'
 import {FieldSelect, FieldText, RendererButton, RendererDialog, RendererFilterExpression, RendererForm} from '@spark-appworks/spark-component'
 import type {DataColumn, DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
-import type {DatabaseCatalogRelationSession} from '@/lowcode/resources/database/database-catalog-relation-form-ops'
+import type {DatabaseCatalogRelationSession} from '@/lowcode/resources/database/catalog/relation/form-ops'
 
 const cascadeOptions = [{value: 0, label: '否'}, {value: 1, label: '是'}]
 

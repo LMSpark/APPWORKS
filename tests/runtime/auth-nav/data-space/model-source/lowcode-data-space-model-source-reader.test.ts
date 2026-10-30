@@ -3,7 +3,7 @@ import { DataSet, DataViewFilter, resolveDataViewMember, type DataView, type Que
 import { DataSpaceQueryContext } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import { DataSpaceQueryTable } from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import {DataSpaceRuntimeApi} from '../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api'
-import {DictionaryHttp} from '../../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
+import {DictionaryHttp} from '../../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 
@@ -16,7 +16,7 @@ const { runtimeQuery, readRequestScope, loadDictionaryDefinition } = vi.hoisted(
 vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {
   readRequestScope,
 }}))
-vi.mock('@/lowcode/resources/dictionary/lowcode-dictionary', () => ({LowcodeDictionary: {loadDefinition: loadDictionaryDefinition}}))
+vi.mock('@/lowcode/resources/structured-config/dictionary/resource', () => ({LowcodeDictionary: {loadDefinition: loadDictionaryDefinition}}))
 
 import { LowcodeDataSpaceModelSourceReader } from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'

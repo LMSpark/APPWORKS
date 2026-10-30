@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/workflow-definition/design-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client\n职责：数据工作流设计 JSON 读写适配（参考 DataWorkFlowDesign，实服 URL 待核）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowDefinitionDesignPayload",
+      "WorkflowDesignClient"
+    ]
+  },
+  "$defs": {
+    "WorkflowDefinitionDesignPayload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDefinitionDesignPayload",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "nodes": true,
+        "connectors": true
+      },
+      "required": [
+        "workflowId",
+        "nodes",
+        "connectors"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<WorkflowDefinitionDesignPayload>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "$ref": "#/$defs/WorkflowDefinitionDesignPayload"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.677Z",
+  "models": {
+    "WorkflowDefinitionDesignPayload": {
+      "name": "WorkflowDefinitionDesignPayload",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    nodes: unknown;\n    connectors: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    nodes: unknown;\n    connectors: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "connectors",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignClient": {
+      "name": "WorkflowDesignClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "WorkflowDefinitionDesignPayload",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": {
+                    "type": "reference",
+                    "name": "WorkflowDefinitionDesignPayload",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

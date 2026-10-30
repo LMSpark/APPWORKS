@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/file-resource-query-parameters",
+    "sourcePath": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
+    "sourceFile": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/file-resource-query-parameters",
+    "jsdoc": "app 的 lowcode/resources/repository/file-resource-query-parameters 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T15:31:33.701Z",
+  "models": {}
+}

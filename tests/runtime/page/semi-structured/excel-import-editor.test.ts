@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
-import {LowcodeExcelImport} from '@/lowcode/resources/excel-import/lowcode-excel-import'
+import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {buildFormalModels} from '../structured-config/structured-config-catalog.fixture'
 import {SemiStructuredHttp} from './semi-structured-http.fixture'
 

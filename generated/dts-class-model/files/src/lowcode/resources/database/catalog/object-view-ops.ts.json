@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/object-view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/object-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/object-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/object-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/object-view-ops\n职责：_Base_TblList / _Base_ViewList 目录行删除（模型 remove + saveChanges）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.752Z",
+  "models": {}
+}

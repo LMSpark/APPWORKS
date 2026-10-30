@@ -1,0 +1,780 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
+    "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
+    "jsdoc": "@module lowcode/data-space/model-source/field/lowcode-data-space-field-create-session\n职责：计算字段新增的输入草稿、暂存、提交与精确回读（无独立命令类 FSM）。\n边界：局部输入视图不授权或持久化；新增经原元数据 DataView 和 DataSet 提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FieldCreateStatus",
+      "FieldCreateFlow",
+      "FieldCreateLifecycle",
+      "FieldCreateHost",
+      "FieldCreateHostInput",
+      "FieldCreateHandle"
+    ]
+  },
+  "$defs": {
+    "FieldCreateStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FieldCreateStatus",
+      "enum": [
+        "idle",
+        "unknown",
+        "readback",
+        "saving",
+        "different",
+        "editing"
+      ]
+    },
+    "FieldCreateFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/FieldCreateStatus"
+        },
+        "modelIdentity": {
+          "type": "string"
+        },
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "expected": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataRow"
+        },
+        "stagedSnapshot": {
+          "type": "string"
+        },
+        "verification": {
+          "type": "string"
+        },
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureSignature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "modelIdentity",
+        "id",
+        "expected",
+        "stagedSnapshot",
+        "verification",
+        "capture",
+        "captureSignature"
+      ],
+      "additionalProperties": false
+    },
+    "FieldCreateLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.readDefinition.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readDefinition.return": {
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "DataSet"
+            },
+            {
+              "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.assertStaging.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertStaging.return": true
+      }
+    },
+    "FieldCreateHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateHost",
+      "properties": {
+        "input": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "contexts": {
+          "type": "string"
+        },
+        "flow": {
+          "$ref": "#/$defs/FieldCreateFlow"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldCreateLifecycle"
+        }
+      },
+      "required": [
+        "input",
+        "fields",
+        "models",
+        "dataSet",
+        "targetId",
+        "modelId",
+        "viewId",
+        "contexts",
+        "flow",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
+    "FieldCreateHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateHostInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldCreateLifecycle"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
+    "FieldCreateHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateHandle",
+      "properties": {
+        "input": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.begin.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.begin.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof fieldCreateGetState>"
+        },
+        "method.readValueFunction.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readValueFunction.return": {
+          "type": "object",
+          "title": "ReturnType<typeof fieldCreateReadValueFunction>"
+        },
+        "method.stageValueFunction.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stageValueFunction.return": true,
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.abandonNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonNotApplied.return": true,
+        "method.discardLocalChangesAndVerify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChangesAndVerify.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T20:12:39.404Z",
+  "models": {
+    "FieldCreateStatus": {
+      "name": "FieldCreateStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'editing' | 'saving' | 'unknown' | 'readback' | 'different'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'editing'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldCreateFlow": {
+      "name": "FieldCreateFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: FieldCreateStatus;\n    modelIdentity: string;\n    id: string | null;\n    expected: DataRow | null;\n    stagedSnapshot: string;\n    verification: string;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignature: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelIdentity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expected",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stagedSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capture",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "captureSignature",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldCreateLifecycle": {
+      "name": "FieldCreateLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    readDefinition?(): DataSet | ScenarioViewConfig | null;\n    validate(values: DataRow): Promise<() => void>;\n    assertStaging?(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    readDefinition?(): DataSet | ScenarioViewConfig | null;\n    validate(values: DataRow): Promise<() => void>;\n    assertStaging?(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readDefinition",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "values",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertStaging",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldCreateHost": {
+      "name": "FieldCreateHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly input: DataView;\n    readonly fields: DataView;\n    readonly models: DataView;\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly viewId: 'default' | 'modelFields';\n    readonly contexts: string;\n    flow: FieldCreateFlow;\n    lifecycle: FieldCreateLifecycle;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contexts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldCreateHostInput": {
+      "name": "FieldCreateHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: FieldCreateLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: FieldCreateLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldCreateHandle": {
+      "name": "FieldCreateHandle",
+      "jsdoc": "页面与测试沿用的句柄；方法委托会话 host，不单独持有命令类 FSM。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly input: DataView;\n    begin(): void;\n    cancel(): void;\n    getState(): ReturnType<typeof fieldCreateGetState>;\n    readValueFunction(): ReturnType<typeof fieldCreateReadValueFunction>;\n    stageValueFunction(value: string): void;\n    stage(): Promise<string>;\n    save(): Promise<string>;\n    verify(): Promise<string | null>;\n    abandonNotApplied(): void;\n    discardLocalChangesAndVerify(): Promise<string | null>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "begin",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof fieldCreateGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readValueFunction",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof fieldCreateReadValueFunction"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stageValueFunction",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stage",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "abandonNotApplied",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardLocalChangesAndVerify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

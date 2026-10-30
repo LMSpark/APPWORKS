@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/relation/view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/relation/view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/relation/view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/relation/view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/relation/view-ops\n职责：Base_TblRln 按当前表 ID 查询（OR pktbid/fktbid）及目录删除。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.755Z",
+  "models": {}
+}

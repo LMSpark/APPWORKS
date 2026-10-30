@@ -19,7 +19,7 @@ import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
+import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()

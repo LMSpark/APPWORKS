@@ -18,7 +18,7 @@ import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeWorkflowDefinition} from '@/lowcode/resources/workflow-definition/lowcode-workflow-definition'
+import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
 

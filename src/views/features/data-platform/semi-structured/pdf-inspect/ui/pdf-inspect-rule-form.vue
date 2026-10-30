@@ -6,7 +6,7 @@
 </template>
 <script setup lang="ts">
 import {computed} from 'vue'
-import {parseJsonObject} from '@/lowcode/resources/shared/staged-design-file-view'
+import {parseJsonObject} from '@/lowcode/resources/repository/staged-design-file-view'
 const props = defineProps<{modelValue: unknown}>()
 const emit = defineEmits<{ 'update:modelValue': [value: unknown] }>()
 const text = computed(() => JSON.stringify(props.modelValue ?? {}, null, 2))

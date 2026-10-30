@@ -53,8 +53,8 @@ import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spar
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
   useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/lowcode-database-server'
-import {DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
+import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/server/resource'
+import {DATABASE_SERVER_FILTER_TYPE_OPTIONS, DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/server/catalog-metadata'
 import {
   databaseServerBeginCreate,
   databaseServerBeginEdit,
@@ -69,7 +69,7 @@ import {
   databaseServerTestConnection,
   requireDatabaseServerView,
   type DatabaseServerEditState,
-} from '@/lowcode/resources/database/database-server-view-ops'
+} from '@/lowcode/resources/database/server/view-ops'
 
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')

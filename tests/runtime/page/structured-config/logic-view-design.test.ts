@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
-import {LowcodeLogicView} from '@/lowcode/resources/logic-view/lowcode-logic-view'
+import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

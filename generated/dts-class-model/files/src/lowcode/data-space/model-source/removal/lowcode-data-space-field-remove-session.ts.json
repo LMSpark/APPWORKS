@@ -190,10 +190,10 @@
           "type": "string"
         },
         "dependencies": {
-          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+          "$ref": "../model/lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
         },
         "recoveryCapture": {
-          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+          "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
         },
         "flow": {
           "$ref": "#/$defs/FieldRemoveFlow"
@@ -274,7 +274,7 @@
           "additionalProperties": false
         },
         "method.getRecoveryCapture.return": {
-          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+          "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
         },
         "method.preview.params": {
           "type": "object",
@@ -306,7 +306,7 @@
           "additionalProperties": false
         },
         "method.prepareSave.return": {
-          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
+          "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
         },
         "method.save.params": {
           "type": "object",
@@ -335,7 +335,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.424Z",
+  "generatedAt": "2026-10-30T20:12:39.433Z",
   "models": {
     "FieldRemoveStatus": {
       "name": "FieldRemoveStatus",
@@ -675,7 +675,7 @@
                 "elementType": {
                   "type": "reference",
                   "name": "DataSpaceDefinitionCaptureBatch",
-                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                  "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts"
                 }
               }
             },
@@ -721,7 +721,7 @@
               "type": {
                 "type": "reference",
                 "name": "DataSpaceDefinitionSavePart",
-                "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts"
               }
             },
             {

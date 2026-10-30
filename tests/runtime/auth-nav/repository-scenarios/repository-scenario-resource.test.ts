@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {readFileSync} from 'node:fs'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readRepositoryScenarioText} from '@/lowcode/resources/shared/repository-scenarios/repository-scenario-resource'
+import {readRepositoryScenarioText} from '@/lowcode/resources/repository/scenarios/resource'
 
 const applicationId = 'D99A1DCE9894698799101EFD70F8FC76'
 const scenarioIds = [

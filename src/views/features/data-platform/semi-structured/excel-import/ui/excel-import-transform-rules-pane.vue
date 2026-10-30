@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {RendererButton} from '@spark-appworks/spark-component'
-import {parseJsonValue} from '@/lowcode/resources/shared/staged-design-file-view'
+import {parseJsonValue} from '@/lowcode/resources/repository/staged-design-file-view'
 const props = defineProps<{modelValue: unknown}>()
 const emit = defineEmits<{ 'update:modelValue': [value: unknown]; openLookup: []; openRule: [] }>()
 const text = computed(() => JSON.stringify(props.modelValue ?? [], null, 2))

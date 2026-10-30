@@ -22,7 +22,7 @@
           "type": "object",
           "properties": {
             "status": {
-              "$ref": "../../../../../../../lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
+              "$ref": "../../../../../../../lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
             },
             "pending": {
               "enum": [
@@ -404,7 +404,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.342Z",
+  "generatedAt": "2026-10-30T20:12:39.542Z",
   "models": {
     "SourceState": {
       "name": "SourceState",

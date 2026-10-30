@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
-import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
+import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/relation/metadata",
+    "sourcePath": "src/lowcode/resources/database/catalog/relation/metadata.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/relation/metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/relation/metadata",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/relation/metadata\n职责：Base_TblRln 关系列表标准子组件（同 DataSet 查询/删除/暂存保存）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.754Z",
+  "models": {}
+}

@@ -1729,8 +1729,8 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldJson, PAGE_RUNTIME, RendererForm, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/shared/agent-workflow-file-owner'
-import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/shared/agent-workflow-file-resource'
+import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow-file-owner'
+import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/repository/agent-workflow-file-resource'
 import '@vue-flow/minimap/dist/style.css'
 import {
   ArrowDown,

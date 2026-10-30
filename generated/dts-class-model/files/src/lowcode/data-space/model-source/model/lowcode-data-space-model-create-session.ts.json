@@ -1,0 +1,1004 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-create-session",
+    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-create-session",
+    "jsdoc": "@module lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\n职责：从正式来源创建模型及所属字段，经原元数据 DataSet 按范围提交和核验（无独立命令类 FSM）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ModelCreateSources",
+      "ModelCreateStatus",
+      "ModelCreateFlow",
+      "ModelCreateLifecycle",
+      "ModelCreateHost",
+      "ModelCreateHostInput",
+      "ModelCreateHandle"
+    ]
+  },
+  "$defs": {
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "type": {
+          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dbid": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name",
+        "description",
+        "dbid",
+        "databaseName",
+        "providerId"
+      ],
+      "additionalProperties": false
+    },
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "Candidate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Candidate",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "prepared": {
+          "$ref": "#/$defs/Prepared"
+        }
+      },
+      "required": [
+        "name",
+        "prepared"
+      ],
+      "additionalProperties": false
+    },
+    "Staged": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Staged",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "id": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "snapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "id",
+        "values",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "ModelCreateStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ModelCreateStatus",
+      "enum": [
+        "idle",
+        "unsubmitted",
+        "unknown",
+        "readback",
+        "previewing",
+        "ready",
+        "saving",
+        "different"
+      ]
+    },
+    "ModelCreateFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/ModelCreateStatus"
+        },
+        "generation": {
+          "type": "number"
+        },
+        "preview": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Candidate"
+        },
+        "staged": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Staged"
+          }
+        },
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureSignatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "view",
+              "ids",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "readbackSignatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "view",
+              "ids",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "unresolved": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "table": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "table",
+              "id",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "status",
+        "generation",
+        "preview",
+        "staged",
+        "capture",
+        "captureSignatures",
+        "readbackSignatures",
+        "unresolved",
+        "verification"
+      ],
+      "additionalProperties": false
+    },
+    "ModelCreateLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true
+      }
+    },
+    "ModelCreateHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateHost",
+      "properties": {
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fieldSource": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fieldContext": {
+          "type": "string"
+        },
+        "modelContext": {
+          "type": "string"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "object",
+          "title": "ModelCreateSources"
+        },
+        "flow": {
+          "$ref": "#/$defs/ModelCreateFlow"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelCreateLifecycle"
+        }
+      },
+      "required": [
+        "models",
+        "fieldSource",
+        "fields",
+        "fieldContext",
+        "modelContext",
+        "dataSet",
+        "targetId",
+        "sources",
+        "flow",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
+    "ModelCreateHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateHostInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "object",
+          "title": "ModelCreateSources"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelCreateLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "sources",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
+    "ModelCreateHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof modelCreateGetState>"
+        },
+        "method.setName.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setName.return": true,
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "#/$defs/Source"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createArray.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../array/lowcode-data-space-array-draft.ts.json#/$defs/ArrayDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createArray.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
+        },
+        "method.abandonNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T20:12:39.425Z",
+  "models": {
+    "ModelCreateSources": {
+      "name": "ModelCreateSources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SourceReader | undefined",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "SourceReader",
+            "targetName": "SourceReader"
+          },
+          {
+            "kind": "union",
+            "typeText": "undefined"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Source": {
+      "name": "Source",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<NonNullable<SourceReader>['prepare']>[0]",
+        "members": {}
+      }
+    },
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<NonNullable<SourceReader>['prepare']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<NonNullable<SourceReader>['prepare']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Candidate": {
+      "name": "Candidate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    name: string;\n    prepared: Prepared;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepared",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "Staged": {
+      "name": "Staged",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    view: DataView;\n    id: string;\n    values: Readonly<Record<string, unknown>>;\n    snapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "values",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateStatus": {
+      "name": "ModelCreateStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'previewing' | 'ready' | 'saving' | 'unsubmitted' | 'unknown' | 'readback' | 'different'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'previewing'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ready'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ModelCreateFlow": {
+      "name": "ModelCreateFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: ModelCreateStatus;\n    generation: number;\n    preview: Candidate | null;\n    staged: Staged[];\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    readbackSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    unresolved: boolean;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "generation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "preview",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "staged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capture",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "captureSignatures",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readbackSignatures",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "unresolved",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateLifecycle": {
+      "name": "ModelCreateLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateHost": {
+      "name": "ModelCreateHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly models: DataView;\n    readonly fieldSource: DataView;\n    fields: DataView | undefined;\n    fieldContext: string;\n    readonly modelContext: string;\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly sources: ModelCreateSources;\n    flow: ModelCreateFlow;\n    lifecycle: ModelCreateLifecycle;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldContext",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateHostInput": {
+      "name": "ModelCreateHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateHandle": {
+      "name": "ModelCreateHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    abandonNotApplied(): Promise<void>;\n    discardLocalChanges(): Promise<string>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof modelCreateGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setName",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "Source",
+                    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createArray",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinition",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        confirmed: boolean;\n        modelId: string | null;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "abandonNotApplied",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardLocalChanges",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

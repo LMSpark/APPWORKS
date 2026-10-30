@@ -254,7 +254,7 @@
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dependencies": {
-          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+          "$ref": "../model/lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
         },
         "views": {
           "type": "array",
@@ -393,7 +393,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-24T05:10:03.611Z",
+  "generatedAt": "2026-10-30T20:12:39.439Z",
   "models": {
     "ModelRenameFilePlan": {
       "name": "ModelRenameFilePlan",

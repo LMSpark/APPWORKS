@@ -6,11 +6,11 @@
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataSpaceArrayDraft, type ArrayDefinition} from './lowcode-data-space-array-draft'
-import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionRecoveryOptions} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionRecoveryOptions} from '../data-space-definition-save'
 import {LowcodeDataSpaceModelRenameReferences, type ModelNameChange} from '../rename/lowcode-data-space-model-rename-references'
 import type {ModelRenameFilePlan} from '../rename/lowcode-data-space-model-rename-session'
 import {LowcodeDataSpaceFieldRemoveReferences, type FieldRename} from '../removal/lowcode-data-space-field-remove-references'
-import {LowcodeDataSpaceModelDependencies} from '../lowcode-data-space-model-dependencies'
+import {LowcodeDataSpaceModelDependencies} from '../model/lowcode-data-space-model-dependencies'
 
 
 /** 一条已有数组字段的差异；不改变其他属性或正式身份。 */

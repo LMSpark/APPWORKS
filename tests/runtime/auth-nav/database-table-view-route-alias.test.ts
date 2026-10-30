@@ -4,7 +4,7 @@ import {buildComponentMap, getVuePageRouteAliases} from '@/registries/vue-page-r
 import {createDynamicRouter} from '../../../packages/spark-app/src/router/dynamic'
 import {SystemPageIdentityResolver} from '../../../packages/spark-app/src/router/system-page-identity/system-page-identity-resolver'
 import type {RuntimeNavigation, RuntimeNavigationItem} from '@spark-appworks/spark-app'
-import {DATABASE_TABLE_VIEW_SCENARIO_ID} from '../page/database/database-table-view.fixture'
+import {DATABASE_TABLE_VIEW_SCENARIO_ID} from '../page/database/catalog/table-view.fixture'
 
 const CANONICAL_PATH = '/features/data-platform/database-management/table-and-view/ui/table-and-view-page'
 const LEGACY_PATH = '/DataBaseManage/TableAndView'

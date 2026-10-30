@@ -4,9 +4,9 @@
  * 边界：原DataView承担权限与批量保存；未知回执只回读，不重放数据库写入。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '../data-space-definition-save'
 import {LowcodeDataSpaceModelRenameReferences, type ModelNameChange} from './lowcode-data-space-model-rename-references'
-import {LowcodeDataSpaceModelDependencies} from '../lowcode-data-space-model-dependencies'
+import {LowcodeDataSpaceModelDependencies} from '../model/lowcode-data-space-model-dependencies'
 
 /** 原场景文件owner提供的绑定变更计划，不提供第二条文件写入通道。 */
 export type ModelRenameFilePlan = Readonly<{

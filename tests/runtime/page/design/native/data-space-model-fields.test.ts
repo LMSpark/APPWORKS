@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+import {fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {fixtures.splice(0).forEach(fixture => fixture.dispose())})

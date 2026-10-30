@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/table/field-view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/table/field-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/table/field-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/table/field-view-ops\n职责：Base_TblField 字段目录 staged 保存编排（非 query/save owner）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogFieldViewId",
+      "DatabaseCatalogDesignSavePendingInput"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogFieldViewId": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DatabaseCatalogFieldViewId",
+      "enum": [
+        "tableFields",
+        "viewFields"
+      ]
+    },
+    "DatabaseCatalogDesignSavePendingInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogDesignSavePendingInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "fieldView": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "objectView": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "extraViews": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        }
+      },
+      "required": [
+        "dataSet",
+        "fieldView"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.762Z",
+  "models": {
+    "DatabaseCatalogFieldViewId": {
+      "name": "DatabaseCatalogFieldViewId",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof DATABASE_CATALOG_FIELD_TABLE_VIEW | typeof DATABASE_CATALOG_FIELD_VIEW_VIEW",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "typeof DATABASE_CATALOG_FIELD_TABLE_VIEW"
+          },
+          {
+            "kind": "union",
+            "typeText": "typeof DATABASE_CATALOG_FIELD_VIEW_VIEW"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DatabaseCatalogDesignSavePendingInput": {
+      "name": "DatabaseCatalogDesignSavePendingInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    fieldView: DataView;\n    objectView?: DataView;\n    extraViews?: readonly DataView[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    fieldView: DataView;\n    objectView?: DataView;\n    extraViews?: readonly DataView[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "extraViews",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

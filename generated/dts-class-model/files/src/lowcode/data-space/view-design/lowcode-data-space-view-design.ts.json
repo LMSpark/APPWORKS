@@ -828,7 +828,7 @@
           "additionalProperties": false
         },
         "method.getSourceInput.return": {
-          "$ref": "../model-source/source-input/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
+          "$ref": "../model-source/source/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
         },
         "method.loadSourceInputFields.params": {
           "type": "object",
@@ -855,7 +855,7 @@
         "method.getModelSourceInputs.return": {
           "type": "array",
           "items": {
-            "$ref": "../model-source/source-input/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
+            "$ref": "../model-source/source/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
           }
         },
         "method.hasPendingSourceInputs.params": {
@@ -908,7 +908,7 @@
           "additionalProperties": false
         },
         "method.getFieldEdit.return": {
-          "$ref": "../model-source/field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditSession"
+          "$ref": "../model-source/field/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditSession"
         },
         "method.getFieldCreate.params": {
           "type": "object",
@@ -926,7 +926,7 @@
           "additionalProperties": false
         },
         "method.getFieldCreate.return": {
-          "$ref": "../model-source/field-create/lowcode-data-space-field-create-session.ts.json#/$defs/FieldCreateHandle"
+          "$ref": "../model-source/field/lowcode-data-space-field-create-session.ts.json#/$defs/FieldCreateHandle"
         },
         "method.releaseFieldCreate.params": {
           "type": "object",
@@ -1019,7 +1019,7 @@
           "additionalProperties": false
         },
         "method.getModelEdit.return": {
-          "$ref": "../model-source/model-edit/lowcode-data-space-model-edit-session.ts.json#/$defs/ModelEditSession"
+          "$ref": "../model-source/model/lowcode-data-space-model-edit-session.ts.json#/$defs/ModelEditSession"
         },
         "method.getArrayEdit.params": {
           "type": "object",
@@ -1111,7 +1111,7 @@
           "additionalProperties": false
         },
         "method.getModelCreate.return": {
-          "$ref": "../model-source/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateHandle"
+          "$ref": "../model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateHandle"
         },
         "method.hasPendingModelCreate.params": {
           "type": "object",
@@ -1131,7 +1131,7 @@
           "additionalProperties": false
         },
         "method.getModelSourceEdit.return": {
-          "$ref": "../model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json#/$defs/ModelSourceEditHandle"
+          "$ref": "../model-source/source/lowcode-data-space-model-source-edit-session.ts.json#/$defs/ModelSourceEditHandle"
         },
         "method.hasPendingModelSourceEdits.params": {
           "type": "object",
@@ -1398,7 +1398,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.672Z",
+  "generatedAt": "2026-10-30T20:12:39.453Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -2448,7 +2448,7 @@
               "type": {
                 "type": "reference",
                 "name": "SourceInputHandle",
-                "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts"
               }
             },
             {
@@ -2491,7 +2491,7 @@
                 "elementType": {
                   "type": "reference",
                   "name": "SourceInputHandle",
-                  "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts"
+                  "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts"
                 }
               }
             },
@@ -2584,7 +2584,7 @@
               "type": {
                 "type": "reference",
                 "name": "FieldEditSession",
-                "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts"
               }
             },
             {
@@ -2621,7 +2621,7 @@
               "type": {
                 "type": "reference",
                 "name": "FieldCreateHandle",
-                "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts"
               }
             },
             {
@@ -2788,7 +2788,7 @@
               "type": {
                 "type": "reference",
                 "name": "ModelEditSession",
-                "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts"
               }
             },
             {
@@ -2942,7 +2942,7 @@
               "type": {
                 "type": "reference",
                 "name": "ModelCreateHandle",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts"
               }
             },
             {
@@ -2969,7 +2969,7 @@
               "type": {
                 "type": "reference",
                 "name": "ModelSourceEditHandle",
-                "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts"
               }
             },
             {

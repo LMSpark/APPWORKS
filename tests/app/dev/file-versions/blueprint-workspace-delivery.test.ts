@@ -14,8 +14,8 @@ import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig
 import NodeStateConfig from '@/views/app/dev-system/components/NodeStateConfig.vue'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {readBuiltinSystemNavigation, BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/shared/builtin-system-navigation'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import {readBuiltinSystemNavigation, BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import NodeLayoutConfig from '@/views/app/dev-system/components/NodeLayoutConfig.vue'
 
 const api = vi.hoisted(() => ({

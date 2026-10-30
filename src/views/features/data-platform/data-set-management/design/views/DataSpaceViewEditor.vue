@@ -233,8 +233,8 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryAggregation} from '@spark-appworks/spark-lowcode-api'
 import type {DataSpaceViewEditorProps} from './DataSpaceViewEditor.props'
 import DataSpaceQueryPreview from './preview/DataSpaceQueryPreview.vue'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
-import {fileResourceQueryParameters} from '@/lowcode/resources/shared/file-resource-query-parameters'
+import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
+import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
 
 const {FieldJson, FieldNumber, FieldSelect, FieldCheckbox, FieldText, RendererButton, RendererDialog, RendererForm, RendererFilterExpression, RendererSection, RendererTabs, RendererTabPane} = SparkComponent
 const props = defineProps<DataSpaceViewEditorProps>()

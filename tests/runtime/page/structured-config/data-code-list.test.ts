@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
 import {defineComponent, h} from 'vue'
 import DataCodeList from '@/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'
-import {LowcodeDataCode} from '@/lowcode/resources/data-code/lowcode-data-code'
+import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
 

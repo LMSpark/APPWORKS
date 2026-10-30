@@ -27,7 +27,7 @@ import {computed, ref} from 'vue'
 import {DictionarySchema} from '@spark-appworks/spark-lowcode-api'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererForm, RendererButton, RendererDialog} from '@spark-appworks/spark-component'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 
 const props = defineProps<{dictionaryId: string; create?: boolean; applicationScenarioId?: string}>()

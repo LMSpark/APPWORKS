@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import PdfEditor from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue'
-import {LowcodePdfInspect} from '@/lowcode/resources/pdf-inspect/lowcode-pdf-inspect'
+import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
 import {buildFormalModels} from '../structured-config/structured-config-catalog.fixture'
 import {SemiStructuredHttp} from './semi-structured-http.fixture'
 

@@ -8,7 +8,7 @@ import {DATA_ROW, FieldText, PAGE_RUNTIME, RendererButton, RendererTree, Spark, 
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ProjectBlueprintTree from '@/views/app/dev-system/ProjectBlueprintTree.vue'
 import {BlueprintWorkspaceDataView, isBlueprintViewAttachedToRuntime} from '@/services/project/blueprint-workspace-dataview'
-import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import type {DevState} from '@/views/app/dev-system/useDevState'
 
 function createOwner(nodeName='Orders'):{owner:BlueprintWorkspaceDataView;dataSet:DataSet} {

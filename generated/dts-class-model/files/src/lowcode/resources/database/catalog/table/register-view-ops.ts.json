@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/table/register-view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/table/register-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/table/register-view-ops\n职责：`POST /Table/registerTable/{dbid}`、`POST /View/registerView/{dbid}` 写命令编排。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogRegisterTableItem",
+      "DatabaseCatalogRegisterViewItem"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogRegisterTableItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogRegisterTableItem",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "tableComment": {
+          "type": "string"
+        },
+        "addDefaultFields": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "tableName",
+        "tableComment",
+        "addDefaultFields"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseCatalogRegisterViewItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogRegisterViewItem",
+      "properties": {
+        "viewName": {
+          "type": "string"
+        },
+        "viewComment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "viewName",
+        "viewComment"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.768Z",
+  "models": {
+    "DatabaseCatalogRegisterTableItem": {
+      "name": "DatabaseCatalogRegisterTableItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableName: string;\n    tableComment: string;\n    addDefaultFields: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableName: string;\n    tableComment: string;\n    addDefaultFields: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableComment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "addDefaultFields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogRegisterViewItem": {
+      "name": "DatabaseCatalogRegisterViewItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    viewName: string;\n    viewComment: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    viewName: string;\n    viewComment: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewComment",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -232,7 +232,7 @@
           }
         },
         "capture": {
-          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+          "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
         },
         "confirmed": {
           "enum": [
@@ -319,7 +319,7 @@
           "$ref": "#/$defs/ArraySessionLifecycle"
         },
         "dependencies": {
-          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+          "$ref": "../model/lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
         },
         "flow": {
           "$ref": "#/$defs/ArraySessionFlow"
@@ -437,7 +437,7 @@
           "type": "object",
           "properties": {
             "options": {
-              "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionRecoveryOptions"
+              "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionRecoveryOptions"
             }
           },
           "additionalProperties": false
@@ -461,7 +461,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.212Z",
+  "generatedAt": "2026-10-30T20:12:39.401Z",
   "models": {
     "ArrayFieldChange": {
       "name": "ArrayFieldChange",
@@ -968,7 +968,7 @@
                   "type": {
                     "type": "reference",
                     "name": "DataSpaceDefinitionRecoveryOptions",
-                    "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                    "sourcePath": "src/lowcode/data-space/model-source/data-space-definition-save.ts"
                   },
                   "flags": {
                     "isOptional": true

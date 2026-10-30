@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/scenarios/resource",
+    "sourcePath": "src/lowcode/resources/repository/scenarios/resource.ts",
+    "sourceFile": "src/lowcode/resources/repository/scenarios/resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/scenarios/resource",
+    "jsdoc": "@module app:lowcode/resources/repository/scenarios/resource\n职责：把登记的仓内场景与导航JSON接入SPARK data文件DataView，并校验资源及视图身份。\n边界：开发态场景每次查询经host client读取新鲜文本；构建态消费打包文件。状态与持久化仍由SPARK data资源适配承接。\nAI用途：系统应用程序定义统一从本模块读取，不能直接读取配置文件或改走lowcode补救。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T19:39:23.787Z",
+  "models": {}
+}

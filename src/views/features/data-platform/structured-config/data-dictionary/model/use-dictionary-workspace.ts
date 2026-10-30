@@ -12,7 +12,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import type {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 
 /** 字典工作区实例输入；open=false表示页面仍挂载但工作区已安全关闭。 */
 type DictionaryPageInput = Readonly<{

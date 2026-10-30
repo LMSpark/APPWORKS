@@ -9,10 +9,10 @@ import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appw
 import {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
 import {lowcodeHttp} from '@/lowcode/lowcode-runtime'
 import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import DictionaryDesign from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue'
 import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
-import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
+import {DictionaryHttp, applicationOptionsFixture, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/tests/workspace.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {readRequestScope: () => ({token: 'TEST-SCOPE', headers: {'tenant-id': 'TENANT', 'X-AppId': 'APP'}})}, lowcodeHttp: {}}))

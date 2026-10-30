@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
-import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
+import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/repository/agent-workflow-file-resource'
 
 const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), buttonMountIds: [] as number[], text: 'saved file contents' }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))

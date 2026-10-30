@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/design-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client\n职责：编码方案设计 detail/save 的 HTTP 适配（参考 DataCodeEdit，路径以实服为准）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataCodeDesignClient"
+    ]
+  },
+  "$defs": {
+    "DataCodeDesignClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataCodeDesignClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDetail.params": {
+          "type": "object",
+          "properties": {
+            "codeDesignId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDetail.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.saveDetail.params": {
+          "type": "object",
+          "properties": {
+            "codeDesignId": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveDetail.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.665Z",
+  "models": {
+    "DataCodeDesignClient": {
+      "name": "DataCodeDesignClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readDetail",
+              "parameters": [
+                {
+                  "name": "codeDesignId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveDetail",
+              "parameters": [
+                {
+                  "name": "codeDesignId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "detail",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

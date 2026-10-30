@@ -9,7 +9,7 @@ import {getVuePageOptions} from '@/registries/vue-page-registry'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
-import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {
   createDevStateWithConfigPages,
   DEMO_PAGE_FIXTURE,
@@ -26,7 +26,7 @@ import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspa
 import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 import {readPageDesignRunContext} from '@/services/page-design/page-design-gates'
 import { getBuiltinScenarioResource } from '@/registries/builtin-application-registry'
-import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
+import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import applicationPageData from '../../../config/pages/application/project-blueprint/pagedata.json'
 
 const httpFns = vi.hoisted(() => ({

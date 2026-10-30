@@ -4,9 +4,9 @@
  * 边界：数据和权限仍归原DataView；不跨入独立功能标签体系改删配置。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../data-space-definition-save'
 import {LowcodeDataSpaceModelRemoveReferences} from './lowcode-data-space-model-remove-references'
-import {LowcodeDataSpaceModelDependencies} from '../lowcode-data-space-model-dependencies'
+import {LowcodeDataSpaceModelDependencies} from '../model/lowcode-data-space-model-dependencies'
 
 type Removal = {view: DataView; id: string; row: DataRow; snapshot: string}
 type RemovalDraftSignatures = ReadonlyArray<readonly [DataView, readonly string[], string]>

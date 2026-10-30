@@ -25,9 +25,9 @@ import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {JsonTreeEditor, PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
-import {JSON_CONTENT_EDIT_VIEW, JSON_CONTENT_INPUT_TABLE} from '@/lowcode/resources/json-data/lowcode-json-data-content-ops'
-import {LowcodeJsonData} from '@/lowcode/resources/json-data/lowcode-json-data'
-import {setDesignScopeValue} from '@/lowcode/resources/shared/staged-design-file-view'
+import {JSON_CONTENT_EDIT_VIEW, JSON_CONTENT_INPUT_TABLE} from '@/lowcode/resources/semi-structured/json-data/content-ops'
+import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'json-data-page'})

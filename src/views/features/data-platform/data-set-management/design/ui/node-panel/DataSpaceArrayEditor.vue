@@ -35,7 +35,7 @@ import {buildDataViewKey, RequestState, type SparkNode} from '@spark-appworks/sp
 import {FieldText, FieldJson, RendererButton, RendererDialog, RendererForm, RendererToolbar, type RToolbarProps} from '@spark-appworks/spark-component'
 import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
 import type {ArrayEditHandle} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-session'
-import type {DataSpaceDefinitionRecoveryOptions} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
+import type {DataSpaceDefinitionRecoveryOptions} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import DataSpaceArrayHeaders from './DataSpaceArrayHeaders.vue'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 const props=defineProps<DataSpaceModelEditorProps>()

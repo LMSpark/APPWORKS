@@ -224,7 +224,7 @@
           }
         },
         "recoveryCapture": {
-          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+          "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
         },
         "verifiedSnapshot": {
           "type": "string"
@@ -301,7 +301,7 @@
           "$ref": "#/$defs/ModelRemoveLifecycle"
         },
         "dependencies": {
-          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+          "$ref": "../model/lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
         },
         "views": {
           "type": "array",
@@ -410,7 +410,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.227Z",
+  "generatedAt": "2026-10-30T20:12:39.436Z",
   "models": {
     "Removal": {
       "name": "Removal",

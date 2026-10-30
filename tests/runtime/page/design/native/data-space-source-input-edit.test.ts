@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
+import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 const reference = '{"Type":"GetInputParam","ParamName":"customer"}'

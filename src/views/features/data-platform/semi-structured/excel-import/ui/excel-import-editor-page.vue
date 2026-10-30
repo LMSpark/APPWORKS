@@ -20,15 +20,15 @@
 import {computed, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {RendererButton} from '@spark-appworks/spark-component'
-import {EXCEL_IMPORT_DESIGN_INPUT, EXCEL_IMPORT_DESIGN_VIEW} from '@/lowcode/resources/excel-import/excel-import-design-ops'
-import {LowcodeExcelImport} from '@/lowcode/resources/excel-import/lowcode-excel-import'
+import {EXCEL_IMPORT_DESIGN_INPUT, EXCEL_IMPORT_DESIGN_VIEW} from '@/lowcode/resources/semi-structured/excel-import/design-ops'
+import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
 import ExcelImportTransformRulesPane from './excel-import-transform-rules-pane.vue'
 import ExcelImportSheetLayoutLookupDialog from './dialogs/excel-import-sheet-layout-lookup-dialog.vue'
 import ExcelImportTransformRuleDialog from './dialogs/excel-import-transform-rule-dialog.vue'
 import {parseDesignJsonText} from '../../../shared/model/design-json-ui'
-import {readJsonArray} from '@/lowcode/resources/shared/staged-design-file-view'
+import {readJsonArray} from '@/lowcode/resources/repository/staged-design-file-view'
 
 const route = useRoute()
 const openLookup = ref(false), openRule = ref(false)

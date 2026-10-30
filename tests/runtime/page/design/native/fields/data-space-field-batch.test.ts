@@ -6,7 +6,7 @@ import {FieldTextarea, RendererButton, RendererForm, RendererTable, registerAllR
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {installAuthenticatedLowcodeTestSession, installRepositoryScenarioTestFetch, restoreLowcodeTestSession} from '../../../../../support/helpers/authenticated-lowcode-session'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
 import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 

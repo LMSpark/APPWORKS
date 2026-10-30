@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/table/copy-view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/table/copy-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/table/copy-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/table/copy-view-ops\n职责：复制物理表（_Base_TblList + Base_TblField 同一次 saveChanges，对齐参考 copyTable）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogCopyTableInput"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogCopyTableInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogCopyTableInput",
+      "properties": {
+        "sourceTableId": {
+          "type": "string"
+        },
+        "dbId": {
+          "type": "string"
+        },
+        "newTableName": {
+          "type": "string"
+        },
+        "newTableDesc": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourceTableId",
+        "dbId",
+        "newTableName",
+        "newTableDesc"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.758Z",
+  "models": {
+    "DatabaseCatalogCopyTableInput": {
+      "name": "DatabaseCatalogCopyTableInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    sourceTableId: string;\n    dbId: string;\n    newTableName: string;\n    newTableDesc: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    sourceTableId: string;\n    dbId: string;\n    newTableName: string;\n    newTableDesc: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceTableId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dbId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newTableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newTableDesc",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

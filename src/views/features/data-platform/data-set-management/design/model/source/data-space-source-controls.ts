@@ -7,8 +7,8 @@
 import {RequestState, buildDataViewKey, type DataColumn, type DataRow, type DataSet, type DataTable, type DataView} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 type PageDataSpaceModelSourceType = Parameters<typeof LowcodeDataSpaceSourceCatalog.config>[0]
-import type {ModelCreateHandle} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create-session'
-import type {ModelSourceEditHandle} from '@/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session'
+import type {ModelCreateHandle} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session'
+import type {ModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
 
 /** 原操作owner提供的展示状态。 */
 type SourceState = ReturnType<ModelCreateHandle['getState'] | ModelSourceEditHandle['getState']>

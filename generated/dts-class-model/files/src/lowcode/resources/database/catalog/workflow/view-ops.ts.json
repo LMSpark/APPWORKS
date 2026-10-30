@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/workflow/view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/workflow/view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/workflow/view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/workflow/view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/workflow/view-ops\n职责：Base_WorkflowDefinition 按 tblid 及可选条件查询（模型 query）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogWorkflowQuery"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogWorkflowQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogWorkflowQuery",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "workflowKey": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.775Z",
+  "models": {
+    "DatabaseCatalogWorkflowQuery": {
+      "name": "DatabaseCatalogWorkflowQuery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name?: string;\n    workflowKey?: string;\n    description?: string;\n    status?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name?: string;\n    workflowKey?: string;\n    description?: string;\n    status?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

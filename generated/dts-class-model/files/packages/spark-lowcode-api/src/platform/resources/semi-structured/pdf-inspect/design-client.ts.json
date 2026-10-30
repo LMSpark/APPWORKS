@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/pdf-inspect/design-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client\nPDF 规则设计（矩阵页；参考未进 inventory，URL 登记 api-gaps）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PdfInspectRuleDocument",
+      "PdfInspectDesignClient"
+    ]
+  },
+  "$defs": {
+    "PdfInspectRuleDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectRuleDocument",
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "rule": true
+      },
+      "required": [
+        "ruleId",
+        "rule"
+      ],
+      "additionalProperties": false
+    },
+    "PdfInspectDesignClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PdfInspectDesignClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "ruleId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<PdfInspectRuleDocument>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "$ref": "#/$defs/PdfInspectRuleDocument"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.663Z",
+  "models": {
+    "PdfInspectRuleDocument": {
+      "name": "PdfInspectRuleDocument",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ruleId: string;\n    rule: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ruleId: string;\n    rule: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ruleId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rule",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PdfInspectDesignClient": {
+      "name": "PdfInspectDesignClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "ruleId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PdfInspectRuleDocument",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": {
+                    "type": "reference",
+                    "name": "PdfInspectRuleDocument",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

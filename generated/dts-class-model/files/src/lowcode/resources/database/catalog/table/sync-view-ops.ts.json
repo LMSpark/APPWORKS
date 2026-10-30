@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/catalog/table/sync-view-ops",
+    "sourcePath": "src/lowcode/resources/database/catalog/table/sync-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/catalog/table/sync-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/catalog/table/sync-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/table/sync-view-ops\n职责：`POST /Table/SyncMetaData/{dbid}/{tableid}` 写命令与未登记视图只读查询编排。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogSyncTableMetadataInput"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogSyncTableMetadataInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogSyncTableMetadataInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "dbId": {
+          "type": "string"
+        },
+        "tableId": {
+          "type": "string"
+        },
+        "fieldView": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "required": [
+        "dataSet",
+        "dbId",
+        "tableId",
+        "fieldView"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.770Z",
+  "models": {
+    "DatabaseCatalogSyncTableMetadataInput": {
+      "name": "DatabaseCatalogSyncTableMetadataInput",
+      "jsdoc": "对选中物理表执行一次同步元数据写命令，成功后刷新字段目录视图。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    dbId: string;\n    tableId: string;\n    fieldView: DataView;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    dbId: string;\n    tableId: string;\n    fieldView: DataView;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dbId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldView",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

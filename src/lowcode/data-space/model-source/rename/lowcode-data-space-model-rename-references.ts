@@ -7,7 +7,7 @@
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {LowcodeDataSpaceFilterMigration} from '../lowcode-data-space-filter-migration'
+import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-filter-migration'
 
 /** 一项原记录字段的准确变更，不携带权限凭据。 */
 export type ModelNameChange = Readonly<{

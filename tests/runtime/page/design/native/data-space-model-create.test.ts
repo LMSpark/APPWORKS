@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataView} from '@spark-appworks/spark-data'
-import {createModelCreateHost, modelCreatePreview, modelCreateSave, modelCreateVerify} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create-session'
+import {createModelCreateHost, modelCreatePreview, modelCreateSave, modelCreateVerify} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []

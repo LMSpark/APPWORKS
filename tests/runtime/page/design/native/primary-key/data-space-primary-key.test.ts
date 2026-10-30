@@ -1,6 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
-import {LowcodeDataSpacePrimaryKey} from '@/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key'
+import {LowcodeDataSpacePrimaryKey} from '@/lowcode/data-space/model-source/field/lowcode-data-space-primary-key'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {DataViewFilterLocal} from '../../../../../../packages/spark-data/src/query/filter/data-view-filter-local'

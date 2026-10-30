@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/shared/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/repository/agent-workflow-file-resource'
 
 describe('registered ProjectToolVersion resource', () => {
   it('is offered by the formal file resource registry with a complete readonly view contract', () => {

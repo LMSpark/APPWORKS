@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 import {readFileSync} from 'node:fs'
-import {builtinSystemApplication, parseBuiltinSystemNavigation, readBuiltinSystemNavigation} from '@/lowcode/resources/shared/builtin-system-navigation'
+import {builtinSystemApplication, parseBuiltinSystemNavigation, readBuiltinSystemNavigation} from '@/lowcode/resources/repository/builtin-system-navigation'
 
 const rootId = 'D99A1DCE9894698799101EFD70F8FC76'
 const pageId = '0C70F74793F9E858B71E0DBDEC784D57'

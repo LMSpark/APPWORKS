@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/schema",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/dictionary/schema",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/dictionary/schema\n职责：字典定义与条目字段的领域合同；不缩减为选项的值/文本二元组。\n边界：不持有业务行、不执行请求、不授予权限。字段名称来自现有字典存储合同。\nAI用途：生成字典设置、条目编辑与来源字段说明时复用完整字段映射。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DictionarySchema"
+    ]
+  },
+  "$defs": {
+    "DictionaryField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionaryField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "titleField": {
+          "type": "string"
+        },
+        "defaultLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "titleField",
+        "defaultLabel"
+      ],
+      "additionalProperties": false
+    },
+    "DictionarySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionarySchema",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DictionaryField"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validateDefinition.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "changedFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateDefinition.return": true,
+        "method.validateEntry.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "definition": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "changedFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateEntry.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T19:39:23.665Z",
+  "models": {
+    "DictionaryField": {
+      "name": "DictionaryField",
+      "jsdoc": "@module\n@spark-appworks /spark-lowcode-api:platform/resources/structured-config/dictionary/schema\n职责：字典定义与条目字段的领域合同；不缩减为选项的值/文本二元组。\n边界：不持有业务行、不执行请求、不授予权限。字段名称来自现有字典存储合同。\nAI用途：生成字典设置、条目编辑与来源字段说明时复用完整字段映射。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 条目模型中的正式字段名。 */\n    name: string;\n    /** 字典定义中保存该字段标题的字段名。 */\n    titleField: string;\n    /** 标题尚未设置时的说明，不表示删除该字段。 */\n    defaultLabel: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 条目模型中的正式字段名。 */\n    name: string;\n    /** 字典定义中保存该字段标题的字段名。 */\n    titleField: string;\n    /** 标题尚未设置时的说明，不表示删除该字段。 */\n    defaultLabel: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "条目模型中的正式字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleField",
+              "jsdoc": "字典定义中保存该字段标题的字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultLabel",
+              "jsdoc": "标题尚未设置时的说明，不表示删除该字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DictionarySchema": {
+      "name": "DictionarySchema",
+      "jsdoc": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "字典业务字段合同；rowid/typeid/ordIdx分别承担身份、归属、顺序，不是选项值。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "jsdoc": "两个基础输出和四个扩展输出；未设置标题仍保留扩展字段及其数据。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validateDefinition",
+              "jsdoc": "校验名称、字段标题、功能描述及编码类型；changedFields省略时校验新记录，指定时只校验变更，保留未修改的历史空值。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "changedFields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateEntry",
+              "jsdoc": "校验拟提交字段；省略changedFields校验完整新条目，编码类型变更须将val加入所有存量条目的校验。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "changedFields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

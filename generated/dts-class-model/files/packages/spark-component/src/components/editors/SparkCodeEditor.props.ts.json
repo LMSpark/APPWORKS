@@ -77,7 +77,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T13:14:16.752Z",
+  "generatedAt": "2026-10-30T15:31:33.466Z",
   "models": {
     "SparkCodeEditorProps": {
       "name": "SparkCodeEditorProps",

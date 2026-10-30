@@ -38,7 +38,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T04:03:06.105Z",
+  "generatedAt": "2026-10-30T15:31:33.763Z",
   "models": {
     "Option": {
       "name": "Option",

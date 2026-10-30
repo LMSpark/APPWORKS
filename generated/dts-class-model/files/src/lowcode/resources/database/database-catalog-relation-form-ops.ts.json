@@ -92,7 +92,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-25T01:23:12.424Z",
+  "generatedAt": "2026-10-25T08:42:55.808Z",
   "models": {
     "DatabaseCatalogTableContext": {
       "name": "DatabaseCatalogTableContext",

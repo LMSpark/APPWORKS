@@ -58,21 +58,21 @@
       "title": "设置",
       "icon": "Setting",
       "scope": "catalog",
-      "source": "src/views/tenant/Settings.vue"
+      "source": "src/views/app/Settings.vue"
     },
     {
       "path": "/cache-manager",
       "title": "缓存管理",
       "icon": "Coin",
       "scope": "app",
-      "source": "src/views/tenant/CacheManager.vue"
+      "source": "src/views/app/CacheManager.vue"
     },
     {
       "path": "/features/system/cache-management/ui/cache-management-page",
       "title": "缓存管理",
       "icon": "Coin",
       "scope": "app",
-      "source": "src/views/tenant/CacheManager.vue",
+      "source": "src/views/app/CacheManager.vue",
       "description": "AppWorks 系统导航登记的原生缓存管理页面",
       "hidden": true,
       "shellTool": false

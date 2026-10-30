@@ -164,11 +164,11 @@
               "type": "object",
               "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
             },
-            "__@iterator@219524": {
+            "__@iterator@219501": {
               "type": "object",
               "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
             },
-            "__@unscopables@219526": {
+            "__@unscopables@219503": {
               "type": "object",
               "properties": {
                 "length": {
@@ -369,13 +369,13 @@
                     true
                   ]
                 },
-                "__@iterator@219524": {
+                "__@iterator@219501": {
                   "enum": [
                     false,
                     true
                   ]
                 },
-                "__@unscopables@219526": {
+                "__@unscopables@219503": {
                   "enum": [
                     false,
                     true
@@ -419,8 +419,8 @@
             "flatMap",
             "flat",
             "at",
-            "__@iterator@219524",
-            "__@unscopables@219526"
+            "__@iterator@219501",
+            "__@unscopables@219503"
           ],
           "additionalProperties": false
         },
@@ -471,7 +471,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T11:15:22.614Z",
+  "generatedAt": "2026-10-30T15:31:33.460Z",
   "models": {
     "RTailProps": {
       "name": "RTailProps",

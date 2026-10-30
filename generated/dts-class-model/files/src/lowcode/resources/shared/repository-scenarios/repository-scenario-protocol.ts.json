@@ -158,7 +158,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T22:53:55.421Z",
+  "generatedAt": "2026-10-30T15:31:33.712Z",
   "models": {
     "RepositoryScenarioSuccess": {
       "name": "RepositoryScenarioSuccess",

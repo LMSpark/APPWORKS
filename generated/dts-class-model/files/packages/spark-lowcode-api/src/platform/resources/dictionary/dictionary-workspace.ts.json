@@ -222,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-26T23:32:19.852Z",
+  "generatedAt": "2026-10-30T15:31:33.615Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",

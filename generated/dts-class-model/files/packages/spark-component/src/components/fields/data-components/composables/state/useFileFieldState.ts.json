@@ -308,7 +308,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T14:09:20.759Z",
+  "generatedAt": "2026-10-30T15:31:33.485Z",
   "models": {
     "BrowseFilesCommand": {
       "name": "BrowseFilesCommand",

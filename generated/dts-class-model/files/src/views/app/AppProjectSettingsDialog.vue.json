@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/AppProjectSettingsDialog",
+    "sourcePath": "src/views/app/AppProjectSettingsDialog.vue",
+    "sourceFile": "src/views/app/AppProjectSettingsDialog.vue",
+    "packageName": "app",
+    "modulePath": "views/app/AppProjectSettingsDialog",
+    "jsdoc": "@module app:views/app/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕应用设置连接视图、服务和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppProjectSettingsDialog。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-30T15:42:38.761Z",
+  "models": {}
+}

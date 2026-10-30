@@ -290,7 +290,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T12:17:34.531Z",
+  "generatedAt": "2026-10-30T15:31:33.594Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",

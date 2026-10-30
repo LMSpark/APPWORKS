@@ -94,7 +94,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T19:14:39.917Z",
+  "generatedAt": "2026-10-30T15:31:33.717Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",

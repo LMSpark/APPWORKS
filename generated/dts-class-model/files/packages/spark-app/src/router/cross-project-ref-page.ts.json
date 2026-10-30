@@ -28,7 +28,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T08:08:52.756Z",
+  "generatedAt": "2026-10-30T15:31:33.363Z",
   "models": {
     "CrossProjectRefPageRouteProps": {
       "name": "CrossProjectRefPageRouteProps",

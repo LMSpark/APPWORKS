@@ -91,7 +91,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T06:22:40.830Z",
+  "generatedAt": "2026-10-30T15:31:33.443Z",
   "models": {
     "RendererFieldScopeProps": {
       "name": "RendererFieldScopeProps",

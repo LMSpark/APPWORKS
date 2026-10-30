@@ -946,7 +946,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T10:46:39.381Z",
+  "generatedAt": "2026-10-30T15:31:33.777Z",
   "models": {
     "DevSystemCtx": {
       "name": "DevSystemCtx",

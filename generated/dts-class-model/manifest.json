@@ -2234,7 +2234,6 @@
         "symbols": [
           "AppEnvironment",
           "UserInfo",
-          "TenantInfo",
           "EnvironmentInfo",
           "AppContext",
           "AppConfig",
@@ -14368,6 +14367,32 @@
         "symbols": []
       }
     },
+    "src/views/app/AppProjectSettingsDialog.vue": {
+      "file": "files/src/views/app/AppProjectSettingsDialog.vue.json",
+      "module": {
+        "name": "app:views/app/AppProjectSettingsDialog",
+        "sourcePath": "src/views/app/AppProjectSettingsDialog.vue",
+        "sourceFile": "src/views/app/AppProjectSettingsDialog.vue",
+        "packageName": "app",
+        "modulePath": "views/app/AppProjectSettingsDialog",
+        "jsdoc": "@module app:views/app/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕应用设置连接视图、服务和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppProjectSettingsDialog。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/CacheManager.vue": {
+      "file": "files/src/views/app/CacheManager.vue.json",
+      "module": {
+        "name": "app:views/app/CacheManager",
+        "sourcePath": "src/views/app/CacheManager.vue",
+        "sourceFile": "src/views/app/CacheManager.vue",
+        "packageName": "app",
+        "modulePath": "views/app/CacheManager",
+        "jsdoc": "@module app:views/app/CacheManager\n职责：提供主应用 CacheManager 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/CacheManager。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/app/CapabilityDemo.vue": {
       "file": "files/src/views/app/CapabilityDemo.vue.json",
       "module": {
@@ -14798,6 +14823,19 @@
         "packageName": "app",
         "modulePath": "views/app/RFormCompareDemo",
         "jsdoc": "@module app:views/app/RFormCompareDemo\n职责：提供主应用 RFormCompareDemo 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/RFormCompareDemo。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/Settings.vue": {
+      "file": "files/src/views/app/Settings.vue.json",
+      "module": {
+        "name": "app:views/app/Settings",
+        "sourcePath": "src/views/app/Settings.vue",
+        "sourceFile": "src/views/app/Settings.vue",
+        "packageName": "app",
+        "modulePath": "views/app/Settings",
+        "jsdoc": "@module app:views/app/Settings\n职责：提供主应用 Settings 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/Settings。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -16204,45 +16242,6 @@
         "packageName": "app",
         "modulePath": "views/platform/TenantConfigPanel",
         "jsdoc": "@module app:views/platform/TenantConfigPanel\n职责：提供主应用 TenantConfigPanel 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/platform/TenantConfigPanel。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/tenant/AppProjectSettingsDialog.vue": {
-      "file": "files/src/views/tenant/AppProjectSettingsDialog.vue.json",
-      "module": {
-        "name": "app:views/tenant/AppProjectSettingsDialog",
-        "sourcePath": "src/views/tenant/AppProjectSettingsDialog.vue",
-        "sourceFile": "src/views/tenant/AppProjectSettingsDialog.vue",
-        "packageName": "app",
-        "modulePath": "views/tenant/AppProjectSettingsDialog",
-        "jsdoc": "@module app:views/tenant/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕应用设置连接视图、服务和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppProjectSettingsDialog。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/tenant/CacheManager.vue": {
-      "file": "files/src/views/tenant/CacheManager.vue.json",
-      "module": {
-        "name": "app:views/tenant/CacheManager",
-        "sourcePath": "src/views/tenant/CacheManager.vue",
-        "sourceFile": "src/views/tenant/CacheManager.vue",
-        "packageName": "app",
-        "modulePath": "views/tenant/CacheManager",
-        "jsdoc": "@module app:views/tenant/CacheManager\n职责：提供主应用 CacheManager 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/CacheManager。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/tenant/Settings.vue": {
-      "file": "files/src/views/tenant/Settings.vue.json",
-      "module": {
-        "name": "app:views/tenant/Settings",
-        "sourcePath": "src/views/tenant/Settings.vue",
-        "sourceFile": "src/views/tenant/Settings.vue",
-        "packageName": "app",
-        "modulePath": "views/tenant/Settings",
-        "jsdoc": "@module app:views/tenant/Settings\n职责：提供主应用 Settings 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/Settings。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -22408,10 +22407,6 @@
     "TagType": {
       "sourcePath": "packages/spark-component/src/components/display/data-components/value/DisplayTag/DisplayTag.props.ts",
       "file": "files/packages/spark-component/src/components/display/data-components/value/DisplayTag/DisplayTag.props.ts.json"
-    },
-    "TenantInfo": {
-      "sourcePath": "packages/spark-app/src/types.ts",
-      "file": "files/packages/spark-app/src/types.ts.json"
     },
     "TextLoadOptions": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",

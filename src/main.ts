@@ -141,10 +141,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
         roles: [],
         permissions: [],
       },
-      tenant: {
-        tenantId: 'public',
-        tenantName: '平台公共域',
-      },
     }
   }
   return {
@@ -155,14 +151,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
       displayName: session.identity.displayName,
       roles: session.identity.role === null ? [] : [session.identity.role],
       permissions: [],
-    },
-    tenant: {
-      tenantId: session.enterprise.shortName,
-      tenantName: session.enterprise.shortCode
-        ?? session.enterprise.code
-        ?? session.enterprise.name
-        ?? session.enterprise.shortName,
-      tenantCode: session.enterprise.shortName,
     },
   }
 }

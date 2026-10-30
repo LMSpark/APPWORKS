@@ -222,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-28T17:22:30.641Z",
+  "generatedAt": "2026-10-30T15:31:33.695Z",
   "models": {
     "RequestScope": {
       "name": "RequestScope",

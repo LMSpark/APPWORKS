@@ -10,7 +10,7 @@ import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav
 
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
 import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {readBuiltinSystemNavigation} from '@/lowcode/resources/shared/builtin-system-navigation'
 import {BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
@@ -967,10 +967,12 @@ describe('lowcode project navigation projection', () => {
     })).toBe('领码科技')
   })
 
-  it('keeps every AppWorks tenant page reachable from the application catalog', () => {
+  it('keeps catalog pages reachable from the application catalog without a tenant route segment', () => {
     const catalog = lowcodeApplicationCatalogNavigation()
 
     expect(catalog.homePath).toBe('/app-list')
+    expect(buildApplicationPath({ projectId: catalog.projectId ?? APPLICATION_CATALOG_PROJECT_ID }, catalog.homePath ?? '/app-list'))
+      .toBe('/apps/homepage/app-list')
     expect(catalog.items.map((child) => child.path)).toEqual([
       '/settings',
       '/app-list',

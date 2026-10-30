@@ -12,7 +12,6 @@
     "symbols": [
       "AppEnvironment",
       "UserInfo",
-      "TenantInfo",
       "EnvironmentInfo",
       "AppContext",
       "AppConfig",
@@ -76,38 +75,6 @@
       ],
       "additionalProperties": false
     },
-    "TenantInfo": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "TenantInfo",
-      "properties": {
-        "tenantId": {
-          "type": "string"
-        },
-        "tenantName": {
-          "type": "string"
-        },
-        "tenantCode": {
-          "type": "string"
-        },
-        "config": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": true
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "tenantId",
-        "tenantName"
-      ],
-      "additionalProperties": false
-    },
     "EnvironmentInfo": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -141,9 +108,6 @@
         "user": {
           "$ref": "#/$defs/UserInfo"
         },
-        "tenant": {
-          "$ref": "#/$defs/TenantInfo"
-        },
         "env": {
           "$ref": "#/$defs/EnvironmentInfo"
         },
@@ -158,7 +122,6 @@
       },
       "required": [
         "user",
-        "tenant",
         "env",
         "config",
         "initializedAt"
@@ -228,9 +191,6 @@
         "user": {
           "$ref": "#/$defs/UserInfo"
         },
-        "tenant": {
-          "$ref": "#/$defs/TenantInfo"
-        },
         "env": {
           "$ref": "#/$defs/EnvironmentInfo"
         },
@@ -256,7 +216,6 @@
       },
       "required": [
         "user",
-        "tenant",
         "env",
         "config",
         "initializedAt",
@@ -439,7 +398,7 @@
       ]
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.240Z",
+  "generatedAt": "2026-10-30T15:41:40.337Z",
   "models": {
     "AppEnvironment": {
       "name": "AppEnvironment",
@@ -518,48 +477,6 @@
         }
       }
     },
-    "TenantInfo": {
-      "name": "TenantInfo",
-      "jsdoc": "租户信息",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** tenant Id 标识。 */\n    tenantId: string;\n    /** tenant Name 名称。 */\n    tenantName: string;\n    /** tenant Code 字段。 */\n    tenantCode?: string;\n    /** 配置对象。 */\n    config?: Record<string, unknown>;\n    /** features 字段。 */\n    features?: string[];\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "tenantId",
-              "jsdoc": "tenant Id 标识。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "tenantName",
-              "jsdoc": "tenant Name 名称。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "tenantCode",
-              "jsdoc": "tenant Code 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "config",
-              "jsdoc": "配置对象。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "features",
-              "jsdoc": "features 字段。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "EnvironmentInfo": {
       "name": "EnvironmentInfo",
       "jsdoc": "环境信息",
@@ -598,21 +515,15 @@
     },
     "AppContext": {
       "name": "AppContext",
-      "jsdoc": "应用全局上下文接口\n作用域：整个 SPA 应用\n生命周期：应用启动时创建，应用关闭时销毁（单例）\n用途：\n- 存储应用级全局信息（用户、租户、环境）\n- 提供跨页面共享的配置和状态\n- 支持 SSR/CSR 环境检测\n注意：\n- 此 Context 是应用级单例，所有页面共享\n- 不应存储页面级状态，避免内存泄漏\n- 通过依赖注入（DI）在需要时注入到组件中\n典型使用场景：\n- 权限校验（基于 user/tenant）\n- 环境判断（SSR vs CSR）\n- 全局配置读取",
+      "jsdoc": "应用全局上下文接口\n作用域：整个 SPA 应用\n生命周期：应用启动时创建，应用关闭时销毁（单例）\n用途：\n- 存储应用级全局信息（用户、环境）\n- 提供跨页面共享的配置和状态\n- 支持 SSR/CSR 环境检测\n注意：\n- 此 Context 是应用级单例，所有页面共享\n- 不应存储页面级状态，避免内存泄漏\n- 通过依赖注入（DI）在需要时注入到组件中\n典型使用场景：\n- 用户身份读取\n- 环境判断（SSR vs CSR）\n- 全局配置读取",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 用户信息 */\n    user: UserInfo;\n    /** 租户信息 */\n    tenant: TenantInfo;\n    /** 环境信息 */\n    env: EnvironmentInfo;\n    /** 全局配置 */\n    config: Record<string, unknown>;\n    /** 初始化时间 */\n    initializedAt: string;\n}",
+        "declarationTypeText": "{\n    /** 用户信息 */\n    user: UserInfo;\n    /** 环境信息 */\n    env: EnvironmentInfo;\n    /** 全局配置 */\n    config: Record<string, unknown>;\n    /** 初始化时间 */\n    initializedAt: string;\n}",
         "members": {
           "attributes": [
             {
               "name": "user",
               "jsdoc": "用户信息",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "tenant",
-              "jsdoc": "租户信息",
               "readable": true,
               "writable": true
             },

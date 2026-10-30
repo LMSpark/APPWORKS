@@ -85,7 +85,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-28T00:24:31.575Z",
+  "generatedAt": "2026-10-30T15:31:33.773Z",
   "models": {
     "NavHostProjectRelationConfig": {
       "name": "NavHostProjectRelationConfig",

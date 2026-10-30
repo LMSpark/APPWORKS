@@ -169,7 +169,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T06:40:25.898Z",
+  "generatedAt": "2026-10-30T15:31:33.732Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",

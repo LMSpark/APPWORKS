@@ -59,7 +59,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-26T03:46:29.135Z",
+  "generatedAt": "2026-10-25T10:02:20.597Z",
   "models": {
     "DatabaseCatalogRegisterTableItem": {
       "name": "DatabaseCatalogRegisterTableItem",

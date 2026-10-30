@@ -2,7 +2,7 @@ import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataCodeDesignClient, LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient, ExcelImportDesignClient, PdfInspectDesignClient} from '@spark-appworks/spark-lowcode-api'
-import {StructuredCatalogHttp} from './structured-config-catalog.fixture'
+import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
 let http: StructuredCatalogHttp
 beforeEach(() => {http = new StructuredCatalogHttp({})})

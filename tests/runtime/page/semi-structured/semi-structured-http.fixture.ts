@@ -1,4 +1,4 @@
-import {StructuredCatalogHttp} from '../structured-config/structured-config-catalog.fixture'
+import {StructuredCatalogHttp} from '../structured-config/catalog/structured-config-catalog.fixture'
 
 export class SemiStructuredHttp extends StructuredCatalogHttp {
   override post<T>(url: string, data?: unknown): Promise<T> {

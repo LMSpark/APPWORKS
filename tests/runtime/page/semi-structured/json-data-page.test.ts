@@ -7,7 +7,7 @@ import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-
 import {defineComponent, h} from 'vue'
 import JsonDataPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {buildFormalModels, StructuredCatalogHttp} from '../structured-config/structured-config-catalog.fixture'
+import {buildFormalModels, StructuredCatalogHttp} from '../structured-config/catalog/structured-config-catalog.fixture'
 import {SemiStructuredHttp} from './semi-structured-http.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

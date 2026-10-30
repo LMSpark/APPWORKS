@@ -15,18 +15,6 @@
     "files": 11,
     "dirs": 8
   },
-  "tests/runtime/page/design/native": {
-    "files": 26,
-    "dirs": 5
-  },
-  "tests/runtime/page/structured-config": {
-    "files": 13,
-    "dirs": 0
-  },
-  "tests/ui/field/choice": {
-    "files": 15,
-    "dirs": 0
-  },
   "tests/ui/renderer": {
     "files": 11,
     "dirs": 2

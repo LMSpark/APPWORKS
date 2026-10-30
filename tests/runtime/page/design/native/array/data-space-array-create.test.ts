@@ -1,0 +1,98 @@
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {dataSpacePageFixture} from '../data-space-page.fixture'
+import {LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
+
+const fixtures: ReturnType<typeof dataSpacePageFixture>[]=[]
+afterEach(()=>{vi.restoreAllMocks();fixtures.splice(0).forEach(f=>f.dispose())})
+async function setup(options:Parameters<typeof dataSpacePageFixture>[0]={}) {
+  const f=dataSpacePageFixture({allowModelAdd:true,allowFieldAdd:true,...options});fixtures.push(f)
+  const session=await f.open('A'), draft=new LowcodeDataSpaceArrayDraft(session.metadataDataSet)
+  const change=(field:string,value:unknown)=>draft.view.updateEditingValue('array',field,value)
+  change('name','LocalRows')
+  return {f,session,draft,change,owner:session.getModelCreate(),writes:()=>f.requests.filter(r=>r.url==='/api/DataOperation/BatchTableOperateRequestByCRUD')}
+}
+describe('array definition creation through the formal model batch',()=>{
+  it('saves model, headers and native JSON values once and independently reopens',async()=>{
+    const {f,session,draft,change,owner,writes}=await setup()
+    change('description','本地输入');change('items','[{"rowid":"one","flag":false,"nested":{"n":2}}]')
+    const id=await owner.createArray(draft.definition())
+    expect(writes()).toHaveLength(1)
+    expect(f.created.get('Base_DataModel')).toEqual([expect.objectContaining({rowid:id,Type:'数组',Name:'LocalRows',PrimaryKeyFields:'rowid',items:'[{"rowid":"one","flag":false,"nested":{"n":2}}]'})])
+    expect(f.created.get('Base_DataModel_Field')).toEqual([expect.objectContaining({dataModelId:id,Name:'rowid',IsPKey:1,IsOutput:1,Order:0,type:'dataModel'})])
+    expect(session.hasPendingModelCreate()).toBe(false)
+    const fresh=await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']===id)?.['items']).toContain('"flag":false')
+    expect(f.fileWrites).toHaveLength(0)
+    await fresh.metadataDataSet.getView('DataViewDefinition')!.addRow({dataSetId: fresh.targetId, tableName: 'Local', dataModelId: id, dataModelName: 'LocalRows', viewId: 'list'})
+    await expect(fresh.metadataDataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}]})).resolves.toMatchObject({success: true})
+    const consumer=await f.open('A')
+    const view=consumer.definitionDataSet!.getView('Local','list')!
+    expect((await view.loadFromServer()).success).toBe(true)
+    expect(view.rows).toMatchObject([{rowid:'one'}]);expect(view.rows[0]).not.toHaveProperty('flag')
+    expect(view.fieldAccess(view.rows[0]!, 'rowid').read).toBe('visible')
+    expect(view.editActionState(view.rows[0]!)).not.toBe('enabled')
+    expect(f.fileWrites).toHaveLength(1);expect(writes()).toHaveLength(1)
+  })
+  it('keeps header edits separate until confirmation, migrates swaps simultaneously and preserves unknown JSON members',async()=>{
+    const {draft,change}=await setup()
+    draft.beginHeaders()
+    change('headerDraft',JSON.stringify([{id:'key',name:'rowid',label:'主键',order:0,primary:true},{name:'name',label:'名称',order:1,primary:false}]))
+    draft.applyHeaders()
+    change('items','[{"rowid":"id1","name":"title","extra":{"keep":true}}]')
+    const headers=draft.headers()
+    draft.beginHeaders()
+    change('headerDraft',JSON.stringify(headers.map(h=>({...h,name:h.name==='rowid'?'name':'rowid'}))))
+    expect(draft.definition().items).toContain('"rowid":"id1"')
+    draft.applyHeaders()
+    expect(JSON.parse(draft.definition().items)).toEqual([{name:'id1',rowid:'title',extra:{keep:true}}])
+    draft.beginHeaders();change('headerDraft',JSON.stringify(draft.headers().filter(h=>h.primary)));draft.applyHeaders()
+    expect(JSON.parse(draft.definition().items)).toEqual([{name:'id1',extra:{keep:true}}])
+    draft.beginHeaders();change('headerDraft','broken');draft.cancelHeaders()
+    expect(draft.headers()).toHaveLength(1)
+  })
+  it('rejects loss of an unbound member or invalid definition without changing committed input',async()=>{
+    const {draft,change,owner,writes}=await setup()
+    change('items','[{"rowid":"one","other":"keep"}]');draft.beginHeaders()
+    change('headerDraft',JSON.stringify([{id:'key',name:'other',primary:true}]))
+    expect(()=>draft.applyHeaders()).toThrow('覆盖')
+    expect(draft.definition().items).toContain('"rowid":"one"')
+    change('headerDraft',JSON.stringify([{id:'key',name:'_pk',primary:true}]))
+    expect(()=>draft.applyHeaders()).toThrow('字段名')
+    change('items','[{"rowid":"one"},{"rowid":"one"}]')
+    expect(()=>draft.definition()).toThrow('主键')
+    change('items','[null]');expect(()=>draft.definition()).toThrow('对象数组')
+    change('items','[]');change('name','Orders')
+    await expect(owner.createArray(draft.definition())).rejects.toThrow('注册名')
+    expect(writes()).toHaveLength(0)
+  })
+  it.each([{allowModelAdd:false},{allowFieldAdd:false}])('keeps formal add permissions %j',async options=>{
+    const {owner,draft,session,writes}=await setup(options)
+    await expect(owner.createArray(draft.definition())).rejects.toThrow('不允许新增')
+    expect(writes()).toHaveLength(0)
+    expect(session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+  it('verifies a lost complete receipt without replay and preserves partial array creation for recovery',async()=>{
+    const one=await setup();one.f.loseNextResponse()
+    await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow()
+    await expect(one.owner.createArray(one.draft.definition())).rejects.toThrow('先核验')
+    expect(await one.owner.verify()).toMatchObject({confirmed:true});expect(one.writes()).toHaveLength(1)
+    const two=await setup({omitFieldWrite:true,omitFieldReceipt:true})
+    await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow()
+    await expect(two.owner.verify()).rejects.toThrow()
+    const modelId=two.owner.getState().modelId!
+    expect(two.owner.getState()).toMatchObject({status:'unknown',pending:true,modelId})
+    expect(two.session.metadataDataSet.getView('Base_DataModel')!.dirtyTracking.isPendingCreate(modelId)).toBe(true)
+    expect(two.session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSave).toBe(true)
+    expect('acceptCurrent' in two.owner).toBe(false)
+    await expect(two.owner.createArray(two.draft.definition())).rejects.toThrow('先核验')
+    expect(two.writes()).toHaveLength(1)
+  })
+  it('rejects changed targets and cleans only local draft resources on cancel',async()=>{
+    const {draft,session,owner,writes}=await setup()
+    session.metadataDataSet.getView('Base_DataModel')!.queryContext={dataSpaceId:'B'}
+    await expect(owner.createArray(draft.definition())).rejects.toThrow('目标已变化')
+    const name=draft.view.tableName;draft.dispose()
+    expect(session.metadataDataSet.getTable(name)).toBeUndefined()
+    expect(session.metadataDataSet.getView('Base_DataModel')).toBeDefined();expect(writes()).toHaveLength(0)
+  })
+})

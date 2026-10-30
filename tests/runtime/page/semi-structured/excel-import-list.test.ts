@@ -8,7 +8,7 @@ import {defineComponent, h} from 'vue'
 import ExcelList from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {buildFormalModels} from '../structured-config/structured-config-catalog.fixture'
+import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
 import {SemiStructuredHttp} from './semi-structured-http.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))

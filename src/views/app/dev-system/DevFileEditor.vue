@@ -12,51 +12,51 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <span class="file-page-id"><NavIcon name="Tickets" :size="14" /> {{ state.activePageId.value }}</span>
         </div>
         <div class="file-header__actions">
-          <SparkComponent.RendererButton v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}" label="重新加载" icon="Refresh" button-size="small" :disabled="!state.activePageId.value" @click="refreshFile" />
-          <SparkComponent.RendererButton v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}" :label="fileEditor.isUnconfirmed.value ? '核验原提交' : '保存'" icon="DocumentChecked" button-type="primary" button-size="small" :disabled="ruleEditing || !fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value" :loading="state.pageIoBusy.value" @click="saveFile" />
-          <span class="action-divider" />
-          <SparkComponent.RendererButton
-            label="版本"
-            v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}"
-            icon="Clock"
-            button-size="small"
-            :button-type="showVersionPanel ? 'primary' : 'default'"
-            :disabled="!state.activePageId.value"
-            @click="toggleVersionPanel"
-          />
+          <template v-if="fileViewKey">
+            <SparkComponent.RendererButton :data-view-key="fileViewKey" label="重新加载" icon="Refresh" button-size="small" :disabled="!state.activePageId.value || state.pageIoBusy.value || fileDataViewLoading" @click="refreshFile" />
+            <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey" :data-view-key="fileViewKey" :label="fileEditor.isUnconfirmed.value ? '核验原提交' : '保存'" icon="DocumentChecked" button-type="primary" button-size="small" :disabled="ruleEditing || !fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value" :loading="state.pageIoBusy.value" @click="saveFile" />
+            <span class="action-divider" />
+            <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey"
+              :data-view-key="fileViewKey"
+              label="版本"
+              icon="Clock"
+              button-size="small"
+              :button-type="showVersionPanel ? 'primary' : 'default'"
+              :disabled="!state.activePageId.value"
+              @click="toggleVersionPanel"
+            />
+          </template>
         </div>
       </div>
 
-      <SparkComponent.RendererTabs v-if="showTabs" v-model="localActiveFile" v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}" data-member="currentRow" class="file-tab-bar">
+      <SparkComponent.RendererTabs v-if="showTabs && fileViewKey" v-model="localActiveFile" :data-view-key="fileViewKey" data-member="currentRow" class="file-tab-bar">
         <SparkComponent.RendererTabPane v-for="(f,index) in props.state.pageFileNames" :key="f" :name="f" :label="`${fileEditor.isFileDirty(f) ? '● ' : ''}${f}`" :index="index" />
       </SparkComponent.RendererTabs>
 
       <div class="editor-body" v-loading="!fileEditor.isReady.value || fileDataViewLoading">
         <div class="editor-area">
           <SparkComponent.RendererForm
-            v-if="resolvedActiveFile === 'rule.json'"
-            v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}"
+            v-if="fileDataViewReady && fileViewKey && resolvedActiveFile === 'rule.json'"
+            :data-view-key="fileViewKey"
             :auto-columns="false"
             :show-data-view-meta="false"
             context-data-member="currentRow"
             class="code-input code-input--json"
           >
-            <SparkComponent.FieldJson v-if="fileViewKey" :data-view-key="fileViewKey" data-member="currentRow" data-field="text" label="页面规则" mode="tree" :schema="RULE_JSON_SCHEMA" :tree-policy="rulePolicy" height="100%" @update:model-value="stageFile" @editing-change="ruleEditing=$event" />
-            <SparkComponent.DisplayAlert v-else-if="fileViewErrorMessage" title="文件 DataView 加载失败" :description="fileViewErrorMessage" alert-type="error" />
-            <SparkComponent.DisplayAlert v-else title="正在载入文件 DataView…" alert-type="info" />
+            <SparkComponent.FieldJson :data-view-key="fileViewKey" data-member="currentRow" data-field="text" label="页面规则" mode="tree" :schema="RULE_JSON_SCHEMA" :tree-policy="rulePolicy" height="100%" @update:model-value="stageFile" @editing-change="ruleEditing=$event" />
           </SparkComponent.RendererForm>
           <SparkComponent.RendererForm
-            v-else-if="isCodeFile(resolvedActiveFile)"
-            v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}"
+            v-else-if="fileDataViewReady && fileViewKey && isCodeFile(resolvedActiveFile)"
+            :data-view-key="fileViewKey"
             :auto-columns="false"
             :show-data-view-meta="false"
             context-data-member="currentRow"
             class="code-input code-input--code"
           >
-            <SparkComponent.FieldCodeEditor v-if="fileViewKey" :data-view-key="fileViewKey" data-member="currentRow" data-field="text" :label="resolvedActiveFile" :language="resolveCodeLanguage(resolvedActiveFile)" height="100%" @update:model-value="stageFile" />
-            <SparkComponent.DisplayAlert v-else-if="fileViewErrorMessage" title="文件 DataView 加载失败" :description="fileViewErrorMessage" alert-type="error" />
-            <SparkComponent.DisplayAlert v-else title="正在载入文件 DataView…" alert-type="info" />
+            <SparkComponent.FieldCodeEditor :data-view-key="fileViewKey" data-member="currentRow" data-field="text" :label="resolvedActiveFile" :language="resolveCodeLanguage(resolvedActiveFile)" height="100%" @update:model-value="stageFile" />
           </SparkComponent.RendererForm>
+          <SparkComponent.DisplayAlert v-else-if="fileViewErrorMessage" title="文件 DataView 加载失败" :description="fileViewErrorMessage" alert-type="error" />
+          <SparkComponent.DisplayAlert v-else-if="fileDataViewLoading || !fileDataViewReady" title="正在载入文件 DataView…" alert-type="info" />
           <SparkComponent.DisplayAlert v-else title="不支持的工具文件类型" :description="fileViewErrorMessage || `没有可供 ${resolvedActiveFile} 使用的文件 DataView`" alert-type="error" />
         </div>
 
@@ -65,7 +65,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           <div v-if="showVersionPanel" class="version-side">
             <div class="vs-header">
               <span class="vs-title">版本历史</span>
-              <SparkComponent.RendererButton v-bind="fileViewKey ? {dataViewKey:fileViewKey} : {}" label="存档" icon="Plus" button-type="primary" button-size="small" :disabled="versionBusy" :loading="creatingVersion" @click="createVersion" />
+              <SparkComponent.RendererButton v-if="fileDataViewReady && fileViewKey" :data-view-key="fileViewKey" label="存档" icon="Plus" button-type="primary" button-size="small" :disabled="versionBusy" :loading="creatingVersion" @click="createVersion" />
             </div>
             <div class="vs-file">{{ resolvedActiveFile }}</div>
             <div v-loading="remoteVersionLoading" class="vs-list">
@@ -134,12 +134,14 @@ const showTabs = computed(() => props.showTabs)
 const fileEditor = useDevFileEditor(props.state, resolvedActiveFile)
 const fileDataView=shallowRef<DataView>()
 const fileDataViewLoading=ref(false)
+const fileDataViewReady=ref(false)
 const fileViewKey=computed(()=>fileDataView.value?resolveCurrentFileViewKey(fileDataView.value):undefined)
 const fileViewComponentKey=computed(()=>`${props.state.blueprintPageRuntime.value?.instanceId??'runtime-unbound'}:${fileViewKey.value??'file-view-unbound'}`)
 const ruleEditing=ref(false)
 const fileViewError=ref('')
 const fileViewErrorMessage=computed(()=>fileViewError.value||(fileDataView.value&&!fileViewKey.value?'当前文件 DataView 不属于已加载的 PAGE_RUNTIME':''))
 let fileViewRevision=0
+let fileRuntimeBootstrapPending=false
 const project = computed(() => props.state.project)
 const versionViewKey = buildDataViewKey('ProjectToolVersion', 'default', LOWCODE_APPLICATION_CATALOG_FORM_KEY)
 const versionActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
@@ -180,19 +182,42 @@ watch([resolvedActiveFile, () => props.state.activePageId.value, () => props.sta
   showVersionPanel.value = false
 })
 
-watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value,resolvedActiveFile,()=>props.state.blueprintPageRuntime.value],async([pageId,ready,fileName])=>{
+watch([()=>props.state.activePageId.value,()=>fileEditor.isReady.value,resolvedActiveFile,()=>props.state.blueprintPageRuntime.value],async([pageId,ready,fileName,runtimeAtChange],oldValue)=>{
+  const ownerDataSet=props.state.blueprintWorkspaceDataView.value?.dataSet
+  const ownerScenarioId=ownerDataSet?.scenarioId
+  const sameFileTarget=oldValue!==undefined&&pageId===oldValue[0]&&ready===oldValue[1]&&fileName===oldValue[2]
+  if(runtimeAtChange!==oldValue?.[3]&&oldValue?.[3]==null&&sameFileTarget&&fileRuntimeBootstrapPending&&runtimeAtChange?.isLoaded&&ownerDataSet
+    &&typeof ownerScenarioId==='string'&&runtimeAtChange.getDataSet(ownerScenarioId)===ownerDataSet){
+    return
+  }
+  fileRuntimeBootstrapPending=false
   const current=++fileViewRevision
-  fileDataView.value=undefined;fileViewError.value='';ruleEditing.value=false
+  fileDataView.value=undefined;fileDataViewReady.value=false;fileDataViewLoading.value=false;fileViewError.value='';ruleEditing.value=false
   if(!pageId||!ready)return
   fileDataViewLoading.value=true
   try{
-    const view=await props.state.loadPageToolFileDataView({pageId,fileName})
-    if(current===fileViewRevision&&props.state.activePageId.value===pageId&&resolvedActiveFile.value===fileName){
+    let runtime=props.state.blueprintPageRuntime.value
+    if(!runtime?.isLoaded){
+      fileRuntimeBootstrapPending=true
+      await props.state.loadBlueprintWorkspaceDataView()
+      if(current!==fileViewRevision||props.state.activePageId.value!==pageId||resolvedActiveFile.value!==fileName)return
+      runtime=props.state.blueprintPageRuntime.value
+      if(!runtime?.isLoaded)throw new Error('当前页面的 PAGE_RUNTIME 尚未就绪')
+    }
+    const view=props.state.getPageToolFileDataView(pageId,fileName)
+    if(!resolveCurrentFileViewKey(view))throw new Error('文件 DataView 不属于当前 PAGE_RUNTIME')
+    if(current!==fileViewRevision||props.state.activePageId.value!==pageId||resolvedActiveFile.value!==fileName||props.state.blueprintPageRuntime.value!==runtime)return
+    fileDataView.value=view
+    const loadedView=await props.state.loadPageToolFileDataView({pageId,fileName})
+    if(loadedView!==view)throw new Error('文件 DataView loader 替换了当前正式视图')
+    if(current===fileViewRevision&&props.state.activePageId.value===pageId&&resolvedActiveFile.value===fileName&&props.state.blueprintPageRuntime.value===runtime){
       if(!resolveCurrentFileViewKey(view))throw new Error('文件 DataView 不属于当前 PAGE_RUNTIME')
-      fileDataView.value=view
+      const row=view.currentRow
+      if(row?.['pageId']!==pageId||row['fileName']!==fileName)throw new Error('文件 DataView 查询未返回当前目标文件')
+      fileDataViewReady.value=true
     }
   }catch(error){if(current===fileViewRevision)fileViewError.value=error instanceof Error?error.message:String(error)}
-  finally{if(current===fileViewRevision)fileDataViewLoading.value=false}
+  finally{if(current===fileViewRevision){fileRuntimeBootstrapPending=false;fileDataViewLoading.value=false}}
 },{immediate:true})
 
 function resolveCurrentFileViewKey(view:DataView):string|undefined{
@@ -224,14 +249,23 @@ async function refreshFile() {
     if(view.hasUnconfirmedSave){fileViewError.value='原文件提交仍待核验，暂不能取消';return}
     if(id!==undefined&&(view.dirtyTracking.hasPendingChanges(id)||view.hasEditingChanges(id)))view.discardPendingChanges([id])
   }
+  let expectedView:DataView|undefined
   try{
+  if(!pageId||!isCurrentTarget())return
+    expectedView=props.state.getPageToolFileDataView(pageId,fileName)
+    if(!resolveCurrentFileViewKey(expectedView))throw new Error('文件 DataView 不属于当前 PAGE_RUNTIME')
+    fileDataView.value=expectedView;fileDataViewReady.value=false;fileViewError.value='';fileDataViewLoading.value=true
     await fileEditor.refresh()
-    if(pageId&&isCurrentTarget()){
-      fileDataView.value=undefined
-      const refreshedView=await props.state.loadPageToolFileDataView({pageId,fileName,discardPending:true})
-      if(isCurrentTarget())fileDataView.value=refreshedView
+    if(!isCurrentTarget())return
+    const refreshedView=await props.state.loadPageToolFileDataView({pageId,fileName,discardPending:true})
+    if(refreshedView!==expectedView)throw new Error('文件 DataView loader 替换了当前正式视图')
+    if(isCurrentTarget()){
+      const row=expectedView.currentRow
+      if(row?.['pageId']!==pageId||row['fileName']!==fileName)throw new Error('文件 DataView 查询未返回当前目标文件')
+      fileDataView.value=expectedView;fileDataViewReady.value=true
     }
   }catch(error){if(isCurrentTarget())fileViewError.value=error instanceof Error?error.message:String(error)}
+  finally{if(isCurrentTarget())fileDataViewLoading.value=false}
 }
 
 function stageFile(value:string):void{

@@ -791,6 +791,10 @@
           "type": "object",
           "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
         },
+        "getPageToolFileDataView": {
+          "type": "object",
+          "title": "(pageId: string, fileName: ProjectBlueprintDomain.PageToolFileName) => DataView"
+        },
         "loadPageToolFileDataView": {
           "type": "object",
           "title": "(input: { pageId: string; fileName: ProjectBlueprintDomain.PageToolFileName; discardPending?: boolean; forceReload?: boolean; }) => Promise<DataView>"
@@ -1015,6 +1019,7 @@
         "blueprintPageRuntime",
         "loadBlueprintWorkspaceDataView",
         "savePageToolFile",
+        "getPageToolFileDataView",
         "loadPageToolFileDataView",
         "readPageToolFileDataViewText",
         "pageToolFileDataViewState",
@@ -1060,7 +1065,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T06:36:17.259Z",
+  "generatedAt": "2026-10-30T09:04:05.976Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

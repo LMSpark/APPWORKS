@@ -609,6 +609,10 @@
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; submittedText?: string; requireActive?: boolean; }) => Promise<void>"
             },
+            "getPageToolFileDataView": {
+              "type": "object",
+              "title": "(pageId: string, fileName: PageToolFileName) => import(\"@spark-appworks/spark-data\").DataView"
+            },
             "loadPageToolFileDataView": {
               "type": "object",
               "title": "(input: { pageId: string; fileName: PageToolFileName; discardPending?: boolean; forceReload?: boolean; }) => Promise<import(\"@spark-appworks/spark-data\").DataView>"
@@ -835,6 +839,7 @@
             "blueprintPageRuntime",
             "loadBlueprintWorkspaceDataView",
             "savePageToolFile",
+            "getPageToolFileDataView",
             "loadPageToolFileDataView",
             "readPageToolFileDataViewText",
             "pageToolFileDataViewState",

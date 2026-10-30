@@ -6,13 +6,14 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
 -->
 <template>
   <section v-if="state.selectedNode.value" class="blueprint-workspace" v-loading="loading">
+    <div v-if="readyWorkspaceForView" :key="workspaceContextKey" class="blueprint-workspace__scope">
     <div class="blueprint-workspace__actions">
       <DisplayTag v-if="autoSavePresentation" :content="autoSavePresentation.content" :tag-type="autoSavePresentation.tagType"
         size="small" :effect="autoSavePresentation.effect" />
-      <RendererButton label="取消节点修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
-      <RendererButton label="保存节点修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')" />
+      <RendererButton v-bind="workspaceBinding" label="取消节点修改" :disabled="!sessionDirty || saving || loading" @click="cancelEdits" />
+      <RendererButton v-bind="workspaceBinding" label="保存节点修改" button-type="primary" :disabled="!sessionDirty || saving || loading" :loading="saving" @click="save('节点修改')" />
     </div>
-    <RendererTabs v-model="activeStage" class="blueprint-workspace__tabs" toolbar-placement="header">
+    <RendererTabs v-model="activeStage" v-bind="workspaceBinding" data-member="currentRow" class="blueprint-workspace__tabs" toolbar-placement="header">
       <RendererTabPane label="基本信息" name="basic" :index="0"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['capability']" /></RendererTabPane>
       <RendererTabPane label="原型描述" name="prototype" :index="1"><PrototypePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="access('htmlDesc')" @changed="fieldChanged" @save="save('原型描述')" /><BlueprintReadonlyInfo v-if="activeStage==='prototype' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-history-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_Desc_Version@default`" :fields="HISTORY_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
       <RendererTabPane label="数据空间" name="data" :index="2"><NodeBasicInfo v-if="readyWorkspaceForView" :state="state" :sections="['data-space']" /><DataPlanningPane v-if="activeStage === 'data' && readyWorkspaceForView" :state="state" :field-access="access('conid')" /></RendererTabPane>
@@ -21,6 +22,8 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <RendererTabPane label="任务信息" name="task-info" :index="5"><DisplayEmpty description="参考实现暂无对应任务资源" /></RendererTabPane>
       <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="estimateAccess" @changed="fieldChanged" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" :runtime-access="access('NavigationUrl')" :visibility-boolean="isBooleanField('IsShowAtNav')" :visibility-options="binaryOptions('IsShowAtNav')" :navigation-options="navigationTypeOptions" @changed="fieldChanged" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
     </RendererTabs>
+    </div>
+    <DisplayEmpty v-else :description="loadError || '正在装载当前节点 DataView'" />
   </section>
   <DisplayEmpty v-else description="在左侧 WBS 中选择节点" />
 </template>
@@ -73,6 +76,9 @@ const autoSavePresentation = computed(() => {
 })
 let loadRevision = 0
 let disposed = false
+let runtimeBeforeLoad:PageRuntime|undefined
+let runtimeAttachPending=false
+const loadError=ref('')
 const session = shallowRef<BlueprintWorkspaceDataView>()
 const dataViewRevision = ref(0)
 const sessionDirty = computed(() => {void dataViewRevision.value; void props.state.hasAnyDirty.value; return session.value?.dirty ?? false})
@@ -105,6 +111,14 @@ const readyWorkspaceForView = computed<ReadyWorkspace | undefined>(() => {
     && ready.session.view.currentRow?.['SysId']===ready.projectId
     ? ready : undefined
 })
+const workspaceBinding = computed(() => {
+  const key=readyWorkspaceForView.value?.session.standardComponentBinding.dataViewKey
+  return key ? {dataViewKey:key} : {}
+})
+const workspaceContextKey = computed(() => {
+  const ready=readyWorkspaceForView.value
+  return ready ? `${ready.runtime.instanceId}:${ready.projectId}:${ready.nodeId}:${ready.session.standardComponentBinding.dataViewKey??'unbound'}` : 'workspace-not-ready'
+})
 const access = (field: string): FieldAccess => ({read: session.value?.canRead(field) ?? false, write: session.value?.canWrite(field) ?? false})
 const estimateAccess = computed(() => {void dataViewRevision.value; return ({
   DifficultyFactor: access('DifficultyFactor'), Manhour: access('Manhour'), Number: access('Number'),
@@ -118,6 +132,9 @@ async function load(): Promise<void> {
   const nodeId = props.state.selectedNode.value?.nodeId
   const projectId = props.state.projectId
   const revision = ++loadRevision
+  runtimeBeforeLoad=props.state.blueprintPageRuntime.value
+  runtimeAttachPending=runtimeBeforeLoad===undefined
+  loadError.value=''
   readyWorkspace.value=undefined
   sparkRemove(PAGE_RUNTIME)
   session.value = undefined
@@ -128,10 +145,12 @@ async function load(): Promise<void> {
     if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId)return
     const runtime=props.state.blueprintPageRuntime.value
     if(!runtime?.isLoaded)throw new Error('蓝图工作区 PAGE_RUNTIME 未就绪')
+    if(runtime.getDataSet(BLUEPRINT_SCENARIO_ID)!==current.dataSet)throw new Error('蓝图工作区 DataView 不属于当前 PAGE_RUNTIME')
     sparkProvide(PAGE_RUNTIME,runtime)
     session.value=current
     await current.load(nodeId)
-    if(disposed||revision!==loadRevision||props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId){session.value=undefined;return}
+    if(disposed||revision!==loadRevision)return
+    if(props.state.projectId!==projectId||props.state.selectedNode.value?.nodeId!==nodeId||props.state.blueprintPageRuntime.value!==runtime){session.value=undefined;return}
     readyWorkspace.value={nodeId,projectId,runtime,session:current}
     dataViewRevision.value++
     props.state.notifyExternalDataViewChanged()
@@ -140,6 +159,7 @@ async function load(): Promise<void> {
       readyWorkspace.value=undefined
       session.value=undefined
       sparkRemove(PAGE_RUNTIME)
+      loadError.value=error instanceof Error?error.message:String(error)
       props.state.addStatus(`六阶段 DataView 加载失败: ${String(error)}`, 'error')
     }
   } finally { if (!disposed && revision === loadRevision) loading.value = false }
@@ -279,10 +299,19 @@ async function saveDelivery() {
 }
 
 watch([() => props.state.selectedNode.value?.nodeId ?? '', () => props.state.projectId], () => {void load()}, { immediate: true })
+watch(() => props.state.blueprintPageRuntime.value, runtime => {
+  if(loading.value&&runtime&&runtimeAttachPending&&runtimeBeforeLoad===undefined
+    &&props.state.blueprintWorkspaceDataView.value?.dataSet===runtime.getDataSet(BLUEPRINT_SCENARIO_ID)){
+    runtimeAttachPending=false
+    return
+  }
+  void load()
+})
 </script>
 
 <style scoped>
 .blueprint-workspace { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.blueprint-workspace__scope { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .blueprint-workspace__actions { display: flex; justify-content: flex-end; gap: 8px; padding: 6px 12px; }
 .blueprint-workspace__tabs { flex: 1; min-height: 0; }
 .blueprint-workspace :deep(.renderer-tabs-main), .blueprint-workspace :deep(.el-tabs), .blueprint-workspace :deep(.el-tabs__content) { height: 100%; min-height: 0; }

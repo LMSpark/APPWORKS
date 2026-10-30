@@ -1,5 +1,5 @@
 import { shallowMount, mount, flushPromises } from '@vue/test-utils'
-import { computed, defineComponent, ref, toRaw } from 'vue'
+import { computed, defineComponent, h, ref, toRaw, watch, type Component } from 'vue'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
@@ -7,8 +7,8 @@ import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import {useDevFileEditor} from '@/views/app/dev-system/composables/useDevFileEditor'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {DataSet, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
-import {DATA_SOURCE, useSparkConsume} from '@spark-appworks/spark-component'
+import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
+import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
@@ -154,14 +154,63 @@ import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateA
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 const fixtureText=(pageSize:number)=>JSON.stringify({scenarioId:'scene',tables:{Orders:{modelBinding:{modelId:'orders-model',modelName:'Orders'},views:{default:{pageSize},detail:{}}}}})
 function sceneNode():ProjectBlueprintTreeNodeData{return {nodeId:'orders-page-node',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders-page',order:0,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'scene',models:[{metaName:'Orders'}]},source:{}}}
+function mountDesigner(options:{state:ReturnType<typeof createDevStateWithConfigPages>;shallow?:boolean;stubs?:Record<string,Component|boolean>}){
+ const {state}=options
+ const Host=defineComponent({setup(){
+  const {sparkProvide,sparkRemove}=useSparkComponent({type:'scenario-designer-test-host'})
+  watch(()=>state.blueprintPageRuntime.value,runtime=>{
+   if(runtime?.isLoaded)sparkProvide(PAGE_RUNTIME,runtime);else sparkRemove(PAGE_RUNTIME)
+  },{immediate:true})
+  return ()=>h(DevDataSetDesigner,{state})
+ }})
+ return (options.shallow?shallowMount:mount)(Host,{global:{stubs:{DevDataSetDesigner:false,RendererForm:false,RendererHostScope:false,...options.stubs}}})
+}
 describe('tool and shared scenario editing owners',()=>{
+ it.each([true,false])('keeps definition commands on their own DataView and row inside a node workspace (preloaded=%s)', async preloaded=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  if(preloaded)await state.loadSelectedScenarioViews()
+  const nodeView=state.blueprintWorkspaceDataView.value!.view
+  const observed:Array<{label:unknown;view:DataView|null;row:DataRow|null}> = []
+  const BoundButton=defineComponent({inheritAttrs:false,setup(_props,{attrs}){
+    const {sparkConsume}=useSparkConsume()
+    observed.push({label:attrs['label'],view:sparkConsume(DATA_SOURCE),row:sparkConsume(DATA_ROW)})
+    return ()=>h('button',attrs,String(attrs['label']??''))
+  }})
+  const Host=defineComponent({setup(){
+    const {sparkProvide}=useSparkComponent({type:'definition-context-test-host'})
+    sparkProvide(PAGE_RUNTIME,state.blueprintPageRuntime.value!)
+    sparkProvide(DATA_SOURCE,nodeView);sparkProvide(DATA_ROW,nodeView.currentRow!)
+    return ()=>h(DevDataSetDesigner,{state})
+  }})
+  const wrapper=mount(Host,{global:{stubs:{RendererButton:BoundButton,SparkJsonEditor:true}}})
+  try{
+    await flushPromises()
+    const definitionView=state.scenarioDefinitionDocument.value!.dataSet.getView('DataViewDefinition')!
+    const save=observed.filter(item=>item.label==='保存场景视图').at(-1)
+    expect(save).toBeDefined()
+    expect(save!.view).toBe(definitionView)
+    expect(save!.row?.['rowid']).not.toBe(sceneNode().nodeId)
+    if(definitionView.currentRow) expect(save!.row).toMatchObject(definitionView.currentRow)
+    const previousDocument=state.scenarioDefinitionDocument.value,previousBindings=observed.length
+    await state.loadSelectedScenarioViews(true);await flushPromises()
+    const replacement=state.scenarioDefinitionDocument.value!.dataSet.getView('DataViewDefinition')!
+    expect(state.scenarioDefinitionDocument.value).not.toBe(previousDocument)
+    expect(replacement).toBe(definitionView)
+    expect(observed.length).toBeGreaterThan(previousBindings)
+    const rebound=observed.filter(item=>item.label==='保存场景视图').at(-1)
+    expect(rebound?.view).toBe(replacement)
+    expect(rebound?.row?.['rowid']).not.toBe(sceneNode().nodeId)
+  }finally{wrapper.unmount()}
+ })
  it('loads definitions only when the selected data workspace is actually opened', async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):''}))
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
   expect(state.scenarioDefinitionDocument.value).toBeNull()
   expect(readModels).not.toHaveBeenCalled()
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state}})
+  const wrapper=mountDesigner({state,shallow:true})
   try {await flushPromises();expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene')}
   finally {wrapper.unmount()}
  })
@@ -231,7 +280,7 @@ describe('tool and shared scenario editing owners',()=>{
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  const wrapper=mountDesigner({state,shallow:true,stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}})
   await wrapper.get('[data-test="scene-history"]').trigger('click')
   expect(wrapper.find('[aria-label="场景历史"]').exists()).toBe(true)
   wrapper.unmount()
@@ -336,7 +385,7 @@ describe('tool and shared scenario editing owners',()=>{
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const JsonEditor=defineComponent({props:['modelValue','readOnly'],emits:['update:modelValue'],
     template:'<textarea :value="modelValue" :disabled="readOnly" @input="$emit(\'update:modelValue\', $event.target.value)" />'})
-  const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{SparkJsonEditor:JsonEditor}}})
+  const wrapper=mountDesigner({state,stubs:{SparkJsonEditor:JsonEditor}})
   const button=(label:string)=>wrapper.findAll('button').find(item=>item.text()===label)!
   try {
     await wrapper.get('textarea').setValue(fixtureText(77));await flushPromises()
@@ -359,7 +408,7 @@ describe('tool and shared scenario editing owners',()=>{
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
   const previous=state.scenarioDefinitionDocument.value
   const Button=defineComponent({props:['disabled','label'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}<slot /></button>'})
-  const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:true,SparkJsonEditor:true}}})
+  const wrapper=mountDesigner({state,stubs:{RendererButton:Button,ScenarioHistoryPanel:true,SparkJsonEditor:true}})
   try {
    await flushPromises()
    await wrapper.findAll('button').find(button=>button.text()==='重新加载')!.trigger('click')
@@ -375,7 +424,7 @@ describe('tool and shared scenario editing owners',()=>{
   httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content;throw new Error('response lost')})
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews()
-  const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{SparkJsonEditor:true}}})
+  const wrapper=mountDesigner({state,stubs:{SparkJsonEditor:true}})
   const button=()=>wrapper.get('[data-test="scene-save"]')
   try {
    await state.writeScenarioViewText(fixtureText(77));await flushPromises()
@@ -454,7 +503,7 @@ describe('tool and shared scenario editing owners',()=>{
   await fileView.editRowById(fileId,{text:'submitted'})
   state.stagePageToolFileDataView({pageId:page.pageId,fileName:'script.js',text:'submitted'})
   await state.writeScenarioViewText(fixtureText(77))
-  const wrapper=mount(DevDataSetDesigner,{props:{state},global:{stubs:{SparkJsonEditor:true}}})
+  const wrapper=mountDesigner({state,stubs:{SparkJsonEditor:true}})
   try {
    await state.saveAll();await flushPromises()
    expect(httpPut).toHaveBeenCalledOnce()
@@ -522,7 +571,7 @@ describe('tool and shared scenario editing owners',()=>{
   const list=vi.spyOn(state.editor,'listScenarioVersions').mockResolvedValue([{version:0,fileName:'0__pagedata.json',lastModified:null}])
   const preview=vi.spyOn(state.editor,'previewScenarioVersion').mockResolvedValue(fixtureText(50))
   const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  const wrapper=mountDesigner({state,shallow:true,stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}})
   await wrapper.get('[data-test="scene-history"]').trigger('click');await vi.waitFor(()=>expect(wrapper.find('[data-test="scene-preview"]').exists()).toBe(true))
   expect(list).toHaveBeenCalled()
   await wrapper.get('[data-test="scene-preview"]').trigger('click');await vi.waitFor(()=>expect(wrapper.find('[data-test="scene-restore"]').exists()).toBe(true))
@@ -545,7 +594,7 @@ describe('tool and shared scenario editing owners',()=>{
   const pending=new Promise<{version:number;fileName:string;lastModified:null}[]>(resolve=>{release=resolve})
   vi.spyOn(state.editor,'listScenarioVersions').mockReturnValue(pending)
   const Button=defineComponent({props:['disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>'})
-  const wrapper=shallowMount(DevDataSetDesigner,{props:{state},global:{stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}}})
+  const wrapper=mountDesigner({state,shallow:true,stubs:{RendererButton:Button,ScenarioHistoryPanel:false,ElAlert:true,ElInput:true,ElEmpty:true}})
   await wrapper.get('[data-test="scene-history"]').trigger('click')
   await wrapper.get('[data-test="scene-history-close"]').trigger('click')
   release?.([{version:4,fileName:'4__pagedata.json',lastModified:null}]);await pending;await wrapper.vm.$nextTick()
@@ -582,7 +631,7 @@ describe('tool and shared scenario editing owners',()=>{
   try{
    await flushPromises()
    expect(Reflect.has(state.editor,'ensureActivePageFilesLoaded')).toBe(false)
-   expect(fileViewLoad.mock.calls.map(([input])=>input.fileName)).toEqual(['rule.json'])
+   await vi.waitFor(()=>expect(fileViewLoad.mock.calls.map(([input])=>input.fileName)).toEqual(['rule.json']))
    const fileView=await fileViewLoad.mock.results[0]?.value as unknown as {currentRow:Record<string,unknown>|null;tableName:string;viewId:string}
    expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'rule.json'})
    expect(fileView.tableName).toBe('ProjectToolFile')

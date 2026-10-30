@@ -8,13 +8,18 @@ AI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来
   <div class="scenario-designer">
     <div class="toolbar">
       <strong>场景视图配置</strong>
-      <span v-if="state.scenarioDefinitionDocument.value">{{ state.scenarioDefinitionDocument.value.scenarioId }}</span>
-      <RendererButton v-if="canCreate" :loading="creating" label="按正式模型新建视图草稿" @click="create" />
-      <RendererButton :disabled="busy || creating || state.pageDataDirty.value || !state.selectedNode.value?.dataSpace?.scenarioId" label="重新加载" @click="load" />
-      <RendererButton :disabled="busy || recovering || !state.scenarioDefinitionDocument.value?.canUndo" label="撤销" @click="undo" />
-      <RendererButton :disabled="busy || recovering || !state.scenarioDefinitionDocument.value?.canRedo" label="重做" @click="redo" />
-      <RendererButton data-test="scene-save" button-type="primary" :disabled="busy || !state.pageDataDirty.value || !!inputError && !recovering" :label="recovering ? '核验场景提交' : '保存场景视图'" @click="save" />
-      <RendererButton data-test="scene-history" :disabled="busy || !state.scenarioDefinitionDocument.value?.isPersisted" label="场景历史" @click="historyOpen = true" />
+      <RendererButton v-if="!definitionView && nodeViewKey" :data-view-key="nodeViewKey" :disabled="busy || creating || state.pageDataDirty.value || !state.selectedNode.value?.dataSpace?.scenarioId" label="重新加载" @click="load" />
+      <RendererForm v-else-if="definitionView" :key="definitionContextKey" :data-source="definitionView" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" class="definition-commands">
+        <div class="definition-commands__actions">
+          <span>{{ state.scenarioDefinitionDocument.value?.scenarioId }}</span>
+          <RendererButton v-if="canCreate" :loading="creating" label="按正式模型新建视图草稿" @click="create" />
+          <RendererButton v-if="nodeViewKey" :data-view-key="nodeViewKey" :disabled="busy || creating || state.pageDataDirty.value || !state.selectedNode.value?.dataSpace?.scenarioId" label="重新加载" @click="load" />
+          <RendererButton :disabled="busy || recovering || !definitionCanUndo" label="撤销" @click="undo" />
+          <RendererButton :disabled="busy || recovering || !definitionCanRedo" label="重做" @click="redo" />
+          <RendererButton data-test="scene-save" button-type="primary" :disabled="busy || !state.pageDataDirty.value || !!inputError && !recovering" :label="recovering ? '核验场景提交' : '保存场景视图'" @click="save" />
+          <RendererButton data-test="scene-history" :disabled="busy || !definitionIsPersisted" label="场景历史" @click="historyOpen = true" />
+        </div>
+      </RendererForm>
     </div>
     <ScenarioHistoryPanel v-if="historyOpen && historyView" :key="historyRequest" :open="true" :view="historyView" :can-create="canVersion"
       :draft-dirty="state.pageDataDirty.value" :on-restore="restoreHistory" :on-save="saveHistoryDraft"
@@ -35,17 +40,21 @@ AI用途：绑定工作区正式定义DataView编辑，DataSet保存；历史来
 <script setup lang="ts">
 import { computed, ref, watch, onUnmounted } from 'vue'
 import type {DataView} from '@spark-appworks/spark-data'
-import {DATA_SOURCE, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {RendererButton, RendererForm} from '@spark-appworks/spark-component'
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import ScenarioDefinitionTextEditor from './definition/ScenarioDefinitionTextEditor.vue'
 import type { DevState } from './useDevState'
 const props=defineProps<{state:DevState}>()
-const {sparkProvide, sparkRemove}=useSparkComponent({type: 'scenario-definition-editor'})
-watch(()=>props.state.scenarioDefinitionDocument.value, document=>{
-  sparkRemove(DATA_SOURCE)
-  const view=document?.dataSet.getView('DataViewDefinition')
-  if(view)sparkProvide(DATA_SOURCE,view)
-}, {immediate:true})
+const definitionView=computed<DataView|undefined>(()=>props.state.scenarioDefinitionDocument.value?.dataSet.getView('DataViewDefinition'))
+const definitionViewRevision=ref(0)
+watch(()=>props.state.scenarioDefinitionDocument.value,()=>{definitionViewRevision.value++})
+const definitionContextKey=computed(()=>{
+  return `${definitionViewRevision.value}:${props.state.selectedNode.value?.nodeId??''}`
+})
+const nodeViewKey=computed(()=>props.state.blueprintWorkspaceDataView.value?.standardComponentBinding.dataViewKey)
+const definitionCanUndo=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.canUndo===true})
+const definitionCanRedo=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.canRedo===true})
+const definitionIsPersisted=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.isPersisted===true})
 const error=ref('')
 const inputError=ref(''), message=ref('')
 const creating=ref(false)
@@ -77,7 +86,7 @@ async function restoreHistory(version:string|number,text:string):Promise<void>{a
 async function saveHistoryDraft():Promise<void>{await props.state.saveScenarioViewText()}
 async function undoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.undo())throw new Error('没有可撤销的定义修改');props.state.scenarioDefinitionRevision.value++}
 async function redoHistoryDraft():Promise<void>{if(!await props.state.scenarioDefinitionDocument.value?.redo())throw new Error('没有可重做的定义修改');props.state.scenarioDefinitionRevision.value++}
-const canCreate=computed(()=>props.state.scenarioDefinitionDocument.value?.isPersisted === false && !props.state.pageDataDirty.value)
+const canCreate=computed(()=>{props.state.scenarioDefinitionRevision.value;return props.state.scenarioDefinitionDocument.value?.isPersisted === false && !props.state.pageDataDirty.value})
 const displayError=computed(()=>inputError.value || error.value || props.state.pageDataError.value || '')
 watch(()=>props.state.scenarioDefinitionDocument.value,()=>{error.value='';inputError.value='';message.value=''})
 async function create():Promise<void>{if(creating.value)return;creating.value=true;try{await props.state.createSelectedScenarioViews();error.value=''}catch(cause){error.value=cause instanceof Error ? cause.message : String(cause)}finally{creating.value=false}}
@@ -103,4 +112,5 @@ async function redo():Promise<void>{try{if(await props.state.scenarioDefinitionD
 <style scoped>
 .scenario-designer {padding:16px;}
 .toolbar {display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.definition-commands__actions {display:flex;align-items:center;gap:12px;}
 </style>

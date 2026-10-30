@@ -1,9 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, defineComponent, h, nextTick, ref, shallowRef } from 'vue'
+import { computed, defineComponent, h, nextTick, ref, shallowRef, type Component } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import ElementPlus from 'element-plus'
 import { buildDataViewKey, DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
 import { PageRuntime, ProjectBlueprint, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { PAGE_RUNTIME, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { DATA_ROW, DATA_SOURCE, FieldText, PAGE_RUNTIME, Spark, useSparkComponent, useSparkConsume } from '@spark-appworks/spark-component'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import { resolveProjectPlanningDomainRoot } from '@/services/project-planning/project-planning-agent-workflow-binding'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
@@ -42,11 +43,11 @@ const StandardField = defineComponent({props:['dataViewKey','dataMember','dataFi
 const StandardRenderer = defineComponent({props:['dataViewKey','label','disabled','modelValue','title','width','closeDisabled','children','highlightCurrentRow'],emits:['click','update:modelValue'],template:'<button data-test-standard-renderer @click="$emit(\'click\',$event)">{{label}}<slot /></button>'})
 const Delivery = defineComponent({ props: ['canPublish'], emits: ['save'], template: '<button @click="$emit(\'save\')">交付</button>' })
 const scenarioId = '7AB874097A1E8711A42FD845939A6E05'
-const initialRow = (target = 'cfg:tool-A', versionId = 'rule=1;script=1;style=1'): DataRow => ({rowid: 'node-A', SysId: 'APP-A',
+const initialRow = (target = 'cfg:tool-A', versionId = 'rule=1;script=1;style=1', nodeId = 'node-A', projectId = 'APP-A'): DataRow => ({rowid: nodeId, SysId: projectId,
   memo: 'planning', htmlDesc: '', conid: 'scene-A', NavigationUrl: target, VersionId: versionId, DifficultyFactor: 1,
   Manhour: 2, Number: 3, Sum: 6, Total: 6, personCharge: '', status: '', IsShowAtNav: 0, NavigationType: 0})
-function createDataSet(options: {target?: string; versionId?: string; deniedWrite?: string; readbackVersion?: string} = {}) {
-  let persisted = initialRow(options.target, options.versionId)
+function createDataSet(options: {target?: string; versionId?: string; deniedWrite?: string; readbackVersion?: string; nodeId?:string; projectId?:string} = {}) {
+  let persisted = initialRow(options.target, options.versionId, options.nodeId, options.projectId)
   const names = Object.keys(persisted)
   const context = (rows: DataRow[]) => ({rows, total: rows.length, countReported: true,
     assertIdentity(identity: {scenarioId: string; metaName: string}) {if (identity.scenarioId !== scenarioId || identity.metaName !== 'Base_NavigationInfo') throw new Error('identity mismatch')},
@@ -80,11 +81,11 @@ function projectedActivePageId(target: string): string {
       capability: {name: 'tool-A'}, navigation: {title: 'tool-A', target, order: 0, publishInMenu: true, showChildren: true, beginGroup: false}, source: {}}]})
   return blueprint.readBlueprintProjection().pageDeliveries.find(node => node.nodeId === 'node-A')?.pageId ?? ''
 }
-function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus:'idle'|'pending'|'saving'|'saved'|'error'='saved') {
-  const dataSet = createDataSet(options)
+function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus:'idle'|'pending'|'saving'|'saved'|'error'='saved', testRuntime?:{dataSet:DataSet;runtime:PageRuntime;stubs?:Record<string,Component|boolean>}) {
+  let activeDataSet = testRuntime?.dataSet ?? createDataSet(options)
   const target = options.target ?? 'cfg:tool-A'
-  const pageRuntime={instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>dataSet,
-    resolveView:()=>dataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime
+  const pageRuntime=testRuntime?.runtime??({instanceId:'blueprint-workspace-test-runtime',isLoaded:true,getDataSet:()=>activeDataSet,
+    resolveView:()=>activeDataSet.getView('Base_NavigationInfo','default'),dispose:vi.fn(),materialize:vi.fn()} as unknown as PageRuntime)
   let owner: BlueprintWorkspaceDataView | undefined
   const fileViews=new Map<string,{currentRow:DataRow;createSourceVersion:(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>Promise<{state:string;version:number;fileName:string;message:null}>;acknowledgeSourceHistoryAttempt:()=>void;getPkKey:(row:DataRow)=>string;getEditingRow:()=>DataRow|null;editRowById:(id:string,patch:DataRow)=>Promise<void>;dirtyTracking:{hasPendingChanges:()=>boolean};hasEditingChanges:()=>boolean;hasUnconfirmedSave:boolean}>()
   const blueprintWorkspaceDataView=shallowRef<BlueprintWorkspaceDataView>()
@@ -92,11 +93,11 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
   const state = {
     selectedNode: ref<{nodeId: string} | null>({ nodeId: 'node-A' }), activePageId: ref(projectedActivePageId(target)), projectId: 'APP-A', addStatus: vi.fn(),
-    blueprintPageRuntime: ref(pageRuntime),
+    blueprintPageRuntime: shallowRef(pageRuntime),
     blueprintWorkspaceDataView,
     registerExternalDataViewSession: vi.fn((_session: {isDirty: () => boolean; save: () => Promise<void>}) => () => {}), notifyExternalDataViewChanged: vi.fn(() => {accessRevision.value++}),
     loadBlueprintWorkspaceDataView: vi.fn(async () => {
-      const current=owner??new BlueprintWorkspaceDataView(dataSet,'APP-A',()=>{})
+      const current=owner??new BlueprintWorkspaceDataView(activeDataSet,'APP-A',()=>{})
       owner=current
       blueprintWorkspaceDataView.value=current
       if(state.registerExternalDataViewSession.mock.calls.length===0)state.registerExternalDataViewSession({isDirty:()=>current.dirty,save:()=>current.save()})
@@ -130,17 +131,19 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus
     return ()=>h(BlueprintWorkspace,{state:state as never})}})
   const wrapper = mount(Host, {
     global: {
-      directives: { loading: () => {} }, stubs: {
+      plugins: testRuntime ? [ElementPlus, Spark.createPlugin()] : [], directives: testRuntime ? {} : { loading: () => {} }, stubs: {
         RendererTabs: Slot, RendererTabPane: TabPane, DisplayEmpty: TestEmpty, ElAlert: TestAlert, PrototypePane: true,
         DisplayTag: AutoSaveTag,
         EstimatePane: true, DeliveryPane: Delivery, ReleasePane: true,
         NodeBasicInfo, NodeTargetConfig: true, NodeLayoutConfig: true, NodeStateConfig: defineComponent({template:'<div data-test-node-state-stub />'}),
         ElDivider: true, ElFormItem: TestFormItem, ElInput: TestInput, ElSelect: true, ElSwitch: true, ElOption: true, IconPicker: true,
         FieldSelect: StandardField, RendererButton: StandardRenderer, RendererDialog: StandardRenderer, RendererFilter: StandardRenderer, RendererTable: StandardRenderer,
+        ...testRuntime?.stubs,
       },
     },
   })
-  return { state, wrapper, dataSet, workspaceOwner: () => owner, fileViews }
+  return { state, wrapper, dataSet:activeDataSet, workspaceOwner: () => owner, fileViews,
+    replaceWorkspace(nextDataSet:DataSet,nextRuntime:PageRuntime){owner?.dispose();owner=undefined;activeDataSet=nextDataSet;blueprintWorkspaceDataView.value=undefined;state.blueprintPageRuntime.value=nextRuntime} }
 }
 
 describe('BlueprintWorkspace runtime mount lifecycle', () => {
@@ -150,9 +153,10 @@ describe('BlueprintWorkspace runtime mount lifecycle', () => {
     {status:'saving' as const,content:'保存中…',tagType:'info',effect:'dark'},
     {status:'saved' as const,content:'已自动保存',tagType:'success',effect:'plain'},
     {status:'error' as const,content:'保存失败',tagType:'danger',effect:'plain'},
-  ])('maps autosave state $status to the shared DisplayTag presentation',({status,content,tagType,effect})=>{
+  ])('maps autosave state $status to the shared DisplayTag presentation',async({status,content,tagType,effect})=>{
     const {wrapper,dataSet,workspaceOwner}=setup({},status)
     try{
+      await flushPromises()
       const tag=wrapper.findComponent(AutoSaveTag)
       if(status==='idle')expect(tag.exists()).toBe(false)
       else{
@@ -264,6 +268,124 @@ describe('BlueprintWorkspace file delivery', () => {
     api.createSnapshot.mockReset().mockImplementation(async (input:{fileName:string;onAttempt?:(result:{version:number;fileName:string})=>void})=>{
       const result={version:8,fileName:`8__${input.fileName}`};input.onAttempt?.(result);return result
     })
+  })
+
+  it('opens the new node while the old query is pending and ignores its late completion',async()=>{
+    const firstDataSet=createDataSet(),nextDataSet=createDataSet({nodeId:'node-B'})
+    const firstRuntime=new PageRuntime({pageId:'pending-node-A',scenarioIds:[scenarioId],loadScenario:async()=>firstDataSet})
+    const nextRuntime=new PageRuntime({pageId:'ready-node-B',scenarioIds:[scenarioId],loadScenario:async()=>nextDataSet})
+    await firstRuntime.load();await nextRuntime.load()
+    let release:()=>void=()=>{}
+    const pending=new Promise<void>(resolve=>{release=resolve})
+    const firstView=firstDataSet.getView('Base_NavigationInfo')!
+    const refresh=firstView.refresh.bind(firstView)
+    vi.spyOn(firstView,'refresh').mockImplementation(async()=>{await pending;return refresh()})
+    const NodeProbe=defineComponent({setup(){
+      const {sparkConsume}=useSparkConsume(),row=sparkConsume(DATA_ROW)
+      return ()=>h('output',{'data-node-context':''},String(row?.['rowid']??'none'))
+    }})
+    const mounted=setup({},'saved',{dataSet:firstDataSet,runtime:firstRuntime,stubs:{
+      RendererTabs:false,RendererTabPane:false,RendererButton:false,NodeBasicInfo:NodeProbe,DeliveryPane:true,
+    }})
+    try{
+      await flushPromises()
+      expect(firstView.refresh).toHaveBeenCalledOnce()
+      expect(mounted.wrapper.find('[data-node-context]').exists()).toBe(false)
+      mounted.replaceWorkspace(nextDataSet,nextRuntime)
+      mounted.state.selectedNode.value={nodeId:'node-B'}
+      await flushPromises()
+      expect(mounted.wrapper.get('[data-node-context]').text()).toBe('node-B')
+      const current=mounted.workspaceOwner()!
+      expect(current.view).toBe(nextRuntime.resolveView(buildDataViewKey('Base_NavigationInfo','default',scenarioId)))
+      release();await flushPromises()
+      expect(mounted.wrapper.get('[data-node-context]').text()).toBe('node-B')
+      expect(mounted.workspaceOwner()).toBe(current)
+    }finally{release();mounted.wrapper.unmount();mounted.workspaceOwner()?.dispose();firstRuntime.dispose();nextRuntime.dispose()}
+  })
+
+  it('routes the node-stage field through the runtime-resolved formal node DataView and inherited row', async () => {
+    const dataSet=createDataSet()
+    const runtime=new PageRuntime({pageId:'blueprint-node-context-red',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    const observed:Array<{source:unknown;row:DataRow|undefined}> = []
+    const NodeContextProbe=defineComponent({setup(){
+      const {sparkConsume}=useSparkConsume()
+      observed.push({source:sparkConsume(DATA_SOURCE),row:sparkConsume(DATA_ROW) as DataRow|undefined})
+      return ()=>h('div',{class:'node-context-probe'},[h('output',String((sparkConsume(DATA_ROW) as DataRow|undefined)?.['rowid']??'no-row')),
+        h(SparkComponent.RendererForm,{autoColumns:false,showDataViewMeta:false,contextDataMember:'currentRow'},{default:()=>
+          h(FieldText,{dataMember:'currentRow',dataField:'memo',label:'节点备注','onUpdate:modelValue':()=>mounted.state.notifyExternalDataViewChanged()})})])
+    }})
+    const mounted=setup({},'saved',{dataSet,runtime,stubs:{
+      RendererTabs:false,RendererTabPane:false,RendererButton:false,NodeBasicInfo:NodeContextProbe,
+      DeliveryPane:true,
+    }})
+    let nextDataSet:DataSet|undefined
+    let nextRuntime:PageRuntime|undefined
+    try{
+      await flushPromises()
+      const owner=mounted.workspaceOwner()!
+      const nodeKey=buildDataViewKey('Base_NavigationInfo','default',scenarioId)
+      expect(runtime.resolveView(nodeKey)).toBe(owner.view)
+      expect(observed.some(({source,row})=>source===owner.view&&row?.['rowid']==='node-A'&&row?.['SysId']==='APP-A'),mounted.wrapper.html()).toBe(true)
+      const input=mounted.wrapper.get('.node-context-probe textarea')
+      await input.setValue('stage edit through inherited node DataView')
+      expect(owner.view.getEditingPatch('node-A')).toMatchObject({memo:'stage edit through inherited node DataView'})
+      await mounted.wrapper.findAll('button').find(button=>button.text().includes('取消节点修改'))?.trigger('click')
+      await flushPromises()
+      expect(owner.view.getEditingPatch('node-A')).toBeUndefined()
+
+      observed.splice(0)
+      nextDataSet=createDataSet({nodeId:'node-B'})
+      nextRuntime=new PageRuntime({pageId:'blueprint-node-context-next-runtime',scenarioIds:[scenarioId],loadScenario:async()=>nextDataSet!})
+      await nextRuntime.load()
+      mounted.replaceWorkspace(nextDataSet,nextRuntime)
+      mounted.state.selectedNode.value={nodeId:'node-B'}
+      await flushPromises()
+      const nextOwner=mounted.workspaceOwner()!
+      expect(nextOwner).not.toBe(owner)
+      expect(nextOwner.view).not.toBe(owner.view)
+      expect(nextRuntime.resolveView(nodeKey)).toBe(nextOwner.view)
+      expect(nextOwner.view.currentRow?.['rowid']).toBe('node-B')
+      expect(observed.some(({source,row})=>source===nextOwner.view&&row?.['rowid']==='node-B'&&row?.['SysId']==='APP-A')).toBe(true)
+      const nextInput=mounted.wrapper.get('.node-context-probe textarea')
+      await nextInput.setValue('node B edit in its new runtime')
+      expect(nextOwner.view.getEditingPatch('node-B')).toMatchObject({memo:'node B edit in its new runtime'})
+      expect(owner.view.getEditingPatch('node-A')).toBeUndefined()
+    }finally{mounted.wrapper.unmount();mounted.workspaceOwner()?.dispose();dataSet.destroy();runtime.dispose();nextRuntime?.dispose();nextDataSet?.destroy()}
+  })
+
+  it('routes DeliveryPane tabs and its cross-file save command through the current node view context', async () => {
+    const dataSet=createDataSet()
+    const runtime=new PageRuntime({pageId:'blueprint-delivery-context-red',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    const observed:Array<{source:unknown;row:DataRow|undefined}> = []
+    const FileContextProbe=defineComponent({setup(){
+      const {sparkConsume}=useSparkConsume()
+      observed.push({source:sparkConsume(DATA_SOURCE),row:sparkConsume(DATA_ROW) as DataRow|undefined})
+      return ()=>h('output',{class:'delivery-file-context-probe'},String((sparkConsume(DATA_ROW) as DataRow|undefined)?.['rowid']??'no-row'))
+    }})
+    const mounted=setup({},'saved',{dataSet,runtime,stubs:{
+      RendererTabs:false,RendererTabPane:false,RendererButton:false,DeliveryPane:false,
+      DevFileEditor:FileContextProbe,DevPreviewTab:true,
+    }})
+    try{
+      await flushPromises()
+      const extension=mounted.wrapper.findAll('.el-tabs__item').find(item=>item.text().includes('本仓扩展'))
+      expect(extension,mounted.wrapper.html()).toBeDefined()
+      await extension!.trigger('click')
+      await flushPromises()
+      const delivery=mounted.wrapper.findAll('.el-tabs__item').find(item=>item.text().includes('开发交付'))
+      expect(delivery).toBeDefined()
+      await delivery!.trigger('click')
+      await flushPromises()
+      const owner=mounted.workspaceOwner()!
+      expect(observed.some(({source,row})=>source===owner.view&&row?.['rowid']==='node-A'&&row?.['SysId']==='APP-A')).toBe(true)
+      await mounted.wrapper.findAll('button').find(button=>button.text().includes('保存三个交付文件'))?.trigger('click')
+      await flushPromises()
+      expect(api.createSnapshot).toHaveBeenCalledTimes(3)
+      expect(owner.value('VersionId')).toBe('rule=8;script=8;style=8')
+      expect(mounted.state.addStatus).toHaveBeenCalledWith(expect.stringContaining('三个文件已独立上传、切换版本并读回'),'success')
+    }finally{mounted.wrapper.unmount();mounted.workspaceOwner()?.dispose();dataSet.destroy();runtime.dispose()}
   })
 
   it('organizes the SPA work area by the reference six domains and preserves local extensions', async () => {
@@ -619,7 +741,27 @@ describe('Blueprint editor owner-view field bindings', () => {
       expect(radioFields.every(field=>field.props('dataMember')==='currentRow'&&field.props('dataViewKey')===builtinKey)).toBe(true)
       expect(wrapper.findAllComponents(FormProbe).length).toBeGreaterThanOrEqual(4)
       expect(wrapper.findAllComponents(FormProbe).every(form=>form.props('dataViewKey')===builtinKey&&form.props('dataSource')===undefined)).toBe(true)
-    }finally{wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
+      wrapper.unmount()
+      const workspaceState={...state,hasAnyDirty:ref(false),activePageId:ref(''),
+        loadBlueprintWorkspaceDataView:vi.fn().mockResolvedValue(owner),refreshBlueprintTreeProjection:vi.fn()}
+      const ContextProbe=defineComponent({setup(){
+        const {sparkConsume}=useSparkConsume(),view=sparkConsume(DATA_SOURCE),row=sparkConsume(DATA_ROW)
+        return ()=>h('output',{'data-builtin-context':''},`${view?.tableName}:${String(row?.['rowid'])}:${String(row?.['name'])}`)
+      }})
+      const WorkspaceHost=defineComponent({setup(){
+        useSparkComponent({type:'builtin-workspace-context-host'}).sparkProvide(PAGE_RUNTIME,runtime)
+        return ()=>h(BlueprintWorkspace,{state:workspaceState as never})
+      }})
+      const workspace=mount(WorkspaceHost,{global:{plugins:[ElementPlus,Spark.createPlugin()],stubs:{
+        NodeBasicInfo:ContextProbe,PrototypePane:true,DataPlanningPane:true,BlueprintReadonlyInfo:true,
+        NodeTargetConfig:true,NodeLayoutConfig:true,NodeStateConfig:true,EstimatePane:true,DeliveryPane:true,ReleasePane:true,
+      }}})
+      try{
+        await flushPromises()
+        expect(workspace.get('[data-builtin-context]').text()).toBe(`${BUILTIN_BLUEPRINT_NODE_TABLE_NAME}:${node.rowid}:${node.name}`)
+        expect(workspace.getComponent(SparkComponent.RendererTabs).props('dataViewKey')).toBe(builtinKey)
+      }finally{workspace.unmount()}
+    }finally{if(wrapper.exists())wrapper.unmount();owner.dispose();runtime.dispose();dataSet.destroy()}
   })
 })
 

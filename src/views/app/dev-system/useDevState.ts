@@ -2031,6 +2031,7 @@ export function useDevState() {
     blueprintPageRuntime,
     loadBlueprintWorkspaceDataView,
     savePageToolFile,
+    getPageToolFileDataView: currentPageFileView,
     loadPageToolFileDataView,
     readPageToolFileDataViewText,
     pageToolFileDataViewState,

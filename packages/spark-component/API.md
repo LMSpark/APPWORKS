@@ -362,9 +362,9 @@ export type {
 | `r-tree` | RendererTree | DataView → el-tree，支持懒加载/嵌套 |
 | `r-list` | RendererList | DataView → 列表渲染 |
 
-### 容器组件 — 非数据驱动（37 类型）
+### 容器组件 — 布局与交互（37 类型）
 
-纯布局/交互容器，透传 children。
+布局与交互容器承载 children。是否消费数据上下文按组件正式声明分别核对；其中 `RendererTabs` / `RendererTabPane` 支持标准 `dataViewKey`、`dataMember`、`dataField`，默认不主动查询，未显式定位时继承父布局的 DataView/行上下文，字段子组件仍写回该 DataView。
 
 | type | 组件 | 说明 |
 |------|------|------|

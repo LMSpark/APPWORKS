@@ -11,7 +11,7 @@ AI用途：在数据规划阶段编辑场景共享视图并处理缺文件显式
     </RendererForm>
     <DisplayAlert v-if="!fieldAccess.read" title="当前查询没有返回场景字段或读取权限" alert-type="warning" />
     <DisplayAlert v-if="state.sceneBindingPending.value" title="场景绑定尚未通过顶栏保存并正式回读；请先保存或取消节点修改，再加载设计器。" alert-type="warning" />
-    <DevDataSetDesigner v-else-if="state.persistedDataSpaceId.value" :key="state.persistedDataSpaceId.value" :state="state" />
+    <DevDataSetDesigner v-else-if="state.persistedDataSpaceId.value" :key="`${state.blueprintPageRuntime.value?.instanceId ?? 'runtime-unbound'}:${state.selectedNode.value?.nodeId ?? ''}:${state.persistedDataSpaceId.value}`" :state="state" />
     <DisplayAlert v-else title="请先在当前数据空间中选择并保存一个正式场景。" alert-type="info" />
   </section>
 </template>

@@ -259,7 +259,7 @@ describe('blueprint scene designer target', () => {
     const selectedNode = ref({nodeId: 'PAGE-A', dataSpace: {scenarioId: 'SCENE-DRAFT', models: []}})
     const sceneBindingPending = ref(true)
     wrapper = mount(DataPlanningPane, {
-      props: {state: {persistedDataSpaceId, selectedNode, sceneBindingPending,
+      props: {state: {persistedDataSpaceId, selectedNode, sceneBindingPending,blueprintPageRuntime:ref(undefined),
         pageDataDirty: ref(false), pageDataError: ref(null)} as never, fieldAccess: {read: true, write: true}},
       global: {stubs: {DevDataSetDesigner: DesignerStub, ElFormItem: FormItemStub, ElAlert: AlertStub}},
     })

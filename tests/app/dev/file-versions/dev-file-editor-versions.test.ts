@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, shallowRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
@@ -55,8 +55,10 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
   const dataSet = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', getView: vi.fn((tableName: string) =>
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
   const fileDataSet = dataSet
-  const fileView={tableName:'ProjectToolFile',viewId:`page-page-A-${activeFile}`,dataSet:fileDataSet,rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
+  const fileRow:{id:string;pageId:string;fileName:string;text:string}={id:'file-A',pageId:'page-A',fileName:activeFile,text:fixture.text}
+  const fileView={tableName:'ProjectToolFile',viewId:`page-page-A-${activeFile}`,dataSet:fileDataSet,rows:[fileRow],get currentRow(){return this.rows[0]??null},hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
   let currentFileView = fileView
+  const fileViews=new Map([[`page-A/${activeFile}`,fileView]])
   const runtime = {instanceId: 'runtime-A', isLoaded: true, getDataSet: vi.fn((_scenarioId: string) => fileDataSet),
     resolveView: vi.fn((key: string) => key === `${fileDataSet.scenarioId}@ProjectToolFile@${currentFileView.viewId}` ? currentFileView : undefined)}
   const state = {
@@ -65,10 +67,16 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
     selectedNode: ref({nodeId: 'node-A', projectId: 'project-A', navigation: {target: 'cfg:legacy/route'}}),
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
-    blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
+    blueprintPageRuntime: shallowRef(runtime), blueprintWorkspaceDataView: shallowRef({dataSet:fileDataSet}), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
+    getPageToolFileDataView: vi.fn((pageId:string,fileName:string) => {
+      const key=`${pageId}/${fileName}`
+      let target=fileViews.get(key)
+      if(!target){target={...fileView,viewId:`page-${pageId}-${fileName}`,rows:[{...fileView.rows[0]!,pageId,fileName}],get currentRow(){return this.rows[0]??null}};fileViews.set(key,target)}
+      currentFileView=target
+      return target
+    }),
     loadPageToolFileDataView: vi.fn(async ({pageId, fileName}: {pageId: string; fileName: string}) => {
-      currentFileView = pageId === 'page-A' ? fileView : {...fileView, viewId: `page-${pageId}-${fileName}`}
-      return currentFileView
+      return state.getPageToolFileDataView(pageId,fileName)
     }),
     restorePageToolVersion: vi.fn().mockResolvedValue('restored text'),
     editor: {},
@@ -82,6 +90,7 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
     } },
   })
   const click = async (label: string) => {
+    await flushPromises()
     const button = wrapper.findAll('button').find(item => item.text().includes(label))
     if (!button) throw new Error(`按钮缺失：${label}`)
     await button.trigger('click')
@@ -131,15 +140,19 @@ describe('DevFileEditor snapshot identity', () => {
     wrapper.unmount()
   })
 
-  it('omits the stale file binding when loading a different page DataView fails', async () => {
+  it('keeps retry bound to the new file view after loading fails without exposing stale fields', async () => {
     const { state, wrapper } = setup(true, 'script.js', true)
     await flushPromises()
     state.loadPageToolFileDataView.mockRejectedValueOnce(new Error('file DataView unavailable'))
     state.activePageId.value = 'page-B'
     await flushPromises()
     expect(state.loadPageToolFileDataView).toHaveBeenLastCalledWith({pageId: 'page-B', fileName: 'script.js'})
-    expect(wrapper.findAllComponents({name: 'RendererButton'}).every(button => button.props('dataViewKey') === undefined)).toBe(true)
-    expect(wrapper.findComponent({name: 'RendererTabs'}).props('dataViewKey')).toBeUndefined()
+    const key='7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-B-script.js'
+    const buttons=wrapper.findAllComponents({name:'RendererButton'})
+    expect(buttons).toHaveLength(1)
+    expect(buttons[0]!.props()).toMatchObject({label:'重新加载',dataViewKey:key})
+    expect(wrapper.findComponent({name: 'RendererTabs'}).props('dataViewKey')).toBe(key)
+    expect(wrapper.findComponent({name:'FieldCodeEditor'}).exists()).toBe(false)
     wrapper.unmount()
   })
 

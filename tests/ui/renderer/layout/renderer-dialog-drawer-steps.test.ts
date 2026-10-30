@@ -11,10 +11,10 @@ import {
 } from '@spark-appworks/spark-component'
 import { isSparkNode, type SparkNodeChildren } from '@spark-appworks/spark-data'
 import { defineCapability, isRecord } from '@spark-appworks/spark-utils'
-import RendererStepItem from '../../../packages/spark-component/src/components/containers/layout/navigation/RendererSteps/RendererStepItem.vue'
-import RendererToolbar from '../../../packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue'
-import { createRendererDialogZeroCode } from '../../../packages/spark-component/src/components/containers/layout/overlay/RendererDialog/zero-code'
-import { createRendererDrawerZeroCode } from '../../../packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code'
+import RendererStepItem from '../../../../packages/spark-component/src/components/containers/layout/navigation/RendererSteps/RendererStepItem.vue'
+import RendererToolbar from '../../../../packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue'
+import { createRendererDialogZeroCode } from '../../../../packages/spark-component/src/components/containers/layout/overlay/RendererDialog/zero-code'
+import { createRendererDrawerZeroCode } from '../../../../packages/spark-component/src/components/containers/layout/overlay/RendererDrawer/zero-code'
 
 
 function readSparkNodeChildren(value: unknown): SparkNodeChildren | undefined {

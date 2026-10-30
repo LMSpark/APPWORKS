@@ -3,9 +3,9 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { RendererTabs, RendererCollapse, Spark, SparkComponentRenderer } from '@spark-appworks/spark-component'
-import RendererTabPane from '../../../packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabPane.vue'
-import RendererCollapseItem from '../../../packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapseItem.vue'
-import RendererToolbar from '../../../packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue'
+import RendererTabPane from '../../../../packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabPane.vue'
+import RendererCollapseItem from '../../../../packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapseItem.vue'
+import RendererToolbar from '../../../../packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue'
 import { isSparkNode, type SparkNode, type SparkNodeChildren } from '@spark-appworks/spark-data'
 
 

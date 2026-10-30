@@ -8,8 +8,8 @@ import { RendererToolbar, RendererTable, RendererTree, RendererList, RendererFor
 import { SparkData } from '@spark-appworks/spark-data'
 import { PageRuntime } from '@spark-appworks/spark-project-model'
 import type { SparkNode } from '@spark-appworks/spark-data'
-import type { BeforeRenderContext } from '../../../packages/spark-component/src/components/support/beforeRender'
-import {buildTreeTableRows} from '../../../packages/spark-component/src/components/containers/data-views/view-tree-state'
+import type { BeforeRenderContext } from '../../../../packages/spark-component/src/components/support/beforeRender'
+import {buildTreeTableRows} from '../../../../packages/spark-component/src/components/containers/data-views/view-tree-state'
 
 const originalStubs = config.global.stubs
 afterEach(() => { config.global.stubs = originalStubs; vi.unstubAllGlobals() })

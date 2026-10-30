@@ -172,8 +172,7 @@ export async function bootstrap(options: BootstrapOptions): Promise<void> {
     // 记录启动成功信息
     bootstrapLogger.info('SPARK 应用启动成功', {
       version: appConfig.version,
-      user: appContext.user.username,
-      tenant: appContext.tenant.tenantName
+      user: appContext.user.username
     })
   } catch (error) {
     bootstrapLogger.error('应用启动失败', toError(error))
@@ -205,10 +204,6 @@ function defaultMockContext(config: AppConfig): AppContext | null {
         displayName: '开发者',
         roles: ['admin', 'developer'],
         permissions: ['*'] // 所有权限
-      },
-      tenant: {
-        tenantId: 'default',
-        tenantName: '默认租户'
       },
       env: {
         mode: 'development',

@@ -86,10 +86,9 @@ readonly session: ProjectSession
   get hasLoadedBlueprint(): boolean { return this.design.rootNode !== null }
   get family(): 'project' { return 'project' }
   get revision(): number { return this.revisionCounter }
-  /** 项目唯一标识，与租户内存储锚点一致。 */
+  /** 项目唯一标识，作为工作区存储锚点。 */
   get projectId(): string { return this.design.projectId }
   get id(): string { return this.projectId }
-  get tenantId(): string | undefined { return this.design.tenantId }
   get name(): string { return this.design.name }
   get title(): string { return this.design.name }
   get projectType(): string { return this.design.projectType }

@@ -30,7 +30,6 @@ export class ProjectBlueprintDesign {
     this.#projectId = id; this.#info = { projectId: id, name: id, projectType: 'app', description: '', order: 0 }; this.replaceProjectInfo(options.project ?? {})
   }
   get projectId(): string { return this.#projectId }
-  get tenantId(): string | undefined { return this.#info.tenantId }
   get name(): string { return this.#info.name }
   get projectType(): string { return this.#info.projectType }
   get icon(): string | undefined { return this.#info.icon }

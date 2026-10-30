@@ -195,7 +195,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { buildTenantPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { OfficeBuilding, User, Lock, Edit, Message, Postcard } from '@element-plus/icons-vue'
@@ -231,8 +231,8 @@ function goHome() {
   void router.replace('/')
 }
 
-function getUserHomePath(enterpriseName: string): string {
-  return buildTenantPath({ tenantId: enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
+function getUserHomePath(): string {
+  return buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list')
 }
 
 // ── 登录表单 ────────────────────────────────────────────────────────────────
@@ -253,7 +253,7 @@ async function handleLogin() {
   try {
     const session = await lowcodeApi.platform.login(loginForm)
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '登录失败'
   } finally {
@@ -325,7 +325,7 @@ async function handleRegister() {
       password: regForm.password,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '注册失败'
   } finally {
@@ -400,7 +400,7 @@ async function handleRegisterTenant() {
       password: tenantForm.administratorPassword,
     })
     await reloadAndSyncNavigation()
-    await router.replace(getUserHomePath(session.enterprise.shortName))
+    await router.replace(getUserHomePath())
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : '租户注册失败'
   } finally {

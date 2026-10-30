@@ -114,7 +114,7 @@ async function setupIdentity(component = page) {
   const dynamic = createDynamicRouter({
     router,
     pageComponent: page,
-    tenantPathPrefix: '/t/:tenantId/:projectId',
+    applicationPathPrefix: '/apps/:projectId',
     loadNavigation: async () => { if (failNavigationLoad) throw new Error('navigation load failed'); return navigation },
     componentMap: { '/dashboard': component },
   })
@@ -135,7 +135,7 @@ describe('system page identity pool', () => {
       const preAuthNavigation: RuntimeNavigation = { ...pageNavigation, projectId: 'public' }
       let loadCount = 0
       const dynamic = createDynamicRouter({
-        router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+        router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
         preAuthNavTree: preAuthNavigation,
         loadNavigation: () => {
           loadCount += 1
@@ -145,7 +145,7 @@ describe('system page identity pool', () => {
         componentMap: { '/dashboard': page },
       })
       await dynamic.registerRoutes()
-      await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+      await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
       expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
 
       const oldRefresh = dynamic.refreshRoutes()
@@ -159,14 +159,14 @@ describe('system page identity pool', () => {
       if (outcome === 'old-failure') {
         expect(router.resolve('/dashboard?__sparkNavigationId=system-node').matched).toHaveLength(0)
       }
-      await router.push('/t/acme/project/dashboard?after-reset=1&__sparkNavigationId=system-node')
+      await router.push('/apps/project/dashboard?after-reset=1&__sparkNavigationId=system-node')
       expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeUndefined()
       if (outcome === 'old-success') {
         expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
       }
 
       await dynamic.refreshRoutes()
-      await router.push('/t/acme/project/dashboard?after-recovery=1&__sparkNavigationId=system-node')
+      await router.push('/apps/project/dashboard?after-recovery=1&__sparkNavigationId=system-node')
       expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
       expect(loadCount).toBe(3)
     },
@@ -174,7 +174,7 @@ describe('system page identity pool', () => {
 
   it('reuses selected owners for query key reordering and snapshots their route', async () => {
     const { router, dynamic } = await setupIdentity()
-    await router.push('/t/acme/project/dashboard?a=1&a=2&b=&__sparkNavigationId=system-node#x')
+    await router.push('/apps/project/dashboard?a=1&a=2&b=&__sparkNavigationId=system-node#x')
     const firstRoute = router.currentRoute.value
     const first = dynamic.getSystemPageInstance(firstRoute)
     expect(first).toBeDefined()
@@ -192,7 +192,7 @@ describe('system page identity pool', () => {
     originalArray.push('three')
     expect(snapshotView.get('button').attributes('data-query-values')).toBe('1,2')
     snapshotView.unmount()
-    await router.push('/t/acme/project/dashboard?b=&a=1&a=2&__sparkNavigationId=system-node#x')
+    await router.push('/apps/project/dashboard?b=&a=1&a=2&__sparkNavigationId=system-node#x')
     const reordered = dynamic.getSystemPageInstance(router.currentRoute.value)
     expect(reordered?.instanceId).toBe(first?.instanceId)
     expect(Object.keys(reordered ?? {}).sort()).toEqual(['componentName', 'instanceId', 'isDirty', 'view'])
@@ -202,7 +202,7 @@ describe('system page identity pool', () => {
   it('separates query arrays, null, empty values, hashes, and scope identities', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const dynamic = createDynamicRouter({
-      router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+      router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'project',
         items: [{ id: 'system-node', title: 'Dashboard', path: '/dashboard' }] }),
       loadPlatformNavigation: async () => ({ id: 'platform', title: 'Platform', childPlacement: 'header',
@@ -215,12 +215,12 @@ describe('system page identity pool', () => {
       await router.push(path)
       return dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId
     }
-    const base = await read('/t/acme/project/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#section')
-    expect(await read('/t/acme/project/dashboard?blank&values=one&values=two&empty=&__sparkNavigationId=system-node#section')).toBe(base)
-    expect(await read('/t/acme/project/dashboard?values=two&values=one&empty=&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
-    expect(await read('/t/acme/project/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#other')).not.toBe(base)
-    expect(await read('/t/acme/project/dashboard?values=one&values=two&empty&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
-    expect(await read('/t/other/project/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
+    const base = await read('/apps/project/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#section')
+    expect(await read('/apps/project/dashboard?blank&values=one&values=two&empty=&__sparkNavigationId=system-node#section')).toBe(base)
+    expect(await read('/apps/project/dashboard?values=two&values=one&empty=&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
+    expect(await read('/apps/project/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#other')).not.toBe(base)
+    expect(await read('/apps/project/dashboard?values=one&values=two&empty&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
+    expect(await read('/apps/other/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
     expect(await read('/platform/dashboard?values=one&values=two&empty=&blank&__sparkNavigationId=system-node#section')).not.toBe(base)
   })
 
@@ -228,7 +228,7 @@ describe('system page identity pool', () => {
     nativeUnmounts = 0
     const { router, dynamic } = await setupIdentity()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/project/dashboard?view=one&__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?view=one&__sparkNavigationId=system-node')
     const wrapper = mountApp({ global: {
       plugins: [router],
       stubs: {
@@ -241,10 +241,10 @@ describe('system page identity pool', () => {
     const original = dynamic.getSystemPageInstance(router.currentRoute.value)
     expect(wrapper.get('button').attributes('data-router')).toBe('function')
     await wrapper.get('button').trigger('click')
-    await router.push('/t/acme/project/dashboard?view=two&__sparkNavigationId=system-node-two')
+    await router.push('/apps/project/dashboard?view=two&__sparkNavigationId=system-node-two')
     await flushPromises()
     expect(wrapper.get('button').text()).toBe('system-node-two:0')
-    await router.push('/t/acme/project/dashboard?view=one&__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?view=one&__sparkNavigationId=system-node')
     await flushPromises()
     expect(wrapper.get('button').text()).toBe('system-node:1')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).toBe(original?.instanceId)
@@ -267,7 +267,7 @@ describe('system page identity pool', () => {
     expect(router.currentRoute.value.meta['nodeId']).toBe('system-node-two')
     expect(dynamic.getSystemPageInstanceById(original.instanceId)).toBeUndefined()
     expect(nativeUnmounts).toBe(1)
-    await router.push('/t/acme/project/dashboard?view=one&__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?view=one&__sparkNavigationId=system-node')
     await flushPromises()
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).not.toBe(original.instanceId)
     expect(wrapper.get('button').text()).toBe('system-node:0')
@@ -278,7 +278,7 @@ describe('system page identity pool', () => {
     nativeUnmounts = 0
     const { router, dynamic, setNavigation } = await setupIdentity()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
     const wrapper = mountApp({ global: {
       plugins: [router],
       stubs: {
@@ -320,10 +320,10 @@ describe('system page identity pool', () => {
         { id: 'fallback', title: 'Fallback', path: '/dashboard?view=one' },
       ],
     }
-    const dynamic = createDynamicRouter({ router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigation, componentMap: { '/dashboard': page } })
     await dynamic.registerRoutes()
-    await router.push('/t/acme/project/dashboard?view=one&detail=full')
+    await router.push('/apps/project/dashboard?view=one&detail=full')
     expect(router.currentRoute.value.meta['nodeId']).toBe('selected')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
     const fallback = navigation.items[1]
@@ -337,11 +337,11 @@ describe('system page identity pool', () => {
 
   it('invalidates a current owner when its component binding changes to a same-name component', async () => {
     const { router, dynamic } = await setupIdentity()
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
     const replacement = defineComponent({ name: 'NativeFixture', setup() { return () => h('button', 'replacement') } })
     const replacementDynamic = createDynamicRouter({ router, pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'project',
         items: [{ id: 'system-node', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }] }),
       componentMap: { '/dashboard': replacement },
@@ -354,7 +354,7 @@ describe('system page identity pool', () => {
   it('checks cfg cleanliness before project reset and resets native pages on logout without that guard', async () => {
     const { router, dynamic } = await setupIdentity()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
     const wrapper = mountApp({ global: {
       plugins: [router],
       stubs: {
@@ -383,7 +383,7 @@ describe('system page identity pool', () => {
   it('uses the resolved home identity while allowing another owner at the same path to close', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
     const dynamic = createDynamicRouter({ router, pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'project',
         homePath: '/dashboard?__sparkNavigationId=report', items: [
           { id: 'landing', title: 'Landing', path: '/dashboard' },
@@ -393,7 +393,7 @@ describe('system page identity pool', () => {
     })
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=landing')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=landing')
     const wrapper = mountApp({ global: {
       plugins: [router],
       stubs: {
@@ -404,7 +404,7 @@ describe('system page identity pool', () => {
     await flushPromises()
     const landingTab = wrapper.findAll('.app-tab-bar__tab').find(tab => tab.text().includes('Landing'))
     expect(landingTab?.find('.app-tab-bar__tab-close').exists()).toBe(true)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=report')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=report')
     await flushPromises()
     const reportTab = wrapper.findAll('.app-tab-bar__tab').find(tab => tab.text().includes('Report'))
     expect(reportTab?.find('.app-tab-bar__tab-close').exists()).toBe(false)
@@ -413,7 +413,7 @@ describe('system page identity pool', () => {
 
   it('keeps reset scope locked until a new owner table commits', async () => {
     const { router, dynamic, setNavigation, setFailNavigationLoad } = await setupIdentity()
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
     setDynamicRouter(dynamic)
     const wrapper = mountApp({ global: {
       plugins: [router],
@@ -434,7 +434,7 @@ describe('system page identity pool', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     setFailNavigationLoad(true)
     await expect(dynamic.refreshRoutes()).rejects.toThrow('navigation load failed')
-    await router.push('/t/acme/project/dashboard?view=after-reset&__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?view=after-reset&__sparkNavigationId=system-node')
     await flushPromises()
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeUndefined()
@@ -447,7 +447,7 @@ describe('system page identity pool', () => {
     })
     await dynamic.refreshRoutes()
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeUndefined()
-    await router.push('/t/acme/other/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/other/dashboard?__sparkNavigationId=system-node')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
     wrapper.unmount()
   })
@@ -463,13 +463,13 @@ describe('system page identity pool', () => {
       ],
     }
     const router = createRouter({ history: createMemoryHistory(), routes: [] })
-    const dynamic = createDynamicRouter({ router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => { if (failLoad) throw new Error('refresh failed'); return navigation },
       componentMap: { '/dashboard': page },
     })
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=one')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=one')
     const wrapper = mountApp({ global: {
       plugins: [router],
       stubs: {
@@ -480,7 +480,7 @@ describe('system page identity pool', () => {
     } })
     await flushPromises()
     const first = dynamic.getSystemPageInstance(router.currentRoute.value)
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=two')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=two')
     await flushPromises()
     expect(first).toBeDefined()
     expect(dynamic.getSystemPageInstanceById(first?.instanceId ?? '')).toBeDefined()
@@ -498,7 +498,7 @@ describe('system page identity pool', () => {
 
   it('preserves native instances and reset locks when malformed routes fail the navigation commit', async () => {
     const { router, dynamic, setNavigation } = await setupIdentity()
-    await router.push('/t/acme/project/dashboard?__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
     const current = router.currentRoute.value
     const instance = dynamic.getSystemPageInstance(current)
     expect(instance).toBeDefined()
@@ -512,7 +512,7 @@ describe('system page identity pool', () => {
 
     dynamic.resetSystemPageInstances()
     await expect(dynamic.refreshRoutes()).rejects.toThrow('Unfinished custom RegExp')
-    await router.push('/t/acme/project/dashboard?afterCommitFailure=1&__sparkNavigationId=system-node')
+    await router.push('/apps/project/dashboard?afterCommitFailure=1&__sparkNavigationId=system-node')
     expect(router.currentRoute.value.meta['systemPageIdentityState']).toBe('error')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeUndefined()
   })

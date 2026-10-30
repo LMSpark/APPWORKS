@@ -38,7 +38,7 @@
             "minLength": 1
           },
           "scope": {
-            "enum": ["public", "tenant", "app"]
+            "enum": ["public", "catalog", "app"]
           },
           "source": {
             "type": "string",

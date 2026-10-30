@@ -7,8 +7,8 @@
 /**
  * DevSystem — 当前编辑 scope 的项目蓝图设计器状态。
  *
- * 本质：经 `ProjectBlueprint` 领域实例编辑 `{ tenantId, projectId }` 指向的项目模型。
- * 它可以是当前运行项目，也可以是被委托编辑的其他租户项目。
+ * 本质：经 `ProjectBlueprint` 领域实例编辑由 `projectId` 指向的应用模型。
+ * 它可以是当前运行应用，也可以是被委托编辑的其他应用。
  *
  * - `workspace` = `getAppProjectBlueprintWorkspace(scope)`；领域真源在 `workspace.project`
  * - `project` = `workspace.project`（ProjectBlueprint；API、事件、revision、projection）
@@ -37,7 +37,7 @@ import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import type {DataView} from '@spark-appworks/spark-data'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 
 const {
   isConfigFilesPageSurface,
@@ -51,10 +51,7 @@ const {
 } = ProjectBlueprintDomain
 
 /** Editable Project Option 的语义模型。 */
-export type EditableProjectOption = ProjectBlueprintDomain.ProjectSummary & {
-    /** tenant Id 标识。 */
-tenantId: string
-}
+export type EditableProjectOption = ProjectBlueprintDomain.ProjectSummary
 
 function createLiveTargetProxy<T extends object>(readTarget: () => T): T {
   const initial = readTarget()
@@ -118,17 +115,14 @@ export type DevWorkspaceTab = 'props' | 'preview' | ProjectBlueprintDomain.PageT
 export function useDevState() {
   const initialPrincipal = readLowcodePrincipal()
   const initialScope: ProjectWorkspaceScope = {
-    tenantId: initialPrincipal?.enterpriseName ?? 'platform',
     projectId: initialPrincipal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID,
   }
   const activeEditScope = ref<ProjectWorkspaceScope>(initialScope)
   const currentEditor = shallowRef<ProjectBlueprintDomain.ProjectWorkspace>(getAppProjectBlueprintWorkspace(initialScope))
   const editor = createLiveTargetProxy<ProjectBlueprintDomain.ProjectWorkspace>(() => currentEditor.value)
   const project = createLiveTargetProxy<ProjectBlueprintDomain.ProjectBlueprint>(() => currentEditor.value.project)
-  const tenantId = computed(() => activeEditScope.value.tenantId)
   const projectId = computed(() => activeEditScope.value.projectId)
   const projectPicker = reactive({
-    tenantId: initialScope.tenantId,
     projectId: initialScope.projectId,
   })
   const editableProjects = ref<EditableProjectOption[]>([])
@@ -143,16 +137,15 @@ export function useDevState() {
   const loadedBlueprintScopeKeys = new Set<string>()
 
   function currentScopeKey(): string {
-    return `${activeEditScope.value.tenantId}:${activeEditScope.value.projectId}`
+    return activeEditScope.value.projectId
   }
 
   function isDefaultUserProjectScope(): boolean {
     const principal = readLowcodePrincipal()
     const runtimeScope = principal === null
       ? initialScope
-      : { tenantId: principal.enterpriseName, projectId: principal.applicationId ?? APPLICATION_CATALOG_PROJECT_ID }
-    return activeEditScope.value.tenantId === runtimeScope.tenantId
-      && activeEditScope.value.projectId === runtimeScope.projectId
+      : { projectId: principal.applicationId ?? APPLICATION_CATALOG_PROJECT_ID }
+    return activeEditScope.value.projectId === runtimeScope.projectId
   }
 
   function readBlueprintProjection() {
@@ -198,32 +191,20 @@ export function useDevState() {
   }
 
   function normalizeEditScope(scope: Partial<ProjectWorkspaceScope>): ProjectWorkspaceScope {
-    const scopedTenantId = scope.tenantId?.trim()
-    const pickerTenantId = projectPicker.tenantId.trim()
     const scopedProjectId = scope.projectId?.trim()
     const pickerProjectId = projectPicker.projectId.trim()
-    const normalizedTenantId = scopedTenantId && scopedTenantId.length > 0
-      ? scopedTenantId
-      : (pickerTenantId.length > 0 ? pickerTenantId : tenantId.value)
     const normalizedProjectId = scopedProjectId && scopedProjectId.length > 0
       ? scopedProjectId
       : (pickerProjectId.length > 0 ? pickerProjectId : projectId.value)
-    if (!normalizedTenantId) throw new Error('tenantId 不能为空')
     if (!normalizedProjectId) throw new Error('projectId 不能为空')
-    return { tenantId: normalizedTenantId, projectId: normalizedProjectId }
+    return { projectId: normalizedProjectId }
   }
 
   function sameEditScope(scope: ProjectWorkspaceScope): boolean {
-    return tenantId.value === scope.tenantId && projectId.value === scope.projectId
+    return projectId.value === scope.projectId
   }
 
-  async function loadEditableProjects(targetTenantId = projectPicker.tenantId): Promise<void> {
-    const normalizedTenantId = targetTenantId.trim()
-    if (!normalizedTenantId) {
-      addStatus('tenantId 不能为空，无法加载项目列表', 'warning')
-      return
-    }
-
+  async function loadEditableProjects(): Promise<void> {
     projectOptionsLoading.value = true
     try {
       const rows: ProjectBlueprintDomain.ProjectSummary[] = (await lowcodeApi.platform.listApplications()).map((application) => ({
@@ -234,16 +215,13 @@ export function useDevState() {
       }))
       editableProjects.value = rows
         .filter(row => row.projectId.trim() !== '')
-        .map(row => ({
-          ...row,
-          tenantId: normalizedTenantId,
-        }))
+        .map(row => ({ ...row }))
       if (!editableProjects.value.some(row => row.projectId === projectPicker.projectId)) {
         projectPicker.projectId = editableProjects.value[0]?.projectId ?? projectPicker.projectId
       }
     } catch (error) {
       editableProjects.value = []
-      addStatus(`加载租户 ${normalizedTenantId} 项目列表失败: ${String(error)}`, 'error')
+      addStatus(`加载应用列表失败: ${String(error)}`, 'error')
     } finally {
       projectOptionsLoading.value = false
     }
@@ -258,14 +236,12 @@ export function useDevState() {
 
     if ((project.readDirtyProjection().hasAnyDirty || editor.dirtyScenarioIds.length > 0) && options.force !== true) {
       addStatus('当前项目模型还有未保存改动，请先保存后再切换编辑项目', 'warning')
-      projectPicker.tenantId = tenantId.value
       projectPicker.projectId = projectId.value
       return false
     }
 
     cancelAutoSave()
     activeEditScope.value = nextScope
-    projectPicker.tenantId = nextScope.tenantId
     projectPicker.projectId = nextScope.projectId
     installScenarioDocument(null)
     currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
@@ -278,7 +254,6 @@ export function useDevState() {
 
   async function openProjectPickerScope(options?: { force?: boolean }): Promise<boolean> {
     return openEditingProject({
-      tenantId: projectPicker.tenantId,
       projectId: projectPicker.projectId,
     }, options)
   }
@@ -527,7 +502,7 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   function buildActivePageStorageKey(): string {
-    return `dev-system:active-page:${tenantId.value}:${projectId.value}`
+    return `dev-system:active-page:${projectId.value}`
   }
 
   function readPersistedActivePageId(): string {
@@ -718,7 +693,6 @@ export function useDevState() {
     projectPlanningDocumentFileName.value = file.name
     try {
       const result = await uploadProjectPlanningAttachment({
-        tenantId: tenantId.value,
         projectId: projectId.value,
         file,
       })
@@ -802,7 +776,7 @@ export function useDevState() {
     try {
       await ensureCurrentProjectBlueprintLoaded()
       refreshBlueprintDraftBindings()
-      addStatus(`项目 ${tenantId.value}/${projectId.value} 蓝图已就绪`, 'success')
+      addStatus(`应用 ${projectId.value} 蓝图已就绪`, 'success')
     } catch (error) {
       addStatus(`项目蓝图加载失败: ${String(error)}`, 'error')
     } finally {
@@ -1141,14 +1115,13 @@ export function useDevState() {
   // ═══════════════════════════════════════════════════════════
 
   async function initialize(): Promise<void> {
-    await loadEditableProjects(projectPicker.tenantId)
+    await loadEditableProjects()
     const persistedActivePageId = readPersistedActivePageId()
     await loadBlueprint({ preserveActivePageId: persistedActivePageId })
   }
 
   return {
     // 项目蓝图树
-    get tenantId(): string { return tenantId.value },
     get projectId(): string { return projectId.value },
     projectPicker,
     editableProjects,

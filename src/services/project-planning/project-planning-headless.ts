@@ -9,7 +9,7 @@ import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 
 /** Project Planning Editor Resolve Context 的运行上下文。 */
 export type ProjectPlanningEditorResolveContext = Readonly<{
@@ -19,8 +19,6 @@ export type ProjectPlanningEditorResolveContext = Readonly<{
 
 /** Headless Project Planning Editor Scope 的语义模型。 */
 export type HeadlessProjectPlanningEditorScope = Readonly<{
-  /** 租户 ID，用于多租户场景下隔离 API 请求的作用域；未提供时从用户会话推断。 */
-  tenantId?: string
   /** 项目 ID，决定 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。 */
   projectId?: string
 }>
@@ -28,16 +26,8 @@ export type HeadlessProjectPlanningEditorScope = Readonly<{
 export function createHeadlessProjectPlanningEditor(
   scope?: string | HeadlessProjectPlanningEditorScope,
 ): ProjectWorkspace {
-  const explicitTenantId = typeof scope === 'string' ? undefined : scope?.tenantId?.trim()
   const explicitProjectId = (typeof scope === 'string' ? scope : scope?.projectId)?.trim()
-  const principal = readLowcodePrincipal()
-  const defaultTenantId = principal?.enterpriseName.trim()
-  const defaultProjectId = principal?.applicationId?.trim()
-  const resolvedTenantId = explicitTenantId !== undefined && explicitTenantId.length > 0
-    ? explicitTenantId
-    : defaultTenantId !== undefined && defaultTenantId.length > 0
-      ? defaultTenantId
-      : 'platform'
+  const defaultProjectId = readLowcodePrincipal()?.applicationId?.trim()
   const resolvedProjectId = explicitProjectId !== undefined && explicitProjectId.length > 0
     ? explicitProjectId
     : defaultProjectId !== undefined && defaultProjectId.length > 0
@@ -48,7 +38,6 @@ export function createHeadlessProjectPlanningEditor(
     ...createLowcodeProjectGateways(resolvedProjectId),
   })
   editor.project.replaceProjectInfo({
-    tenantId: resolvedTenantId,
     projectId: resolvedProjectId,
   })
   return editor

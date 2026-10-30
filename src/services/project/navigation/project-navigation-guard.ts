@@ -9,10 +9,9 @@ import {
 } from '@/lowcode/lowcode-runtime'
 import {
   APPLICATION_CATALOG_PROJECT_ID,
-  buildTenantPath,
-  parseTenantScope,
-  stripTenantScope,
-} from '@/services/tenant-scope'
+  buildApplicationPath,
+  parseApplicationPath,
+} from '@/services/application-scope'
 
 type ProjectNavigationGuardOptions = {
   publicPaths: ReadonlySet<string>
@@ -37,29 +36,23 @@ export class ProjectNavigationGuard {
       const isPublicUtilityPath = isPublicPath && to.path !== publicHomePath && to.path !== '/login'
 
       if (!hasLowcodeSession()) {
-        if (to.path.startsWith('/t/') || isPlatformWorkspacePath(to.path)) return publicHomePath
+        if (to.path.startsWith('/apps/') || isPlatformWorkspacePath(to.path)) return publicHomePath
         return isPublicPath ? undefined : publicHomePath
       }
 
       const principal = readLowcodePrincipal()
-      const tenantId = principal?.enterpriseName
       const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
-      if (!tenantId || !projectId) return '/login'
-      const currentScope = { tenantId, projectId }
+      if (!projectId) return '/login'
       if (isPublicUtilityPath) return undefined
-      if (isPlatformWorkspacePath(to.path)) return buildTenantPath(currentScope, getNavHomePath())
-      if (!to.path.startsWith('/t/')) return buildTenantPath(currentScope, getNavHomePath())
+      if (isPlatformWorkspacePath(to.path)) return buildApplicationPath({ projectId }, getNavHomePath())
+      if (!to.path.startsWith('/apps/')) return buildApplicationPath({ projectId }, getNavHomePath())
 
-      const urlScope = parseTenantScope(to.path)
+      const urlScope = parseApplicationPath(to.path)
       if (urlScope) {
-        if (urlScope.tenantId !== tenantId) {
-          const rest = stripTenantScope(to.path)
-          return { path: buildTenantPath(currentScope, rest || getNavHomePath()), query: to.query, hash: to.hash }
-        }
         const dynamic = getDynamicRouter()
         const navigationProjectId = getNavTree()?.projectId
         if (urlScope.projectId !== projectId || navigationProjectId !== urlScope.projectId) {
-          if (dynamic === null) throw new Error('当前租户路由缺少动态路由宿主，无法装配目标应用。')
+          if (dynamic === null) throw new Error('当前应用路由缺少动态路由宿主，无法装配目标应用。')
           dynamic.assertPageRuntimesClean()
           const receipt = urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID
             ? enterLowcodeApplicationCatalog()

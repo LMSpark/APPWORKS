@@ -121,7 +121,7 @@ async function refresh():Promise<void> {
     assertCurrent()
     runtime.materialize()
     const path=`/__page/${pageId}`
-    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({tenantId:props.state.tenantId,projectId:props.state.projectId,pageId}),query:Object.freeze({}),hash:''})
+    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({projectId:props.state.projectId,pageId}),query:Object.freeze({}),hash:''})
     previewRuntime.value=runtime
   } catch(error) {
     runtime?.dispose()

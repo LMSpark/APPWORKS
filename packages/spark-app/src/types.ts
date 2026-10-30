@@ -46,21 +46,6 @@ readonly roles: string[]        // ['admin', 'sales', 'manager']
 readonly permissions: string[]}
 
 /**
- * 租户信息
- */
-export type TenantInfo = {
-    /** tenant Id 标识。 */
-tenantId: string
-    /** tenant Name 名称。 */
-tenantName: string
-    /** tenant Code 字段。 */
-tenantCode?: string
-    /** 配置对象。 */
-config?: Record<string, unknown>
-    /** features 字段。 */
-features?: string[]}
-
-/**
  * 环境信息
  */
 export type EnvironmentInfo = {
@@ -80,7 +65,7 @@ buildTime?: string}
  * 生命周期：应用启动时创建，应用关闭时销毁（单例）
  *
  * 用途：
- * - 存储应用级全局信息（用户、租户、环境）
+ * - 存储应用级全局信息（用户、环境）
  * - 提供跨页面共享的配置和状态
  * - 支持 SSR/CSR 环境检测
  *
@@ -90,15 +75,13 @@ buildTime?: string}
  * - 通过依赖注入（DI）在需要时注入到组件中
  *
  * 典型使用场景：
- * - 权限校验（基于 user/tenant）
+ * - 用户身份读取
  * - 环境判断（SSR vs CSR）
  * - 全局配置读取
  */
 export type AppContext = {
   /** 用户信息 */
   user: UserInfo
-  /** 租户信息 */
-  tenant: TenantInfo
   /** 环境信息 */
   env: EnvironmentInfo
   /** 全局配置 */

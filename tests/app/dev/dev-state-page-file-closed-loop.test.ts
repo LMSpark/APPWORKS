@@ -368,13 +368,11 @@ describe('DevState 页面文件闭环', () => {
       node: {...node('delegated-node','Delegated updated','cfg:delegated-page','delegated-app'),capability:{name:'Delegated',description:''}},
     })
 
-    await state.loadEditableProjects('tenant-b')
-    state.projectPicker.tenantId = 'tenant-b'
+    await state.loadEditableProjects()
     state.projectPicker.projectId = 'delegated-app'
 
     await expect(state.openProjectPickerScope()).resolves.toBe(true)
 
-    expect(state.tenantId).toBe('tenant-b')
     expect(state.projectId).toBe('delegated-app')
     expect(state.treeData.value[0]?.nodeId).toBe('delegated-node')
     expect(state.activePageId.value).toBe('delegated-page')

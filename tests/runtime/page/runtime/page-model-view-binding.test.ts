@@ -168,7 +168,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     await view.editRowById('ROW', {title: 'Submitted'});
     return view.saveChanges();
   }`
-  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/t/:projectId/__tool/:pageId',
+  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/apps/:projectId/__tool/:pageId',
     component: defineComponent({render: () => h('div')}), meta: {type: 'config-page', programmaticTool: true}}]})
   const pool = new PageRuntimePool({pageComponent: SparkPageRenderer, readNavTree: () => null,
     refreshRoutes: async () => undefined,
@@ -180,7 +180,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
       }})), space: {dataSpaceId: scenarioId, name: `Space ${scenarioId}`}, models: [model], relations: [],
     }).dataSet,
   })
-  await router.push('/t/APP/__tool/orders-tool?scenarioId=A&additionalScenarioIds=LOOKUP')
+  await router.push('/apps/APP/__tool/orders-tool?scenarioId=A&additionalScenarioIds=LOOKUP')
   const first = pool.getPageRuntime(router.currentRoute.value)!
   calls.push(first)
   await first.load()
@@ -206,7 +206,7 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
     expect(http.requests.at(-1)).toMatchObject({headers: {'x-FormKey': 'A'},
       data: [{TableName: 'Orders', CrudModel: {Changed: [{id: 'ROW', title: 'Submitted', lingma_sys_key: 'SIGNED-A'}]}}]})
 
-    await router.push('/t/APP/__tool/orders-tool?scenarioId=B&additionalScenarioIds=LOOKUP')
+    await router.push('/apps/APP/__tool/orders-tool?scenarioId=B&additionalScenarioIds=LOOKUP')
     const second = pool.getPageRuntime(router.currentRoute.value)!
     calls.push(second)
     await wrapper.setProps({pageRuntime: second,

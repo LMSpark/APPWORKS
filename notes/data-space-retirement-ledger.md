@@ -1572,3 +1572,22 @@ flowchart TD
 - 独立只读复审1已核冻结哈希，未发现Critical，给出I1已注册且true时仍允许重复相同POST、M1默认字段表单外露addDefaultFields。主控核源码和实际截图后开放同写者窄修：保持明确失败可取消、阻止原已拒绝选项无效重发、补中文label；不得改成成功/unknown或扩DDL。修复后重冻结复审及受影响验证，当前不提交/推送。完整rules1通过前序门禁后在`appworks-consumer-ledger.json`过期处退出1，待最终源码由正式`generate:lowcode-contracts`刷新，禁止手改；build尚未执行，不能宣称全门禁完成。
 - 2026-10-25 接替与整合：Codex额度用尽，WIP以`00fa3db92`提交后合并入10-17（`3cb27efe3`）。复审2（b2-register-frozen-review2）核定I1、M1已修复：精确“表已注册”+true抛`RegistrationDefaultFieldsNotAppliedError`，原命令行标`cancel-required`，同批不再提供“继续”，仅可取消并新开批次；默认字段复选框补`label="默认字段"`。合并后正式生成ClassModel/合同，typecheck、lint、verify通过，I1/M1三项定向测试及数据库套件通过；全量vitest仅余既有设计器失败。残余Minor：view-ops从adapter导入专用错误类，可后续收到窄合同模块。真实注册成功、部署成功回执与默认字段物理结果仍待可连接测试库。
 - 2026-10-25 剩余问题收尾：①`RegistrationDefaultFieldsNotAppliedError`改由`lowcode-database-table-view`入口转出，view-ops不再直接依赖命令适配器（database目录已超限，未新增文件）。②全量14项既有失败逐项核定，均为测试滞后于已批准合同或测试隔离缺陷，未改产品语义：主键与工作区保存的联合批次unknown按916cee478须先`verifyRecovery`再reload；三项来源迁移partial在文件配置计划待处理时按a049bc3a6拒绝`acceptCurrent`；部分新增按c88bff078返回`SPARK_SAVE_UNVERIFIABLE`保持unknown且不重发，完全未生效用“放弃未生效的本次新增”；输入参数弹窗宽度按7365d8d84为响应式；其余5项系前序用例append-to-body弹层残留，afterEach清空body后整文件365/365。③正式生成、typecheck、lint、verify通过，全量vitest 341文件6361项全部通过。真实注册验收仍阻塞于可连接测试库，未执行登记或DDL。
+
+### 2026-10-29 前端应用路径身份收敛
+
+- 按用户纠偏，前端应用路由及工作区身份仅由 `projectId` 决定：动态路由前缀为 `/apps/:projectId`，应用目录地址形如 `/apps/homepage/app-list`。路由解析、跨应用跳转、导航 tab、系统页实例键、开发系统编辑缓存与项目设置键均不再读取或拼接 tenant。
+- 移除 `tenant-scope` 与 `useTenantRouter` 路由辅助，新增 `application-scope` 与 `useProjectRouter`；SPARK AppContext 不再暴露 TenantInfo。应用配置读取仍依赖既有登录会话，平台租户管理页面和后端传输合同不在本次改动范围内。
+- `git diff --check` 退出0；按工作区约束本轮未运行测试或构建，运行时路由与类型检查仍待验证。本条只记录源码边界调整，不代表全量业务迁移验收完成。
+- 现有18个测试文件仍含 `/t/:tenantId/:projectId` 或 `tenantPathPrefix` 历史夹具；本轮按指令未运行测试，也未批量改写这些用例，因此新路由的回归验证尚未完成。
+
+### 2026-10-30 应用目录页路径归属
+
+- 将应用目录页与配套设置弹窗从 `src/views/tenant/` 移至 `src/views/app/`，Vue 页面注册表的 `/app-list` 改为 `scope: app`，页面源位置指向 `src/views/app/AppList.vue`。应用目录作为 `homepage` 项目的页面，目标地址为 `/apps/homepage/app-list`。
+- 更新应用切换定向测试中的旧 `/t/:tenantId/:projectId` 路由夹具为 `/apps/:projectId`，并改用新页面源路径。`verify:pages-config` 通过；注册表与应用切换测试合计34/35通过。剩余1项失败位于系统页实例注册断言（路由已注册但`getSystemPageInstance`未返回实例），需单独按当前系统页身份合同诊断，不能计为通过。
+- 本次只收敛页面文件落点和路由归属。页面仍含 Element Plus 直用和未正式接入 DataView 的应用目录读取；标准组件与SPARK data完整统一尚未完成，不得据本条宣称应用目录业务迁移验收完成。定向lint无错误；全局typecheck仍失败，报告系统页身份中的旧tenant分支、多个旧tenant测试夹具，以及`src/main.ts`登录principal空值和项目策划代码残留tenantId等既有跨范围迁移差距。当前工作树已有其他并行未提交修改，本批未单独提交或推送。
+
+### 2026-10-30 应用路径去租户化复核
+
+- 按用户强调的“前端不考虑租户”，应用工作区路由身份只按 `projectId` 解析为 `/apps/{projectId}/...`；`/app-list` 的目录落点是 `src/views/app/AppList.vue`，目录首页最终地址为 `/apps/homepage/app-list`。页面注册使用 `catalog` 范围区分应用目录工作区与具体 `app` 页面，不再用 `tenant` 作路由范围；应用设置与缓存页也从 `src/views/tenant/` 移到 `src/views/app/`。
+- 修复系统页身份解析仍校验旧 `tenant` 值，导致 `application` 范围实例不注册；修复数据空间目录“设计”跳转残留 `/t/{tenantId}/{projectId}`；修复公开路由没有 `projectId` 时错误套用 `/apps/homepage` 前缀。仅当当前真实路由提供 `projectId` 时，裸业务路径才加应用前缀。
+- `/t/` 和 `tenantPathPrefix` 路由夹具已迁为应用路径；旧 tenant-scope 测试替换为 application-scope 合同测试。验证结果：定向18个测试文件405项通过；`vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json` 退出0；`verify:pages-config` 通过；`git diff --check` 退出0。未完成完整产品迁移或真实 SPA 在线验收：本轮在线标签当前需要重新登录；应用目录仍有未迁到标准组件和 DataView 的差距。

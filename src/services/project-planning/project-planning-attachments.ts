@@ -15,7 +15,6 @@ export type ProjectPlanningAttachmentUploadResult = Readonly<{
 }>
 
 export type UploadProjectPlanningAttachmentCommand = Readonly<{
-  tenantId: string
   projectId: string
   file: File
 }>

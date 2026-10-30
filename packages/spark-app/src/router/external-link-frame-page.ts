@@ -142,12 +142,8 @@ export const ExternalLinkFramePage = defineComponent({
 
     function resolveRouteTemplate(path: string): string {
       let resolved = path
-      const tenantId = route.params['tenantId']
       const projectId = route.params['projectId']
 
-      if (typeof tenantId === 'string' && tenantId !== '') {
-        resolved = resolved.replaceAll(':tenantId', encodeURIComponent(tenantId))
-      }
       if (typeof projectId === 'string' && projectId !== '') {
         resolved = resolved.replaceAll(':projectId', encodeURIComponent(projectId))
       }

@@ -42,7 +42,7 @@ describe('DynamicRouter unauthorized fallback', () => {
       loadNavigation,
       preAuthNavTree: PRE_AUTH_NAV,
       isAuthenticated: () => true,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
     })
 
     await expect(dynamicRouter.registerRoutes()).resolves.toBeUndefined()

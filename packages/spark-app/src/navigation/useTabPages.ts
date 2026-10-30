@@ -19,7 +19,6 @@ export type TabPage = {
   runtimeName?: string
   systemPage?: boolean
   projectId?: string
-  tenantId?: string
   closable: boolean
   fullPath: string
 }
@@ -67,7 +66,6 @@ function toTab(route: RouteLocationNormalizedLoaded): TabPage | null {
   const isLegacyHomePath = systemPage === undefined && home !== undefined && route.path.endsWith(home)
   return { id: systemPage?.instanceId ?? runtime?.instanceId ?? route.path, path: route.path, title,
     ...(typeof route.params['projectId'] === 'string' ? { projectId: route.params['projectId'] } : {}),
-    ...(typeof route.params['tenantId'] === 'string' ? { tenantId: route.params['tenantId'] } : {}),
     ...(typeof route.meta['icon'] === 'string' ? { icon: route.meta['icon'] } : {}),
     ...(typeof route.name === 'string' ? { name: route.name } : {}),
     ...(systemPage?.componentName ? { runtimeName: systemPage.componentName } : view?.name ? { runtimeName: view.name } : {}),
@@ -112,10 +110,9 @@ export function useTabPages(options?: UseTabPagesOptions) {
     const stop = watch([() => route.fullPath, () => getDynamicRouter()?.systemPageRevision.value], () => {
       const owner = getDynamicRouter()
       const projectId = route.params['projectId']
-      const tenantId = route.params['tenantId']
       tabs.value = tabs.value.filter(item => (!item.systemPage || owner?.getSystemPageInstanceById(item.id) !== undefined)
         && (item.runtimeName === undefined || item.systemPage === true || owner?.getPageRuntimeById(item.id) !== undefined)
-        && (typeof projectId !== 'string' || item.projectId === undefined || (item.projectId === projectId && item.tenantId === tenantId)))
+        && (typeof projectId !== 'string' || item.projectId === undefined || item.projectId === projectId))
       const tab = toTab(router.currentRoute.value)
       if (!tab) {
         if (!tabs.value.some(item => item.id === activeTab.value)) activeTab.value = ''

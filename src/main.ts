@@ -67,10 +67,10 @@ import {
 } from './lowcode/lowcode-runtime'
 import {
   APPLICATION_CATALOG_PROJECT_ID,
-  buildTenantPath,
-  parseTenantScope,
-  stripTenantScope,
-} from './services/tenant-scope'
+  buildApplicationPath,
+  parseApplicationPath,
+  stripApplicationPath,
+} from './services/application-scope'
 import { ProjectNavigationGuard } from './services/project/navigation/project-navigation-guard'
 import type { Router } from 'vue-router'
 const {
@@ -141,10 +141,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
         roles: [],
         permissions: [],
       },
-      tenant: {
-        tenantId: 'public',
-        tenantName: '平台公共域',
-      },
     }
   }
   return {
@@ -155,14 +151,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
       displayName: session.identity.displayName,
       roles: session.identity.role === null ? [] : [session.identity.role],
       permissions: [],
-    },
-    tenant: {
-      tenantId: session.enterprise.shortName,
-      tenantName: session.enterprise.shortCode
-        ?? session.enterprise.code
-        ?? session.enterprise.name
-        ?? session.enterprise.shortName,
-      tenantCode: session.enterprise.shortName,
     },
   }
 }
@@ -188,8 +176,8 @@ import './style.css'
  * 例：'/order-list' → 'order-list', '/admin/users' → 'admin/users'
  */
 function extractPageId(path: string): string | undefined {
-  // 租户作用域路由：/t/{tenantId}/{projectId}/xxx -> xxx
-  const raw = parseTenantScope(path) ? stripTenantScope(path) : path.replace(/^\/+/, '')
+  // 应用路由：/apps/{projectId}/xxx -> xxx
+  const raw = parseApplicationPath(path) ? stripApplicationPath(path) : path.replace(/^\/+/, '')
   const trimmed = raw.replace(/^\/+/, '').replace(/\/+$/, '')
   return trimmed.length > 0 ? trimmed : undefined
 }
@@ -216,13 +204,13 @@ function navigationContainsPath(nodes: RuntimeNavigationItem[], targetPath: stri
 }
 
 async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void> {
-  const scope = parseTenantScope(window.location.pathname)
+  const scope = parseApplicationPath(window.location.pathname)
   if (!scope) return
 
   const navTree = getNavTree()
   if (navTree === null) return
 
-  const scopedPath = normalizeRoutePath(stripTenantScope(window.location.pathname))
+  const scopedPath = normalizeRoutePath(stripApplicationPath(window.location.pathname))
   const registeredRoute = router.resolve(window.location.pathname)
   const isKnownPath = registeredRoute.meta['programmaticTool'] === true
     || registeredRoute.meta['type'] === 'system-page'
@@ -230,7 +218,7 @@ async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void
     || navigationContainsPath(navTree.items, scopedPath)
   if (isKnownPath) return
 
-  const homeLocation = router.resolve(buildTenantPath(scope, navTree.homePath ?? getNavHomePath()))
+  const homeLocation = router.resolve(buildApplicationPath(scope, navTree.homePath ?? getNavHomePath()))
   const currentLocation = router.resolve(`${window.location.pathname}${window.location.search}${window.location.hash}`)
   const mergedQuery = Object.fromEntries(
     Object.entries(currentLocation.query).filter(([key]) => key !== SYSTEM_PAGE_NAVIGATION_ID_QUERY),
@@ -241,7 +229,7 @@ async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void
     query: mergedQuery,
     hash: homeLocation.hash || currentLocation.hash,
   })
-  startupLogger.warn('当前租户作用域路径未在项目导航中注册，已切换到项目首页', {
+  startupLogger.warn('当前应用路径未在项目导航中注册，已切换到应用首页', {
     currentPath: window.location.pathname,
     replacementPath: replacementLocation.fullPath,
   })
@@ -377,11 +365,11 @@ async function startApp() {
     // 浏览器地址栏输入跨项目 URL 时，在 registerRoutes() 加载导航树之前
     // 将 URL 中的 projectId 写入 localStorage，确保后续 API 调用使用正确的项目上下文
     {
-      const urlScope = parseTenantScope(window.location.pathname)
+      const urlScope = parseApplicationPath(window.location.pathname)
       if (urlScope && hasLowcodeSession()) {
         const principal = readLowcodePrincipal()
-        if (principal?.enterpriseName === urlScope.tenantId && urlScope.projectId !== principal.applicationId) {
-          startupLogger.info(`📌 URL 应用上下文预同步: ${principal.applicationId ?? 'catalog'} → ${urlScope.projectId}`)
+        if (urlScope.projectId !== principal?.applicationId) {
+          startupLogger.info(`📌 URL 应用上下文预同步: ${principal?.applicationId ?? 'catalog'} → ${urlScope.projectId}`)
           const receipt = urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID
             ? enterLowcodeApplicationCatalog()
             : await activateLowcodeApplication(urlScope.projectId)
@@ -422,7 +410,7 @@ async function startApp() {
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,
         isAuthenticated: hasLowcodeSession,
-        tenantPathPrefix: '/t/:tenantId/:projectId',
+        applicationPathPrefix: '/apps/:projectId',
         preAuthNavTree,
         // 导航树作为路由唯一来源 — DynamicRouter 从导航树派生路由
         loadNavigation: async () => {

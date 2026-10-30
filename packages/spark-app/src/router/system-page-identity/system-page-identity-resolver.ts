@@ -10,7 +10,7 @@ import {
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigationItem } from '../../navigation/runtime-navigation'
 import { SystemPageIdentityPool, type SystemPageInstance } from './system-page-identity-pool'
 
-export type SystemPageIdentityScope = 'public' | 'tenant' | 'platform'
+export type SystemPageIdentityScope = 'public' | 'application' | 'platform'
 
 export type SystemPageIdentityOwner = Readonly<{
   scope: SystemPageIdentityScope
@@ -141,7 +141,7 @@ export class SystemPageIdentityResolver {
       }
       const scope = to.meta['systemPageIdentityScope']
       const path = to.meta['systemPageIdentityPath']
-      if ((scope !== 'public' && scope !== 'tenant' && scope !== 'platform') || typeof path !== 'string') {
+      if ((scope !== 'public' && scope !== 'application' && scope !== 'platform') || typeof path !== 'string') {
         applyResolvedOwner(to, { owner: null, error: '页面身份范围无效，请从导航菜单重新选择。' })
         return
       }
@@ -149,7 +149,7 @@ export class SystemPageIdentityResolver {
       const candidates = this.#owners.filter(owner => (
         owner.scope === scope
         && owner.path === path
-        && (scope !== 'tenant' || owner.projectId === undefined || typeof routeProjectId !== 'string' || owner.projectId === routeProjectId)
+        && (scope !== 'application' || owner.projectId === undefined || typeof routeProjectId !== 'string' || owner.projectId === routeProjectId)
       ))
       applyResolvedOwner(to, resolveOwner(candidates, to.query))
     })
@@ -177,7 +177,7 @@ export class SystemPageIdentityResolver {
       if (typeof scope === 'string' && typeof path === 'string' && typeof nodeId === 'string') {
         const previous = previousOwners.find(owner => owner.scope === scope && owner.path === path && owner.nodeId === nodeId)
         const selected = owners.filter(owner => owner.scope === scope && owner.path === path && owner.nodeId === nodeId
-          && (owner.scope !== 'tenant' || owner.projectId === undefined || current.params['projectId'] === owner.projectId))
+          && (owner.scope !== 'application' || owner.projectId === undefined || current.params['projectId'] === owner.projectId))
         const candidate = selected.length === 1 ? selected[0] : undefined
         const owner = candidate && previous && sameOwnerBinding(previous, candidate)
           && explicitQueryMatches(candidate, current.query) ? candidate : null
@@ -201,7 +201,7 @@ export class SystemPageIdentityResolver {
     if (marker !== undefined && marker !== nodeId) return undefined
     const matching = this.#owners.filter(owner => (
       owner.scope === scope && owner.path === path && owner.nodeId === nodeId
-      && (owner.scope !== 'tenant' || owner.projectId === undefined || route.params['projectId'] === owner.projectId)
+      && (owner.scope !== 'application' || owner.projectId === undefined || route.params['projectId'] === owner.projectId)
       && explicitQueryMatches(owner, route.query)
     ))
     if (matching.length !== 1) return undefined

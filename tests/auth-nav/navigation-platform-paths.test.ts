@@ -64,25 +64,25 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
         meta: { type: 'system-page' },
       },
       {
-        path: '/t/:tenantId/:projectId/home',
+        path: '/apps/:projectId/home',
         name: 'tenant-home',
         component: DummyPage,
         meta: { type: 'system-page' },
       },
       {
-        path: '/t/:tenantId/:projectId/dashboard',
+        path: '/apps/:projectId/dashboard',
         name: 'tenant-dashboard',
         component: DummyPage,
         meta: { type: 'system-page' },
       },
       {
-        path: '/t/:tenantId/:projectId/homepage/dataset-demo',
+        path: '/apps/:projectId/homepage/dataset-demo',
         name: 'tenant-dataset-demo-config',
         component: DummyPage,
         meta: { type: 'config-page', pageId: '06c56d10-4ff6-4c4d-a6ce-772536592c75' },
       },
       {
-        path: '/t/:tenantId/:projectId/homepage/dataset-demo',
+        path: '/apps/:projectId/homepage/dataset-demo',
         name: 'tenant-dataset-demo-ref',
         component: DummyPage,
         meta: {
@@ -93,7 +93,7 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
         },
       },
       {
-        path: '/t/:tenantId/:projectId/__ref/:refNodeId',
+        path: '/apps/:projectId/__ref/:refNodeId',
         name: CROSS_PROJECT_REF_HOST_ROUTE_NAME,
         component: DummyPage,
         meta: {
@@ -129,7 +129,7 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
 
 describe('useNavigation platform paths', () => {
   it('keeps repeated scenario arguments when a module context changes', async () => {
-    const { router, setContextValue } = await mountNavigationProbe('/t/lmspark/homepage/home?additionalScenarioIds=S2&additionalScenarioIds=S3&bare&blank=', {
+    const { router, setContextValue } = await mountNavigationProbe('/apps/homepage/home?additionalScenarioIds=S2&additionalScenarioIds=S3&bare&blank=', {
       ...NAV_ROOT, items: [{ id: 'module', title: 'Module', path: '/home', itemKind: 'system-page',
         context: { source: [{ id: 'D1', title: 'Department' }], paramName: 'dept' } }],
     })
@@ -143,7 +143,7 @@ describe('useNavigation platform paths', () => {
   })
 
   it('keeps platform system pages unprefixed when current route is tenant scoped', async () => {
-    const { router, navigateToPath } = await mountNavigationProbe('/t/lmspark/homepage/home')
+    const { router, navigateToPath } = await mountNavigationProbe('/apps/homepage/home')
 
     navigateToPath('/demo/r-form-compare')
     await flushPromises()
@@ -152,18 +152,18 @@ describe('useNavigation platform paths', () => {
   })
 
   it('still prefixes tenant system pages from bare app paths', async () => {
-    const { router, navigateToPath } = await mountNavigationProbe('/t/lmspark/homepage/home')
+    const { router, navigateToPath } = await mountNavigationProbe('/apps/homepage/home')
 
     navigateToPath('/dashboard?scenarioId=S1&additionalScenarioIds=S2&additionalScenarioIds=S3&bare&blank=#section')
     await flushPromises()
 
-    expect(router.currentRoute.value.path).toBe('/t/lmspark/homepage/dashboard')
+    expect(router.currentRoute.value.path).toBe('/apps/homepage/dashboard')
     expect(router.currentRoute.value.query).toEqual({ scenarioId: 'S1', additionalScenarioIds: ['S2', 'S3'], bare: null, blank: '' })
     expect(router.currentRoute.value.hash).toBe('#section')
   })
 
   it('uses the named cross-project route when another route has the same path', async () => {
-    const { router, navigateToPath } = await mountNavigationProbe('/t/lmspark/homepage/home')
+    const { router, navigateToPath } = await mountNavigationProbe('/apps/homepage/home')
 
     navigateToPath('/homepage/dataset-demo')
     await flushPromises()
@@ -173,7 +173,7 @@ describe('useNavigation platform paths', () => {
   })
 
   it('refreshes stale routes and opens ref nodes through the host route', async () => {
-    const { router, navigateTo } = await mountNavigationProbe('/t/lmspark/homepage/home')
+    const { router, navigateTo } = await mountNavigationProbe('/apps/homepage/home')
 
     navigateTo({
       id: '06c56d10-4ff6-4c4d-a6ce-772536592c75',

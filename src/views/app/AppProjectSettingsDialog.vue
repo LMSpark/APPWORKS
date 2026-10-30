@@ -1,8 +1,8 @@
 <!--
-@module app:views/tenant/AppProjectSettingsDialog
-职责：提供主应用 AppProjectSettingsDialog 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。
+@module app:views/app/AppProjectSettingsDialog
+职责：提供应用项目设置界面，读取项目运行时设置并提交受支持的配置。
 边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。
-AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/tenant/AppProjectSettingsDialog。
+AI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppProjectSettingsDialog。
 -->
 <template>
   <el-dialog
@@ -60,7 +60,6 @@ import {
 } from '@/services/project/project-settings'
 
 const props = defineProps<{
-  tenantId: string
   projectId: string
   projectName: string
 }>()
@@ -81,7 +80,7 @@ const dialogTitle = computed(() => `项目设置 — ${props.projectName || prop
 const canEditLayout = computed(() => Boolean(snapshot.value?.rootModuleId))
 
 watch(
-  () => [visible.value, props.tenantId, props.projectId] as const,
+  () => [visible.value, props.projectId] as const,
   ([open]) => {
     if (open) void loadSettings()
   },
@@ -93,7 +92,7 @@ async function loadSettings(): Promise<void> {
   form.value = null
   homeNodeOptions.value = []
   try {
-    const settings = await loadProjectRuntimeSettings(props.tenantId, props.projectId)
+    const settings = await loadProjectRuntimeSettings(props.projectId)
     snapshot.value = settings
     homeNodeOptions.value = settings.homeNodeOptions
     form.value = {
@@ -117,7 +116,6 @@ async function handleSave(): Promise<void> {
   saving.value = true
   try {
     await saveProjectRuntimeSettings({
-      tenantId: props.tenantId,
       projectId: props.projectId,
       current: snapshot.value,
       input: form.value,

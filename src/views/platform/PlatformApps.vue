@@ -84,7 +84,7 @@ import {
   lowcodeApi,
   lowcodeEnterpriseDisplayName,
 } from '@/lowcode/lowcode-runtime'
-import { buildTenantPath } from '@/services/tenant-scope'
+import { buildApplicationPath } from '@/services/application-scope'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { getNavHomePath } from '@spark-appworks/spark-app'
 
@@ -196,10 +196,7 @@ async function enterProject(project: ProjectItem): Promise<void> {
     if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
     const receipt = await projectSwitch.switchAndReload(project.projectId)
     receipt.assertCurrent()
-    await router.push(buildTenantPath(
-      { tenantId: selectedTenantId.value, projectId: project.projectId },
-      getNavHomePath(),
-    ))
+    await router.push(buildApplicationPath({ projectId: project.projectId }, getNavHomePath()))
   } catch (error) {
     ElMessage.error(`进入应用失败: ${errorMessage(error)}`)
   }

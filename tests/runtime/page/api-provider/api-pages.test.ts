@@ -36,10 +36,10 @@ afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); vi.restoreAllMock
 async function mountAt(component: Component, props: Record<string, unknown> = {}) {
   const page = defineComponent({setup: () => () => h(component, props)})
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: page, componentMap: {'/providers': page}, tenantPathPrefix: '/t/:tenantId/:projectId',
+  const dynamic = createDynamicRouter({router, pageComponent: page, componentMap: {'/providers': page}, applicationPathPrefix: '/apps/:projectId',
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
       {id: 'providers', title: '外部服务管理', path: '/providers', itemKind: 'system-page', blueprintScenarioId: NAV}]})})
-  await dynamic.registerRoutes(); await router.push('/t/T/APP/providers'); await router.isReady()
+  await dynamic.registerRoutes(); await router.push('/apps/APP/providers'); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).not.toContain('正在读取')})

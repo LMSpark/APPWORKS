@@ -9,7 +9,7 @@ import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '.
 import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
 import { activateLowcodeApplication } from '@/lowcode/lowcode-runtime'
 import App from '@/App.vue'
-import AppList from '@/views/tenant/AppList.vue'
+import AppList from '@/views/app/AppList.vue'
 import PlatformApps from '@/views/platform/PlatformApps.vue'
 import PlatformTenantManagement from '@/views/platform/PlatformTenantManagement.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
@@ -116,14 +116,14 @@ async function mountRealApp() {
   const dynamic = createDynamicRouter({
     router,
     pageComponent: page,
-    tenantPathPrefix: '/t/:tenantId/:projectId',
+    applicationPathPrefix: '/apps/:projectId',
     loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'old',
       items: [{ id: 'dashboard', title: 'Dashboard', itemKind: 'system-page', path: '/dashboard' }] }),
     componentMap: { '/dashboard': page },
   })
   await dynamic.registerRoutes()
   setDynamicRouter(dynamic)
-  await router.push('/t/acme/old/dashboard')
+  await router.push('/apps/old/dashboard')
   const wrapper = mount(App, { global: {
     plugins: [router],
     stubs: {
@@ -200,7 +200,7 @@ describe('App project selection owner', () => {
     rejectActivation?.(activationError)
     await expect(switching).rejects.toBe(activationError)
 
-    expect(router.currentRoute.value.fullPath).toBe('/t/acme/old/dashboard')
+    expect(router.currentRoute.value.fullPath).toBe('/apps/old/dashboard')
     expect(lowcodeState.applicationId).toBe('old')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).toBe(initialInstance.instanceId)
     expect(reset).not.toHaveBeenCalled()
@@ -314,13 +314,13 @@ describe('App project selection owner', () => {
     expect(push).toHaveBeenCalledOnce()
     expect(error).not.toHaveBeenCalled()
     expect(router.currentRoute.value.path).toBe(target === 'home'
-      ? '/t/acme/homepage/app-list'
-      : '/t/acme/APP-A/reports')
+      ? '/apps/homepage/app-list'
+      : '/apps/APP-A/reports')
   })
 
   it('waits for a current receipt and successful router push before the real AppList success toast', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/t/:tenantId/:projectId/home', component: page },
+      { path: '/apps/:projectId/home', component: page },
     ] })
     const receipt = { assertCurrent: vi.fn() }
     const order: string[] = []
@@ -351,7 +351,7 @@ describe('App project selection owner', () => {
 
   it('does not toast or navigate when the real AppList receipt goes stale before caller continuation', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: page }] })
-    await router.push('/t/acme/homepage/app-list')
+    await router.push('/apps/homepage/app-list')
     let current = true
     const receipt = { assertCurrent: vi.fn(() => { if (!current) throw new Error('selection was superseded') }) }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => {
@@ -379,7 +379,7 @@ describe('App project selection owner', () => {
 
   it('does not show AppList success when the actual Router cancels navigation', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: page }] })
-    await router.push('/t/acme/homepage/app-list')
+    await router.push('/apps/homepage/app-list')
     const receipt = { assertCurrent: vi.fn() }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
     const cancel = router.beforeEach(() => false)
@@ -399,7 +399,7 @@ describe('App project selection owner', () => {
     cancel()
     expect(success).not.toHaveBeenCalled()
     expect(error).toHaveBeenCalledWith('应用页面导航未完成')
-    expect(router.currentRoute.value.path).toBe('/t/acme/homepage/app-list')
+    expect(router.currentRoute.value.path).toBe('/apps/homepage/app-list')
   })
 
   it.each(platformConsumerCases)('%s checks the real switch receipt before navigating', async (_name, component) => {
@@ -436,21 +436,21 @@ describe('App project selection owner', () => {
 
   it('checks the receipt in the real AppTabBar before switching owners', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/t/:tenantId/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
-      { path: '/t/:tenantId/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
+      { path: '/apps/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
+      { path: '/apps/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
     ] })
-    const dynamic = createDynamicRouter({ router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'APP-A', items: [] }), componentMap: {} })
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/APP-A/dashboard')
+    await router.push('/apps/APP-A/dashboard')
     const receipt = { assertCurrent: vi.fn() }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => receipt) }
     const tabWrapper = mount(AppTabBar, { global: {
       plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true },
     } })
     mountedWrappers.push(tabWrapper)
-    await router.push('/t/acme/APP-B/dashboard')
+    await router.push('/apps/APP-B/dashboard')
     await flushPromises()
     const push = vi.spyOn(router, 'push')
     const error = vi.spyOn(ElMessage, 'error')
@@ -463,20 +463,20 @@ describe('App project selection owner', () => {
     expect(service.switchAndReload).toHaveBeenCalledWith('APP-A')
     expect(receipt.assertCurrent).toHaveBeenCalledOnce()
     expect(push).toHaveBeenCalledOnce()
-    expect(router.currentRoute.value.path).toBe('/t/acme/APP-A/dashboard')
+    expect(router.currentRoute.value.path).toBe('/apps/APP-A/dashboard')
     expect(error).not.toHaveBeenCalled()
   })
 
   it('keeps the active route and both tabs when a real AppTabBar selection goes stale', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/t/:tenantId/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
-      { path: '/t/:tenantId/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
+      { path: '/apps/:projectId/dashboard', component: page, meta: { title: 'Current Page' } },
+      { path: '/apps/APP-A/dashboard', component: page, meta: { title: 'Page A' } },
     ] })
-    const dynamic = createDynamicRouter({ router, pageComponent: page, tenantPathPrefix: '/t/:tenantId/:projectId',
+    const dynamic = createDynamicRouter({ router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => ({ id: 'root', title: 'Root', childPlacement: 'header', projectId: 'APP-A', items: [] }), componentMap: {} })
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
-    await router.push('/t/acme/APP-A/dashboard')
+    await router.push('/apps/APP-A/dashboard')
     let current = true
     const receipt = { assertCurrent: vi.fn(() => { if (!current) throw new Error('selection was superseded') }) }
     const service: ProjectSwitchService = { switchAndReload: vi.fn(async () => {
@@ -487,7 +487,7 @@ describe('App project selection owner', () => {
       plugins: [router], provide: { [PROJECT_SWITCH_KEY]: service }, stubs: { NavIcon: true },
     } })
     mountedWrappers.push(wrapper)
-    await router.push('/t/acme/APP-B/dashboard')
+    await router.push('/apps/APP-B/dashboard')
     await flushPromises()
     const push = vi.spyOn(router, 'push')
     const error = vi.spyOn(ElMessage, 'error')

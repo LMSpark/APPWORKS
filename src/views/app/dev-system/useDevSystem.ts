@@ -11,14 +11,13 @@
  * 左侧项目蓝图树，右侧节点属性与（若为配置页）页面内容。
  */
 import { computed, onScopeDispose, ref, watch } from 'vue'
-import { useTenantRouter } from '@/composables/useTenantRouter'
-import { buildTenantPath } from '@/services/tenant-scope'
+import { useProjectRouter } from '@/composables/useProjectRouter'
 import { useDevState, type DevWorkspaceTab } from './useDevState'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { onPageConfigChange } from '@/services/sse-events'
 
 export function useDevSystem() {
-  const { router } = useTenantRouter()
+  const { router, projectPath } = useProjectRouter()
   const state = useDevState()
   const isPageFileName = (value: string): value is PageToolFileName =>
     state.pageFileNames.some((name) => name === value)
@@ -84,7 +83,7 @@ export function useDevSystem() {
 
   // ─── 动作方法 ──────────────────────────────────────────
   function previewPage(pageId: string) {
-    void router.push(buildTenantPath({ tenantId: state.tenantId, projectId: state.projectId }, `/${pageId}`))
+    void router.push(projectPath(`/${pageId}`))
   }
 
   function switchToPreview() {

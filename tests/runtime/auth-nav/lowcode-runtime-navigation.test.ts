@@ -9,7 +9,7 @@ import { setDynamicRouter } from '../../../packages/spark-app/src/navigation/nav
 
 import NavIcon from '@/components/NavIcon.vue'
 import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath } from '@/services/application-scope'
 
 import {
   assembleLowcodeRuntimeNavigation,
@@ -242,7 +242,7 @@ describe('lowcode project navigation projection', () => {
     const dynamic = createDynamicRouter({
       router,
       pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigation,
       componentMap: { '/dashboard': page },
     })
@@ -255,16 +255,16 @@ describe('lowcode project navigation projection', () => {
     })
     router.beforeEach((to) => guard.resolve(to))
 
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
 
     const applications = deferred<Awaited<ReturnType<typeof lowcodeApi.platform.listApplications>>>()
     const listApplications = vi.spyOn(lowcodeApi.platform, 'listApplications').mockReturnValue(applications.promise)
     vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-APP-B')
-    const staleNavigation = router.push('/t/fixture-tenant/APP-B/dashboard?from=activation')
+    const staleNavigation = router.push('/apps/APP-B/dashboard?from=activation')
     await vi.waitFor(() => expect(listApplications).toHaveBeenCalledOnce())
 
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     applications.resolve([application('APP-B')])
     await staleNavigation
 
@@ -274,7 +274,7 @@ describe('lowcode project navigation projection', () => {
       nativeInstanceId: dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId ?? null,
     }
     expect(observed).toEqual({
-      url: `/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
+      url: `/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
       applicationId: 'APP-A',
       nativeInstanceId: expect.any(String),
     })
@@ -291,7 +291,7 @@ describe('lowcode project navigation projection', () => {
     const dynamic = createDynamicRouter({
       router,
       pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigation,
       componentMap: { '/dashboard': page },
     })
@@ -303,7 +303,7 @@ describe('lowcode project navigation projection', () => {
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
     router.beforeEach((to) => guard.resolve(to))
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     const initialInstance = dynamic.getSystemPageInstance(router.currentRoute.value)
     if (!initialInstance) throw new Error('APP-A system-page fixture did not create a native instance')
 
@@ -313,7 +313,7 @@ describe('lowcode project navigation projection', () => {
     const externalActivation = activateLowcodeApplication('APP-B')
     await vi.waitFor(() => expect(listApplications).toHaveBeenCalledOnce())
 
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     applications.resolve([application('APP-B')])
     const activationOutcome = await externalActivation.then(
       (receipt) => {
@@ -333,7 +333,7 @@ describe('lowcode project navigation projection', () => {
     console.info('C2D2F_EXTERNAL_ACTIVATION_OUTCOME', JSON.stringify(observed))
     expect(observed).toEqual({
       activationOutcome: { status: 'rejected', errorMessage: expect.stringContaining('STALE') },
-      url: `/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
+      url: `/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`,
       applicationId: 'APP-A',
       navigationProjectId: 'APP-A',
       nativeInstanceId: expect.any(String),
@@ -351,7 +351,7 @@ describe('lowcode project navigation projection', () => {
     const dynamic = createDynamicRouter({
       router,
       pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigation,
       componentMap: { '/dashboard': page },
     })
@@ -363,12 +363,12 @@ describe('lowcode project navigation projection', () => {
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
     router.beforeEach((to) => guard.resolve(to))
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
 
     vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([application('APP-A')])
     vi.spyOn(lowcodeApi.platform, 'resolveNavigationRootId').mockResolvedValue('ROOT-APP-A')
     const receipt = await activateLowcodeApplication('APP-A')
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?view=latest&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
 
     expect(() => receipt.assertCurrent()).not.toThrow()
     expect(lowcodeApi.application.get()?.application.id).toBe('APP-A')
@@ -387,7 +387,7 @@ describe('lowcode project navigation projection', () => {
     const dynamic = createDynamicRouter({
       router,
       pageComponent: page,
-      tenantPathPrefix: '/t/:tenantId/:projectId',
+      applicationPathPrefix: '/apps/:projectId',
       loadNavigation: async () => navigationForApplication(lowcodeApi.application.get()?.application.id ?? 'homepage'),
       componentMap: { '/dashboard': page },
     })
@@ -399,7 +399,7 @@ describe('lowcode project navigation projection', () => {
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
     router.beforeEach((to) => guard.resolve(to))
-    await router.push(`/t/fixture-tenant/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
 
     const appB = application('APP-B')
     vi.spyOn(lowcodeApi.platform, 'listApplications').mockResolvedValue([appB])
@@ -412,19 +412,19 @@ describe('lowcode project navigation projection', () => {
       if (scheduleNewerNavigation) {
         scheduleNewerNavigation = false
         queueMicrotask(() => {
-          void router.push(`/t/fixture-tenant/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+          void router.push(`/apps/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
             .then(() => newerNavigation.resolve(), newerNavigation.reject)
         })
       }
       return receipt
     })
 
-    const staleNavigation = router.push(`/t/fixture-tenant/APP-B/dashboard?intent=old&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+    const staleNavigation = router.push(`/apps/APP-B/dashboard?intent=old&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     await newerNavigation.promise
     await staleNavigation
 
     expect(router.currentRoute.value.fullPath)
-      .toBe(`/t/fixture-tenant/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
+      .toBe(`/apps/APP-B/dashboard?intent=new&${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     expect(lowcodeApi.application.get()?.application.id).toBe('APP-B')
     expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
@@ -633,10 +633,12 @@ describe('lowcode project navigation projection', () => {
     })).toBe('领码科技')
   })
 
-  it('keeps every AppWorks tenant page reachable from the application catalog', () => {
+  it('keeps catalog pages reachable from the application catalog without a tenant route segment', () => {
     const catalog = lowcodeApplicationCatalogNavigation()
 
     expect(catalog.homePath).toBe('/app-list')
+    expect(buildApplicationPath({ projectId: catalog.projectId ?? APPLICATION_CATALOG_PROJECT_ID }, catalog.homePath ?? '/app-list'))
+      .toBe('/apps/homepage/app-list')
     expect(catalog.items.map((child) => child.path)).toEqual([
       '/settings',
       '/app-list',

@@ -640,11 +640,9 @@ function openCatalogDesign(view, row) {
     || view.fieldAccess(row, 'rowid').read !== 'visible') return
   const id = catalogBindingsText(row.rowid)
   if (!id || catalogBindingsText(view.getPkKey(row)) !== id) return
-  const tenantId = $route.params.tenantId
   const projectId = $route.params.projectId
-  if (typeof tenantId !== 'string' || !tenantId.trim()
-    || typeof projectId !== 'string' || !projectId.trim()) return
-  const prefix = `/t/${encodeURIComponent(tenantId.trim())}/${encodeURIComponent(projectId.trim())}/`
+  if (typeof projectId !== 'string' || !projectId.trim()) return
+  const prefix = `/apps/${encodeURIComponent(projectId.trim())}/`
   if (typeof $route.fullPath !== 'string' || !$route.fullPath.startsWith(prefix)) return
   catalogOperationBusy = true
   try {

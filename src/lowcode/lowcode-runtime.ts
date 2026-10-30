@@ -23,7 +23,7 @@ import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -106,9 +106,9 @@ export async function readLowcodePageFile(command: PageFileReadCommand): Promise
 
 export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
   const items = getVuePageOptions()
-    .filter((page) => page.scope === 'tenant')
+    .filter((page) => page.scope === 'catalog')
     .map((page) => ({
-      id: `appworks-tenant-${page.path.slice(1)}`,
+      id: `appworks-catalog-${page.path.slice(1)}`,
       title: page.title,
       itemKind: 'system-page' as const,
       path: page.path,

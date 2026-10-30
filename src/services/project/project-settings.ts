@@ -14,8 +14,6 @@ import {
 
 /** 项目详情：从后端 API 读取的项目元数据投影 */
 export type ProjectDetail = {
-  /** 租户 ID，多租户隔离标识 */
-  tenantId: string
   /** 项目 ID，项目唯一标识 */
   projectId: string
   /** 项目名称 */
@@ -100,19 +98,13 @@ function resolveRootModuleId(nav: RuntimeNavigation): string | null {
 }
 
 export async function loadProjectRuntimeSettings(
-  tenantId: string,
   projectId: string,
 ): Promise<ProjectRuntimeSettings> {
-  const session = lowcodeApi.session.get()
-  if (session?.enterprise.shortName !== tenantId) {
-    throw new Error('lowcode 当前会话无权读取该企业应用设置')
-  }
   const applications = await lowcodeApi.platform.listApplications()
   const application = applications.find((item) => item.id === projectId)
   if (application === undefined) throw new Error(`lowcode 应用不存在或无权访问：${projectId}`)
   const nav = await readLowcodeRuntimeNavigation(projectId)
   const project: ProjectDetail = {
-    tenantId,
     projectId,
     name: application.name,
     projectType: application.isDefault ? 'homepage' : 'application',
@@ -132,8 +124,6 @@ export async function loadProjectRuntimeSettings(
 
 /** 保存项目运行时设置的命令参数 */
 export type SaveProjectRuntimeSettingsCommand = Readonly<{
-  /** 租户 ID */
-  tenantId: string
   /** 项目 ID */
   projectId: string
   /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */

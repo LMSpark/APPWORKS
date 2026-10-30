@@ -25,7 +25,7 @@ type CompiledPageFunctions = ReturnType<typeof compileFunctions>
 type TestFormalField = Readonly<{ id: string; name: string; type: string; primaryKey: boolean }>
 type TestFormalModelInput = Readonly<{ id: string; metaName: string; primaryKey: string; fields: readonly TestFormalField[] }>
 type CatalogScriptFixtureOptions = Readonly<{ includeDesignScenario?: boolean; includeBlueprintScenario?: boolean; initialize?: boolean;
-  tenantId?: string; projectId?: string; fullPath?: string }>
+  projectId?: string; fullPath?: string }>
 
 function recordAt(value: unknown, path: string): Record<string, unknown> {
   if (!isRecord(value)) throw new Error(`${path} must be an object`)
@@ -378,10 +378,10 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
   await pageRuntime.load()
   const controller = new AbortController()
   let dialogVisible = false
-  const fixtureRoute = options.tenantId && options.projectId ? { ...routeSnapshot,
-    path: `/t/${encodeURIComponent(options.tenantId)}/${encodeURIComponent(options.projectId)}/catalog`,
-    fullPath: options.fullPath ?? `/t/${encodeURIComponent(options.tenantId)}/${encodeURIComponent(options.projectId)}/catalog?tab=data`,
-    params: { tenantId: options.tenantId, projectId: options.projectId } } : routeSnapshot
+  const fixtureRoute = options.projectId ? { ...routeSnapshot,
+    path: `/apps/${encodeURIComponent(options.projectId)}/catalog`,
+    fullPath: options.fullPath ?? `/apps/${encodeURIComponent(options.projectId)}/catalog?tab=data`,
+    params: { projectId: options.projectId } } : routeSnapshot
   const componentRegistry = createPageComponentRegistry()
   componentRegistry.registerApi({ id: 'catalog-bindings-dialog', type: 'r-dialog', api: {
     open() { dialogVisible = true },
@@ -493,10 +493,10 @@ const ElementDialogStub = defineComponent({
 })
 
 describe('data-space four-file page', () => {
-  it('opens the native designer with one verified target and the tenant-scoped return path', async () => {
+  it('opens the native designer with one verified target and the application-scoped return path', async () => {
     const navigations: Array<[string, Record<string, unknown> | undefined]> = []
     const fixture = await createCatalogScriptFixture({ navigate: (path, params) => { navigations.push([path, params]) } },
-      undefined, { tenantId: 'tenant one', projectId: 'app', fullPath: '/t/tenant%20one/app/catalog?tab=data&next=%2F' })
+      undefined, { projectId: 'app', fullPath: '/apps/app/catalog?tab=data&next=%2F' })
     const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
     const row = view?.currentRow
     const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '设计')
@@ -504,9 +504,9 @@ describe('data-space four-file page', () => {
     if (!view || !row || !onClick) throw new Error('catalog design action fixture is incomplete')
     expect(view.getPkKey(row)).toBe('DATASET-1')
     await onClick()
-    expect(navigations).toEqual([['/t/tenant%20one/app/data-space-design', {
+    expect(navigations).toEqual([['/apps/app/data-space-design', {
       scenarioId: 'DATASET-1',
-      returnTo: '/t/tenant%20one/app/catalog?tab=data&next=%2F',
+      returnTo: '/apps/app/catalog?tab=data&next=%2F',
     }]])
 
     navigations.length = 0
@@ -516,7 +516,7 @@ describe('data-space four-file page', () => {
     expect(navigations).toHaveLength(0)
 
     const replaced = await createCatalogScriptFixture({ navigate: (path, params) => { navigations.push([path, params]) } },
-      undefined, { tenantId: 'tenant', projectId: 'app' })
+      undefined, { projectId: 'app' })
     const replacedView = replaced.dataSet.getView('Base_DataSet', 'catalog')
     const replacedAction = renderCatalogActionButtons(replaced.functions).find(item => item['children'] === '设计')
     const replacedHandler = catalogActionHandler(replacedAction)

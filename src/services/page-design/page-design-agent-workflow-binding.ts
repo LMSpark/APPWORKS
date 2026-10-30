@@ -29,7 +29,7 @@ import {
   type PageDesignAllowedOperations,
   type PageDesignRunMode,
 } from '@/services/page-design/page-design-gates'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 
 export type { PageDesignAllowedOperations, PageDesignRunMode }
 

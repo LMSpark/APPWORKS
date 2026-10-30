@@ -489,7 +489,7 @@ describe('SparkPageRenderer root props aggregation', () => {
       history: createMemoryHistory(),
       routes: [
         {
-          path: '/t/:tenantId/:projectId/__ref/:refNodeId',
+          path: '/apps/:projectId/__ref/:refNodeId',
           name: 'spark-cross-project-ref-host',
           component: defineComponent({ name: 'RouteStub', render: () => h('div') }),
           meta: {
@@ -501,7 +501,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     })
     const loadPageRuntime = vi.fn(async () => undefined)
 
-    await router.push('/t/lmspark/homepage/__ref/ref-node')
+    await router.push('/apps/homepage/__ref/ref-node')
     await router.isReady()
 
     mount(SparkPageRenderer, {
@@ -527,7 +527,7 @@ describe('SparkPageRenderer root props aggregation', () => {
       history: createMemoryHistory(),
       routes: [
         {
-          path: '/t/:tenantId/:projectId/__ref/:refNodeId',
+          path: '/apps/:projectId/__ref/:refNodeId',
           name: 'spark-cross-project-ref-host',
           component: defineComponent({ name: 'RouteStub', render: () => h('div') }),
           meta: {
@@ -539,7 +539,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     })
     const loadPageRuntime = vi.fn(async () => undefined)
 
-    await router.push('/t/lmspark/homepage/__ref/ref-node')
+    await router.push('/apps/homepage/__ref/ref-node')
     await router.isReady()
 
     mount(SparkPageRenderer, {

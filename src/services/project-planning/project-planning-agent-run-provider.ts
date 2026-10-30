@@ -143,7 +143,6 @@ export const prepareProjectPlanningAgentRun: AiAgentRunPrepare<AiAgentHost> = as
 
   const scope = readProjectPlanningAgentRunScope(event.args, event.requestId)
   const editor = createHeadlessProjectPlanningEditor({
-    tenantId: scope.tenantId,
     projectId: scope.projectId,
   })
   await editor.loadBlueprint()

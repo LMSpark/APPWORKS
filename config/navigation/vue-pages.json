@@ -57,22 +57,22 @@
       "path": "/settings",
       "title": "设置",
       "icon": "Setting",
-      "scope": "tenant",
-      "source": "src/views/tenant/Settings.vue"
+      "scope": "catalog",
+      "source": "src/views/app/Settings.vue"
     },
     {
       "path": "/cache-manager",
       "title": "缓存管理",
       "icon": "Coin",
       "scope": "app",
-      "source": "src/views/tenant/CacheManager.vue"
+      "source": "src/views/app/CacheManager.vue"
     },
     {
       "path": "/features/system/cache-management/ui/cache-management-page",
       "title": "缓存管理",
       "icon": "Coin",
       "scope": "app",
-      "source": "src/views/tenant/CacheManager.vue",
+      "source": "src/views/app/CacheManager.vue",
       "description": "Metadata 项目的 lowcode 缓存管理入口",
       "hidden": true,
       "shellTool": false
@@ -81,15 +81,15 @@
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",
-      "scope": "tenant",
-      "source": "src/views/tenant/AppList.vue"
+      "scope": "catalog",
+      "source": "src/views/app/AppList.vue"
     },
     {
       "path": "/features/application/application-manager/ui/application-manager-page",
       "title": "应用系统列表",
       "icon": "Grid",
       "scope": "app",
-      "source": "src/views/tenant/AppList.vue",
+      "source": "src/views/app/AppList.vue",
       "description": "Metadata 项目的 lowcode 应用目录入口",
       "hidden": true,
       "shellTool": false
@@ -98,7 +98,7 @@
       "path": "/tenants",
       "title": "租户管理",
       "icon": "OfficeBuilding",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/platform/PlatformTenantManagement.vue",
       "description": "平台租户管理工作台"
     },
@@ -106,7 +106,7 @@
       "path": "/apps",
       "title": "平台应用管理",
       "icon": "Grid",
-      "scope": "tenant",
+      "scope": "catalog",
       "source": "src/views/platform/PlatformApps.vue",
       "description": "跨租户项目入口"
     },

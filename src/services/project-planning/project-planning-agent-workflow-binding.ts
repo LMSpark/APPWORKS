@@ -136,7 +136,6 @@ export function resolveProjectPlanningRunInput(
   })
 
   return {
-    ...(project.tenantId === undefined ? {} : { tenantId: project.tenantId }),
     projectId: project.projectId,
     requirement,
     ...(planningAttachmentRef === undefined ? {} : { planningAttachmentRef }),

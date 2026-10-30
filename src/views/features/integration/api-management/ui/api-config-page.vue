@@ -42,7 +42,7 @@ import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkN
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {parseTenantScope} from '@/services/tenant-scope'
+import {parseApplicationPath} from '@/services/application-scope'
 import type {ApiConfigPageProps} from './api-config-page.props'
 
 type RToolbarProps = SparkComponent.RToolbarProps
@@ -134,7 +134,7 @@ watch(() => props.providerId, async providerId => {
   ready.value = false; loading.value = true; busy.value = false; error.value = ''; tab.value = 'parameters'
   unsubscribe?.(); unsubscribeCascade?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
   try {
-    const projectId = parseTenantScope(route.path)?.projectId ?? ''
+    const projectId = parseApplicationPath(route.path)?.projectId ?? ''
     const next = new PageRuntime({pageId: 'api-config-page', scenarioIds: [scenarioId], scenarioInputs: {[scenarioId]: {providerId}},
       loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
     runtime = next; await next.load()

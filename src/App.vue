@@ -163,7 +163,7 @@ import { onPageConfigChange, type FileChangeEvent } from '@/services/sse-events'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
-import { APPLICATION_CATALOG_PROJECT_ID, buildTenantPath, buildTenantRootPath, parseTenantScope, stripTenantScope } from '@/services/tenant-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, buildApplicationRootPath, parseApplicationPath, stripApplicationPath } from '@/services/application-scope'
 import { getPublicPaths } from '@/registries/vue-page-registry'
 import { ElMessage } from 'element-plus'
 
@@ -200,7 +200,7 @@ function isPlatformWorkspacePath(path: string): boolean {
 
 function resolveActiveProjectId(): string {
   if (isPlatformWorkspacePath(route.path)) return 'platform'
-  return parseTenantScope(route.path)?.projectId ?? readLowcodePrincipal()?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
+  return parseApplicationPath(route.path)?.projectId ?? readLowcodePrincipal()?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
 }
 
 const activeProjectId = ref(resolveActiveProjectId())
@@ -251,23 +251,22 @@ async function reloadCurrentConfiguration(): Promise<void> {
   finally { configRefreshing.value = false; configurationRevision.value++ }
 }
 
-function toTenantProjectSettingsScope(tenantId: string | undefined, projectId: string | undefined): string | null {
-  if (!tenantId || !projectId) return null
-  return `tenant:${tenantId}:project:${projectId}`
+function toProjectSettingsScope(projectId: string | undefined): string | null {
+  if (!projectId) return null
+  return `project:${projectId}`
 }
 
 function resolveActiveSettingsScope(): string | null {
   if (isPlatformWorkspacePath(route.path)) return 'platform:platform'
-  const scoped = parseTenantScope(route.path)
-  if (scoped !== null) return toTenantProjectSettingsScope(scoped.tenantId, scoped.projectId)
+  const scoped = parseApplicationPath(route.path)
+  if (scoped !== null) return toProjectSettingsScope(scoped.projectId)
   const principal = readLowcodePrincipal()
-  return toTenantProjectSettingsScope(principal?.enterpriseName, principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
+  return toProjectSettingsScope(principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
 }
 
 function resolveProjectSettingsScope(projectId: string): string | null {
   if (projectId === 'platform') return 'platform:platform'
-  const principal = readLowcodePrincipal()
-  return toTenantProjectSettingsScope(principal?.enterpriseName, projectId)
+  return toProjectSettingsScope(projectId)
 }
 
 function normalizeSettingsScope(scopeKey: string | null): string | null {
@@ -318,19 +317,17 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
   if (isLoginPage.value) return null
 
   const currentPath = route.path
-  const scoped = parseTenantScope(currentPath)
+  const scoped = parseApplicationPath(currentPath)
   const authenticated = hasLowcodeSession()
   const principal = readLowcodePrincipal()
 
   if (scoped === null) {
     if (publicPaths.has(currentPath)) return null
     const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
-    const expectedPath = principal?.enterpriseName
-      ? buildTenantPath({ tenantId: principal.enterpriseName, projectId }, currentPath)
-      : undefined
+    const expectedPath = buildApplicationPath({ projectId }, currentPath)
     return {
-      title: '当前页面缺少租户作用域',
-      message: '这个业务页需要在 /t/{tenantId}/{projectId}/... 作用域下运行。外部浏览器有数据而内嵌浏览器没数据，通常就是当前浏览器上下文没有进入正确租户路径或未完成登录。',
+      title: '当前页面缺少应用路径',
+      message: '这个业务页需要在 /apps/{projectId}/... 路径下运行。',
       primaryActionLabel: principal ? '进入当前应用首页' : '前往登录页',
       ...(expectedPath !== undefined ? { expectedPath } : {}),
     }
@@ -346,14 +343,14 @@ const contextGuard = computed<AppContextGuardState | null>(() => {
   }
 
   const applicationId = principal.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
-  if (scoped.tenantId !== principal.enterpriseName || scoped.projectId !== applicationId) {
-    const restPath = stripTenantScope(currentPath)
+  if (scoped.projectId !== applicationId) {
+    const restPath = stripApplicationPath(currentPath)
     const expectedPath = restPath
-      ? buildTenantPath({ tenantId: principal.enterpriseName, projectId: applicationId }, restPath)
-      : buildTenantRootPath({ tenantId: principal.enterpriseName, projectId: applicationId })
+      ? buildApplicationPath({ projectId: applicationId }, restPath)
+      : buildApplicationRootPath({ projectId: applicationId })
     return {
-      title: 'URL 作用域与本地上下文不一致',
-      message: '当前 URL 的企业/应用与 lowcode 会话上下文不一致。继续渲染会导致场景身份错位。',
+      title: 'URL 应用与本地上下文不一致',
+      message: '当前 URL 的应用与 lowcode 会话上下文不一致。继续渲染会导致场景身份错位。',
       primaryActionLabel: '切回当前应用',
       expectedPath,
     }
@@ -432,9 +429,9 @@ navigationActionRegistry.register('home', async () => {
     if (principal && principal.applicationId !== null) {
       const receipt = await projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID)
       receipt.assertCurrent()
-      await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
+      await router.push(buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
     } else if (principal) {
-      await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
+      await router.push(buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
     } else {
       await router.push('/')
     }
@@ -693,7 +690,7 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
   try {
     const receipt = await projectSwitchService.switchAndReload(targetProjectId)
     receipt.assertCurrent()
-    await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: targetProjectId }, targetPath))
+    await router.push(buildApplicationPath({ projectId: targetProjectId }, targetPath))
   } catch (error: unknown) {
     ElMessage.error(error instanceof Error ? error.message : String(error))
   }

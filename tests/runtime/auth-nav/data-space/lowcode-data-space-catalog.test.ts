@@ -89,10 +89,10 @@ function calls(name:string) {return executeQuery.mock.calls.filter(([view])=>vie
 function last(name='Base_DataSet'):QueryParams {return calls(name).at(-1)![1] as QueryParams}
 async function owner() {const value=await LowcodeDataSpaceCatalog.load({projectId:'app-a',scenarioId:'SCENE'});disposals.push(()=>value.dispose());return value}
 function button(wrapper:ReturnType<typeof mount>,text:string) {const found=wrapper.findAll('button').find(item=>item.text()===text);if(!found)throw new Error(`Missing ${text}`);return found}
-const path='/t/TENANT/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
+const path='/apps/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
 async function page(scenarioId='SCENE') {
   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:CatalogPage,meta:{blueprintScenarioId:scenarioId}},
-    {path:'/t/TENANT/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
+    {path:'/apps/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
   await router.push(`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`)
   const registry=Spark.createRegistry()
   for(const [type,component] of [['r-text',FieldText],['r-select',FieldSelect],['r-button',RendererButton],['r-filter',RendererFilter],['r-toolbar',RendererToolbar]] as const)registry.register({type,component})
@@ -410,7 +410,7 @@ describe('catalog page entry',()=>{
     })
     const {wrapper,router}=await page()
     const stale=context(oldView,[{rowid:'APP',AppDesc:'Obsolete application'}])
-    await router.push('/t/TENANT/app-a/second');await flushPromises();release(stale);await flushPromises()
+    await router.push('/apps/app-a/second');await flushPromises();release(stale);await flushPromises()
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('OTHER@Base_DataSet@catalog')
     expect(wrapper.text()).toContain('Current application');expect(wrapper.text()).not.toContain('Obsolete application')
   })

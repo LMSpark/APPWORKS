@@ -5,7 +5,7 @@
  * AI用途：装配明确场景、物化绑定及刷新干净实例。
  */
 import { deepClone, isRecord } from '@spark-appworks/spark-utils'
-import { buildDataViewKey, parseDataViewKey, resolveDataViewKey, type DataSet, type DataView, type DataViewQueryContext } from '@spark-appworks/spark-data'
+import { buildDataViewKey, parseDataViewKey, resolveDataViewKey, visitSparkNodeDataViewBindings, type DataSet, type DataView, type DataViewQueryContext } from '@spark-appworks/spark-data'
 import type { PageTool, PageToolDefinition } from './page-tool'
 import { PageContentRuntime } from './content/runtime-content'
 
@@ -178,22 +178,17 @@ export class PageRuntime {
   materialize():PageToolDefinition {
     this.#assertAlive();if(!this.isLoaded)throw new Error('页面运行实例尚未装载')
     const definition=deepClone(this.tool.toDefinition())
-    const visit=(value:unknown):void=>{
-      if(Array.isArray(value)){value.forEach(visit);return}
-      if(!isRecord(value))return
-      const binding=value['dataViewKey']
-      if(typeof binding==='string' && binding){
-        const descriptor=parseDataViewKey(binding)
-        if(!descriptor)throw new Error('视图绑定必须是 scenarioId@modelName@viewId 或 modelName@viewId')
-        if(descriptor.scope===undefined){
-          if(!this.call.mainScenarioId)throw new Error('局部视图绑定必须声明主场景')
-          value['dataViewKey']=buildDataViewKey(descriptor.tableName,descriptor.viewId,this.call.mainScenarioId)
-        }
-        if (!this.resolveView(String(value['dataViewKey']))) throw new Error(`页面绑定的视图不存在: ${String(value['dataViewKey'])}`)
-      }
-      Object.values(value).forEach(visit)
-    }
-    visit(definition.rule);return definition
+    visitSparkNodeDataViewBindings(definition.rule, (binding, replace) => {
+      const descriptor=parseDataViewKey(binding)
+      if(!descriptor)throw new Error('视图绑定必须是 scenarioId@modelName@viewId 或 modelName@viewId')
+      const normalized=descriptor.scope===undefined
+        ? this.call.mainScenarioId ? buildDataViewKey(descriptor.tableName,descriptor.viewId,this.call.mainScenarioId) : ''
+        : binding
+      if(!normalized)throw new Error('局部视图绑定必须声明主场景')
+      if(!this.resolveView(normalized))throw new Error(`页面绑定的视图不存在: ${normalized}`)
+      if(normalized!==binding)replace(normalized)
+    })
+    return definition
   }
   /** 销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。 */
   dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }

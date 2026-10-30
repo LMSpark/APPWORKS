@@ -47,3 +47,5 @@ src/
 正式蓝图数据为 nodeId/parentNodeId/projectId/kind/capability/navigation?/dataSpace?/prototype?/source，children 只是树投影。源 VersionId 的 rule/script/style 表示发布引用，裸文件表示工作内容。
 
 `PageRuntime` 持有一次调用的 instanceId、scenarioIds 和可选 mainScenarioId；多个调用可使用同一 PageTool，但不能共享运行 DataSet。新视图绑定使用`scenarioId@modelName@viewId`，模型名称按正式modelBinding.modelName解析，不以内部表键替代；局部`modelName@viewId`必须有明确主场景。装载期间销毁会清理迟到数据，脚本上下文与回执受代次和销毁边界约束。
+
+`SparkNodeTree.collectDataViewKeys()` 与 `PageRuntime.materialize()` 共用正式配置位置的绑定遍历，覆盖普通子组件、结构化头尾/工具栏/过滤区/行动作，以及选项和图数据源。`materialize()` 在调用内副本展开局部键并校验目标视图，不修改工具原文，也不将静态选项或业务对象中的同名字段解释为绑定。开发预览从工具文件 DataView 的当前编辑覆盖收集场景，按同一运行合同装配；预览开关属于编辑工作区的本地输入 DataView，不参加工具文件及业务数据保存。

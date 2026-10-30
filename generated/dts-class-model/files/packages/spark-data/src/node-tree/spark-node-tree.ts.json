@@ -1126,7 +1126,7 @@
       }
     }
   },
-  "generatedAt": "2026-06-11T12:48:51.014Z",
+  "generatedAt": "2026-10-30T12:10:02.106Z",
   "models": {
     "SparkNodeTreeJsonInput": {
       "name": "SparkNodeTreeJsonInput",
@@ -2457,7 +2457,7 @@
             },
             {
               "name": "collectDataViewKeys",
-              "jsdoc": "收集当前组件实例子树中出现过的全部唯一 DataView 定位键。\n包括容器、展示、动作、选项等 props.dataViewKey / props.optionDataViewKey。",
+              "jsdoc": "收集当前组件实例子树中出现过的全部唯一 DataView 定位键。\n包括节点绑定、动态选项/边绑定、工具栏/动作/筛选/头尾区域中的结构化绑定，\n以及 Graph 等组件声明的 additionalNodeSources。普通业务 payload 和静态 options\n不作为绑定配置递归解释。",
               "parameters": [],
               "type": {
                 "type": "reference",

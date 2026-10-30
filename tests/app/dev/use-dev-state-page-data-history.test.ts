@@ -1,5 +1,6 @@
 import { shallowMount, mount, flushPromises } from '@vue/test-utils'
 import { computed, defineComponent, h, ref, toRaw, watch, type Component } from 'vue'
+import ElementPlus from 'element-plus'
 import DataPlanningPane from '@/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue'
 import DevDataSetDesigner from '@/views/app/dev-system/DevDataSetDesigner.vue'
 import DevPreviewTab from '@/views/app/dev-system/DevPreviewTab.vue'
@@ -8,10 +9,10 @@ import {useDevFileEditor} from '@/views/app/dev-system/composables/useDevFileEdi
 import ScenarioHistoryPanel from '@/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} from '@spark-appworks/spark-data'
-import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
+import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, Spark, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
-import {ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
+import {ScenarioDefinitionResource, type PageRuntime, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 
@@ -154,6 +155,10 @@ import { createDevStateWithConfigPages, ensureDevStateActivePageLoaded, isolateA
 import type { ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
 const fixtureText=(pageSize:number)=>JSON.stringify({scenarioId:'scene',tables:{Orders:{modelBinding:{modelId:'orders-model',modelName:'Orders'},views:{default:{pageSize},detail:{}}}}})
 function sceneNode():ProjectBlueprintTreeNodeData{return {nodeId:'orders-page-node',parentNodeId:'homepage_root',projectId:'homepage',kind:'page',capability:{name:'Orders'},navigation:{title:'Orders',target:'cfg:orders-page',order:0,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'scene',models:[{metaName:'Orders'}]},source:{}}}
+async function selectPreviewNode(state:ReturnType<typeof createDevStateWithConfigPages>):Promise<void>{
+ const node=sceneNode();delete node.dataSpace
+ state.project.replaceBlueprintChildren([node]);await state.selectNode(node)
+}
 function mountDesigner(options:{state:ReturnType<typeof createDevStateWithConfigPages>;shallow?:boolean;stubs?:Record<string,Component|boolean>}){
  const {state}=options
  const Host=defineComponent({setup(){
@@ -652,6 +657,7 @@ describe('tool and shared scenario editing owners',()=>{
  it('builds preview content from the file DataView draft without requiring a PageTool mirror',async()=>{
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/script.js')?'saved baseline':''}))
   const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state)
   await ensureDevStateActivePageLoaded(state)
   const view=await state.loadPageToolFileDataView({pageId:state.activePageId.value,fileName:'script.js'})
   const row=view.currentRow,id=row&&view.getPkKey(row)
@@ -664,6 +670,162 @@ describe('tool and shared scenario editing owners',()=>{
    const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as {tool:{getFileText(name:'script.js'):string}}
    expect(runtime.tool.getFileText('script.js')).toBe('DataView draft')
   } finally {wrapper.unmount()}
+ })
+ it.each(['dataViewKey','optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
+  'loads an additional scenario referenced by a structured zone %s',async property=>{
+   const rule=JSON.stringify([{id:'dialog',type:'r-dialog',props:{footer:{children:[{id:'field',type:'r-select',props:{[property]:'extra@Orders@default'}}]}}}])
+   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20).replaceAll('"scene"','"extra"'):url.endsWith('/rule.json')?rule:''}))
+   previewLoad.mockImplementation(async({scenarioId}:{scenarioId:string})=>({dataSet:DataSet.fromJson({scenarioId,tables:{Internal:{modelBinding:{modelId:'orders-model',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})}))
+   const state=createDevStateWithConfigPages()
+   await selectPreviewNode(state)
+   await ensureDevStateActivePageLoaded(state)
+   const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+   const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+   try {
+    await flushPromises()
+    expect(previewLoad.mock.calls.map(([input])=>input.scenarioId)).toEqual(['extra'])
+    const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
+    expect(runtime.resolveView('extra@Orders@default')).toBe(runtime.getDataSet('extra')!.getView('Internal'))
+    expect(httpPut).not.toHaveBeenCalled()
+   } finally {wrapper.unmount()}
+  },
+ )
+ it('invalidates an in-flight file preview immediately across same-page node ABA',async()=>{
+  vi.useFakeTimers()
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state)
+  await ensureDevStateActivePageLoaded(state)
+  const read=state.loadPageToolFileDataView
+  let release:()=>void=()=>{}
+  const pending=new Promise<void>(resolve=>{release=resolve})
+  vi.spyOn(state,'loadPageToolFileDataView').mockImplementationOnce(async input=>{await pending;return read(input)})
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  try {
+   await flushPromises()
+   const nodeId=state.selectedNode.value!.nodeId,pageId=state.activePageId.value
+   state.project.selectNode(null);state.project.selectNode(nodeId)
+   expect(state.activePageId.value).toBe(pageId)
+   release();await flushPromises()
+   expect(wrapper.findComponent(Renderer).exists()).toBe(false)
+   await vi.advanceTimersByTimeAsync(600);await flushPromises()
+   expect(wrapper.findComponent(Renderer).exists()).toBe(true)
+  } finally {release();wrapper.unmount()}
+ })
+ it('destroys late scenario data when a preview target changes before the live debounce',async()=>{
+  vi.useFakeTimers()
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  await ensureDevStateActivePageLoaded(state)
+  let release:(value:{dataSet:DataSet})=>void=()=>{}
+  previewLoad.mockImplementationOnce(()=>new Promise<{dataSet:DataSet}>(resolve=>{release=resolve}))
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  const late=DataSet.fromJson({scenarioId:'scene',tables:{}})
+  try {
+   await flushPromises();expect(previewLoad).toHaveBeenCalledTimes(1)
+   state.project.selectNode(null);state.project.selectNode(sceneNode().nodeId)
+   release({dataSet:late});await flushPromises()
+   expect(wrapper.findComponent(Renderer).exists()).toBe(false)
+   expect(late.destroyed).toBe(true)
+  } finally {release({dataSet:late});wrapper.unmount()}
+ })
+ it('keeps the dirty business preview accessible when a refresh is blocked',async()=>{
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  await ensureDevStateActivePageLoaded(state)
+  const business=DataSet.fromJson({scenarioId:'scene',tables:{Orders:{resourceType:'static-data',
+   columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'title',type:'string'}],
+   views:{default:{commitMode:'staged',rows:[{id:'order',title:'saved'}]}}}}})
+  previewLoad.mockResolvedValueOnce({dataSet:business}).mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:'scene',tables:{}})}))
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state,refreshToken:0},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  try {
+   await flushPromises()
+   const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
+   const view=business.getView('Orders')!
+   view.updateEditingValue('order','title','unsaved')
+   expect(runtime.isDirty).toBe(true)
+   await wrapper.setProps({refreshToken:1});await flushPromises()
+   expect(runtime.destroyed).toBe(false)
+   expect(view.getEditingPatch('order')).toEqual({title:'unsaved'})
+   expect(wrapper.findComponent(Renderer).exists()).toBe(true)
+   expect(wrapper.findComponent(Renderer).props('pageRuntime')).toBe(runtime)
+   expect(wrapper.findAllComponents({name:'DisplayAlert'}).some(alert=>String(alert.props('description')).includes('未保存'))).toBe(true)
+   view.discardEditingRows()
+   await wrapper.setProps({refreshToken:2});await flushPromises()
+   expect(runtime.destroyed).toBe(true)
+  } finally {wrapper.unmount()}
+ })
+ it('previews the latest file draft when it changes during scenario loading',async()=>{
+  vi.useFakeTimers()
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):url.endsWith('/rule.json')?'[]':url.endsWith('/script.js')?'console.log("old")':''}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  await ensureDevStateActivePageLoaded(state)
+  let release:(value:{dataSet:DataSet})=>void=()=>{}
+  previewLoad.mockImplementationOnce(()=>new Promise<{dataSet:DataSet}>(resolve=>{release=resolve}))
+    .mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:'scene',tables:{}})}))
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  const late=DataSet.fromJson({scenarioId:'scene',tables:{}})
+  try {
+   await flushPromises();expect(previewLoad).toHaveBeenCalledTimes(1)
+   const view=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'})
+   view.updateEditingValue(view.getPkKey(view.currentRow!)!,'text','console.log("latest")')
+   state.notifyExternalDataViewChanged()
+   await vi.advanceTimersByTimeAsync(600);await flushPromises()
+   release({dataSet:late});await flushPromises()
+   const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
+   expect(runtime.tool.getFileText('script.js')).toBe('console.log("latest")')
+   expect(late.destroyed).toBe(true)
+  } finally {release({dataSet:late});wrapper.unmount()}
+ })
+ it('binds real preview switches to the editor DataView and releases only its own input table',async()=>{
+  vi.useFakeTimers()
+  httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))
+  const state=createDevStateWithConfigPages()
+  await selectPreviewNode(state)
+  await ensureDevStateActivePageLoaded(state)
+  const owner=state.blueprintWorkspaceDataView.value!,runtime=state.blueprintPageRuntime.value!
+  const tablesBefore=Object.keys(owner.dataSet.tables).sort()
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state,refreshToken:0},global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})],stubs:{SparkPageRenderer:Renderer}}})
+  try {
+   await flushPromises()
+   const form=wrapper.findComponent({name:'RendererForm'})
+   expect(form.exists()).toBe(true)
+   const view=runtime.resolveView(String(form.props('dataViewKey')))!
+   expect(view.dataTable).toBe(owner.dataSet.getTable(view.tableName))
+   const fields=wrapper.findAllComponents({name:'FieldSwitch'})
+   expect(fields).toHaveLength(2)
+   for(const field of fields){
+    const name=String(field.props('dataField')),row=view.currentRow!,id=view.getPkKey(row)!
+    expect((view.getEditingRow(id)??row)[name]).toBe(true)
+    const control=field.findComponent({name:'ElSwitch'})
+    expect(control.props('disabled')).toBe(false)
+    control.vm.$emit('update:modelValue',false)
+    await flushPromises()
+    expect(view.getEditingRow(id)?.[name]).toBe(false)
+   }
+   const original=wrapper.findComponent(Renderer).props('pageRuntime')
+   await wrapper.setProps({refreshToken:1});await flushPromises()
+   expect(wrapper.findComponent(Renderer).props('pageRuntime')).toBe(original)
+   state.projectRevision.value++
+   const file=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'})
+   file.updateEditingValue(file.getPkKey(file.currentRow!)!,'text','console.log("manual preview")')
+   state.notifyExternalDataViewChanged()
+   await vi.advanceTimersByTimeAsync(600);await flushPromises()
+   const currentForm=wrapper.findComponent({name:'RendererForm'})
+   expect(runtime.resolveView(String(currentForm.props('dataViewKey')))).toBe(view)
+   expect(wrapper.findComponent(Renderer).props('pageRuntime')).toBe(original)
+   expect(view.getEditingRow(view.getPkKey(view.currentRow!)!)?.['livePreview']).toBe(false)
+   expect(httpPut).not.toHaveBeenCalled()
+  } finally {wrapper.unmount()}
+  expect(Object.keys(owner.dataSet.tables).sort()).toEqual(tablesBefore)
  })
  it('loads only the requested tool file DataView from the formal ProjectToolFile mapping',async()=>{const state=createDevStateWithConfigPages();const fileView=await state.loadPageToolFileDataView({pageId:'orders-page',fileName:'script.js'});expect(Reflect.has(state.editor,'ensureActivePageFilesLoaded')).toBe(false);expect(appConfig.tables.ProjectToolFile.resourceType).toBe('file');expect(appConfig.tables.ProjectToolFile.resourceId).toBe('project:tool-file');expect(appConfig.tables.ProjectToolFile.columns.map(column=>column.name)).toEqual(['fileKey','pageId','fileName','versionId','text','localDirty']);expect(fileView.tableName).toBe('ProjectToolFile');expect(fileView.dataTable?.resourceId).toBe('project:tool-file');expect(fileView.viewId).toBe('page-orders-page-script.js');expect(fileView.currentRow).toMatchObject({pageId:'orders-page',fileName:'script.js'});expect(state.pageFileNames).toEqual(['rule.json','script.js','style.css'])})
  it('loads scene views through the scene gateway and undoes to a clean shared baseline',async()=>{let remote=fixtureText(20);httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?remote:''}));httpPut.mockImplementation(async(_url:string,payload:{content:string})=>{remote=payload.content});const state=createDevStateWithConfigPages();state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode());await state.loadSelectedScenarioViews();expect(state.scenarioDefinitionDocument.value?.scenarioId).toBe('scene');await state.writeScenarioViewText(fixtureText(50));expect(state.pageDataDirty.value).toBe(true);expect(await state.scenarioDefinitionDocument.value?.undo()).toBe(true);state.scenarioDefinitionRevision.value++;expect(state.pageDataDirty.value).toBe(false);await state.writeScenarioViewText(fixtureText(70));await state.saveScenarioViewText();expect(JSON.parse(remote)).toEqual(JSON.parse(fixtureText(70)));expect(state.pageDataDirty.value).toBe(false);expect(state.project.readDirtyProjection().dirtyFiles).not.toContain('pagedata.json')})

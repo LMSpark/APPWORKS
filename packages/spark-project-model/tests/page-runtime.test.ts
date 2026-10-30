@@ -107,6 +107,69 @@ describe('PageRuntime lifecycle',()=>{
     const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>data('scene')});await runtime.load();expect(()=>runtime.materialize()).toThrow('视图不存在');runtime.dispose()
   })
 
+  it('collects bindings from structured zones and graph edges as well as ordinary children',()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'dialog',type:'r-dialog',props:{
+      dataViewKey:'main@Orders@default',
+      header:{dataViewKey:'header@Orders@default',children:[{id:'choice',type:'r-select',props:{optionDataViewKey:'options@Orders@default'}}]},
+      footer:{children:[{id:'graph',type:'r-graph',props:{edgeDataViewKey:'edges@Orders@default',additionalEdgeDataViewKey:'extra@Orders@default'}}]},
+    },children:[{id:'toolbar',type:'r-toolbar',props:{tail:{dataViewKey:'tail@Orders@default',children:[]}}}]}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()].sort()).toEqual([
+      'main@Orders@default','header@Orders@default','options@Orders@default','edges@Orders@default','extra@Orders@default','tail@Orders@default',
+    ].sort())
+  })
+
+  it.each(['dataViewKey','optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
+    'materializes and validates %s against the same explicit main scenario',async property=>{
+      const shared=tool()
+      shared.hydrateFileText('rule.json',JSON.stringify([{id:'zone',type:'r-dialog',props:{footer:{children:[{id:'field',type:'r-select',props:{[property]:'Orders@default'}}]}}}]))
+      const ds=DataSet.fromJson({scenarioId:'scene',tables:{Internal:{modelBinding:{modelId:'orders',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+      const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],mainScenarioId:'scene',loadScenario:async()=>ds})
+      await runtime.load()
+      try {
+        expect(JSON.stringify(runtime.materialize().rule)).toContain('scene@Orders@default')
+        expect(shared.getFileText('rule.json')).not.toContain('scene@Orders@default')
+      } finally {runtime.dispose()}
+    },
+  )
+
+  it('finds action/filter regions and graph sources without interpreting business values as bindings',async()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'table',type:'r-table',props:{
+      actions:{dataViewKey:'scene@Orders@default',children:[{id:'action',type:'r-button',props:{dataViewKey:'scene@Orders@default'}}]},
+      filter:{dataViewKey:'scene@Orders@default',children:[{id:'select',type:'r-select',props:{optionDataViewKey:'scene@Orders@default'}}]},
+      options:[{label:'Business configuration',value:{dataViewKey:'not-a-runtime-binding'}}],
+      payload:{dataViewKey:'ordinary-document-value',footer:{dataViewKey:'also-ordinary'}},
+    },children:[{id:'graph',type:'r-graph',props:{additionalNodeSources:[{dataViewKey:'scene@Orders@default',label:'extra'}]}}]}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()]).toEqual(['scene@Orders@default'])
+    const ds=DataSet.fromJson({scenarioId:'scene',tables:{Orders:{columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
+    const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>ds})
+    await runtime.load()
+    try {
+      expect(()=>runtime.materialize()).not.toThrow()
+      expect(JSON.stringify(runtime.materialize().rule)).toContain('ordinary-document-value')
+    } finally {runtime.dispose()}
+  })
+
+  it('validates additional graph sources before a graph is rendered',async()=>{
+    const shared=tool()
+    shared.hydrateFileText('rule.json',JSON.stringify([{id:'graph',type:'r-graph',props:{additionalNodeSources:[{dataViewKey:'missing@Orders@default'}]}}]))
+    expect([...shared.getNodeTree().collectDataViewKeys()]).toEqual(['missing@Orders@default'])
+    const runtime=new PageRuntime({tool:shared,scenarioIds:[],loadScenario:async id=>data(id)})
+    await runtime.load()
+    try {expect(()=>runtime.materialize()).toThrow('未声明')} finally {runtime.dispose()}
+  })
+
+  it.each(['optionDataViewKey','edgeDataViewKey','additionalEdgeDataViewKey'])(
+    'rejects a missing view referenced only by %s before rendering',async property=>{
+      const shared=tool()
+      shared.hydrateFileText('rule.json',JSON.stringify([{id:'field',type:'r-select',props:{[property]:'scene@Missing@default'}}]))
+      const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>data('scene')})
+      await runtime.load()
+      try {expect(()=>runtime.materialize()).toThrow('视图不存在')} finally {runtime.dispose()}
+    },
+  )
+
   it('keeps call identity while refreshing pending configuration and destroys the old scene',async()=>{
     const sets:DataSet[]=[];const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async id=>{const ds=data(id);sets.push(ds);return ds}})
     await runtime.load();const identity=runtime.instanceId;runtime.markConfigPending();expect(runtime.configPending).toBe(true)

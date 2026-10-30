@@ -80,6 +80,7 @@ export {
   SPARK_PAGE_NODE_TYPE,
   SPARK_PAGE_ROOT_ID,
   SparkNodeTree,
+  visitSparkNodeDataViewBindings,
   isSparkNode,
   normalizeSparkNode,
   getSparkNodeChildren,

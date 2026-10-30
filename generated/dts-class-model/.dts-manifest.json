@@ -2639,7 +2639,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:25:12.876Z"
+      "sourceModifiedAt": "2026-10-30T11:58:44.334Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2649,12 +2649,12 @@
     "packages/spark-data/src/node-tree/index.ts": {
       "sourceFile": "packages/spark-data/src/node-tree/index.ts",
       "shardFile": "files/packages/spark-data/src/node-tree/index.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:38:13.615Z"
+      "sourceModifiedAt": "2026-10-30T11:58:44.317Z"
     },
     "packages/spark-data/src/node-tree/spark-node-tree.ts": {
       "sourceFile": "packages/spark-data/src/node-tree/spark-node-tree.ts",
       "shardFile": "files/packages/spark-data/src/node-tree/spark-node-tree.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:51.014Z"
+      "sourceModifiedAt": "2026-10-30T12:10:02.106Z"
     },
     "packages/spark-data/src/node-tree/spark-node.ts": {
       "sourceFile": "packages/spark-data/src/node-tree/spark-node.ts",
@@ -3364,7 +3364,7 @@
     "packages/spark-project-model/src/page/runtime-page.ts": {
       "sourceFile": "packages/spark-project-model/src/page/runtime-page.ts",
       "shardFile": "files/packages/spark-project-model/src/page/runtime-page.ts.json",
-      "sourceModifiedAt": "2026-10-09T22:19:31.676Z"
+      "sourceModifiedAt": "2026-10-30T11:59:22.513Z"
     },
     "packages/spark-project-model/src/project/project-blueprint.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
@@ -4364,7 +4364,7 @@
     "src/views/app/dev-system/DevPreviewTab.vue": {
       "sourceFile": "src/views/app/dev-system/DevPreviewTab.vue",
       "shardFile": "files/src/views/app/dev-system/DevPreviewTab.vue.json",
-      "sourceModifiedAt": "2026-10-29T14:45:08.013Z"
+      "sourceModifiedAt": "2026-10-30T12:07:57.019Z"
     },
     "src/views/app/dev-system/DevSystem.vue": {
       "sourceFile": "src/views/app/dev-system/DevSystem.vue",

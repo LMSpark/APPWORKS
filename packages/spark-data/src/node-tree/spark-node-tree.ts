@@ -42,7 +42,7 @@
  */
 
 import { isSparkNode, normalizeSparkNode, nodeId, type SparkNode, type SparkNodeChildren } from './spark-node.js'
-import { SnapshotHistory } from '@spark-appworks/spark-utils'
+import { isRecord, SnapshotHistory } from '@spark-appworks/spark-utils'
 
 // ═══════════════════════════════════════════════════════
 // 1. 入口常量
@@ -53,6 +53,52 @@ export const SPARK_PAGE_NODE_TYPE = 'spark-page'
 /** 页面根节点默认 ID */
 export const SPARK_PAGE_ROOT_ID = 'spark-page-root'
 const readNodeId = nodeId
+
+/** Visit DataView keys only at declared SparkNode binding/configuration locations. */
+export function visitSparkNodeDataViewBindings(
+  nodes: readonly SparkNode[],
+  visit: (key: string, replace: (next: string) => void) => void,
+): void {
+  const bindingProperties = ['dataViewKey', 'optionDataViewKey', 'edgeDataViewKey', 'additionalEdgeDataViewKey'] as const
+  const structuredProperties = ['toolbar', 'actions', 'filter', 'header', 'footer', 'tail'] as const
+  const visited = new WeakSet<object>()
+
+  const visitProperty = (record: Record<string, unknown>, property: string): void => {
+    const key = record[property]
+    if (typeof key === 'string' && key.length > 0) visit(key, next => { record[property] = next })
+  }
+
+  const visitNode = (node: SparkNode): void => {
+    if (visited.has(node)) return
+    visited.add(node)
+    if (node.props) visitConfig(node.props)
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) if (isSparkNode(child)) visitNode(child)
+    }
+  }
+
+  const visitConfig = (config: Record<string, unknown>): void => {
+    if (visited.has(config)) return
+    visited.add(config)
+    for (const property of bindingProperties) visitProperty(config, property)
+    const additionalNodeSources = config['additionalNodeSources']
+    if (Array.isArray(additionalNodeSources)) {
+      for (const source of additionalNodeSources) {
+        if (isRecord(source)) visitProperty(source, 'dataViewKey')
+      }
+    }
+    const children = config['children']
+    if (Array.isArray(children)) {
+      for (const child of children) if (isSparkNode(child)) visitNode(child)
+    }
+    for (const property of structuredProperties) {
+      const nested = config[property]
+      if (isRecord(nested)) visitConfig(nested)
+    }
+  }
+
+  for (const node of nodes) visitNode(node)
+}
 
 function createSparkPageRoot(children: readonly SparkNode[] = []): SparkNode {
   return {
@@ -726,14 +772,16 @@ export class SparkNodeTree {
   }
 
   /**
-  * 收集当前组件实例子树中出现过的全部唯一 DataView 定位键。
+   * 收集当前组件实例子树中出现过的全部唯一 DataView 定位键。
    *
-  * 包括容器、展示、动作、选项等 props.dataViewKey / props.optionDataViewKey。
+   * 包括节点绑定、动态选项/边绑定、工具栏/动作/筛选/头尾区域中的结构化绑定，
+   * 以及 Graph 等组件声明的 additionalNodeSources。普通业务 payload 和静态 options
+   * 不作为绑定配置递归解释。
    *
    */
   collectDataViewKeys(): Set<string> {
     const keys = new Set<string>()
-    collectDataViewKeysRecursive(this._root, keys)
+    visitSparkNodeDataViewBindings([this._root], key => keys.add(key))
     return keys
   }
 
@@ -1917,26 +1965,6 @@ function countRecursive(node: SparkNode): number {
     if (isSparkNode(child)) count += countRecursive(child)
   }
   return count
-}
-
-/**
- * 递归收集所有 props.dataViewKey / props.optionDataViewKey。
- */
-function collectDataViewKeysRecursive(node: SparkNode, out: Set<string>): void {
-  const dataViewKey = node.props?.['dataViewKey']
-  if (typeof dataViewKey === 'string' && dataViewKey.length > 0) {
-    out.add(dataViewKey)
-  }
-
-  const optionDataViewKey = node.props?.['optionDataViewKey']
-  if (typeof optionDataViewKey === 'string' && optionDataViewKey.length > 0) {
-    out.add(optionDataViewKey)
-  }
-
-  if (!Array.isArray(node.children)) return
-  for (const child of node.children) {
-    if (isSparkNode(child)) collectDataViewKeysRecursive(child, out)
-  }
 }
 
 /**

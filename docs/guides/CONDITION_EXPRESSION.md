@@ -94,7 +94,7 @@ DataView 私有持有已应用的 `DataViewFilter`，`filterExpression` 返回�
 - 唯一存储codec：`packages/spark-data/src/query/filter/data-view-filter-codec.ts`。
 - 控件条件生成：`packages/spark-component/src/components/containers/runtime/container-filter.ts`。
 - 完整树及值函数编辑：`packages/spark-component/src/components/containers/filter/`，实际入口 `FilterExpressionEditor` 由 `RendererFilter` 消费。
-- 本地效果、不可变状态与脏保护：`packages/spark-data/src/tests/data-view/data-view-filter-expression.test.ts`。
+- 本地效果、不可变状态与脏保护：`packages/spark-data/src/tests/data-view/query/data-view-filter-expression.test.ts`。
 - 真实宿主请求组装：`tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts`。
 
 `RendererFilter` 从同一 DataView 读取已应用过滤，编辑器接收实际 columns 与明确的 `filterFunctionContext`，不从页面表名猜后端模型名称。条件字段目录排除isComputed框架列（如_pk）和computeExpression本地计算列；条件树与JSON按同一目录校验，旧失效字段原文保留供修正或取消，不映射成物理主键。递归 AND/OR、常量和完整 JSON、值函数共用 DataViewFilter 校验。缺字段/缺值、坏 JSON 和未完成组保留草稿并阻止应用；只有明确清空才提交 undefined。未修改的后端扩展函数保真保留，修改时要求相应编辑定义。

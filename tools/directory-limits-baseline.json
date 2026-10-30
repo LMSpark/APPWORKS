@@ -3,14 +3,6 @@
     "files": 9,
     "dirs": 8
   },
-  "packages/spark-data/src/tests/data-view": {
-    "files": 12,
-    "dirs": 0
-  },
-  "packages/spark-data/src/tests/dataset": {
-    "files": 11,
-    "dirs": 0
-  },
   "tests/runtime/page": {
     "files": 11,
     "dirs": 8

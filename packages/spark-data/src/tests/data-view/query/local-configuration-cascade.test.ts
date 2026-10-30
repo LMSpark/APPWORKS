@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
-import {DataSet} from '../../dataset'
-import {DataViewFilter} from '../../query/filter/data-view-filter'
+import {DataSet} from '../../../dataset'
+import {DataViewFilter} from '../../../query/filter/data-view-filter'
 
 function fixture(formal = false) {
   const dataSet = DataSet.fromJson({dataSetName: 'metadata', scenarioId: 'META', tables: {

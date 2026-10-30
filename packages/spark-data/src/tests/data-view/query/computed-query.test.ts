@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DataSet } from '../../dataset'
-import { DataView } from '../../data-view'
-import type { DataRow } from '../../types'
+import { DataSet } from '../../../dataset'
+import { DataView } from '../../../data-view'
+import type { DataRow } from '../../../types'
 
 type FixturePermissions = Readonly<{ h?: readonly string[]; m?: readonly string[] }>
 type FixtureRow = Record<string, unknown> & { lingma_sys_params?: FixturePermissions }

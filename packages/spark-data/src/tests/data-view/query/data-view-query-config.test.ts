@@ -1,10 +1,10 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {createRequest} from '@spark-appworks/spark-utils'
-import {DataSet} from '../../dataset'
-import {DataView} from '../../data-view'
-import {RequestState} from '../../types'
-import {DataViewQuery} from '../../query/data-view-query'
-import type {QueryParams} from '../../types'
+import {DataSet} from '../../../dataset'
+import {DataView} from '../../../data-view'
+import {RequestState} from '../../../types'
+import {DataViewQuery} from '../../../query/data-view-query'
+import type {QueryParams} from '../../../types'
 
 const sets: DataSet[] = []
 afterEach(() => sets.splice(0).forEach(ds => ds.destroy()))

@@ -414,13 +414,13 @@
     },
     {
       "expression": "/api/example",
-      "sourceFile": "packages/spark-data/src/tests/data-view/local-configuration-cascade.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/data-view/query/local-configuration-cascade.test.ts",
       "sourceLine": 61,
       "scope": "tooling"
     },
     {
       "expression": "/api/example",
-      "sourceFile": "packages/spark-data/src/tests/data-view/local-configuration-cascade.test.ts",
+      "sourceFile": "packages/spark-data/src/tests/data-view/query/local-configuration-cascade.test.ts",
       "sourceLine": 70,
       "scope": "tooling"
     },

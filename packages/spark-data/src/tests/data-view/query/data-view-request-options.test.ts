@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataSet} from '../../dataset'
+import {DataSet} from '../../../dataset'
 
 const dataSets: DataSet[] = []
 afterEach(() => dataSets.splice(0).forEach(ds => ds.destroy()))

@@ -1,11 +1,11 @@
 import {describe, expect, it, vi} from 'vitest'
-import {DataSet} from '../../dataset'
+import {DataSet} from '../../../dataset'
 import {
   bindDataSetReadonlyCommandQuery,
   dataSetCommandQueryResultFromLocalRows,
   ensureDataSetFileCommandView,
   ensureDataSetStaticInputTable,
-} from '../../data-set-command/data-set-command-view'
+} from '../../../data-set-command/data-set-command-view'
 
 describe('DataSet command view helper', () => {
   it('queries a local derived resource with readonly fields and an explicit scope guard', async () => {

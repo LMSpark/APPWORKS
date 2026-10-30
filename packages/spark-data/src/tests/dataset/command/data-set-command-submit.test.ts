@@ -1,7 +1,7 @@
 import {describe, expect, it, vi} from 'vitest'
-import {DataSet} from '../../dataset'
-import type {DataRow} from '../../types'
-import {bindDataSetCommandSubmit, ensureDataSetFileCommandView} from '../../data-set-command/data-set-command-view'
+import {DataSet} from '../../../dataset'
+import type {DataRow} from '../../../types'
+import {bindDataSetCommandSubmit, ensureDataSetFileCommandView} from '../../../data-set-command/data-set-command-view'
 
 class TransportFailure extends Error {}
 

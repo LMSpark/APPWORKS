@@ -1,7 +1,7 @@
 /**
  * @module @spark-appworks/spark-component:runtime/app-services
  * 职责：提供 app services 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。
- * 边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。
+ * 边界：承接页面宿主交互与默认文件传输；文件字段值仍由标准字段链写入 DataView，二进制传输不是 DataSet 文件保存。
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 /**
@@ -129,6 +129,35 @@ export type PageUploadedFile = PageSelectedFile & {
   url?: string
 }
 
+/**
+ * 默认上传未确认当前文件时拒绝整个调用，并保留此前确认成功的文件及本次未确认文件。
+ * 这不是回滚或重试凭据；调用方须按文件逐项处理已确认和未确认结果。
+ */
+export class PageUploadError extends Error {
+  /** 当前调用中已有明确服务端地址回执的文件。 */
+  readonly confirmedFiles: readonly PageUploadedFile[]
+  /** 当前请求已发出但没有得到明确成功地址的文件。 */
+  readonly unconfirmedFile: PageSelectedFile
+  /** 对应失败或未确认响应；传输异常时保留服务层提供的响应/错误。 */
+  readonly response?: unknown
+
+  /**
+   * 构造保留部分确认事实的上传错误；message 用于页面提示，response 可保留原始服务响应或传输错误。
+   */
+  constructor(input: Readonly<{
+    message: string
+    confirmedFiles: readonly PageUploadedFile[]
+    unconfirmedFile: PageSelectedFile
+    response?: unknown
+  }>) {
+    super(input.message)
+    this.name = 'PageUploadError'
+    this.confirmedFiles = input.confirmedFiles
+    this.unconfirmedFile = input.unconfirmedFile
+    if (input.response !== undefined) this.response = input.response
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // 4. 实体选择器
 //
@@ -204,7 +233,10 @@ export type PageServiceCapability = {
   selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>
   /** 打开文件浏览对话框 */
   browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>
-  /** 上传文件 */
+  /**
+   * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。
+   * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。
+   */
   uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>
   /** 显示 / 隐藏全局 Loading */
   showLoading(show: boolean, text?: string): void

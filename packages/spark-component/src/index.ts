@@ -85,6 +85,7 @@ export type {
   PageComponentApiEntry,
   PageCssScopeCapability,
 } from './core/index.js'
+export { PageUploadError } from './runtime/index.js'
 export type {
   RendererTableApi,
   RendererTreePath,

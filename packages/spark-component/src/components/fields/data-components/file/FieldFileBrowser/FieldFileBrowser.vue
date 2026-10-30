@@ -74,15 +74,16 @@ const {
   currentRawStringValue,
   isCurrentFieldEditable,
   currentDisplayValue,
+  captureWriteGuard,
 } = permission
 
-const { hasBrowseCapability, browseFiles } = useFileFieldActions({
+const { hasBrowseCapability, browseFiles, showError } = useFileFieldActions({
   pageService,
   isEditable: isCurrentFieldEditable,
 })
 
-async function updateValue(value: string): Promise<void> {
-  await handleControlledChange(value)
+async function updateValue(value: string, isCurrentIntent?: () => boolean): Promise<void> {
+  await handleControlledChange(value, isCurrentIntent)
 }
 
 const {
@@ -94,6 +95,8 @@ const {
   displayLabel,
   currentRawStringValue,
   isCurrentFieldEditable,
+  captureWriteGuard,
+  showError,
   hasBrowseCapability,
   accept: computed(() => props.accept),
   multiple: computed(() => props.multiple),

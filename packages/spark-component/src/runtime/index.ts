@@ -7,6 +7,7 @@
 export {
   PAGE_RUNTIME_SERVICES,
 } from './app-services'
+export { PageUploadError } from './app-services'
 
 export type {
   PageDialogOptions,

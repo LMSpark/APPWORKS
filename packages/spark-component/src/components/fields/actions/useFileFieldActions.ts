@@ -13,6 +13,7 @@ import type {
   PageUploadFilesOptions,
   PageUploadedFile,
 } from '../../internal'
+import { PageUploadError } from '../../../runtime/app-services'
 import { useFieldActionMode } from './useFieldActionMode'
 
 /** Use File Field Actions Options 的调用配置。 */
@@ -40,11 +41,23 @@ export function useFileFieldActions(options: UseFileFieldActionsOptions) {
     return await pageService.uploadFiles(uploadOptions)
   }
 
+  function showError(error: unknown): void {
+    if (error instanceof PageUploadError) {
+      const confirmedNames = error.confirmedFiles.map(file => file.name).join('、')
+      const confirmed = confirmedNames.length > 0 ? `已确认：${confirmedNames}；` : ''
+      pageService?.showMessage(`${error.message}；${confirmed}未确认：${error.unconfirmedFile.name}`, 'error')
+      return
+    }
+    const message = error instanceof Error ? error.message : String(error)
+    pageService?.showMessage(message, 'error')
+  }
+
   return {
     hasBrowseCapability,
     hasUploadCapability,
     primaryAction,
     browseFiles,
     uploadFiles,
+    showError,
   }
 }

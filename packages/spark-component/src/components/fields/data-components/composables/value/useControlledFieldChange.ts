@@ -43,14 +43,19 @@ handlerSource?: Readonly<Record<string, unknown>>}
  * 对外保留字段语义（nextValue / previousValue / control），
  * 内部统一委托给 useEventDefaults，避免各字段组件重复拼装 change 分发逻辑。
  */
+/**
+ * @param options 字段值、事件分发及原始 DataView 写权限守卫。
+ * @returns 在最终字段同步前同时校验绑定身份和可选的异步动作意图。
+ */
 export function useControlledFieldChange<TValue>(options: UseControlledFieldChangeOptions<TValue>) {
-  async function handleControlledChange(nextValue: TValue): Promise<boolean> {
+  /** @param nextValue 新字段值；@param isCurrentIntent 取消/新动作时失效的操作守卫。 */
+  async function handleControlledChange(nextValue: TValue, isCurrentIntent: () => boolean = () => true): Promise<boolean> {
     const valid = options.captureWriteGuard?.() ?? (() => true)
     const previousValue = options.getValue()
     let applied = false
     const {dispatch} = useEventDefaults<{change: [nextValue: TValue, previousValue: TValue]}>({
       change: {systemDefault: async (next, previous) => {
-        if (!valid()) return
+        if (!valid() || !isCurrentIntent()) return
         options.syncValue(next)
         options.emitUpdate(next)
         applied = true

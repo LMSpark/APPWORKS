@@ -2507,7 +2507,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T13:03:33.940Z",
+  "generatedAt": "2026-10-30T14:10:48.785Z",
   "models": {
     "ValueRef": {
       "name": "ValueRef",
@@ -3049,7 +3049,7 @@
       "jsdoc": "文件上传/浏览切换动作语义。\n适用于既可能上传，也可能只读浏览的文件字段。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "SparkReadonlyActionTextProps & {\n    /**\n       * 上传目标地址。\n       *\n       * 当值为空或 `#` 时，字段通常会退化为纯浏览模式。\n       */\n    action?: string;\n}",
+        "declarationTypeText": "SparkReadonlyActionTextProps & {\n    /**\n       * 上传目标地址。\n       *\n   * 当值为空或 `#` 时，可编辑态的上传按钮不可用；只读态仍按文件字段的只读浏览能力显示浏览操作。\n       */\n    action?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -3058,14 +3058,14 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /**\n       * 上传目标地址。\n       *\n       * 当值为空或 `#` 时，字段通常会退化为纯浏览模式。\n       */\n    action?: string;\n}"
+            "typeText": "{\n    /**\n       * 上传目标地址。\n       *\n   * 当值为空或 `#` 时，可编辑态的上传按钮不可用；只读态仍按文件字段的只读浏览能力显示浏览操作。\n       */\n    action?: string;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "action",
-              "jsdoc": "上传目标地址。\n当值为空或 `#` 时，字段通常会退化为纯浏览模式。",
+              "jsdoc": "上传目标地址。\n当值为空或 `#` 时，可编辑态的上传按钮不可用；只读态仍按文件字段的只读浏览能力显示浏览操作。",
               "readable": true,
               "writable": false
             }

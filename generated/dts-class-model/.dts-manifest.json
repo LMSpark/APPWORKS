@@ -1809,7 +1809,7 @@
     "packages/spark-component/src/components/fields/actions/useFileFieldActions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/actions/useFileFieldActions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/actions/useFileFieldActions.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:38:13.521Z"
+      "sourceModifiedAt": "2026-10-30T14:09:20.758Z"
     },
     "packages/spark-component/src/components/fields/actions/useSelectorFieldActions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/actions/useSelectorFieldActions.ts",
@@ -1964,12 +1964,12 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts.json",
-      "sourceModifiedAt": "2026-10-18T16:46:39.882Z"
+      "sourceModifiedAt": "2026-10-30T14:02:13.474Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useFileFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFileFieldState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useFileFieldState.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.190Z"
+      "sourceModifiedAt": "2026-10-30T14:09:20.759Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
@@ -1989,7 +1989,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/value/useControlledFieldChange.ts.json",
-      "sourceModifiedAt": "2026-10-10T11:03:19.955Z"
+      "sourceModifiedAt": "2026-10-30T14:09:20.761Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/value/useRangeFilterMode.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/value/useRangeFilterMode.ts",
@@ -2039,7 +2039,7 @@
     "packages/spark-component/src/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/file/FieldFileBrowser/FieldFileBrowser.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.182Z"
+      "sourceModifiedAt": "2026-10-30T14:03:26.664Z"
     },
     "packages/spark-component/src/components/fields/data-components/file/FieldFilePath/FieldFilePath.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldFilePath/FieldFilePath.props.ts",
@@ -2049,7 +2049,7 @@
     "packages/spark-component/src/components/fields/data-components/file/FieldFilePath/FieldFilePath.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldFilePath/FieldFilePath.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/file/FieldFilePath/FieldFilePath.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.183Z"
+      "sourceModifiedAt": "2026-10-30T14:03:26.662Z"
     },
     "packages/spark-component/src/components/fields/data-components/file/FieldImage/FieldImage.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldImage/FieldImage.props.ts",
@@ -2059,7 +2059,7 @@
     "packages/spark-component/src/components/fields/data-components/file/FieldImage/FieldImage.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldImage/FieldImage.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/file/FieldImage/FieldImage.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.185Z"
+      "sourceModifiedAt": "2026-10-30T14:03:26.663Z"
     },
     "packages/spark-component/src/components/fields/data-components/file/FieldUpload/FieldUpload.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldUpload/FieldUpload.props.ts",
@@ -2069,7 +2069,7 @@
     "packages/spark-component/src/components/fields/data-components/file/FieldUpload/FieldUpload.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/file/FieldUpload/FieldUpload.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/file/FieldUpload/FieldUpload.vue.json",
-      "sourceModifiedAt": "2026-10-07T02:30:27.185Z"
+      "sourceModifiedAt": "2026-10-30T14:03:26.660Z"
     },
     "packages/spark-component/src/components/fields/data-components/index.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/index.ts",
@@ -2359,7 +2359,7 @@
     "packages/spark-component/src/components/shared-types.ts": {
       "sourceFile": "packages/spark-component/src/components/shared-types.ts",
       "shardFile": "files/packages/spark-component/src/components/shared-types.ts.json",
-      "sourceModifiedAt": "2026-10-30T13:03:33.940Z"
+      "sourceModifiedAt": "2026-10-30T14:10:48.785Z"
     },
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",
@@ -2384,12 +2384,12 @@
     "packages/spark-component/src/core/capability-keys.ts": {
       "sourceFile": "packages/spark-component/src/core/capability-keys.ts",
       "shardFile": "files/packages/spark-component/src/core/capability-keys.ts.json",
-      "sourceModifiedAt": "2026-10-29T17:22:18.031Z"
+      "sourceModifiedAt": "2026-10-30T14:04:09.114Z"
     },
     "packages/spark-component/src/core/index.ts": {
       "sourceFile": "packages/spark-component/src/core/index.ts",
       "shardFile": "files/packages/spark-component/src/core/index.ts.json",
-      "sourceModifiedAt": "2026-10-29T17:17:02.206Z"
+      "sourceModifiedAt": "2026-10-30T14:04:41.647Z"
     },
     "packages/spark-component/src/core/system/index.ts": {
       "sourceFile": "packages/spark-component/src/core/system/index.ts",
@@ -2429,7 +2429,7 @@
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-29T13:04:30.040Z"
+      "sourceModifiedAt": "2026-10-30T14:04:41.648Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
@@ -2529,7 +2529,7 @@
     "packages/spark-component/src/page/services/buildPageService.ts": {
       "sourceFile": "packages/spark-component/src/page/services/buildPageService.ts",
       "shardFile": "files/packages/spark-component/src/page/services/buildPageService.ts.json",
-      "sourceModifiedAt": "2026-10-07T17:02:32.106Z"
+      "sourceModifiedAt": "2026-10-30T14:10:48.783Z"
     },
     "packages/spark-component/src/page/services/pageLogger.ts": {
       "sourceFile": "packages/spark-component/src/page/services/pageLogger.ts",
@@ -2559,12 +2559,12 @@
     "packages/spark-component/src/runtime/app-services.ts": {
       "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
       "shardFile": "files/packages/spark-component/src/runtime/app-services.ts.json",
-      "sourceModifiedAt": "2026-10-13T21:27:32.460Z"
+      "sourceModifiedAt": "2026-10-30T14:16:54.204Z"
     },
     "packages/spark-component/src/runtime/index.ts": {
       "sourceFile": "packages/spark-component/src/runtime/index.ts",
       "shardFile": "files/packages/spark-component/src/runtime/index.ts.json",
-      "sourceModifiedAt": "2026-10-06T13:43:44.595Z"
+      "sourceModifiedAt": "2026-10-30T14:05:31.851Z"
     },
     "packages/spark-component/src/runtime/script-context-types.ts": {
       "sourceFile": "packages/spark-component/src/runtime/script-context-types.ts",

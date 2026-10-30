@@ -154,6 +154,23 @@
       ],
       "additionalProperties": false,
       "$defs": {
+        "method.captureWriteGuard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureWriteGuard.return": {
+          "type": "object",
+          "title": "() => boolean"
+        },
+        "method.showError.params": {
+          "type": "object",
+          "properties": {
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.showError.return": true,
         "method.browseFiles.params": {
           "type": "object",
           "properties": {
@@ -185,6 +202,10 @@
           "properties": {
             "value": {
               "type": "string"
+            },
+            "isCurrentIntent": {
+              "type": "object",
+              "title": "() => boolean"
             }
           },
           "additionalProperties": false
@@ -237,6 +258,23 @@
       ],
       "additionalProperties": false,
       "$defs": {
+        "method.captureWriteGuard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureWriteGuard.return": {
+          "type": "object",
+          "title": "() => boolean"
+        },
+        "method.showError.params": {
+          "type": "object",
+          "properties": {
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.showError.return": true,
         "method.browseFiles.params": {
           "type": "object",
           "properties": {
@@ -255,6 +293,10 @@
           "properties": {
             "value": {
               "type": "string"
+            },
+            "isCurrentIntent": {
+              "type": "object",
+              "title": "() => boolean"
             }
           },
           "additionalProperties": false
@@ -266,7 +308,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.190Z",
+  "generatedAt": "2026-10-30T14:09:20.759Z",
   "models": {
     "BrowseFilesCommand": {
       "name": "BrowseFilesCommand",
@@ -366,7 +408,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 文件字段展示标题，用作文件选择对话框标题。 */\n    displayLabel: ValueRef<string>;\n    /** 文件字段绑定的数据字段名，上传时作为默认表单字段名。 */\n    fieldName: ValueRef<string>;\n    /** 当前字段原始字符串值，通常是文件名或 URL 串。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 当前页面运行时是否提供文件浏览能力。 */\n    hasBrowseCapability: ValueRef<boolean>;\n    /** 当前页面运行时是否提供文件上传能力。 */\n    hasUploadCapability: ValueRef<boolean>;\n    /** 主按钮优先执行上传还是浏览。 */\n    primaryAction: ValueRef<'upload' | 'browse'>;\n    /** 可编辑态主按钮文本。 */\n    buttonText: ValueRef<NonNullable<SparkPrimaryActionTextProps['buttonText']>>;\n    /** 只读态浏览按钮文本。 */\n    readonlyButtonText: ValueRef<NonNullable<SparkReadonlyActionTextProps['readonlyButtonText']>>;\n    /** 是否允许清空字段值。 */\n    canClear: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 文件上传接口地址或上传动作标识。 */\n    action: ValueRef<NonNullable<SparkFileUploadActionProps['action']>>;\n    /** 文件 MIME 类型或扩展名过滤规则。 */\n    accept: ValueRef<NonNullable<SparkFileFieldProps['accept']>>;\n    /** 是否允许一次选择或上传多个文件。 */\n    multiple: ValueRef<NonNullable<SparkFilePickerFieldProps['multiple']>>;\n    /** 多文件值写回字段时使用的分隔符。 */\n    separator: ValueRef<NonNullable<SparkFileFieldProps['separator']>>;\n    /** 打开文件浏览器并返回用户选择的文件。 */\n    browseFiles: (options: BrowseFilesCommand) => Promise<PageSelectedFile[]>;\n    /** 上传用户选择的文件并返回上传结果。 */\n    uploadFiles: (options: UploadFilesCommand) => Promise<PageUploadedFile[]>;\n    /** 将浏览或上传后的字符串值写回字段。 */\n    updateValue: (value: string) => void | Promise<void>;\n    /** 浏览文件后是否把选择结果写回字段值。 */\n    browseWritesValue?: boolean | undefined;\n    /** 将浏览得到的文件映射成字段值片段。 */\n    getBrowseValue?: ((file: PageSelectedFile) => string) | undefined;\n    /** 将上传结果映射成字段值片段，默认优先使用 url。 */\n    getUploadValue?: ((file: PageUploadedFile) => string) | undefined;\n}",
+        "declarationTypeText": "{\n    /** 文件字段展示标题，用作文件选择对话框标题。 */\n    displayLabel: ValueRef<string>;\n    /** 文件字段绑定的数据字段名，上传时作为默认表单字段名。 */\n    fieldName: ValueRef<string>;\n    /** 当前字段原始字符串值，通常是文件名或 URL 串。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 捕获此次文件操作开始时的 DataView、行、字段和权限身份。 */\n    captureWriteGuard: () => () => boolean;\n    /** 将文件服务失败显示给当前页面。 */\n    showError: (error: unknown) => void;\n    /** 当前页面运行时是否提供文件浏览能力。 */\n    hasBrowseCapability: ValueRef<boolean>;\n    /** 当前页面运行时是否提供文件上传能力。 */\n    hasUploadCapability: ValueRef<boolean>;\n    /** 主按钮优先执行上传还是浏览。 */\n    primaryAction: ValueRef<'upload' | 'browse'>;\n    /** 可编辑态主按钮文本。 */\n    buttonText: ValueRef<NonNullable<SparkPrimaryActionTextProps['buttonText']>>;\n    /** 只读态浏览按钮文本。 */\n    readonlyButtonText: ValueRef<NonNullable<SparkReadonlyActionTextProps['readonlyButtonText']>>;\n    /** 是否允许清空字段值。 */\n    canClear: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 文件上传接口地址或上传动作标识。 */\n    action: ValueRef<NonNullable<SparkFileUploadActionProps['action']>>;\n    /** 文件 MIME 类型或扩展名过滤规则。 */\n    accept: ValueRef<NonNullable<SparkFileFieldProps['accept']>>;\n    /** 是否允许一次选择或上传多个文件。 */\n    multiple: ValueRef<NonNullable<SparkFilePickerFieldProps['multiple']>>;\n    /** 多文件值写回字段时使用的分隔符。 */\n    separator: ValueRef<NonNullable<SparkFileFieldProps['separator']>>;\n    /** 打开文件浏览器并返回用户选择的文件。 */\n    browseFiles: (options: BrowseFilesCommand) => Promise<PageSelectedFile[]>;\n    /** 上传用户选择的文件并返回上传结果。 */\n    uploadFiles: (options: UploadFilesCommand) => Promise<PageUploadedFile[]>;\n    /** 将浏览或上传后的字符串值写回字段。 */\n    updateValue: (value: string, isCurrentIntent?: () => boolean) => void | Promise<void>;\n    /** 浏览文件后是否把选择结果写回字段值。 */\n    browseWritesValue?: boolean | undefined;\n    /** 将浏览得到的文件映射成字段值片段。 */\n    getBrowseValue?: ((file: PageSelectedFile) => string) | undefined;\n    /** 将上传结果映射成字段值片段，默认优先使用 url。 */\n    getUploadValue?: ((file: PageUploadedFile) => string) | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -474,6 +516,42 @@
           ],
           "methods": [
             {
+              "name": "captureWriteGuard",
+              "jsdoc": "捕获此次文件操作开始时的 DataView、行、字段和权限身份。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "showError",
+              "jsdoc": "将文件服务失败显示给当前页面。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "browseFiles",
               "jsdoc": "打开文件浏览器并返回用户选择的文件。",
               "parameters": [
@@ -539,6 +617,26 @@
                     "type": "intrinsic",
                     "name": "string"
                   }
+                },
+                {
+                  "name": "isCurrentIntent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -575,7 +673,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 文件字段展示标题，用作文件选择对话框标题。 */\n    displayLabel: ValueRef<string>;\n    /** 当前字段原始字符串值。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 当前页面运行时是否提供文件浏览能力。 */\n    hasBrowseCapability: ValueRef<boolean>;\n    /** 文件 MIME 类型或扩展名过滤规则。 */\n    accept: ValueRef<NonNullable<SparkFileFieldProps['accept']>>;\n    /** 是否允许一次选择多个文件。 */\n    multiple: ValueRef<NonNullable<SparkFilePickerFieldProps['multiple']>>;\n    /** 多文件值写回字段时使用的分隔符。 */\n    separator: ValueRef<NonNullable<SparkFileFieldProps['separator']>>;\n    /** 是否允许清空字段值。 */\n    canClear: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 打开文件浏览器并返回用户选择的文件。 */\n    browseFiles: (options: BrowseFilesCommand) => Promise<PageSelectedFile[]>;\n    /** 将浏览后的文件名字符串写回字段。 */\n    updateValue: (value: string) => void | Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 文件字段展示标题，用作文件选择对话框标题。 */\n    displayLabel: ValueRef<string>;\n    /** 当前字段原始字符串值。 */\n    currentRawStringValue: ValueRef<string>;\n    /** 当前字段是否允许写入。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** 捕获此次文件操作开始时的 DataView、行、字段和权限身份。 */\n    captureWriteGuard: () => () => boolean;\n    /** 将文件服务失败显示给当前页面。 */\n    showError: (error: unknown) => void;\n    /** 当前页面运行时是否提供文件浏览能力。 */\n    hasBrowseCapability: ValueRef<boolean>;\n    /** 文件 MIME 类型或扩展名过滤规则。 */\n    accept: ValueRef<NonNullable<SparkFileFieldProps['accept']>>;\n    /** 是否允许一次选择多个文件。 */\n    multiple: ValueRef<NonNullable<SparkFilePickerFieldProps['multiple']>>;\n    /** 多文件值写回字段时使用的分隔符。 */\n    separator: ValueRef<NonNullable<SparkFileFieldProps['separator']>>;\n    /** 是否允许清空字段值。 */\n    canClear: ValueRef<NonNullable<SparkFieldSemanticProps['clearable']>>;\n    /** 打开文件浏览器并返回用户选择的文件。 */\n    browseFiles: (options: BrowseFilesCommand) => Promise<PageSelectedFile[]>;\n    /** 将浏览后的文件名字符串写回字段。 */\n    updateValue: (value: string, isCurrentIntent?: () => boolean) => void | Promise<void>;\n}",
         "members": {
           "attributes": [
             {
@@ -629,6 +727,42 @@
           ],
           "methods": [
             {
+              "name": "captureWriteGuard",
+              "jsdoc": "捕获此次文件操作开始时的 DataView、行、字段和权限身份。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "showError",
+              "jsdoc": "将文件服务失败显示给当前页面。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
               "name": "browseFiles",
               "jsdoc": "打开文件浏览器并返回用户选择的文件。",
               "parameters": [
@@ -665,6 +799,26 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "isCurrentIntent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

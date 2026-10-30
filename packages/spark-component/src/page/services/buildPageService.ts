@@ -1,7 +1,7 @@
 /**
  * @module @spark-appworks/spark-component:page/services/buildPageService
  * 职责：提供 build Page Service 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。
- * 边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。
+ * 边界：承接页面宿主交互与默认文件传输；文件字段值仍由标准字段链写入 DataView，二进制传输不是 DataSet 文件保存。
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 /**
@@ -25,6 +25,7 @@ import type {
   PageDialogResult,
 } from '../../core/capability-keys.js'
 import { createRequest, isRecord, isRequestError } from '@spark-appworks/spark-utils'
+import { PageUploadError } from '../../runtime/app-services.js'
 import { pageLogger } from './pageLogger'
 
 /** 内部实现：ElMessageBox.confirm() 取消时抛出 'cancel' 字符串或 { action: 'cancel' }，用于区分真正的异常。这是 PageServiceCapability 内部实现细节，script.js 不能直接访问 ElMessageBox（已从沙箱移除）。 */
@@ -166,13 +167,27 @@ async function uploadSelectedFiles(options: PageUploadFilesOptions): Promise<Pag
         ...(options.withCredentials === true ? { withCredentials: true } : {}),
       })
     } catch (err) {
-      responseData = isRequestError(err) ? err.response : err
+      const response = isRequestError(err) ? err.response : err
+      throw new PageUploadError({
+        message: `文件上传未确认: ${file.name}`,
+        confirmedFiles: results,
+        unconfirmedFile: mapFile(file),
+        response,
+      })
     }
-    const uploadedUrl = extractUploadedUrl(responseData)
+    const uploadedUrl = extractUploadedUrl(responseData)?.trim()
+    if (!uploadedUrl) {
+      throw new PageUploadError({
+        message: `文件上传未返回有效地址: ${file.name}`,
+        confirmedFiles: results,
+        unconfirmedFile: mapFile(file),
+        response: responseData,
+      })
+    }
     results.push({
       ...mapFile(file),
       response: responseData,
-      ...(uploadedUrl !== undefined ? { url: uploadedUrl } : {}),
+      url: uploadedUrl,
     })
   }
 

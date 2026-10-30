@@ -374,7 +374,7 @@ export type SparkFileUploadActionProps = SparkReadonlyActionTextProps & {
   /**
      * 上传目标地址。
      *
-     * 当值为空或 `#` 时，字段通常会退化为纯浏览模式。
+ * 当值为空或 `#` 时，可编辑态的上传按钮不可用；只读态仍按文件字段的只读浏览能力显示浏览操作。
      */
   action?: string}
 

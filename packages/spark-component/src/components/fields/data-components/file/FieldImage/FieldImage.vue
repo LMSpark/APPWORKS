@@ -85,9 +85,10 @@ const {
   currentRawStringValue,
   isCurrentFieldEditable,
   currentDisplayValue,
+  captureWriteGuard,
 } = permission
 
-const { hasBrowseCapability, hasUploadCapability, primaryAction, browseFiles, uploadFiles } = useFileFieldActions({
+const { hasBrowseCapability, hasUploadCapability, primaryAction, browseFiles, uploadFiles, showError } = useFileFieldActions({
   pageService,
   isEditable: isCurrentFieldEditable,
 })
@@ -96,8 +97,8 @@ function showImage(value: string): boolean {
   return !!value && value !== '••••'
 }
 
-async function updateValue(value: string): Promise<void> {
-  await handleControlledChange(value)
+async function updateValue(value: string, isCurrentIntent?: () => boolean): Promise<void> {
+  await handleControlledChange(value, isCurrentIntent)
 }
 
 const {
@@ -111,6 +112,8 @@ const {
   fieldName,
   currentRawStringValue,
   isCurrentFieldEditable,
+  captureWriteGuard,
+  showError,
   hasBrowseCapability,
   hasUploadCapability,
   primaryAction,

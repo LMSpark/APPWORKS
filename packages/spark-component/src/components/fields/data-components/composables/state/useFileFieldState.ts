@@ -50,6 +50,10 @@ type UploadBrowseFieldStateOptions = {
   currentRawStringValue: ValueRef<string>
   /** 当前字段是否允许写入。 */
   isCurrentFieldEditable: ValueRef<boolean>
+  /** 捕获此次文件操作开始时的 DataView、行、字段和权限身份。 */
+  captureWriteGuard: () => () => boolean
+  /** 将文件服务失败显示给当前页面。 */
+  showError: (error: unknown) => void
   /** 当前页面运行时是否提供文件浏览能力。 */
   hasBrowseCapability: ValueRef<boolean>
   /** 当前页面运行时是否提供文件上传能力。 */
@@ -75,7 +79,7 @@ type UploadBrowseFieldStateOptions = {
   /** 上传用户选择的文件并返回上传结果。 */
   uploadFiles: (options: UploadFilesCommand) => Promise<PageUploadedFile[]>
   /** 将浏览或上传后的字符串值写回字段。 */
-  updateValue: (value: string) => void | Promise<void>
+  updateValue: (value: string, isCurrentIntent?: () => boolean) => void | Promise<void>
   /** 浏览文件后是否把选择结果写回字段值。 */
   browseWritesValue?: boolean | undefined
   /** 将浏览得到的文件映射成字段值片段。 */
@@ -92,6 +96,10 @@ type FileBrowserFieldStateOptions = {
   currentRawStringValue: ValueRef<string>
   /** 当前字段是否允许写入。 */
   isCurrentFieldEditable: ValueRef<boolean>
+  /** 捕获此次文件操作开始时的 DataView、行、字段和权限身份。 */
+  captureWriteGuard: () => () => boolean
+  /** 将文件服务失败显示给当前页面。 */
+  showError: (error: unknown) => void
   /** 当前页面运行时是否提供文件浏览能力。 */
   hasBrowseCapability: ValueRef<boolean>
   /** 文件 MIME 类型或扩展名过滤规则。 */
@@ -105,43 +113,71 @@ type FileBrowserFieldStateOptions = {
   /** 打开文件浏览器并返回用户选择的文件。 */
   browseFiles: (options: BrowseFilesCommand) => Promise<PageSelectedFile[]>
   /** 将浏览后的文件名字符串写回字段。 */
-  updateValue: (value: string) => void | Promise<void>
+  updateValue: (value: string, isCurrentIntent?: () => boolean) => void | Promise<void>
+}
+
+type FileFieldIntent = Readonly<{
+  isCurrent: () => boolean
+  isLatest: () => boolean
+}>
+
+function createFileFieldIntentTracker(captureWriteGuard: () => () => boolean): () => FileFieldIntent {
+  let revision = 0
+  return () => {
+    const ownRevision = ++revision
+    const isBoundWriteCurrent = captureWriteGuard()
+    return {
+      isCurrent: () => revision === ownRevision && isBoundWriteCurrent(),
+      isLatest: () => revision === ownRevision,
+    }
+  }
 }
 
 export function useUploadBrowseFieldState(options: UploadBrowseFieldStateOptions) {
+  const captureIntent = createFileFieldIntentTracker(options.captureWriteGuard)
+
   const canUpload = computed(() => options.hasUploadCapability.value && options.action.value.trim().length > 0 && options.action.value !== '#')
   const canPrimaryAction = computed(() => (options.primaryAction.value === 'upload' ? canUpload.value : options.hasBrowseCapability.value))
   const primaryActionText = computed(() => (options.primaryAction.value === 'upload' ? options.buttonText.value : options.readonlyButtonText.value))
   const showClearButton = computed(() => options.canClear.value && options.isCurrentFieldEditable.value && options.currentRawStringValue.value.length > 0)
 
   async function handleBrowse(): Promise<void> {
-    const files = await options.browseFiles({
-      title: options.displayLabel.value,
-      accept: options.accept.value,
-      multiple: options.multiple.value,
-      currentValue: options.currentRawStringValue.value,
-    })
+    const intent = captureIntent()
+    try {
+      const files = await options.browseFiles({
+        title: options.displayLabel.value,
+        accept: options.accept.value,
+        multiple: options.multiple.value,
+        currentValue: options.currentRawStringValue.value,
+      })
 
-    if (options.browseWritesValue !== true || !options.isCurrentFieldEditable.value) return
-    const mapper = options.getBrowseValue ?? (file => file.name)
-    const nextValue = files.map(mapper).join(options.separator.value)
-    if (nextValue.length > 0) {
-      await options.updateValue(nextValue)
+      if (!intent.isCurrent() || options.browseWritesValue !== true || !options.isCurrentFieldEditable.value) return
+      const mapper = options.getBrowseValue ?? (file => file.name)
+      const nextValue = files.map(mapper).join(options.separator.value)
+      if (nextValue.length > 0) await options.updateValue(nextValue, intent.isCurrent)
+    } catch (error) {
+      options.showError(error)
     }
   }
 
   async function handleUpload(): Promise<void> {
-    const files = await options.uploadFiles({
-      action: options.action.value,
-      accept: options.accept.value,
-      multiple: options.multiple.value,
-      fieldName: options.fieldName.value || 'file',
-      currentValue: options.currentRawStringValue.value,
-    })
-    if (files.length === 0) return
-    const mapper = options.getUploadValue ?? (file => file.url ?? file.name)
-    const nextValue = files.map(mapper).join(options.separator.value)
-    await options.updateValue(nextValue)
+    const intent = captureIntent()
+    if (!intent.isCurrent()) return
+    try {
+      const files = await options.uploadFiles({
+        action: options.action.value,
+        accept: options.accept.value,
+        multiple: options.multiple.value,
+        fieldName: options.fieldName.value || 'file',
+        currentValue: options.currentRawStringValue.value,
+      })
+      if (!intent.isCurrent() || files.length === 0) return
+      const mapper = options.getUploadValue ?? (file => file.url ?? file.name)
+      const nextValue = files.map(mapper).join(options.separator.value)
+      await options.updateValue(nextValue, intent.isCurrent)
+    } catch (error) {
+      options.showError(error)
+    }
   }
 
   function handlePrimaryAction(): void {
@@ -152,8 +188,13 @@ export function useUploadBrowseFieldState(options: UploadBrowseFieldStateOptions
     void handleUpload()
   }
 
-  function clearValue(): void {
-    void options.updateValue('')
+  async function clearValue(): Promise<void> {
+    const intent = captureIntent()
+    try {
+      await options.updateValue('', intent.isCurrent)
+    } catch (error) {
+      options.showError(error)
+    }
   }
 
   return {
@@ -169,25 +210,35 @@ export function useUploadBrowseFieldState(options: UploadBrowseFieldStateOptions
 }
 
 export function useFileBrowserFieldState(options: FileBrowserFieldStateOptions) {
+  const captureIntent = createFileFieldIntentTracker(options.captureWriteGuard)
+
   const showClearButton = computed(() => options.canClear.value && options.isCurrentFieldEditable.value && options.currentRawStringValue.value.length > 0)
 
   async function openFileDialog(): Promise<void> {
-    const files = await options.browseFiles({
-      title: options.displayLabel.value,
-      accept: options.accept.value,
-      multiple: options.multiple.value,
-      currentValue: options.currentRawStringValue.value,
-    })
+    const intent = captureIntent()
+    try {
+      const files = await options.browseFiles({
+        title: options.displayLabel.value,
+        accept: options.accept.value,
+        multiple: options.multiple.value,
+        currentValue: options.currentRawStringValue.value,
+      })
 
-    if (!options.isCurrentFieldEditable.value) return
-    const nextValue = files.map(file => file.name).join(options.separator.value)
-    if (nextValue.length > 0) {
-      await options.updateValue(nextValue)
+      if (!intent.isCurrent() || !options.isCurrentFieldEditable.value) return
+      const nextValue = files.map(file => file.name).join(options.separator.value)
+      if (nextValue.length > 0) await options.updateValue(nextValue, intent.isCurrent)
+    } catch (error) {
+      if (intent.isLatest()) options.showError(error)
     }
   }
 
-  function clearValue(): void {
-    void options.updateValue('')
+  async function clearValue(): Promise<void> {
+    const intent = captureIntent()
+    try {
+      await options.updateValue('', intent.isCurrent)
+    } catch (error) {
+      if (intent.isLatest()) options.showError(error)
+    }
   }
 
   return {

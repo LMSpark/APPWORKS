@@ -34,7 +34,11 @@ ClassModel知识来自源码类型及JSDoc，经正式生成器投影到`generat
 
 `RendererTabs/RendererTabPane`通过`LayoutDataContextProps`支持`dataViewKey/dataMember/dataField`，复用当前PageRuntime的原DataView，不主动查询或另建编辑状态。未显式绑定时继承父布局的视图和行；显式绑定默认取`currentRow`，集合或值成员不会被替换成当前行。切换命名视图会重建消费子树，切换页签则保留已挂载内容及草稿。ClassModel在`containers/layout`目录查询`r-tabs/r-tab-pane`，进入`RTabsProps/RTabPaneProps`后沿声明关系查询共享绑定指南；`onTabChange`用action guide查询。面板的配置children保留网格跨度，原生默认slot作为全宽内容区。
 
-`RendererDialog`也复用`LayoutDataContextProps`，查询`r-dialog → RDialogProps → LayoutDataContextProps`核对绑定。弹窗内的表单与表格继续消费同一运行实例；关闭弹窗只改变可见性，确认、取消和持久化由业务流程分别处理。原生默认slot占满内容宽度，配置children仍按网格布局。
+`RendererDialog/RendererDrawer`也复用`LayoutDataContextProps`，查询对应组件Props并沿继承关系核对绑定。弹窗内的表单与表格继续消费同一运行实例；关闭弹窗只改变可见性，确认、取消和持久化由业务流程分别处理。Dialog原生默认slot占满内容宽度，配置children仍按网格布局。
+
+`RendererHeader/RendererFooter/RendererTail`独立使用和作为结构化区域使用时，均消费`LayoutDataContextProps`。在ClassModel的`containers/zones`目录定位`r-header/r-footer/r-tail`，沿`RHeaderProps/RFooterProps/RTailProps → LayoutDataContextProps`查完整视图键、数据成员和字段指南。Dialog、Drawer、Section的头尾区域及Toolbar的tail必须经过对应标准区域组件，不能只展开children而丢掉区域绑定。省略绑定继承父视图及行，显式绑定切换到指定空间/模型/视图；这些容器的原生页眉/页脚slot也在对应区域上下文内。视图实例改变时重建区域消费子树，行指针改变仍使用原视图的编辑状态。Toolbar尾区的beforeRender在尾区实际数据上下文执行，保留工具栏布局配置。
+
+标准Form/Detail未指定`dataSource/dataViewKey`时继承父布局的原DataView，再按自身`contextDataMember/contextDataField`选择表单/详情上下文；不建立区域或表单私有草稿。字段读写、权限、取消和提交仍沿该DataView及其DataSet，布局和区域组件不新增保存入口。
 
 ## 最小组件
 

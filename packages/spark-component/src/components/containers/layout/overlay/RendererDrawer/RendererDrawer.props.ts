@@ -6,14 +6,14 @@
  */
 import type {
   SparkGridLayoutProps,
-  SparkNodeProps,
   SparkVisibilityContainerProps,
 } from '../../../../shared-types'
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import type { RFooterProps } from '../../../zones/RendererFooter.types'
 import type { RHeaderProps } from '../../../zones/RendererHeader.types'
 
 /** RDrawer Props 的属性契约。 */
-export type RDrawerProps = SparkNodeProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {
+export type RDrawerProps = LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {
   /** 结构化头部 */
     header?: RHeaderProps
     /** 结构化底部 */

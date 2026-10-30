@@ -93,6 +93,7 @@ export function useFormDetailContainer(
   const dataState = useContainerDataSource({
     externalDataSource: toRef(props, 'dataSource'),
     dataViewKey: toRef(props, 'dataViewKey'),
+    inheritedDataSource: () => sparkConsume(DATA_SOURCE),
     contextDataMember: computed(() => props.contextDataMember ?? DataMember.CurrentRow),
     contextDataField: toRef(props, 'contextDataField'),
     sparkConsume,

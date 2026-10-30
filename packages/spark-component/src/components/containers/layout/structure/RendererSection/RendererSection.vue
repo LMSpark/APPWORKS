@@ -14,12 +14,9 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
           <div v-if="description" class="renderer-section-description">{{ description }}</div>
         </div>
         <div v-if="hasHeaderRight" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
-          <SparkComponentRenderer
-            v-for="(action, index) in headerActionConfigs"
-            :key="nodeId(action) ?? `r-section-action-${index}`"
-            :config="action"
-          />
-          <slot name="header-actions" v-bind="getHeaderScope()" />
+          <RendererHeader v-bind="props.header" :children="headerActionConfigs">
+            <slot name="header-actions" v-bind="getHeaderScope()" />
+          </RendererHeader>
           <button
             v-if="collapsible"
             type="button"
@@ -49,18 +46,15 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
 
   <div v-else :key="scopeKey" :class="['renderer-section', { 'renderer-section--bordered': bordered }]">
     <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
-    <div v-if="hasHeader || collapsible" :class="['renderer-section-header', headerClassValue]" @click="handleHeaderClick">
+      <div v-if="hasHeader || collapsible" :class="['renderer-section-header', headerClassValue]" @click="handleHeaderClick">
       <div class="renderer-section-heading">
         <div v-if="title" class="renderer-section-title">{{ title }}</div>
         <div v-if="description" class="renderer-section-description">{{ description }}</div>
       </div>
       <div v-if="hasHeaderRight" :class="['renderer-section-actions', headerActionsClassValue]" @click.stop>
-        <SparkComponentRenderer
-          v-for="(action, index) in headerActionConfigs"
-          :key="nodeId(action) ?? `r-section-action-${index}`"
-          :config="action"
-        />
-        <slot name="header-actions" v-bind="getHeaderScope()" />
+        <RendererHeader v-bind="props.header" :children="headerActionConfigs">
+          <slot name="header-actions" v-bind="getHeaderScope()" />
+        </RendererHeader>
         <button
           v-if="collapsible"
           type="button"
@@ -96,6 +90,7 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
  */
 import { computed, ref, useSlots, watch } from 'vue'
 import { SparkComponentRenderer } from '../../../../internal'
+import RendererHeader from '../../../zones/RendererHeader.vue'
 import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import { useContainerGrid } from '../../../runtime/container-layout'

@@ -5,12 +5,13 @@
 AI用途：需要理解 renderer header 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div v-if="children.length > 0" class="renderer-header">
+  <div v-if="children.length > 0 || $slots['default']" :key="scopeKey" :class="['renderer-header', props.class]" :style="props.width === undefined ? undefined : {width: typeof props.width === 'number' ? `${props.width}px` : props.width}">
     <SparkComponentRenderer
       v-for="(child, i) in children"
       :key="nodeId(child) ?? `r-header-${i}`"
       :config="child"
     />
+    <slot />
   </div>
 </template>
 
@@ -22,12 +23,14 @@ import { computed } from 'vue'
 import { SparkComponentRenderer } from '../../internal'
 import type { RHeaderProps as Props } from './RendererHeader.types'
 import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
+import { useLayoutDataContext } from '../runtime/layout-data-context'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-header',
 })
 
 const children = computed(() => getSparkNodeChildren(props.children))
+const {scopeKey} = useLayoutDataContext(props)
 </script>
 
 <style scoped>

@@ -452,6 +452,8 @@ export type {
 | `r-footer` | RendererFooter | 容器底部操作栏（div 弹性布局，非 el-footer） |
 | `r-tail` | RendererTail | 尾部扩展区 |
 
+`r-header/r-footer/r-tail`通过`LayoutDataContextProps`接受`dataViewKey/dataMember/dataField`，独立渲染和作为容器结构化区域时使用同一绑定链。省略绑定继承父视图和行；显式绑定按完整`空间ID@模型名称@视图ID`定位。页眉/页脚的原生slot与配置children共享上下文，视图变化释放旧消费子树。区域不另行查询或保存；嵌套Form/Detail可继承其原DataView，字段编辑及权限继续由SPARK data承接。Toolbar尾区保留工具栏间距、换行与beforeRender合同。
+
 ### 字段组件（32 类型）
 
 表单字段，支持 DataView 双向绑定 + 权限渲染。

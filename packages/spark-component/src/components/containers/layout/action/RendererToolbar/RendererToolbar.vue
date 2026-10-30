@@ -25,17 +25,13 @@ AI用途：需要理解 renderer toolbar 的实际渲染结构、slot/toolbar/�
       />
     </div>
 
-    <div
-      v-if="endChildren.length > 0"
-      :class="['renderer-toolbar-lane', 'renderer-toolbar-lane--end', props.tail?.class]"
+    <RendererTail
+      v-if="tailChildren.length > 0"
+      v-bind="props.tail"
+      :class="`renderer-toolbar-lane renderer-toolbar-lane--end ${props.tail?.class ?? ''}`"
       :style="[laneStyle, { justifyContent: 'end' }]"
-    >
-      <SparkComponentRenderer
-        v-for="(child, index) in endChildren"
-        :key="nodeId(child) ?? `r-toolbar-end-${index}`"
-        :config="child"
-      />
-    </div>
+      :children="tailChildren"
+    />
   </div>
 </template>
 
@@ -45,6 +41,7 @@ AI用途：需要理解 renderer toolbar 的实际渲染结构、slot/toolbar/�
  */
 import { computed, ref } from 'vue'
 import { SparkComponentRenderer } from '../../../../internal'
+import RendererTail from '../../../zones/RendererTail.vue'
 import { type SparkNode, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../../../support/beforeRender'
 import type { RToolbarProps } from './RendererToolbar.types'
@@ -104,10 +101,7 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
 }
 
 // ============================================================================
-// 5) 分区子节点构建
-//    - startChildren: 常规 children
-//    - endChildren: tail 区 children
-//    两者流程一致：提取 SparkNode -> beforeRender 处理 -> visible 过滤
+// 5) 主区由 Toolbar 处理；尾区由 RendererTail 在自己的绑定上下文中处理。
 // ============================================================================
 const startChildren = computed(() =>
   getSparkNodeChildren(props.children)
@@ -115,11 +109,7 @@ const startChildren = computed(() =>
     .filter((node) => nodeInputProp(node, 'visible') !== false)
 )
 
-const endChildren = computed(() =>
-  getSparkNodeChildren(props.tail?.children)
-    .map(resolveToolbarActionNode)
-    .filter((node) => nodeInputProp(node, 'visible') !== false)
-)
+const tailChildren = computed(() => getSparkNodeChildren(props.tail?.children))
 
 // ============================================================================
 // 6) 布局样式计算
@@ -128,7 +118,7 @@ const endChildren = computed(() =>
 // ============================================================================
 const rootStyle = computed<Record<string, string>>(() => ({
   ...(props.wrap === true ? {display: 'flex', flexWrap: 'wrap', rowGap: typeof props.zoneGap === 'number' ? `${props.zoneGap}px` : (props.zoneGap ?? '12px')} : {
-    display: 'grid', gridTemplateColumns: endChildren.value.length > 0 ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)',
+    display: 'grid',
   }),
   columnGap: typeof props.zoneGap === 'number' ? `${props.zoneGap}px` : (props.zoneGap ?? '12px'),
   alignItems: props.align ?? 'center',
@@ -147,6 +137,14 @@ const laneStyle = computed<Record<string, string>>(() => ({
 <style scoped>
 .renderer-toolbar {
   width: 100%;
+}
+
+.renderer-toolbar:not(.renderer-toolbar--wrap) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.renderer-toolbar:not(.renderer-toolbar--wrap):not(:has(> .renderer-toolbar-lane--end)) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .renderer-toolbar-lane {

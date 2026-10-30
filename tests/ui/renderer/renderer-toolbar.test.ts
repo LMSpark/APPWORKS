@@ -619,6 +619,21 @@ const SparkActionStub = defineComponent(
 )
 
 describe('RendererToolbar integration', () => {
+  it('evaluates tail beforeRender before filtering visibility', async () => {
+    const reveal = vi.fn(() => ({visible: true}))
+    const wrapper = mount(RendererToolbar, {props: {tail: {children: [
+      {type: 'tail-action', props: {visible: false, onBeforeRender: reveal}},
+    ]}}, global: {stubs: {SparkComponentRenderer: SparkActionStub}}})
+    try {
+      expect(reveal).toHaveBeenCalled()
+      expect(wrapper.find('.renderer-toolbar-lane--end .spark-action-stub').exists()).toBe(true)
+      await wrapper.setProps({tail: {children: [
+        {type: 'tail-action', props: {visible: true, onBeforeRender: () => ({visible: false})}},
+      ]}})
+      expect(wrapper.find('.renderer-toolbar-lane--end').exists()).toBe(false)
+    } finally {wrapper.unmount()}
+  })
+
   it('uses defaults for unassigned properties and preserves explicit zero spacing', async () => {
     const wrapper = mount(RendererToolbar, {props: {children: [{type: 'main'}]},
       global: {stubs: {SparkComponentRenderer: SparkActionStub}}})

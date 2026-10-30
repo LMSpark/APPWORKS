@@ -27,13 +27,10 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
     <template v-if="hasHeader" #header>
       <div :class="['renderer-dialog-header', headerClassValue]">
         <div class="renderer-dialog-title">{{ resolvedTitle }}</div>
-        <div v-if="hasHeaderActions" :class="['renderer-dialog-header-actions', headerActionsClassValue]">
-          <SparkComponentRenderer
-            v-for="(action, index) in headerActionConfigs"
-            :key="nodeId(action) ?? `r-dialog-header-${index}`"
-            :config="action"
-          />
-          <slot name="header-actions" v-bind="getHeaderScope()" />
+        <div v-if="hasHeaderActions" :key="scopeKey" :class="['renderer-dialog-header-actions', headerActionsClassValue]">
+          <RendererHeader v-bind="props.header" :children="headerActionConfigs">
+            <slot name="header-actions" v-bind="getHeaderScope()" />
+          </RendererHeader>
         </div>
       </div>
     </template>
@@ -54,13 +51,10 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
     </div>
 
     <template v-if="showFooter" #footer>
-      <div :class="['renderer-dialog-footer', footerClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in footerActionConfigs"
-          :key="nodeId(action) ?? `r-dialog-footer-${index}`"
-          :config="action"
-        />
-        <slot name="footer" v-bind="getFooterScope()" />
+      <div :key="scopeKey" :class="['renderer-dialog-footer', footerClassValue]">
+        <RendererFooter v-bind="props.footer" :children="footerActionConfigs">
+          <slot name="footer" v-bind="getFooterScope()" />
+        </RendererFooter>
       </div>
     </template>
   </FullscreenDialog>
@@ -74,6 +68,8 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
  */
 import { computed, getCurrentInstance, useSlots } from 'vue'
 import { SparkComponentRenderer } from '../../../../internal'
+import RendererHeader from '../../../zones/RendererHeader.vue'
+import RendererFooter from '../../../zones/RendererFooter.vue'
 import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import type { RDialogProps } from './RendererDialog.props'

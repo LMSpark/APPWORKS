@@ -5,7 +5,7 @@
 AI用途：需要理解 renderer tail 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div v-if="children.length > 0" class="renderer-tail">
+  <div v-if="children.length > 0" :key="scopeKey" :class="['renderer-tail', props.class]" :style="props.width === undefined ? undefined : {width: typeof props.width === 'number' ? `${props.width}px` : props.width}">
     <SparkComponentRenderer
       v-for="(child, i) in children"
       :key="nodeId(child) ?? `r-tail-${i}`"
@@ -18,16 +18,41 @@ AI用途：需要理解 renderer tail 的实际渲染结构、slot/toolbar/状�
 /**
  * @description 尾部组件，在 r-toolbar 中作为工具栏末尾区域提取渲染。
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { SparkComponentRenderer } from '../../internal'
 import type { RTailProps as Props } from './RendererTail.types'
-import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
+import { getSparkNodeChildren, nodeId, nodeInputProp, type SparkNode } from '@spark-appworks/spark-data'
+import { useLayoutDataContext } from '../runtime/layout-data-context'
+import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../support/beforeRender'
+import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-tail',
 })
 
-const children = computed(() => getSparkNodeChildren(props.children))
+const {resolvedView, row, scopeKey} = useLayoutDataContext(props)
+const reactiveVersion = ref(0)
+useDataViewEventBridge({
+  resolvedView,
+  onCurrentRowChanged: () => {reactiveVersion.value += 1},
+  onSelectedRowsChanged: () => {reactiveVersion.value += 1},
+  onRowsChanged: () => {reactiveVersion.value += 1},
+})
+
+function resolveActionNode(node: SparkNode): SparkNode {
+  void reactiveVersion.value
+  const result = resolveNodeBeforeRender(node, {
+    row: row.value ?? undefined,
+    data: row.value ?? undefined,
+    dataSource: resolvedView.value,
+    host: {type: 'r-toolbar'},
+  })
+  return mergeNodeBeforeRenderProps(node, result.propsPatch, {markResolved: true})
+}
+
+const children = computed(() => getSparkNodeChildren(props.children)
+  .map(resolveActionNode)
+  .filter(node => nodeInputProp(node, 'visible') !== false))
 </script>
 
 <style scoped>

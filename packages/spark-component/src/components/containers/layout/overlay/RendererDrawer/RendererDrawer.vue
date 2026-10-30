@@ -16,18 +16,16 @@ AI用途：需要理解 renderer drawer 的实际渲染结构、slot/toolbar/状
     <template v-if="hasHeader" #header>
       <div :class="['renderer-drawer-header', headerClassValue]">
         <div class="renderer-drawer-title">{{ resolvedTitle }}</div>
-        <div v-if="hasHeaderActions" :class="['renderer-drawer-header-actions', headerActionsClassValue]">
-          <SparkComponentRenderer
-            v-for="(action, index) in headerActionConfigs"
-            :key="nodeId(action) ?? `r-drawer-header-${index}`"
-            :config="action"
-          />
-          <slot name="header-actions" v-bind="getHeaderScope()" />
+        <div v-if="hasHeaderActions" :key="scopeKey" :class="['renderer-drawer-header-actions', headerActionsClassValue]">
+          <RendererHeader v-bind="props.header" :children="headerActionConfigs">
+            <slot name="header-actions" v-bind="getHeaderScope()" />
+          </RendererHeader>
         </div>
       </div>
     </template>
 
-    <div :class="['renderer-drawer-body', bodyClass]" :style="gridStyle">
+    <div :key="scopeKey" :class="['renderer-drawer-body', bodyClass]" :style="gridStyle">
+        <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
         <div
           v-for="(child, index) in gridChildren"
           :key="nodeId(child) ?? `r-drawer-child-${index}`"
@@ -40,13 +38,10 @@ AI用途：需要理解 renderer drawer 的实际渲染结构、slot/toolbar/状
     </div>
 
     <template v-if="showFooter" #footer>
-      <div :class="['renderer-drawer-footer', footerClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in footerActionConfigs"
-          :key="nodeId(action) ?? `r-drawer-footer-${index}`"
-          :config="action"
-        />
-        <slot name="footer" v-bind="getFooterScope()" />
+      <div :key="scopeKey" :class="['renderer-drawer-footer', footerClassValue]">
+        <RendererFooter v-bind="props.footer" :children="footerActionConfigs">
+          <slot name="footer" v-bind="getFooterScope()" />
+        </RendererFooter>
       </div>
     </template>
   </el-drawer>
@@ -59,7 +54,10 @@ AI用途：需要理解 renderer drawer 的实际渲染结构、slot/toolbar/状
  * @notes 头部动作区与底部区域通过结构化 `header` / `footer` 声明
  */
 import { computed, getCurrentInstance, useSlots } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
+import RendererHeader from '../../../zones/RendererHeader.vue'
+import RendererFooter from '../../../zones/RendererFooter.vue'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import type { RDrawerProps } from './RendererDrawer.props'
 import { useContainerGrid } from '../../../runtime/container-layout'
@@ -84,7 +82,7 @@ const emit = defineEmits<{
 
 const instance = getCurrentInstance()
 const slots = useSlots()
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 // 头/尾区域优先通过 props.header / props.footer 输入。
 const contentChildren = computed(() => props.children ?? [])

@@ -39,6 +39,30 @@
             "hide"
           ]
         },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "onOpen": {
           "type": "object",
           "title": "() => void"
@@ -99,7 +123,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.112Z",
+  "generatedAt": "2026-10-30T11:16:10.418Z",
   "models": {
     "RDrawerProps": {
       "name": "RDrawerProps",
@@ -113,12 +137,12 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
+        "declarationTypeText": "LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 抽屉标题 */\n    title?: string;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "SparkNodeProps",
-            "targetName": "SparkNodeProps"
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
           },
           {
             "kind": "intersection",

@@ -316,7 +316,17 @@ describe('formal model registration rename', () => {
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders')
     if (kind === 'script') t.files.set('ONE/script.js', 'const model = "Orders";')
     if (kind === 'missing') t.deny('TWO/rule.json')
-    if (kind === 'dirty') {const workspace=t.f.workspaces[0]!,page=workspace.project.openPageDesign('ONE');page.hydrateFileText('rule.json',await readToolFile(session.metadataDataSet,'ONE','rule.json'));workspace.project.setActivePage('ONE');page.setFileText('rule.json', '{"type":"r-text"}')}
+    if (kind === 'dirty') {
+      const workspace=t.f.workspaces[0]!,page=workspace.project.openPageDesign('ONE')
+      workspace.project.setActivePage('ONE');page.markLoaded()
+      const source=session.metadataDataSet.getView('ProjectToolFile','default')!,view=source.createQueryView('dirty-test:ONE:rule.json')
+      view.configure({queryContext:{appId:'APP',pageId:'ONE',fileName:'rule.json',versionId:''},commitMode:'staged',
+        filterExpression:{logic:'and',filters:[]},fieldProjection:[],queryConfig:{allPages:true,maxRows:50000}})
+      const loaded=await view.loadFromServer({singleFlight:false})
+      expect(loaded.success).toBe(true)
+      page.bindFileDataView('rule.json',view)
+      page.setFileText('rule.json','{"type":"r-text"}')
+    }
     if (kind === 'inventory') {await operation.preview(); t.pages.pop(); await expect(operation.save()).rejects.toThrow(/清单/)}
     else await expect(operation.preview()).rejects.toThrow()
     expect(t.saves).toEqual([]); expect(writes(t.f)).toHaveLength(0)
@@ -327,12 +337,19 @@ describe('formal model registration rename', () => {
     const t = toolFixture(), session = await t.f.open('A'), workspace=t.f.workspaces[0]!,page=workspace.project.openPageDesign('ONE')
     page.hydrateFileText('rule.json',await readToolFile(session.metadataDataSet,'ONE','rule.json'));page.markLoaded();workspace.project.setActivePage('ONE')
     const operation = session.getModelRename('M1'); operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const fileSource=session.metadataDataSet.getView('ProjectToolFile','default')!
+    const fileView=fileSource.createQueryView('manual:ONE:rule.json')
+    fileView.configure({queryContext:{appId:'APP',pageId:'ONE',fileName:'rule.json',versionId:''},commitMode:'staged',
+      filterExpression:{logic:'and',filters:[]},fieldProjection:[],queryConfig:{allPages:true,maxRows:50000}})
+    const loaded=await fileView.loadFromServer({singleFlight:false})
+    expect(loaded.success).toBe(true)
+    page.bindFileDataView('rule.json',fileView)
     t.onSave(() => {page.setFileText('rule.json', '{"type":"r-text","props":{"label":"Local draft"}}')})
     await expect(operation.save()).rejects.toThrow(/本地编辑/)
     expect(page.rule.children[0]?.props?.['label']).toBe('Local draft')
     expect(await operation.verify().catch(() => false)).toBe(false)
     expect(t.saves).toEqual(['ONE/rule.json']); expect(writes(t.f)).toHaveLength(1)
-    t.onSave(() => {}); expect(page.undoFile('rule.json')).toBe(true)
+    t.onSave(() => {}); fileView.discardPendingChanges()
     expect(await operation.verify()).toBe(true)
     expect(t.saves).toEqual(['ONE/rule.json', 'TWO/rule.json'])
   })

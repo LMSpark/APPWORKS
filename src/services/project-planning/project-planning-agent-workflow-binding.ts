@@ -106,7 +106,7 @@ export type ResolveScopedProjectPlanningRunInputOptions =
 export type ProjectPlanningAgentWorkflowBindingOptions = Readonly<{
   /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */
   getProjectPlanningEditor: (context: { moduleInstanceId: string }) => ProjectWorkspace
-  /** 当前 inline DevSystem PageRuntime owner；headless run 不提供该能力。 */
+  /** 当前 inline DevSystem PageRuntime owner。 */
   blueprintDataView?: BlueprintWorkspaceDataView
   /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */
   getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined

@@ -41,7 +41,30 @@ describe('guardPageDesignEditor', () => {
     const guarded = guardPageDesignEditor(createEditor(), { script: false })
     const page = guarded.project.openPageDesign('orders')
     expect(() => page.setFileText('script.js', 'x')).toThrow('PAGE_DESIGN_OPERATION_FORBIDDEN')
-    expect(() => page.setFileText('style.css', 'a{}')).not.toThrow()
+    expect(() => page.setFileText('style.css', 'a{}')).toThrow('PAGE_TOOL_FILE_VIEW_REQUIRED')
+  })
+
+  it('把已捕获的旧运行作用域应用到先前取得的编辑器代理',()=>{
+    const editor=createEditor()
+    let current=true
+    const guarded=guardPageDesignEditor(editor,undefined,()=>{if(!current)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI run owner lease changed')})
+    const page=guarded.project.openPageDesign('orders')
+    current=false
+    expect(()=>page.setFileText('script.js','stale edit')).toThrow('PAGE_TOOL_FILE_VIEW_STALE')
+  })
+
+  it('异步 editNodeTree 在回调完成后、DataView写回前重新检查捕获的运行作用域',async()=>{
+    const editor=createEditor(),page=editor.project.openPageDesign('orders')
+    vi.spyOn(page,'editNodeTree').mockImplementation(async run=>{await run({} as never)})
+    let current=true,signalStart:()=>void=()=>undefined,release:()=>void=()=>undefined
+    const started=new Promise<void>(resolve=>{signalStart=resolve})
+    const gate=new Promise<void>(resolve=>{release=resolve})
+    const guarded=guardPageDesignEditor(editor,undefined,()=>{if(!current)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI run owner lease changed')})
+    const editing=guarded.project.openPageDesign('orders').editNodeTree(async()=>{signalStart();await gate})
+    await started
+    current=false
+    release()
+    await expect(editing).rejects.toThrow('PAGE_TOOL_FILE_VIEW_STALE')
   })
 
   it('blocks nodeTree access and scenario loading when their domains are closed', async () => {
@@ -71,7 +94,7 @@ describe('guardPageDesignEditor', () => {
     expect('previewBlueprintRemote' in guarded).toBe(false)
   })
 
-  it('denies remote PageTool file and version writes while preserving local draft edits and reads', async () => {
+  it('denies remote PageTool file and version writes while keeping an unbound projection read-only', async () => {
     const fileApi = { saveFileContent: vi.fn(async () => undefined) }
     const editor = new ProjectWorkspace({
       projectId: 'demo',
@@ -80,7 +103,7 @@ describe('guardPageDesignEditor', () => {
     const guarded = guardPageDesignEditor(editor, { script: true, style: true, nodeTree: true })
     const page = guarded.project.openPageDesign('orders')
     guarded.project.setActivePage('orders')
-    expect(() => page.setFileText('script.js', 'draft')).not.toThrow()
+    expect(() => page.setFileText('script.js', 'draft')).toThrow('PAGE_TOOL_FILE_VIEW_REQUIRED')
     expect('savePageFile' in editor).toBe(false)
     expect('saveDirtyPageFiles' in editor).toBe(false)
     expect('saveAll' in editor).toBe(false)
@@ -89,6 +112,6 @@ describe('guardPageDesignEditor', () => {
     expect('restoreRemotePageVersion' in guarded).toBe(false)
     expect('deleteRemotePageVersion' in editor).toBe(false)
     expect(fileApi.saveFileContent).not.toHaveBeenCalled()
-    expect(page.getFileText('script.js')).toBe('draft')
+    expect(page.getFileText('script.js')).toBe('')
   })
 })

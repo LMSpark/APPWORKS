@@ -18,7 +18,7 @@
 2. ToolLoop：`prepareSession` → 循环 `executeTurn`
 3. LLM 发起 tool_call（每轮最多 1 个受控 call）
 4. `tool-call-executor` → `beforeFunctionCall`（gates/审批）→ `ClassModelRuntime.executeTool`
-5. 写页面：`model_script({ script })` → `this.openPageDesign` → `editDataSet` / `editNodeTree` → return 四文件
+5. 写页面：`model_script({ script })` → captured `ProjectWorkspace.openPageDesign` → `PageTool.setFileText` / `editNodeTree` 写入已绑定的 `ProjectToolFile` DataView
 6. `agent_complete({ summary })` → 会话收尾
 
 ## 知识消费顺序
@@ -80,8 +80,7 @@ model_query → model_class_guide / model_attribute_guide / model_action_guide �
 
 | 场景 | 文件 |
 |------|------|
-| DevSystem 面板 | `src/services/page-design-ai-runner.ts` |
-| Agent Run | `src/services/ai/ai-agent-run.ts` + `src/services/page-design/page-design-agent-run-provider.ts` |
+| PageDesign inline runner | `src/services/page-design/page-design-ai-runner.ts` + `src/services/page-design/page-design-inline-delivery.ts` |
 | Workflow 激活 | `src/services/ai/agent-workflow-bindings.ts` + `src/services/page-design/page-design-agent-workflow-binding.ts` |
 
 ## 未实现（勿假设存在）

@@ -30,17 +30,15 @@ export type PageDesignAllowedOperations = Readonly<{
   blueprint?: boolean
 }>
 
-const PAGE_DESIGN_OPERATION_KEYS: ReadonlyArray<keyof PageDesignAllowedOperations> = [
-  'nodeTree',
-  'dataSet',
-  'script',
-  'style',
-  'blueprint',
+const PAGE_DESIGN_OPERATION_KEYS:ReadonlyArray<keyof PageDesignAllowedOperations>=[
+  'nodeTree','dataSet','script','style','blueprint',
 ]
 
 /** 页面设计运行上下文：绑定到 requestId，控制本次 run 的操作域与输出约束 */
 export type PageDesignRunContext = Readonly<{
   pageId: string
+  /** 宿主为本次 AI 编辑固定工作区、节点与 DataView owner；不来自模型脚本参数。 */
+  assertCurrent?: () => void
   scenarioId?: string
   /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */
   allowedOperations?: PageDesignAllowedOperations
@@ -67,7 +65,7 @@ export function bindPageDesignRunContext(requestId: string, context: PageDesignR
     throw new Error('pageDesign run context requires a non-empty requestId.')
   }
   if (!context.pageId.trim()) throw new Error('pageDesign run context requires pageId')
-  const deliverySaveFileNames = readDeliverySaveFileNamesFromAgentArgs(context)
+  const deliverySaveFileNames = normalizeDeliverySaveFileNames(context.deliverySaveFileNames)
   pageDesignRunContexts.set(normalized, { ...context,
     ...(deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames }) })
 }
@@ -80,63 +78,8 @@ export function readPageDesignRunContext(requestId: string): PageDesignRunContex
   return pageDesignRunContexts.get(requestId.trim())
 }
 
-export function bindPageDesignRunContextFromAgentArgs(
-  requestId: string,
-  args: Record<string, unknown>,
-): void {
-  const patch = readPageDesignRunContextFromAgentArgs(args)
-  if (patch === undefined) return
-  const existing = readPageDesignRunContext(requestId)
-  bindPageDesignRunContext(requestId, {
-    ...(existing ?? {}),
-    ...patch,
-    pageId: patch.pageId.trim() ? patch.pageId : (existing?.pageId ?? ''),
-  })
-}
-
-function readPageDesignRunContextFromAgentArgs(
-  args: Record<string, unknown>,
-): PageDesignRunContext | undefined {
-  const allowedOperations = readAllowedOperationsFromAgentArgs(args)
-  const deliverySaveFileNames = readDeliverySaveFileNamesFromAgentArgs(args)
-  const pageId = typeof args['pageId'] === 'string' ? args['pageId'].trim() : ''
-  if (!pageId && allowedOperations === undefined && deliverySaveFileNames === undefined) return undefined
-  return {
-    pageId,
-    ...(typeof args['scenarioId'] === 'string' ? { scenarioId: args['scenarioId'] } : {}),
-    ...(allowedOperations === undefined ? {} : { allowedOperations }),
-    ...(deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames }),
-  }
-}
-
-function readAllowedOperationsFromAgentArgs(
-  args: Record<string, unknown>,
-): PageDesignAllowedOperations | undefined {
-  const value = args['allowedOperations']
-  if (!isJsonRecord(value)) return undefined
-  const record = value
-  const allowedOperations: {
-    -readonly [K in keyof PageDesignAllowedOperations]?: boolean
-  } = {}
-  let hasExplicitField = false
-  for (const key of PAGE_DESIGN_OPERATION_KEYS) {
-    const field = record[key]
-    if (typeof field !== 'boolean') continue
-    hasExplicitField = true
-    allowedOperations[key] = field
-  }
-  return hasExplicitField ? allowedOperations : undefined
-}
-
-function isJsonRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
-
-function readDeliverySaveFileNamesFromAgentArgs(
-  args: Record<string, unknown>,
-): readonly PageToolFileName[] | undefined {
-  const value = args['deliverySaveFileNames']
-  if (!Object.hasOwn(args, 'deliverySaveFileNames')) return undefined
+function normalizeDeliverySaveFileNames(value:unknown):readonly PageToolFileName[]|undefined{
+  if(value===undefined)return undefined
   if (!Array.isArray(value) || value.length === 0) throw new Error('PAGE_DESIGN_SAVE_SCOPE_INVALID: 保存范围必须为非空文件名数组')
   const names = value.map(item => {
     const name = PAGE_TOOL_FILE_NAMES.find(file => file === item)

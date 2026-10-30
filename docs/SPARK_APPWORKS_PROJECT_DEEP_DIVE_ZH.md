@@ -23,7 +23,7 @@ nodeId 定位蓝图节点，pageId 定位可复用工具，scenarioId 定位业�
 
 ProjectBlueprintDesign 索引节点与工具；ProjectSession 保存选中、活动工具、草稿及 dirty。capability.description 是短需求，策划输入和有效约束通过 readProjectPlanningInput/readBlueprintPlanningInputs/readPlanningProjection 读取。
 
-PageTool 不继承节点，多个节点可共用工具。openPageDesign(pageId) 返回只持 rule.json/script.js/style.css 的工具；PageRuleFile 管理结构与历史，PageTextFile 管理文本与历史。工具定义没有业务数据。
+PageTool 不继承节点，多个节点可共用工具。openPageDesign(pageId) 返回 rule.json/script.js/style.css 的 DataView 投影；三份正文与编辑覆盖由正式 ProjectToolFile DataView 承载，PageTool 不另持文本草稿、历史或保存基线。工具定义没有业务数据。
 
 ## 场景配置与真实数据
 

@@ -169,14 +169,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-27T15:22:51.936Z",
+  "generatedAt": "2026-10-30T06:40:25.898Z",
   "models": {
     "ProjectPlanningAiRunOptions": {
       "name": "ProjectPlanningAiRunOptions",
       "jsdoc": "Project Planning Ai Run Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
+        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** inline 宿主显式启用后在 run 结束时保存蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -185,7 +185,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
+            "typeText": "Readonly<{\n    /** inline 宿主显式启用后在 run 结束时保存蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n    /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -193,7 +193,7 @@
           "attributes": [
             {
               "name": "saveBlueprintAfterRun",
-              "jsdoc": "自动化/headless 可在 run 结束后保存项目蓝图；默认 false。",
+              "jsdoc": "inline 宿主显式启用后在 run 结束时保存蓝图；默认 false。",
               "readable": true,
               "writable": false
             },

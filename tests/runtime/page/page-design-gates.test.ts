@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   assertPageDesignRunGateAllowed,
   bindPageDesignRunContext,
-  bindPageDesignRunContextFromAgentArgs,
   clearPageDesignRunContext,
   evaluatePageDesignMutationToolGate,
   evaluatePageDesignScriptOperationGate,
@@ -12,14 +11,14 @@ import {
   validatePageDesignRunGate,
 } from '@/services/page-design/page-design-gates'
 const SCENARIO_ONLY_OPERATIONS = { nodeTree: false, dataSet: true, script: false, style: false, blueprint: false } as const
-import type { ProjectPageNodeSummary } from '@spark-appworks/spark-project-model'
+import type { PageToolFileName, ProjectPageNodeSummary } from '@spark-appworks/spark-project-model'
 
 describe('pageDesign save scope input', () => {
   it.each([[], ['unknown.json'], ['script.js', 'unknown.json'], [17], ['script.js', null],
     null, 'script.js', { file: 'script.js' }].map(value => ({ value })))('rejects invalid scope $value without replacing the existing context', ({ value }) => {
     bindPageDesignRunContext('orders', { pageId: 'orders', deliverySaveFileNames: ['script.js'] })
     try {
-      expect(() => bindPageDesignRunContextFromAgentArgs('orders', { deliverySaveFileNames: value }))
+      expect(() => bindPageDesignRunContext('orders', { pageId:'orders', deliverySaveFileNames:value as never }))
         .toThrow('PAGE_DESIGN_SAVE_SCOPE_INVALID')
       expect(readPageDesignRunContext('orders')?.deliverySaveFileNames).toEqual(['script.js'])
     } finally { clearPageDesignRunContext('orders') }
@@ -31,12 +30,11 @@ describe('pageDesign save scope input', () => {
     expect(readPageDesignRunContext('orders')).toBeUndefined()
   })
 
-  it('captures a valid selection and preserves it when subsequent args omit the scope', () => {
-    const names = ['script.js']
-    bindPageDesignRunContextFromAgentArgs('orders', { pageId: 'orders', deliverySaveFileNames: names })
+  it('copies and freezes the run-scoped delivery selection', () => {
+    const names:PageToolFileName[] = ['script.js']
+    bindPageDesignRunContext('orders', { pageId:'orders', deliverySaveFileNames:names })
     try {
       names.push('rule.json')
-      bindPageDesignRunContextFromAgentArgs('orders', { description: 'update' })
       expect(readPageDesignRunContext('orders')?.deliverySaveFileNames).toEqual(['script.js'])
     } finally { clearPageDesignRunContext('orders') }
   })

@@ -36,9 +36,10 @@ pnpm run test:run
 | 步骤 | 操作 | 期望 |
 |------|------|------|
 | 4.1 | 页面有效描述为空时启动 AI 编辑 | mutation 被 gate 拒绝 |
-| 4.2 | 补齐描述后重试 | 经 ProjectWorkspace 编辑 PageTool 三文件；场景编辑必须明确 scenarioId |
+| 4.2 | 补齐描述后重试 | inline runner 经 PageTool 直接编辑绑定的 ProjectToolFile DataView；场景编辑必须明确 scenarioId |
 | 4.3 | `implGate=closed` | 页面设计 mutation 拒绝 |
 | 4.4 | 检查数据绑定 | 页面不直接引用物理表名，不拥有第二份数据定义 |
+| 4.5 | 显式 Save All | 通过 DataSet.saveChanges 提交脏文件视图并核对 FileResource 回执；unknown attempt 不重放 |
 
 离线覆盖：`pnpm run verify:page-design`。
 
@@ -48,8 +49,8 @@ pnpm run test:run
 |------|------|------|
 | 5.1 | 运行 `pnpm run verify:project-planning` | 离线验证通过 |
 | 5.2 | 查看策划输入 | 输入和产物统一使用 blueprint 语义 |
-| 5.3 | 执行 Agent run | 使用传输中立的 `ai-agent-run`；不依赖本仓后端 |
-| 5.4 | 请求保存蓝图 | 缺少受治理 mutation capability 时 fail-closed |
+| 5.3 | 执行项目策划 inline run | 使用 `project-planning-ai-runner` 和宿主实际 Base_NavigationInfo DataView，交付状态依据原命令回执 |
+| 5.4 | 蓝图命令结果未知后显式 Save All | 核验原命令并回读；保留未确认状态，不重复执行策划 |
 
 ## 6. 运行导航
 

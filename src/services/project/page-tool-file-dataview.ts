@@ -123,7 +123,7 @@ function createPageFileView(input:Readonly<{
   }
   const transport=createPageFileTransport({appId,io,assertCurrent,...(input.workspace?{workspace:input.workspace}:{}),history:!input.allowDirectoryEntry})
   const view=getOrCreateFileResourceView({dataSet,tableName:TABLE,viewId:`page-${encodeURIComponent(pageId)}-${encodeURIComponent(resourceFileName)}`,resourceId:ProjectToolResource.resources.ProjectToolFile,
-    columns:formalTable.columns,contentField:'text',queryContext:{pageId,fileName:resourceFileName,versionId:''},target,transport,assertCurrent,
+    columns:formalTable.columns,contentField:'text',queryContext:{appId,pageId,fileName:resourceFileName,versionId:''},target,transport,assertCurrent,
     ...(input.allowDirectoryEntry?{canCreate:()=>false}:{}),
     ...(input.rejectLocalDirty?{canWrite:resource=>resource.fields['versionId']===''&&(!isPageToolFileName(resource.fields['fileName'])||!input.workspace?.project.findPageTool(String(resource.fields['pageId']))?.isDirty())}:{}),
     ...(input.allowDirectoryEntry?{canWrite:()=>false,canDelete:()=>true}:{})})
@@ -167,8 +167,14 @@ function createPageFileTransport(input:Readonly<{appId:string;io:PageFileIo;asse
         throw new Error(`FILE_RESOURCE_MISSING: 工具文件 ${filePage}/${fileName} 不存在`)
       }
       const page=workspace?.project.findPageTool(filePage)
+      const localDirty=page?.isDirty()??false
+      let localText:string|null=null
+      if(page&&isPageToolFileName(fileName))try{localText=page.getFileText(fileName)}catch(error){
+        if(!(error instanceof Error)||!error.message.startsWith('PAGE_TOOL_FILE_FIELD_HIDDEN:'))throw error
+        // Text is optional projection metadata; hidden text is never copied into the resource row.
+      }
       return text===null?null:{text,revision:typeof versionId==='string'&&versionId?versionId:'0',
-        fields:{localDirty:page?.isDirty()??false,localText:isPageToolFileName(fileName)?page?.getFileText(fileName)??null:null}}},
+        fields:{localDirty,localText}}},
     write:async({target:resource,text})=>{assertCurrent();const {pageId:filePage,fileName}=pageFileResourceIdentity(resource)
       if(!isPageToolFileName(fileName)||resource.fields['versionId']!=='')throw new Error('PAGE_TOOL_FILE_WRITE_SCOPE: 只有工作三文件允许写入')
       if(fileName==='rule.json')new PageTool({pageId:filePage}).hydrateFileText(fileName,text)

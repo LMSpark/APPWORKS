@@ -286,14 +286,14 @@ describe('host scenario file request wiring', () => {
     }
   })
 
-  it('does not expose direct working-file save for an unsaved editor draft', async () => {
+  it('does not expose workspace file save and an unbound PageTool cannot retain edits', async () => {
     const workspace = sceneWorkspace()
     const page = workspace.project.openPageDesign('orders')
     workspace.project.setActivePage('orders')
-    page.setFileText('script.js', 'submitted')
     expect('savePageFile' in workspace).toBe(false)
-    expect(page.script.isDirty).toBe(true)
-    expect(page.script.text).toBe('submitted')
+    expect(() => page.setFileText('script.js', 'submitted')).toThrow('PAGE_TOOL_FILE_VIEW_REQUIRED')
+    expect(page.script.isDirty).toBe(false)
+    expect(page.script.text).toBe('')
   })
 
   it('snapshots and previews shared scene files with a fresh definition guard before upload', async () => {

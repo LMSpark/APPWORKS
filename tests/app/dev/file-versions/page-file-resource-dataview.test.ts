@@ -268,6 +268,7 @@ describe('formal ProjectToolFile DataView',()=>{
       page.hydrateFileText('rule.json',original);page.markLoaded()
       const view=createPageFileResourceView({dataSet,appId:'APP',pageId:'PAGE',fileName:'rule.json',workspace,assertCurrent:()=>{}})
       await view.refresh();const id=view.getPkKey(view.rows[0]!)!
+      page.bindFileDataView('rule.json',view)
       await view.editRowById(id,{text:accepted})
       const receipt=await dataSet.saveChanges({views:[{tableName:'ProjectToolFile',viewId:view.viewId,ids:[id]}]})
       expect(receipt.success).toBe(true)

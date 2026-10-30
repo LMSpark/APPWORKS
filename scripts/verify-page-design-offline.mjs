@@ -15,7 +15,8 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 
 const testFiles = [
   'tests/app/services/page-design-ai-runner.test.ts',
-  'tests/app/services/page-design-agent-run-provider.test.ts',
+  'tests/app/dev/dev-state-page-file-closed-loop.test.ts',
+  'tests/app/services/page-design-operation-guard.test.ts',
   'tests/runtime/page/page-design-gates.test.ts',
   'tests/runtime/page/page-design-sop.test.ts',
   'packages/spark-ai/src/tests/tool-loop-nudge-hooks.test.ts',

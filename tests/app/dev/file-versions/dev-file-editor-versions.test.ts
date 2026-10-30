@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DevFileEditor from '@/views/app/dev-system/DevFileEditor.vue'
 import { LOWCODE_FILE_RESOURCE_REGISTRY } from '@/lowcode/resources/shared/agent-workflow-file-resource'
 
-const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), text: 'saved file contents' }))
+const fixture = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), sparkProvide: vi.fn(), sparkRemove: vi.fn(), buttonMountIds: [] as number[], text: 'saved file contents' }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
@@ -13,16 +13,19 @@ vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   }),
 }))
 vi.mock('@spark-appworks/spark-component', async () => {
-  const {defineComponent, h} = await import('vue')
+  const {defineComponent, getCurrentInstance, h} = await import('vue')
   const passive = (name: string) => defineComponent({name, setup(_, {slots}) {return () => h('div', slots['default']?.())}})
-  const button = defineComponent({name: 'RendererButton', props: {label: String, disabled: Boolean}, emits: ['click'],
-    setup(props, {emit}) {return () => h('button', {disabled: props.disabled, onClick: () => emit('click')}, props.label)}})
+  const button = defineComponent({name: 'RendererButton', props: {label: String, disabled: Boolean, dataViewKey: String}, emits: ['click'],
+    setup(props, {emit}) { fixture.buttonMountIds.push(getCurrentInstance()?.uid ?? -1); return () => h('button', {disabled: props.disabled, onClick: () => emit('click')}, props.label)}})
   const form = defineComponent({name: 'RendererForm', props: {dataViewKey: String}, setup(_, {slots}) {return () => h('div', slots['default']?.())}})
   const fieldCodeEditor = defineComponent({name: 'FieldCodeEditor', props: {dataViewKey: String, dataMember: String, dataField: String, label: String, language: String}, template: '<textarea />'})
   return {__v_isRef: false, SparkCodeEditor: passive('SparkCodeEditor'), JsonTreeEditor: passive('JsonTreeEditor'), PAGE_RUNTIME: 'PAGE_RUNTIME',
     useSparkComponent: () => ({sparkProvide: fixture.sparkProvide, sparkRemove: fixture.sparkRemove}),
-    RendererButton: button, RendererForm: form, RendererTabs: passive('RendererTabs'), RendererTabPane: passive('RendererTabPane'),
-    FieldCodeEditor: fieldCodeEditor, FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'), DisplayAlert: passive('DisplayAlert'),
+    RendererButton: button, RendererForm: form,
+    RendererTabs: defineComponent({name: 'RendererTabs', props: {dataViewKey: String, dataMember: String}, setup(_, {slots}) {return () => h('div', slots['default']?.())}}),
+    RendererTabPane: passive('RendererTabPane'),
+    FieldCodeEditor: fieldCodeEditor, FieldJson: passive('FieldJson'), FieldTextarea: passive('FieldTextarea'),
+    DisplayAlert: defineComponent({name: 'DisplayAlert', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
     DisplayEmpty: defineComponent({name: 'DisplayEmpty', props: {description: String}, setup(props) {return () => h('p', props.description)}}),
     RendererTable: defineComponent({name: 'RendererTable', props: {dataViewKey: String, actions: Object}, setup(props, {slots}) { return () => h('div', {class: 'bound-table'}, [
       h('button', {onClick: () => (props.actions as {children: {props: {onClick: (row: unknown) => void}}[]})['children'][0]?.props.onClick({
@@ -45,14 +48,17 @@ function deferred<T>() {
   return { promise, resolve }
 }
 
-function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.css' = 'script.js') {
+function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.css' = 'script.js', showTabs = false) {
   const rows = [{versionKey: '["page-A","script.js",2]', pageId: 'page-A', fileName: 'script.js', version: 2, snapshotFileName: '2__script.js', lastModified: null}]
   const view = {queryContext: {}, rows, loadingError: null, refresh: vi.fn().mockResolvedValue(undefined), deleteActionState: () => 'disabled'}
   const versionResource = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => item.tableName === 'ProjectToolVersion')
   const dataSet = {scenarioId: '7AB874097A1E8711A42FD845939A6E05', getView: vi.fn((tableName: string) =>
     hasFormalVersionBinding && versionResource?.tableName === tableName ? view : undefined)}
-  const runtime = {isLoaded: true, getDataSet: vi.fn(() => dataSet)}
-  const fileView={tableName:'ProjectToolFile',viewId:`page-page-A-${activeFile}`,dataSet:{scenarioId:'7AB874097A1E8711A42FD845939A6E05'},rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
+  const fileDataSet = dataSet
+  const fileView={tableName:'ProjectToolFile',viewId:`page-page-A-${activeFile}`,dataSet:fileDataSet,rows:[],hasUnconfirmedSave:false,dirtyTracking:{hasPendingChanges:()=>false},getPkKey:()=>undefined,createSourceVersion:vi.fn().mockResolvedValue({state:'confirmed',version:1,fileName:'1__script.js',message:null}),acknowledgeSourceHistoryAttempt:vi.fn()}
+  let currentFileView = fileView
+  const runtime = {instanceId: 'runtime-A', isLoaded: true, getDataSet: vi.fn((_scenarioId: string) => fileDataSet),
+    resolveView: vi.fn((key: string) => key === `${fileDataSet.scenarioId}@ProjectToolFile@${currentFileView.viewId}` ? currentFileView : undefined)}
   const state = {
     activePageId: ref('page-A'), projectId: 'project-A', dirty: ref(false), pageDataError: ref(null), pageIoBusy: ref(false),
     restoredText: ref(fixture.text),
@@ -60,15 +66,16 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
     pageFileNames: ['rule.json', 'script.js', 'style.css'], addStatus: vi.fn(),
     project: { getActivePage: () => ({ pageId: state.activePageId.value }), setActivePage: vi.fn() },
     blueprintPageRuntime: ref(runtime), loadBlueprintWorkspaceDataView: vi.fn().mockResolvedValue(undefined),
-    loadPageToolFileDataView: vi.fn(async ({pageId, fileName}: {pageId: string; fileName: string}) => pageId === 'page-A'
-      ? fileView
-      : {...fileView, viewId: `page-${pageId}-${fileName}`}),
+    loadPageToolFileDataView: vi.fn(async ({pageId, fileName}: {pageId: string; fileName: string}) => {
+      currentFileView = pageId === 'page-A' ? fileView : {...fileView, viewId: `page-${pageId}-${fileName}`}
+      return currentFileView
+    }),
     restorePageToolVersion: vi.fn().mockResolvedValue('restored text'),
     editor: {},
   }
   state.restorePageToolVersion.mockImplementation(async()=>{state.restoredText.value='restored text';return 'restored text'})
   const wrapper = mount({ ...DevFileEditor, props: ['state', 'activeFile', 'showTabs'] }, {
-    props: { state, activeFile, showTabs: false },
+    props: { state, activeFile, showTabs },
     global: { directives: { loading: () => {} }, stubs: {
       ElButton: Button, ElTooltip: Slot, ElButtonGroup: Slot, ElInput: true, ElEmpty: true,
       ElTag: true, NavIcon: true, SparkCodeEditor: true, JsonTreeEditor: true, DevDataSetDesigner: true,
@@ -83,7 +90,7 @@ function setup(hasFormalVersionBinding = true, activeFile: 'script.js' | 'style.
 }
 
 describe('DevFileEditor snapshot identity', () => {
-  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.refresh.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset(); fixture.text = 'saved file contents' })
+  beforeEach(() => { fixture.save.mockReset().mockResolvedValue(undefined); fixture.refresh.mockReset().mockResolvedValue(undefined); fixture.sparkProvide.mockReset(); fixture.sparkRemove.mockReset(); fixture.buttonMountIds.length = 0; fixture.text = 'saved file contents' })
 
   it('loads script.js into a DataView and renders the standard bound code field', async () => {
     const {state, wrapper, fileView} = setup()
@@ -97,6 +104,22 @@ describe('DevFileEditor snapshot identity', () => {
     wrapper.unmount()
   })
 
+  it('binds header actions and file tabs to the active ProjectToolFile DataView', async () => {
+    const { wrapper } = setup(true, 'script.js', true)
+    const initialButtonMountCount = fixture.buttonMountIds.length
+    await flushPromises()
+    const fileKey = '7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-script.js'
+    const buttons = wrapper.findAllComponents({name: 'RendererButton'})
+    expect(buttons.map(button => button.props('dataViewKey'))).toEqual([
+      fileKey, fileKey, fileKey,
+    ])
+    expect(wrapper.findComponent({name: 'RendererTabs'}).props()).toMatchObject({
+      dataViewKey: fileKey, dataMember: 'currentRow',
+    })
+    expect(fixture.buttonMountIds.length).toBeGreaterThan(initialButtonMountCount)
+    wrapper.unmount()
+  })
+
   it('switches the same standard field binding to style.css and its CSS mode', async () => {
     const {state, wrapper} = setup(true, 'style.css')
     await flushPromises()
@@ -105,6 +128,41 @@ describe('DevFileEditor snapshot identity', () => {
       dataViewKey: '7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-style.css',
       dataMember: 'currentRow', dataField: 'text', label: 'style.css', language: 'css',
     })
+    wrapper.unmount()
+  })
+
+  it('omits the stale file binding when loading a different page DataView fails', async () => {
+    const { state, wrapper } = setup(true, 'script.js', true)
+    await flushPromises()
+    state.loadPageToolFileDataView.mockRejectedValueOnce(new Error('file DataView unavailable'))
+    state.activePageId.value = 'page-B'
+    await flushPromises()
+    expect(state.loadPageToolFileDataView).toHaveBeenLastCalledWith({pageId: 'page-B', fileName: 'script.js'})
+    expect(wrapper.findAllComponents({name: 'RendererButton'}).every(button => button.props('dataViewKey') === undefined)).toBe(true)
+    expect(wrapper.findComponent({name: 'RendererTabs'}).props('dataViewKey')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('recreates standard controls when the same file DataView moves to a new runtime identity', async () => {
+    const { state, wrapper } = setup(true, 'script.js', true)
+    await flushPromises()
+    const beforeRuntimeChange = fixture.buttonMountIds.length
+    state.blueprintPageRuntime.value = {...state.blueprintPageRuntime.value, instanceId: 'runtime-B'}
+    await flushPromises()
+    expect(wrapper.findAllComponents({name: 'RendererButton'}).map(button => button.props('dataViewKey')))
+      .toEqual(Array(3).fill('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-script.js'))
+    expect(fixture.buttonMountIds.length).toBeGreaterThan(beforeRuntimeChange)
+    wrapper.unmount()
+  })
+
+  it('blocks a retained file DataView when its DataSet is not owned by the current PAGE_RUNTIME', async () => {
+    const { state, wrapper } = setup(true, 'script.js')
+    await flushPromises()
+    const otherDataSet = {...state.blueprintPageRuntime.value.getDataSet('7AB874097A1E8711A42FD845939A6E05')!}
+    state.blueprintPageRuntime.value = {...state.blueprintPageRuntime.value, instanceId: 'runtime-C', getDataSet: vi.fn((_scenarioId: string) => otherDataSet)}
+    await flushPromises()
+    expect(wrapper.findAllComponents({name: 'RendererButton'}).every(button => button.props('dataViewKey') === undefined)).toBe(true)
+    expect(wrapper.text()).toContain('文件 DataView 不属于当前 PAGE_RUNTIME')
     wrapper.unmount()
   })
 
@@ -153,6 +211,8 @@ describe('DevFileEditor snapshot identity', () => {
     expect(view.queryContext).toEqual({pageId: 'page-A', fileName: 'script.js'})
     expect(view.refresh).toHaveBeenCalledOnce()
     expect(wrapper.findComponent({name: 'RendererTable'}).props('dataViewKey')).toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolVersion@default')
+    expect(wrapper.findAllComponents({name: 'RendererButton'}).find(button => button.props('label') === '存档')?.props('dataViewKey'))
+      .toBe('7AB874097A1E8711A42FD845939A6E05@ProjectToolFile@page-page-A-script.js')
     const timeField = wrapper.findAllComponents({name: 'FieldText'}).find(field => field.props('dataField') === 'lastModified')!
     expect(timeField.props('displayFormatter')(null)).toBe('-')
     expect(timeField.props('displayFormatter')(0)).toMatch(/^\d{4}-\d{2}-\d{2} /)

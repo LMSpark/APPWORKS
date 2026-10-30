@@ -592,54 +592,6 @@
         "method.isActivePageLoaded.return": {
           "type": "boolean"
         },
-        "method.canUndoPageFile.params": {
-          "type": "object",
-          "properties": {
-            "fileName": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.canUndoPageFile.return": {
-          "type": "boolean"
-        },
-        "method.canRedoPageFile.params": {
-          "type": "object",
-          "properties": {
-            "fileName": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.canRedoPageFile.return": {
-          "type": "boolean"
-        },
-        "method.undoPageFile.params": {
-          "type": "object",
-          "properties": {
-            "fileName": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.undoPageFile.return": {
-          "type": "boolean"
-        },
-        "method.redoPageFile.params": {
-          "type": "object",
-          "properties": {
-            "fileName": {
-              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.redoPageFile.return": {
-          "type": "boolean"
-        },
         "method.getNodeTree.params": {
           "type": "object",
           "properties": {},
@@ -719,7 +671,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-29T15:39:29.931Z",
+  "generatedAt": "2026-10-30T06:08:12.722Z",
   "models": {
     "ProjectBlueprint": {
       "name": "ProjectBlueprint",
@@ -1566,78 +1518,8 @@
               }
             },
             {
-              "name": "canUndoPageFile",
-              "jsdoc": "是否 can Undo Page File。",
-              "parameters": [
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "canRedoPageFile",
-              "jsdoc": "是否 can Redo Page File。",
-              "parameters": [
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "undoPageFile",
-              "parameters": [
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "redoPageFile",
-              "parameters": [
-                {
-                  "name": "fileName",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
               "name": "getNodeTree",
-              "jsdoc": "读取 Node Tree。",
+              "jsdoc": "读取当前 rule.json 的独立树快照；修改快照不会改写 DataView。",
               "parameters": [],
               "type": {
                 "type": "union",

@@ -78,19 +78,19 @@ routed -> researching -> research confirmation -> questioning
 
 运行数据由正式 readModel/readRelations 与场景配置装配；每次 PageRuntime 持多个独立 DataSet。新页面绑定为 scenarioId@modelName@viewId，正式模型取 modelBinding.modelName，本地模型取自身 tableName，局部键要求明确主场景；已有带#的三段键仅保留读取兼容。组件成员读取使用 dataViewKey/dataMember/dataField，不靠全局页面状态。
 
-查询/保存使用共享 DataSpaceRuntimeApi 私有原 context，API持Name/AsName映射；业务行/source不能伪造权限。dirty/stale/作用域与销毁合同仍由实际 owner 强制。场景不同模型一次save不保证事务；设计文件交付授权不包含业务审批、支付或通知。
+查询和保存沿当前 spark-data DataSet/DataView 及 FileResource 适配器；业务行/source不能伪造权限。目标身份、field access、editing overlay、unknown attempt 与视图生命周期由正式 DataView/宿主 scope 合同约束。场景与工作文件是不同持久化来源，不承诺跨来源事务；设计文件交付不包含业务审批、支付或通知。
 
 ## 操作域与保存范围
 
 | 变化 | 操作域 | 编辑归属 | 提交合同 |
 |---|---|---|---|
-| 组件树 | nodeTree | PageTool.rule | savePageFile(rule.json) |
-| 脚本 | script | PageTool.script | savePageFile(script.js) |
-| 样式 | style | PageTool.style | savePageFile(style.css) |
+| 组件树 | nodeTree | PageTool.rule → bound ProjectToolFile DataView | DataSet.saveChanges(dirty view) |
+| 脚本 | script | PageTool.script → bound ProjectToolFile DataView | DataSet.saveChanges(dirty view) |
+| 样式 | style | PageTool.style → bound ProjectToolFile DataView | DataSet.saveChanges(dirty view) |
 | 场景视图 | dataSet + 明确scenarioId | loadScenarioDefinitions返回正式C的定义DataView，查询输入为T | DataSet.saveChanges只提交目标定义变更；ScenarioViewFile在资源适配内部保存 |
 | 项目蓝图 | blueprint | ProjectBlueprint | 蓝图保存 |
 
-同一闭环可跨工具与场景，但身份、dirty基线与结果必须分别记录。deliverySaveFileNames 不能承载 pagedata.json；场景身份不能由 pageId 推断。操作允许修改不表示授权保存，目标授权制品需分别表达工具、场景和蓝图动作。
+同一闭环可跨工具与场景，但身份、dirty基线与结果必须分别记录。DevSystem 的 PageTool 编辑同步写入唯一 DataView overlay；Save All 通过 DataSet.saveChanges 提交已修改视图，unknown attempt 在原视图核验而不重放。pagedata.json 属于场景定义文件；场景身份不能由 pageId 推断。操作允许修改不表示授权保存，目标授权制品需分别表达工具、场景和蓝图动作。
 
 ## 门禁与执行基础
 
@@ -149,15 +149,17 @@ W1互斥路由 -> W2计划/批准摘要 -> W3页面与场景蓝图 -> W4既有ga
 
 ## 端到端场景示例
 
-目标用例：用户请求只调整一个真实场景的视图。设计制品包含pageId、scenarioId、现有配置基线和允许dataSet域；run消费正式元数据DataSet中的定义DataView，记录视图变更。完成后验证正式装配与绑定，交付通过DataSet.saveChanges提交选定变更并消费回执。出现工具dirty时判断既有编辑、并发编辑或越界，不能把工具文件随场景一起保存。此处是应实现的链路，现行AI直接文件路径尚未满足，不能当作已验收示例。
+当前仓内闭环：DevSystem 的 pageDesign inline runner 将 AI 对工具文件的每次编辑直接写入绑定的 ProjectToolFile DataView；Save All 只提交捕获目标且内容未在途变化的文件行，并消费 FileResource 精确回读/unknown attempt。场景定义仍由独立定义 DataView 保存，二者不是跨来源事务。该实现已有仓内 DataView/存储夹具回归；实际 SPA 登录后的在线 smoke 尚需单独记录，不能用仓内回归冒充现场验收。
 
 projectPlanning从需求和当前ProjectBlueprint投影形成目录，默认只标blueprintDirty；saveBlueprintAfterRun显式true时沿现有editor保存。工具与场景实施仍需分别设计，策划完成不代表页面已实现。
 
 ## 当前源码入口
 
-- [页面Agent Run provider](../src/services/page-design/page-design-agent-run-provider.ts)
+- [PageDesign inline runner](../src/services/page-design/page-design-ai-runner.ts)
+- [PageDesign inline delivery](../src/services/page-design/page-design-inline-delivery.ts)
 - [页面操作域](../src/services/page-design/page-design-gates.ts)
-- [项目策划provider](../src/services/project-planning/project-planning-agent-run-provider.ts)
+- [ProjectPlanning inline runner](../src/services/project-planning/project-planning-ai-runner.ts)
+- [ProjectPlanning inline delivery](../src/services/project-planning/project-planning-inline-delivery.ts)
 - [数据流](architecture/DATAFLOW_ARCHITECTURE.md)
 - [项目认知](SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)
 - [AI runtime](../packages/spark-ai/README.md)

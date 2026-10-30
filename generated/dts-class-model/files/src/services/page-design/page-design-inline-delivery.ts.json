@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:services/page-design/page-design-agent-run-provider",
-    "sourcePath": "src/services/page-design/page-design-agent-run-provider.ts",
-    "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
+    "name": "app:services/page-design/page-design-inline-delivery",
+    "sourcePath": "src/services/page-design/page-design-inline-delivery.ts",
+    "sourceFile": "src/services/page-design/page-design-inline-delivery.ts",
     "packageName": "app",
-    "modulePath": "services/page-design/page-design-agent-run-provider",
-    "jsdoc": "@module app:services/page-design/page-design-agent-run-provider\n职责：pageDesign 隔离式 Agent Run——headless editor 注册、三文件 delivery、run preparation。\n边界：DevSystem 内联 runner 共用 editor 语义见 page-design-ai-runner；不进入 spark-ai 内核。\nAI用途：排查 pageDesign Agent Run 的 delivery 与 run preparation 接线时，用本模块定位 provider 契约。",
+    "modulePath": "services/page-design/page-design-inline-delivery",
+    "jsdoc": "@module app:services/page-design/page-design-inline-delivery\n职责：交付活跃 pageDesign runner 本轮的页面文件和场景定义 DataView 变更。\n边界：只读取当前 ProjectWorkspace 投影并提交正式 DataView 回执，不创建 AI run owner。\nAI用途：理解 pageDesign inline runner 的提交结果与待保存状态。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "PageDesignDeliveryContext",
@@ -159,7 +159,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T04:33:31.752Z",
+  "generatedAt": "2026-10-30T08:00:54.708Z",
   "models": {
     "PageDesignDeliveryContext": {
       "name": "PageDesignDeliveryContext",

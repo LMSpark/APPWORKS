@@ -35,11 +35,10 @@ classDiagram
   ProjectWorkspace o-- DataSet : 正式定义元数据
   PageRuntime --> PageTool
   PageRuntime o-- DataSet
-  PageTool *-- PageRuleFile
-  PageTool *-- PageTextFile
+  PageTool --> DataView : bound ProjectToolFile projection
 ```
 
-`PageTool` 不继承蓝图节点。`project.openPageDesign(pageId)` 返回工具；它只持有 rule.json、script.js、style.css。`PageRuleFile` 保存 SparkNodeTree 和编辑历史；两个 `PageTextFile` 保存脚本/样式文本和历史。`toDefinition()` 输出工具定义，要求工具已装载。
+`PageTool` 不继承蓝图节点。`project.openPageDesign(pageId)` 返回工具；每份已绑定文件从正式 ProjectToolFile DataView 读取，编辑同步写入该视图的 editing overlay，状态和保存回执均归 DataView。未绑定时工具只保留宿主已确认的只读投影，不持有独立草稿、保存基线或撤销历史。`toDefinition()` 输出工具定义，要求工具已装载。
 
 `PageRuntime` 表达一次调用，持有唯一 instanceId、scenarioIds 和可选 mainScenarioId。即便共用同一工具，每次调用仍装配独立的 DataSet；运行实例不能共享业务数据集。装载失败清理已装配的兄弟场景，销毁拒绝迟到结果并释放本实例的数据。
 

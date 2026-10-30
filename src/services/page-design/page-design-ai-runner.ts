@@ -8,7 +8,7 @@
  * DevSystem 面板内 pageDesign AI — 使用 DevSystem 当前 ProjectWorkspace。
  *
  * `command.editor` 必须与手动编辑同一 `editor.project`，保存/撤销语义一致。
- * 隔离式 SSE Agent Run 见 `page-design-agent-run-provider.ts`（headless 临时门面）。
+ * 工具编辑直接进入 DevSystem 当前正式文件 DataView。
  */
 import { createAiRunAdapter, noopTraceSink } from '@spark-appworks/spark-app'
 import type {
@@ -36,7 +36,7 @@ import {
 import { activatePageDesignAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
 import { createAiDeliveryFailureError, type AiDeliveryResult } from '@/services/ai/ai-delivery-port'
-import { createPageDesignInlineDeliveryPort } from '@/services/page-design/page-design-agent-run-provider'
+import { createPageDesignInlineDeliveryPort } from '@/services/page-design/page-design-inline-delivery'
 import {
   bindPageDesignRunContext,
   clearPageDesignRunContext,
@@ -71,6 +71,8 @@ export type PageDesignAiRunCommand = PageDesignAiRunOptions & {
 pageId: string
     /** editor 字段。 */
 editor: ProjectWorkspace
+  /** 宿主固定本次工作区与owner lease；不暴露为用户需求输入。 */
+  assertCurrent?:()=>void
 
     /** events 字段。 */
 events?: PageDesignAiRunEvents
@@ -84,7 +86,7 @@ beforeFunctionCall?: AiRunBeforeFunctionCall
 onAbort?: AiRunAbortHandler
     /** user Message 字段。 */
 userMessage?: string
-  /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */
+  /** 只有宿主显式启用后才在 inline run 结束时交付；DevSystem 默认手动保存。 */
   saveDirtyFilesAfterRun?: boolean
   /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */
   deliverySaveFileNames?: readonly PageToolFileName[]
@@ -139,6 +141,7 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   if (readPageDesignRunContext(requestId) !== undefined) throw new Error('PAGE_DESIGN_REQUEST_ACTIVE: requestId 已被占用')
   bindPageDesignRunContext(requestId, {
     pageId,
+    ...(command.assertCurrent===undefined?{}:{assertCurrent:command.assertCurrent}),
     ...(command.scenarioId === undefined ? {} : { scenarioId: command.scenarioId }),
     ...(command.allowedOperations === undefined ? {} : { allowedOperations: command.allowedOperations }),
     ...(command.deliverySaveFileNames === undefined ? {} : { deliverySaveFileNames: command.deliverySaveFileNames }),

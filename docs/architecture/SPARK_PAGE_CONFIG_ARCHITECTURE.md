@@ -16,7 +16,7 @@ PageRuntime: 一次工具调用 + 多个独立场景 DataSet
 
 正式节点 DTO 包含 nodeId、parentNodeId、projectId、kind、capability，以及可选 navigation、dataSpace、prototype 和原 source。kind 为 module/page/embedded/service/content；unknown 只保留读入诊断，不能通过正式策划完成。树 children 是投影。
 
-工具 pageId 与节点 nodeId 独立。PageTool 不继承节点，`project.openPageDesign(pageId)` 返回工具。工具只持 rule.json、script.js、style.css：PageRuleFile 管理 SparkNodeTree，两个 PageTextFile 管理文本与历史。toDefinition() 要求工具已加载，输出 pageId/rule/script/css，不含业务数据。
+工具 pageId 与节点 nodeId 独立。PageTool 不继承节点，`project.openPageDesign(pageId)` 返回工具。工具投影 rule.json、script.js、style.css；正文和编辑覆盖由绑定的 ProjectToolFile DataView 持有，PageTool 不再建立文件草稿、历史或独立保存基线。toDefinition() 要求工具已加载，输出 pageId/rule/script/css，不含业务数据。
 
 ## 场景与调用
 

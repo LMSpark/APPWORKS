@@ -12,12 +12,14 @@ import {
   isolateAppProjectWorkspaceForTest,
   isDevStatePageDocumentDirty,
 } from './dev-state-test-fixture'
-import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData } from '@spark-appworks/spark-project-model'
+import type { ProjectBlueprintTreeData, ProjectBlueprintTreeNodeData, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { refreshRoutes } from '@spark-appworks/spark-app'
 import { lowcodeHttp as http } from '@/lowcode/lowcode-runtime'
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
+import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
+import {readPageDesignRunContext} from '@/services/page-design/page-design-gates'
 import { getBuiltinScenarioResource } from '@/registries/builtin-application-registry'
 import { BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource } from '@/lowcode/resources/shared/builtin-blueprint-node-resource'
 import applicationPageData from '../../../config/pages/application/project-blueprint/pagedata.json'
@@ -35,7 +37,8 @@ const httpFns = vi.hoisted(() => ({
     response: { use: vi.fn() },
   },
 }))
-const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),legacyReads:[] as Array<{pageId:string;fileName:string}>,upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
+const pageFiles=vi.hoisted(()=>({files:new Map<string,string>(),readFailures:0,legacyReads:[] as Array<{pageId:string;fileName:string}>,upload:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),restoreWorkingFile:vi.fn(async(command:{pageId:string;fileName:string;text:string})=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)}),remove:vi.fn(async(_app:string,page:string,name:string)=>{pageFiles.files.delete(`${page}/${name}`)})}))
+const pageDesignAiRun=vi.hoisted(()=>({run:vi.fn(async()=> 'completed' as const)}))
 
 const navTreeState = vi.hoisted(() => ({
   tree: null as ProjectBlueprintTreeData | null,
@@ -74,7 +77,17 @@ vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',async importOriginal=>
   loadLowcodeRuntimeScenario:blueprintRuntime.load,
 }))
 
+const pageDesignWorkflow=vi.hoisted(()=>({activate:vi.fn(async(options:{host:unknown})=>options.host)}))
+vi.mock('@/services/ai/agent-workflow-bindings',async importOriginal=>({
+  ...await importOriginal<typeof import('@/services/ai/agent-workflow-bindings')>(),
+  activatePageDesignAgentWorkflow:pageDesignWorkflow.activate,
+}))
+
 vi.mock('@spark-appworks/spark-app', () => ({
+  noopTraceSink: {
+    appendUserMessage:vi.fn(),appendEvent:vi.fn(),appendDelta:vi.fn(),appendReasoning:vi.fn(),appendToolCall:vi.fn(),
+    appendError:vi.fn(),markAborted:vi.fn(),finish:vi.fn(),reset:vi.fn(),
+  },
   getNavTree: vi.fn(() => navTreeState.tree),
   refreshRoutes: vi.fn(async () => {
     if (navTreeState.tree) return navTreeState.tree
@@ -83,7 +96,7 @@ vi.mock('@spark-appworks/spark-app', () => ({
   createAiRunAdapter: vi.fn(() => ({
     isRunning: vi.fn(() => false),
     abort: vi.fn(),
-    run: vi.fn(async () => 'completed' as const),
+    run: pageDesignAiRun.run,
     subscribe: vi.fn(() => () => {}),
     snapshot: vi.fn(() => ({
       trace: { messages: [], entries: [], toolCalls: [] },
@@ -141,7 +154,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   },
   createPageToolFilesIo: (projectId:string) => ({
     list:async(_app:string,page:string)=>[...pageFiles.files.keys()].filter(key=>key.startsWith(`${page}/`)).map(key=>key.slice(page.length+1)),
-    read:async(_app:string,page:string,name:string)=>pageFiles.files.get(`${page}/${name}`)??null,
+    read:async(_app:string,page:string,name:string)=>{if(pageFiles.readFailures>0){pageFiles.readFailures--;throw Object.assign(new Error('accepted upload readback unavailable'),{status:503,response:{status:503}})}return pageFiles.files.get(`${page}/${name}`)??null},
     upload:pageFiles.upload,restoreWorkingFile:pageFiles.restoreWorkingFile,remove:pageFiles.remove,
     listVersions:async({customPath,fileName}:{customPath:string;fileName:string})=>{
       const page=customPath.split('/').at(-1)??''
@@ -364,8 +377,13 @@ describe('DevState 页面文件闭环', () => {
   beforeEach(() => {
     isolateAppProjectWorkspaceForTest()
     vi.clearAllMocks()
+    pageDesignAiRun.run.mockReset()
+    pageDesignAiRun.run.mockImplementation(async ()=>'completed')
+    pageDesignWorkflow.activate.mockReset()
+    pageDesignWorkflow.activate.mockImplementation(async options=>options.host)
     httpFns.scopeToken='fixture-token'
     pageFiles.files.clear()
+    pageFiles.readFailures=0
     pageFiles.legacyReads.length=0
     httpFns.requestFull.mockImplementation(requestFullFromGet)
     httpFns.clearCache.mockImplementation(() => undefined)
@@ -1858,7 +1876,7 @@ describe('DevState 页面文件闭环', () => {
         .rejects.toThrow('PAGE_TOOL_RESTORE_REMOTE_CONFIRMED_LOCAL_CHANGED')
       expect(pageFiles.files.get('demo/script.js')).toBe('second restored text')
       expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('new local edit')
-      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(false)
+      expect(isDevStatePageDocumentDirty(state,'script.js')).toBe(true)
     }finally{ownerScope.stop()}
   })
 
@@ -2032,7 +2050,7 @@ describe('DevState 页面文件闭环', () => {
     }finally{scope.stop()}
   })
 
-  it('does not promote a PageTool-only draft into the file DataView during ordinary save',async()=>{
+  it('未绑定的 PageTool 仅保留已确认投影且不能产生本地草稿',async()=>{
     const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root)
     mockBlueprintScenarioFixture(fixture.dataSet)
@@ -2043,19 +2061,312 @@ describe('DevState 页面文件闭环', () => {
       pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
       pageFiles.files.set('demo/script.js','saved baseline');pageFiles.files.set('demo/style.css','')
       await ensureDevStateActivePageLoaded(state)
-      const page=state.project.getActivePage()!;page.hydrateFileText('script.js','saved baseline')
+      const page=state.project.getActivePage()!
       const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
       const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!,save=vi.spyOn(dataSet,'saveChanges')
+      page.unbindCleanFileDataViews()
 
-      page.setFileText('script.js','PageTool-only draft')
-      await expect(state.savePageToolFile({pageId:'demo',fileName:'script.js'})).resolves.toBeUndefined()
+      expect(()=>page.setFileText('script.js','unbound draft')).toThrow('PAGE_TOOL_FILE_VIEW_REQUIRED')
 
       const row=view.currentRow,id=row&&view.getPkKey(row)
       expect(id).toBeDefined()
       expect(view.hasEditingChanges()).toBe(false)
       expect(save).not.toHaveBeenCalled()
       expect(pageFiles.files.get('demo/script.js')).toBe('saved baseline')
-      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe('saved baseline')
+      expect(page.getFileText('script.js')).toBe('saved baseline')
+    }finally{scope.stop()}
+  })
+
+  it('每次 AI setFileText 都先进入正式文件 DataView，并由 Save All 提交后重开读回',async()=>{
+    const pageNode=node('demo-node','Demo','cfg:demo','APP-A','AI planning')
+    pageNode.source={implGate:'open',upstreamContractsSatisfied:true}
+    const root=blueprintRoot([pageNode],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    let releaseRun:()=>void=()=>undefined
+    let releaseUpload:()=>void=()=>undefined
+    let running:Promise<void>|undefined
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      state.project.replaceBlueprintTree(root,{selectedNodeId:'demo-node'})
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture script row has no DataView identity')
+      let signalEdit:()=>void=()=>undefined
+      const editReached=new Promise<void>(resolve=>{signalEdit=resolve})
+      const runGate=new Promise<void>(resolve=>{releaseRun=resolve})
+      pageDesignAiRun.run.mockImplementationOnce(async()=>{
+        state.project.openPageDesign('demo').setFileText('script.js','AI script')
+        signalEdit()
+        await runGate
+        return 'completed'
+      })
+
+      running=state.runPageDesignAi({description:'更新脚本'})
+      await Promise.race([editReached,running.then(()=>{
+        throw new Error(`PageDesign run ended before the adapter edit: ${state.statusMessages.value.map(message=>message.text).join(' | ')}`)
+      })])
+      expect(view.getEditingRow(id)?.['text']).toBe('AI script')
+      expect(view.hasEditingChanges(id)).toBe(true)
+      releaseRun()
+      await running
+
+      const dataSet=state.blueprintPageRuntime.value!.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)!
+      const save=vi.spyOn(dataSet,'saveChanges')
+      let signalUpload:()=>void=()=>undefined
+      const uploadStarted=new Promise<void>(resolve=>{signalUpload=resolve})
+      const uploadGate=new Promise<void>(resolve=>{releaseUpload=resolve})
+      pageFiles.upload.mockImplementationOnce(async command=>{signalUpload();await uploadGate;pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text)})
+      const firstSave=state.saveAll()
+      await uploadStarted
+      state.project.openPageDesign('demo').setFileText('script.js','AI next script')
+      releaseUpload()
+      await firstSave
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js')).toHaveLength(1)
+      expect(save.mock.calls.some(([command])=>command?.views?.some(target=>target.tableName==='ProjectToolFile'&&target.viewId==='page-demo-script.js'))).toBe(true)
+      expect(pageFiles.files.get('demo/script.js')).toBe('AI script')
+      expect(view.getEditingRow(id)?.['text']).toBe('AI next script')
+      expect(view.hasEditingChanges(id)).toBe(true)
+      await state.saveAll()
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js')).toHaveLength(2)
+      const reopened=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js',forceReload:true})
+      expect(reopened.currentRow?.['text']).toBe('AI next script')
+      expect(pageFiles.files.get('demo/script.js')).toBe('AI next script')
+    }finally{
+      releaseUpload()
+      releaseRun()
+      await running
+      scope.stop()
+    }
+  })
+
+  it('AI 文件上传已接受但回读未知时，Save All 重试核验原 DataView attempt 且不重复上传',async()=>{
+    const pageNode=node('demo-node','Demo','cfg:demo','APP-A','AI planning')
+    pageNode.source={implGate:'open',upstreamContractsSatisfied:true}
+    const root=blueprintRoot([pageNode],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!);state.project.replaceBlueprintTree(root,{selectedNodeId:'demo-node'})
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture script row has no DataView identity')
+      pageDesignAiRun.run.mockImplementationOnce(async()=>{state.project.openPageDesign('demo').setFileText('script.js','AI script');return 'completed'})
+      await state.runPageDesignAi({description:'更新脚本'})
+      expect(view.hasEditingChanges(id)).toBe(true)
+      pageFiles.upload.mockImplementationOnce(async command=>{pageFiles.files.set(`${command.pageId}/${command.fileName}`,command.text);pageFiles.readFailures=1})
+
+      await state.saveAll()
+
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js'),JSON.stringify({calls:pageFiles.upload.mock.calls,status:state.statusMessages.value.map(item=>item.text)})).toHaveLength(1)
+      expect(pageFiles.files.get('demo/script.js')).toBe('AI script')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id)).toBe(true)
+      expect(state.project.openPageDesign('demo').isFileDirty('script.js')).toBe(true)
+      const adapterRuns=pageDesignAiRun.run.mock.calls.length
+
+      await state.saveAll()
+
+      expect(pageDesignAiRun.run).toHaveBeenCalledTimes(adapterRuns)
+      expect(pageFiles.upload.mock.calls.filter(([command])=>command.pageId==='demo'&&command.fileName==='script.js')).toHaveLength(1)
+      expect(view.hasUnconfirmedSave).toBe(false)
+      expect(view.hasEditingChanges(id)).toBe(false)
+      expect(state.project.openPageDesign('demo').isFileDirty('script.js')).toBe(false)
+      expect(state.project.openPageDesign('demo').getFileText('script.js')).toBe('AI script')
+    }finally{scope.stop()}
+  })
+
+  it('退出再回到相同 app/page 后，旧 AI 运行不能借新绑定写入',async()=>{
+    const pageNode=node('demo-node','Demo','cfg:demo','APP-A','AI planning')
+    pageNode.source={implGate:'open',upstreamContractsSatisfied:true}
+    const root=blueprintRoot([pageNode],'APP-A')
+    blueprintRuntimeTrees.set('APP-A',root)
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet,()=>createBlueprintRuntimeDataSet('APP-A',root).dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    let getRunEditor:((context:{moduleInstanceId:string})=>ProjectWorkspace)|undefined
+    let signalRun:()=>void=()=>undefined,releaseRun:()=>void=()=>undefined
+    const runReached=new Promise<void>(resolve=>{signalRun=resolve})
+    const runGate=new Promise<void>(resolve=>{releaseRun=resolve})
+    let runError:unknown
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      state.project.replaceBlueprintTree(root,{selectedNodeId:'demo-node'})
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      pageDesignWorkflow.activate.mockImplementationOnce(async options=>{
+        getRunEditor=(options as typeof options & {getPageDesignEditor:(context:{moduleInstanceId:string})=>ProjectWorkspace}).getPageDesignEditor
+        return options.host
+      })
+      pageDesignAiRun.run.mockImplementationOnce(async()=>{
+        const editor=getRunEditor?.({moduleInstanceId:'request-aba'})
+        const context=readPageDesignRunContext('request-aba')
+        if(!editor||!context?.assertCurrent)throw new Error('PageDesign run context did not capture its editor guard')
+        const guarded=guardPageDesignEditor(editor,context.allowedOperations,context.assertCurrent)
+        try{await guarded.project.editNodeTree(async tree=>{
+          signalRun()
+          await runGate
+          tree.replaceRoot({type:'spark-page',id:'spark-page-root',children:[{type:'r-text',id:'stale-ai-node',props:{label:'stale'}}]})
+        })}
+        catch(error){runError=error}
+        return 'completed'
+      })
+      const running=state.runPageDesignAi({requestId:'request-aba',description:'编辑脚本'})
+      await runReached
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      state.project.setActivePage('demo')
+      const currentView=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const currentRow=currentView.currentRow,currentId=currentRow&&currentView.getPkKey(currentRow)
+      if(currentId===null||currentId===undefined)throw new Error('reopened script row has no DataView identity')
+      releaseRun()
+      await running
+
+      expect(runError).toBeInstanceOf(Error)
+      expect(String(runError)).toMatch(/PAGE_TOOL_FILE_VIEW_STALE/)
+      expect(currentView.hasEditingChanges(currentId)).toBe(false)
+      expect(currentView.getEditingRow(currentId)?.['text']).toBe('baseline')
+    }finally{releaseRun();scope.stop()}
+  })
+
+  it('editNodeTree 成功时把序列化规则写入正式文件 DataView 行',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'rule.json'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture rule row has no DataView identity')
+
+      await state.project.editNodeTree(tree=>tree.replaceRoot({type:'spark-page',id:'spark-page-root',children:[
+        {type:'r-text',id:'ai-node',props:{label:'AI rule'}},
+      ]}))
+
+      expect(JSON.parse(String(view.getEditingRow(id)?.['text']))).toMatchObject({type:'r-text',props:{label:'AI rule'}})
+      expect(view.hasEditingChanges(id)).toBe(true)
+    }finally{scope.stop()}
+  })
+
+  it('editNodeTree 回调抛错时不污染正式文件 DataView 行',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'rule.json'})
+      const row=view.currentRow,id=row&&view.getPkKey(row),baseline=row?.['text']
+      if(id===null||id===undefined||typeof baseline!=='string')throw new Error('fixture rule row has no DataView identity')
+      const page=state.project.openPageDesign('demo')
+      const pageBaseline=JSON.parse(page.getFileText('rule.json')) as unknown
+
+      await expect(state.project.editNodeTree(tree=>{
+        tree.replaceRoot({type:'spark-page',id:'spark-page-root',children:[{type:'r-text',props:{label:'rejected'}}]})
+        throw new Error('tree edit rejected')
+      })).rejects.toThrow('tree edit rejected')
+
+      expect(view.getEditingRow(id)?.['text']??view.currentRow?.['text']).toBe(baseline)
+      expect(view.hasEditingChanges(id)).toBe(false)
+      expect(JSON.parse(page.getFileText('rule.json'))).toEqual(pageBaseline)
+    }finally{scope.stop()}
+  })
+
+  it('editNodeTree 无语义变化时保留规则文件原文且不产生编辑覆盖',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      const original='[ ]'
+      pageFiles.files.set('demo/rule.json',original);pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'rule.json'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture rule row has no DataView identity')
+
+      await state.project.editNodeTree(()=>undefined)
+
+      expect(view.getEditingRow(id)?.['text']).toBe(original)
+      expect(view.currentRow?.['text']).toBe(original)
+      expect(view.hasEditingChanges(id)).toBe(false)
+      expect(state.project.openPageDesign('demo').getFileText('rule.json')).toBe(original)
+    }finally{scope.stop()}
+  })
+
+  it('AI 文件字段只读时拒绝编辑且不留下 DataView 草稿',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture script row has no DataView identity')
+      const originalFieldAccess=view.fieldAccess.bind(view)
+      vi.spyOn(view,'fieldAccess').mockImplementation((target,field)=>field==='text'
+        ?{...originalFieldAccess(target,field),read:'invisible',write:'denied'}
+        :originalFieldAccess(target,field))
+
+      const page=state.project.openPageDesign('demo')
+      expect(()=>page.getFileText('script.js')).toThrow(/FIELD|READ|可读|隐藏/i)
+      expect(()=>page.setFileText('script.js','unauthorized edit')).toThrow(/FIELD|WRITE|授权|只读/i)
+      page.unbindCleanFileDataViews()
+      expect(()=>page.getFileText('script.js')).toThrow(/FIELD|READ|可读|隐藏/i)
+      expect(view.getEditingRow(id)?.['text']).toBe('baseline')
+      expect(view.hasEditingChanges(id)).toBe(false)
+    }finally{scope.stop()}
+  })
+
+  it('绑定身份失效时不把仍存在的 DataView 编辑覆盖报告为 clean',async()=>{
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try{
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]');pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline');pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row)
+      if(id===null||id===undefined)throw new Error('fixture script row has no DataView identity')
+      const page=state.project.openPageDesign('demo')
+      page.setFileText('script.js','pending edit')
+      expect(view.hasEditingChanges(id)).toBe(true)
+      view.queryContext={...view.queryContext,pageId:'other-page'}
+
+      expect(()=>page.isDirty()).toThrow(/IDENTITY|身份|target/i)
+      expect(view.hasEditingChanges(id)).toBe(true)
     }finally{scope.stop()}
   })
 

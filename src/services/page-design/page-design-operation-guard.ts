@@ -25,6 +25,8 @@ const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'ge
   'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
   'createScenarioVersion', 'getScenarioVersionStatus', 'verifyScenarioVersionAttempt', 'restoreScenarioVersion', 'saveDirtyScenarioDefinitions', 'dispose'])
 
+const PAGE_FILE_OWNER_METHODS=new Set(['bindFileDataView','unbindCleanFileDataViews','hydrateFileText','markLoaded','markUnloaded'])
+
 const FILE_METHODS = new Set(['setFileText', 'getFileText', 'writePageFile'])
 
 const FILE_DOMAINS: Readonly<Record<string, OperationDomain>> = {
@@ -82,6 +84,17 @@ function wrapEditorTarget(target: object, context: WrapEditorContext): object {
       if (typeof value === 'function') {
         return (...args: unknown[]): unknown => {
           context.assertAllowed(property, args)
+          const editNodeTreeCallback:unknown=args[0]
+          if(property==='editNodeTree'&&typeof editNodeTreeCallback==='function'){
+            const guardedEdit=(...callbackArgs:unknown[]):unknown=>{
+              context.assertAllowed(property,args)
+              const result:unknown=Reflect.apply(editNodeTreeCallback,undefined,callbackArgs)
+              if(isPromiseLike(result))return result.then(edited=>{context.assertAllowed(property,args);return edited})
+              context.assertAllowed(property,args)
+              return result
+            }
+            return context.wrapResult(Reflect.apply(value,raw,[guardedEdit,...args.slice(1)]))
+          }
           return context.wrapResult(Reflect.apply(value, raw, args))
         }
       }
@@ -94,10 +107,13 @@ function wrapEditorTarget(target: object, context: WrapEditorContext): object {
 }
 
 /** 返回同一实例的操作门面；存储owner始终内部使用，定义数据只从DataSet入口访问。 */
-export function guardPageDesignEditor(editor: ProjectWorkspace, allowedOperations: PageDesignAllowedOperations | undefined): ProjectWorkspace {
+export function guardPageDesignEditor(editor: ProjectWorkspace, allowedOperations: PageDesignAllowedOperations | undefined,
+  assertCurrent?:()=>void): ProjectWorkspace {
   const proxies = new WeakMap<object, object>()
   const assertAllowed = (name: string, args: readonly unknown[]): void => {
+    assertCurrent?.()
     if (STORAGE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供资源存储适配使用，请通过场景定义DataSet操作`)
+    if(PAGE_FILE_OWNER_METHODS.has(name))throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅由宿主绑定正式文件DataView`)
     const domain = resolveDomain(name, args)
     if (domain !== undefined && allowedOperations?.[domain] === false) {
       throw new Error(`PAGE_DESIGN_OPERATION_FORBIDDEN: ${name} 属于未放行的操作域 ${domain}`)

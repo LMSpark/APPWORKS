@@ -3346,20 +3346,10 @@
       "shardFile": "files/packages/spark-project-model/src/page/compile-files.ts.json",
       "sourceModifiedAt": "2026-10-06T20:01:39.931Z"
     },
-    "packages/spark-project-model/src/page/content/rule-file.ts": {
-      "sourceFile": "packages/spark-project-model/src/page/content/rule-file.ts",
-      "shardFile": "files/packages/spark-project-model/src/page/content/rule-file.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:22:16.920Z"
-    },
     "packages/spark-project-model/src/page/content/runtime-content.ts": {
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "shardFile": "files/packages/spark-project-model/src/page/content/runtime-content.ts.json",
       "sourceModifiedAt": "2026-10-08T03:27:47.202Z"
-    },
-    "packages/spark-project-model/src/page/content/text-file.ts": {
-      "sourceFile": "packages/spark-project-model/src/page/content/text-file.ts",
-      "shardFile": "files/packages/spark-project-model/src/page/content/text-file.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:22:16.919Z"
     },
     "packages/spark-project-model/src/page/page-file.ts": {
       "sourceFile": "packages/spark-project-model/src/page/page-file.ts",
@@ -3369,7 +3359,7 @@
     "packages/spark-project-model/src/page/page-tool.ts": {
       "sourceFile": "packages/spark-project-model/src/page/page-tool.ts",
       "shardFile": "files/packages/spark-project-model/src/page/page-tool.ts.json",
-      "sourceModifiedAt": "2026-10-15T12:22:16.922Z"
+      "sourceModifiedAt": "2026-10-30T06:48:03.897Z"
     },
     "packages/spark-project-model/src/page/runtime-page.ts": {
       "sourceFile": "packages/spark-project-model/src/page/runtime-page.ts",
@@ -3379,7 +3369,7 @@
     "packages/spark-project-model/src/project/project-blueprint.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-blueprint.ts",
       "shardFile": "files/packages/spark-project-model/src/project/project-blueprint.ts.json",
-      "sourceModifiedAt": "2026-10-29T15:39:29.931Z"
+      "sourceModifiedAt": "2026-10-30T06:08:12.722Z"
     },
     "packages/spark-project-model/src/project/project-design.ts": {
       "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
@@ -4134,12 +4124,7 @@
     "src/services/ai/agent-workflow-bindings.ts": {
       "sourceFile": "src/services/ai/agent-workflow-bindings.ts",
       "shardFile": "files/src/services/ai/agent-workflow-bindings.ts.json",
-      "sourceModifiedAt": "2026-10-29T15:39:49.580Z"
-    },
-    "src/services/ai/ai-agent-run.ts": {
-      "sourceFile": "src/services/ai/ai-agent-run.ts",
-      "shardFile": "files/src/services/ai/ai-agent-run.ts.json",
-      "sourceModifiedAt": "2026-08-10T10:00:08.530Z"
+      "sourceModifiedAt": "2026-10-30T06:16:40.892Z"
     },
     "src/services/ai/ai-delivery-port.ts": {
       "sourceFile": "src/services/ai/ai-delivery-port.ts",
@@ -4166,11 +4151,6 @@
       "shardFile": "files/src/services/class-model-knowledge.worker.ts.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.655Z"
     },
-    "src/services/page-design/page-design-agent-run-provider.ts": {
-      "sourceFile": "src/services/page-design/page-design-agent-run-provider.ts",
-      "shardFile": "files/src/services/page-design/page-design-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:33:31.752Z"
-    },
     "src/services/page-design/page-design-agent-workflow-binding.ts": {
       "sourceFile": "src/services/page-design/page-design-agent-workflow-binding.ts",
       "shardFile": "files/src/services/page-design/page-design-agent-workflow-binding.ts.json",
@@ -4179,22 +4159,22 @@
     "src/services/page-design/page-design-ai-runner.ts": {
       "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
       "shardFile": "files/src/services/page-design/page-design-ai-runner.ts.json",
-      "sourceModifiedAt": "2026-10-29T06:43:20.186Z"
+      "sourceModifiedAt": "2026-10-30T06:40:23.748Z"
     },
     "src/services/page-design/page-design-gates.ts": {
       "sourceFile": "src/services/page-design/page-design-gates.ts",
       "shardFile": "files/src/services/page-design/page-design-gates.ts.json",
-      "sourceModifiedAt": "2026-10-15T10:19:34.334Z"
+      "sourceModifiedAt": "2026-10-30T06:43:20.022Z"
     },
-    "src/services/page-design/page-design-headless.ts": {
-      "sourceFile": "src/services/page-design/page-design-headless.ts",
-      "shardFile": "files/src/services/page-design/page-design-headless.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:49:08.117Z"
+    "src/services/page-design/page-design-inline-delivery.ts": {
+      "sourceFile": "src/services/page-design/page-design-inline-delivery.ts",
+      "shardFile": "files/src/services/page-design/page-design-inline-delivery.ts.json",
+      "sourceModifiedAt": "2026-10-30T08:00:54.708Z"
     },
     "src/services/page-design/page-design-operation-guard.ts": {
       "sourceFile": "src/services/page-design/page-design-operation-guard.ts",
       "shardFile": "files/src/services/page-design/page-design-operation-guard.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:34:12.200Z"
+      "sourceModifiedAt": "2026-10-30T07:08:11.662Z"
     },
     "src/services/project-model-artifacts/index.ts": {
       "sourceFile": "src/services/project-model-artifacts/index.ts",
@@ -4206,20 +4186,15 @@
       "shardFile": "files/src/services/project-model-artifacts/rule-editor.ts.json",
       "sourceModifiedAt": "2026-10-09T05:06:34.990Z"
     },
-    "src/services/project-planning/project-planning-agent-run-provider.ts": {
-      "sourceFile": "src/services/project-planning/project-planning-agent-run-provider.ts",
-      "shardFile": "files/src/services/project-planning/project-planning-agent-run-provider.ts.json",
-      "sourceModifiedAt": "2026-10-29T15:39:49.578Z"
-    },
     "src/services/project-planning/project-planning-agent-workflow-binding.ts": {
       "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
       "shardFile": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json",
-      "sourceModifiedAt": "2026-10-29T15:39:49.579Z"
+      "sourceModifiedAt": "2026-10-30T06:40:27.879Z"
     },
     "src/services/project-planning/project-planning-ai-runner.ts": {
       "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
       "shardFile": "files/src/services/project-planning/project-planning-ai-runner.ts.json",
-      "sourceModifiedAt": "2026-10-27T15:22:51.936Z"
+      "sourceModifiedAt": "2026-10-30T06:40:25.898Z"
     },
     "src/services/project-planning/project-planning-attachments.ts": {
       "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
@@ -4231,10 +4206,10 @@
       "shardFile": "files/src/services/project-planning/project-planning-blueprint-diff.ts.json",
       "sourceModifiedAt": "2026-10-27T02:02:14.173Z"
     },
-    "src/services/project-planning/project-planning-headless.ts": {
-      "sourceFile": "src/services/project-planning/project-planning-headless.ts",
-      "shardFile": "files/src/services/project-planning/project-planning-headless.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:49:08.118Z"
+    "src/services/project-planning/project-planning-inline-delivery.ts": {
+      "sourceFile": "src/services/project-planning/project-planning-inline-delivery.ts",
+      "shardFile": "files/src/services/project-planning/project-planning-inline-delivery.ts.json",
+      "sourceModifiedAt": "2026-10-30T08:00:54.713Z"
     },
     "src/services/project/blueprint-workspace-dataview.ts": {
       "sourceFile": "src/services/project/blueprint-workspace-dataview.ts",
@@ -4249,7 +4224,7 @@
     "src/services/project/page-tool-file-dataview.ts": {
       "sourceFile": "src/services/project/page-tool-file-dataview.ts",
       "shardFile": "files/src/services/project/page-tool-file-dataview.ts.json",
-      "sourceModifiedAt": "2026-10-30T05:02:06.263Z"
+      "sourceModifiedAt": "2026-10-30T06:38:12.699Z"
     },
     "src/services/project/page-tool-file-operations.ts": {
       "sourceFile": "src/services/project/page-tool-file-operations.ts",
@@ -4364,7 +4339,7 @@
     "src/views/app/dev-system/composables/useDevFileEditor.ts": {
       "sourceFile": "src/views/app/dev-system/composables/useDevFileEditor.ts",
       "shardFile": "files/src/views/app/dev-system/composables/useDevFileEditor.ts.json",
-      "sourceModifiedAt": "2026-10-29T14:45:05.033Z"
+      "sourceModifiedAt": "2026-10-30T07:44:55.991Z"
     },
     "src/views/app/dev-system/composables/useNodeKindFlags.ts": {
       "sourceFile": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
@@ -4384,7 +4359,7 @@
     "src/views/app/dev-system/DevFileEditor.vue": {
       "sourceFile": "src/views/app/dev-system/DevFileEditor.vue",
       "shardFile": "files/src/views/app/dev-system/DevFileEditor.vue.json",
-      "sourceModifiedAt": "2026-10-29T15:33:42.117Z"
+      "sourceModifiedAt": "2026-10-30T07:44:17.741Z"
     },
     "src/views/app/dev-system/DevPreviewTab.vue": {
       "sourceFile": "src/views/app/dev-system/DevPreviewTab.vue",
@@ -4424,7 +4399,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-30T04:33:27.941Z"
+      "sourceModifiedAt": "2026-10-30T06:36:17.259Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",

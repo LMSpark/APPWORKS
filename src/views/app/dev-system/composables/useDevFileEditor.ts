@@ -1,14 +1,14 @@
 /**
  * @module app:views/app/dev-system/composables/useDevFileEditor
  * 职责：提供 DevSystem 的 useDevFileEditor 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。
- * 边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。
+ * 边界：只服务开发系统 UI 和调试流程；工具文件状态与持久化沿正式 DataView/DataSet 链处理。
  * AI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/composables/useDevFileEditor。
  */
 import { computed, type Ref } from 'vue'
 import type { DevState } from '../useDevState'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 
-/** 页面内容页签绑定 — 文本与编辑状态经文件 DataView，持久化经 DataSet/ProjectWorkspace。 */
+/** 页面文件内容与编辑状态经文件 DataView；持久化及回执由 DataSet 与数据层资源适配承接。 */
 export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageToolFileName>>) {
   const project = state.project
   function fileState(name:PageToolFileName){
@@ -33,14 +33,6 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
   })
   const isDirty = computed(() => fileState(activeFile.value)?.dirty ?? false)
   const isUnconfirmed = computed(() => fileState(activeFile.value)?.unconfirmed ?? false)
-  const canUndo = computed(() => {
-    void state.projectRevision.value
-    return fileState(activeFile.value)?.view.dirtyTracking.hasPendingChanges() ?? false
-  })
-  const canRedo = computed(() => {
-    void state.projectRevision.value
-    return false
-  })
   const text = computed(() => {
     void state.projectRevision.value
     void state.externalDataViewRevision.value
@@ -88,8 +80,6 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     isReady,
     isDirty,
     isUnconfirmed,
-    canUndo,
-    canRedo,
     text,
     ensureLoaded,
     isFileDirty,

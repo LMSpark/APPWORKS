@@ -120,6 +120,7 @@ export function createAppAgentWorkflowRuntimeBindings(
       [PAGE_DESIGN_EDITOR_SOURCE]: context => guardPageDesignEditor(
         resolvePageDesignProject(requirePageDesignOptions(options), context),
         readPageDesignRunContext(context.moduleInstanceId.trim())?.allowedOperations,
+        readPageDesignRunContext(context.moduleInstanceId.trim())?.assertCurrent,
       ),
       [PROJECT_PLANNING_EDITOR_SOURCE]: context => resolveProjectPlanningDomainRoot(
         requireProjectPlanningOptions(options),

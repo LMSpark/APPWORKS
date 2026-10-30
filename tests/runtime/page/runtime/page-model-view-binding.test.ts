@@ -49,7 +49,7 @@ describe('page binding uses scenario, model name and view identity', () => {
 
   it('materializes complete and local model bindings without mutating the tool definition', async () => {
     const call = await callWithModels({InternalOrders: 'Orders'})
-    call.tool.setFileText('rule.json', JSON.stringify([
+    call.tool.hydrateFileText('rule.json', JSON.stringify([
       {type: 'r-form', props: {dataViewKey: 'SPACE@Orders@detail'}},
       {type: 'r-form', props: {dataViewKey: 'Orders@default'}},
     ]))

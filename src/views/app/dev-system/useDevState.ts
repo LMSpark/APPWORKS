@@ -202,14 +202,15 @@ export function useDevState() {
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName)throw new Error('PAGE_TOOL_FILE_VIEW_ROW: 当前文件 DataView 尚未按目标身份加载')
     return {view,row,id,dirty:view.dirtyTracking.hasPendingChanges(id)||view.hasEditingChanges(id),unconfirmed:view.hasUnconfirmedSave}
   }
-  type PendingPageToolFileTarget=Readonly<{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName}>
+  type PendingPageToolFileTarget=Readonly<{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;text:unknown}>
   function pendingPageToolFileTargets(dataSet:DataSet|undefined):PendingPageToolFileTarget[]{
     const table=dataSet?.getTable(PAGE_FILE_TABLE)
     if(!table)return []
     const targets=table.viewList.flatMap(view=>view.viewId==='default'?[]:view.rows.flatMap(row=>{
       const id=view.getPkKey(row),pageId=row['pageId'],fileName=row['fileName']
       if(id===undefined||typeof pageId!=='string'||!pageId||!isPageToolFileName(fileName))return []
-      return view.hasUnconfirmedSave||view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id)?[{pageId,fileName}]:[]
+      const edited=view.getEditingRow(id)??row
+      return view.hasUnconfirmedSave||view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id)?[{pageId,fileName,text:edited['text']}]:[]
     }))
     return [...new Map(targets.map(target=>[`${target.pageId}/${target.fileName}`,target])).values()]
   }
@@ -235,12 +236,12 @@ export function useDevState() {
       bundle.pendingPageBindingCreate=pendingPageBindingCreate
       const pending=!!pendingMountedPageDelete||!!pendingPageBindingCreate||bundle.blueprint.hasPendingBlueprintCommand
         ||bundle.blueprint.isBusy||bundle.blueprint.dirty
-        ||(bundle.blueprint.dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.dirtyTracking.hasPendingChanges()||view.hasUnconfirmedSave)??false)
+        ||(bundle.blueprint.dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.dirtyTracking.hasPendingChanges()||view.hasEditingChanges()||view.hasUnconfirmedSave)??false)
         ||bundle.workspace.hasPendingScenarioVersionAttempt
       retainHistoryOwner=bundle.workspace.hasPendingScenarioVersionAttempt
+      if(!pending){for(const page of bundle.workspace.project.design.pages)page.unbindCleanFileDataViews();deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.runtime.dispose()}
       bundle.assertCurrent=undefined
       ownerScopeToken=undefined
-      if(!pending){deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.runtime.dispose()}
     }else if(!bundle){
       blueprintWorkspaceDataView.value?.dispose()
       blueprintPageRuntime.value?.dispose()
@@ -439,26 +440,31 @@ export function useDevState() {
     await loadBlueprintWorkspaceDataView()
     const page=workspace.project.findPageTool(input.pageId)
     if(!page)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 文件 DataView 或页面身份不可用')
-    const assertCurrent=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 项目、页面或owner已切换')}
     const view=currentPageFileView(input.pageId,input.fileName)
+    const owner=activeOwnerBundle
+    const assertCurrent=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 项目、页面或owner已切换');if(owner)assertOwnerBundleCurrent(owner)}
+    const assertPageToolEditCurrent=()=>{assertCurrent();if(activePageId.value!==input.pageId||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: 当前页面目标已切换')}
+    const bindPageToolView=()=>page.bindFileDataView(input.fileName,view,{assertCurrent:assertPageToolEditCurrent,onChanged:()=>{assertPageToolEditCurrent();externalDataViewRevision.value++;workspace.notifyPageFileChanged(input.pageId,input.fileName)}})
     if(view.hasUnconfirmedSave&&view.queryContext['fileName']!==input.fileName)throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原文件提交仍待核验')
-    if(view.dirtyTracking.hasPendingChanges()){
+    if(view.dirtyTracking.hasPendingChanges()||view.hasEditingChanges()){
       const current=view.rows.find(row=>row['pageId']===input.pageId&&row['fileName']===input.fileName)
-      if(!input.discardPending&&current){const id=view.getPkKey(current);if(id!==undefined)view.setCurrentRowById(id);return view}
+      if(!input.discardPending&&current){const id=view.getPkKey(current);if(id!==undefined)view.setCurrentRowById(id);bindPageToolView();return view}
       if(!input.discardPending)throw new Error('PAGE_TOOL_FILE_SAVE_PENDING: 当前页面 DataView 草稿目标不匹配')
       if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原提交须先核验，不能取消')
       view.discardPendingChanges()
     }
-    view.queryContext={...view.queryContext,appId:projectId.value,pageId:input.pageId,fileName:input.fileName}
+    view.queryContext={...view.queryContext,appId:projectId.value,pageId:input.pageId,fileName:input.fileName,versionId:''}
     if(input.forceReload!==true){
       const loaded=view.rows.find(candidate=>candidate['pageId']===input.pageId&&candidate['fileName']===input.fileName)
-      if(loaded){const id=view.getPkKey(loaded);if(id!==undefined){view.setCurrentRowById(id);return view}}
+      if(loaded){const id=view.getPkKey(loaded);if(id!==undefined){view.setCurrentRowById(id);bindPageToolView();return view}}
     }
     await view.refresh();assertCurrent();if(view.loadingError)throw view.loadingError
     const row=view.rows.find(candidate=>candidate['pageId']===input.pageId&&candidate['fileName']===input.fileName)
     if(!row)throw new Error('FILE_RESOURCE_MISSING: 页面文件 DataView 未返回目标资源')
     const id=view.getPkKey(row);if(id===undefined)throw new Error('PAGE_TOOL_FILE_SAVE_ROW: 查询结果缺少稳定身份')
-    view.setCurrentRowById(id);return view
+    view.setCurrentRowById(id)
+    bindPageToolView()
+    return view
   }
   function stagePageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;text:string}):void{
     const workspace=currentEditor.value,scope=currentScopeKey(),page=workspace.project.findPageTool(input.pageId)
@@ -1300,7 +1306,6 @@ export function useDevState() {
   async function hydrateActivePageToolFromDataViews(pageId: string): Promise<void> {
     const workspace=currentEditor.value,scope=currentScopeKey(),page=workspace.project.getActivePage()
     if(page?.pageId!==pageId||activePageId.value!==pageId)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: AI 编辑页面已切换')
-    const dirtyFiles=new Set(page.getDirtyFileNames())
     for(const fileName of pageFileNames){
       const view=await loadPageToolFileDataView({pageId,fileName})
       if(currentEditor.value!==workspace||currentScopeKey()!==scope||activePageId.value!==pageId||workspace.project.getActivePage()!==page)
@@ -1308,11 +1313,6 @@ export function useDevState() {
       const row=view.currentRow
       if(row?.['pageId']!==pageId||row['fileName']!==fileName)
         throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 的 DataView 身份或文本无效`)
-      const id=view.getPkKey(row)
-      if(id===undefined)throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 缺少稳定身份`)
-      const edited=view.getEditingRow(id)??row,text=edited['text']
-      if(typeof text!=='string')throw new Error(`PAGE_TOOL_FILE_VIEW_ROW: ${fileName} 的文本无效`)
-      if(!dirtyFiles.has(fileName))page.hydrateFileText(fileName,text)
     }
     page.markLoaded()
   }
@@ -1330,17 +1330,32 @@ export function useDevState() {
     }
     if (pageDesignAiAdapter.isRunning()) return
 
+    const workspace=currentEditor.value,scope=currentScopeKey(),page=workspace.project.findPageTool(pageId),selectionRevision=nodeSelectionRevision
+    if(!page||workspace.project.getActivePage()!==page){addStatus('AI 编辑页面身份不可用','warning');return}
+    let runOwner:DevSystemOwnerBundle|undefined
+    let runLeaseGeneration:number|undefined
+    let runEnded=false
+    const assertAiTarget=()=>{if(currentEditor.value!==workspace||currentScopeKey()!==scope||activePageId.value!==pageId
+      ||nodeSelectionRevision!==selectionRevision||workspace.project.findPageTool(pageId)!==page||workspace.project.getActivePage()!==page
+      ||runEnded||runOwner!==undefined&&(activeOwnerBundle!==runOwner||ownerLeaseGeneration!==runLeaseGeneration))throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI 编辑目标或工作区已切换')
+      if(runOwner)assertOwnerBundleCurrent(runOwner)}
+
     pageDesignAiRunRevision.value += 1
     await nextTick()
 
     try {
       addStatus(`AI 开始编辑页面 ${pageId}`, 'info')
       await hydrateActivePageToolFromDataViews(pageId)
+      runOwner=activeOwnerBundle
+      if(!runOwner)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: AI 编辑缺少正式 DataView owner租约')
+      runLeaseGeneration=ownerLeaseGeneration
+      assertAiTarget()
       const result = await runPageDesignAiSession({
         ...options,
         pageId,
-        editor,
-        savePageFile:(targetPageId,name,text)=>savePageToolFile({pageId:targetPageId,fileName:name,submittedText:text}),
+        editor:workspace,
+        assertCurrent:assertAiTarget,
+        savePageFile:(targetPageId,name,text)=>{assertAiTarget();if(targetPageId!==pageId)throw new Error('PAGE_TOOL_FILE_VIEW_STALE: AI 编辑不能改写其他页面');return savePageToolFile({pageId:targetPageId,fileName:name,submittedText:text})},
         adapter: pageDesignAiAdapter,
         beforeFunctionCall: aiToolApprovals.beforeFunctionCall,
         onAbort: aiToolApprovals.cancelPending,
@@ -1351,6 +1366,7 @@ export function useDevState() {
           },
         },
       })
+      assertAiTarget()
       addStatus(
         result.sawToolCall
           ? `AI 已修改页面 ${pageId}，请保存`
@@ -1358,8 +1374,9 @@ export function useDevState() {
         result.sawToolCall ? 'success' : 'info',
       )
     } catch (error) {
-      addStatus(`AI 编辑失败: ${String(error)}`, 'error')
+      if(currentEditor.value===workspace&&currentScopeKey()===scope)addStatus(`AI 编辑失败: ${String(error)}`, 'error')
     } finally {
+      runEnded=true
       aiToolApprovals.cancelPending('AI 编辑会话已结束。')
       pageDesignAiRunRevision.value += 1
     }
@@ -1691,7 +1708,12 @@ export function useDevState() {
       stage = '蓝图属性'
       if ((blueprintDirty.value || !hasAnyDirty.value) && !await saveCurrentNavScope()) throw new Error('蓝图属性未保存；后续文件尚未提交')
       assertCurrent(); stage = '工具工作文件'
-      const dirtyTargets=pendingPageToolFileTargets(fileDataSet)
+      const pendingAfterExternalSave=pendingPageToolFileTargets(fileDataSet)
+      const capturedTargets=new Map(fileTargetsBeforeExternalSave.map(target=>[`${target.pageId}/${target.fileName}`,target]))
+      const dirtyTargets=pendingAfterExternalSave.filter(target=>{
+        const captured=capturedTargets.get(`${target.pageId}/${target.fileName}`)
+        return captured!==undefined&&Object.is(captured.text,target.text)
+      })
       const hadFiles=fileTargetsBeforeExternalSave.length>0||dirtyTargets.length>0
       for(const target of dirtyTargets){await savePageToolFile({pageId:target.pageId,fileName:target.fileName,requireActive:false});assertCurrent()}
       assertCurrent()

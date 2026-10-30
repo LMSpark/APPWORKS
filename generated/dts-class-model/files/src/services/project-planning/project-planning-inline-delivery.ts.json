@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project-planning/project-planning-inline-delivery",
+    "sourcePath": "src/services/project-planning/project-planning-inline-delivery.ts",
+    "sourceFile": "src/services/project-planning/project-planning-inline-delivery.ts",
+    "packageName": "app",
+    "modulePath": "services/project-planning/project-planning-inline-delivery",
+    "jsdoc": "@module app:services/project-planning-inline-delivery\n职责：向活跃 projectPlanning runner 报告本轮 Base_NavigationInfo DataView 提交结果。\n边界：只核对 captured DevSystem workspace 的蓝图 DataView 回执，不创建第二保存入口。\nAI用途：理解 projectPlanning inline runner 的提交结果和仍待保存状态。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectPlanningDeliveryContext"
+    ]
+  },
+  "$defs": {
+    "ProjectPlanningDeliveryContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningDeliveryContext",
+      "properties": {
+        "editor": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        },
+        "saveBlueprintAfterRun": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewBlueprintSaved": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewBlueprintPending": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewBlueprintRepeatRejected": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "editor",
+        "saveBlueprintAfterRun"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-30T08:00:54.713Z",
+  "models": {
+    "ProjectPlanningDeliveryContext": {
+      "name": "ProjectPlanningDeliveryContext",
+      "jsdoc": "projectPlanning inline run 落盘时携带的 editor 与蓝图保存策略。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。 */\n    editor: ProjectWorkspace;\n    /** Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。 */\n    saveBlueprintAfterRun: boolean;\n    /** True only after a live DataView command returned its accepted receipt and readback. */\n    dataViewBlueprintSaved?: boolean;\n    /** True when the original DataView command still needs explicit Save All recovery. */\n    dataViewBlueprintPending?: boolean;\n    /** A later plan mutation was attempted after this run had already issued its single DataView command. */\n    dataViewBlueprintRepeatRejected?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "editor",
+              "jsdoc": "本轮 captured ProjectWorkspace，持有当前项目蓝图和配置页模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveBlueprintAfterRun",
+              "jsdoc": "Agent Run 成功结束后是否自动保存蓝图变更；false 时仅标记 dirty 不落盘。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintSaved",
+              "jsdoc": "True only after a live DataView command returned its accepted receipt and readback.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintPending",
+              "jsdoc": "True when the original DataView command still needs explicit Save All recovery.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewBlueprintRepeatRejected",
+              "jsdoc": "A later plan mutation was attempted after this run had already issued its single DataView command.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

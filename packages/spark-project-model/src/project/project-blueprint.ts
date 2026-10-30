@@ -405,7 +405,6 @@ applyBlueprintNodeEdit(draft: BlueprintNodeDraft): BlueprintNodeDraftApplyResult
   writePageFile(command: ProjectPageFileWriteCommand): void {
     const page = this.requirePageDesign(command.pageId)
     page.setFileText(command.fileName, command.text)
-    this.emitPageFileChanged(page.pageId, command.fileName)
   }
 
   /**
@@ -423,33 +422,7 @@ isActivePageLoaded(): boolean {
     return this.getActivePage()?.isLoaded === true
   }
 
-    /** 是否 can Undo Page File。 */
-canUndoPageFile(fileName: PageToolFileName): boolean {
-    return this.getActivePage()?.canUndoFile(fileName) ?? false
-  }
-
-    /** 是否 can Redo Page File。 */
-canRedoPageFile(fileName: PageToolFileName): boolean {
-    return this.getActivePage()?.canRedoFile(fileName) ?? false
-  }
-
-undoPageFile(fileName: PageToolFileName): boolean {
-    const page = this.getActivePage()
-    if (!page) return false
-    const ok = page.undoFile(fileName)
-    if (ok) this.emitPageFileChanged(page.pageId, fileName)
-    return ok
-  }
-
-redoPageFile(fileName: PageToolFileName): boolean {
-    const page = this.getActivePage()
-    if (!page) return false
-    const ok = page.redoFile(fileName)
-    if (ok) this.emitPageFileChanged(page.pageId, fileName)
-    return ok
-  }
-
-    /** 读取 Node Tree。 */
+    /** 读取当前 rule.json 的独立树快照；修改快照不会改写 DataView。 */
 getNodeTree(): SparkNodeTreeModel | null {
     return this.getActivePage()?.getNodeTree() ?? null
   }
@@ -461,7 +434,6 @@ getNodeTree(): SparkNodeTreeModel | null {
   async editNodeTree(run: (tree: SparkNodeTreeModel) => void | Promise<void>): Promise<void> {
     const page = this.requireActivePageDesign()
     await page.editNodeTree(run)
-    this.emitPageFileChanged(page.pageId, 'rule.json')
   }
 
 markPageFileChanged(pageId: string, fileName: PageToolFileName): void {

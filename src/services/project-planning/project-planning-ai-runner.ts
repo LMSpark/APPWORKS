@@ -5,10 +5,10 @@
  * AI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。
  */
 /**
- * projectPlanning AI runner — headless 与 Agent Run 共用。
+ * projectPlanning inline AI runner — 与 DevSystem 共享正式 DataView owner。
  *
  * 统一入口：`runProjectPlanningAiSession` → `AiAgentHost.run('projectPlanning', input)`。
- * 调用方注入 `ProjectWorkspace`（DevSystem 无顶栏入口）；隔离式 SSE Agent Run 见 `project-planning-agent-run-provider.ts`。
+ * 调用方注入 `ProjectWorkspace` 与 Base_NavigationInfo DataView owner。
  */
 import { createAiRunAdapter, noopTraceSink } from '@spark-appworks/spark-app'
 import type {
@@ -31,11 +31,11 @@ import {
 import { activateProjectPlanningAgentWorkflow } from '@/services/ai/agent-workflow-bindings'
 import { createAiDeliveryFailureError } from '@/services/ai/ai-delivery-port'
 import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
-import { createProjectPlanningInlineDeliveryPort } from '@/services/project-planning/project-planning-agent-run-provider'
+import { createProjectPlanningInlineDeliveryPort } from '@/services/project-planning/project-planning-inline-delivery'
 
 /** Project Planning Ai Run Options 的调用配置。 */
 export type ProjectPlanningAiRunOptions = ResolveScopedProjectPlanningRunInputOptions & Readonly<{
-  /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */
+  /** inline 宿主显式启用后在 run 结束时保存蓝图；默认 false。 */
   saveBlueprintAfterRun?: boolean
   /** DevSystem inline only: the live, already loaded PageRuntime DataView owner. */
   blueprintDataView?: BlueprintWorkspaceDataView

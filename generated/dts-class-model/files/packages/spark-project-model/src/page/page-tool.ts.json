@@ -7,11 +7,12 @@
     "sourceFile": "packages/spark-project-model/src/page/page-tool.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "page/page-tool",
-    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-tool\n职责：独立页面工具的三文件编辑状态。\n边界：不继承蓝图节点，不持业务DataSet。\nAI用途：编辑工具定义并输出每次调用所需三文件。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-tool\n职责：把正式 ProjectToolFile DataView 投影为页面工具定义，并将工具编辑直接写入绑定视图。\n边界：不持有独立正文草稿、保存基线或撤销历史；未绑定视图时只读。\nAI用途：编辑工具定义时定位到当前 pageId 的正式文件 DataView。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "PageToolOptions",
       "PageToolDefinition",
+      "PageToolFileBindingOptions",
       "PageTool"
     ]
   },
@@ -59,6 +60,80 @@
       ],
       "additionalProperties": false
     },
+    "PageToolFileBindingOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileBindingOptions",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onChanged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onChanged.return": true
+      }
+    },
+    "PageTextProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageTextProjection",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "isDirty": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getText.return": {
+          "type": "string"
+        }
+      }
+    },
+    "PageRuleProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuleProjection",
+      "properties": {
+        "root": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "isDirty": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getTree.return": {
+          "type": "object",
+          "title": "SparkNodeTreeModel"
+        }
+      }
+    },
     "PageTool": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -68,19 +143,20 @@
           "type": "string"
         },
         "rule": {
-          "$ref": "content/rule-file.ts.json#/$defs/PageRuleFile"
+          "$ref": "#/$defs/PageRuleProjection"
         },
         "script": {
-          "$ref": "content/text-file.ts.json#/$defs/PageTextFile"
+          "$ref": "#/$defs/PageTextProjection"
         },
         "style": {
-          "$ref": "content/text-file.ts.json#/$defs/PageTextFile"
+          "$ref": "#/$defs/PageTextProjection"
         },
         "isLoaded": {
           "type": "boolean"
         },
         "nodeTree": {
-          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
+          "type": "object",
+          "title": "SparkNodeTreeModel"
         }
       },
       "additionalProperties": false,
@@ -119,19 +195,28 @@
           "additionalProperties": false
         },
         "method.hydrateFileText.return": true,
-        "method.markFileSaved.params": {
+        "method.bindFileDataView.params": {
           "type": "object",
           "properties": {
             "name": {
               "$ref": "page-file.ts.json#/$defs/PageToolFileName"
             },
-            "submittedText": {
-              "type": "string"
+            "view": {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "options": {
+              "$ref": "#/$defs/PageToolFileBindingOptions"
             }
           },
           "additionalProperties": false
         },
-        "method.markFileSaved.return": true,
+        "method.bindFileDataView.return": true,
+        "method.unbindCleanFileDataViews.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.unbindCleanFileDataViews.return": true,
         "method.getFileText.params": {
           "type": "object",
           "properties": {
@@ -142,18 +227,6 @@
           "additionalProperties": false
         },
         "method.getFileText.return": {
-          "type": "string"
-        },
-        "method.getSavedFileText.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.getSavedFileText.return": {
           "type": "string"
         },
         "method.setFileText.params": {
@@ -180,6 +253,18 @@
             "$ref": "page-file.ts.json#/$defs/PageToolFileName"
           }
         },
+        "method.isFileDirty.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isFileDirty.return": {
+          "type": "boolean"
+        },
         "method.isDirty.params": {
           "type": "object",
           "properties": {},
@@ -188,68 +273,21 @@
         "method.isDirty.return": {
           "type": "boolean"
         },
-        "method.canUndoFile.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.canUndoFile.return": {
-          "type": "boolean"
-        },
-        "method.canRedoFile.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.canRedoFile.return": {
-          "type": "boolean"
-        },
-        "method.undoFile.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.undoFile.return": {
-          "type": "boolean"
-        },
-        "method.redoFile.params": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.redoFile.return": {
-          "type": "boolean"
-        },
         "method.getNodeTree.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
         "method.getNodeTree.return": {
-          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
+          "type": "object",
+          "title": "SparkNodeTreeModel"
         },
         "method.editNodeTree.params": {
           "type": "object",
           "properties": {
             "run": {
               "type": "object",
-              "title": "(tree: SparkNodeTree) => void | Promise<void>"
+              "title": "(tree: SparkNodeTreeModel) => void | Promise<void>"
             }
           },
           "additionalProperties": false
@@ -269,20 +307,27 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T12:22:16.922Z",
+  "generatedAt": "2026-10-30T06:48:03.897Z",
   "models": {
     "PageToolOptions": {
       "name": "PageToolOptions",
       "jsdoc": "创建独立页面工具的稳定 pageId；不包含蓝图节点身份或运行数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    pageId: string;\n}",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
             {
               "name": "pageId",
               "readable": true,
-              "writable": true
+              "writable": false
             }
           ]
         }
@@ -293,28 +338,153 @@
       "jsdoc": "三文件编译输出，供一次页面调用物化；场景视图配置由场景文件独立提供。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    pageId: string;\n    rule: SparkNode[];\n    script: string | undefined;\n    css: string | undefined;\n}",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    rule: SparkNode[];\n    script: string | undefined;\n    css: string | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    rule: SparkNode[];\n    script: string | undefined;\n    css: string | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
         "members": {
           "attributes": [
             {
               "name": "pageId",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "rule",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "script",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "css",
               "readable": true,
-              "writable": true
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolFileBindingOptions": {
+      "name": "PageToolFileBindingOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent?: () => void;\n    onChanged?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent?: () => void;\n    onChanged?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onChanged",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageTextProjection": {
+      "name": "PageTextProjection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readonly text: string;\n    readonly isDirty: boolean;\n    getText(): string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readonly text: string;\n    readonly isDirty: boolean;\n    getText(): string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getText",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRuleProjection": {
+      "name": "PageRuleProjection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readonly root: SparkNode;\n    readonly children: SparkNode[];\n    readonly isDirty: boolean;\n    getTree(): SparkNodeTreeModel;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readonly root: SparkNode;\n    readonly children: SparkNode[];\n    readonly isDirty: boolean;\n    getTree(): SparkNodeTreeModel;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "root",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getTree",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTreeModel"
+              }
             }
           ]
         }
@@ -322,11 +492,10 @@
     },
     "PageTool": {
       "name": "PageTool",
-      "jsdoc": "页面工具持有 rule/script/style 三文件编辑与保存基线；不继承蓝图节点，也不拥有 DataSet。",
+      "jsdoc": "页面工具只投影正文；编辑状态与提交状态均由正式 ProjectToolFile DataView 持有。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "按明确 pageId 建立三文件编辑 owner，装载状态由真实读取完成后确认。",
           "signatureText": "constructor(options: PageToolOptions)",
           "parameters": [
             {
@@ -391,7 +560,7 @@
             },
             {
               "name": "hydrateFileText",
-              "jsdoc": "装载已读取文本并重置该文件保存基线；宿主须先保护 dirty 与请求代次。",
+              "jsdoc": "装载只读投影文本；绑定视图时所有读取仍以 DataView 当前行及编辑覆盖为准。",
               "parameters": [
                 {
                   "name": "name",
@@ -415,8 +584,8 @@
               }
             },
             {
-              "name": "markFileSaved",
-              "jsdoc": "仅将实际提交文本作为保存基线，保留保存等待期间的新编辑。",
+              "name": "bindFileDataView",
+              "jsdoc": "将明确 page/file 的已查询 DataView 绑定为唯一编辑入口。",
               "parameters": [
                 {
                   "name": "name",
@@ -427,13 +596,33 @@
                   }
                 },
                 {
-                  "name": "submittedText",
+                  "name": "view",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileBindingOptions",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "unbindCleanFileDataViews",
+              "jsdoc": "卸载已清洁的 DataView owner；保留最后正文作为只读投影。",
+              "parameters": [],
               "type": {
                 "type": "intrinsic",
                 "name": "void"
@@ -457,25 +646,8 @@
               }
             },
             {
-              "name": "getSavedFileText",
-              "jsdoc": "指定工具文件的已确认基线，不读取远端或改变当前编辑。",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
               "name": "setFileText",
+              "jsdoc": "每次编辑同步写入 DataView editing overlay；未绑定的 PageTool 只读。",
               "parameters": [
                 {
                   "name": "name",
@@ -511,6 +683,23 @@
               }
             },
             {
+              "name": "isFileDirty",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
               "name": "isDirty",
               "parameters": [],
               "type": {
@@ -519,83 +708,17 @@
               }
             },
             {
-              "name": "canUndoFile",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "canRedoFile",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "undoFile",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
-              "name": "redoFile",
-              "parameters": [
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageToolFileName",
-                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "intrinsic",
-                "name": "boolean"
-              }
-            },
-            {
               "name": "getNodeTree",
+              "jsdoc": "返回从 DataView 当前文本解析的独立快照；修改快照不会改写视图。",
               "parameters": [],
               "type": {
                 "type": "reference",
-                "name": "SparkNodeTree"
+                "name": "SparkNodeTreeModel"
               }
             },
             {
               "name": "editNodeTree",
+              "jsdoc": "在临时树上完成一次结构编辑，确认来源视图与文本未变后再写入同一 DataView。",
               "parameters": [
                 {
                   "name": "run",
@@ -609,7 +732,7 @@
                               "name": "tree",
                               "type": {
                                 "type": "reference",
-                                "name": "SparkNodeTree"
+                                "name": "SparkNodeTreeModel"
                               }
                             }
                           ],
@@ -651,7 +774,7 @@
             },
             {
               "name": "toDefinition",
-              "jsdoc": "未装载时拒绝输出定义；返回三文件内容，不附带场景运行状态。",
+              "jsdoc": "未装载时拒绝输出定义；返回 DataView 投影，不附带独立文件状态。",
               "parameters": [],
               "type": {
                 "type": "reference",

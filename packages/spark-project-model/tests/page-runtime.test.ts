@@ -94,7 +94,7 @@ describe('PageRuntime lifecycle',()=>{
   it('destroys successful siblings when any declared scenario fails',async()=>{const ds=data('a');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>{if(id==='b')throw new Error('missing scene');return ds}});await expect(runtime.load()).rejects.toThrow('missing scene');expect(ds.destroyed).toBe(true);expect(runtime.isLoaded).toBe(false)})
   it('rejects wrong scenario assembly and duplicate call declarations',async()=>{const ds=data('wrong');const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:async()=>ds});await expect(runtime.load()).rejects.toThrow('身份');expect(ds.destroyed).toBe(true);expect(()=>new PageRuntime({tool:tool(),scenarioIds:['a','a'],loadScenario:async id=>data(id)})).toThrow('重复')})
   it('materializes local bindings against the explicit main scene without mutating the tool',async()=>{
-    const shared=tool();shared.setFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'Orders@default'}}]))
+    const shared=tool();shared.hydrateFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'Orders@default'}}]))
     const ds=DataSet.fromJson({dataSetName:'scene',scenarioId:'scene',tables:{Orders:{tableName:'Orders',columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'name',type:'string'}],views:{default:{rows:[{id:1,name:'Original'}]}}}}})
     const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],mainScenarioId:'scene',loadScenario:async()=>ds});await runtime.load()
     expect(JSON.stringify(runtime.materialize().rule)).toContain('scene@Orders@default');expect(shared.getFileText('rule.json')).not.toContain('scene@Orders')
@@ -103,7 +103,7 @@ describe('PageRuntime lifecycle',()=>{
     runtime.dispose()
   })
   it('rejects a definition whose declared scene has no bound view',async()=>{
-    const shared=tool();shared.setFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'#scene@Missing@default'}}]))
+    const shared=tool();shared.hydrateFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'#scene@Missing@default'}}]))
     const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],loadScenario:async()=>data('scene')});await runtime.load();expect(()=>runtime.materialize()).toThrow('视图不存在');runtime.dispose()
   })
 

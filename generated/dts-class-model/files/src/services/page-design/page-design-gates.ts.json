@@ -79,10 +79,15 @@
           }
         }
       },
-      "required": [
-        "pageId"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "PageDesignRunMode": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -203,7 +208,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-15T10:19:34.334Z",
+  "generatedAt": "2026-10-30T06:43:20.022Z",
   "models": {
     "PageDesignAllowedOperations": {
       "name": "PageDesignAllowedOperations",
@@ -259,11 +264,11 @@
       "jsdoc": "页面设计运行上下文：绑定到 requestId，控制本次 run 的操作域与输出约束",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    /** 宿主为本次 AI 编辑固定工作区、节点与 DataView owner；不来自模型脚本参数。 */\n    assertCurrent?: () => void;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
+            "typeText": "Readonly<{\n    pageId: string;\n    /** 宿主为本次 AI 编辑固定工作区、节点与 DataView owner；不来自模型脚本参数。 */\n    assertCurrent?: () => void;\n    scenarioId?: string;\n    /** 操作域白名单，非空时 model_script 中的 API 调用受 marker 硬拦截 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** 交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -290,6 +295,17 @@
               "jsdoc": "交付阶段允许保存的文件名列表；省略表示未限定，显式空或无效列表拒绝。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "宿主为本次 AI 编辑固定工作区、节点与 DataView owner；不来自模型脚本参数。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }

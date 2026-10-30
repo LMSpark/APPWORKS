@@ -356,7 +356,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-29T15:39:49.579Z",
+  "generatedAt": "2026-10-30T06:40:27.879Z",
   "models": {
     "ProjectPlanningRunInput": {
       "name": "ProjectPlanningRunInput",
@@ -636,11 +636,11 @@
       "jsdoc": "Project Planning Agent Workflow Binding Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** 当前 inline DevSystem PageRuntime owner；headless run 不提供该能力。 */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n    /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */\n    getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined;\n    /** 仅在 DataView receipt 与正式树回读确认后记录本次 completion result。 */\n    onDataViewCompletionConfirmed?: (projectId: string, result: ProjectPlanningCompletionResult) => void;\n    /** 在本次 run 发出唯一 DataView 写命令前原子占用写入位。 */\n    tryBeginDataViewBlueprintWrite?: (projectId: string) => boolean;\n    /** 后续写入尝试被拒绝时通知当前 run，使 delivery 返回失败/部分完成。 */\n    onRepeatedDataViewBlueprintWrite?: (projectId: string) => void;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** 当前 inline DevSystem PageRuntime owner。 */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n    /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */\n    getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined;\n    /** 仅在 DataView receipt 与正式树回读确认后记录本次 completion result。 */\n    onDataViewCompletionConfirmed?: (projectId: string, result: ProjectPlanningCompletionResult) => void;\n    /** 在本次 run 发出唯一 DataView 写命令前原子占用写入位。 */\n    tryBeginDataViewBlueprintWrite?: (projectId: string) => boolean;\n    /** 后续写入尝试被拒绝时通知当前 run，使 delivery 返回失败/部分完成。 */\n    onRepeatedDataViewBlueprintWrite?: (projectId: string) => void;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** 当前 inline DevSystem PageRuntime owner；headless run 不提供该能力。 */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n    /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */\n    getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined;\n    /** 仅在 DataView receipt 与正式树回读确认后记录本次 completion result。 */\n    onDataViewCompletionConfirmed?: (projectId: string, result: ProjectPlanningCompletionResult) => void;\n    /** 在本次 run 发出唯一 DataView 写命令前原子占用写入位。 */\n    tryBeginDataViewBlueprintWrite?: (projectId: string) => boolean;\n    /** 后续写入尝试被拒绝时通知当前 run，使 delivery 返回失败/部分完成。 */\n    onRepeatedDataViewBlueprintWrite?: (projectId: string) => void;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+            "typeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** 当前 inline DevSystem PageRuntime owner。 */\n    blueprintDataView?: BlueprintWorkspaceDataView;\n    /** 本次 AI run 内，按项目身份读取已确认的 DataView completion result；作用域不跨 run。 */\n    getDataViewCompletionResult?: (projectId: string) => ProjectPlanningCompletionResult | undefined;\n    /** 仅在 DataView receipt 与正式树回读确认后记录本次 completion result。 */\n    onDataViewCompletionConfirmed?: (projectId: string, result: ProjectPlanningCompletionResult) => void;\n    /** 在本次 run 发出唯一 DataView 写命令前原子占用写入位。 */\n    tryBeginDataViewBlueprintWrite?: (projectId: string) => boolean;\n    /** 后续写入尝试被拒绝时通知当前 run，使 delivery 返回失败/部分完成。 */\n    onRepeatedDataViewBlueprintWrite?: (projectId: string) => void;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -648,7 +648,7 @@
           "attributes": [
             {
               "name": "blueprintDataView",
-              "jsdoc": "当前 inline DevSystem PageRuntime owner；headless run 不提供该能力。",
+              "jsdoc": "当前 inline DevSystem PageRuntime owner。",
               "readable": true,
               "writable": false
             },

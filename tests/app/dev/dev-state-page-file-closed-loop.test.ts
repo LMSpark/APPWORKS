@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { effectScope, nextTick, watchEffect } from 'vue'
+import { defineComponent, effectScope, h, nextTick, watchEffect } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
+import {getVuePageOptions} from '@/registries/vue-page-registry'
 import { DataSet, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
@@ -1181,6 +1186,166 @@ describe('DevState 页面文件闭环', () => {
       expect(fixture.dataSet.getView('Base_NavigationInfo')?.rows.filter(row=>row['prowid']==='000000')).toHaveLength(2)
       expect(state.blueprintWorkspaceDataView.value?.hasUnconfirmedSave).toBe(false)
     }finally{ownerScope.stop()}
+  })
+
+  it('target UI binds candidate choices to the current runtime DataView without changing the navigation query',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('CHILD-A','Child','','APP-A'),node('EXISTING','Existing tool','cfg:existing-tool','APP-A'),
+      node('EXISTING-ALIAS','Second entry','cfg:existing-tool','APP-A'),
+    ],'APP-A'))
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    await state.openEditingProject({projectId:'APP-A'},{force:true})
+    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+    pageFiles.files.set('unmounted/rule.json','[]')
+    const runtime=state.blueprintPageRuntime.value!
+    const Host=defineComponent({setup(){useSparkComponent({type:'target-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
+    try {
+      await flushPromises()
+      const target=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
+      const key=target.props('optionDataViewKey')
+      expect(key).toEqual(expect.any(String))
+      expect(key).toContain(`${fixture.dataSet.scenarioId}@`)
+      const options=runtime.resolveView(key!)
+      if(!options)throw new Error('target options view must belong to the current runtime')
+      expect(options.dataSet).toBe(fixture.dataSet)
+      expect(options.rows).toEqual(expect.arrayContaining([expect.objectContaining({value:'cfg:existing-tool',label:'工具 · Existing tool'})]))
+      expect(options.rows.filter(row=>row['value']==='cfg:existing-tool')).toHaveLength(1)
+      expect(options.rows.some(row=>row['value']==='cfg:unmounted')).toBe(false)
+      expect(options.rows).toEqual(expect.arrayContaining(getVuePageOptions().map(page=>expect.objectContaining({value:page.path,label:`页面 · ${page.title}`}))))
+      expect(options.fieldAccess(options.rows[0]!,'label').write).toBe('denied')
+      const owner=state.blueprintWorkspaceDataView.value!
+      const queryCount=fixture.readQueryCount(),row=owner.view.currentRow,query={...owner.view.queryContext}
+      await target.get('input').setValue('Existing')
+      await flushPromises()
+      expect(owner.value('NavigationUrl')).toBe('')
+      expect(owner.view.currentRow).toBe(row)
+      expect(owner.view.queryContext).toEqual(query)
+      expect(fixture.readQueryCount()).toBe(queryCount)
+      expect(owner.dirty).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+      owner.view.updateEditingValue('EXISTING','FunName','Renamed tool')
+      await flushPromises()
+      expect(options.rows.find(candidate=>candidate['value']==='cfg:existing-tool')?.['label']).toBe('工具 · Renamed tool')
+      owner.view.discardPendingChanges(['EXISTING'])
+      await flushPromises()
+      expect(options.rows.find(candidate=>candidate['value']==='cfg:existing-tool')?.['label']).toBe('工具 · Existing tool')
+      const choice=target.findAllComponents({name:'ElOption'}).find(option=>option.props('value')==='cfg:existing-tool')!
+      await choice.trigger('click')
+      await flushPromises()
+      expect(owner.value('NavigationUrl')).toBe('cfg:existing-tool')
+      expect(owner.view.getEditingPatch('CHILD-A')).toMatchObject({NavigationUrl:'cfg:existing-tool'})
+      expect(state.activePageId.value).toBe('existing-tool')
+      owner.cancel()
+      expect(owner.value('NavigationUrl')).toBe('')
+      expect(fixture.save).not.toHaveBeenCalled()
+      httpFns.scopeToken='expired-target-scope'
+      try {expect(()=>options.fieldAccess(options.rows[0]!,'label')).toThrow()}
+      finally {httpFns.scopeToken='fixture-token'}
+      wrapper.unmount()
+      expect(options.destroyed).toBe(true)
+      expect(owner.view.destroyed).toBe(false)
+    } finally {if(wrapper.exists())wrapper.unmount();scope.stop()}
+  })
+
+  it('target UI creates and binds a new tool from a separate DataView input then reads persisted files and node',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A')
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    await state.openEditingProject({projectId:'APP-A'},{force:true})
+    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+    const runtime=state.blueprintPageRuntime.value!
+    const Host=defineComponent({setup(){useSparkComponent({type:'target-create-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
+    try {
+      await flushPromises()
+      const input=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')
+      expect(input,'new tool ID needs an independent bound command input').toBeDefined()
+      await input!.get('input').setValue('ui-created-tool')
+      await flushPromises()
+      const owner=state.blueprintWorkspaceDataView.value!
+      expect(owner.value('NavigationUrl')).toBe('')
+      expect(owner.dirty).toBe(false)
+      const button=wrapper.findAll('button').find(candidate=>candidate.text()==='创建并绑定工具')!
+      expect(button.attributes('disabled')).toBeUndefined()
+      await button.trigger('click')
+      await flushPromises()
+      expect(pageFiles.upload,state.statusMessages.value.map(message=>message.text).join('\n')).toHaveBeenCalledTimes(3)
+      expect(owner.value('NavigationUrl')).toBe('cfg:ui-created-tool')
+      expect(owner.dirty).toBe(false)
+      const target=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
+      expect(runtime.resolveView(target.props('optionDataViewKey')!)?.rows).toEqual(expect.arrayContaining([expect.objectContaining({value:'cfg:ui-created-tool'})]))
+      await owner.loadProjectTree()
+      await owner.load('CHILD-A')
+      expect(owner.value('NavigationUrl')).toBe('cfg:ui-created-tool')
+      for(const fileName of ['rule.json','script.js','style.css'] as const){
+        const view=await state.loadPageToolFileDataView({pageId:'ui-created-tool',fileName})
+        expect(view.currentRow?.['text']).toBe(pageFiles.files.get(`ui-created-tool/${fileName}`))
+      }
+      expect(fixture.save.mock.calls.every(([request])=>request.changes.every(change=>change.identity.metaName==='Base_NavigationInfo'))).toBe(true)
+    } finally {wrapper.unmount();scope.stop()}
+  })
+
+  it('target UI invalidates old node callbacks and command inputs while preserving the formal navigation view',async()=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',blueprintRoot([
+      node('CHILD-A','Child A','','APP-A'),node('CHILD-B','Child B','','APP-A'),
+    ],'APP-A'))
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    await state.openEditingProject({projectId:'APP-A'},{force:true})
+    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+    const runtime=state.blueprintPageRuntime.value!
+    const Host=defineComponent({setup(){useSparkComponent({type:'target-switch-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
+    try {
+      await flushPromises()
+      const oldSelect=wrapper.findAllComponents(FieldSelect).find(field=>field.props('dataField')==='NavigationUrl')!
+      const oldOptions=runtime.resolveView(oldSelect.props('optionDataViewKey')!)
+      if(!oldOptions)throw new Error('target options view must exist before switching nodes')
+      const oldChange=oldSelect.vm.$.vnode.props?.['onUpdate:modelValue'] as (value:string)=>void
+      const input=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')!
+      await input.get('input').setValue('old-node-tool')
+      await flushPromises()
+      const oldCreate=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='创建并绑定工具')!.vm.$.vnode.props?.['onClick'] as ()=>Promise<void>
+      state.externalDataViewRevision.value++
+      await flushPromises()
+      expect((input.get('input').element as HTMLInputElement).value).toBe('old-node-tool')
+      await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-B')!)
+      await flushPromises()
+      expect(oldOptions.destroyed).toBe(true)
+      const newInput=wrapper.findAllComponents(FieldText).find(field=>field.props('dataField')==='newToolId')!
+      expect((newInput.get('input').element as HTMLInputElement).value).toBe('')
+      oldChange('cfg:old-node-tool')
+      await oldCreate()
+      await flushPromises()
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(state.activePageId.value).not.toBe('old-node-tool')
+      expect(state.blueprintWorkspaceDataView.value!.value('NavigationUrl')).toBe('')
+      expect(state.blueprintWorkspaceDataView.value!.view.destroyed).toBe(false)
+      expect(fixture.save).not.toHaveBeenCalled()
+    } finally {wrapper.unmount();scope.stop()}
+  })
+
+  it.each(['hidden','readonly'] as const)('target UI preserves %s target permissions when creating tools',async mode=>{
+    const fixture=createBlueprintRuntimeDataSet('APP-A',undefined,mode==='hidden'?{hiddenFields:['NavigationUrl']}:{readonlyFields:['NavigationUrl']})
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    await state.openEditingProject({projectId:'APP-A'},{force:true})
+    await state.selectNode(state.treeData.value.find(candidate=>candidate.nodeId==='CHILD-A')!)
+    const runtime=state.blueprintPageRuntime.value!
+    const Host=defineComponent({setup(){useSparkComponent({type:'target-permission-test-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state})}})
+    const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin({registry:Spark.createRegistry()})]}})
+    try {
+      await flushPromises()
+      const create=wrapper.findAll('button').find(button=>button.text()==='创建并绑定工具')
+      if(create)expect(create.attributes('disabled')).toBeDefined()
+      const field=wrapper.findAllComponents(FieldSelect).find(candidate=>candidate.props('dataField')==='NavigationUrl')
+      if(mode==='hidden')expect(field).toBeUndefined()
+      else expect(field!.props('readonly')).toBe(true)
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(fixture.save).not.toHaveBeenCalled()
+    } finally {wrapper.unmount();scope.stop()}
   })
 
   it('创建并绑定工具只写页面文件 owner 与节点 DataView，不调用 ProjectWorkspace 蓝图 writer',async()=>{

@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/node-target-resources",
+    "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+    "sourceFile": "src/views/app/dev-system/node-target-resources.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/node-target-resources",
+    "jsdoc": "@module app:views/app/dev-system/node-target-resources\n职责：在当前 DevSystem 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。\n边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NodeTargetOptionRow",
+      "NodeTargetTreeOwner",
+      "NodeTargetResourceScope",
+      "NodeTargetResources"
+    ]
+  },
+  "$defs": {
+    "NodeTargetOptionRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeTargetOptionRow",
+      "properties": {
+        "lingma_sys_params": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+        },
+        "lingma_sys_key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "additionalProperties": true
+    },
+    "NodeTargetTreeOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeTargetTreeOwner",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "value": {
+          "type": "object",
+          "title": "(field: string) => unknown"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "hasTreeProjection": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "treeProjection": {
+          "type": "object",
+          "title": "() => ProjectBlueprintTreeData"
+        },
+        "canRead": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        }
+      },
+      "required": [
+        "projectId",
+        "value",
+        "nodeId",
+        "dataSet",
+        "hasTreeProjection",
+        "treeProjection",
+        "canRead"
+      ],
+      "additionalProperties": false
+    },
+    "NodeTargetResourceScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeTargetResourceScope",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "runtime": {
+          "$ref": "../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "owner": {
+          "$ref": "#/$defs/NodeTargetTreeOwner"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "runtime",
+        "owner",
+        "projectId",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "NodeTargetResources": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeTargetResources",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/NodeTargetResourceScope"
+        },
+        "optionsView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "optionsViewKey": {
+          "type": "string"
+        },
+        "commandInputView": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "commandInputViewKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.refreshOptions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshOptions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    },
+    "CreateNodeTargetResourcesInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateNodeTargetResourcesInput",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/NodeTargetResourceScope"
+        },
+        "createTool": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-30T13:22:04.338Z",
+  "models": {
+    "NodeTargetOptionRow": {
+      "name": "NodeTargetOptionRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<DataRow & {\n    value: string;\n    label: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<DataRow & {\n    value: string;\n    label: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NodeTargetTreeOwner": {
+      "name": "NodeTargetTreeOwner",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'treeProjection' | 'canRead' | 'value'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<BlueprintWorkspaceDataView, 'projectId' | 'nodeId' | 'dataSet' | 'hasTreeProjection' | 'treeProjection' | 'canRead' | 'value'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "NodeTargetResourceScope": {
+      "name": "NodeTargetResourceScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: PageRuntime;\n    owner: NodeTargetTreeOwner;\n    projectId: string;\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: PageRuntime;\n    owner: NodeTargetTreeOwner;\n    projectId: string;\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NodeTargetResources": {
+      "name": "NodeTargetResources",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    optionsView: DataView;\n    optionsViewKey: string;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    refreshOptions: () => Promise<void>;\n    dispose: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    optionsView: DataView;\n    optionsViewKey: string;\n    commandInputView?: DataView;\n    commandInputViewKey?: string;\n    refreshOptions: () => Promise<void>;\n    dispose: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionsView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionsViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commandInputView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commandInputViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refreshOptions",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CreateNodeTargetResourcesInput": {
+      "name": "CreateNodeTargetResourcesInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope: NodeTargetResourceScope;\n    createTool: boolean;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createTool",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
     "packageName": "app",
     "modulePath": "views/app/dev-system/components/NodeTargetConfig",
-    "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按明确cfg目标创建工具。\n边界：正式kind与交付表面分离；工具创建走Workspace真实三文件能力。\nAI用途：选择原生页面、配置工具或外部链接并检查嵌入能力。",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按独立命令输入创建并绑定工具。\n边界：导航字段绑定正式蓝图 DataView；候选和工具 ID 输入绑定当前 runtime 的短生命周期 DataView。\nAI用途：选择原生页面、配置工具或外部链接并按现有创建 saga 绑定新工具。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-29T15:04:24.509Z",
+  "generatedAt": "2026-10-30T13:06:49.341Z",
   "models": {}
 }

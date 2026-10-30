@@ -493,7 +493,7 @@ export type SparkOptionValueMode = 'auto' | 'array' | 'separated-string'
  *
  * 说明：
  * - `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`
- * - `options` 表示本地静态候选项入口；若组件同时提供 `optionDataViewKey`，运行时通常先解析动态数据源，再在缺失时回退到本地 `options`
+ * - `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`
  * - `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段
  * - 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`
  * - 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`

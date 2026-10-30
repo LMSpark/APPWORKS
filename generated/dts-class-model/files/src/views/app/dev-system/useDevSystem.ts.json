@@ -509,14 +509,6 @@
               "type": "object",
               "title": "import(\"vue\").Ref<{ text: string; type: \"success\" | \"warning\" | \"error\" | \"info\"; time: string; }[], import(\"./useDevState\").StatusMessage[] | { text: string; type: \"success\" | \"warning\" | \"error\" | \"info\"; time: string; }[]>"
             },
-            "linkProbeLoading": {
-              "type": "object",
-              "title": "import(\"vue\").Ref<boolean, boolean>"
-            },
-            "linkProbeInfo": {
-              "type": "object",
-              "title": "import(\"vue\").Ref<{ embeddable: boolean; reason: string; } | null, { embeddable: boolean; reason: string; } | { embeddable: boolean; reason: string; } | null>"
-            },
             "autoSaveStatus": {
               "type": "object",
               "title": "import(\"vue\").Ref<\"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\", \"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\">"
@@ -673,14 +665,6 @@
               "type": "object",
               "title": "(params: { pageId: string; title: string; icon: string; }) => Promise<boolean>"
             },
-            "onLinkUrlChanged": {
-              "type": "object",
-              "title": "() => void"
-            },
-            "probeLinkTarget": {
-              "type": "object",
-              "title": "() => Promise<void>"
-            },
             "loadNodeToForm": {
               "type": "object",
               "title": "(node: import(\"@spark-appworks/spark-project-model\").ProjectBlueprintTreeNodeData) => void"
@@ -814,8 +798,6 @@
             "pageDataDirty",
             "pageList",
             "statusMessages",
-            "linkProbeLoading",
-            "linkProbeInfo",
             "autoSaveStatus",
             "pageDesignAiRunning",
             "aiToolApprovalPending",
@@ -855,8 +837,6 @@
             "clearActivePageContext",
             "selectPage",
             "createPageForSelectedNode",
-            "onLinkUrlChanged",
-            "probeLinkTarget",
             "loadNodeToForm",
             "markBlueprintDirty",
             "saveNodeChanges",

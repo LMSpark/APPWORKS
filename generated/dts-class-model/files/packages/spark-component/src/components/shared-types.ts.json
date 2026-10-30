@@ -2507,7 +2507,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-18T16:46:39.879Z",
+  "generatedAt": "2026-10-30T13:03:33.940Z",
   "models": {
     "ValueRef": {
       "name": "ValueRef",
@@ -3275,7 +3275,7 @@
     },
     "SparkOptionFieldProps": {
       "name": "SparkOptionFieldProps",
-      "jsdoc": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；若组件同时提供 `optionDataViewKey`，运行时通常先解析动态数据源，再在缺失时回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`",
+      "jsdoc": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkOptionSourceProps<TOption> & {\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */\n    optionLabelFields?: string[];\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}",

@@ -254,8 +254,7 @@ describe('BlueprintWorkspace runtime mount lifecycle', () => {
   })
 })
 
-async function blueprintTestRuntime() {
-  const dataSet=createDataSet()
+async function blueprintTestRuntime(dataSet=createDataSet()) {
   const runtime=new PageRuntime({pageId:'blueprint-node-basic-info-test',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
   await runtime.load()
   return runtime
@@ -639,26 +638,31 @@ describe('Blueprint editor owner-view field bindings', () => {
   })
 
   it('keeps target candidate search side-effect free and applies a custom URL from the current owner only on demand',async()=>{
-    const fixture=createBlueprintDataViewFixture()
+    const fixture=createBlueprintDataViewFixture({rows:[
+      {...blueprintRow(),rowid:'ROOT',conType:'module',NavigationUrl:''},
+      {...blueprintRow(),prowid:'ROOT',conType:'page',NavigationUrl:'cfg:tool-A',FunName:'Existing tool'},
+    ]})
     const owner=new BlueprintWorkspaceDataView(fixture.dataSet,'APP-1',()=>undefined)
+    await owner.loadProjectTree()
     await owner.load('NODE-1')
+    const runtime=await blueprintTestRuntime(fixture.dataSet)
     const originalTarget=owner.value('NavigationUrl')
     const handlePathChange=vi.fn(),markBlueprintDirty=vi.fn()
-    const state={projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintWorkspaceDataView:shallowRef(owner),blueprintDraft:{kind:'page',capability:{name:'Node'},navigation:{title:'Node',icon:'Document',target:'cfg:tool-A'}},
+    const state={projectId:'APP-1',selectedNode:ref(owner.nodeData()),blueprintPageRuntime:shallowRef(runtime),projectRevision:ref(0),externalDataViewRevision:ref(0),pageIoBusy:ref(false),blueprintWorkspaceDataView:shallowRef(owner),blueprintDraft:{kind:'page',capability:{name:'Node'},navigation:{title:'Node',icon:'Document',target:'cfg:tool-A'}},
       blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),pageList:ref([{pageId:'tool-A',title:'Existing tool',designSurface:'config-files'}]),
-      handlePathChange,markBlueprintDirty,createPageForSelectedNode:vi.fn(),linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
-    const FieldSelectProbe=defineComponent({props:['dataViewKey','dataMember','dataField','options','filterable','clearable'],emits:['update:modelValue','search'],
+      handlePathChange,markBlueprintDirty,createPageForSelectedNode:vi.fn(),addStatus:vi.fn()}
+    const FieldSelectProbe=defineComponent({props:['dataViewKey','dataMember','dataField','options','optionDataViewKey','filterable','clearable'],emits:['update:modelValue','search'],
       template:'<div><input data-search @input="$emit(\'search\',$event.target.value)"></div>'})
     const FieldTextProbe=defineComponent({props:['dataViewKey','dataMember','dataField','label'],emits:['update:modelValue'],template:'<label>{{label}}<input data-custom /></label>'})
     const ButtonProbe=defineComponent({props:['label','disabled'],emits:['click'],template:'<button :disabled="disabled" @click="$emit(\'click\')">{{label}}</button>'})
     const FormStub=defineComponent({template:'<form><slot /></form>'})
-    const runtime=await blueprintTestRuntime()
     const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-target-search-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(NodeTargetConfig,{state:state as never})}})
     const wrapper=mount(Host,{global:{stubs:{RendererForm:FormStub,RendererDivider:true,FieldText:FieldTextProbe,FieldSelect:FieldSelectProbe,RendererButton:ButtonProbe}}})
     try{
+      await flushPromises()
       const target=wrapper.findAllComponents(FieldSelectProbe).find(field=>field.props('dataField')==='NavigationUrl')!
       expect(target.props()).toMatchObject({dataMember:'currentRow',filterable:true})
-      expect(target.props('options')).toContainEqual({value:'cfg:tool-A',label:'工具 · Existing tool'})
+      expect(runtime.resolveView(target.props('optionDataViewKey'))?.rows).toEqual(expect.arrayContaining([expect.objectContaining({value:'cfg:tool-A',label:'工具 · Existing tool'})]))
       await wrapper.get('[data-search]').setValue('Existing tool')
       expect(owner.value('NavigationUrl')).toBe(originalTarget)
       expect(owner.view.getEditingPatch('NODE-1')).toBeUndefined()
@@ -670,7 +674,7 @@ describe('Blueprint editor owner-view field bindings', () => {
       await inputCustom.trigger('click')
       expect(wrapper.findComponent(FieldTextProbe).exists()).toBe(true)
       owner.update('NavigationUrl','https://example.test/path')
-      wrapper.findComponent(FieldTextProbe).vm.$emit('update:modelValue','https://example.test/path')
+      wrapper.findAllComponents(FieldTextProbe).find(field=>field.props('dataField')==='NavigationUrl')!.vm.$emit('update:modelValue','https://example.test/path')
       expect(owner.value('NavigationUrl')).toBe('https://example.test/path')
       expect(handlePathChange).toHaveBeenCalledTimes(1)
       expect(markBlueprintDirty).toHaveBeenCalledTimes(1)
@@ -709,11 +713,11 @@ describe('Blueprint editor owner-view field bindings', () => {
     await runtime.load()
     await owner.loadProjectTree()
     await owner.load(node.rowid)
-    const state={projectId:application.id,selectedNode:ref({nodeId:node.rowid}),blueprintPageRuntime:shallowRef(runtime),blueprintWorkspaceDataView:shallowRef(owner),
+    const state={projectId:application.id,selectedNode:ref({...owner.nodeData(),kind:'module'}),blueprintPageRuntime:shallowRef(runtime),projectRevision:ref(0),externalDataViewRevision:ref(0),pageIoBusy:ref(false),blueprintWorkspaceDataView:shallowRef(owner),
       blueprintDraft:{...owner.nodeData(),kind:'module',navigation:{title:node.FunName,target:'cfg:tool',icon:'Document'}},blueprintNodeFieldAccess:(field:string)=>({read:owner.canRead(field),write:owner.canWrite(field)}),
       blueprintNodeSectionWritable:()=>false,markBlueprintDirty:vi.fn(),notifyExternalDataViewChanged:vi.fn(),
       loadNavigationDictionaryOptions:vi.fn().mockResolvedValue(undefined),pageDataDirty:ref(false),pageList:ref([]),handlePathChange:vi.fn(),
-      linkProbeInfo:ref(null),linkProbeLoading:ref(false),probeLinkTarget:vi.fn(),createPageForSelectedNode:vi.fn(),addStatus:vi.fn()}
+      createPageForSelectedNode:vi.fn(),addStatus:vi.fn()}
     const FormProbe=defineComponent({name:'RendererForm',props:['dataViewKey','dataSource'],template:'<div><slot /></div>'})
     const FieldProbe=(name:string)=>defineComponent({name,props:['dataViewKey','dataMember','dataField'],template:'<span />'})
     const Host=defineComponent({setup(){useSparkComponent({type:'builtin-owner-field-binding-host'}).sparkProvide(PAGE_RUNTIME,runtime)
@@ -1399,16 +1403,18 @@ describe('BlueprintWorkspace DataView ownership', () => {
   it('hides unreadable and disables non-writable fields across all NodeBasicInfo panels',async()=>{
     const fixture=createBlueprintDataViewFixture()
     const owner=new BlueprintWorkspaceDataView(fixture.dataSet,'APP-1',()=>undefined)
+    await owner.loadProjectTree()
+    await owner.load('NODE-1')
+    const runtime=await blueprintTestRuntime(fixture.dataSet)
     const access=vi.fn((field:string)=>({read:field!=='memo',write:false}))
     const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'secret'},
       navigation:{title:'Node',icon:'Document',target:'cfg:tool',mobileTarget:'',openMode:'current',placement:'left',order:1,publishInMenu:true,showChildren:true,beginGroup:false},
       dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},
-      projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintPageRuntime:ref(undefined),blueprintWorkspaceDataView:shallowRef(owner),pageDataDirty:ref(false),blueprintNodeFieldAccess:access,blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),
+      projectId:'APP-1',selectedNode:ref({...owner.nodeData(),kind:'module'}),blueprintPageRuntime:shallowRef(runtime),projectRevision:ref(0),externalDataViewRevision:ref(0),pageIoBusy:ref(false),blueprintWorkspaceDataView:shallowRef(owner),pageDataDirty:ref(false),blueprintNodeFieldAccess:access,blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),
       markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),
-      linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
+      addStatus:vi.fn()}
     const Control=defineComponent({name:'FieldControl',props:{disabled:Boolean,readonly:Boolean,modelValue:null,label:String},template:'<label>{{label}}<input :disabled="disabled" :readonly="readonly" /></label>'})
     const FormStub=defineComponent({template:'<form><slot /></form>'})
-    const runtime=await blueprintTestRuntime()
     const Panels=defineComponent({setup(){useSparkComponent({type:'blueprint-panels-test'}).sparkProvide(PAGE_RUNTIME,runtime);
       return ()=>h('div',[h(NodeBasicInfo,{state:state as never}),h(NodeTargetConfig,{state:state as never}),h(NodeStateConfig,{state:state as never}),h(NodeLayoutConfig,{state:state as never})])}})
     let wrapper: ReturnType<typeof mount> | undefined
@@ -1429,7 +1435,7 @@ describe('BlueprintWorkspace DataView ownership', () => {
     const fixture=createBlueprintDataViewFixture()
     const owner=new BlueprintWorkspaceDataView(fixture.dataSet,'APP-1',()=>undefined)
     const state={blueprintDraft:{nodeId:'NODE-1',projectId:'APP-1',parentNodeId:'000000',kind:'module',capability:{name:'Node',description:'memo'},navigation:{title:'Node',icon:'Document',target:'cfg:tool',order:1,publishInMenu:true,showChildren:true,beginGroup:false},dataSpace:{scenarioId:'SCENE',models:[]},prototype:{htmlDescription:'prototype'}},projectId:'APP-1',selectedNode:ref({nodeId:'NODE-1'}),blueprintPageRuntime:ref(undefined),blueprintWorkspaceDataView:shallowRef(owner),pageDataDirty:ref(false),
-      blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:false})),blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),linkProbeLoading:ref(false),linkProbeInfo:ref(null),probeLinkTarget:vi.fn(),addStatus:vi.fn()}
+      blueprintNodeFieldAccess:vi.fn(()=>({read:true,write:false})),blueprintNodeFieldsWritable:vi.fn(()=>false),blueprintNodeSectionWritable:vi.fn(()=>false),markBlueprintDirty:vi.fn(),handlePathChange:vi.fn(),createPageForSelectedNode:vi.fn(),pageList:ref([]),activePageId:ref(''),addStatus:vi.fn()}
     const FormStub=defineComponent({template:'<form><slot /></form>'})
     const runtime=await blueprintTestRuntime()
     const Basic=defineComponent({props:{state:Object,sections:Array},setup(props){useSparkComponent({type:'blueprint-basic-info-test'}).sparkProvide(PAGE_RUNTIME,runtime)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 987,
+  "scannedFileCount": 988,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14570,7 +14570,7 @@
         "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
         "packageName": "app",
         "modulePath": "views/app/dev-system/components/NodeTargetConfig",
-        "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按明确cfg目标创建工具。\n边界：正式kind与交付表面分离；工具创建走Workspace真实三文件能力。\nAI用途：选择原生页面、配置工具或外部链接并检查嵌入能力。",
+        "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按独立命令输入创建并绑定工具。\n边界：导航字段绑定正式蓝图 DataView；候选和工具 ID 输入绑定当前 runtime 的短生命周期 DataView。\nAI用途：选择原生页面、配置工具或外部链接并按现有创建 saga 绑定新工具。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14708,6 +14708,24 @@
         "jsdoc": "app 的 views/app/dev-system/nav-host-project-picker/NavHostProjectPicker 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
         "symbols": []
+      }
+    },
+    "src/views/app/dev-system/node-target-resources.ts": {
+      "file": "files/src/views/app/dev-system/node-target-resources.ts.json",
+      "module": {
+        "name": "app:views/app/dev-system/node-target-resources",
+        "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+        "sourceFile": "src/views/app/dev-system/node-target-resources.ts",
+        "packageName": "app",
+        "modulePath": "views/app/dev-system/node-target-resources",
+        "jsdoc": "@module app:views/app/dev-system/node-target-resources\n职责：在当前 DevSystem 运行 DataSet 中装配导航候选只读视图和新工具命令输入视图。\n边界：候选由本资源从当前已授权导航投影和静态页面注册表派生；命令输入不属于正式蓝图保存目标。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "NodeTargetOptionRow",
+          "NodeTargetTreeOwner",
+          "NodeTargetResourceScope",
+          "NodeTargetResources"
+        ]
       }
     },
     "src/views/app/dev-system/ProjectBlueprintTree.vue": {
@@ -20381,6 +20399,22 @@
     "NodeCreateForm": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
+    },
+    "NodeTargetOptionRow": {
+      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+    },
+    "NodeTargetResources": {
+      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+    },
+    "NodeTargetResourceScope": {
+      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
+    },
+    "NodeTargetTreeOwner": {
+      "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
+      "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
     },
     "NormalizeOptionFields": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",

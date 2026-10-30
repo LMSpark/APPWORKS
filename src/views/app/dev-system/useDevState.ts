@@ -782,7 +782,6 @@ export function useDevState() {
     installScenarioDocument(null)
     currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
     bindProjectBlueprintEvents()
-    linkProbeInfo.value = null
     autoSaveStatus.value = 'idle'
     await loadBlueprint({ preserveActivePageId: readPersistedActivePageId() })
     return true
@@ -901,8 +900,6 @@ export function useDevState() {
 
   // ── 状态消息 ──
   const statusMessages = ref<StatusMessage[]>([])
-  const linkProbeLoading = ref(false)
-  const linkProbeInfo = ref<{ embeddable: boolean; reason: string } | null>(null)
 
   // ── 自动保存 ──
   const autoSaveStatus = ref<'idle' | 'pending' | 'saving' | 'saved' | 'error'>('idle')
@@ -1531,7 +1528,6 @@ export function useDevState() {
 
       if (setActivePageContext(preservedActivePageId, false)) {
         project.selectNode(null)
-        linkProbeInfo.value = null
         return
       }
     }
@@ -1557,7 +1553,6 @@ export function useDevState() {
     if (pageId) project.setActivePage(pageId)
     else clearActivePageContext()
     project.selectNode(node.nodeId)
-    linkProbeInfo.value = null
   }
 
   function markBlueprintDirty(): void {
@@ -1776,45 +1771,6 @@ export function useDevState() {
     syncActivePageContextByPath(val)
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // 链接探测
-  // ═══════════════════════════════════════════════════════════
-
-  function onLinkUrlChanged(): void {
-    markBlueprintDirty()
-    linkProbeInfo.value = null
-  }
-
-  async function probeLinkTarget(): Promise<void> {
-    const url = (blueprintDraft.navigation?.target ?? '').trim()
-    if (!url) {
-      addStatus('请先输入超链接地址', 'warning')
-      return
-    }
-
-    linkProbeLoading.value = true
-    try {
-      const result = await editor.probeLink(url)
-      const embeddable = result.embeddable
-      const reason = result.reason
-
-      if (blueprintDraft.navigation) blueprintDraft.navigation.openMode = embeddable ? 'embedded' : 'new-window'
-      linkProbeInfo.value = { embeddable, reason }
-      markBlueprintDirty()
-
-      addStatus(
-        embeddable
-          ? '链接检测通过：已标记为 iframe 渲染'
-          : '链接检测提示禁止嵌入：已标记为新标签打开',
-        embeddable ? 'success' : 'warning',
-      )
-    } catch (e) {
-      addStatus(`链接检测失败: ${String(e)}`, 'warning')
-    } finally {
-      linkProbeLoading.value = false
-    }
-  }
-
   async function listReferenceProjects(): Promise<ProjectBlueprintDomain.ProjectSummary[]> {
     return editor.listReferenceProjects()
   }
@@ -2002,8 +1958,6 @@ export function useDevState() {
 
     // 状态
     statusMessages,
-    linkProbeLoading,
-    linkProbeInfo,
     autoSaveStatus,
     pageDesignAiRunning,
     aiToolApprovalPending,
@@ -2050,8 +2004,6 @@ export function useDevState() {
     clearActivePageContext,
     selectPage,
     createPageForSelectedNode,
-    onLinkUrlChanged,
-    probeLinkTarget,
     loadNodeToForm,
     markBlueprintDirty,
     saveNodeChanges,

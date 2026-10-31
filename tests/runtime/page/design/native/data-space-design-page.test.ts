@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {computed, defineComponent, h, inject, markRaw, onBeforeUnmount, provide, type PropType} from 'vue'
@@ -8037,4 +8039,56 @@ describe('metadata invalidation ownership', () => {
     expect(save).toHaveBeenCalledOnce()
     expect(f.fileWrites).toHaveLength(0)
     expect(wrapper.text()).toContain('receipt missing')
+  })
+
+  it('keeps a lost file-resource receipt as the definition views own unknown state and never resubmits', async () => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const dataSet = f.sessions[0]!.metadataDataSet
+    const views = ['DataTableBindingDefinition', 'DataViewDefinition'].map(name => dataSet.getView(name, 'default')!)
+    const save = vi.spyOn(dataSet, 'saveChanges')
+    f.loseNextFileResponse()
+    const action = () => sourceButton(wrapper, 'add-file-resource-agent-workflow-files')
+    await action().trigger('click'); await flushPromises()
+    expect(save).toHaveBeenCalledOnce()
+    expect(views.some(view => view.hasUnconfirmedSave), wrapper.text()).toBe(true)
+    expect(action().attributes('disabled')).toBeDefined()
+    await action().trigger('click'); await flushPromises()
+    expect(save).toHaveBeenCalledOnce()
+  })
+
+  it('rejects a parameter save when the confirmed declaration changed underneath the draft', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const view = f.sessions[0]!.metadataDataSet.getView('Base_DataSet')!
+    await select(wrapper, '输入参数')
+    await editParameter(wrapper, '描述 1', '基于旧原文的修改')
+    Object.assign(view.rows[0]!, {inputParams: '[]'})
+    await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('参数声明原文已变化')
+    expect(writes(f)).toHaveLength(0)
+  })
+
+  it('rejects a history restore when a definition view changes while the version preview is pending', async () => {
+    const f = fixture({overviewOnly: true})
+    const {wrapper} = await page('?scenarioId=A')
+    const historical = JSON.parse(f.stored.get('A')!) as {tables: Record<string, {views: Record<string, Record<string, unknown>>}>}
+    historical.tables['OrdersAlias']!.views['default']!['pageSize'] = 37
+    const snapshot = JSON.stringify(historical)
+    const source = f.sessions[0]!.metadataDataSet.getView('DataViewDefinition')!
+    vi.spyOn(source, 'getSourceHistoryStatus').mockReturnValue({state: 'idle', version: null, fileName: null, message: null})
+    vi.spyOn(source, 'listSourceVersions').mockResolvedValue([{version: 4, label: '4__pagedata.json', lastModified: null}])
+    const preview = vi.spyOn(source, 'previewSourceVersion').mockResolvedValue(snapshot)
+    const entry = wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '场景历史')!
+    await entry.get('button').trigger('click'); await flushPromises()
+    await wrapper.get('[data-test="scene-preview"]').trigger('click'); await flushPromises()
+    preview.mockImplementation(async () => {source.applyViewConfig({pageSize: 99}); return snapshot})
+    await wrapper.get('[data-test="scene-restore"]').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('预览期间定义已变化')
+    expect(source.hasEditingChanges()).toBe(false)
+    expect(f.fileWrites).toEqual([])
+  })
+
+  it('reads unconfirmed save, parameter baseline and history change state from DataView owners instead of page snapshots', () => {
+    const source = readFileSync(resolve(__dirname, '../../../../../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'), 'utf8')
+    expect(source).not.toMatch(/fileBindingSubmissionUnconfirmed|parameterBaseline|historyDefinitionSnapshot/)
   })

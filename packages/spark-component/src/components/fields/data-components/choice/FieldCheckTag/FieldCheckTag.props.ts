@@ -4,11 +4,7 @@
  * 边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 field check tag 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkNodeProps } from '../../../../shared-types'
+import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types'
 
-/** RCheck Tag Props 的属性契约。 */
-export type RCheckTagProps = SparkNodeProps & {
-  /** 是否选中 */
-    checked?: boolean
-    /** 标签文本 */
-    label?: string}
+/** RCheck Tag Props 的属性契约；选中状态是所绑字段的 boolean 值，标签文本取 label 或字段名。 */
+export type RCheckTagProps = SparkNodeProps & SparkFieldSemanticProps<boolean>

@@ -48,6 +48,41 @@
 
 平台登录、租户、SSE 与 AI 轮次（`LoginView.vue`、`sse-events.ts`、`ai-turn-bridge.ts` 等）不是业务数据读写，登记为已声明边界，不进本队列。
 
+### 2026-10-31 认证 SPA 烟测与 bug 登记
+
+**范围。** 认证会话，应用 `D99A1DCE9894698799101EFD70F8FC76`，dev server `[::1]:5273`。逐页只读打开 18 个导航入口与 `/dev`、`/apps/homepage/app-list`；只在用户指定的"计量单位" `03F5471C81BB27C6AF72E8337AA69207` 做写入。逐页结果与请求摘要见 [`spa-smoke.txt`](evidence/whole-repo-smoke-20261031/spa-smoke.txt)。凭据未写入任何文件。
+
+**正常。** 服务器管理 5 行；数据库管理 25 行；表和视图两个入口各 20 行；数据字典 `EDB0` 20 行；逻辑视图两个入口各 16 行；JSON 11 行；数据空间目录与设计；开发工作台树 85 节点；应用工场首页 63 张卡片。
+
+**写入闭环成立。** 在计量单位 `_Base_DictData` 下新增视图 `smoke20261031` → 保存（`UploadFile` 200 → `content/text` 200，"视图配置已保存并回读确认"）→ 整页刷新重开仍在 → 删除并保存 → 整页刷新重开只剩 `default`。全程经定义 DataView 的保存链。残留：该空间原本没有场景视图文件，现在有一份只含自动补的 `default` 视图；界面没有删除整份文件的入口。
+
+| bug | 分类 | 证据 | 原实现事实 | 目标 | 待核实 |
+| --- | --- | --- | --- | --- | --- |
+| 内置应用页用导航节点 ID 装运行场景 | 前端断链 | 应用系统列表 `0C70`、外部服务管理 `8CBB` 报 `BUILTIN_SCENARIO_SOURCE_MISSING: … 不是已登记的系统程序场景`。`AppList.vue:139`、`api-management-page.vue:117`、`api-interface-list-page.vue:150`、`api-config-page.vue:139`、`NavHostProjectPicker.vue:105,127` 都调 `loadLowcodeRuntimeScenario`；`builtin-application-registry.ts` 只放行四个仓内场景 | 内置应用改为仓内场景后，这些页面的场景装载入口没有跟着迁 | 按结构化目录的同一条正式模型装配链，或在 `config/pages` 正式登记场景；二选一需要裁决 | 这些节点空间在后端有哪些正式模型 |
+| 导航节点空间缺正式模型 | 后端空间配置缺口 | 数据编码 `A133` 缺 `_Base_CodeDesign`；数据工作流 `5E96`、`E0BB` 缺 `_Base_DataWorkFlow`；Excel `36B0` 缺 `_Base_ImportConfig`；PDF `A2D6` 缺 `Base_UserInfo` 等。报错均为"正式数据空间模型必须唯一且属于当前数据空间"，首条 `Base_DataModel` 查询 0 行 | `loadStructuredConfigCatalog` 以 `node.conid` 为空间 ID 读模型，前端按合同拒绝 | 经数据空间设计在对应空间补正式模型；不在前端兜底或改借别的空间 | 写这些空间需要用户授权 |
+| 字典管理 `CB52` 模型字段冲突 | 存量数据缺陷 | "正式模型字段重复: Base_AppSystemList"，`data-space-design-api.ts:334`；同页经 `EDB0` 正常 | `CB52` 空间的 `Base_AppSystemList` 有同规范名、输出定义不同的字段记录 | 在设计页核对并修正该空间字段记录；不在前端去重 | 冲突的具体两条字段 |
+| 数据空间目录"未解析应用" | 范围不一致 | 目录 `Base_DataSet` 不带过滤返回 1357 个空间（首页 `sysid=902A722C…`）；`Base_AppSystemList` 只返回当前应用 1 行；`lowcode-data-space-catalog.ts:347` | 目录范围与应用选项范围不同 | 二者用同一应用范围，或应用选项能解析目录里出现的全部应用 | 服务端对两表的范围规则 |
+| 无视图文件时误报绑定不一致 | 文案/状态错误 | 新建首个视图草稿后出现"字段目录绑定与正式模型不一致"x2，`lowcode-data-space-view-design.ts:353`，条件含 `!file` | 文件不存在与绑定不一致合成一条错误 | 区分"尚无视图文件"与"绑定不一致" | — |
+| 设计对话框重入后无法关闭 | 交互状态 | 对话框打开时再次触发"设计"，出现 `DATA_SPACE_METADATA_SCOPE: 元数据查询目标已变化`，关闭按钮无响应，需整页刷新 | 重入同一目标时旧会话失效但没有释放 | 重入时复用或先释放旧会话；关闭始终可用 | 是否只在脚本连点时出现 |
+| 打开设计页整套装载两份元场景 | 按需加载偏差 | 7AB 蓝图 124 字段 / 140 物理字段、8D1 设计场景 13 模型 / 338 字段 / 301 物理字段在打开时全部查询；无视图文件时同一 `content/text` 404 读 6 次 | 元场景装配按全模型走 | 设计页按展开的工作区按需查询；同一文件状态只读一次 | 哪些视图首屏必需 |
+| 新增视图需手填绑定表名 | 交互 | 已选模型 `_Base_DictData` 下仍显示自由输入"绑定表名"；输入框失焦后"新增视图草稿"才可用 | `DataSpaceViewEditor.vue:219-221` | 当前模型就是绑定目标 | — |
+| 应用卡片列过窄、页头显示原始 ID | 布局 | 应用工场首页卡片标签/值列每行 2–4 字；页头 `SPARK - D99A1DCE…` | — | 卡片按内容宽度排版；页头显示应用名 | — |
+| 表和视图首屏 7 次空模型查询 | 待核 | 两个入口进页都有 7 次 `Base_DataModel` 返回 0 行 | — | 只查本页需要的模型 | 这 7 个模型名与用途 |
+
+**队列调整。** 在原第 1 轮前插入第 0 轮"内置应用页场景装载"，等待裁决装载方式；后端空间缺模型与 `CB52` 字段冲突需用户授权写入后经数据空间设计修正，不进前端队列。其余条目按归属挂到原轮次：设计页的误报、重入、按需加载与绑定表名挂在第 2 轮之后作为设计页下一批（本次第 2 轮只做三处页面快照），卡片与页头进第 8 轮，表和视图空查询进第 5 轮。
+
+**前三轮完成（2026-10-31，分支 `1031`，未提交）。** 三轮都先有失败测试再实现。全量 `test:run` 379 个文件 7135 项通过，三条已知 15 秒超时本次全量未复现；typecheck、变动 ESLint、`verify:rules`、`generate:class-model-surface`、`build` 退出 0。本次没有新的 SPA 写入。
+
+- **第 1 轮 前端角色。** 已从 `lowcode-runtime.ts`、`src/main.ts`、`spark-app` 的 `types.ts`/`bootstrap.ts`/README、`CapabilityDemo.vue` 删除 `roles` 与 `isLowcodePlatformAdministrator`；`permissions` 与路由守卫保持原行为。测试：`tests/runtime/auth-nav/navigation/auth-state-guard.test.ts`。
+- **第 2 轮 设计页三处快照。** 参数基线改由输入参数会话持有：构造时从目标 `Base_DataSet` 行捕获，确认保存或回读后更新；页面不再传 `parameterBaseline`，调用方仍可显式给 `expectedValue`。文件绑定未知状态改读定义 DataView 自身的 `hasUnconfirmedSave`。历史恢复的 JSON 快照改为订阅定义视图的变更事件，预览期间有改动、视图销毁或集合变化都会拒绝恢复。测试在 `data-space-design-page.test.ts` 末尾，覆盖丢失回执只提交一次、外部参数变化拒绝保存、预览期间定义变化拒绝恢复。
+- **第 3 轮 标准组件数据合同。** `FieldCheckTag` 改为字段语义合同（删掉 `checked`/`label` 本地 props，无存量消费者），读写走字段链与编辑覆盖。`FieldMention` 文本与写回字段都经 `writeField`，不再直改行。picker 预设转发 `dataViewKey`/`dataMember`/`dataField`。`DisplayPagination` 绑定视图时读视图的 total/page/pageSize 并调 `setPage`/`setPageSize`，未知键抛 `DATA_VIEW_MISSING`；未绑定时仍用 `total` prop。`RendererCard`、`RendererCollapseItem` 接入 `useLayoutDataContext`。测试：`tests/ui/field/field-standard-data-contract.test.ts`、`tests/ui/renderer/layout/renderer-card-collapse-data-context.test.ts`。
+
+**布局组件数据合同仍缺（登记为实现差距，非标准例外）。** `RendererSteps`/`StepItem`、`RendererSpace`、`zones/RendererEditor`、`create-passthrough.ts` 生成的透传组件、浮层组件（Popover、Tooltip、Dropdown、Popconfirm、Tour）、`Anchor`、`Link`、`Divider`、`FullscreenDialog`、`RendererCollapse` 父组件。这些组件没有 `LayoutDataContextProps`，子节点只能继承外层上下文。
+
+**本轮新发现。** 正式重新生成 ClassModel 时刷新了大量过期的 `generated/` 产物。说明此前有源码改动没有跟正式生成，之后每轮改公开声明都要重跑生成。
+
+**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。下一轮是设计页下一批：无视图文件误报、对话框重入、按需加载、绑定表名。然后是上面第 3 轮剩余的布局组件合同，排在页面轮之前。其后按原队列第 4–12 轮执行。
+
 ### 2026-10-29 新会话接续摘要（目标不变，交接完成，本会话执行中）
 
 - **原目标不变：**完成参考 AppWorks 元数据平台与开发工作台在本仓的整合，遵循 SPA，不改/启动/部署后端 Java；数据空间为交换中心，所有数据来源和配置保存均统一走 SPARK data 的 DataSet/DataTable/DataView，标准组件绑定真实视图。配置驱动、设计/数据维护分离、按需加载、改什么存什么。继续清理被替代结构、代码、文件、注册与活动说明，禁止留下兼容旁路导致 AI 再生。不能以只读迁入或这一片写入替代整个目标。

@@ -211,6 +211,7 @@ export class LowcodeDataSpaceDesignSession {
   readonly #cascadeMetadata: LowcodeDataSpaceCascadeMetadata
   readonly #blueprintTreeProjection?: SessionLoadOptions['blueprintTreeProjection']
   #inputParameterHost: InputParameterEditHost | null = null
+  readonly #inputParameterBaseline: unknown
   readonly #sourceInputs = new Map<string, SourceInputHandle>()
   readonly #modelEdits = new Map<string, ModelEditSession>()
   readonly #arrayEdits = new Map<string, ArrayEditHandle>()
@@ -236,6 +237,8 @@ export class LowcodeDataSpaceDesignSession {
     this.options = options
     this.definitionResource = definitionResource
     this.#blueprintTreeProjection = blueprintTreeProjection
+    this.#inputParameterBaseline = metadataDataSet.getView('Base_DataSet', 'default')?.rows
+      .find(row => row['rowid'] === targetId)?.['inputParams']
     this.#metadata = new LowcodeDataSpaceMetadata(metadataDataSet, targetId, () => this.assertLive())
     this.#viewMetadata = new LowcodeDataSpaceViewMetadata(metadataDataSet)
     this.#relationMetadata = new LowcodeDataSpaceRelationMetadata(metadataDataSet, definitionResource)
@@ -815,7 +818,8 @@ export class LowcodeDataSpaceDesignSession {
     if (!this.#inputParameterHost) {
       const view = this.metadataDataSet.getView('Base_DataSet', 'default')
       if (!view) throw new Error('DATA_SPACE_INPUT_PARAMETERS_CONTEXT: 缺少正式空间元数据视图')
-      this.#inputParameterHost = createInputParameterEditHost(view, this.targetId, () => this.assertInputParameterContext())
+      this.#inputParameterHost = createInputParameterEditHost({view, targetId: this.targetId,
+        assertCurrent: () => this.assertInputParameterContext(), baseline: this.#inputParameterBaseline})
     }
     return this.#inputParameterHost
   }
@@ -839,7 +843,8 @@ export class LowcodeDataSpaceDesignSession {
     return inputParameterGetState(host)
   }
 
-  async saveInputParameters(input: Readonly<{expectedValue: unknown; onReceipt?: () => void}>): Promise<Array<Record<string, unknown>>> {
+  /** 省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。 */
+  async saveInputParameters(input: Readonly<{expectedValue?: unknown; onReceipt?: () => void}>): Promise<Array<Record<string, unknown>>> {
     return inputParameterSave(this.inputParameterHost(), input)
   }
 

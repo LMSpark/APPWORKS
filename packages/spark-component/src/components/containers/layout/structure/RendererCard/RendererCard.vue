@@ -17,20 +17,24 @@ AI用途：需要理解 renderer card 的实际渲染结构、slot/toolbar/状�
         <slot name="header" />
       </div>
     </template>
-    <SparkComponentRenderer
-      v-for="(child, index) in resolvedChildren"
-      :key="nodeId(child) ?? `r-card-child-${index}`"
-      :config="child"
-    />
+    <div :key="scopeKey" class="r-card-body">
+      <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
+      <SparkComponentRenderer
+        v-for="(child, index) in resolvedChildren"
+        :key="nodeId(child) ?? `r-card-child-${index}`"
+        :config="child"
+      />
+    </div>
   </el-card>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 卡片容器，在卡片体内渲染子组件。
+ * @description 卡片容器，在卡片体内渲染子组件；可绑定 DataView 为子组件提供标准数据上下文。
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, useSparkPageComponent } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 import type { RCardProps } from './RendererCard.props'
 import { getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 
@@ -39,7 +43,7 @@ const props = withDefaults(defineProps<RCardProps>(), {
   shadow: 'always',
 })
 
-const { isVisible } = useSparkPageComponent(props)
+const { isVisible, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 const resolvedChildren = computed(() => getSparkNodeChildren(props.children))
 </script>

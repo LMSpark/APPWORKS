@@ -114,3 +114,16 @@
 - `build` 退出 0。
 
 **教训：改了产品源码就要跑 `verify:rules`，不能按「这轮没改合同」跳过。**
+
+## 11. 烟测与前三轮修复的研读结论（2026-10-31）
+
+烟测 bug 和轮次结果都在台账「2026-10-31 认证 SPA 烟测与 bug 登记」，这里只留下实现前核实的源码事实。
+
+- **设计页的三处快照都有原生承接者。** 文件资源的未知结果由定义 DataView 的 `hasUnconfirmedSave` 表达，页面不需要另存一个标志。参数声明的乐观并发基线归 `lowcode-data-space-input-parameter-session.ts` 的会话：它在 `assertFormalTarget` 确认目标 `Base_DataSet` 行之后构造，所以构造时捕获的值就是这一次读取的原文。历史定义预览期间的改动，用 rowsChanged、configChanged、editingChanged 等 DataView 事件就能检测，不需要 JSON 比较。
+- **字段组件的统一写入口是 `useFieldPermission().writeField(field, value)`。** 它按字段权限写 DataView 的编辑覆盖层，不改基础行。附带写回第二个字段（如 Mention 的 `persistedValue`）也应走它，不能用 `useActiveFieldRow` 直改。
+- **视图分页的公共承接者是 `useContainerDataSource`。** 它给出 `total`/`page`/`pageSize`，显式键找不到时抛 `DATA_VIEW_MISSING`；纯消费者传 `skipEffects: true`，就不会触发查询。
+- **布局数据上下文的公共承接者是 `useLayoutDataContext` + `LayoutDataContextProps`。** 它返回 `scopeKey` 和 `aggregateError`。子树用 `:key="scopeKey"` 包裹，绑定切换时就会重建子组件、释放旧订阅。
+- **测试陷阱。** 全局测试桩会替换 `SparkComponentRenderer`。要渲染真实子节点，需在 stubs 里置 `SparkComponentRenderer: false`，并装 `Spark.createPlugin()` 注册渲染器。SparkNode 子配置的业务输入要放在 `props` 下，写在根上会报 `SparkNode root field ... is invalid`。
+- **ClassModel 产物曾经过期。** 第 1 轮正式生成时刷新了大量与本轮无关的 `generated/` 文件，说明之前有公开声明改动没有跟着重新生成。
+
+**前三轮门禁。** 全量 `test:run` 379 个文件 7135 项通过，上一节的三条 15 秒超时本次未复现。typecheck、变动 ESLint、`verify:rules`、`generate:class-model-surface`、`build` 退出 0。

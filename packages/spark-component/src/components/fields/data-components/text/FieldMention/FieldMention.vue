@@ -5,38 +5,42 @@
 AI用途：需要理解 field mention 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <el-mention
-    v-if="isVisible"
-    :model-value="textValue"
-    :options="resolvedOptions"
-    :prefix="resolvedPrefixes"
-    :split="resolvedSplit"
-    :filter-option="resolvedFilterOption"
-    :placement="placement"
-    :show-arrow="showArrow"
-    :offset="offset"
-    :whole="whole"
-    :check-is-whole="checkIsWhole"
-    :loading="loading"
-    :disabled="isDisabled"
-    :type="inputType"
-    :placeholder="placeholder"
-    :rows="rows"
-    @update:model-value="handleTextInput"
-    @select="handleSelect"
-    @search="handleSearch"
-  />
+  <FieldContextRenderer v-bind="fieldCtx">
+    <template #form>
+      <el-mention
+        :model-value="fieldValue"
+        :options="resolvedOptions"
+        :prefix="resolvedPrefixes"
+        :split="resolvedSplit"
+        :filter-option="resolvedFilterOption"
+        :placement="placement"
+        :show-arrow="showArrow"
+        :offset="offset"
+        :whole="whole"
+        :check-is-whole="checkIsWhole"
+        :loading="loading"
+        :disabled="!isCurrentFieldEditable"
+        :type="inputType"
+        :placeholder="placeholder"
+        :rows="rows"
+        @update:model-value="handleTextInput"
+        @select="handleSelect"
+        @search="handleSearch"
+      />
+    </template>
+  </FieldContextRenderer>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 提及输入字段，绑定 string 值。
+ * @description 提及输入字段，绑定 string 值；正文与 writebackField 都经同一 DataView 编辑覆盖和字段权限写回。
  */
-import { ref, computed, watch } from 'vue'
-import { useSparkPageComponent } from '../../../../internal'
+import { ref, computed } from 'vue'
+import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
+import { coerceStringValue } from '../../composables/value/fieldValueCoercion'
 import { useFieldOptions } from '../../../options'
-import { useActiveFieldRow } from '../../../context/useActiveFieldRow'
+import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
 import type { RMentionProps } from './FieldMention.props'
 
 type MentionResolvedOption = NonNullable<RMentionProps['options']>[number]
@@ -67,13 +71,15 @@ const emit = defineEmits<FieldValueUpdateEmits<string> & {
   search: [pattern: string, prefix: string]
 }>()
 
-const { isVisible, isDisabled } = useSparkPageComponent(props)
-const { activeRow } = useActiveFieldRow(props)
+const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<string>({
+  props,
+  fieldType: 'r-mention',
+  fallbackValue: '',
+  coerce: coerceStringValue,
+  emitUpdate: value => emitFieldValueUpdate(emit, value),
+})
+const { fieldValue, isCurrentFieldEditable, writeField } = permission
 const activePrefix = ref<string | null>(null)
-
-function normalizeTextValue(value: unknown): string {
-  return typeof value === 'string' ? value : String(value ?? '')
-}
 
 const mentionTriggers = computed<MentionTrigger[]>(() => {
   if (props.mentionTriggers !== undefined && props.mentionTriggers.length > 0) {
@@ -177,35 +183,14 @@ const resolvedOptions = computed<MentionRuntimeOption[]>(() => {
   })
 })
 
-const textValue = ref(normalizeTextValue(props.modelValue))
-
-watch(() => props.modelValue, (v) => {
-  const nextValue = normalizeTextValue(v)
-  if (nextValue !== textValue.value) {
-    textValue.value = nextValue
-  }
-})
-
-function syncMainField(value: string): void {
-  textValue.value = value
-  emitFieldValueUpdate(emit, value)
-  const row = activeRow.value
-  if (row !== null && props.field) {
-    row[props.field] = value
-  }
-}
-
-function handleTextInput(value: string): void {
-  syncMainField(value)
+async function handleTextInput(value: string): Promise<void> {
+  await handleControlledChange(value)
 }
 
 function handleSelect(option: MentionRuntimeOption, prefix: string) {
   activePrefix.value = prefix
   const writebackField = activeTrigger.value.writebackField
-  const row = activeRow.value
-  if (row !== null && writebackField) {
-    row[writebackField] = option.persistedValue ?? option.value
-  }
+  if (writebackField) writeField(writebackField, option.persistedValue ?? option.value)
   emit('select', option, prefix)
 }
 

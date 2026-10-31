@@ -10,7 +10,8 @@ AI用途：需要理解 renderer collapse item 的实际渲染结构、slot/tool
     :title="itemTitle"
     :disabled="itemDisabled"
   >
-    <div :class="['renderer-collapse-item-body', itemBodyClass]" :style="itemGridStyle">
+    <div :key="scopeKey" :class="['renderer-collapse-item-body', itemBodyClass]" :style="itemGridStyle">
+        <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
         <div
           v-for="(child, index) in itemChildren"
           :key="nodeId(child) ?? `r-collapse-item-child-${index}`"
@@ -30,14 +31,14 @@ AI用途：需要理解 renderer collapse item 的实际渲染结构、slot/tool
  * @category internal
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, useSparkComponent } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 
 import { useCompositeItemGrid } from '../../../runtime/container-layout'
-import type { SparkNodeProps } from '../../../../shared-types'
+import { useLayoutDataContext, type LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import { nodeId } from '@spark-appworks/spark-data'
 
-/** r-collapse-item 内部面板项属性，继承 SparkNode 通用节点属性。 */
-type Props = SparkNodeProps & {
+/** r-collapse-item 内部面板项属性；dataViewKey/dataMember/dataField 为面板体子组件提供标准数据上下文，省略时继承父级。 */
+type Props = LayoutDataContextProps & {
   /** 面板唯一标识 */
     name?: string | number
     /** 面板标题 */
@@ -59,7 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'r-collapse-item',
 })
 
-useSparkComponent(props)
+const {scopeKey, aggregateError} = useLayoutDataContext(props)
 
 const {
   contentChildren: itemChildren,

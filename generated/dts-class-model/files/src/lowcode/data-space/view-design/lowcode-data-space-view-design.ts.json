@@ -778,9 +778,6 @@
                   "title": "() => void"
                 }
               },
-              "required": [
-                "expectedValue"
-              ],
               "additionalProperties": false
             }
           },
@@ -1398,7 +1395,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.453Z",
+  "generatedAt": "2026-10-31T09:03:59.566Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -2334,6 +2331,7 @@
             },
             {
               "name": "saveInputParameters",
+              "jsdoc": "省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。",
               "parameters": [
                 {
                   "name": "input",
@@ -2343,7 +2341,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        expectedValue: unknown;\n        onReceipt?: () => void;\n    }"
+                        "name": "{\n        expectedValue?: unknown;\n        onReceipt?: () => void;\n    }"
                       }
                     ]
                   }

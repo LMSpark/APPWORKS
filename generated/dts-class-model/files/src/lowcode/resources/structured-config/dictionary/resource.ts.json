@@ -51,6 +51,9 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "configText": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -97,7 +100,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.801Z",
+  "generatedAt": "2026-10-31T07:19:30.710Z",
   "models": {
     "LowcodeDictionary": {
       "name": "LowcodeDictionary",
@@ -145,13 +148,23 @@
             },
             {
               "name": "loadCatalog",
-              "jsdoc": "按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。",
+              "jsdoc": "按导航正式场景装配目录。缺省读取正式目录配置；传入文本只用于证明装配消费该文档。",
               "parameters": [
                 {
                   "name": "scenarioId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "configText",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

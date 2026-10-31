@@ -40,8 +40,6 @@ displayName?: string
 email?: string
     /** avatar 字段。 */
 avatar?: string
-    /** roles 字段。 */
-readonly roles: string[]        // ['admin', 'sales', 'manager']
     /** permissions 字段。 */
 readonly permissions: string[]}
 

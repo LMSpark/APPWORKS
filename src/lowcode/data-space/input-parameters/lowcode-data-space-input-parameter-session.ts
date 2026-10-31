@@ -7,11 +7,15 @@ import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-d
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 
 export type ParameterEditStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
+/** baseline 是最近一次由正式读取或回读确认的 inputParams 原文；省略 expectedValue 的命令以它为乐观并发基线。 */
 export type InputParameterEditFlow = {
   verificationRequired: boolean
   inFlight: boolean
   queryContext: string
+  baseline: unknown
 }
+
+export type InputParameterCommand = Readonly<{expectedValue?: unknown}>
 
 export type InputParameterEditHost = {
   readonly view: DataView
@@ -21,10 +25,22 @@ export type InputParameterEditHost = {
   flow: InputParameterEditFlow
 }
 
-export function createInputParameterEditHost(view: DataView, targetId: string, assertCurrent: () => void): InputParameterEditHost {
+export type InputParameterEditHostConstruction = Readonly<{
+  view: DataView
+  targetId: string
+  assertCurrent: () => void
+  baseline: unknown
+}>
+
+export function createInputParameterEditHost(input: InputParameterEditHostConstruction): InputParameterEditHost {
+  const {view, targetId, assertCurrent, baseline} = input
   if (!view.dataSet) throw new Error('DATA_SPACE_INPUT_PARAMETERS_CONTEXT: 缺少正式数据空间')
   return {view, targetId, dataSet: view.dataSet, assertCurrent,
-    flow: {verificationRequired: false, inFlight: false, queryContext: JSON.stringify(view.queryContext)}}
+    flow: {verificationRequired: false, inFlight: false, queryContext: JSON.stringify(view.queryContext), baseline}}
+}
+
+function expectedOf(host: InputParameterEditHost, input: InputParameterCommand): unknown {
+  return 'expectedValue' in input ? input.expectedValue : host.flow.baseline
 }
 
 function flowStatus(host: InputParameterEditHost): ParameterEditStatus {
@@ -107,11 +123,12 @@ export function inputParameterStage(host: InputParameterEditHost, input: Readonl
 }
 
 export async function inputParameterSave(host: InputParameterEditHost,
-  input: Readonly<{expectedValue: unknown; onReceipt?: () => void}>): Promise<Array<Record<string, unknown>>> {
+  input: InputParameterCommand & Readonly<{onReceipt?: () => void}>): Promise<Array<Record<string, unknown>>> {
   const {view, targetId, dataSet, flow, assertCurrent} = host
-  assertEditable(host, input.expectedValue)
-  const result = DataSpaceDesignApi.prepareInputParameters({value: view.getEditingRow(targetId)?.['inputParams'], original: input.expectedValue})
-  inputParameterStage(host, {expectedValue: input.expectedValue, value: result.items})
+  const expectedValue = expectedOf(host, input)
+  assertEditable(host, expectedValue)
+  const result = DataSpaceDesignApi.prepareInputParameters({value: view.getEditingRow(targetId)?.['inputParams'], original: expectedValue})
+  inputParameterStage(host, {expectedValue, value: result.items})
   if (!result.changed) return result.items
   const submitted = JSON.stringify(result.items)
   flow.inFlight = true
@@ -141,6 +158,7 @@ export async function inputParameterSave(host: InputParameterEditHost,
     try {
       const items = await readback(host, verification)
       if (JSON.stringify(items) !== submitted) throw new Error('DATA_SPACE_INPUT_PARAMETERS_READBACK: 输入参数保存后回读值与提交值不一致')
+      flow.baseline = submitted
       flow.verificationRequired = false
       flow.inFlight = false
       return items
@@ -241,6 +259,7 @@ export async function inputParameterReload(host: InputParameterEditHost,
     readbackStarted = true
     flow.verificationRequired = true
     const items = await readback(host)
+    flow.baseline = row(host, false)['inputParams']
     flow.verificationRequired = false
     flow.inFlight = false
     return items

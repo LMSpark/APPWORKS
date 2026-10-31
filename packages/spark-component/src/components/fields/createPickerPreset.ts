@@ -40,6 +40,12 @@ function isSparkOptionValueMode(value: unknown): value is SparkOptionValueMode {
 const SHARED_PROPS = {
   /** 字段绑定名 */
   field: { type: String, default: undefined },
+  /** 值所属视图完整键；省略时继承父数据上下文 */
+  dataViewKey: { type: String, default: undefined },
+  /** 值的数据成员，默认 currentRow */
+  dataMember: { type: String, default: undefined },
+  /** 数据成员的字段；优先于 field */
+  dataField: { type: String, default: undefined },
   /** 组件名称 */
   name: { type: String, default: undefined },
   /** 展示标签 */
@@ -96,7 +102,7 @@ export function createPickerPreset(defaults: PickerPresetDefaults) {
 
         // 定义值 prop 列表（仅在 !== undefined 时透传，避免覆盖 EntityPicker 默认值）
         const conditionalKeys = [
-          'label', 'width',
+          'label', 'width', 'dataViewKey', 'dataMember', 'dataField',
           'options', 'optionDataViewKey', 'optionLabelField', 'optionLabelFields', 'optionValueField', 'children',
         ] as const
 

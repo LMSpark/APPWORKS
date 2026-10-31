@@ -1,0 +1,47 @@
+2026-10-31 SPA 烟测（认证会话，dev server [::1]:5273，应用 D99A1DCE9894698799101EFD70F8FC76）
+方法：页面内只读请求记录器（XHR 包装，只记 URL、Table[0].Name、Filter 摘要、返回码、Items 长度），SPA 内路由跳转。
+凭据未写入任何文件。写入仅在用户指定空间“计量单位”03F5471C81BB27C6AF72E8337AA69207。
+
+== 只读页面 ==
+导航ID  页面                     结果
+78C5    服务器管理               正常，5 行
+62DB    数据库管理(index)        正常，25 行；Base_serverInfo 5、_base_dbInfo 20
+A8FB    表和视图管理             正常，20 行；进页 7 次 Base_DataModel 返回 0 行
+28F3    数据表和视图             正常，20 行；同上 7 次 0 行
+EDB0    数据字典                 正常，20 行
+CB52    字典管理                 断：正式模型字段重复: Base_AppSystemList，0 行
+A133    数据编码                 断：正式数据空间模型必须唯一且属于当前数据空间: _Base_CodeDesign
+BBA4    逻辑视图管理             正常，16 行
+EB72    逻辑视图                 正常，16 行
+5E96    数据工作流               断：..._Base_DataWorkFlow（Base_DataModel 0 行）
+E0BB    数据工作流               断：..._Base_DataWorkFlow
+FFDE    JSON数据管理             正常，11 行
+36B0    Excel导入导出配置        断：..._Base_ImportConfig
+A2D6    PDF效验管理              断：...Base_UserInfo（两个模型都 0 行）
+8CBB    外部服务管理             断：BUILTIN_SCENARIO_SOURCE_MISSING: 8CBB... 不是已登记的系统程序场景
+0C70    应用系统列表(AppList)    断：BUILTIN_SCENARIO_SOURCE_MISSING: 0C70... 不是已登记的系统程序场景
+348D    缓存管理                 正常（前端缓存 0 条）
+90A8    数据空间管理             显示 10/1357 行；“应用系统”列全部“未解析应用”
+/dev    开发工作台               树 85 节点；提示“缺少当前导航身份，不能选择项目”
+/apps/homepage/app-list          63 张卡片；卡片标签/值列过窄，每行 2-4 字
+
+== 数据空间目录“未解析应用”根因 ==
+Base_DataSet@Table Filter=null 返回 10 行，sysid=902A722C766EEBC5ED3DE4CBE3924645
+Base_AppSystemList@Table Filter=null 返回 1 行，rowid=D99A...（当前应用）
+目录行范围与应用选项范围不一致。
+
+== 写入烟测（计量单位 03F5471C...，模型 _Base_DictData） ==
+1 打开设计：场景视图文件 content/text 404（尚无视图配置），2 模型可见
+2 新增视图草稿 smoke20261031：出现“字段目录绑定与正式模型不一致”x2（#file 为空时的错误文案）
+3 保存视图配置：UploadFile 200 → DownFile 200 → content/text 200，“视图配置已保存并回读确认”；自动补 default 视图
+4 整页刷新后重开：content/text 200，数据视图（2）含 smoke20261031、default
+5 从草稿删除 smoke20261031 → 保存：UploadFile 200 → content/text 200（336 字节）
+6 整页刷新后重开：数据视图（1）仅 default
+残留：该空间新增场景视图文件，仅含 default 视图；UI 无删除整份文件入口。
+
+== 交互观察 ==
+- 新增视图：“绑定表名”在已选模型下仍需手填；输入框失焦后按钮才可用
+- 设计对话框打开时再次触发“设计”出现 DATA_SPACE_METADATA_SCOPE: 元数据查询目标已变化，之后关闭按钮无响应，需整页刷新
+- 打开设计页先整套装载 7AB 蓝图（124 字段/140 物理字段）与 8D1 设计场景（13 模型/338 字段/301 物理字段）
+- 无视图文件时同一 content/text 404 读取 6 次
+- 页头显示原始应用 ID “SPARK - D99A1DCE...”

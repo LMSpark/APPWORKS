@@ -468,23 +468,27 @@ const parameterVisible = computed({get: () => parameterOpen.value, set: value =>
 let generation = 0
 let active = true
 let unsubscribe: (() => void) | undefined
-let parameterBaseline: unknown
 const targetId = computed(() => props.targetId)
 const readError = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const changed = () => {revision.value++}
 async function restoreHistoryDraft(version: string | number, preview: string): Promise<void> {
   const current = session.value, source = historyView.value, ownGeneration = generation
   if (!current || !source || current.targetId !== props.targetId || historyDraftDirty.value) throw new Error('SCENARIO_VIEW_UNSAVED: 请先处理当前定义修改')
-  const baseline = historyDefinitionSnapshot()
-  const text = await source.previewSourceVersion(version)
-  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')
-  if (historyDraftDirty.value || historyDefinitionSnapshot() !== baseline) throw new Error('SCENARIO_VIEW_UNSAVED: 预览期间定义已变化')
-  if (text !== preview) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与预览不一致')
-  const document = await ScenarioDefinitionDocument.open(current.metadataDataSet, current.targetId)
-  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) {document.dispose(); throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')}
-  if (historyDraftDirty.value || historyDefinitionSnapshot() !== baseline) {document.dispose(); throw new Error('SCENARIO_VIEW_UNSAVED: 打开定义期间内容已变化')}
-  try {await document.setText(text)} catch (cause) {document.dispose(); throw cause}
-  if (session.value !== current || ownGeneration !== generation || historyView.value !== source) {document.dispose(); throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')}
+  const watch = watchDefinitionViews(historyDefinitionViews.value)
+  let document: ScenarioDefinitionDocument | null = null
+  try {
+    const text = await source.previewSourceVersion(version)
+    if (session.value !== current || ownGeneration !== generation || historyView.value !== source) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')
+    if (historyDraftDirty.value || watch.changed()) throw new Error('SCENARIO_VIEW_UNSAVED: 预览期间定义已变化')
+    if (text !== preview) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与预览不一致')
+    document = await ScenarioDefinitionDocument.open(current.metadataDataSet, current.targetId)
+    if (session.value !== current || ownGeneration !== generation || historyView.value !== source) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')
+    if (historyDraftDirty.value || watch.changed()) throw new Error('SCENARIO_VIEW_UNSAVED: 打开定义期间内容已变化')
+    watch.stop()
+    await document.setText(text)
+    if (session.value !== current || ownGeneration !== generation || historyView.value !== source) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史恢复目标已切换')
+  } catch (cause) {document?.dispose(); throw cause}
+  finally {watch.stop()}
   historyDocument.value?.dispose(); historyDocument.value = document
   changed()
 }
@@ -499,15 +503,20 @@ async function saveHistoryDraft(): Promise<void> {
   if (session.value !== current || ownGeneration !== generation) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 历史定义保存回读目标已切换')
   changed()
 }
-function historyDefinitionSnapshot(): string {
-  return JSON.stringify(historyDefinitionViews.value.map(view => ({
-    tableName: view.tableName, viewId: view.viewId, definition: view.toJson(),
-    rows: view.rows.map(row => {
-      const key = view.getPkKey(row)
-      return [key, key === undefined ? row : view.getEditingRow(key) ?? row]
-    }),
-    pending: view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges(),
-  })))
+const DEFINITION_CHANGE_EVENTS = ['rowsChanged', 'configChanged', 'requestStateChanged', 'mutatingChanged', 'cleared',
+  'editingChanged', 'editingFieldChanged', 'editingDiscarded'] as const
+function watchDefinitionViews(views: readonly DataView[]): {changed: () => boolean; stop: () => void} {
+  let touched = false
+  const touch = () => {touched = true}
+  const release = views.flatMap(view => DEFINITION_CHANGE_EVENTS.map(event => {
+    view.events.on(event, touch)
+    return () => view.events.off(event, touch)
+  }))
+  return {
+    changed: () => touched || views.some(view => view.destroyed) || historyDefinitionViews.value.length !== views.length
+      || historyDefinitionViews.value.some((view, index) => view !== views[index]),
+    stop: () => {release.splice(0).forEach(off => off())},
+  }
 }
 async function undoHistoryDraft(): Promise<void> {
   const document = historyDocument.value
@@ -772,16 +781,15 @@ function addModelNode(): void {
   try {const id = layoutEdit.value?.addNode(); if (id) {selectedId.value = `unbound:${id}`; error.value = ''; changed()}}
   catch (cause) {error.value = readError(cause)}
 }
-let fileBindingSubmissionUnconfirmed = false
 async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): Promise<void> {
-  if (fileBindingSubmissionUnconfirmed) {
-    error.value = '文件资源提交结果尚未确认；为避免重复提交，请重新打开设计页核验正式记录'
-    return
-  }
   const current = session.value
   const dataSet = current?.metadataDataSet
   const bindings = dataSet?.getView('DataTableBindingDefinition', 'default')
   const definitions = dataSet?.getView('DataViewDefinition', 'default')
+  if (bindings?.hasUnconfirmedSave || definitions?.hasUnconfirmedSave) {
+    error.value = '文件资源提交结果尚未确认；为避免重复提交，请重新打开设计页核验正式记录'
+    return
+  }
   if (!current || !dataSet || !bindings || !definitions || busy.value || hasPending.value
     || bindings.requestState !== RequestState.Loaded || definitions.requestState !== RequestState.Loaded
     || bindings.queryContext['dataSpaceId'] !== current.targetId || definitions.queryContext['dataSpaceId'] !== current.targetId) {
@@ -818,12 +826,10 @@ async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): 
       await definitions.addRow({dataSetId: current.targetId, tableName: resource.tableName, viewId, ...structuredClone(viewConfig)})
     }
     saveStarted = true
-    fileBindingSubmissionUnconfirmed = true
     const saved = await dataSet.saveChanges({views: [
       {tableName: 'DataTableBindingDefinition', viewId: 'default'}, {tableName: 'DataViewDefinition', viewId: 'default'},
     ]})
     if (!saved.success) throw saved.error ?? new Error(saved.message ?? '文件资源绑定保存未确认')
-    fileBindingSubmissionUnconfirmed = false
     const bindingReadback = await bindings.requestRefresh()
     if (!bindingReadback.success) throw bindingReadback.error ?? new Error(bindingReadback.message ?? '文件资源绑定回读失败')
     const definitionReadback = await definitions.requestRefresh()
@@ -1510,7 +1516,6 @@ async function load(): Promise<void> {
       if (active && generation === ownGeneration) layoutError.value = readError(cause)
     }
     if (!active || generation !== ownGeneration) {layout.dispose(); return}
-    parameterBaseline = view('Base_DataSet')?.rows[0]?.['inputParams']
     const metadataChanged = (tableName: string): void => {
       const table = opened.metadataDataSet.getTable(tableName)
       if (session.value === opened && table && definitionTables.has(table)) changed()
@@ -1535,11 +1540,10 @@ async function parameterAction(action: 'save' | 'verify'): Promise<void> {
   if (!current || busy.value) return
   busy.value = true; actionError.value = ''; actionMessage.value = ''
   try {
-    if (action === 'save') await current.saveInputParameters({expectedValue: parameterBaseline})
+    if (action === 'save') await current.saveInputParameters({})
     else await current.reloadInputParameters({discardPending: parameterState.value.status === 'unsubmitted'
       || (parameterState.value.status === 'readback' && parameterState.value.pending)})
     if (!active || session.value !== current) return
-    parameterBaseline = view('Base_DataSet')?.rows[0]?.['inputParams']
     const parameterFlow = current.getInputParameterState()
     if (parameterFlow.pending) actionMessage.value = '原输入参数提交已回读确认；仍有未保存修改，请继续保存或放弃'
     else {

@@ -30,12 +30,6 @@
         "displayName": {
           "type": "string"
         },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "enterpriseName": {
           "type": "string"
         },
@@ -50,7 +44,6 @@
         "userId",
         "username",
         "displayName",
-        "roles",
         "enterpriseName",
         "applicationId"
       ],
@@ -112,18 +105,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.747Z",
+  "generatedAt": "2026-10-31T08:58:37.930Z",
   "models": {
     "LowcodePrincipal": {
       "name": "LowcodePrincipal",
       "jsdoc": "当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    roles: readonly string[];\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
+        "declarationTypeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    roles: readonly string[];\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
+            "typeText": "Readonly<{\n    userId: string;\n    username: string;\n    displayName: string;\n    enterpriseName: string;\n    applicationId: string | null;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -141,11 +134,6 @@
             },
             {
               "name": "displayName",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "roles",
               "readable": true,
               "writable": false
             },

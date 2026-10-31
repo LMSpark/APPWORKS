@@ -12400,7 +12400,9 @@
         "symbols": [
           "ParameterEditStatus",
           "InputParameterEditFlow",
-          "InputParameterEditHost"
+          "InputParameterCommand",
+          "InputParameterEditHost",
+          "InputParameterEditHostConstruction"
         ]
       }
     },
@@ -19412,11 +19414,19 @@
       "sourcePath": "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts.json"
     },
+    "InputParameterCommand": {
+      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
+    },
     "InputParameterEditFlow": {
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
       "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
     },
     "InputParameterEditHost": {
+      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
+    },
+    "InputParameterEditHostConstruction": {
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
       "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
     },

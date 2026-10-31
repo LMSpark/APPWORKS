@@ -5,55 +5,47 @@
 AI用途：需要理解 field check tag 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <el-check-tag
-    v-if="isVisible"
-    :checked="isChecked"
-    :disabled="isDisabled"
-    @change="handleChange"
-  >
-    <slot>{{ label }}</slot>
-  </el-check-tag>
+  <FieldContextRenderer v-bind="fieldCtx">
+    <template #form>
+      <el-check-tag
+        :checked="fieldValue"
+        :disabled="!isCurrentFieldEditable"
+        @change="handleChange"
+      >
+        <slot>{{ displayLabel }}</slot>
+      </el-check-tag>
+    </template>
+  </FieldContextRenderer>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 标签选择字段，绑定 boolean 值。
+ * @description 标签选择字段，绑定 boolean 值；选中状态读写所绑 DataView 字段，复用原视图编辑覆盖和字段权限。
  */
-import { ref, watch } from 'vue'
-import { useSparkPageComponent } from '../../../../internal'
+import { useBasicFieldState } from '../../composables/state/useBasicFieldState'
+import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
+import { coerceBooleanValue } from '../../composables/value/fieldValueCoercion'
+import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
 import type { RCheckTagProps } from './FieldCheckTag.props'
 
 const props = withDefaults(defineProps<RCheckTagProps>(), {
   type: 'r-check-tag',
-  checked: false,
 })
 
-const emit = defineEmits<{
-  /**
-   * Checked state changed; 用户切换标签选中状态。
-   * @param checked Next checked state.
-   */
-  change: [checked: boolean]
-  /**
-   * Checked state synced; 同步 checked 受控值。
-   * @param checked Next checked state.
-   */
-  'update:checked': [checked: boolean]
-}>()
+const emit = defineEmits<FieldValueUpdateEmits<boolean>>()
 
-const { isVisible, isDisabled } = useSparkPageComponent(props)
-
-const isChecked = ref(props.checked)
-
-watch(() => props.checked, (v) => {
-  isChecked.value = v
+const { permission, fieldCtx, handleControlledChange } = useBasicFieldState<boolean>({
+  props,
+  fieldType: 'r-check-tag',
+  fallbackValue: false,
+  formatDisplay: value => coerceBooleanValue(value) ? '是' : '否',
+  coerce: coerceBooleanValue,
+  emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 
-function handleChange(val: boolean) {
-  isChecked.value = val
-  emit('update:checked', val)
-  emit('change', val)
+const { fieldValue, isCurrentFieldEditable, displayLabel } = permission
+
+async function handleChange(value: boolean): Promise<void> {
+  await handleControlledChange(value)
 }
 </script>
-
-

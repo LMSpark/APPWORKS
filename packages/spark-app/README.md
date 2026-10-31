@@ -233,7 +233,6 @@ type UserInfo = {
   id: string | number
   name: string
   email?: string
-  roles: string[]
   permissions: string[]
 }
 

@@ -229,7 +229,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 import { ref, computed } from 'vue'
 
 const dataSetContext = ref<Record<string, unknown>>({ id: 'demo-page', providers: new Set() })
-const userInfo = ref<Record<string, unknown>>({ id: 'user001', name: '演示用户', roles: ['admin', 'developer'] })
+const userInfo = ref<Record<string, unknown>>({ id: 'user001', name: '演示用户' })
 const themeConfig = ref<string>('dark')
 const dictionary = ref<Array<Record<string, unknown>>>([
   { label: '技术部', value: 'tech' },

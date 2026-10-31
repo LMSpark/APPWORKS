@@ -32,7 +32,6 @@ export type LowcodePrincipal = Readonly<{
   userId: string
   username: string
   displayName: string
-  roles: readonly string[]
   enterpriseName: string
   applicationId: string | null
 }>
@@ -82,7 +81,6 @@ export function readLowcodePrincipal(): LowcodePrincipal | null {
     userId: session.identity.userId,
     username: session.identity.account,
     displayName: session.identity.displayName,
-    roles: session.identity.role === null ? [] : [session.identity.role],
     enterpriseName: session.enterprise.shortName,
     applicationId: lowcodeApi.application.get()?.application.id ?? null,
   }
@@ -97,10 +95,6 @@ export function lowcodeEnterpriseDisplayName(enterprise: LowcodePlatform.Lowcode
 
 export function hasLowcodeSession(): boolean {
   return lowcodeApi.session.isAuthenticated()
-}
-
-export function isLowcodePlatformAdministrator(principal = readLowcodePrincipal()): boolean {
-  return principal?.roles.includes('SUPER_ADMIN') === true
 }
 
 export function lowcodeRequestHeaders(): Record<string, string> {

@@ -4,10 +4,10 @@
  * 边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 renderer card 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkNodeProps } from '../../../../shared-types'
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
 
-/** RCard Props 的属性契约。 */
-export type RCardProps = SparkNodeProps & {
+/** RCard Props 的属性契约；dataViewKey/dataMember/dataField 为子组件提供标准数据上下文，省略时继承父级。 */
+export type RCardProps = LayoutDataContextProps & {
   /** 卡片头部文本 */
     header?: string
     /** 阴影显示策略 */

@@ -138,7 +138,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
         userId: 'public',
         username: 'public',
         displayName: '未登录',
-        roles: [],
         permissions: [],
       },
     }
@@ -149,7 +148,6 @@ function resolveLowcodeBootstrapContext(config: AppConfig): AppContext {
       userId: session.identity.userId,
       username: session.identity.account,
       displayName: session.identity.displayName,
-      roles: session.identity.role === null ? [] : [session.identity.role],
       permissions: [],
     },
   }

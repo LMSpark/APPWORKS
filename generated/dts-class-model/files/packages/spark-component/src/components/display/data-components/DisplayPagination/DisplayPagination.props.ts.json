@@ -39,6 +39,9 @@
             "hide"
           ]
         },
+        "dataViewKey": {
+          "type": "string"
+        },
         "total": {
           "type": "number"
         },
@@ -82,7 +85,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.141Z",
+  "generatedAt": "2026-10-31T09:16:52.883Z",
   "models": {
     "RPaginationProps": {
       "name": "RPaginationProps",
@@ -96,7 +99,7 @@
         "directory": "display/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 总条数 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准。 */\n    dataViewKey?: string;\n    /** 总条数；仅未绑定视图时生效 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -105,14 +108,20 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 总条数 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}"
+            "typeText": "{\n    /** 分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准。 */\n    dataViewKey?: string;\n    /** 总条数；仅未绑定视图时生效 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
+              "name": "dataViewKey",
+              "jsdoc": "分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "total",
-              "jsdoc": "总条数",
+              "jsdoc": "总条数；仅未绑定视图时生效",
               "readable": true,
               "writable": false
             },

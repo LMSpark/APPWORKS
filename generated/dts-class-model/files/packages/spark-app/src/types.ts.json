@@ -54,12 +54,6 @@
         "avatar": {
           "type": "string"
         },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "permissions": {
           "type": "array",
           "items": {
@@ -70,7 +64,6 @@
       "required": [
         "userId",
         "username",
-        "roles",
         "permissions"
       ],
       "additionalProperties": false
@@ -398,7 +391,7 @@
       ]
     }
   },
-  "generatedAt": "2026-10-30T15:41:40.337Z",
+  "generatedAt": "2026-10-31T08:58:41.310Z",
   "models": {
     "AppEnvironment": {
       "name": "AppEnvironment",
@@ -428,7 +421,7 @@
       "jsdoc": "用户信息",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** user Id 标识。 */\n    userId: string;\n    /** username 字段。 */\n    username: string;\n    /** display Name 名称。 */\n    displayName?: string;\n    /** email 字段。 */\n    email?: string;\n    /** avatar 字段。 */\n    avatar?: string;\n    /** roles 字段。 */\n    readonly roles: string[];\n    /** permissions 字段。 */\n    readonly permissions: string[];\n}",
+        "declarationTypeText": "{\n    /** user Id 标识。 */\n    userId: string;\n    /** username 字段。 */\n    username: string;\n    /** display Name 名称。 */\n    displayName?: string;\n    /** email 字段。 */\n    email?: string;\n    /** avatar 字段。 */\n    avatar?: string;\n    /** permissions 字段。 */\n    readonly permissions: string[];\n}",
         "members": {
           "attributes": [
             {
@@ -458,12 +451,6 @@
             {
               "name": "avatar",
               "jsdoc": "avatar 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "roles",
-              "jsdoc": "roles 字段。",
               "readable": true,
               "writable": false
             },

@@ -39,24 +39,136 @@
             "hide"
           ]
         },
-        "checked": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
           "enum": [
             false,
             true
           ]
         },
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "resizable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "clearable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "modelValue": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "value": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "field": {
+          "type": "string"
+        },
         "label": {
           "type": "string"
+        },
+        "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "onChange": {
+          "type": "object",
+          "title": "(...args: unknown[]) => void | Promise<void>"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "right",
+            "center"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "enum": [
+            false,
+            true,
+            "custom"
+          ]
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.165Z",
+  "generatedAt": "2026-10-31T09:15:46.432Z",
   "models": {
     "RCheckTagProps": {
       "name": "RCheckTagProps",
-      "jsdoc": "RCheck Tag Props 的属性契约。",
+      "jsdoc": "RCheck Tag Props 的属性契约；选中状态是所绑字段的 boolean 值，标签文本取 label 或字段名。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "FieldCheckTag",
@@ -66,7 +178,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 是否选中 */\n    checked?: boolean;\n    /** 标签文本 */\n    label?: string;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<boolean>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -75,25 +187,11 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 是否选中 */\n    checked?: boolean;\n    /** 标签文本 */\n    label?: string;\n}"
+            "typeText": "SparkFieldSemanticProps<boolean>",
+            "targetName": "SparkFieldSemanticProps"
           }
         ],
-        "members": {
-          "attributes": [
-            {
-              "name": "checked",
-              "jsdoc": "是否选中",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "label",
-              "jsdoc": "标签文本",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
+        "members": {}
       }
     }
   }

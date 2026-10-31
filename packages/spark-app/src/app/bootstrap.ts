@@ -202,7 +202,6 @@ function defaultMockContext(config: AppConfig): AppContext | null {
         userId: 'dev-user-001',
         username: 'developer',
         displayName: '开发者',
-        roles: ['admin', 'developer'],
         permissions: ['*'] // 所有权限
       },
       env: {

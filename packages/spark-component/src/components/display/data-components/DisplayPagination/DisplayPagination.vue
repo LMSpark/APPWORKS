@@ -24,10 +24,11 @@ AI用途：需要理解 display pagination 的实际渲染结构、slot/toolbar/
 
 <script setup lang="ts">
 /**
- * @description 分页控制组件，触发页码/页大小变更事件。
+ * @description 分页控制组件；绑定 DataView（dataViewKey 或继承的数据上下文）时读取其 total/page/pageSize 并调用 setPage/setPageSize 翻页，未绑定时按 props 呈现并只触发事件。
  */
-import { computed } from 'vue'
-import { useSparkPageComponent, useSparkConsume, DATA_SOURCE } from '../../../internal'
+import { computed, toRef } from 'vue'
+import { useSparkPageComponent, DATA_SOURCE } from '../../../internal'
+import { useContainerDataSource } from '../../../containers/data-views/view-data-source'
 import type { RPaginationProps } from './DisplayPagination.props'
 
 const props = withDefaults(defineProps<RPaginationProps>(), {
@@ -47,30 +48,23 @@ const emit = defineEmits<{
   'update:pageSize': [size: number]
 }>()
 
-const { isVisible, isDisabled } = useSparkPageComponent(props)
+const { isVisible, isDisabled, sparkConsume, logger } = useSparkPageComponent(props)
+const dataState = useContainerDataSource({dataViewKey: toRef(props, 'dataViewKey'), sparkConsume,
+  inheritedDataSource: () => sparkConsume(DATA_SOURCE), skipEffects: true, logger, logPrefix: 'DisplayPagination'})
+const view = dataState.resolvedView
 
-const { sparkConsume } = useSparkConsume()
-const dataSource = sparkConsume(DATA_SOURCE)
-
-const resolvedTotal = computed(() => {
-  if (props.total !== undefined) return props.total
-  return dataSource?.total ?? 0
-})
-
-const resolvedPageSize = computed(() => {
-  return dataSource?.pageSize ?? props.pageSize
-})
-
-const resolvedCurrentPage = computed(() => {
-  return dataSource?.page ?? props.currentPage
-})
+const resolvedTotal = computed(() => view.value ? dataState.total.value : props.total ?? 0)
+const resolvedPageSize = computed(() => view.value ? dataState.pageSize.value : props.pageSize)
+const resolvedCurrentPage = computed(() => view.value ? dataState.page.value : props.currentPage)
 
 function handleCurrentChange(page: number) {
   emit('update:currentPage', page)
+  view.value?.setPage(page).catch((error: unknown) => logger.error('DisplayPagination: setPage() 失败', error))
 }
 
 function handleSizeChange(size: number) {
   emit('update:pageSize', size)
+  view.value?.setPageSize(size).catch((error: unknown) => logger.error('DisplayPagination: setPageSize() 失败', error))
 }
 </script>
 

@@ -12,7 +12,9 @@
     "symbols": [
       "ParameterEditStatus",
       "InputParameterEditFlow",
-      "InputParameterEditHost"
+      "InputParameterCommand",
+      "InputParameterEditHost",
+      "InputParameterEditHostConstruction"
     ]
   },
   "$defs": {
@@ -46,13 +48,24 @@
         },
         "queryContext": {
           "type": "string"
-        }
+        },
+        "baseline": true
       },
       "required": [
         "verificationRequired",
         "inFlight",
-        "queryContext"
+        "queryContext",
+        "baseline"
       ],
+      "additionalProperties": false
+    },
+    "InputParameterCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterCommand",
+      "properties": {
+        "expectedValue": true
+      },
       "additionalProperties": false
     },
     "InputParameterEditHost": {
@@ -86,9 +99,32 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "InputParameterEditHostConstruction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterEditHostConstruction",
+      "properties": {
+        "view": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "baseline": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-23T19:02:25.963Z",
+  "generatedAt": "2026-10-31T09:03:49.971Z",
   "models": {
     "ParameterEditStatus": {
       "name": "ParameterEditStatus",
@@ -123,10 +159,10 @@
     },
     "InputParameterEditFlow": {
       "name": "InputParameterEditFlow",
-      "jsdoc": "",
+      "jsdoc": "baseline 是最近一次由正式读取或回读确认的 inputParams 原文；省略 expectedValue 的命令以它为乐观并发基线。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    verificationRequired: boolean;\n    inFlight: boolean;\n    queryContext: string;\n}",
+        "declarationTypeText": "{\n    verificationRequired: boolean;\n    inFlight: boolean;\n    queryContext: string;\n    baseline: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -143,6 +179,35 @@
               "name": "queryContext",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "InputParameterCommand": {
+      "name": "InputParameterCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    expectedValue?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    expectedValue?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expectedValue",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -175,6 +240,50 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "InputParameterEditHostConstruction": {
+      "name": "InputParameterEditHostConstruction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    targetId: string;\n    assertCurrent: () => void;\n    baseline: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    targetId: string;\n    assertCurrent: () => void;\n    baseline: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [

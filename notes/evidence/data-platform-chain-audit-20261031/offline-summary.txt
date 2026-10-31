@@ -1,0 +1,5 @@
+typecheck exit=0 seconds=61
+lint exit=0 seconds=25
+test exit=1 seconds=599
+verify-rules exit=0 seconds=60
+build exit=0 seconds=66

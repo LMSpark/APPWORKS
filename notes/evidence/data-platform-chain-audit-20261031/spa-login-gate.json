@@ -1,0 +1,14 @@
+﻿{
+  "status": "blocked-on-login",
+  "url": "http://localhost:5273/login",
+  "title": "登录 - SPARK",
+  "storageKeys": [
+    "spark-color-scheme:project:homepage",
+    "spark-theme-mode",
+    "spark-theme-mode:project:homepage"
+  ],
+  "cookieNames": [],
+  "protectedRoute": "http://localhost:5273/apps/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/data-set-management/ui/data-set-list-page",
+  "protectedRouteResult": "returned to public homepage http://localhost:5273/",
+  "note": "Fresh Edge profile has no authorization. Login form is open. No credentials were entered or stored."
+}

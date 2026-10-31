@@ -1,0 +1,31 @@
+全仓数据链审计 离线门禁摘要
+产品代码基线 67788ae93 + catalogScenarioText 签名修复（本轮）
+
+typecheck                 exit 0   149s
+typecheck（签名修复后）    exit 0    35s
+lint                      exit 0   262s
+verify:rules（首跑）       exit 1    39s
+  verify:ai-codegen 失败 1 项：
+  src/lowcode/resources/structured-config/dictionary/resource.ts:40
+  catalogScenarioText has 4 positional parameters, limit is 3
+  来源：9ab5ebbfd（字典目录提交）。上一轮审计门禁跑在该提交之前，未拦住。
+verify:ai-codegen（修复后） exit 0    15s
+verify:rules（修复后重跑）  exit 0   102s
+  保留既有：AI model spec 2 warnings（DataViewFilter、ScenarioViewConfig 缺 fromJson）+ 1 info（dataset.ts:390）
+  411 个文件检查通过
+test:run                  exit 1   928s
+  Test Files  3 failed | 374 passed (377)
+  Tests       4 failed | 7118 passed (7122)
+  4 条失败全部为 Test timed out in 15000ms，无断言失败：
+    tests/runtime/page/design/native/data-space-view-parameter-input.test.ts        1
+    tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts       2
+    tests/runtime/page/design/native/fields/data-space-field-batch.test.ts          1
+test（三文件单独重跑）      exit 0    31s   Test Files 3 passed / Tests 43 passed
+  判定：并发超时，不记回归
+test（字典专题，签名修复后） exit 0    22s   Test Files 2 passed / Tests 83 passed
+build                     exit 0    11s
+
+SPA：开发服务器在 http://[::1]:5273/ 返回 200（IDE 浏览器用 [::1] 字面量可达；
+     localhost 解析到 IPv4 不通）。登录页可打开，企业下拉已从服务端返回 10 个选项，
+     说明后端可达。截至本记录没有已认证会话，未执行逐页只读查询，因此没有首查询
+     Code、行数或页面截图。没有填写账号或密码。

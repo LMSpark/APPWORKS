@@ -4,7 +4,9 @@
 
 **范围与边界。** 只审计数据平台已注册页面：数据空间目录与设计、数据库服务器与表视图、字典、编码、逻辑视图、数据工作流、JSON、Excel、PDF，并核定外部 API 现状。审计当时 HEAD `ccfb61f92`。不改 Java，不加新协议。本段是源码复核加离线门禁；真实 SPA 页面查询没有执行，原因见下。会话层 `baseline` / `verifiedSnapshot` 是多步命令状态机，保留；要替换的是页面级快照和代码拼出的场景配置。
 
-**2026-10-31 同日刷新。** 字典目录配置在 `9ab5ebbfd`，设计页应用头在 `628c14f3b`。下面的断链表和长期队列按这两次提交后的源码改写。未登录 SPA 不重复烟测，不补 Code、行数或截图。
+**2026-10-31 同日刷新。** 字典目录配置在 `9ab5ebbfd`，设计页应用头在 `628c14f3b`。下面的断链表按这两次提交后的源码改写。
+
+**2026-10-31 全仓扩审。** 审计范围从数据平台扩到全仓：9 个包加 `src/lowcode`、`src/services`、`src/registries`、`src/composables`、`src/views`（37 个注册页、100 个 Vue）。逐区证据在[全仓数据链研读](research-whole-repo-data-chain.md)，本节只留合并后的队列。主链核实成立：`DataSet.fromJson → DataTable → DataView.refresh → executor.executeQuery`，保存 `DataSet.saveChanges → DataView.saveQueryViews → executor.save`，文件与 pagedata 适配都在 executor 内部。下面的长期队列替换本节同日早先的七轮数据平台排序。
 
 **离线门禁。** 日志在 [`evidence/data-platform-chain-audit-20261031/`](evidence/data-platform-chain-audit-20261031/)。`typecheck`、`lint`、`verify:rules`、`build` 均退出 0。全量 vitest 7117 通过 / 1 失败；唯一失败是 `tests/runtime/page/design/native/data-space-view-parameter-input.test.ts` 的 15 秒超时，单独重跑 5/5 通过，记为环境超时，不记回归。`verify:rules` 保留既有 AI model spec 2 warnings / 1 info。
 
@@ -21,18 +23,30 @@
 | 物理表/视图预览没有正式资源身份 | 身份缺口 | `database/catalog/table/preview-view-ops.ts` 用临时 Table 描述调用 GetData，本地构造可读列 | 不能证明服务端行/字段权限；不能改成普通模型绑定来假装闭环 | 保持缺口，直到正式资源身份、稳定主键和拒绝语义有回包 | 有服务端权限回包和 SPA 只读查询证据后，才改这一段的完成状态 |
 | 旧服务器 HTML 没有别名 | 身份缺口 | `vue-pages.json` 只给表和视图登记了 `/DataBaseManage/TableAndView`；没有 `ServerManagerment.html` | 旧导航节点打不开服务器管理页 | 不猜映射。有正式节点和部署身份后再加别名 | 别名目标与正式导航节点一致，并有打开证据 |
 | 设计正文和部分对话框没有字段绑定 | 标准组件缺口 | 编码名称 `data-code-editor-page.vue:10`；JSON `json-data-page.vue:15`；Excel / PDF / 工作流 / 逻辑视图使用 textarea 或 `v-model`；复制表 `copy-table-dialog.vue:11`；表设计工作流过滤 `table-design-dialog.vue:29` | 编辑覆盖、权限和取消不走 DataView | 先用现有标准字段组件绑定原设计 DataView。窄树/图编辑器可以保留，但必须写回原视图 | 这些原生 input / textarea 删除后，读写、取消和权限测试通过 |
-| 子表汇总仍在前端 | 前端执行聚合 | `data-view.ts:1371` 已拒绝远端 `view.aggregates`；`computed-column-delegate.ts` 的 `$sum` / `$count` 仍对已加载子行 reduce。`src/views` 没有生产页绑定 `aggregateResult` | 远端子表公式会失败，不能用当前页行数代替后端聚合 | 逐项改由后端查询返回。后端不支持的函数登记为缺口，不在浏览器兜底 | 对应视图的本地汇总路径删除，查询回包含服务端结果 |
+| 存量聚合配置尚未迁到后端值函数 | 配置未迁移（2026-10-31 用户纠偏：后端通过值函数支持聚合） | 后端路径已接通：`data-space-query-aggregation.ts:14` 映射 Sum/Count/Avg/Min/Max 到 SUM/COUNT/AVERAGE/MIN/MAX，`:39-54` 规范为 `{Type:'GetGroupData',ValType}`；`data-space-runtime-api.ts:277-282` 在请求字段带 `valueFun` 与 `group`，`:311-319` 要求同一查询内字段全部分组或配聚合。前端守卫已存在：`computed-column-delegate.ts:104-120` 抛 `DATA_VIEW_REMOTE_COMPUTED_AGGREGATE`，`data-view.ts:1370-1386` 抛 `DATA_VIEW_REMOTE_AGGREGATE`，`DataSpaceRuntimeApi.localAggregates = false`。本地 reduce 只对静态/数组 owner 生效 | 正式来源上本地汇总已停，剩下的是把存量 `view.aggregates` 与子表公式迁到消费视图的查询配置 | 按消费视图配置字段级 `valueFun` + `group`；不为某个视图统计永久改写共享列表模型的 `ValueFun`。真实缺口很窄：`$list` / `$join` 无后端函数，`引用` 与 `计算字段` 被 `data-space-query-aggregation.ts:41` 拒绝，请求级聚合只对 `database-table` / `database-view`、非树、Table/Join 输出成立 | 存量聚合配置迁完并有服务端结果回包；剩余不支持函数逐条登记为缺口 |
+| 前端仍有角色模型 | 旁路，违反 AGENTS 0.3 | `src/lowcode/lowcode-runtime.ts:35` 声明 `roles: readonly string[]`，`:85` 从 `session.identity.role` 映射，`:102-103` `isLowcodePlatformAdministrator` 判断 `'SUPER_ADMIN'`。全仓 grep 无调用方 | 前端存在角色类型与管理员判断，与「前端只有数据权限，没有角色概念」直接冲突 | 删除角色字段、映射与管理员判断。登录身份保留；权限继续由正式查询返回的数据权限承接 | 全仓无 `roles` / `SUPER_ADMIN`，登录与应用切换行为不变 |
+| 数据库族场景配置在代码里拼，且无 config 文件 | 配置未正式化 | `database/directory.ts:85-99`、`database/server/resource.ts:37-54`、`database/catalog/table-view.ts:177` 起内联 `tables` 与多视图 | 改目录、服务器、表视图的查询配置必须改源码 | 改由正式 pagedata 承接；executor 内部的 `/api/Db|Table|View` 与 GetData 属合规位置，不动 | 不再内联 `tables`，改配置后不改 host 即生效 |
+| 标准组件数据合同缺口 | 标准组件缺口 | `FieldCheckTag.props.ts:12` 无 `dataViewKey`、`FieldCheckTag.vue:44-55` 本地 `checked` ref；`FieldMention.vue:189-195,202-208` 直接写 row 字段；`createPickerPreset.ts:40-82` 不转发 `dataViewKey` / `dataMember` / `dataField`；`DisplayPagination` 无视图键且不调 `DataView.setPage`；`RendererCard` / `RendererCollapse` / `RendererSteps` / `RendererEditor` 与 `create-passthrough.ts:54-57` 未声明数据上下文 | 这些组件上的读写、权限、编辑覆盖与分页不由公共链承接 | 先扩展标准组件再推页面轮；静态 `options`（`shared-types.ts:592-594,601`）是有正式声明的旁路，单独登记 | 本地状态删除，完整键定位、数据成员读写、权限与绑定切换用例通过 |
+| `src/views/app` 页面级并行状态 | 旁路 | `Settings.vue:223-233,24-71`、`CacheManager.vue:193-241,278-281`、`AppProjectSettingsDialog.vue:75-77,98-101,18-27`、`WorkflowDesigns.vue:1892-1995,3583-3605,420-503` | 整页或属性编辑不走 DataView，可与 design 视图分叉 | 按业务语义先分清哪些是真业务数据；演示页登记为演示不按业务页验收 | 页面级 ref 删除，读写取消与权限用例通过 |
+| 包内仍可绕过 `saveChanges` 的写入口 | 待核消费者 | `spark-data/src/data-view.ts` 约 2695-2889 的 `commitMode: 'immediate'`；`crud-delegate.ts` 的 `batchCreateRecords` / `batchUpdateRecords` / `batchDeleteRecords` 与约 396 行 `importData` | 不经变更捕获与回执核验即可落库 | 先逐个核 `src/` 是否真有消费者，再决定收窄；不先改包 | 正式业务视图不再使用，或只保留在已登记的非业务来源 |
 | 外部 API 只有目录页在导航上 | 服务合同未证实 | `89716c1ec` 已删除四个 `api-*-design` owner 和 `LowcodeApiProvider`。现存页在 `src/views/features/integration/api-management/`；`vue-pages.json` 只登记服务商目录 | 鉴权方案、接口输入输出和真实调用还没有闭环 | 不恢复已删除 owner。按资源模板补正式配置和命令，缺的服务合同保持缺口 | 配置与调用分别有保存回读和下游消费证据 |
 
-**长期迭代队列。** 此队列替换 2026-10-28 第 9 节对数据平台页面的开工顺序，也替换本段同日早先的七轮排序。第 9 节原 1–5 条保留为当日证据，不再作为数据平台的当前排序。每一轮是一个完整页面闭环：先有有效失败测试，再实现，独立复核，跑受影响测试、typecheck 和 lint。正式生成、`verify:rules`、build 和真实 SPA 回读只在该轮改了合同或已有登录会话时做。没有登录会话的一轮，不以 SPA 作为完成条件。数据权限继续按 AGENTS 0.3 暂缓。不改 Java。服务缺口保持缺口。
+**长期迭代队列（全仓，2026-10-31 合并）。** 此队列替换 2026-10-28 第 9 节对数据平台页面的开工顺序，也替换本段同日早先的七轮数据平台排序；数据平台各轮按优先级插回同一条队列。第 9 节原 1–5 条保留为当日证据。每一轮是一个完整页面或一层合同的闭环：先有有效失败测试，再实现，独立复核，跑受影响测试、typecheck 和 lint；**改了产品源码就必须跑 `verify:rules`**，改了合同再跑正式生成和 build；然后删除被替代逻辑。真实 SPA 回读在有登录会话的轮次做；没有会话的一轮不以 SPA 作为完成条件。数据权限继续按 AGENTS 0.3 暂缓。不改 Java。服务缺口保持缺口。
 
-1. **数据空间设计剩余。** 去掉 `data-set-design-page.vue` 的 `fileBindingSubmissionUnconfirmed`、`parameterBaseline`、`historyDefinitionSnapshot`。状态改从原 DataView / Document 读取。会话命令的 baseline 保留。未知结果不重发。应用头的 SPA 证据留到有登录会话再补。
-2. **字典收口。** 先核对设计保存和六字段数据保存是否已经分页面。目录配置不再回头改。未分开才补字典这一页。
-3. **数据库。** 服务器登记和连接测试要有真实回执。预览保持身份缺口。不猜 `ServerManagerment.html` 别名。
-4. **结构化资源。** 编码、逻辑视图、工作流离开 `catalog.ts` 的 JSON 拼接，改正式配置。design URL 未证实就关闭动作。运行时挂上的设计文件视图跟在这一轮删除。
-5. **半结构化资源。** JSON、Excel、PDF 同样离开 `catalog.ts`。设计与内容走同一资源适配。Read/Write URL 不成立则关闭。页面上的原生 input / textarea 在该页闭环里改绑原 DataView。
-6. **外部 API。** 沿现有三页恢复鉴权、接口输入输出和真实调用。不恢复已删除的四个 owner。
-7. **聚合。** 子表 `$sum` / `$count` 改由后端查询返回。后端不支持的函数登记为缺口，不在浏览器兜底。
+1. **删除前端角色模型。** `lowcode-runtime.ts` 的 `roles` 字段、`session.identity.role` 映射、`isLowcodePlatformAdministrator`。零消费者，先清。
+2. **数据空间设计剩余。** 去掉 `data-set-design-page.vue` 的 `fileBindingSubmissionUnconfirmed`、`parameterBaseline`、`historyDefinitionSnapshot`，状态改从原 DataView / Document 读取。会话命令的 baseline 保留，未知结果不重发。
+3. **标准组件数据合同。** `FieldCheckTag` 接入字段链，`FieldMention` 写回走统一写入，picker 预设转发视图键，`DisplayPagination` 消费视图分页，布局组件补标准数据上下文。先补组件再推后续页面轮。
+4. **字典收口。** 核对设计保存与六字段数据保存是否已分页面。目录配置不再回头改。
+5. **数据库。** 目录、服务器、表视图配置正式化；服务器登记与连接测试要真实回执；预览保持身份缺口；不猜 `ServerManagerment.html` 别名。
+6. **结构化资源。** 编码、逻辑视图、工作流离开 `catalog.ts` 的 JSON 拼接。design URL 未证实就关闭动作。运行时挂上的设计文件视图跟这一轮删除。
+7. **半结构化资源。** JSON、Excel、PDF 同样离开 `catalog.ts`，设计与内容走同一资源适配。Read/Write URL 不成立则关闭。页面原生 input / textarea 在该页闭环里改绑原 DataView。
+8. **开发工作台与应用页。** `Settings`、`CacheManager`、`AppProjectSettingsDialog`、`WorkflowDesigns` 的页面级并行状态；`useDevState` 的 `blueprintDraft` 先核写回的定义视图身份。演示页登记为演示。
+9. **外部 API。** 沿现有三页恢复鉴权、接口输入输出和真实调用。不恢复已删除的四个 owner。
+10. **聚合配置迁移。** 存量 `view.aggregates` 与子表公式改为消费视图的字段级 `valueFun` + `group`，由后端值函数执行。前端守卫保留。`$list` / `$join`、`引用` 与 `计算字段` 按缺口登记。
+11. **包内第二写入口收窄。** 先核 `commitMode: 'immediate'` 与批量/导入在 `src/` 的真实消费者，再决定收窄。
+12. **序列化对称。** `DataViewFilter` 与 `ScenarioViewConfig` 的 `fromJson`，收口 `verify:rules` 两条 warning。
+
+平台登录、租户、SSE 与 AI 轮次（`LoginView.vue`、`sse-events.ts`、`ai-turn-bridge.ts` 等）不是业务数据读写，登记为已声明边界，不进本队列。
 
 ### 2026-10-29 新会话接续摘要（目标不变，交接完成，本会话执行中）
 
@@ -1307,7 +1321,7 @@ flowchart TD
 
 **基线与总状态。** 当前代码状态按台账顶部最新代码条目滚动更新。静态 Vue 页可在 registry 声明 DataSpace ID 并透传到系统页身份，但这仅传递标识，不提供 app-less root 的请求上下文；`/app-list` 仍无正式 DataSet owner，且没有新的 DataView 接线。设计器可以补正式资源定义：当前 7AB 有 `Base_AppSystemList` 模型而无 DataView，归属 D99“元数据管理”；它与 homepage 全局目录不是同一 owner，不能直接绑定。最近切片移除了未调用的页面版本删除 API 和 ProjectWorkspace 蓝图/文件第二写入口；DataView executor 内部文件存储适配仍保留。PageDesign headless 蓝图读取已迁入正式 PageRuntime/DataView，并封闭其 AI facade 的 raw blueprint read 方法。Workflow 文件空目录精确处理已有同 SPA 只读查询证据；非空文件与 Agent 下游消费尚未验收。数据库物理预览 DataView 现有过期响应隔离、分页状态及本地权限预检反例覆盖；真实资源身份、稳定主键和服务端字段授权仍缺在线证据。全仓唯一数据通道、其它资源旁路和真实 SPA 验收均未完成，总目标继续 active。当前状态以本文顶部“当前源码状态”为准。
 
-**数据平台开工顺序已于 2026-10-31 替换，并于同日按 `9ab5ebbfd` 与 `628c14f3b` 之后的源码改写。** 当前顺序见文首长期迭代队列：数据空间设计剩余、字典收口、数据库、结构化资源、半结构化资源、外部 API、聚合。下面 1–5 条是 2026-10-28 的历史队列，保留当日证据，不再作为数据平台页面的当前排序。Workflow 正文、应用目录 homepage owner、NavHost 关系这些非数据平台项仍按各自证据解锁。
+**数据平台开工顺序已于 2026-10-31 替换，并于同日扩成一条全仓队列。** 当前顺序见文首「长期迭代队列（全仓，2026-10-31 合并）」共 12 轮，数据平台各轮已按优先级插入其中。下面 1–5 条是 2026-10-28 的历史队列，保留当日证据，不再作为数据平台页面的当前排序。Workflow 正文、应用目录 homepage owner、NavHost 关系这些非数据平台项仍按各自证据解锁。
 
 **下一步按解锁条件动态选取，不按旧阶段顺序盲目开工（2026-10-28 历史）：**
 

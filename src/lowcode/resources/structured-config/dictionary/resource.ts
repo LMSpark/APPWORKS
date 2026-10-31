@@ -37,9 +37,17 @@ function catalogTables(source: string): Record<string, unknown> {
   return tables
 }
 
-function catalogScenarioText(scenarioId: string, models: readonly CatalogModelIdentity[], source: string, tableNames?: readonly string[]): string {
+type CatalogScenarioTextInput = Readonly<{
+  scenarioId: string
+  models: readonly CatalogModelIdentity[]
+  source: string
+  tableNames?: readonly string[]
+}>
+
+function catalogScenarioText(input: CatalogScenarioTextInput): string {
+  const {scenarioId, models, source} = input
   const tables = catalogTables(source)
-  const selected = tableNames ?? Object.keys(tables)
+  const selected = input.tableNames ?? Object.keys(tables)
   const nextTables: Record<string, unknown> = {}
   for (const tableName of selected) {
     const table = tables[tableName]
@@ -108,7 +116,7 @@ export class LowcodeDictionary {
       ...metaNames.map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
     ])
     assertCurrent()
-    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText(scenarioId, models, configText))
+    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText({scenarioId, models, source: configText}))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations: []})
     try {
       const view = dataSet.getView('_Base_DictType', 'default')
@@ -146,7 +154,8 @@ export class LowcodeDictionary {
     for (const name of ['rowid', 'AppDesc']) if (!model.fields.some(field => field.name === name)) {
       throw new Error(`正式应用模型缺少选项字段 ${name}`)
     }
-    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText(scenarioId, [model], catalogViewsSource, ['Base_AppSystemList']))
+    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText({scenarioId, models: [model],
+      source: catalogViewsSource, tableNames: ['Base_AppSystemList']}))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: [model], relations: []})
     try {
       const view = dataSet.getView('Base_AppSystemList', 'default')

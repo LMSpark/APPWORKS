@@ -107,18 +107,18 @@ export { SnapshotHistory } from './snapshot-history'
 export {
   PROJECT_BLUEPRINT_NODE_KINDS,
   isProjectBlueprintNodeKind,
-} from './project-blueprint-node-kind'
+} from './contract/project-blueprint-node-kind'
 
-export type { ProjectBlueprintNodeKind } from './project-blueprint-node-kind'
+export type { ProjectBlueprintNodeKind } from './contract/project-blueprint-node-kind'
 
 // ==================== 权限展示三态 ====================
 
 export {
   PERMISSION_MODES,
   isPermissionMode,
-} from './permission-mode'
+} from './contract/permission-mode'
 
-export type { PermissionMode } from './permission-mode'
+export type { PermissionMode } from './contract/permission-mode'
 
 // ==================== 运行导航表面共享契约 ====================
 
@@ -131,7 +131,7 @@ export {
   isNavigationRootPlacement,
   NAVIGATION_LINK_TARGETS,
   isNavigationLinkTarget,
-} from './navigation-surface'
+} from './contract/navigation-surface'
 
 export type {
   RuntimeNavigationItemKind,
@@ -139,7 +139,7 @@ export type {
   NavigationRootPlacement,
   NavigationLinkTarget,
   NavigationContextConfig,
-} from './navigation-surface'
+} from './contract/navigation-surface'
 
 // ==================== 能力树遍历辅助（公开基础设施） ====================
 

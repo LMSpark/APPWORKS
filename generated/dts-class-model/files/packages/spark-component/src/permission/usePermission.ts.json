@@ -21,7 +21,7 @@
       "title": "UsePermissionReturn",
       "properties": {
         "permissionMode": {
-          "$ref": "../../../spark-utils/src/permission-mode.ts.json#/$defs/PermissionMode"
+          "$ref": "../../../spark-utils/src/contract/permission-mode.ts.json#/$defs/PermissionMode"
         },
         "subtreeFieldPolicy": {
           "$ref": "../core/capability-keys.ts.json#/$defs/SubtreeFieldPolicy"

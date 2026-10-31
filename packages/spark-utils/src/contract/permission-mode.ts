@@ -1,5 +1,5 @@
 /**
- * @module @spark-appworks/spark-utils:permission-mode
+ * @module @spark-appworks/spark-utils:contract/permission-mode
  * 职责：页面/蓝图/运行导航共用的权限展示三态（PermissionMode）唯一字面量 SSOT。
  * 边界：只放跨包共享的三态契约；不含权限快照、字段策略或平台 wire。
  * AI用途：新增/修改权限展示态时只改本文件，消费方直连 utils，禁止各包再定义同形别名。

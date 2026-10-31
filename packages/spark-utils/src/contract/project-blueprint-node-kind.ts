@@ -1,5 +1,5 @@
 /**
- * @module @spark-appworks/spark-utils:project-blueprint-node-kind
+ * @module @spark-appworks/spark-utils:contract/project-blueprint-node-kind
  * 职责：项目蓝图节点业务种类（ProjectBlueprintNodeKind）的唯一字面量 SSOT。
  * 边界：只放跨包共享的 kind 契约；不含编辑树、平台 wire 或运行导航投影。
  * AI用途：校验五种正式业务kind；未知值返回false，明确unknown仅用于读入草稿诊断。

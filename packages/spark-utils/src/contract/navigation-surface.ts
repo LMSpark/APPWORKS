@@ -1,10 +1,10 @@
 /**
- * @module @spark-appworks/spark-utils:navigation-surface
+ * @module @spark-appworks/spark-utils:contract/navigation-surface
  * 职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。
  * 边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。
  * AI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。
  */
-import type { ContextItem } from './script-types.js'
+import type { ContextItem } from '../script-types.js'
 
 /** 运行导航项/蓝图交付投影种类字面量表。 */
 export const RUNTIME_NAVIGATION_ITEM_KINDS = [

@@ -11835,6 +11835,55 @@
         "symbols": []
       }
     },
+    "packages/spark-utils/src/contract/navigation-surface.ts": {
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-utils:contract/navigation-surface",
+        "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+        "sourceFile": "packages/spark-utils/src/contract/navigation-surface.ts",
+        "packageName": "@spark-appworks/spark-utils",
+        "modulePath": "contract/navigation-surface",
+        "jsdoc": "@module @spark-appworks/spark-utils:contract/navigation-surface\n职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。\n边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。\nAI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "RuntimeNavigationItemKind",
+          "NavigationPlacement",
+          "NavigationRootPlacement",
+          "NavigationLinkTarget",
+          "NavigationContextConfig"
+        ]
+      }
+    },
+    "packages/spark-utils/src/contract/permission-mode.ts": {
+      "file": "files/packages/spark-utils/src/contract/permission-mode.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-utils:contract/permission-mode",
+        "sourcePath": "packages/spark-utils/src/contract/permission-mode.ts",
+        "sourceFile": "packages/spark-utils/src/contract/permission-mode.ts",
+        "packageName": "@spark-appworks/spark-utils",
+        "modulePath": "contract/permission-mode",
+        "jsdoc": "@module @spark-appworks/spark-utils:contract/permission-mode\n职责：页面/蓝图/运行导航共用的权限展示三态（PermissionMode）唯一字面量 SSOT。\n边界：只放跨包共享的三态契约；不含权限快照、字段策略或平台 wire。\nAI用途：新增/修改权限展示态时只改本文件，消费方直连 utils，禁止各包再定义同形别名。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PermissionMode"
+        ]
+      }
+    },
+    "packages/spark-utils/src/contract/project-blueprint-node-kind.ts": {
+      "file": "files/packages/spark-utils/src/contract/project-blueprint-node-kind.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-utils:contract/project-blueprint-node-kind",
+        "sourcePath": "packages/spark-utils/src/contract/project-blueprint-node-kind.ts",
+        "sourceFile": "packages/spark-utils/src/contract/project-blueprint-node-kind.ts",
+        "packageName": "@spark-appworks/spark-utils",
+        "modulePath": "contract/project-blueprint-node-kind",
+        "jsdoc": "@module @spark-appworks/spark-utils:contract/project-blueprint-node-kind\n职责：项目蓝图节点业务种类（ProjectBlueprintNodeKind）的唯一字面量 SSOT。\n边界：只放跨包共享的 kind 契约；不含编辑树、平台 wire 或运行导航投影。\nAI用途：校验五种正式业务kind；未知值返回false，明确unknown仅用于读入草稿诊断。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ProjectBlueprintNodeKind"
+        ]
+      }
+    },
     "packages/spark-utils/src/error-utils.ts": {
       "file": "files/packages/spark-utils/src/error-utils.ts.json",
       "module": {
@@ -12035,55 +12084,6 @@
           "LogLevel",
           "LoggerApi",
           "LogTransport"
-        ]
-      }
-    },
-    "packages/spark-utils/src/navigation-surface.ts": {
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-utils:navigation-surface",
-        "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-        "sourceFile": "packages/spark-utils/src/navigation-surface.ts",
-        "packageName": "@spark-appworks/spark-utils",
-        "modulePath": "navigation-surface",
-        "jsdoc": "@module @spark-appworks/spark-utils:navigation-surface\n职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。\n边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。\nAI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "RuntimeNavigationItemKind",
-          "NavigationPlacement",
-          "NavigationRootPlacement",
-          "NavigationLinkTarget",
-          "NavigationContextConfig"
-        ]
-      }
-    },
-    "packages/spark-utils/src/permission-mode.ts": {
-      "file": "files/packages/spark-utils/src/permission-mode.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-utils:permission-mode",
-        "sourcePath": "packages/spark-utils/src/permission-mode.ts",
-        "sourceFile": "packages/spark-utils/src/permission-mode.ts",
-        "packageName": "@spark-appworks/spark-utils",
-        "modulePath": "permission-mode",
-        "jsdoc": "@module @spark-appworks/spark-utils:permission-mode\n职责：页面/蓝图/运行导航共用的权限展示三态（PermissionMode）唯一字面量 SSOT。\n边界：只放跨包共享的三态契约；不含权限快照、字段策略或平台 wire。\nAI用途：新增/修改权限展示态时只改本文件，消费方直连 utils，禁止各包再定义同形别名。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "PermissionMode"
-        ]
-      }
-    },
-    "packages/spark-utils/src/project-blueprint-node-kind.ts": {
-      "file": "files/packages/spark-utils/src/project-blueprint-node-kind.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-utils:project-blueprint-node-kind",
-        "sourcePath": "packages/spark-utils/src/project-blueprint-node-kind.ts",
-        "sourceFile": "packages/spark-utils/src/project-blueprint-node-kind.ts",
-        "packageName": "@spark-appworks/spark-utils",
-        "modulePath": "project-blueprint-node-kind",
-        "jsdoc": "@module @spark-appworks/spark-utils:project-blueprint-node-kind\n职责：项目蓝图节点业务种类（ProjectBlueprintNodeKind）的唯一字面量 SSOT。\n边界：只放跨包共享的 kind 契约；不含编辑树、平台 wire 或运行导航投影。\nAI用途：校验五种正式业务kind；未知值返回false，明确unknown仅用于读入草稿诊断。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ProjectBlueprintNodeKind"
         ]
       }
     },
@@ -20341,20 +20341,20 @@
       "file": "files/packages/spark-app/src/navigation/nav-types.ts.json"
     },
     "NavigationContextConfig": {
-      "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json"
     },
     "NavigationLinkTarget": {
-      "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json"
     },
     "NavigationPlacement": {
-      "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json"
     },
     "NavigationRootPlacement": {
-      "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json"
     },
     "NavNodeActionTarget": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
@@ -20777,8 +20777,8 @@
       "file": "files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json"
     },
     "PermissionMode": {
-      "sourcePath": "packages/spark-utils/src/permission-mode.ts",
-      "file": "files/packages/spark-utils/src/permission-mode.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/permission-mode.ts",
+      "file": "files/packages/spark-utils/src/contract/permission-mode.ts.json"
     },
     "PermissionObjectGrant": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts",
@@ -20893,8 +20893,8 @@
       "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
     "ProjectBlueprintNodeKind": {
-      "sourcePath": "packages/spark-utils/src/project-blueprint-node-kind.ts",
-      "file": "files/packages/spark-utils/src/project-blueprint-node-kind.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/project-blueprint-node-kind.ts",
+      "file": "files/packages/spark-utils/src/contract/project-blueprint-node-kind.ts.json"
     },
     "ProjectBlueprintNodeModelOptions": {
       "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
@@ -21665,8 +21665,8 @@
       "file": "files/packages/spark-app/src/navigation/runtime-navigation.ts.json"
     },
     "RuntimeNavigationItemKind": {
-      "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-      "file": "files/packages/spark-utils/src/navigation-surface.ts.json"
+      "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+      "file": "files/packages/spark-utils/src/contract/navigation-surface.ts.json"
     },
     "RuntimeNavigationRegionItems": {
       "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts",

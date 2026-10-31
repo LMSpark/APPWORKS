@@ -360,7 +360,7 @@
           "type": "object",
           "properties": {
             "childPlacement": {
-              "$ref": "../../../spark-utils/src/navigation-surface.ts.json#/$defs/NavigationRootPlacement"
+              "$ref": "../../../spark-utils/src/contract/navigation-surface.ts.json#/$defs/NavigationRootPlacement"
             }
           },
           "additionalProperties": false

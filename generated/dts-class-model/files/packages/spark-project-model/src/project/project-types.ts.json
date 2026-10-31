@@ -418,7 +418,7 @@
             "blueprintKinds": {
               "type": "array",
               "items": {
-                "$ref": "../../../spark-utils/src/project-blueprint-node-kind.ts.json#/$defs/ProjectBlueprintNodeKind"
+                "$ref": "../../../spark-utils/src/contract/project-blueprint-node-kind.ts.json#/$defs/ProjectBlueprintNodeKind"
               }
             }
           },

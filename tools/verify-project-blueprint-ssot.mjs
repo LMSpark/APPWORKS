@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { isCliEntrypoint, printViolations, relativePath } from './verifier-common.mjs'
 
-const SSOT_REL = 'packages/spark-utils/src/project-blueprint-node-kind.ts'
+const SSOT_REL = 'packages/spark-utils/src/contract/project-blueprint-node-kind.ts'
 const CONSUMER_RELS = [
   'packages/spark-project-model/src/blueprint/project-blueprint-node.ts',
   'packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts',

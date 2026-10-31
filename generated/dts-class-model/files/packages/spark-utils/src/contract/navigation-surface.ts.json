@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-utils:navigation-surface",
-    "sourcePath": "packages/spark-utils/src/navigation-surface.ts",
-    "sourceFile": "packages/spark-utils/src/navigation-surface.ts",
+    "name": "@spark-appworks/spark-utils:contract/navigation-surface",
+    "sourcePath": "packages/spark-utils/src/contract/navigation-surface.ts",
+    "sourceFile": "packages/spark-utils/src/contract/navigation-surface.ts",
     "packageName": "@spark-appworks/spark-utils",
-    "modulePath": "navigation-surface",
-    "jsdoc": "@module @spark-appworks/spark-utils:navigation-surface\n职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。\n边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。\nAI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。",
+    "modulePath": "contract/navigation-surface",
+    "jsdoc": "@module @spark-appworks/spark-utils:contract/navigation-surface\n职责：运行导航表面共享契约（item kind / placement / linkTarget / root placement / context config）的唯一字面量 SSOT。\n边界：跨包共享的导航表面形状；不含蓝图业务 kind、壳导航树装配或 lowcode wire。\nAI用途：蓝图交付投影与壳 RuntimeNavigation 共用这些字面量时只改本文件，禁止各包再定义同形别名。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "RuntimeNavigationItemKind",
@@ -73,7 +73,7 @@
             {
               "type": "array",
               "items": {
-                "$ref": "script-types.ts.json#/$defs/ContextItem"
+                "$ref": "../script-types.ts.json#/$defs/ContextItem"
               }
             }
           ]
@@ -101,7 +101,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:07:45.414Z",
+  "generatedAt": "2026-10-31T04:25:34.996Z",
   "models": {
     "RuntimeNavigationItemKind": {
       "name": "RuntimeNavigationItemKind",

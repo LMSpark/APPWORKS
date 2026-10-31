@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-data:strategies/cascade-delegate",
-    "sourcePath": "packages/spark-data/src/strategies/cascade-delegate.ts",
-    "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+    "name": "@spark-appworks/spark-data:strategies/cascade/cascade-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
     "packageName": "@spark-appworks/spark-data",
-    "modulePath": "strategies/cascade-delegate",
-    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade-delegate 模块。\n导出 DtsTypeDeclarationModel symbol: CascadeDelegate（共 1 个 symbol）。",
+    "modulePath": "strategies/cascade/cascade-delegate",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/cascade-delegate 模块。\n导出 DtsTypeDeclarationModel symbol: CascadeDelegate（共 1 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
       "CascadeDelegate"
@@ -23,7 +23,7 @@
           "type": "object",
           "properties": {
             "host": {
-              "$ref": "../data-view.ts.json#/$defs/DataView"
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
             }
           },
           "additionalProperties": false
@@ -57,7 +57,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T12:48:14.740Z",
+  "generatedAt": "2026-10-31T04:17:01.297Z",
   "models": {
     "CascadeDelegate": {
       "name": "CascadeDelegate",

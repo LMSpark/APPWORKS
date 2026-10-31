@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { SparkData } from '../../spark-data'
-import { CrudService } from '../../strategies/crud-service'
+import { CrudService } from '../../strategies/crud/crud-service'
 
 describe('database CrudApi helper', () => {
   it('creates standard metadata-driven CRUD and tree endpoints', () => {

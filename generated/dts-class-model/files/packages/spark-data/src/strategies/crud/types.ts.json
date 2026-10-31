@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-data:strategies/types",
-    "sourcePath": "packages/spark-data/src/strategies/types.ts",
-    "sourceFile": "packages/spark-data/src/strategies/types.ts",
+    "name": "@spark-appworks/spark-data:strategies/crud/types",
+    "sourcePath": "packages/spark-data/src/strategies/crud/types.ts",
+    "sourceFile": "packages/spark-data/src/strategies/crud/types.ts",
     "packageName": "@spark-appworks/spark-data",
-    "modulePath": "strategies/types",
-    "jsdoc": "@module @spark-appworks/spark-data:strategies/types\n职责：提供数据层 types 能力，围绕 CrudOperation、CrudLifecycleEvent、CrudLifecycleEventInput 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 strategies/types 的数据语义。",
+    "modulePath": "strategies/crud/types",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud/types\n职责：提供数据层 types 能力，围绕 CrudOperation、CrudLifecycleEvent、CrudLifecycleEventInput 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 strategies/types 的数据语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "CrudOperation",
@@ -46,7 +46,7 @@
         },
         "data": true,
         "result": {
-          "$ref": "../types.ts.json#/$defs/CrudResult"
+          "$ref": "../../types.ts.json#/$defs/CrudResult"
         },
         "cancelled": {
           "type": "boolean"
@@ -81,7 +81,7 @@
         },
         "data": true,
         "result": {
-          "$ref": "../types.ts.json#/$defs/CrudResult"
+          "$ref": "../../types.ts.json#/$defs/CrudResult"
         }
       },
       "required": [
@@ -92,7 +92,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-14T20:21:04.432Z",
+  "generatedAt": "2026-10-31T04:17:09.590Z",
   "models": {
     "CrudOperation": {
       "name": "CrudOperation",

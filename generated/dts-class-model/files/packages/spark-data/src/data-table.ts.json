@@ -75,7 +75,7 @@
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
         },
         "crudService": {
-          "$ref": "strategies/crud-service.ts.json#/$defs/CrudService"
+          "$ref": "strategies/crud/crud-service.ts.json#/$defs/CrudService"
         },
         "validator": {
           "$ref": "validation/validation.ts.json#/$defs/DataValidator"
@@ -322,7 +322,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.243Z",
+  "generatedAt": "2026-10-31T04:17:14.389Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",

@@ -18,7 +18,7 @@ import type {
 } from './types'
 import type { DataSet } from './dataset'
 import { DataValidator } from './validation/validation'
-import { type CrudService, createCrudService } from './strategies/crud-service'
+import { type CrudService, createCrudService } from './strategies/crud/crud-service'
 import { parseTableMetadataInput } from './metadata'
 import { assertNoSeparator, resolveApi } from './core/utils'
 

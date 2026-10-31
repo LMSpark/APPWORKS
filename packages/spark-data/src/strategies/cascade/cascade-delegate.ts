@@ -1,9 +1,9 @@
 import { Logger } from '@spark-appworks/spark-utils'
-import { RequestState } from '../types'
-import type { DataView } from '../data-view'
-import { DataViewCascadeValueBinding } from './cascade/cascade-value-binding'
-import { DataViewQueryCascadeInputs } from './cascade/query-cascade-inputs'
-import type { DataViewQueryContext } from '../types'
+import { RequestState } from '../../types'
+import type { DataView } from '../../data-view'
+import { DataViewCascadeValueBinding } from './cascade-value-binding'
+import { DataViewQueryCascadeInputs } from './query-cascade-inputs'
+import type { DataViewQueryContext } from '../../types'
 
 const logger = Logger('DataView:Cascade')
 

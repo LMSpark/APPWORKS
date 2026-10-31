@@ -8350,14 +8350,14 @@
     },
     {
       "kind": "module",
-      "className": "@spark-appworks/spark-data:strategies/cascade-delegate",
-      "moduleName": "@spark-appworks/spark-data:strategies/cascade-delegate",
+      "className": "@spark-appworks/spark-data:strategies/cascade/cascade-delegate",
+      "moduleName": "@spark-appworks/spark-data:strategies/cascade/cascade-delegate",
       "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-data:strategies/cascade-delegate 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade-delegate.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "chainBreak": "@spark-appworks/spark-data:strategies/cascade/cascade-delegate 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/cascade-delegate.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts"
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts"
     },
     {
       "kind": "constructor",
@@ -8365,10 +8365,10 @@
       "memberName": "constructor",
       "reason": "missing-jsdoc",
       "chainBreak": "CascadeDelegate.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationLine": 9,
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationKind": "class"
     },
     {
@@ -8377,10 +8377,10 @@
       "memberName": "setupCascade",
       "reason": "missing-jsdoc",
       "chainBreak": "CascadeDelegate.setupCascade 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationLine": 12,
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationKind": "class"
     },
     {
@@ -8389,10 +8389,10 @@
       "memberName": "teardownCascade",
       "reason": "missing-jsdoc",
       "chainBreak": "CascadeDelegate.teardownCascade 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationLine": 13,
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationKind": "class"
     },
     {
@@ -8401,10 +8401,10 @@
       "memberName": "destroy",
       "reason": "missing-jsdoc",
       "chainBreak": "CascadeDelegate.destroy 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/strategies/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "fixHint": "在 packages/spark-data/src/strategies/cascade/cascade-delegate.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationLine": 14,
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "declarationKind": "class"
     },
     {

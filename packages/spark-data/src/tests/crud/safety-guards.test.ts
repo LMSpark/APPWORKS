@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest'
 import { DataSet, DataView } from '@spark-appworks/spark-data'
 import { TreeManager } from '../../node-tree/tree-manager'
-import { CrudService } from '../../strategies/crud-service'
+import { CrudService } from '../../strategies/crud/crud-service'
 
 // ─────────────────────────────────────────────
 // S2: dataTable 守卫

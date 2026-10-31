@@ -143,7 +143,7 @@
           "items": false,
           "prefixItems": [
             {
-              "$ref": "strategies/types.ts.json#/$defs/CrudLifecycleEvent"
+              "$ref": "strategies/crud/types.ts.json#/$defs/CrudLifecycleEvent"
             }
           ]
         },
@@ -152,7 +152,7 @@
           "items": false,
           "prefixItems": [
             {
-              "$ref": "strategies/types.ts.json#/$defs/CrudLifecycleEvent"
+              "$ref": "strategies/crud/types.ts.json#/$defs/CrudLifecycleEvent"
             }
           ]
         }
@@ -1170,16 +1170,16 @@
           "title": "Map<DataRow, number>"
         },
         "selection": {
-          "$ref": "strategies/selection-delegate.ts.json#/$defs/SelectionDelegate"
+          "$ref": "strategies/selection/selection-delegate.ts.json#/$defs/SelectionDelegate"
         },
         "mutation": {
-          "$ref": "strategies/local-mutation-delegate.ts.json#/$defs/LocalMutationDelegate"
+          "$ref": "strategies/crud/local-mutation-delegate.ts.json#/$defs/LocalMutationDelegate"
         },
         "crud": {
-          "$ref": "strategies/crud-delegate.ts.json#/$defs/CrudDelegate"
+          "$ref": "strategies/crud/crud-delegate.ts.json#/$defs/CrudDelegate"
         },
         "dirtyTracking": {
-          "$ref": "strategies/dirty-tracking-delegate.ts.json#/$defs/DirtyTrackingDelegate"
+          "$ref": "strategies/crud/dirty-tracking-delegate.ts.json#/$defs/DirtyTrackingDelegate"
         },
         "editingRows": {
           "type": "array",
@@ -1201,7 +1201,7 @@
           "$ref": "dataset.ts.json#/$defs/DataSet"
         },
         "crudService": {
-          "$ref": "strategies/crud-service.ts.json#/$defs/CrudService"
+          "$ref": "strategies/crud/crud-service.ts.json#/$defs/CrudService"
         },
         "crudConfig": {
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
@@ -1231,7 +1231,7 @@
           "type": "boolean"
         },
         "cascade": {
-          "$ref": "strategies/cascade-delegate.ts.json#/$defs/CascadeDelegate"
+          "$ref": "strategies/cascade/cascade-delegate.ts.json#/$defs/CascadeDelegate"
         }
       },
       "required": [
@@ -2376,7 +2376,7 @@
           "additionalProperties": false
         },
         "method.getDirtyChanges.return": {
-          "$ref": "strategies/dirty-tracking-delegate.ts.json#/$defs/RowDiff"
+          "$ref": "strategies/crud/dirty-tracking-delegate.ts.json#/$defs/RowDiff"
         },
         "method.saveChanges.params": {
           "type": "object",
@@ -2776,7 +2776,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.555Z",
+  "generatedAt": "2026-10-31T04:17:13.244Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -6409,7 +6409,7 @@
               "type": {
                 "type": "reference",
                 "name": "RowDiff",
-                "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
               }
             },
             {
@@ -6451,7 +6451,7 @@
                       {
                         "type": "reference",
                         "name": "SaveChangesData",
-                        "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                        "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
                       }
                     ]
                   }
@@ -6493,7 +6493,7 @@
                         {
                           "type": "reference",
                           "name": "SaveChangesData",
-                          "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                          "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
                         }
                       ]
                     }

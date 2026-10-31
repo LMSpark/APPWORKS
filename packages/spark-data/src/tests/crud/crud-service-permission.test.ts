@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { CrudService } from '../../strategies/crud-service'
+import { CrudService } from '../../strategies/crud/crud-service'
 import { getMember, requireRecord } from '../test-type-helpers'
 
 type SanitizeDataForUpload = {

@@ -35,7 +35,7 @@ import type {
   DataSetSnapshotSelector,
 } from './dataset-history'
 import { DataTable } from './data-table'
-import { createCrudService } from './strategies/crud-service'
+import { createCrudService } from './strategies/crud/crud-service'
 import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
 import { assertNoSeparator } from './core/utils'
 import { DataViewCascadeValueBinding } from './strategies/cascade/cascade-value-binding'

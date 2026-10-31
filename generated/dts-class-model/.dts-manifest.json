@@ -2614,12 +2614,12 @@
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
       "shardFile": "files/packages/spark-data/src/data-table.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:17:10.243Z"
+      "sourceModifiedAt": "2026-10-31T04:17:14.389Z"
     },
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.555Z"
+      "sourceModifiedAt": "2026-10-31T04:17:13.244Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2634,7 +2634,7 @@
     "packages/spark-data/src/dataset.ts": {
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "shardFile": "files/packages/spark-data/src/dataset.ts.json",
-      "sourceModifiedAt": "2026-10-31T04:04:43.483Z"
+      "sourceModifiedAt": "2026-10-31T04:17:13.909Z"
     },
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
@@ -2751,10 +2751,10 @@
       "shardFile": "files/packages/spark-data/src/strategies/aggregate-delegate.ts.json",
       "sourceModifiedAt": "2026-10-16T04:42:43.139Z"
     },
-    "packages/spark-data/src/strategies/cascade-delegate.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/cascade-delegate.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/cascade-delegate.ts.json",
-      "sourceModifiedAt": "2026-10-10T12:48:14.740Z"
+    "packages/spark-data/src/strategies/cascade/cascade-delegate.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/cascade/cascade-delegate.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:01.297Z"
     },
     "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts": {
       "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
@@ -2786,50 +2786,50 @@
       "shardFile": "files/packages/spark-data/src/strategies/computed-column-delegate.ts.json",
       "sourceModifiedAt": "2026-10-31T04:04:44.312Z"
     },
-    "packages/spark-data/src/strategies/crud-delegate.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/crud-delegate.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/crud-delegate.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:17:10.245Z"
+    "packages/spark-data/src/strategies/crud/crud-delegate.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/crud/crud-delegate.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/crud/crud-delegate.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:05.974Z"
     },
-    "packages/spark-data/src/strategies/crud-service.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/crud-service.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/crud-service.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:20:17.720Z"
+    "packages/spark-data/src/strategies/crud/crud-service.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/crud/crud-service.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/crud/crud-service.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:04.407Z"
     },
-    "packages/spark-data/src/strategies/dirty-tracking-delegate.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/dirty-tracking-delegate.ts.json",
-      "sourceModifiedAt": "2026-08-09T20:44:30.720Z"
+    "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:07.274Z"
+    },
+    "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/crud/local-mutation-delegate.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:08.547Z"
+    },
+    "packages/spark-data/src/strategies/crud/types.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/crud/types.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/crud/types.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:09.590Z"
     },
     "packages/spark-data/src/strategies/index.ts": {
       "sourceFile": "packages/spark-data/src/strategies/index.ts",
       "shardFile": "files/packages/spark-data/src/strategies/index.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:51.020Z"
-    },
-    "packages/spark-data/src/strategies/local-mutation-delegate.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/local-mutation-delegate.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/local-mutation-delegate.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:51.021Z"
+      "sourceModifiedAt": "2026-10-31T04:17:10.665Z"
     },
     "packages/spark-data/src/strategies/primary-key-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/primary-key-delegate.ts",
       "shardFile": "files/packages/spark-data/src/strategies/primary-key-delegate.ts.json",
       "sourceModifiedAt": "2026-10-25T07:25:48.378Z"
     },
-    "packages/spark-data/src/strategies/selection-delegate.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/selection-delegate.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/selection-delegate.ts.json",
-      "sourceModifiedAt": "2026-10-18T05:13:24.012Z"
-    },
     "packages/spark-data/src/strategies/selection/data-view-selection-value.ts": {
       "sourceFile": "packages/spark-data/src/strategies/selection/data-view-selection-value.ts",
       "shardFile": "files/packages/spark-data/src/strategies/selection/data-view-selection-value.ts.json",
       "sourceModifiedAt": "2026-10-08T18:32:15.535Z"
     },
-    "packages/spark-data/src/strategies/types.ts": {
-      "sourceFile": "packages/spark-data/src/strategies/types.ts",
-      "shardFile": "files/packages/spark-data/src/strategies/types.ts.json",
-      "sourceModifiedAt": "2026-06-14T20:21:04.432Z"
+    "packages/spark-data/src/strategies/selection/selection-delegate.ts": {
+      "sourceFile": "packages/spark-data/src/strategies/selection/selection-delegate.ts",
+      "shardFile": "files/packages/spark-data/src/strategies/selection/selection-delegate.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:17:03.169Z"
     },
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",

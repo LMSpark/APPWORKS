@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-data:strategies/dirty-tracking-delegate",
-    "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
-    "sourceFile": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
+    "name": "@spark-appworks/spark-data:strategies/crud/dirty-tracking-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
     "packageName": "@spark-appworks/spark-data",
-    "modulePath": "strategies/dirty-tracking-delegate",
-    "jsdoc": "@module @spark-appworks/spark-data:strategies/dirty-tracking-delegate\n职责：提供 spark-data 数据管线中的 dirty tracking delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDirtyTrackingDelegate — 本地变更追踪委托（三态：新增 / 编辑 / 待删除）\n## 背景\nDataView.rows 与 UI 双向绑定，增删改立即反映到界面，但不自动提交服务端。\n本 delegate 追踪三种\"本地-only\"操作，由 saveChanges() 统一提交。\n| DataView 方法      | 本地 rows | 服务端 | 追踪类型        |\n|--------------------|-----------|--------|-----------------|\n| addRow(data)       | 立即追加  | ❌     | pending create  |\n| editRowById(id, d) | 立即更新  | ❌     | dirty update    |\n| removeRow(id)      | 立即删除  | ❌     | pending delete  |\n## 行级状态机\n```\n[server-clean]\n├─ editRowById  → [dirty update]\n│     └─ removeRow → [pending delete]（清除 dirty）\n└─ removeRow    → [pending delete]\n[pending create]（本地新行，服务端不存在）\n├─ editRowById  → 无需额外标记（行本身就是最新状态）\n└─ removeRow    → 取消创建（不产生 server delete）\n```\n## 快照弱引用策略\n- **dirty update 快照** (`_dirtySnapshots`)：`WeakRef`——仅用于 diff/撤销，\n内存紧张时允许 GC 回收，saveChanges 降级为\"提交当前行数据\"。\n- **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。",
+    "modulePath": "strategies/crud/dirty-tracking-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud/dirty-tracking-delegate\n职责：提供 spark-data 数据管线中的 dirty tracking delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDirtyTrackingDelegate — 本地变更追踪委托（三态：新增 / 编辑 / 待删除）\n## 背景\nDataView.rows 与 UI 双向绑定，增删改立即反映到界面，但不自动提交服务端。\n本 delegate 追踪三种\"本地-only\"操作，由 saveChanges() 统一提交。\n| DataView 方法      | 本地 rows | 服务端 | 追踪类型        |\n|--------------------|-----------|--------|-----------------|\n| addRow(data)       | 立即追加  | ❌     | pending create  |\n| editRowById(id, d) | 立即更新  | ❌     | dirty update    |\n| removeRow(id)      | 立即删除  | ❌     | pending delete  |\n## 行级状态机\n```\n[server-clean]\n├─ editRowById  → [dirty update]\n│     └─ removeRow → [pending delete]（清除 dirty）\n└─ removeRow    → [pending delete]\n[pending create]（本地新行，服务端不存在）\n├─ editRowById  → 无需额外标记（行本身就是最新状态）\n└─ removeRow    → 取消创建（不产生 server delete）\n```\n## 快照弱引用策略\n- **dirty update 快照** (`_dirtySnapshots`)：`WeakRef`——仅用于 diff/撤销，\n内存紧张时允许 GC 回收，saveChanges 降级为\"提交当前行数据\"。\n- **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FieldChange",
@@ -104,7 +104,7 @@
         "pendingCreateRows": {
           "type": "array",
           "items": {
-            "$ref": "../types.ts.json#/$defs/DataRow"
+            "$ref": "../../types.ts.json#/$defs/DataRow"
           }
         },
         "pendingDeleteIds": {
@@ -146,7 +146,7 @@
               ]
             },
             "row": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             }
           },
           "additionalProperties": false
@@ -185,7 +185,7 @@
               ]
             },
             "original": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             }
           },
           "additionalProperties": false
@@ -222,7 +222,7 @@
               ]
             },
             "snapshot": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             }
           },
           "additionalProperties": false
@@ -344,7 +344,7 @@
           "additionalProperties": false
         },
         "method.getPendingDeleteSnapshot.return": {
-          "$ref": "../types.ts.json#/$defs/DataRow"
+          "$ref": "../../types.ts.json#/$defs/DataRow"
         },
         "method.getOriginal.params": {
           "type": "object",
@@ -363,7 +363,7 @@
           "additionalProperties": false
         },
         "method.getOriginal.return": {
-          "$ref": "../types.ts.json#/$defs/DataRow"
+          "$ref": "../../types.ts.json#/$defs/DataRow"
         },
         "method.getDiff.params": {
           "type": "object",
@@ -379,7 +379,7 @@
               ]
             },
             "current": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             }
           },
           "additionalProperties": false
@@ -391,7 +391,7 @@
           "type": "object",
           "properties": {
             "host": {
-              "$ref": "../data-view.ts.json#/$defs/DataView"
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
             },
             "crud": {
               "$ref": "crud-delegate.ts.json#/$defs/CrudDelegate"
@@ -425,7 +425,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-09T20:44:30.720Z",
+  "generatedAt": "2026-10-31T04:17:07.274Z",
   "models": {
     "FieldChange": {
       "name": "FieldChange",
@@ -1007,7 +1007,7 @@
               "type": {
                 "type": "reference",
                 "name": "RowDiff",
-                "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
               }
             },
             {
@@ -1027,7 +1027,7 @@
                   "type": {
                     "type": "reference",
                     "name": "CrudDelegate",
-                    "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+                    "sourcePath": "packages/spark-data/src/strategies/crud/crud-delegate.ts"
                   }
                 },
                 {
@@ -1065,7 +1065,7 @@
                       {
                         "type": "reference",
                         "name": "SaveChangesData",
-                        "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                        "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
                       }
                     ]
                   }

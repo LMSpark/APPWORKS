@@ -7,9 +7,9 @@
 /**
  * strategies barrel export
  */
-export { CrudDelegate } from './crud-delegate'
-export { CascadeDelegate } from './cascade-delegate'
-export { SelectionDelegate } from './selection-delegate'
-export { LocalMutationDelegate } from './local-mutation-delegate'
-export { createCrudLifecycleEvent } from './types'
-export type { CrudOperation, CrudLifecycleEvent } from './types'
+export { CrudDelegate } from './crud/crud-delegate'
+export { CascadeDelegate } from './cascade/cascade-delegate'
+export { SelectionDelegate } from './selection/selection-delegate'
+export { LocalMutationDelegate } from './crud/local-mutation-delegate'
+export { createCrudLifecycleEvent } from './crud/types'
+export type { CrudOperation, CrudLifecycleEvent } from './crud/types'

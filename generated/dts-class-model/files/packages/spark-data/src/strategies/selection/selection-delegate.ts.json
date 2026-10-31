@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-data:strategies/selection-delegate",
-    "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts",
-    "sourceFile": "packages/spark-data/src/strategies/selection-delegate.ts",
+    "name": "@spark-appworks/spark-data:strategies/selection/selection-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/selection/selection-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/selection/selection-delegate.ts",
     "packageName": "@spark-appworks/spark-data",
-    "modulePath": "strategies/selection-delegate",
-    "jsdoc": "@module @spark-appworks/spark-data:strategies/selection-delegate\n职责：提供 spark-data 数据管线中的 selection delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
+    "modulePath": "strategies/selection/selection-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/selection/selection-delegate\n职责：提供 spark-data 数据管线中的 selection delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SelectionDelegate"
@@ -44,7 +44,7 @@
           "type": "object",
           "properties": {
             "host": {
-              "$ref": "../data-view.ts.json#/$defs/DataView"
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
             },
             "emitCurrentRowChanged": {
               "type": "object",
@@ -69,7 +69,7 @@
             "row": {
               "anyOf": [
                 {
-                  "$ref": "../types.ts.json#/$defs/DataRow"
+                  "$ref": "../../types.ts.json#/$defs/DataRow"
                 },
                 {
                   "type": "null"
@@ -89,7 +89,7 @@
             "rows": {
               "type": "array",
               "items": {
-                "$ref": "../types.ts.json#/$defs/DataRow"
+                "$ref": "../../types.ts.json#/$defs/DataRow"
               }
             },
             "originatorId": {
@@ -170,7 +170,7 @@
             "rows": {
               "type": "array",
               "items": {
-                "$ref": "../types.ts.json#/$defs/DataRow"
+                "$ref": "../../types.ts.json#/$defs/DataRow"
               }
             }
           },
@@ -185,7 +185,7 @@
             "rows": {
               "type": "array",
               "items": {
-                "$ref": "../types.ts.json#/$defs/DataRow"
+                "$ref": "../../types.ts.json#/$defs/DataRow"
               }
             }
           },
@@ -279,7 +279,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T05:13:24.012Z",
+  "generatedAt": "2026-10-31T04:17:03.169Z",
   "models": {
     "EmitCurrentRowChangedFn": {
       "name": "EmitCurrentRowChangedFn",
@@ -321,7 +321,7 @@
               "type": {
                 "type": "reference",
                 "name": "EmitCurrentRowChangedFn",
-                "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/selection/selection-delegate.ts"
               }
             },
             {
@@ -329,7 +329,7 @@
               "type": {
                 "type": "reference",
                 "name": "EmitSelectedRowsChangedFn",
-                "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/selection/selection-delegate.ts"
               }
             }
           ]

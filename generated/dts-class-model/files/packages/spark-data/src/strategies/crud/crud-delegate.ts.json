@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-data:strategies/crud-delegate",
-    "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts",
-    "sourceFile": "packages/spark-data/src/strategies/crud-delegate.ts",
+    "name": "@spark-appworks/spark-data:strategies/crud/crud-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/crud/crud-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/crud/crud-delegate.ts",
     "packageName": "@spark-appworks/spark-data",
-    "modulePath": "strategies/crud-delegate",
-    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud-delegate\n职责：提供 spark-data 数据管线中的 crud delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
+    "modulePath": "strategies/crud/crud-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud/crud-delegate\n职责：提供 spark-data 数据管线中的 crud delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "CrudDelegate"
@@ -23,7 +23,7 @@
           "type": "object",
           "properties": {
             "host": {
-              "$ref": "../data-view.ts.json#/$defs/DataView"
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
             },
             "emitCrudLifecycle": {
               "type": "object",
@@ -50,13 +50,13 @@
           "additionalProperties": false
         },
         "method.getCrudConfig.return": {
-          "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+          "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
         },
         "method.list.params": {
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "../types.ts.json#/$defs/QueryParams"
+              "$ref": "../../types.ts.json#/$defs/QueryParams"
             }
           },
           "additionalProperties": false
@@ -83,7 +83,7 @@
           "type": "object",
           "properties": {
             "data": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             }
           },
           "additionalProperties": false
@@ -106,7 +106,7 @@
               ]
             },
             "data": {
-              "$ref": "../types.ts.json#/$defs/DataRow"
+              "$ref": "../../types.ts.json#/$defs/DataRow"
             },
             "serverPk": {
               "type": "object",
@@ -149,7 +149,7 @@
             "items": {
               "type": "array",
               "items": {
-                "$ref": "../types.ts.json#/$defs/DataRow"
+                "$ref": "../../types.ts.json#/$defs/DataRow"
               }
             }
           },
@@ -165,7 +165,7 @@
             "items": {
               "type": "array",
               "items": {
-                "$ref": "../types.ts.json#/$defs/DataRow"
+                "$ref": "../../types.ts.json#/$defs/DataRow"
               }
             }
           },
@@ -216,7 +216,7 @@
           "type": "object",
           "properties": {
             "params": {
-              "$ref": "../types.ts.json#/$defs/QueryParams"
+              "$ref": "../../types.ts.json#/$defs/QueryParams"
             }
           },
           "additionalProperties": false
@@ -234,7 +234,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:17:10.245Z",
+  "generatedAt": "2026-10-31T04:17:05.974Z",
   "models": {
     "EmitCrudLifecycleFn": {
       "name": "EmitCrudLifecycleFn",
@@ -276,7 +276,7 @@
               "type": {
                 "type": "reference",
                 "name": "EmitCrudLifecycleFn",
-                "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud/crud-delegate.ts"
               }
             },
             {
@@ -284,7 +284,7 @@
               "type": {
                 "type": "reference",
                 "name": "MutatingFn",
-                "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud/crud-delegate.ts"
               }
             }
           ]
@@ -298,7 +298,7 @@
               "type": {
                 "type": "reference",
                 "name": "CrudService",
-                "sourcePath": "packages/spark-data/src/strategies/crud-service.ts"
+                "sourcePath": "packages/spark-data/src/strategies/crud/crud-service.ts"
               }
             },
             {

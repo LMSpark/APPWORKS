@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, SparkData, DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/filter/data-view-filter-local'
@@ -173,6 +175,26 @@ function captureDictionaryAiOwner(hosts: AiDataEntryHost[], attachments: AiDataE
 }
 
 describe('dictionary catalog formal view assembly', () => {
+  it('follows a changed formal catalog sort and lookup instead of a TypeScript literal', async () => {
+    const sourcePath = resolve(process.cwd(), 'config/pages/data-platform/data-dictionary/catalog-views.json')
+    const document = JSON.parse(readFileSync(sourcePath, 'utf8')) as {
+      tables: {_Base_DictType: {views: {default: {sortExpression: unknown; queryConfig: {filterLookups: Array<Record<string, string>>}}}}}
+    }
+    document.tables._Base_DictType.views.default.sortExpression = [{field: 'TypeName', direction: 'asc'}]
+    document.tables._Base_DictType.views.default.queryConfig.filterLookups[0]!['matchField'] = 'ROWID'
+    const dataSet = await LowcodeDictionary.loadCatalog('CATALOG', JSON.stringify(document)); sets.push(dataSet)
+    const view = dataSet.getView('_Base_DictType', 'default')!
+    expect(view.sortExpression).toEqual([{field: 'TypeName', direction: 'asc'}])
+    expect(view.toJson().queryConfig?.filterLookups?.[0]).toEqual({
+      field: 'createuser', sourceViewKey: 'CATALOG@Base_UserInfo@default', matchField: 'ROWID', valueField: 'ROWID',
+    })
+    const implementation = readFileSync(resolve(process.cwd(), 'src/lowcode/resources/structured-config/dictionary/resource.ts'), 'utf8')
+    expect(implementation).not.toContain('filterLookups')
+    expect(implementation).not.toContain('crttime')
+    expect(implementation).not.toContain('rootParentValue')
+    service.readModel.mockClear()
+  })
+
   it('loads application options from their own formal DataSet without rereading catalog models', async () => {
     const dataSet = await LowcodeDictionary.loadApplicationOptions('CATALOG'); sets.push(dataSet)
     const options = dataSet.getView('Base_AppSystemList', 'default')!

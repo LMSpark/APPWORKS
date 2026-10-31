@@ -4,7 +4,7 @@
  * 边界：保留数据库模型真源，视图来自应用内场景配置；读写由原runtime owner执行。
  * AI用途：原路径列表绑定导航场景，设置/条目共用已有字典数据编辑场景。
  */
-import {buildDataViewKey, DataViewFilter, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {DataViewFilter, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY, type AiDataEntryAdapter, type DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
@@ -12,14 +12,45 @@ import {lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../../data-space/lowcode-data-space-assembler'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
+import catalogViewsSource from '../../../../../config/pages/data-platform/data-dictionary/catalog-views.json?raw'
 
-function applicationOptionsView() {
-  return {
-    autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false,
-    queryConfig: {allPages: true, fields: ['rowid', 'AppDesc', 'AppName']},
-    sortExpression: [{field: 'AppDesc', direction: 'asc'}, {field: 'rowid', direction: 'asc'}],
-    valueField: 'rowid', labelField: 'AppDesc',
+const CATALOG_SCENARIO_TOKEN = '__SCENARIO__'
+
+type CatalogModelIdentity = Readonly<{id: string; metaName: string}>
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function catalogDocument(source: string): Record<string, unknown> {
+  let parsed: unknown
+  try {parsed = JSON.parse(source)} catch {throw new Error('字典目录配置不是JSON')}
+  if (!isRecord(parsed) || parsed['scenarioId'] !== CATALOG_SCENARIO_TOKEN || !isRecord(parsed['tables'])) {
+    throw new Error('字典目录配置场景占位无效')
   }
+  return parsed
+}
+
+function catalogTables(source: string): Record<string, unknown> {
+  const tables = catalogDocument(source)['tables']
+  if (!isRecord(tables)) throw new Error('字典目录配置缺少表')
+  return tables
+}
+
+function catalogScenarioText(scenarioId: string, models: readonly CatalogModelIdentity[], source: string, tableNames?: readonly string[]): string {
+  const tables = catalogTables(source)
+  const selected = tableNames ?? Object.keys(tables)
+  const nextTables: Record<string, unknown> = {}
+  for (const tableName of selected) {
+    const table = tables[tableName]
+    if (!isRecord(table)) throw new Error(`字典目录配置缺少表 ${tableName}`)
+    const binding = table['modelBinding']
+    if (!isRecord(binding) || binding['modelName'] !== tableName) throw new Error(`字典目录配置模型名称不匹配: ${tableName}`)
+    const model = models.find(item => item.metaName === tableName)
+    if (!model) throw new Error(`正式模型缺失: ${tableName}`)
+    nextTables[tableName] = {...table, modelBinding: {modelId: model.id, modelName: tableName}}
+  }
+  return JSON.stringify({...catalogDocument(source), scenarioId, tables: nextTables}).replaceAll(`${CATALOG_SCENARIO_TOKEN}@`, `${scenarioId}@`)
 }
 
 /** 组合根负责scope，页面和专题对象不接触请求凭据。 */
@@ -67,32 +98,17 @@ export class LowcodeDictionary {
     }
   }
 
-  /** 按导航正式场景装配目录与其正式应用选项视图；目录范围由DataView筛选控制。 */
-  static async loadCatalog(scenarioId: string): Promise<DataSet> {
+  /** 按导航正式场景装配目录。缺省读取正式目录配置；传入文本只用于证明装配消费该文档。 */
+  static async loadCatalog(scenarioId: string, configText = catalogViewsSource): Promise<DataSet> {
     const {assertCurrent} = this.scope()
     const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent}
+    const metaNames = Object.keys(catalogTables(configText))
     const [space, ...models] = await Promise.all([
       lowcodeApi.dataSpace.design.readSpaceDefinition(input),
-      ...['_Base_DictType', 'Base_StructureType', 'Base_UserInfo', 'Base_AppSystemList'].map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
+      ...metaNames.map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
     ])
     assertCurrent()
-    const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: Object.fromEntries(models.map(model => [
-      model.metaName, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: {
-        autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false,
-        ...(model.metaName === '_Base_DictType' ? {
-          queryConfig: {filterLookups: [{field: 'createuser', sourceViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId),
-            matchField: 'UserName', valueField: 'ROWID'}]},
-          sortExpression: [{field: 'crttime', direction: 'desc'}, {field: 'rowid', direction: 'asc'}],
-        } : model.metaName === 'Base_AppSystemList' ? {
-          ...applicationOptionsView(),
-        } : {
-          queryConfig: {allPages: true}, sortExpression: [{field: model.primaryKey, direction: 'asc'}],
-          ...(model.metaName === 'Base_UserInfo' ? {valueField: 'ROWID', labelField: 'UserName'} : {
-            valueField: 'rowid', labelField: 'Name', treeConfig: {idField: 'rowid', parentIdField: 'Mrowid', rootParentValue: '000000', textField: 'Name', lazy: false},
-          }),
-        }),
-      }}},
-    ])), resourceRelations: [], viewCascades: []}))
+    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText(scenarioId, models, configText))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations: []})
     try {
       const view = dataSet.getView('_Base_DictType', 'default')
@@ -130,11 +146,7 @@ export class LowcodeDictionary {
     for (const name of ['rowid', 'AppDesc']) if (!model.fields.some(field => field.name === name)) {
       throw new Error(`正式应用模型缺少选项字段 ${name}`)
     }
-    const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: {
-      Base_AppSystemList: {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: {
-        ...applicationOptionsView(),
-      }},
-    }}, resourceRelations: [], viewCascades: []}))
+    const config = new ScenarioViewConfig(scenarioId, catalogScenarioText(scenarioId, [model], catalogViewsSource, ['Base_AppSystemList']))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: [model], relations: []})
     try {
       const view = dataSet.getView('Base_AppSystemList', 'default')

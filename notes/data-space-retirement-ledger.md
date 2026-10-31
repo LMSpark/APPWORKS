@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 设计页直接读当前应用头 | 旁路 | `data-set-design-page.vue:1450-1455` 调用 `lowcodeApi.readRequestScope()` | 目标切换后旧项目头可能套到新设计会话 | 作用域读取留在数据层；页面只消费已绑定的 DataView。不在页面再包一层 scope 缓存 | 设计页不再 import `lowcodeApi`；双空间切换、迟到响应和释放有测试与 SPA 证据 |
 | 设计页自持保存门闩和快照 | 旁路 | 同文件 `fileBindingSubmissionUnconfirmed`（776、822）、`parameterBaseline`（1514、1539）、`historyDefinitionSnapshot`（503） | 与 DataView 的 dirty / unconfirmed 并行，撤销后按钮状态会错 | 状态只从原 DataView / Document 读取。会话命令的 baseline 保留 | 这三处页面状态删除后，文件绑定、参数保存和历史恢复的未知结果仍不重发 |
-| 结构化目录在代码里拼场景 | 配置未正式化 | `structured-config/catalog.ts:35-55` 生成 JSON，`viewCascades` 为空；字典目录 `dictionary/resource.ts` 同样 | 改查询配置必须改源码，不能由数据空间设计保存后生效 | 目录绑定、过滤、排序、级联改由正式 pagedata 承接，装配链只读这份配置 | host 不再拼 tables / filterLookups；改正式配置后不改 host 即可生效，并有重开证据 |
+| 结构化目录在代码里拼场景 | 配置未正式化 | `structured-config/catalog.ts:35-55` 仍生成 JSON，`viewCascades` 为空。字典目录已改读 `config/pages/data-platform/data-dictionary/catalog-views.json`，编辑空间 69B 不变 | 编码、逻辑视图、工作流、Excel、PDF 改查询配置仍须改源码 | 这些目录随后改由正式 pagedata 承接。字典目录这一行不再算未迁 | `catalog.ts` 不再拼 tables / filterLookups；改正式配置后不改 host 即可生效 |
 | 设计文件视图运行时挂上 | 配置未正式化 | `repository/staged-design-file-view.ts` 在代码里挂 scope 表和文件命令视图 | 编码、逻辑视图、工作流、JSON、Excel、PDF 的设计保存不在正式场景里 | 同一资源适配保留在 executor 内；视图定义改由正式配置声明 | 页面不再依赖运行时 attach 才能找到设计视图；未改内容仍被保留 |
 | 编码、工作流、Excel、PDF 的设计 URL 未核 | 服务合同未证实 | `data-code/design-client.ts:12`、`workflow-definition/design-client.ts:3,14,20`（注释写明实服 URL 待核）、`excel-import/design-client.ts:14`、`pdf-inspect/design-client.ts:14` | 保存可能 404 或写到错误合同；测试只 mock 了 HTTP | 保持缺口。不用夹具或本地 Java 目录核销。不成立的动作关闭并标明缺口 | 真实服务回执、精确回读、关闭重开都成立后，才删除对应拒绝或占位 |
 | 逻辑视图 GetView / SaveView 无在线证据 | 服务合同未证实 | `logic-view/design-client.ts:14` 调用 `/api/ViewData/GetView` | 本地目录有端点不等于当前服务支持 | 同上，保持缺口 | 同上 |

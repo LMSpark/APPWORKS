@@ -1,0 +1,81 @@
+{
+  "scenarioId": "__SCENARIO__",
+  "tables": {
+    "_Base_DictType": {
+      "modelBinding": {"modelName": "_Base_DictType"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {
+            "filterLookups": [{
+              "field": "createuser",
+              "sourceViewKey": "__SCENARIO__@Base_UserInfo@default",
+              "matchField": "UserName",
+              "valueField": "ROWID"
+            }]
+          },
+          "sortExpression": [
+            {"field": "crttime", "direction": "desc"},
+            {"field": "rowid", "direction": "asc"}
+          ]
+        }
+      }
+    },
+    "Base_StructureType": {
+      "modelBinding": {"modelName": "Base_StructureType"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {"allPages": true},
+          "sortExpression": [{"field": "rowid", "direction": "asc"}],
+          "valueField": "rowid",
+          "labelField": "Name",
+          "treeConfig": {
+            "idField": "rowid",
+            "parentIdField": "Mrowid",
+            "rootParentValue": "000000",
+            "textField": "Name",
+            "lazy": false
+          }
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelName": "Base_UserInfo"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {"allPages": true},
+          "sortExpression": [{"field": "ID", "direction": "asc"}],
+          "valueField": "ROWID",
+          "labelField": "UserName"
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelName": "Base_AppSystemList"},
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {"allPages": true, "fields": ["rowid", "AppDesc", "AppName"]},
+          "sortExpression": [
+            {"field": "AppDesc", "direction": "asc"},
+            {"field": "rowid", "direction": "asc"}
+          ],
+          "valueField": "rowid",
+          "labelField": "AppDesc"
+        }
+      }
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": []
+}

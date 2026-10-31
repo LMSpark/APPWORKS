@@ -15,7 +15,7 @@ const wrappers: ReturnType<typeof mount>[] = []
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', async () => {
   const {DataSet} = await import('@spark-appworks/spark-data')
-  return {loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
+  return {readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}), loadLowcodeRuntimeScenario: vi.fn(async ({scenarioId}: {scenarioId: string}) => DataSet.fromJson({
     scenarioId, tables: {Base_NavigationInfo: {columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}], views: {default: {}}}},
   }))}
 })

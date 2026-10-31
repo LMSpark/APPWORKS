@@ -49,7 +49,8 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
   }
 })
 
-import { loadLowcodeRuntimeScenario, loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import {resolve} from 'node:path'
+import { loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 const scope = (token: string, appId: string) => ({ token, headers: { 'X-AppId': appId } })
 
@@ -372,6 +373,27 @@ describe('loadLowcodeRuntimeScenario', () => {
       expect(companions[1]?.destroyed).toBe(false)
       expect(mocks.request).not.toHaveBeenCalled()
     } finally {runtime.dispose()}
+  })
+
+  it('reads the current application header and rejects a later token or application change', () => {
+    mocks.readRequestScope.mockReturnValue(scope('t1', 'APP'))
+    const execution = readLowcodeExecutionProject()
+    expect(execution.projectId).toBe('APP')
+    execution.assertCurrent()
+    mocks.readRequestScope.mockReturnValue(scope('t2', 'APP'))
+    expect(() => execution.assertCurrent()).toThrow('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+    mocks.readRequestScope.mockReturnValue(scope('t1', 'OTHER'))
+    expect(() => execution.assertCurrent()).toThrow('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+  })
+
+  it('rejects a missing application header before a design page can load a blueprint', () => {
+    mocks.readRequestScope.mockReturnValue({token: 't1', headers: {}})
+    expect(() => readLowcodeExecutionProject()).toThrow('SPARK_EXECUTION_SCOPE_REQUIRED: 缺少当前应用身份')
+  })
+
+  it('keeps the data space design page off the lowcode request scope', () => {
+    const source = readFileSync(resolve('src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'), 'utf8')
+    expect(source).not.toContain('lowcodeApi')
   })
 
   it('rejects when the request application differs from the page project', async () => {

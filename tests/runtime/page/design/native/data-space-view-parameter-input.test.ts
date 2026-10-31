@@ -14,7 +14,10 @@ import * as lowcodeDataSpaceDesign from '@/lowcode/data-space/lowcode-data-space
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+  loadLowcodeRuntimeScenario: vi.fn(),
+  readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}),
+}))
 vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
   return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {

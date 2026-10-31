@@ -318,8 +318,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
-import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+import {loadLowcodeRuntimeScenario, readLowcodeExecutionProject} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {BlueprintWorkspaceDataView, isBlueprintViewAttachedToRuntime} from '@/services/project/blueprint-workspace-dataview'
 import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
 import DataSpaceParametersEditor from '../parameters/DataSpaceParametersEditor.vue'
@@ -1447,12 +1446,12 @@ async function load(): Promise<void> {
   }
   loading.value = true
   try {
-    const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
-    if (!projectId) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 缺少当前应用身份')
+    const execution = readLowcodeExecutionProject()
+    const projectId = execution.projectId
     const blueprintGeneration = ownGeneration
     const assertBlueprintCurrent = (): void => {
-      if (!active || generation !== blueprintGeneration || props.targetId !== id
-        || lowcodeApi.readRequestScope().headers['X-AppId'] !== projectId) throw new Error('蓝图 DataView 项目作用域已失效')
+      if (!active || generation !== blueprintGeneration || props.targetId !== id) throw new Error('蓝图 DataView 项目作用域已失效')
+      execution.assertCurrent()
     }
     blueprintDataSet = await loadLowcodeRuntimeScenario({projectId, scenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY})
     assertBlueprintCurrent()

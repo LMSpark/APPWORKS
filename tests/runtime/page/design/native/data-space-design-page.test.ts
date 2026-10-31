@@ -32,7 +32,10 @@ import {DataSpaceLayoutEdit} from '@/views/features/data-platform/data-set-manag
 import definitionConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
-vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
+  loadLowcodeRuntimeScenario: vi.fn(),
+  readLowcodeExecutionProject: () => ({projectId: 'APP', assertCurrent() {}}),
+}))
 vi.mock('@/lowcode/lowcode-runtime', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lowcode/lowcode-runtime')>()
   return {...actual, lowcodeApi: Object.assign(Object.create(actual.lowcodeApi), {

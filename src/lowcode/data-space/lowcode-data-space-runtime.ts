@@ -87,6 +87,19 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {})})
 }
 
+/** 当前请求的应用头。调用方固定这一次读取；之后只核对令牌和应用头是否仍是这一次。 */
+export function readLowcodeExecutionProject(): Readonly<{projectId: string; assertCurrent: () => void}> {
+ const scope = lowcodeApi.readRequestScope()
+ const projectId = scope.headers['X-AppId']
+ if (!projectId) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 缺少当前应用身份')
+ return {projectId, assertCurrent(): void {
+  const current = lowcodeApi.readRequestScope()
+  if (current.token !== scope.token || current.headers['X-AppId'] !== projectId) {
+   throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+  }
+ }}
+}
+
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
 export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string }>): Promise<DataSet> {
  const { projectId, scenarioId } = command

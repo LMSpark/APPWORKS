@@ -1,13 +1,13 @@
 /**
- * @module @spark-appworks/spark-data:resource-relation/resource-relation-definition
+ * @module @spark-appworks/spark-data:query/resource-relation-definition
  * 职责：归一化稳定模型关系表达式，并集中维护结构化条件引用。
  * 边界：本地只执行 DataViewFilterLocal 已支持的常量和当前行字段函数。
  */
 import type { DataResourceRelation } from '../types'
-import type { DataViewFilterTree } from '../query/filter/data-view-filter-contract'
+import type { DataViewFilterTree } from './filter/data-view-filter-contract'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { DataViewFilter } from '../query/filter/data-view-filter'
-import { DataViewFilterLocal } from '../query/filter/data-view-filter-local'
+import { DataViewFilter } from './filter/data-view-filter'
+import { DataViewFilterLocal } from './filter/data-view-filter-local'
 
 type RelationMatcherOptions = Readonly<{expression: DataViewFilterTree; parentTable: string; childTable: string; parent: Readonly<Record<string, unknown>>; parentFields: ReadonlySet<string>; childFields: ReadonlySet<string>}>
 type RelationFieldReferenceOptions = Readonly<{expression: DataViewFilterTree; parentTable: string; childTable: string; tableName: string; fieldName: string}>

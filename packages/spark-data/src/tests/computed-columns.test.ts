@@ -20,7 +20,7 @@ import { DataSet } from '@spark-appworks/spark-data'
 import { DataTable } from '../data-table'
 import type { DataRow, AggregateColumnConfig } from '@spark-appworks/spark-data'
 import { requireNumber } from './test-type-helpers'
-import { ResourceRelationDefinition } from '../resource-relation/resource-relation-definition'
+import { ResourceRelationDefinition } from '../query/resource-relation-definition'
 import { DataViewFilter } from '../query/filter/data-view-filter'
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@
 import { DataSet } from './dataset'
 import { SnapshotHistory, deepClone, isRecord } from '@spark-appworks/spark-utils'
 import { isDataRow } from './core/data-row-guards'
-import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
+import { ResourceRelationDefinition } from './query/resource-relation-definition'
 import type { DataTable } from './data-table'
 import type { DataView } from './data-view'
 import type {

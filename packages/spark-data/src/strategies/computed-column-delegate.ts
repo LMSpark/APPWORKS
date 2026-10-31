@@ -9,7 +9,7 @@ import { Logger, toErrorMessage, createSafeProxy } from '@spark-appworks/spark-u
 import type { DataRow, ComputedColumnFn, DataResourceRelation } from '../types'
 import type { DataSet } from '../dataset'
 import type { DataView } from '../data-view'
-import { ResourceRelationDefinition } from '../resource-relation/resource-relation-definition'
+import { ResourceRelationDefinition } from '../query/resource-relation-definition'
 
 const logger = Logger('DataView:Computed')
 

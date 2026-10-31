@@ -7949,24 +7949,24 @@
     },
     {
       "kind": "module",
-      "className": "@spark-appworks/spark-data:resource-relation/resource-relation-definition",
-      "moduleName": "@spark-appworks/spark-data:resource-relation/resource-relation-definition",
+      "className": "@spark-appworks/spark-data:query/resource-relation-definition",
+      "moduleName": "@spark-appworks/spark-data:query/resource-relation-definition",
       "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-data:resource-relation/resource-relation-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "chainBreak": "@spark-appworks/spark-data:query/resource-relation-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts"
     },
     {
       "kind": "model",
       "className": "RelationMatcherOptions",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 8,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -7975,10 +7975,10 @@
       "memberName": "expression",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.expression 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 9,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -7987,10 +7987,10 @@
       "memberName": "parentTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.parentTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 10,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -7999,10 +7999,10 @@
       "memberName": "childTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.childTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 11,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8011,10 +8011,10 @@
       "memberName": "parent",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.parent 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 12,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8023,10 +8023,10 @@
       "memberName": "parentFields",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.parentFields 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 13,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8035,10 +8035,10 @@
       "memberName": "childFields",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationMatcherOptions.childFields 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 14,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8046,10 +8046,10 @@
       "className": "RelationFieldReferenceOptions",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 16,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -8058,10 +8058,10 @@
       "memberName": "expression",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions.expression 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 17,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8070,10 +8070,10 @@
       "memberName": "parentTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions.parentTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 18,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8082,10 +8082,10 @@
       "memberName": "childTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions.childTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 19,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8094,10 +8094,10 @@
       "memberName": "tableName",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 20,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8106,10 +8106,10 @@
       "memberName": "fieldName",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldReferenceOptions.fieldName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 21,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8117,10 +8117,10 @@
       "className": "RelationFieldRenameOptions",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldRenameOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 23,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -8129,10 +8129,10 @@
       "memberName": "newFieldName",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationFieldRenameOptions.newFieldName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 24,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8140,10 +8140,10 @@
       "className": "RelationTableRenameOptions",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 26,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -8152,10 +8152,10 @@
       "memberName": "expression",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions.expression 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 27,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8164,10 +8164,10 @@
       "memberName": "parentTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions.parentTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 28,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8176,10 +8176,10 @@
       "memberName": "childTable",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions.childTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 29,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8188,10 +8188,10 @@
       "memberName": "tableName",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 30,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8200,10 +8200,10 @@
       "memberName": "newTableName",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableRenameOptions.newTableName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 31,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8211,10 +8211,10 @@
       "className": "RelationTableMetadata",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableMetadata 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 33,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "typeAlias"
     },
     {
@@ -8223,10 +8223,10 @@
       "memberName": "columns",
       "reason": "missing-jsdoc",
       "chainBreak": "RelationTableMetadata.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 34,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "interface"
     },
     {
@@ -8235,10 +8235,10 @@
       "memberName": "constructor",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 39,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8246,10 +8246,10 @@
       "className": "ResourceRelationDefinition",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 39,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8258,10 +8258,10 @@
       "memberName": "renameTable",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.renameTable 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 40,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8270,10 +8270,10 @@
       "memberName": "renameField",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.renameField 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 41,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8282,10 +8282,10 @@
       "memberName": "referencesField",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.referencesField 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 42,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8294,10 +8294,10 @@
       "memberName": "referencesTable",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.referencesTable 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 43,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8306,10 +8306,10 @@
       "memberName": "createMatcher",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.createMatcher 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 49,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -8318,10 +8318,10 @@
       "memberName": "normalize",
       "reason": "missing-jsdoc",
       "chainBreak": "ResourceRelationDefinition.normalize 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/resource-relation/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "fixHint": "在 packages/spark-data/src/query/resource-relation-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationLine": 50,
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
       "declarationKind": "class"
     },
     {

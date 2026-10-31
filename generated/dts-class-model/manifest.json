@@ -9470,6 +9470,21 @@
         ]
       }
     },
+    "packages/spark-data/src/query/resource-relation-definition.ts": {
+      "file": "files/packages/spark-data/src/query/resource-relation-definition.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/resource-relation-definition",
+        "sourcePath": "packages/spark-data/src/query/resource-relation-definition.ts",
+        "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/resource-relation-definition",
+        "jsdoc": "@module @spark-appworks/spark-data:query/resource-relation-definition\n职责：归一化稳定模型关系表达式，并集中维护结构化条件引用。\n边界：本地只执行 DataViewFilterLocal 已支持的常量和当前行字段函数。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ResourceRelationDefinition"
+        ]
+      }
+    },
     "packages/spark-data/src/query/sort-expression.ts": {
       "file": "files/packages/spark-data/src/query/sort-expression.ts.json",
       "module": {
@@ -9481,21 +9496,6 @@
         "jsdoc": "@module @spark-appworks/spark-data:query/sort-expression\n职责：提供按 DataColumn 类型解释 SortExpression 的纯行投影排序。\n边界：不查询、不修改行、不读取权限；消费者须先确认本次正式行对排序字段可读。\nAI用途：在不改变 DataView 查询状态的临时投影中复用声明列类型和排序方向。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
-      }
-    },
-    "packages/spark-data/src/resource-relation/resource-relation-definition.ts": {
-      "file": "files/packages/spark-data/src/resource-relation/resource-relation-definition.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-data:resource-relation/resource-relation-definition",
-        "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
-        "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
-        "packageName": "@spark-appworks/spark-data",
-        "modulePath": "resource-relation/resource-relation-definition",
-        "jsdoc": "@module @spark-appworks/spark-data:resource-relation/resource-relation-definition\n职责：归一化稳定模型关系表达式，并集中维护结构化条件引用。\n边界：本地只执行 DataViewFilterLocal 已支持的常量和当前行字段函数。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ResourceRelationDefinition"
-        ]
       }
     },
     "packages/spark-data/src/script-types.ts": {
@@ -21401,8 +21401,8 @@
       "file": "files/src/services/project-planning/project-planning-agent-workflow-binding.ts.json"
     },
     "ResourceRelationDefinition": {
-      "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
-      "file": "files/packages/spark-data/src/resource-relation/resource-relation-definition.ts.json"
+      "sourcePath": "packages/spark-data/src/query/resource-relation-definition.ts",
+      "file": "files/packages/spark-data/src/query/resource-relation-definition.ts.json"
     },
     "ResponseInterceptor": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",

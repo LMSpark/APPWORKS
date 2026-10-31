@@ -2624,7 +2624,7 @@
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
       "shardFile": "files/packages/spark-data/src/dataset-crud-tool.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.557Z"
+      "sourceModifiedAt": "2026-10-31T04:04:44.032Z"
     },
     "packages/spark-data/src/dataset-history.ts": {
       "sourceFile": "packages/spark-data/src/dataset-history.ts",
@@ -2634,7 +2634,7 @@
     "packages/spark-data/src/dataset.ts": {
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "shardFile": "files/packages/spark-data/src/dataset.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.763Z"
+      "sourceModifiedAt": "2026-10-31T04:04:43.483Z"
     },
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
@@ -2726,15 +2726,15 @@
       "shardFile": "files/packages/spark-data/src/query/filter/data-view-filter.ts.json",
       "sourceModifiedAt": "2026-10-25T07:25:48.190Z"
     },
+    "packages/spark-data/src/query/resource-relation-definition.ts": {
+      "sourceFile": "packages/spark-data/src/query/resource-relation-definition.ts",
+      "shardFile": "files/packages/spark-data/src/query/resource-relation-definition.ts.json",
+      "sourceModifiedAt": "2026-10-31T04:04:42.892Z"
+    },
     "packages/spark-data/src/query/sort-expression.ts": {
       "sourceFile": "packages/spark-data/src/query/sort-expression.ts",
       "shardFile": "files/packages/spark-data/src/query/sort-expression.ts.json",
       "sourceModifiedAt": "2026-10-30T15:31:33.569Z"
-    },
-    "packages/spark-data/src/resource-relation/resource-relation-definition.ts": {
-      "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
-      "shardFile": "files/packages/spark-data/src/resource-relation/resource-relation-definition.ts.json",
-      "sourceModifiedAt": "2026-10-08T10:54:03.201Z"
     },
     "packages/spark-data/src/script-types.ts": {
       "sourceFile": "packages/spark-data/src/script-types.ts",
@@ -2784,7 +2784,7 @@
     "packages/spark-data/src/strategies/computed-column-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/computed-column-delegate.ts",
       "shardFile": "files/packages/spark-data/src/strategies/computed-column-delegate.ts.json",
-      "sourceModifiedAt": "2026-10-16T05:11:15.286Z"
+      "sourceModifiedAt": "2026-10-31T04:04:44.312Z"
     },
     "packages/spark-data/src/strategies/crud-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/crud-delegate.ts",

@@ -2,9 +2,5 @@
   "packages/spark-data/src": {
     "files": 9,
     "dirs": 8
-  },
-  "tests/runtime/page": {
-    "files": 11,
-    "dirs": 8
   }
 }

@@ -4,8 +4,8 @@ import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Router } from 'vue-router'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation } from '@spark-appworks/spark-app'
-import { useNavigation } from '../../../packages/spark-app/src/navigation/useNavigation'
-import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../../packages/spark-app/src/router/cross-project-ref-route'
+import { useNavigation } from '../../../../packages/spark-app/src/navigation/useNavigation'
+import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../../../packages/spark-app/src/router/cross-project-ref-route'
 
 type NavigateToPath = {
   (path: string): void}
@@ -13,7 +13,7 @@ type NavigateToPath = {
 const refreshRoutesMock = vi.hoisted(() => vi.fn<() => Promise<RuntimeNavigation | null>>())
 const getDynamicRouterMock = vi.hoisted(() => vi.fn(() => null))
 
-vi.mock('../../../packages/spark-app/src/navigation/nav-access', () => ({
+vi.mock('../../../../packages/spark-app/src/navigation/nav-access', () => ({
   getDynamicRouter: getDynamicRouterMock,
   refreshRoutes: refreshRoutesMock,
 }))

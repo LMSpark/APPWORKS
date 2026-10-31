@@ -5,7 +5,7 @@ import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { PageContentLoader, type PageFileReadCommand } from '@spark-appworks/spark-project-model'
 import { DataSet } from '@spark-appworks/spark-data'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import { createDynamicRouter, type RuntimeScenarioLoadCommand } from '../../../packages/spark-app/src/router/dynamic'
+import { createDynamicRouter, type RuntimeScenarioLoadCommand } from '../../../../packages/spark-app/src/router/dynamic'
 
 const DummyPage = defineComponent({ name: 'DummyPage', template: '<div />' })
 const PRE_AUTH_NAV: RuntimeNavigation = { id: 'public', title: 'Public', childPlacement: 'header', items: [

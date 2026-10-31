@@ -10,12 +10,12 @@ import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 
 const transport = { request: vi.fn() }
 const originalTransport = Object.getOwnPropertyDescriptor(Request.prototype, 'executeRequest')
-let runtime: typeof import('../../../src/lowcode/lowcode-runtime')
+let runtime: typeof import('../../../../src/lowcode/lowcode-runtime')
 
-import { ScenarioViewConfig } from '../../../packages/spark-project-model/src/scenario/scenario-view-config'
-import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import { LowcodeDataSpaceViewFields } from '../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
-import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '../../../src/registries/builtin-application-registry'
+import { ScenarioViewConfig } from '../../../../packages/spark-project-model/src/scenario/scenario-view-config'
+import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import { LowcodeDataSpaceViewFields } from '../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-fields'
+import {getBuiltinApplicationDescriptor, getBuiltinScenarioResource} from '../../../../src/registries/builtin-application-registry'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -92,7 +92,7 @@ describe('host scenario file request wiring', () => {
         return response
       },
     })
-    runtime = await import('../../../src/lowcode/lowcode-runtime')
+    runtime = await import('../../../../src/lowcode/lowcode-runtime')
   })
 
   it('reads tool snapshot text with fatal UTF-8 decoding while preserving a BOM', async () => {

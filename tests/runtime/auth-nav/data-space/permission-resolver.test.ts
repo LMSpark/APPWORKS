@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   DataSet,
 } from '@spark-appworks/spark-data'
-import { permission } from '../../../packages/spark-component/src/index'
-import { isActionDescriptorPermitted, isDataViewSavePermitted } from '../../../packages/spark-component/src/page/actions/executor-helpers'
-import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { permission } from '../../../../packages/spark-component/src/index'
+import { isActionDescriptorPermitted, isDataViewSavePermitted } from '../../../../packages/spark-component/src/page/actions/executor-helpers'
+import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const { isModelActionAllowed, isRowActionAllowed } = permission
 

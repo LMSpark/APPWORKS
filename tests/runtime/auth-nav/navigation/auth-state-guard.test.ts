@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { hasLowcodeSession, lowcodeApi } from '../../../src/lowcode/lowcode-runtime'
+import { hasLowcodeSession, lowcodeApi } from '../../../../src/lowcode/lowcode-runtime'
 
 describe('lowcode session guard', () => {
   beforeEach(() => {

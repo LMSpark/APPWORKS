@@ -2,10 +2,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import { CrossProjectRefPage, createCrossProjectRefRouteProps } from '../../../packages/spark-app/src/router/cross-project-ref-page'
+import { CrossProjectRefPage, createCrossProjectRefRouteProps } from '../../../../packages/spark-app/src/router/cross-project-ref-page'
 
 const navState = vi.hoisted((): { tree: RuntimeNavigation | null } => ({ tree: null }))
-vi.mock('../../../packages/spark-app/src/navigation/nav-access', () => ({ getNavTree: () => navState.tree }))
+vi.mock('../../../../packages/spark-app/src/navigation/nav-access', () => ({ getNavTree: () => navState.tree }))
 
 async function setup(target?: string) {
   navState.tree = { id: 'root', title: 'root', childPlacement: 'sidebar', items: [{ id: 'ref-node', title: 'Orders', itemKind: 'ref', ...(target ? { refPath: target } : {}) }] }

@@ -3229,7 +3229,7 @@
     "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.663Z"
+      "sourceModifiedAt": "2026-11-01T20:53:21.161Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
@@ -4024,7 +4024,7 @@
     "src/lowcode/resources/semi-structured/json-data/content-ops.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/content-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.791Z"
+      "sourceModifiedAt": "2026-11-01T20:52:05.917Z"
     },
     "src/lowcode/resources/semi-structured/json-data/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",

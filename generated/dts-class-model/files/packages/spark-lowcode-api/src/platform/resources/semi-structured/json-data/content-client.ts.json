@@ -39,7 +39,7 @@
         },
         "method.read.return": {
           "type": "object",
-          "title": "Promise<unknown>"
+          "title": "Promise<readonly unknown[]>"
         },
         "method.save.params": {
           "type": "object",
@@ -58,11 +58,11 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.663Z",
+  "generatedAt": "2026-11-01T20:53:21.161Z",
   "models": {
     "JsonDataContentClient": {
       "name": "JsonDataContentClient",
-      "jsdoc": "",
+      "jsdoc": "既有JSON树接口的传输适配；业务JSON文档与六字段树行之间的转换不在HTTP层猜测。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -81,6 +81,7 @@
           "methods": [
             {
               "name": "read",
+              "jsdoc": "只接受服务端真实树行数组；null、对象或提示文本都不是空文档。",
               "parameters": [
                 {
                   "name": "jsonId",
@@ -95,14 +96,15 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "intrinsic",
-                    "name": "unknown"
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
                   }
                 ]
               }
             },
             {
               "name": "save",
+              "jsdoc": "提交完整树行数组；普通JSON文档必须先由语义层转换，非法形状在请求前拒绝。",
               "parameters": [
                 {
                   "name": "jsonId",

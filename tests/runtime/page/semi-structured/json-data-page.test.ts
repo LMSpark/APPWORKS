@@ -55,7 +55,7 @@ async function openPage() {
 }
 
 describe('json-data page', () => {
-  it('loads catalog and fetches json content on row select', async () => {
+  it('loads real tree content and refuses a document object before the legacy tree write', async () => {
     const wrapper = await openPage()
     expect(wrapper.text()).toContain('JSON 数据')
     expect(wrapper.findComponent(RendererTable).text()).toContain('样例JSON')
@@ -66,7 +66,8 @@ describe('json-data page', () => {
     await flushPromises()
     await wrapper.findAll('button').find(b => b.text().includes('保存内容'))!.trigger('click')
     await flushPromises()
-    expect(http.posts.some(p => p.url.includes('SaveJsonData'))).toBe(true)
+    expect(http.posts.some(p => p.url.includes('SaveJsonData'))).toBe(false)
+    expect(wrapper.text()).toContain('JSON_CONTENT_TREE_REQUIRED')
     wrapper.unmount()
   })
 })

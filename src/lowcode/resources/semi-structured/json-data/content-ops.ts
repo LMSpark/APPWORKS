@@ -4,7 +4,7 @@
 import {JsonDataContentClient} from '@spark-appworks/spark-lowcode-api'
 import type {DataSet} from '@spark-appworks/spark-data'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
-import {attachStagedDesignView, parseJsonValue} from '../../repository/staged-design-file-view'
+import {attachStagedDesignView} from '../../repository/staged-design-file-view'
 
 export const JSON_CONTENT_INPUT_TABLE = 'JsonContentInput'
 export const JSON_CONTENT_EDIT_VIEW = 'JsonContentEdit'
@@ -20,12 +20,12 @@ export function attachJsonContentEdit(dataSet: DataSet, http: HttpClientBase, gu
     columns: [{name: 'rowid', primary: true}, {name: 'jsonId'}, {name: 'contentJson'}],
     loadRow: async jsonId => {
       const payload = await client.read(jsonId)
-      return {rowid: jsonId, jsonId, contentJson: JSON.stringify(payload ?? {}, null, 2)}
+      return {rowid: jsonId, jsonId, contentJson: JSON.stringify(payload, null, 2)}
     },
     persistRow: async row => {
       const jsonId = String(row['jsonId'] ?? row['rowid'] ?? '')
       const raw = String(row['contentJson'] ?? '')
-      const body = parseJsonValue(raw, [])
+      const body: unknown = JSON.parse(raw)
       await client.save(jsonId, body)
     },
   }, guard)

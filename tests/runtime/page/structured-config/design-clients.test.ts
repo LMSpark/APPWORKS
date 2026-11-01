@@ -12,7 +12,7 @@ it('rejects a legacy Ajax business failure for every design write', async () => 
   vi.spyOn(http, 'post').mockResolvedValue({Code: 500, Message: '明确拒绝保存', Result: null})
   const writes = [
     () => new LogicViewDesignClient(http).write({viewId: 'V1', data: {}}),
-    () => new JsonDataContentClient(http).save('J1', {}),
+    () => new JsonDataContentClient(http).save('J1', []),
   ]
   for (const write of writes) await expect(write()).rejects.toThrow('明确拒绝保存')
 })

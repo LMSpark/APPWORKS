@@ -31,6 +31,43 @@ const fieldCascade = {parentTable: 'Parent', parentViewId: 'default', childTable
 const selectionCascade = {...fieldCascade, filterBindings: [{targetField: 'id'}]}
 
 describe('query cascade native values', () => {
+  it('treats discarding an untouched lazy child as a no-op after its parent cleared the old query baseline', async () => {
+    const ds = await values()
+    try {
+      const child = ds.getView('Child', 'default')!
+      child.resetState()
+      expect(() => child.discardPendingChanges()).not.toThrow()
+      expect(child.discardPendingChanges()).toBe(0)
+      expect(child.requestState).toBe(RequestState.Idle)
+      expect(child.rows).toEqual([])
+    } finally {ds.destroy()}
+  })
+
+  it('clears the previous parent result before an automatic query and keeps it empty when that query fails', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!, source = ds.getView('Parent', 'default')!
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValueOnce({success: true, data: [{id: 10, region: 'A'}], total: 1})
+    try {
+      ds.addCascade(fieldCascade)
+      await child.requestData()
+      child.setCurrentRow(child.rows[0]!); child.setSelectedRows(child.rows)
+      let reject!: (error: Error) => void
+      list.mockImplementationOnce(() => new Promise((_resolve, fail) => {reject = fail}))
+      source.updateEditingValue(1, 'region', 'B')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
+      const pending = {rows: [...child.rows], total: child.total, current: child.currentRow, selected: [...child.selectedRows]}
+      reject(new Error('upstream unavailable'))
+      await vi.waitFor(() => expect(child.requestState).toBe(RequestState.Failed))
+      expect(pending).toEqual({rows: [], total: 0, current: null, selected: []})
+      expect(child.rows).toEqual([])
+      expect(child.loadingError?.message).toBe('upstream unavailable')
+      list.mockResolvedValueOnce({success: true, data: [{id: 20, region: 'B'}], total: 1})
+      await child.refresh()
+      expect(child.rows.map(row => row['region'])).toEqual(['B'])
+      expect(child.loadingError).toBeNull()
+    } finally {list.mockRestore(); ds.destroy()}
+  })
+
   it('resolves the edited field value without collecting parent rows', async () => {
     const ds = await values()
     try {

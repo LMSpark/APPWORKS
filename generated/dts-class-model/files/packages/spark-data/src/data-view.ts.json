@@ -2776,7 +2776,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:13.244Z",
+  "generatedAt": "2026-11-01T23:52:11.262Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -6052,7 +6052,7 @@
             },
             {
               "name": "discardPendingChanges",
-              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；后续重新查询由调用方显式发起。",
+              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。",
               "parameters": [
                 {
                   "name": "ids",

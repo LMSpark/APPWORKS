@@ -2624,7 +2624,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-31T04:17:13.244Z"
+      "sourceModifiedAt": "2026-11-01T23:52:11.262Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2759,7 +2759,7 @@
     "packages/spark-data/src/strategies/cascade/cascade-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "shardFile": "files/packages/spark-data/src/strategies/cascade/cascade-delegate.ts.json",
-      "sourceModifiedAt": "2026-10-31T04:17:01.297Z"
+      "sourceModifiedAt": "2026-11-01T23:48:43.224Z"
     },
     "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts": {
       "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",

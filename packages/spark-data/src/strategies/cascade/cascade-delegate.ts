@@ -1,5 +1,4 @@
 import { Logger } from '@spark-appworks/spark-utils'
-import { RequestState } from '../../types'
 import type { DataView } from '../../data-view'
 import { DataViewCascadeValueBinding } from './cascade-value-binding'
 import { DataViewQueryCascadeInputs } from './query-cascade-inputs'
@@ -58,14 +57,14 @@ export class CascadeDelegate {
         const changedInput = cascades.some((cascade, index) => (cascade.inputBindings?.length ?? 0) > 0
           && !DataViewCascadeValueBinding.equal(previous?.[index], next[index]))
         previous = next
-        // 正在等待父查询的编排会在 await 后读取最新值。
-        if (this.host.requestState === RequestState.Preparing && !manual) return
         if (next.some(value => value === null)) {
           this.host.clearAll()
           return
         }
         this.host.page = 1
-        if (manual || !automatic && changedInput) this.host.resetState()
+        // 父输入已变，旧结果与选择不能在新查询失败后仍冒充当前父对象的数据。
+        // resetState 保留原生未保存/未确认提交守卫；拒绝时由 fail 留下可见错误。
+        if (manual || automatic || changedInput) this.host.resetState()
         if (automatic) void this.host.refresh().catch((error: unknown) => {
           if (generation === this.generation && !this.host.destroyed) fail(error)
         })

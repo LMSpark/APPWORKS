@@ -75,15 +75,13 @@ describe('structured-config catalog loaders', () => {
     http.rowsByTable['Base_JsonData'] = [{rowid: 'J1', name: '样例JSON', updater: 'U-ROW', path: '/sample.json', createuser: 'U-ROW'}]
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: navigationScenarioId, name: 'json', raw: {}})
     service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
-      buildFormalModels({
-        Base_JsonData: ['rowid', 'name', 'updater', 'path', 'createuser'],
-        Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-      }).find(model => model.metaName === metaName),
+      topicModels(navigationScenarioId).find(model => model.metaName === metaName),
     ))
 
     const dataSet = await LowcodeJsonData.loadCatalog(navigationScenarioId)
     const catalog = dataSet.getView(LowcodeJsonData.catalogMetaName, 'default')!
-    expect(catalog.rows[0]).toMatchObject({rowid: 'J1', name: '样例JSON', path: '/sample.json'})
+    dataSet.triggerAutoLoad()
+    await vi.waitFor(() => expect(catalog.rows[0]).toMatchObject({rowid: 'J1', name: '样例JSON', path: '/sample.json'}))
     expect(http.requests.some(request => request.headers?.['X-AppId'] === 'APP')).toBe(true)
     expect(http.requests.some(request => JSON.stringify(request.data).includes('AppId'))).toBe(false)
     dataSet.destroy()

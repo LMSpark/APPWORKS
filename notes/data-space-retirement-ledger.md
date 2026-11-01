@@ -4523,3 +4523,20 @@ flowchart TD
 - 本轮为组件/原生DataView响应夹具验证，无真实服务写入；此前临时JSON记录/文件清理证据保持历史范围。普通删除引用完整性、存量JSON路径、模型正向运行查询、跨重载恢复、浏览器及其余全架构闭环仍开放，不结题。
 - 实服复验direct-options-source-live.json：复用RAM授权会话并刷新，当前JSON目录11条来源ID唯一且名称非空；EB63C2BFA0394BD58D777E56B3810F09原文件为object，原生编辑取消后回读一致。端点白名单守卫10次读取、0写入及0阻断尝试；不证明全部来源文件可用或浏览器通过。
 - 最终门禁：direct-options-classmodel.log正式生成完成，direct-options-verify.log全仓verify和direct-options-build.log串行build由会话17173退出0确认，既有2项AI模型告警及构建动态导入提示保留；20文件149项影响测试通过。生成器附带刷新若干TypeScript iterator符号编号，未手改生成物。准备提交并推送本批公共选项链修复，整体目标保持进行中。
+
+## 2026-11-02 七目录与全部服务商接口级联实服烟测
+
+- 上轮为progress：4362e1837已推送origin/1031，起始工作区干净。本轮先按参考APPWorks 1147b00ee接口页面/编排确认目录→服务商→接口→参数/头部/输出链，再核本仓pagedata与页面choose的原生current/selected事件。
+- catalog-sweep-live.json：七目录56读取0写入，六目录实际自动加载成功；数据空间目录全部Idle，须经自身initialize，不能把装配success当成查询通过。编码目录正式返回0条、PDF0条，Excel首20/总56，空目录与分页不外推整页验收。
+- provider-scope-list-live.json取11个正式服务商身份；api-provider-sweep-live.json逐providerId加载配置及接口目录22目标、288读取0写入，全无查询错误。账户候选只投影rowid/UserName，不读取/记录口令；未实际调用外部API。
+- api-interface-children-live.json按页面同一setCurrentRow/setSelectedRows依次选80个接口，核四个子视图320次归属，共470读取0写入。发现接口BABA43DD3234F5C6751B953944040050的参数default一次502失败，仍留上个接口的2行参数（wrongOwner=2）；不能按父结果success=true将子审计失败算通过。api-interface-children-recheck-live.json仅复查该provider的6接口，37读取0写入均通过，首轮失败证据未覆盖；502暂未复现，不推断服务原因。
+- 前端根因：CascadeDelegate在自动父输入变化时只refresh，refresh保留旧行/当前/选择，查询失败后仍旧数据；DataView已有失败写入守卫，不宣称越权写成功。按原生resetState合同在输入变化自动重查前释放旧查询结果；同一resetState拒绝未保存/未确认提交，不丢草稿。删除Preparing状态跳过失效的旧分支，新的输入代次统一重编排。
+- 有效RED：首次根目录错误包配置无测试（cascade-owner-red.log）不算产品RED；包目录red-2.log新增1失败/原10通过，稳定复现A→B新查询失败仍旧行。修复后green.log五文件54通过，含失败提示保留、重试后只B数据、原有未保存子编辑守卫。正执行spark-data全包及业务页影响测试；只改公共级联责任方，无页面缓存或后端修改。
+- 已查正式ClassModel的DataView.resetState/assertResultReplacementAllowed与源码合同；本批不新增公共API。全仓门禁、构建、提交推送待后续结果。存量断链、浏览器、普通资源删除引用完整性及其余整页恢复范围仍开放，整体不结题。
+- 回归进一步发现：Excel取消根新增时，先取消父行触发子结果清空，随后页面对无变更子视图discard仍要求查询基线。新增原生无变更用例cascade-discard-red.log 1失败/11通过后，公共discardPendingChanges对无编辑/待存/未确认状态返回0并保留事件；实际草稿、未知结果及busy仍原守卫，不在页面加另一套取消。JSON目录旧测试错给编码pagedata且未触发autoLoad，按正式JSON配置/绑定模型修正夹具。
+- cascade-owner-recovery-green.log Excel/目录/强owner取消三文件34项通过，含无owner有实际CRUD仍拒绝及过期owner不清草稿。最终spark-data全包cascade-owner-data-final.log47文件1029项通过。业务page-final.log29文件186项中185通过，API配置打开的waitFor在并发批次超时（1秒默认窗口），独立api-page-recheck.log四项通过；保留批次失败日志，不通过增加产品延时掩盖。
+- 修复后api-interface-children-fixed-live.json六接口中一条输出查询在10秒观察窗末仍Loading，rows=0，无旧归属；该项不是成功。脚本将只读观察窗口增至25秒以覆盖20秒请求时限，单独核验9902D969EFFB66BD7B56C5240603A5F2的final-live.json四子视图均Loaded/归属正确，17读取0写入。502首次原因仍未确定，不抹去首轮失败。
+- 完整业务影响复验cascade-owner-page-confirmed.log限制2个worker以减少同时编译资源争用，29文件186项全通过；未修改原1秒断言或产品等待策略。此前API等待超时原日志保留。data-space-catalog-native-live.json显式刷新原生catalog/catalogApps懒加载视图，8读取0写入，目录10条/总1357、应用候选1条均Loaded；这不是目录owner全部验证，也不包含1357个空间的设计验收。
+- 第一轮ClassModel/verify/build会话23138退出0，但随后补了无变更取消合同及夹具，不能作为最终版本门禁；已等待其结束后重新串行正式生成→verify→build（37216），最终结果待核，不并发覆盖产物。
+- 最终门禁：37216退出0，cascade-owner-classmodel-final.log正式生成、verify-final.log全仓typecheck/lint/规则与ClassModel49项、build-final.log串行构建均通过，既有2项AI模型告警与动态导入提示保留。47文件1029项数据层及29文件186项业务影响最终通过；两组包含不同范围，不将局部重测重复累计。编码目录未选应用时返回0，不证明全局编码为空；浏览器整页与全资源/全空间验收继续开放。
+- 准备按授权提交并推送origin/1031：公共级联父输入变化释放旧结果，公共无变更取消，以及正式JSON夹具校正；没有后端、权限或真实业务数据写入。首轮502原因未确定，当前可修前端旧结果呈现问题已有RED/GREEN与回归证据，全架构目标仍进行中。

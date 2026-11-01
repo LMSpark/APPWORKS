@@ -2489,12 +2489,16 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return discardedCount
   }
 
-  /** 丢弃 query-backed 视图的待提交本地状态；后续重新查询由调用方显式发起。 */
+  /** 丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。 */
   discardPendingChanges(ids?: ReadonlyArray<string | number>): number {
     this.checkDestroyed()
     if (ids?.length === 0) return 0
     if (this.mutating || this.requestState === RequestState.Loading) {
       throw new Error('DATA_VIEW_DISCARD_BUSY: 保存或查询期间不能丢弃待处理变更')
+    }
+    if (!this.hasUnconfirmedSave && !this.hasEditingChanges() && !this._dirtyTrackingDelegate?.hasPendingChanges()) {
+      this.events.emit('editingDiscarded', ids === undefined ? undefined : [...new Set(ids)])
+      return 0
     }
     const executor = this.#queryExecutor
     const context = this.currentQueryResult()

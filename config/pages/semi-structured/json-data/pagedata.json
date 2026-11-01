@@ -6,6 +6,9 @@
         "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp000",
         "modelName": "Base_JsonData"
       },
+      "columns": [
+        {"name": "name", "required": true, "trim": "normalize"}
+      ],
       "views": {
         "default": {
           "autoLoad": true,

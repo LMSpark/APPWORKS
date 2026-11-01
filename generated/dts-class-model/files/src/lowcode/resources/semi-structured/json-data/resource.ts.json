@@ -51,6 +51,15 @@
             },
             "jsonId": {
               "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "create": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -61,7 +70,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T21:22:39.942Z",
+  "generatedAt": "2026-11-01T21:58:56.454Z",
   "models": {
     "LowcodeJsonData": {
       "name": "LowcodeJsonData",
@@ -123,6 +132,22 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        create?: boolean;\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

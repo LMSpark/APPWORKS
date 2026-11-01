@@ -4024,7 +4024,7 @@
     "src/lowcode/resources/semi-structured/json-data/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T21:22:39.942Z"
+      "sourceModifiedAt": "2026-11-01T21:58:56.454Z"
     },
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
@@ -4724,7 +4724,7 @@
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T21:37:05.386Z"
+      "sourceModifiedAt": "2026-11-01T22:10:59.359Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",

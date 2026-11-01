@@ -11,13 +11,18 @@
    <p v-if="documentLoading" role="status">正在读取内容…</p>
    <p v-if="documentError" role="alert">{{ documentError }}</p>
    <p v-if="unconfirmed" role="status">保存结果尚未确认，请通过原保存入口核验。</p>
+   <p v-if="creating && creationFileCommitted && !unconfirmed" role="status">文件已确认，目录尚未确认，请继续保存或核验。</p>
+   <RendererForm v-if="creating" :data-view-key="catalogKey" :auto-columns="false" :show-data-view-meta="false">
+    <FieldText :data-view-key="catalogKey" field="name" label="名称" :readonly="busy || catalogUnconfirmed" />
+    <FieldText :data-view-key="catalogKey" field="description" label="描述" :readonly="busy || catalogUnconfirmed" />
+   </RendererForm>
    <RendererForm v-if="documentReady" :data-view-key="contentKey" :auto-columns="false" :show-data-view-meta="false">
-    <FieldJson :data-view-key="contentKey" field="content" label="JSON 内容" mode="tree" :readonly="busy || unconfirmed" :on-editing-change="value => inputPending=value" />
+    <FieldJson :data-view-key="contentKey" field="content" label="JSON 内容" mode="tree" :readonly="busy || unconfirmed || creationFileCommitted" :on-editing-change="value => inputPending=value" />
    </RendererForm>
    <template #footer>
-    <RendererButton :label="unconfirmed ? '核验内容保存结果' : '保存内容'" :disabled="busy || inputPending || !documentReady" @click="saveContent" />
-    <RendererButton label="取消修改" :disabled="busy || unconfirmed || !documentReady" @click="cancelContent" />
-    <RendererButton v-if="hasPending" label="放弃修改并关闭" :disabled="busy || unconfirmed" @click="discardAndClose" />
+    <RendererButton :label="creating && catalogUnconfirmed ? '核验目录保存结果' : unconfirmed ? '核验内容保存结果' : creating ? '创建JSON' : '保存内容'" :disabled="busy || inputPending || !documentReady" @click="saveContent" />
+    <RendererButton :label="creating ? '取消新增' : '取消修改'" :disabled="busy || unconfirmed || creationFileCommitted || (!creating && !documentReady)" @click="cancelContent" />
+    <RendererButton v-if="hasPending && !creating" label="放弃修改并关闭" :disabled="busy || unconfirmed" @click="discardAndClose" />
     <RendererButton label="关闭" :disabled="busy || hasPending" @click="closeDocument(false)" />
    </template>
   </RendererDialog>
@@ -31,11 +36,12 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
-const {PAGE_RUNTIME,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,useSparkComponent}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove}=useSparkComponent({type:'json-data-page'})
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
+const creating=ref('')
 let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,documentGeneration=0,active=true
 const selected=computed(()=>{revision.value;const rows=catalog.value?.selectedRows??[],row=rows[0];return rows.length===1&&row?String(catalog.value?.getPkKey(row)??''):''})
 const contentKey=computed(()=>document.value?buildDataViewKey(document.value.tableName,document.value.viewId,scenarioId.value):'')
@@ -48,6 +54,7 @@ const documentError=computed(()=>{revision.value;return document.value?.loadingE
 const queryError=computed(()=>{revision.value;return catalog.value?.loadingError?.message??''})
 const unconfirmed=computed(()=>{revision.value;return document.value?.hasUnconfirmedSave===true})
 const catalogUnconfirmed=computed(()=>{revision.value;return catalog.value?.hasUnconfirmedSave===true})
+const creationFileCommitted=computed(()=>{revision.value;const view=document.value;return !!creating.value&&!!view&&(view.hasUnconfirmedSave||(view.rows.length===1&&!view.dirtyTracking.isPendingCreate(creating.value)))})
 const catalogPending=computed(()=>{revision.value;return catalogUnconfirmed.value||catalog.value?.hasEditingChanges()===true||catalog.value?.dirtyTracking.hasPendingChanges()===true})
 const hasPending=computed(()=>{revision.value;const view=document.value;return catalogPending.value|| inputPending.value||acting.value||unconfirmed.value||view?.hasEditingChanges()===true||view?.dirtyTracking.hasPendingChanges()===true})
 useSystemPageDirtySource({get isDirty(){return busy.value||hasPending.value}})
@@ -60,6 +67,7 @@ const fields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true}},
 ])
 const toolbar=computed<SparkComponent.RToolbarProps>(()=>({children:[
+ {type:'r-button',props:{label:'新增',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled',onClick:createDocument}},
  {type:'r-button',props:{label:catalogUnconfirmed.value?'核验目录保存结果':'保存目录',disabled:busy.value||!!document.value||!catalogPending.value,onClick:saveCatalog}},
  {type:'r-button',props:{label:'取消目录修改',disabled:busy.value||!!document.value||catalogUnconfirmed.value||!catalogPending.value,onClick:cancelCatalog}},
  {type:'r-button',props:{label:'内容编辑',disabled:!selected.value||busy.value||hasPending.value,onClick:openContent}},
@@ -79,6 +87,21 @@ function closeDocument(open:boolean):void{
  if(view)view.dataTable?.destroyView(view.viewId)
 }
 function choose(row:DataRow):void{if(busy.value||hasPending.value)return;closeDocument(false);catalog.value?.setSelectedRows([row])}
+async function createDocument():Promise<void>{
+ if(busy.value||hasPending.value||document.value||!dataSet.value||!catalog.value||catalog.value.addActionState()!=='enabled')return
+ const current=dataSet.value,view=catalog.value,own=++documentGeneration;openingDocument.value=true;error.value=''
+ try{
+  await view.addRow({name:'',description:'',path:''})
+  if(!active||own!==documentGeneration)return
+  const row=view.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('JSON目录新增草稿缺失')
+  creating.value=String(view.getPkKey(row));view.setCurrentRow(row);view.setSelectedRows([row])
+  const file=LowcodeJsonData.openDocument(current,creating.value,{create:true});document.value=file;await file.refresh()
+  if(!active||own!==documentGeneration||file.loadingError)return
+  await file.addRow({content:'{}'})
+  const fileRow=file.rows[0];if(fileRow)file.setCurrentRow(fileRow)
+ }catch(cause){if(active&&own===documentGeneration){error.value=cause instanceof Error?cause.message:String(cause);if(!document.value&&creating.value){view.discardPendingChanges([creating.value]);creating.value=''}}}
+ finally{if(active&&own===documentGeneration){openingDocument.value=false;revision.value++}}
+}
 async function openContent():Promise<void>{
  if(busy.value||hasPending.value||!dataSet.value||!selected.value)return
  closeDocument(false);const own=++documentGeneration;openingDocument.value=true;error.value=''
@@ -90,16 +113,21 @@ async function openContent():Promise<void>{
 }
 async function saveContent():Promise<void>{
  if(busy.value||inputPending.value||!documentReady.value||!dataSet.value||!document.value)return
- const view=document.value,own=documentGeneration;acting.value=true;error.value=''
- try{const result=await dataSet.value.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});if(!result.success)throw new Error(result.message??'保存未完整确认')}
+ const view=document.value,current=dataSet.value,creatingId=creating.value,own=documentGeneration;acting.value=true;error.value=''
+ try{
+  if(creatingId&&!catalogUnconfirmed.value){const definition=catalog.value,draft=definition?.getEditingRow(creatingId);if(!definition||!draft)throw new Error('JSON目录新增草稿缺失');const invalid=definition.validator?.validate(draft).errors[0];if(invalid)throw new Error(invalid.message)}
+  const result=await current.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});if(!result.success)throw new Error(result.message??'保存未完整确认')
+  if(!active||own!==documentGeneration||dataSet.value!==current)throw new Error('JSON创建所属页面实例已变化')
+  if(creatingId){const saved=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default',ids:[creatingId]}]});if(!saved.success)throw new Error(saved.message??'目录保存未完整确认');if(active&&own===documentGeneration)creating.value=''}
+ }
  catch(cause){if(active&&own===documentGeneration)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===documentGeneration){acting.value=false;revision.value++}}
 }
-function cancelContent():void{if(busy.value||unconfirmed.value||!documentReady.value)return;try{document.value?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function cancelContent():void{if(busy.value||unconfirmed.value||creationFileCommitted.value||(!creating.value&&!documentReady.value))return;try{document.value?.discardPendingChanges();if(creating.value){catalog.value?.discardPendingChanges([creating.value]);creating.value='';inputPending.value=false;closeDocument(false)}error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 watch(scenarioId,async id=>{
- const own=++generation;ready.value=false;opening.value=true;error.value='';off?.();documentGeneration++;document.value=undefined;catalog.value=undefined;dataSet.value=undefined;sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined
+ const own=++generation;ready.value=false;opening.value=true;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined
  try{
   if(!id)throw new Error('JSON数据入口缺少导航数据空间ID')
   const page=new PageRuntime({pageId:'json-data-page',scenarioIds:[id],loadScenario:()=>LowcodeJsonData.loadCatalog(id)});runtime=page;await page.load()

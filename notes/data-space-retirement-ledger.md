@@ -4460,3 +4460,20 @@ flowchart TD
 - ClassModel正式生成、影响测试、verify和build本轮在执行。当前仍缺新增/导入/删除的完整页面流程和真实写入验收；6条按path不可读的记录保留，其他业务页面总范围不变。
 - 本批影响测试7文件48项通过（json-create-impact.log）；定向lint通过。首次build在vite-plugin-class-model-static closeBundle复制dist/dts-class-model时ENOENT退出1，当时ClassModel生成仍在运行；这是并发产物争用的待复验线索，不当作业务代码已坏或构建通过。等全仓verify结束再串行重跑build，不因日志超时重启活动任务。
 - 最终门禁：ClassModel正式生成exit0；全仓verify（27125）exit0，既有2条AI模型警告保留；48项影响测试通过；待生成/校验完成后串行build（29623，json-create-build-final.log）exit0。首次并发build失败已保留证据，未以重跑覆盖原日志。无真实JSON写入，无后端变更；准备提交推送显式创建资源能力检查点，下一轮仍须实现完整页面编排及真实写入验收。
+
+## 2026-11-02 JSON 页面新增与分源结果恢复（进行中）
+
+- 上轮为progress：f9f537a8d已推送origin/1031，起始工作区干净。本轮将已核资源创建合同接到原页面路径的新增入口，不修改后端。标准RendererForm/FieldText绑定原生目录当前行，FieldJson绑定同一DataSet的文件视图；调用DataView.addRow/setCurrentRow跟踪新增，不另存页面草稿。
+- 新增流程使用本次原生目录ID.json，用户编辑可见的初始空对象。先由DataSet提交唯一文件视图，文件确认成功后，再提交Base_JsonData/default的唯一新增ID。目录/文件独立结果；保存捕获原DataSet、文档代次与ID，异步返回后核对实例，避免后续提交套到新页面。
+- 文件未提交时取消同时清除两视图草稿；文件已确认或未知后禁止取消/离页，提示继续保存/核验，保留目录编辑或确认入口。目录未知结果不允许改捕获内容；确认未生效后才允许明确重试。来源结果仍由公共SPARK data owner追踪，页面只派生阶段显示。
+- RED→GREEN：json-create-page-red.log新增3失败/原8通过（缺新增入口）；green.log暴露新文件addRow后没有当前行，标准字段因此隐藏，补原生setCurrentRow后普通创建/取消通过。未知目录测试曾点击同名禁用工具栏按钮，测试定位改为可用按钮，未为夹具放宽产品逻辑；green-3.log 11通过。增加文件未知及目录未写入恢复后，json-create-page-final.log 13通过，定向lint通过。
+- 仍无真实JSON创建/保存/清理或浏览器整页通过声明。新增交互尚未完成参考布局逐项对照；导入、删除、跨重载部分成功恢复及其余页面范围保持开放。全仓ClassModel生成→verify→build串行执行，影响测试独立运行，结果待核。
+- 实服复验json-create-ui-native-cancel-live.json：本次正式目录/文件新增草稿均追踪成功，取消后双方回读均不存在；目录名称编辑取消回读也通过，真实写请求0。浏览器连接库存返回browsers=[]及“The browser access host is unavailable”，本轮未操作窗口、未绕过之前的URL确认阻断；整页UI仍未验收。
+- 影响测试json-create-ui-impact.log 7文件53项通过。首次verify唯一失败为新增测试beforeSave=undefined不符合exactOptionalPropertyTypes，改为delete清理后定向重跑该恢复用例通过（json-create-ui-retry-final.log 1通过/12未运行，不重复计入总数）；全仓verify及后续串行build仍在执行。
+- 下游追加核查发现lowcode-data-space-source-catalog.ts的JSON来源要求rowid和trim后name均非空；参考JsonDataManager保存也normalizeText。故将name的required/trim:normalize落到正式pagedata列规则，并在文件上传前复用DataView.validator.validate(getEditingRow(ID))预检当前新增记录，避免先上传无效目录；普通目录保存继续走同一原生列校验，未修改记录不参与trim写回。
+- 名称用例RED（json-create-name-red.log，2新增失败）；首次场景列规则误带label，被正式ScenarioViewConfig拒绝，已移除不属于投影的label，标题仍由正式模型/页面字段提供，未放宽配置schema。json-create-ui-source-final.log 15通过，另验证前后空格由原生保存规范化、目录重新查询后可被正式JSON来源选择器消费。该证据只到来源候选，不证明JSON模型运行查询、所有根类型或整专题完成。
+- 本轮仍属于原文件资源目录及内容维护，未创建第二套DataTable模型定义或伪造设计方案。资源专题通用模板的独立方案设计/数据维护及下游运行验收仍须逐项核对，不能由新增对话框推定已完成配置驱动专题。
+- 名称修复后的最终影响测试json-create-ui-impact-final.log 7文件55项通过；当前再次按ClassModel→verify→build串行验证最终源码，以最终日志为准，不用名称修复前的绿色门禁替代。
+- 真实烟测进一步加只读端点守卫后复验：json-create-ui-guarded-live.json为11次读取、blockedWriteAttempts=0，双方新增追踪/取消/回读全部通过；该守卫只允许已核读取端点，未知端点在发送前拒绝，不仅以脚本意图声明零写入。
+- 最终门禁：json-create-ui-classmodel-final.log正式生成成功；json-create-ui-verify-final-3.log全仓verify及json-create-ui-build-final-3.log构建均由77853退出0确认，原有2项AI模型警告保留。追加来源消费测试的spy结果曾丢失类型，已按mock结果return分支收窄，未用any/断言绕过；json-create-ui-source-typed.log该用例再次通过。55项影响测试仍为本轮最终语义版本的范围证据。
+- 按授权准备提交推送JSON新增页面及名称数据链约束到origin/1031；工作流、Excel/PDF、API等未闭合项与JSON导入/删除、跨重载恢复、真实保存和浏览器验收继续开放，整体目标不结题。

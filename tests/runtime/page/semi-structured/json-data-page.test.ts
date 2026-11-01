@@ -6,7 +6,9 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
-import {FieldJson,JsonTreeEditor,RendererTable,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
+import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
@@ -14,7 +16,7 @@ const SCENE='FFDEF2AED3E19A38C0FCDDC748CF939B'
 const text=readFileSync('config/pages/semi-structured/json-data/pagedata.json','utf8')
 const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,files:new Map<string,string>(),reads:[] as string[],uploads:[] as string[],lose:false,dirty:[] as Array<{isDirty:boolean}>}))
 vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
-vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','ROWID','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
+vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadTextVersion:async(input:{fileName:string;text:string})=>{if(state.files.has(input.fileName))throw new Error('File exists');state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}},uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','ROWID','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
  state.http=new ApiBackend();state.http.records={Base_JsonData:[{rowid:'J1',name:'样例JSON',path:'/NewApp/data.json'},{rowid:'J2',name:'另一份JSON',path:null}],Base_UserInfo:[]};state.files=new Map([['data.json','{"flag":false,"nested":[[1,null],{}]}']]);state.reads=[];state.uploads=[];state.lose=false;state.dirty=[]
@@ -24,7 +26,7 @@ afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=or
 async function open(){
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/json',component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/json');await router.isReady()
  const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
- const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+ const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
  const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await click('内容编辑')}
  const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
  return {wrapper,router,click,choose,edit}
@@ -73,4 +75,34 @@ it('keeps catalog edits out of an open content operation',async()=>{
 it('verifies an unknown catalog save without replaying the database write or touching a file',async()=>{
  const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存目录');expect(state.http.saves).toHaveLength(1)
  const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+})
+
+async function setNewName(wrapper:VueWrapper,name:string){const field=wrapper.findAllComponents(FieldText).find(item=>item.props('field')==='name'&&item.props('dataViewKey')===`${SCENE}@Base_JsonData@default`);expect(field,'new catalog name field').toBeDefined();await field!.get('input').setValue(name);await flushPromises()}
+it('creates JSON through native file and catalog views, file first, with both records readable afterwards',async()=>{
+ const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');const f=await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Formal catalog load did not return');const instance=await loaded.value;await f.click('新增');await setNewName(f.wrapper,'  新增JSON  ');await f.edit('{"new":[false,null,[]]}');state.http.beforeSave=async()=>{expect(state.uploads).toHaveLength(1)};await f.click('创建JSON')
+ expect(state.http.saves).toHaveLength(1);const added=state.http.saves[0]!.added[0];expect(added?.['name']).toBe('新增JSON');expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe('{"new":[false,null,[]]}');expect(state.dirty[0]?.isDirty).toBe(false)
+ const catalog=instance.getView('Base_JsonData')!;await catalog.refresh();const row=catalog.rows.find(item=>item['rowid']===added?.['rowid']);if(!row)throw new Error('Created catalog record missing on reread');expect(LowcodeDataSpaceSourceCatalog.source('json',catalog,row)).toMatchObject({id:added?.['rowid'],name:'新增JSON',type:'json'})
+})
+it('cancels a new JSON before either source is written',async()=>{
+ const f=await open();await f.click('新增');await setNewName(f.wrapper,'cancel');await f.edit('{"cancel":true}');await f.click('取消新增');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.http.records['Base_JsonData']).toHaveLength(2);expect(state.dirty[0]?.isDirty).toBe(false);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
+})
+it('holds the created file while catalog result is unknown, then verifies without replaying either write',async()=>{
+ const f=await open();await f.click('新增');await setNewName(f.wrapper,'unknown');state.http.failAfterWrite=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
+ await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty,f.wrapper.text()).toBe(false)
+})
+it('verifies an unknown new file before saving metadata and never uploads it twice',async()=>{
+ const f=await open();await f.click('新增');await setNewName(f.wrapper,'file unknown');state.lose=true;await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(f.wrapper.findAll('button').find(b=>b.text()==='取消新增')?.attributes('disabled')).toBeDefined()
+ await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+it('keeps a confirmed file after metadata fails before write, verifies absence, and retries only metadata',async()=>{
+ const f=await open();await f.click('新增');await setNewName(f.wrapper,'retry metadata');state.http.beforeSave=async()=>{delete state.http.beforeSave;throw new Error('no database receipt')};await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([])
+ await f.click('核验目录保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(true)
+ await f.click('创建JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+
+it('does not create a file when the catalog has no usable source name',async()=>{
+ const f=await open();await f.click('新增');await f.click('创建JSON');expect(state.uploads).toEqual([]);expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
+})
+it('rejects whitespace-only names through the native catalog column rule',async()=>{
+ const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('   ');await flushPromises();await f.click('保存目录');expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
 })

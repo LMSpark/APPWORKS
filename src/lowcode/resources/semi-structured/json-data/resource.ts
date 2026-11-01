@@ -16,8 +16,8 @@ export class LowcodeJsonData{
   const projectId=lowcodeApi.readRequestScope().headers['X-AppId'];if(!projectId)throw new Error('请先选择执行应用')
   return loadLowcodeRuntimeScenario({projectId,scenarioId})
  }
- static openDocument(dataSet:DataSet,jsonId:string):DataView{
+ static openDocument(dataSet:DataSet,jsonId:string,options:Readonly<{create?:boolean}>={}):DataView{
   const catalog=dataSet.getView(this.catalogMetaName);if(!catalog)throw new Error('JSON正式目录视图缺失')
-  return openJsonDocumentView({dataSet,catalog,jsonId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,...readStructuredConfigScope('JSON文档')})
+  return openJsonDocumentView({dataSet,catalog,jsonId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,...options,...readStructuredConfigScope('JSON文档')})
  }
 }

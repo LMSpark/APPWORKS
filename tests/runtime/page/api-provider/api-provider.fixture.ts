@@ -3,9 +3,9 @@ import {DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
-import navigation from '../../../../notes/evidence/external-api-owner-removal/8CBB62EBC873A38DB9E6EEF177AFC731.pagedata.json?raw'
-import configuration from '../../../../notes/evidence/external-api-owner-removal/446B5D94A71587E9BD4D325A4DF5F6F8.pagedata.json?raw'
-import interfaces from '../../../../notes/evidence/external-api-owner-removal/EC84BD89BDBDF46B1FE5132DD53836E5.pagedata.json?raw'
+import navigation from '../../../../config/pages/integration/api-provider/pagedata.json?raw'
+import configuration from '../../../../config/pages/integration/api-config/pagedata.json?raw'
+import interfaces from '../../../../config/pages/integration/api-interface/pagedata.json?raw'
 
 export const NAV = '8CBB62EBC873A38DB9E6EEF177AFC731', CONFIG = '446B5D94A71587E9BD4D325A4DF5F6F8', API = 'EC84BD89BDBDF46B1FE5132DD53836E5'
 export const pagedata: Record<string, string> = {[NAV]: navigation, [CONFIG]: configuration, [API]: interfaces}

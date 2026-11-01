@@ -33,6 +33,36 @@
       "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
       "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
       "path": "config/pages/application/project-blueprint/pagedata.json"
+    },
+    {
+      "name": "apiProvider",
+      "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "resourceId": "repository:scenario-view:8CBB62EBC873A38DB9E6EEF177AFC731",
+      "path": "config/pages/integration/api-provider/pagedata.json"
+    },
+    {
+      "name": "apiConfig",
+      "scenarioId": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "resourceId": "repository:scenario-view:446B5D94A71587E9BD4D325A4DF5F6F8",
+      "path": "config/pages/integration/api-config/pagedata.json"
+    },
+    {
+      "name": "apiInterface",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "resourceId": "repository:scenario-view:EC84BD89BDBDF46B1FE5132DD53836E5",
+      "path": "config/pages/integration/api-interface/pagedata.json"
+    },
+    {
+      "name": "dataCodeCatalog",
+      "scenarioId": "A133D679691178F192D7E9DA06829506",
+      "resourceId": "repository:scenario-view:A133D679691178F192D7E9DA06829506",
+      "path": "config/pages/structured-config/data-code-catalog/pagedata.json"
+    },
+    {
+      "name": "dataCodeEditor",
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "resourceId": "repository:scenario-view:868E62F90DB8118C74CDC9F6BCA61157",
+      "path": "config/pages/structured-config/data-code-editor/pagedata.json"
     }
   ]
 }

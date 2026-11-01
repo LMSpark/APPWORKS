@@ -1,0 +1,90 @@
+{
+  "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+  "tables": {
+    "Base_CodeDesign": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p000", "modelName": "Base_CodeDesign"},
+      "columns": [{"name": "Name", "required": true, "trim": "normalize"}, {"name": "BusTableRowid", "required": true}],
+      "views": {
+        "default": {
+          "autoLoad": true, "autoCurrentFirst": true, "autoSelectFirst": true, "commitMode": "staged",
+          "queryContext": {"applicationId": "", "codeDesignId": ""},
+          "queryConfig": {"fields": ["rowid", "AppID", "AppName", "Name", "BusTableRowid", "BusTableName", "KeyFields", "CodeDescription", "CodeExample"], "allPages": true},
+          "filterExpression": {"logic": "and", "filters": [
+            {"field": "AppID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+            {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "codeDesignId"}}
+          ]}
+        },
+        "parents": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "valueField": "rowid", "labelField": "Name",
+          "queryContext": {"applicationId": "", "codeDesignId": ""},
+          "queryConfig": {"fields": ["rowid", "AppID", "Name"], "allPages": true},
+          "filterExpression": {"logic": "and", "filters": [
+            {"field": "AppID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "applicationId"}},
+            {"field": "rowid", "operator": "ne", "value": {"Type": "GetInputParam", "ParamName": "codeDesignId"}}
+          ]}
+        }
+      }
+    },
+    "Base_CodeNodeDesign": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p001", "modelName": "Base_CodeNodeDesign"},
+      "columns": [{"name": "CodeDesignID", "immutable": true}],
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "CodeDesignID", "NodeNo", "NodeType", "ParameterName", "CodeNodeDesignJson"], "allPages": true},
+        "sortExpression": [{"field": "NodeNo", "direction": "asc"}]
+      }}
+    },
+    "Dict_CodeNodeType": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p004", "modelName": "Dict_CodeNodeType"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "queryConfig": {"fields": ["rowid", "val", "txt", "ordIdx"], "allPages": true},
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}]
+      }}
+    },
+    "Base_CodeClassTable": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p005", "modelName": "Base_CodeClassTable"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "Name", "TableRowid", "TableName", "TextFieldName", "ValueFieldName", "BusFilterField"]}
+      }}
+    },
+    "Base_CodingSequence": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p006", "modelName": "Base_CodingSequence"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "Name", "Incre", "StartNo", "EndNo", "Format"]}
+      }}
+    },
+    "Base_TblField": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p007", "modelName": "Base_TblField"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "enname", "labelField": "cnname",
+        "queryContext": {"busTableRowid": ""},
+        "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true},
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "tblid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "busTableRowid"}}
+        ]}
+      }}
+    },
+    "Base_CodeSerialPerform": {
+      "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p008", "modelName": "Base_CodeSerialPerform"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryContext": {"codeDesignId": "", "sequenceNodeId": ""},
+        "queryConfig": {"fields": ["rowid", "CodeDesignID", "NodeDesignId", "NodeCode", "Code", "LoopCodeSplitStr"], "allPages": true},
+        "filterExpression": {"logic": "and", "filters": [
+          {"field": "CodeDesignID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "codeDesignId"}},
+          {"field": "NodeDesignId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "sequenceNodeId"}}
+        ]}
+      }}
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": [{
+    "kind": "query", "cascadeId": "code-design-nodes", "parentTable": "Base_CodeDesign", "parentViewId": "default",
+    "childTable": "Base_CodeNodeDesign", "childViewId": "default", "autoLoad": true,
+    "filterBindings": [{"targetField": "CodeDesignID", "operator": "in"}]
+  }]
+}

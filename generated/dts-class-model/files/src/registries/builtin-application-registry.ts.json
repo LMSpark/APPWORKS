@@ -24,7 +24,12 @@
         "dataSpaceDesign",
         "dataSpaceCatalog",
         "dataDictionary",
-        "projectBlueprint"
+        "projectBlueprint",
+        "apiProvider",
+        "apiConfig",
+        "apiInterface",
+        "dataCodeCatalog",
+        "dataCodeEditor"
       ]
     },
     "BuiltinScenarioResource": {
@@ -94,14 +99,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.717Z",
+  "generatedAt": "2026-11-01T16:27:44.596Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -118,6 +123,26 @@
           {
             "kind": "union",
             "typeText": "'projectBlueprint'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'apiProvider'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'apiConfig'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'apiInterface'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dataCodeCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dataCodeEditor'"
           }
         ],
         "members": {}

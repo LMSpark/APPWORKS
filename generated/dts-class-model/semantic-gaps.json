@@ -1,5 +1,5 @@
 {
-  "gapCount": 3372,
+  "gapCount": 3378,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -3942,6 +3942,30 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "attribute",
+      "className": "SystemPageIdentityCompanion",
+      "memberName": "path",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SystemPageIdentityCompanion.path 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-app/src/router/dynamic.ts",
+      "declarationLine": 101,
+      "sourceFile": "packages/spark-app/src/router/dynamic.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "SystemPageIdentityCompanion",
+      "memberName": "hostPath",
+      "reason": "missing-jsdoc",
+      "chainBreak": "SystemPageIdentityCompanion.hostPath 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-app/src/router/dynamic.ts",
+      "declarationLine": 102,
+      "sourceFile": "packages/spark-app/src/router/dynamic.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "method",
       "className": "DynamicRouter",
       "memberName": "getPageRuntime",
@@ -3949,7 +3973,7 @@
       "chainBreak": "DynamicRouter.getPageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 131,
+      "declarationLine": 141,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3961,7 +3985,7 @@
       "chainBreak": "DynamicRouter.systemPageRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 132,
+      "declarationLine": 142,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3973,7 +3997,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 133,
+      "declarationLine": 143,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3985,7 +4009,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 134,
+      "declarationLine": 144,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3997,7 +4021,7 @@
       "chainBreak": "DynamicRouter.closeSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 135,
+      "declarationLine": 145,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4009,7 +4033,7 @@
       "chainBreak": "DynamicRouter.resetSystemPageInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 136,
+      "declarationLine": 146,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4021,7 +4045,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeView 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 137,
+      "declarationLine": 147,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4033,7 +4057,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeNames 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 138,
+      "declarationLine": 148,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4045,7 +4069,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 139,
+      "declarationLine": 149,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4057,7 +4081,7 @@
       "chainBreak": "DynamicRouter.closePageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 140,
+      "declarationLine": 150,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4069,7 +4093,7 @@
       "chainBreak": "DynamicRouter.assertPageRuntimesClean 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 141,
+      "declarationLine": 151,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4081,7 +4105,7 @@
       "chainBreak": "DynamicRouter.disposePageRuntimes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 142,
+      "declarationLine": 152,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4093,7 +4117,7 @@
       "chainBreak": "DynamicRouter.markPageConfigPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 143,
+      "declarationLine": 153,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -22511,6 +22535,17 @@
     },
     {
       "kind": "module",
+      "className": "app:composables/useProjectRouter",
+      "moduleName": "app:composables/useProjectRouter",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:composables/useProjectRouter 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/composables/useProjectRouter.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/composables/useProjectRouter.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/composables/useProjectRouter.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
       "moduleName": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
       "reason": "weak-module-jsdoc",
@@ -31731,6 +31766,41 @@
       "fixHint": "在 src/lowcode/resources/database/catalog/table/preview-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "declarationLine": 22,
+      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "DatabaseCatalogPreviewColumn",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DatabaseCatalogPreviewColumn 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/database/catalog/table/preview-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationLine": 24,
+      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "DatabaseCatalogPreviewColumn",
+      "memberName": "name",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DatabaseCatalogPreviewColumn.name 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/database/catalog/table/preview-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationLine": 25,
+      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DatabaseCatalogPreviewColumn",
+      "memberName": "label",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DatabaseCatalogPreviewColumn.label 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/database/catalog/table/preview-view-ops.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
+      "declarationLine": 26,
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "declarationKind": "interface"
     },

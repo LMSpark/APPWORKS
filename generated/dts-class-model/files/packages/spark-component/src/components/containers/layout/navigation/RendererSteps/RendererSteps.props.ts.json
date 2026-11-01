@@ -66,11 +66,11 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.116Z",
+  "generatedAt": "2026-11-01T14:30:47.387Z",
   "models": {
     "RStepsProps": {
       "name": "RStepsProps",
-      "jsdoc": "RSteps Props 的属性契约。",
+      "jsdoc": "RSteps Props 的属性契约。dataViewKey 等为步骤内容提供标准数据上下文，省略时继承父级。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererSteps",
@@ -80,12 +80,12 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前步骤 */\n    modelValue?: string | number;\n    /** 步骤切换回调（value 为当前 step 的 value） */\n    onStepChange?: (value: string | number, step: SparkNode, index: number) => void;\n}",
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前步骤 */\n    modelValue?: string | number;\n    /** 步骤切换回调（value 为当前 step 的 value） */\n    onStepChange?: (value: string | number, step: SparkNode, index: number) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "SparkNodeProps",
-            "targetName": "SparkNodeProps"
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
           },
           {
             "kind": "intersection",

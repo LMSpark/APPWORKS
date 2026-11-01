@@ -1,6 +1,7 @@
 ﻿import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import type {DataView} from '@spark-appworks/spark-data'
+import {RequestState, type DataView} from '@spark-appworks/spark-data'
+import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {createApiService, seed, NAV, CONFIG, API, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
@@ -19,16 +20,18 @@ const runtimes: PageRuntime[] = []
 beforeEach(() => api.current.reset(seed))
 afterEach(() => {runtimes.splice(0).forEach(runtime => runtime.dispose()); vi.restoreAllMocks()})
 
-async function open(scenarioId: string, providerId?: string) {
+async function open(scenarioId: string, providerId?: string, projectId = 'APP') {
   const runtime = new PageRuntime({pageId: 'api-test', scenarioIds: [scenarioId],
     ...(providerId ? {scenarioInputs: {[scenarioId]: {providerId}}} : {}),
-    loadScenario: id => loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: id})})
+    loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
   runtimes.push(runtime)
   await runtime.load()
   const dataSet = runtime.getDataSet(scenarioId)!
   dataSet.triggerAutoLoad()
   await vi.waitFor(() => {
-    for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) if (view.autoLoad) expect(view.requestState).not.toBe(1)
+    for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) if (view.autoLoad) {
+      expect([RequestState.Preparing, RequestState.Loading]).not.toContain(view.requestState)
+    }
   })
   await new Promise(resolve => setTimeout(resolve, 0))
   return dataSet
@@ -36,6 +39,20 @@ async function open(scenarioId: string, providerId?: string) {
 const byId = (view: DataView, id: string) => view.rows.find(row => view.getPkKey(row) === id)!
 const http = () => api.current.state.http
 const views = (tableName: string, viewId = 'default') => [{tableName, viewId}]
+
+describe('builtin application external-service scenarios', () => {
+  it.each([NAV, CONFIG, API])('loads registered %s through the builtin application scope', async scenarioId => {
+    const projectId = getBuiltinApplicationDescriptor().id
+    api.current.service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': projectId}})
+    const dataSet = await open(scenarioId, scenarioId === NAV ? undefined : 'P1', projectId)
+    const tableName = scenarioId === API ? 'Base_DataServiceInterface' : 'Base_InterfaceProvider'
+    expect(dataSet.scenarioId).toBe(scenarioId)
+    expect(dataSet.getView(tableName)?.rows.length).toBeGreaterThan(0)
+    for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) {
+      expect(view.loadingError).toBeFalsy()
+    }
+  })
+})
 
 describe('provider catalog scenario', () => {
   it('loads the catalog, follows the selection into definition and edits only the selected provider', async () => {

@@ -1,0 +1,33 @@
+{
+  "scenarioId": "A133D679691178F192D7E9DA06829506",
+  "tables": {
+    "Base_CodeDesign": {
+      "modelBinding": {"modelId": "A133D679691178F192D7E9DA06829506p000", "modelName": "Base_CodeDesign"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "AppID", "Name", "CodeDescription", "CodeExample", "createuser", "createtime"]},
+        "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "rowid", "direction": "asc"}]
+      }}
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "A133D679691178F192D7E9DA06829506p002", "modelName": "Base_AppSystemList"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "AppName",
+        "queryConfig": {"fields": ["rowid", "AppName"], "allPages": true}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "A133D679691178F192D7E9DA06829506p003", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "ROWID", "labelField": "UserName",
+        "queryConfig": {"fields": ["ID", "ROWID", "UserName"], "allPages": true}
+      }}
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": [{
+    "kind": "query", "cascadeId": "managed-application-code-catalog", "parentTable": "Base_AppSystemList", "parentViewId": "default",
+    "childTable": "Base_CodeDesign", "childViewId": "default", "autoLoad": true,
+    "filterBindings": [{"targetField": "AppID", "operator": "in"}]
+  }]
+}

@@ -22,12 +22,12 @@
     },
     "scenarioResources": {
       "type": "array",
-      "minItems": 4,
+      "minItems": 9,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint"]},
+          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint", "apiProvider", "apiConfig", "apiInterface", "dataCodeCatalog", "dataCodeEditor"]},
           "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
           "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
           "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}

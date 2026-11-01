@@ -13,7 +13,7 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function fixture(value: string | number = 'first') {
+async function fixture(value: string | number = 'first', selection = false) {
   registerAllRenderers()
   const dataSet = SparkData.fromJson({scenarioId: 'S', dataSetName: 'Selection', tables: {
     Inputs: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'choice', type: 'string'}],
@@ -24,6 +24,8 @@ async function fixture(value: string | number = 'first') {
   const runtime = new PageRuntime({pageId: 'select-lifecycle', scenarioIds: ['S'], loadScenario: async () => dataSet})
   await runtime.load(); runtimes.push(runtime)
   const view = dataSet.getView('Inputs')!, choices = dataSet.getView('Choices')!, readonly = ref(false)
+  const selectionKey = ref('S@Choices@default')
+  const onChange = ref<((...args: unknown[]) => unknown) | undefined>()
   view.setCurrentRowById('a')
   const stubs = {...originalStubs}
   for (const name of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[name]
@@ -32,14 +34,45 @@ async function fixture(value: string | number = 'first') {
     const {sparkProvide} = useSparkComponent({type: 'select-lifecycle'})
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => h(RendererForm, {dataViewKey: 'S@Inputs@default', children: [{type: 'r-select', props: {
-      field: 'choice', optionDataViewKey: 'S@Choices@default', filterable: true, readonly: readonly.value,
+      ...(selection ? {dataViewKey: selectionKey.value, dataMember: 'value'} : {field: 'choice'}),
+      optionDataViewKey: 'S@Choices@default', filterable: true, readonly: readonly.value,
+      onChange: onChange.value,
     }}]})
   }}), {global: {stubs: {transition: false}, plugins: [ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper); await flushPromises()
-  return {wrapper, view, choices, readonly}
+  return {wrapper, view, choices, readonly, selectionKey, onChange}
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('selects and clears view members without editing records, and respects readonly', async () => {
+    const f = await fixture('first', true), select = f.wrapper.getComponent(ElSelect)
+    expect(select.props('disabled')).toBe(false)
+    select.vm.$emit('update:modelValue', 'second'); await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual(['second'])
+    expect(select.props('modelValue')).toBe('second')
+    expect(f.choices.hasEditingChanges()).toBe(false)
+    f.readonly.value = true; await flushPromises()
+    expect(select.props('disabled')).toBe(true)
+    select.vm.$emit('update:modelValue', 'first'); await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual(['second'])
+    f.readonly.value = false; await flushPromises()
+    select.vm.$emit('update:modelValue', ''); await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual([])
+  })
+
+  it('rejects a delayed selection after the bound view changes', async () => {
+    const f = await fixture('first', true), select = f.wrapper.getComponent(ElSelect)
+    let release!: () => void
+    f.onChange.value = () => new Promise<void>(resolve => {release = resolve})
+    await flushPromises()
+    select.vm.$emit('update:modelValue', 'second'); await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual([])
+    f.selectionKey.value = 'S@Inputs@default'; await flushPromises()
+    release(); await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual([])
+    expect(f.view.getSelectedValues()).toEqual([])
+  })
+
   it('filters candidates without editing the bound DataView until an option is selected', async () => {
     const f=await fixture(),select=f.wrapper.getComponent(ElSelect),documentRoot=new DOMWrapper(document.body)
     const dropdownId=select.get('input').attributes('aria-controls')!

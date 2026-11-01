@@ -11,7 +11,8 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DatabaseCatalogPreviewParams",
-      "DatabaseCatalogViewPreviewParams"
+      "DatabaseCatalogViewPreviewParams",
+      "DatabaseCatalogPreviewColumn"
     ]
   },
   "$defs": {
@@ -66,9 +67,27 @@
         "viewName"
       ],
       "additionalProperties": false
+    },
+    "DatabaseCatalogPreviewColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogPreviewColumn",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "label"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.766Z",
+  "generatedAt": "2026-11-01T14:30:47.403Z",
   "models": {
     "DatabaseCatalogPreviewParams": {
       "name": "DatabaseCatalogPreviewParams",
@@ -146,6 +165,35 @@
             },
             {
               "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogPreviewColumn": {
+      "name": "DatabaseCatalogPreviewColumn",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    label: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    label: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
               "readable": true,
               "writable": false
             }

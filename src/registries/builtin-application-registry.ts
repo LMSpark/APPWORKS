@@ -1,6 +1,7 @@
 import appworks from '../../config/applications/appworks.json'
 
 export type BuiltinScenarioName = 'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint'
+  | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor'
 export type BuiltinScenarioResource = Readonly<{name: BuiltinScenarioName; scenarioId: string; resourceId: string; path: string}>
 export type BuiltinNavigationResource = Readonly<{resourceId: string; path: string}>
 export type BuiltinApplicationDescriptor = Readonly<{id: string; name: string; navigation: BuiltinNavigationResource}>
@@ -11,7 +12,8 @@ const applicationDescriptor: BuiltinApplicationDescriptor = Object.freeze({id: a
 const scenarios = new Map<string, BuiltinScenarioResource>()
 const scenariosByName = new Map<BuiltinScenarioName, BuiltinScenarioResource>()
 const paths = new Set<string>()
-const requiredScenarioNames = new Set<BuiltinScenarioName>(['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint'])
+const requiredScenarioNames = new Set<BuiltinScenarioName>(['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint',
+  'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor'])
 for (const resource of appworks.scenarioResources) {
   if (!isBuiltinScenarioName(resource.name)
     || !resource.scenarioId.trim() || resource.resourceId !== `repository:scenario-view:${resource.scenarioId}`
@@ -26,11 +28,12 @@ for (const resource of appworks.scenarioResources) {
 }
 if (scenariosByName.size !== requiredScenarioNames.size
   || [...requiredScenarioNames].some(name => !scenariosByName.has(name))) {
-  throw new Error('BUILTIN_APPLICATION_CONFIG_INVALID: AppWorks 四个系统场景必须全部登记')
+  throw new Error('BUILTIN_APPLICATION_CONFIG_INVALID: AppWorks 系统场景必须全部登记')
 }
 
 function isBuiltinScenarioName(value: string): value is BuiltinScenarioName {
   return value === 'dataSpaceDesign' || value === 'dataSpaceCatalog' || value === 'dataDictionary' || value === 'projectBlueprint'
+    || value === 'apiProvider' || value === 'apiConfig' || value === 'apiInterface' || value === 'dataCodeCatalog' || value === 'dataCodeEditor'
 }
 
 /** AppWorks system program configuration has one explicit repository source; dynamic applications remain remote. */
@@ -50,7 +53,7 @@ export function getBuiltinScenarioResource(name: BuiltinScenarioName): BuiltinSc
   return resource
 }
 
-/** Resolve only the four registered system program scenes; other IDs remain explicit business targets. */
+/** Resolve registered system program scenes; other IDs remain explicit business targets. */
 export function resolveBuiltinScenarioResource(scenarioId: string): BuiltinScenarioResource | null {
   return scenarios.get(scenarioId.trim()) ?? null
 }

@@ -7,11 +7,11 @@
     "sourceFile": "src/lowcode/resources/database/catalog/list-metadata.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/database/catalog/list-metadata",
-    "jsdoc": "@module app:lowcode/resources/database/catalog/list-metadata\n职责：表/视图目录列表显式列子组件（对齐参考页主要列，不展示全部 autoColumns）。",
+    "jsdoc": "@module app:lowcode/resources/database/catalog/list-metadata\n职责：库/表/视图目录的显式列与常用筛选（对齐参考页，不展示全部 autoColumns）。",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-30T19:39:23.750Z",
+  "generatedAt": "2026-11-01T14:30:47.378Z",
   "models": {}
 }

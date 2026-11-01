@@ -1095,7 +1095,7 @@ describe('table-and-view-page', () => {
     await selectDatabase(wrapper)
     const tables = dataSet.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')
     expect(tables).toBeTruthy()
-    const orders = tables!.rows.find(row => row['tblname'] === 'Orders')
+    const orders = tables!.rows.find((row: DataRow) => row['tblname'] === 'Orders')
     expect(orders).toBeTruthy()
     tables!.setCurrentRow(null)
     tables!.setSelectedRows([orders!])

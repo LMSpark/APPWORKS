@@ -1,3 +1,4 @@
+import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
@@ -10,7 +11,9 @@ const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.f
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
+  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
 
 beforeEach(() => {
@@ -32,17 +35,23 @@ beforeEach(() => {
 
 describe('structured-config catalog loaders', () => {
   it('LowcodeDataCode.loadCatalog returns code rows', async () => {
-    http.rowsByTable['_Base_CodeDesign'] = [{rowid: 'C9', AppId: 'APP', CodeName: '批号', createuser: 'U-ROW'}]
+    http.rowsByTable['Base_CodeDesign'] = [{rowid: 'C9', AppID: 'TARGET', Name: '批号', createuser: 'U-ROW'}]
+    http.rowsByTable['Base_AppSystemList'] = [{rowid: 'TARGET', AppName: '目标应用'}]
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeDataCode.navigationScenarioId, name: 'code', raw: {}})
     service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
       buildFormalModels({
-        _Base_CodeDesign: ['rowid', 'AppId', 'CodeName', 'functiondesc', 'createuser', 'crttime'],
+        Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
+        Base_AppSystemList: ['rowid', 'AppName'],
         Base_UserInfo: ['ID', 'ROWID', 'UserName'],
         Base_StructureType: ['rowid', 'Mrowid', 'Name'],
-      }).find(m => m.metaName === metaName),
+      }).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId}p${({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName] ?? '001'}`})).find(m => m.metaName === metaName),
     ))
     const ds = await LowcodeDataCode.loadCatalog(LowcodeDataCode.navigationScenarioId)
-    expect(ds.getView(LowcodeDataCode.catalogMetaName, 'default')?.rows[0]).toMatchObject({CodeName: '批号'})
+    ds.triggerAutoLoad()
+    const apps = ds.getView('Base_AppSystemList')!
+    await vi.waitFor(() => expect(apps.rows.length).toBe(1))
+    apps.setSelectedRows([apps.rows[0]!])
+    await vi.waitFor(() => expect(ds.getView(LowcodeDataCode.catalogMetaName)!.rows[0]).toMatchObject({Name: '批号', AppID: 'TARGET'}))
     ds.destroy()
   })
 

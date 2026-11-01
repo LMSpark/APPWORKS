@@ -12,9 +12,9 @@
 
 **设计会话的正式模型读取**：字段目录与模型操作校验向DataSpaceDesignApi.readModel传入本次元数据DataSet。数据层按正式modelBinding.modelName唯一定位元表，在原查询owner上创建独立DataView，读取目标模型、所属columns记录、必要来源主键及来源入参，沿查询接纳边界校验身份、权限和完整性后投影，最后释放查询视图。缺失、释放或身份不匹配的元视图直接拒绝，不回退底层HTTP；原工作区行、编辑、选择和查询配置保持。临时视图不继承工作区输出收窄或查询模式来改变正式结构读取范围。复制API不再要求全空间字段default预先加载；按正式模型逐一读取，仍拒绝任一字段视图的未提交编辑或未决保存，字段可读性由该次正式查询核验。装配元空间前尚无DataSet的引导读取仍由原runtime query承接；该初始化阶段与活动会话数据操作分开，不据此宣称所有历史入口均已统一。
 
-**AppWorks 系统程序来源**：`config/applications/appworks.json`登记D99系统应用、仓内导航JSON及四个系统场景；这些程序定义始终从仓内资源DataView读取，缺文件或资源身份不匹配即失败。四场景开发态可经SPARK data保存，构建态只读；场景历史和工具定义仍未迁入。其他已由正式元数据确认的数据空间目标继续沿既有`ProjectWorkspace`场景文件DataView/owner读取；四个清单场景不会因为设计器入口而转回远端。动态用户应用仍以正式应用目录、蓝图和场景资源为来源。菜单发布授权仍读取既有`GetNavigationMenus`响应，并由只读语义DataView承接；仓内程序导航声明不代替后台授权或业务数据权限。页面工具三文件及真实DB模型、业务数据仍沿各自正式来源。
+**AppWorks 系统程序来源**：`config/applications/appworks.json`登记D99系统应用、仓内导航JSON及已登记系统场景；这些程序定义始终从仓内资源DataView读取，缺文件或资源身份不匹配即失败。登记场景开发态可经SPARK data保存，构建态只读；场景历史和工具定义仍未迁入。其他已由正式元数据确认的数据空间目标继续沿既有`ProjectWorkspace`场景文件DataView/owner读取；清单登记场景不会因为设计器入口而转回远端。动态用户应用仍以正式应用目录、蓝图和场景资源为来源。菜单发布授权仍读取既有`GetNavigationMenus`响应，并由只读语义DataView承接；仓内程序导航声明不代替后台授权或业务数据权限。页面工具三文件及真实DB模型、业务数据仍沿各自正式来源。
 
-**旧设计工具及页面旁路已退出**：仓内旧设计工具的script/rule/style、宿主dataSpaceDesign/dataSpaceLayout能力和`$page`专用查询/暂存/保存/文本草稿方法已删除。现有导航URL仍解析到参考层级内的原生设计页；AppWorks四个系统场景配置已随系统程序一并迁入仓内。脚本使用`getDataSet/resolveView`取得本次实例，数据操作调用DataSet/DataView。文件owner只在资源适配内部执行存储。六类来源的数据合同归数据空间领域，不从页面服务反推；LowcodeDataSpaceViewDesign保留设计会话与原生预览编排，旧open/readModel/stage/save/verify/previewRemote/adopt接口已删除。查询、编辑、取消和保存通过DataView/DataSet；整页验收和仓内写入适配仍未完成。
+**旧设计工具及页面旁路已退出**：仓内旧设计工具的script/rule/style、宿主dataSpaceDesign/dataSpaceLayout能力和`$page`专用查询/暂存/保存/文本草稿方法已删除。现有导航URL仍解析到参考层级内的原生设计页；AppWorks已登记系统场景配置已随系统程序一并迁入仓内。脚本使用`getDataSet/resolveView`取得本次实例，数据操作调用DataSet/DataView。文件owner只在资源适配内部执行存储。六类来源的数据合同归数据空间领域，不从页面服务反推；LowcodeDataSpaceViewDesign保留设计会话与原生预览编排，旧open/readModel/stage/save/verify/previewRemote/adopt接口已删除。查询、编辑、取消和保存通过DataView/DataSet；整页验收和仓内写入适配仍未完成。
 
 **2026-10-18执行边界**：用户已要求删除旧方案及其错误实现，原E62及其实施顺序已撤回。本文的对象语义与已核源码事实继续用于判断可复用能力；旧L1—L10执行分解已从正文删除；业务验收边界保留，不作为自动续做方案。当前删除事实见[唯一删除记录](../../notes/data-space-retirement-ledger.md)。
 
@@ -181,7 +181,7 @@ flowchart TD
 | 配置表键 K、视图 V | T的pagedata中K绑定M，V是K下视图名称 | Vue用`T@M注册名@V`；不能用K或资源名碰撞解析 |
 | 本次调用输入 P | 页面调用按空间传值，或预览输入控件提供值 | 参数声明、参数值、来源参数映射、过滤表达式是四层不同数据 |
 
-**进入页面的实际顺序**：URL校验T → `openLowcodeDataSpaceDesignSession(T)` → 从AppWorks清单登记的仓内C场景读取pagedata → `loadScenarioDataSet(C)`读取C绑定的正式模型定义并装配 → C的空间/模型default视图按T查询并唯一核实目标 → 会话通过原ScenarioDefinitionResource及ProjectWorkspace owner读取T的正式场景文件 → PageRuntime装载同一个C → 页面先显示概览 → `loadGraphRelations()`将可确认端点装入关系表的只读graph视图供标准画布消费，首屏不装配T。四个清单场景仅仓内来源；其他T须先经Base_DataSet正式DataView唯一确认，再沿既有场景文件owner读取。命名视图通过`loadViewFields()`读取所绑定的正式模型并投影字段，不以完整T为前置；级联工作区通过`loadCascadeFields()`按模型/视图读取候选，旧格式关系转换通过loadRelationDefinitions读取完整来源及其模型依赖；布局重建只消费模型与关系端点，不读取字段或装配T。目标没有pagedata仍可查看正式记录；程序自身配置缺失则不能正常启动设计器。
+**进入页面的实际顺序**：URL校验T → `openLowcodeDataSpaceDesignSession(T)` → 从AppWorks清单登记的仓内C场景读取pagedata → `loadScenarioDataSet(C)`读取C绑定的正式模型定义并装配 → C的空间/模型default视图按T查询并唯一核实目标 → 会话通过原ScenarioDefinitionResource及ProjectWorkspace owner读取T的正式场景文件 → PageRuntime装载同一个C → 页面先显示概览 → `loadGraphRelations()`将可确认端点装入关系表的只读graph视图供标准画布消费，首屏不装配T。清单登记场景仅仓内来源；其他T须先经Base_DataSet正式DataView唯一确认，再沿既有场景文件owner读取。命名视图通过`loadViewFields()`读取所绑定的正式模型并投影字段，不以完整T为前置；级联工作区通过`loadCascadeFields()`按模型/视图读取候选，旧格式关系转换通过loadRelationDefinitions读取完整来源及其模型依赖；布局重建只消费模型与关系端点，不读取字段或装配T。目标没有pagedata仍可查看正式记录；程序自身配置缺失则不能正常启动设计器。
 
 源码：[入口与装配](../../src/lowcode/data-space/lowcode-data-space-runtime.ts)、[设计会话](../../src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts)、[页面load](../../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue)。**首屏与完整编辑分别读取**：C的绑定模型定义仍在概览前装配；T的概览和画布不再要求完整目标装配。完整编辑工作区目前仍可能装配全部T，不能宣称所有定义已经按模型读取。
 
@@ -461,7 +461,7 @@ DataView 属于模型；同模型的多个视图共用正式定义，不共享�
 
 **接入顺序：先核本仓对象合同，再映射参考语义，最后接数据与页面。** [1.2](#12-本仓对象合同接入前的判定依据)核定原生结构与正式场景的边界，[1.3](#13-参考数据按语义接入的落点)逐项说明参考数据的归属。元模型与前端模型合并为一个DataTable；请求设置属于该DataTable下的DataView。不能按参考页分区新造领域对象，也不能先写转换函数再倒推本仓合同。
 
-模型工作区已合并，列说明、输出及脱敏/AI配置共用modelFields的查询、编辑覆盖和提交；独立“前端模型”字段视图及专用分支已从本仓源码与配置移除。模型编辑owner的旧请求属性与写入口也已删除，持久请求设置归DataViewDefinition；旧DB值保留为只读参考及正式模型预览初值，不自动迁入或覆盖命名视图。已有DB模型/字段与pagedata配置仍各守持久化边界，不复制真源或自动删除旧记录。元数据空间未声明脱敏规则资源时，保留已有规则ID并禁用规则选择，其他列属性可继续编辑。AppWorks四个程序场景配置以仓内清单为准；正式DB元数据和其他业务目标场景仍由对应SPARK data资源读取，二者不相互回退或覆盖。
+模型工作区已合并，列说明、输出及脱敏/AI配置共用modelFields的查询、编辑覆盖和提交；独立“前端模型”字段视图及专用分支已从本仓源码与配置移除。模型编辑owner的旧请求属性与写入口也已删除，持久请求设置归DataViewDefinition；旧DB值保留为只读参考及正式模型预览初值，不自动迁入或覆盖命名视图。已有DB模型/字段与pagedata配置仍各守持久化边界，不复制真源或自动删除旧记录。元数据空间未声明脱敏规则资源时，保留已有规则ID并禁用规则选择，其他列属性可继续编辑。AppWorks登记程序场景配置以仓内清单为准；正式DB元数据和其他业务目标场景仍由对应SPARK data资源读取，二者不相互回退或覆盖。
 
 **旧整空间快照协议已退役。** DataSpaceDesignApi原read/prepareMutation、DataSpaceFrontendModel实体及配套快照/命令类型没有生产消费者，已连同整空间直发GetData、全物理目录合并及独立字段映射删除。正式readSpaceDefinition/readModel/readModelBatch/readRelations仍供运行装配读取，projectModel、字段/关系及入参纯解析继续复用；正式列只沿原装配链进入DataTable.columns。模型、字段及配置编辑由元数据DataView持有，通过DataSet提交，不以旧快照作为第二份草稿或保存协议。后端资源类型和旧关系记录合同仍由存储适配消费，未删除DB记录；应用级关系依赖字典读取和暂缓的权限设计接口分别保留原职责。
 
@@ -683,7 +683,7 @@ SparkPageRenderer在页面脚本编译后、初始化与自动加载前，在原
 | 空间参数声明、模型来源入参映射 | Base_DataSet.inputParams / Base_DataModel_Field 中 type=inputParams 的记录；仍归数据库正式 query/save | 声明、实参、来源映射是三个对象；当前映射消费断点见 5.1 参数链，不把入参记录装成输出列 |
 | 后端已有关系记录 | Base_DataModel_Relation；只代表其既有后端合同 | 当前适配器转换可绑定部分，不等于完整原生关系的持久化 |
 | 本仓模型关系 resourceRelations | 无来源的完整原生关系及数据库来源的前端扩展由 pagedata 保存；已有DB定义不复制 | ScenarioViewConfig.resolveResourceRelations 合并当次来源，装配后交原生消费者；详见 6.1 |
-| 模型绑定、命名视图、前端校验与计算扩展、级联、布局 | AppWorks清单中的四个系统程序场景从仓内登记文件读取；其他已由正式元数据核实的设计目标沿执行应用的`SysForm/<scenarioId>/pagedata.json`读取。定义DataView编辑、DataSet提交，动态场景的ScenarioDefinitionResource在数据层内部复用文件owner及ProjectWorkspace | ScenarioViewConfig 校验后与正式模型合成；四个仓内场景开发态经SPARK data资源适配写入，构建态只读；其历史与工具定义仍未迁入 |
+| 模型绑定、命名视图、前端校验与计算扩展、级联、布局 | AppWorks清单中的已登记系统程序场景从仓内登记文件读取；其他已由正式元数据核实的设计目标沿执行应用的`SysForm/<scenarioId>/pagedata.json`读取。定义DataView编辑、DataSet提交，动态场景的ScenarioDefinitionResource在数据层内部复用文件owner及ProjectWorkspace | ScenarioViewConfig 校验后与正式模型合成；仓内登记场景开发态经SPARK data资源适配写入，构建态只读；其历史与工具定义仍未迁入 |
 | 页面结构、事件、样式 | PageTool 的三个文件及其文件 owner | PageRuntime materialize 后由渲染器消费 |
 | 结果、选择、编辑覆盖、dirty/stale | 不作为设计定义持久化；归各 DataView 实例 | 公共查询、编辑、选择及保存机制 |
 | 查询权限和保存凭据 | 当次正式响应及私有查询上下文 | DataView 字段访问和动作状态接口 |
@@ -929,7 +929,7 @@ flowchart TD
   A --> TD[T 的 DataSet：模型下有字段和多个视图]
 ```
 
-当前 [loadLowcodeDataSpaceMetadata](../../src/lowcode/data-space/lowcode-data-space-runtime.ts) 从AppWorks应用清单读取本地C场景配置，再通过正式DataView装配其声明的元数据模型。目标T的pagedata仍由同一`ScenarioDefinitionResource`调用`ProjectWorkspace`正式owner读取；只有Base_DataSet的default已按T过滤并核实唯一可读后，才开始读取T文件。四个系统程序场景的仓内源缺失即报错，不能读远端补救；其他应用和业务目标继续走各自正式来源。向四个元表的视图注入dataSpaceId=T后，概览先查询Base_DataSet和Base_DataModel的default；旧格式画布再查询后端旧关系default，原生v2从文件读取关系端点；字段由工作区按需读取，具体查询视图与命令范围见第0.4、0.6节。不是只装配四张表，也不是首屏完整查询四张表。[LowcodeDataSpaceMetadata](../../src/lowcode/data-space/lowcode-data-space-metadata.ts)仅对本次查询的default核范围、完整性和归属；空间记录必须唯一，其余返回记录须属于T，未读取、失败与空结果分别处理。
+当前 [loadLowcodeDataSpaceMetadata](../../src/lowcode/data-space/lowcode-data-space-runtime.ts) 从AppWorks应用清单读取本地C场景配置，再通过正式DataView装配其声明的元数据模型。目标T的pagedata仍由同一`ScenarioDefinitionResource`调用`ProjectWorkspace`正式owner读取；只有Base_DataSet的default已按T过滤并核实唯一可读后，才开始读取T文件。已登记系统程序场景的仓内源缺失即报错，不能读远端补救；其他应用和业务目标继续走各自正式来源。向四个元表的视图注入dataSpaceId=T后，概览先查询Base_DataSet和Base_DataModel的default；旧格式画布再查询后端旧关系default，原生v2从文件读取关系端点；字段由工作区按需读取，具体查询视图与命令范围见第0.4、0.6节。不是只装配四张表，也不是首屏完整查询四张表。[LowcodeDataSpaceMetadata](../../src/lowcode/data-space/lowcode-data-space-metadata.ts)仅对本次查询的default核范围、完整性和归属；空间记录必须唯一，其余返回记录须属于T，未读取、失败与空结果分别处理。
 
 元数据 default 视图在实际查询前核对必要目标约束：Base_DataSet 的 rowid，其余三元表的 dataSetId，必须经 eq 引用 GetInputParam(dataSpaceId)。沿原 DataView 过滤树核定 AND 中存在该约束、OR 的每个分支均受该约束限制；不改写或暗加过滤。只检查本次将查询的视图，未请求目录不提前读取；查询结果继续校验正式归属与数据权限。这是设计器元配置的读取合同，不是通用数据授权推导，也不是保存前提。
 

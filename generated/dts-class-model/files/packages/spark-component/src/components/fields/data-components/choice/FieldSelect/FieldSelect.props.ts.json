@@ -51,11 +51,11 @@
       }
     }
   },
-  "generatedAt": "2026-10-14T04:25:52.737Z",
+  "generatedAt": "2026-11-01T16:18:49.425Z",
   "models": {
     "RSelectProps": {
       "name": "RSelectProps",
-      "jsdoc": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。",
+      "jsdoc": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。\ndataMember=value且未指定dataField/field时，控件选择绑定视图的一条记录；选项值须为该视图主键。\n此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "FieldSelect",

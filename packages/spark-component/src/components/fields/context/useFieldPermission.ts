@@ -255,6 +255,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     syncValue,
     validationRules,
     captureWriteGuard,
+    captureBindingGuard: binding.captureWriteGuard,
     writeField,
   }
 }

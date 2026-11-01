@@ -37,6 +37,30 @@
             "hide"
           ]
         },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "title": {
           "type": "string"
         },
@@ -95,11 +119,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.118Z",
+  "generatedAt": "2026-11-01T14:30:47.390Z",
   "models": {
     "Props": {
       "name": "Props",
-      "jsdoc": "r-steps 内部步骤项属性，兼容步骤头部和步骤内容区。",
+      "jsdoc": "r-steps 内部步骤项属性；dataViewKey 等只替换本步骤内容，省略时继承父级。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererStepItem",
@@ -109,12 +133,12 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 步骤标题 */\n    title?: string;\n    /** 步骤描述文本 */\n    description?: string;\n    /** 步骤状态 */\n    status?: string;\n    /** 是否禁用 */\n    disabled?: boolean;\n    /** 步骤体自定义 class */\n    bodyClass?: string;\n    /** CSS Grid 列数 */\n    gridColumns?: number | string;\n    /** 栅格行高 */\n    gridAutoRows?: string;\n    /** 栅格间距 */\n    gridGap?: number | string;\n    /** 在父容器中的位置序号 */\n    index: number;\n    /** 渲染模式：步骤头部或内容区 */\n    mode: 'header' | 'content';\n}",
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 步骤标题 */\n    title?: string;\n    /** 步骤描述文本 */\n    description?: string;\n    /** 步骤状态 */\n    status?: string;\n    /** 是否禁用 */\n    disabled?: boolean;\n    /** 步骤体自定义 class */\n    bodyClass?: string;\n    /** CSS Grid 列数 */\n    gridColumns?: number | string;\n    /** 栅格行高 */\n    gridAutoRows?: string;\n    /** 栅格间距 */\n    gridGap?: number | string;\n    /** 在父容器中的位置序号 */\n    index: number;\n    /** 渲染模式：步骤头部或内容区 */\n    mode: 'header' | 'content';\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "SparkNodeProps",
-            "targetName": "SparkNodeProps"
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
           },
           {
             "kind": "intersection",

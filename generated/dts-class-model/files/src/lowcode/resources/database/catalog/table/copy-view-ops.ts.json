@@ -41,7 +41,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.758Z",
+  "generatedAt": "2026-11-01T14:30:47.390Z",
   "models": {
     "DatabaseCatalogCopyTableInput": {
       "name": "DatabaseCatalogCopyTableInput",

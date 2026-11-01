@@ -1,3 +1,4 @@
+import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {flushPromises, mount} from '@vue/test-utils'
@@ -11,17 +12,21 @@ import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-co
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
-  _Base_CodeDesign: ['rowid', 'AppId', 'CodeName', 'functiondesc', 'createuser', 'crttime'],
+  Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
+  Base_AppSystemList: ['rowid', 'AppName'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
   Base_StructureType: ['rowid', 'Mrowid', 'Name'],
-})
+}).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId  }p${  ({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName]}`}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
+  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
 beforeEach(() => {
   http = new StructuredCatalogHttp({
-    _Base_CodeDesign: [{rowid: 'C1', AppId: 'APP', CodeName: '订单号', createuser: 'U-ROW'}],
+    Base_CodeDesign: [{rowid: 'C1', AppID: 'APP', Name: '订单号', createuser: 'U-ROW'}],
+    Base_AppSystemList: [{rowid: 'APP', AppName: '应用'}],
     Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
     Base_StructureType: [{rowid: 'S1', Mrowid: '000000', Name: '基础'}],
   })

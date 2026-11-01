@@ -7,6 +7,10 @@
     <p v-if="loading" role="status">正在读取编码目录…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
+      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false">
+        <FieldSelect :data-view-key="appsKey" data-member="value" :option-data-view-key="appsKey" label="应用" placeholder="请选择应用" />
+      </RendererForm>
+      <p v-if="queryError" role="alert">{{ queryError }}</p>
       <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
         :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
     </template>
@@ -18,7 +22,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, FieldSelect, RendererForm, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
@@ -34,25 +38,38 @@ const selected = computed(() => {
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeDataCode.catalogMetaName, 'default', scenarioId.value))
+const appsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value))
+const selectedApplication = computed(() => {
+  revision.value
+  const values = runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')?.getSelectedValues() ?? []
+  return values.length === 1 && typeof values[0] === 'string' ? values[0] : ''
+})
+const queryError = computed(() => {
+  revision.value
+  const apps = runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
+  return view.value?.loadingError?.message ?? apps?.loadingError?.message ?? ''
+})
 const editorPath = '/features/data-platform/structured-config/data-code/ui/data-code-editor-page'
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '新增编码', permAction: 'create', disabled: loading.value, onClick: createCode}},
+  {type: 'r-button', props: {label: '新增编码', permAction: 'create', disabled: loading.value || !selectedApplication.value, onClick: createCode}},
   {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value, onClick: openEditor}},
   {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
 ]}))
 const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'CodeName', label: '方案名称', width: 230}},
-  {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', width: 320}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
+  {type: 'r-select', props: {field: 'AppID', label: '应用', readonly: true, width: 180, optionDataViewKey: appsKey.value}},
+  {type: 'r-text', props: {field: 'Name', label: '名称', readonly: true, width: 230}},
+  {type: 'r-text', props: {field: 'CodeDescription', label: '编码描述', readonly: true, width: 320}},
+  {type: 'r-text', props: {field: 'CodeExample', label: '编码示例', readonly: true, width: 180}},
+  {type: 'r-select', props: {field: 'createuser', label: '创建人', readonly: true, width: 150,
     optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
-  {type: 'r-text', props: {field: 'crttime', label: '创建时间', width: 180}},
+  {type: 'r-text', props: {field: 'createtime', label: '创建时间', readonly: true, width: 180}},
 ])
 const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children: [
-  {type: 'r-text', props: {field: 'CodeName', label: '方案名称', placeholder: '按名称筛选'}},
-  {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', placeholder: '按描述筛选'}},
+  {type: 'r-text', props: {field: 'Name', label: '名称', placeholder: '按名称筛选'}},
 ]}))
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createCode(): void {
+  if (!selectedApplication.value) return
   const id = crypto.randomUUID().replaceAll('-', '').toUpperCase()
   void openEditorRoute(id, true)
 }
@@ -62,7 +79,8 @@ async function openEditor(): Promise<void> {
 async function openEditorRoute(codeDesignId: string, create: boolean): Promise<void> {
   const scope = parseApplicationPathScope(route.path)
   const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
-  await router.push({path, query: {codeDesignId, ...(create ? {create: '1'} : {})}})
+  if (!selectedApplication.value) return
+  await router.push({path, query: {codeDesignId, applicationId: selectedApplication.value, ...(create ? {create: '1'} : {})}})
 }
 watch(scenarioId, async id => {
   const own = ++generation
@@ -79,6 +97,7 @@ watch(scenarioId, async id => {
     view.value = dataSet.getView(LowcodeDataCode.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, requestStateChanged: () => revision.value++})
     sparkProvide(PAGE_RUNTIME, runtime); ready.value = true
+    dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

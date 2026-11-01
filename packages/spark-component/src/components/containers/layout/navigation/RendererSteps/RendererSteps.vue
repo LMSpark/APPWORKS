@@ -21,6 +21,7 @@ AI用途：需要理解 renderer steps 的实际渲染结构、slot/toolbar/状�
 
       <SparkComponentRenderer
         v-if="activeStep"
+        :key="scopeKey"
         :config="createStepRendererConfig(activeStep, activeStepIndex, 'content')"
       />
     </div>
@@ -34,9 +35,10 @@ AI用途：需要理解 renderer steps 的实际渲染结构、slot/toolbar/状�
  * @notes children 内放 r-step
  */
 import { computed } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 
 import { useContainerToolbar } from '../../../runtime/container-ui'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 import type { RendererStepsApi } from './types'
 import { createRendererStepsZeroCode } from './zero-code'
 import { useDefaultedSelection } from '../../state'
@@ -51,7 +53,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
 
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey } = useLayoutDataContext(props)
 
 // 工具栏优先通过 props.toolbar 输入；children 作为步骤项输入。
 const stepConfigs = computed(() => getSparkNodeChildren(props.children))

@@ -14,7 +14,8 @@ AI用途：需要理解 renderer step item 的实际渲染结构、slot/toolbar/
     @click="emit('activate', index)"
   />
 
-  <div v-else :class="['renderer-steps-content-body', stepBodyClass]" :style="stepGridStyle">
+  <div v-else :key="scopeKey" :class="['renderer-steps-content-body', stepBodyClass]" :style="stepGridStyle">
+      <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
       <div
         v-for="(child, index) in stepChildren"
         :key="nodeId(child) ?? `r-step-child-${index}`"
@@ -33,14 +34,14 @@ AI用途：需要理解 renderer step item 的实际渲染结构、slot/toolbar/
  * @category internal
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, useSparkComponent } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 
 import { useCompositeItemGrid } from '../../../runtime/container-layout'
-import type { SparkNodeProps } from '../../../../shared-types'
+import { useLayoutDataContext, type LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import { nodeId } from '@spark-appworks/spark-data'
 
-/** r-steps 内部步骤项属性，兼容步骤头部和步骤内容区。 */
-type Props = SparkNodeProps & {
+/** r-steps 内部步骤项属性；dataViewKey 等只替换本步骤内容，省略时继承父级。 */
+type Props = LayoutDataContextProps & {
   /** 步骤标题 */
     title?: string
     /** 步骤描述文本 */
@@ -74,7 +75,7 @@ const emit = defineEmits<{
   activate: [index: number]
 }>()
 
-useSparkComponent(props)
+const {scopeKey, aggregateError} = useLayoutDataContext(props)
 
 const {
   contentChildren: stepChildren,

@@ -4,13 +4,13 @@ import {defineComponent, h, reactive} from 'vue'
 import ElementPlus, {ElCollapse} from 'element-plus'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererCard, RendererCollapseItem, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererCard, RendererCollapseItem, RendererSteps, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
 const cleanup: Array<() => void> = []
 beforeAll(() => registerAllRenderers())
 afterEach(() => {cleanup.splice(0).reverse().forEach(dispose => dispose())})
 
-async function fixture(layout: 'card' | 'collapse') {
+async function fixture(layout: 'card' | 'collapse' | 'steps') {
   const ds = SparkData.createDataSet({dataSetName: 'layout', scenarioId: 'T', tables: {
     Models: {tableName: 'Models', resourceType: 'static-data', columns: [
       {name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'},
@@ -21,14 +21,20 @@ async function fixture(layout: 'card' | 'collapse') {
   const view = ds.getView('Models', 'default')!, other = ds.getView('Models', 'other')!
   for (const item of [view, other]) {item.commitMode = 'staged'; item.setCurrentRowById(item.rows[0]!['id'] as string)}
   const request = vi.spyOn(view, 'requestData')
-  const input = reactive({key: 'T@Models@default'})
+  const input = reactive({key: 'T@Models@default', step: 'one'})
   const children = [{type: 'r-text', props: {field: 'name', label: '名称'}}]
+  const steps = [
+    {type: 'r-step', props: {name: 'one', title: '第一步'}, children},
+    {type: 'r-step', props: {name: 'two', title: '第二步', dataViewKey: 'T@Models@other'}, children: [{type: 'r-text', props: {field: 'name', label: '名称'}}]},
+  ]
   const Host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'r-form'})
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => layout === 'card'
       ? h(RendererCard, {header: '基本信息', dataViewKey: input.key, children})
-      : h(ElCollapse, {modelValue: ['main']}, () => h(RendererCollapseItem, {index: 0, name: 'main', dataViewKey: input.key, children}))
+      : layout === 'collapse'
+        ? h(ElCollapse, {modelValue: ['main']}, () => h(RendererCollapseItem, {index: 0, name: 'main', dataViewKey: input.key, children}))
+        : h(RendererSteps, {dataViewKey: input.key, modelValue: input.step, children: steps})
   }})
   const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
   cleanup.push(() => wrapper.unmount()); await flushPromises()
@@ -36,7 +42,7 @@ async function fixture(layout: 'card' | 'collapse') {
 }
 
 describe('layout containers provide the standard DataView context', () => {
-  it.each(['card', 'collapse'] as const)('%s binds children to the full view key, rebinds and keeps the old draft', async layout => {
+  it.each(['card', 'collapse', 'steps'] as const)('%s binds children to the full view key, rebinds and keeps the old draft', async layout => {
     const {wrapper, view, other, input, request} = await fixture(layout)
     expect(wrapper.get('input').element.value).toBe('Alpha')
     await wrapper.get('input').setValue('draft A'); await flushPromises()
@@ -48,6 +54,23 @@ describe('layout containers provide the standard DataView context', () => {
     await wrapper.get('input').setValue('draft C'); await flushPromises()
     expect(other.getEditingPatch('C')).toEqual({name: 'draft C'})
     expect(view.getEditingPatch('A')).toEqual({name: 'draft A'})
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('a step dataViewKey replaces only that step', async () => {
+    const {wrapper, view, other, input, request} = await fixture('steps')
+    await wrapper.get('input').setValue('draft A')
+    await flushPromises()
+    input.step = 'two'
+    await flushPromises()
+    expect(wrapper.get('input').element.value).toBe('Gamma')
+    await wrapper.get('input').setValue('draft C')
+    await flushPromises()
+    input.step = 'one'
+    await flushPromises()
+    expect(wrapper.get('input').element.value).toBe('draft A')
+    expect(view.getEditingPatch('A')).toEqual({name: 'draft A'})
+    expect(other.getEditingPatch('C')).toEqual({name: 'draft C'})
     expect(request).not.toHaveBeenCalled()
   })
 })

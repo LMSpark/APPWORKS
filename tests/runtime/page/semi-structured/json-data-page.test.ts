@@ -58,3 +58,19 @@ describe('JSON document page on the formal DataSet',()=>{
   expect(state.reads).toContain('J2.json');expect(documentValue(f.wrapper)).toEqual([false,[],null])
  })
 })
+
+it('edits metadata through standard table fields, cancels and saves only the catalog view',async()=>{
+ const f=await open();const input=()=>f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON'||item.element.value==='改名')
+ expect(input(),'metadata name editor').toBeDefined();await input()!.setValue('改名');await flushPromises()
+ await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json');await f.click('取消目录修改');expect(input()?.element.value).toBe('样例JSON');expect(state.http.saves).toEqual([])
+ await input()!.setValue('改名');await flushPromises();await f.click('保存目录');expect(state.http.saves).toHaveLength(1);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('改名');expect(state.uploads).toEqual([]);expect(state.reads).toEqual([])
+})
+
+it('keeps catalog edits out of an open content operation',async()=>{
+ const f=await open();await f.choose();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input?.attributes('disabled')).toBeDefined()
+ await f.edit('{"contentOnly":true}');await f.click('保存内容');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_JsonData']?.[0]?.['name']).toBe('样例JSON')
+})
+it('verifies an unknown catalog save without replaying the database write or touching a file',async()=>{
+ const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('改名');await flushPromises();state.http.failAfterWrite=true;await f.click('保存目录');expect(state.http.saves).toHaveLength(1)
+ const cancel=f.wrapper.findAll('button').find(b=>b.text()==='取消目录修改');expect(cancel?.attributes('disabled')).toBeDefined();await f.click('核验目录保存结果');expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+})

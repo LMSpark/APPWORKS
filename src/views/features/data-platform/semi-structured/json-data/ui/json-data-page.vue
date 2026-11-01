@@ -47,20 +47,32 @@ const documentReady=computed(()=>{revision.value;const view=document.value;retur
 const documentError=computed(()=>{revision.value;return document.value?.loadingError?.message??''})
 const queryError=computed(()=>{revision.value;return catalog.value?.loadingError?.message??''})
 const unconfirmed=computed(()=>{revision.value;return document.value?.hasUnconfirmedSave===true})
-const hasPending=computed(()=>{revision.value;const view=document.value;return inputPending.value||acting.value||unconfirmed.value||view?.hasEditingChanges()===true||view?.dirtyTracking.hasPendingChanges()===true})
+const catalogUnconfirmed=computed(()=>{revision.value;return catalog.value?.hasUnconfirmedSave===true})
+const catalogPending=computed(()=>{revision.value;return catalogUnconfirmed.value||catalog.value?.hasEditingChanges()===true||catalog.value?.dirtyTracking.hasPendingChanges()===true})
+const hasPending=computed(()=>{revision.value;const view=document.value;return catalogPending.value|| inputPending.value||acting.value||unconfirmed.value||view?.hasEditingChanges()===true||view?.dirtyTracking.hasPendingChanges()===true})
 useSystemPageDirtySource({get isDirty(){return busy.value||hasPending.value}})
 onBeforeRouteLeave(()=>!hasPending.value&&!busy.value)
 onBeforeRouteUpdate(()=>!hasPending.value&&!busy.value)
 const fields=computed<SparkNode[]>(()=>[
- {type:'r-text',props:{field:'name',label:'名称',readonly:true,width:220}},
- {type:'r-text',props:{field:'description',label:'描述',readonly:true,width:300}},
+ {type:'r-text',props:{field:'name',label:'名称',showCellControl:true,readonly:busy.value||!!document.value||catalogUnconfirmed.value,width:220}},
+ {type:'r-text',props:{field:'description',label:'描述',showCellControl:true,readonly:busy.value||!!document.value||catalogUnconfirmed.value,width:300}},
  {type:'r-select',props:{field:'createuser',label:'创建人',readonly:true,optionDataViewKey:buildDataViewKey('Base_UserInfo','default',scenarioId.value)}},
  {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true}},
 ])
 const toolbar=computed<SparkComponent.RToolbarProps>(()=>({children:[
+ {type:'r-button',props:{label:catalogUnconfirmed.value?'核验目录保存结果':'保存目录',disabled:busy.value||!!document.value||!catalogPending.value,onClick:saveCatalog}},
+ {type:'r-button',props:{label:'取消目录修改',disabled:busy.value||!!document.value||catalogUnconfirmed.value||!catalogPending.value,onClick:cancelCatalog}},
  {type:'r-button',props:{label:'内容编辑',disabled:!selected.value||busy.value||hasPending.value,onClick:openContent}},
  {type:'r-button',props:{label:'刷新',disabled:busy.value||hasPending.value,onClick:refreshCatalog}},
 ]}))
+async function saveCatalog():Promise<void>{
+ if(busy.value||document.value||!dataSet.value||!catalog.value)return
+ const current=dataSet.value,own=generation;acting.value=true;error.value=''
+ try{const result=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default'}]});if(!result.success)throw new Error(result.message??'目录保存未完整确认')}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function cancelCatalog():void{if(busy.value||document.value||catalogUnconfirmed.value)return;try{catalog.value?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function closeDocument(open:boolean):void{
  if(open||busy.value||hasPending.value)return
  const view=document.value;document.value=undefined;documentGeneration++;inputPending.value=false

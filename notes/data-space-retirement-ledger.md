@@ -4431,3 +4431,14 @@ flowchart TD
 - 页面、资源与设计客户端自动测试 22 项通过；公共上传器有效包级 RED 为 1 失败/20 通过，GREEN 21 通过。初次根目录未发现包测试不算验证；页面测试补齐生产 VXETable 插件后通过，未为夹具缺口修改产品。
 - 本批全仓 ClassModel 生成、verify、影响测试与构建尚在执行，未宣称通过或提交。JSON 元数据 CRUD、上传、完整参考布局及真实保存/UI 烟测仍开放；6 个缺失文件、既有工作流失联模型及其他页面差距继续保留，不以本批局部通过结项。
 - 本批最终验证：ClassModel 正式生成通过；pnpm run verify 退出 0（保留已有 2 项 AI model 警告）；生产 build 退出 0；影响测试 7 文件/40 项、上传器包级 21 项全部通过。正式仓库场景 FF 的 HTTP 配置入口返回正确身份及非空文本。准备提交 JSON 内容链检查点到 origin/1031，整体验收仍未完成。
+
+## 2026-11-02 JSON 目录编辑链恢复（进行中）
+
+- 上轮为 progress：4353dcdba 已推送 origin/1031，当前起始工作区干净。重新阅读参考 1147b00ee JSON 页面及 JsonDataManager：名称/描述属于目录保存；内容是独立文件；导入先上传再建目录；删除先删记录再删文件，存在两类持久化部分成功风险。参考行为不直接作为本仓正确合同，不增加跨来源事务。
+- 本轮明确缺口为本仓目录名称/描述被永久 readonly。先新增标准表格字段编辑→取消→保存测试，json-metadata-red.log 1 失败/5 通过；页面用 FieldText 正式 showCellControl 绑定原目录 DataView，移除两字段常量只读限制，busy/内容打开/未知结果仍收窄操作；没有页面草稿或手写 CRUD 请求。
+- 新增独立目录保存/取消及未知回执核验入口；DataSet.saveChanges 只选择 Base_JsonData/default，文件内容仍选择自身命名视图。目录和文件草稿均进入统一脏状态及离页保护，内容打开期间目录字段锁定，避免跨提交范围。
+- 实际正式模型再次核验 name/description output=true（json-metadata-formal-current.json）；真实同一 SPARK data 管线两字段均完成本地编辑追踪、取消和服务回读一致（json-metadata-cancel-live.json），写请求 0。UI 实测和真实保存仍未证明。
+- 页面自动测试 8 项通过（json-metadata-final.log），包括目录原生取消/独立保存、内容写入隔离及目录回执丢失核验不重放。ClassModel 目录/概要/FieldText 指南及源码确认 showCellControl、readonly 的原DataView消费合同后实施；本轮未改公共声明。
+- 未完成：新增、导入、完整删除文件命令及部分成功恢复、参考行编辑入口/布局完全还原、真实保存及浏览器整页烟测。6 个存量缺文件仍不重建、不隐藏。全仓门禁及构建正在执行，尚未声明本轮可提交。
+- 删除影响面补查：正式目录查询全部 11 条并按已核服务定位规则计算文件身份，当前无多条目录共用同一文件（json-catalog-file-identity-live.json）；这是本轮存量样本，不作为未来删除可跳过引用核验的理由。未调用删除端点。下一轮新增/导入与删除须明确数据库/文件分别提交、失败和未知结果的可恢复状态，禁止套用参考先删目录后删文件流程冒充完整删除。
+- 最终门禁：json-metadata-classmodel.log 正式生成 exit0；json-metadata-impact.log 7 文件43项通过；json-metadata-page-final.log 最终8项通过；json-metadata-build.log build exit0。首次 verify 的4项错误均为新增测试索引访问，改用方括号后 json-metadata-verify-final.log 全仓 verify exit0，已有2条AI模型警告保留。无后端变更、无真实业务写入；按授权准备提交推送当前检查点，整体验收不结题。

@@ -1,5 +1,5 @@
 {
-  "gapCount": 3355,
+  "gapCount": 3360,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -10869,7 +10869,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 16,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -10881,7 +10881,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 17,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -10893,7 +10893,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 18,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -10905,7 +10905,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadWorkingText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 29,
+      "declarationLine": 31,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -10917,7 +10917,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadTextVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 30,
+      "declarationLine": 32,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -16798,29 +16798,6 @@
       "declarationLine": 56,
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "declarationKind": "interface"
-    },
-    {
-      "kind": "module",
-      "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
-      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts"
-    },
-    {
-      "kind": "constructor",
-      "className": "JsonDataContentClient",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "JsonDataContentClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
-      "declarationKind": "class"
     },
     {
       "kind": "module",
@@ -33743,15 +33720,87 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "app:lowcode/resources/semi-structured/json-data/content-ops",
-      "moduleName": "app:lowcode/resources/semi-structured/json-data/content-ops",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/semi-structured/json-data/content-ops 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/content-ops.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts"
+      "kind": "model",
+      "className": "OpenOptions",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "OpenOptions",
+      "memberName": "dataSet",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "OpenOptions",
+      "memberName": "catalog",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.catalog 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "OpenOptions",
+      "memberName": "jsonId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.jsonId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "OpenOptions",
+      "memberName": "api",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.api 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "OpenOptions",
+      "memberName": "fileUpload",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 16,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "OpenOptions",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OpenOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 17,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",
@@ -33772,7 +33821,7 @@
       "chainBreak": "LowcodeJsonData.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
     },
@@ -33783,7 +33832,7 @@
       "chainBreak": "LowcodeJsonData 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
     },
@@ -33795,7 +33844,7 @@
       "chainBreak": "LowcodeJsonData.navigationScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
-      "declarationLine": 6,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
     },
@@ -33807,7 +33856,7 @@
       "chainBreak": "LowcodeJsonData.catalogMetaName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
-      "declarationLine": 7,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
     },
@@ -33819,7 +33868,19 @@
       "chainBreak": "LowcodeJsonData.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "LowcodeJsonData",
+      "memberName": "openDocument",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeJsonData.openDocument 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
+      "declarationLine": 11,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
     },

@@ -58,6 +58,16 @@ describe('LowcodeDesignFileUpload', () => {
     expect(http.requests).toHaveLength(2)
   })
 
+  it('uploads JSON resource text in its real root namespace and reads bytes from the same area', async () => {
+    const text='{"flag":false,"items":[]}',http=new FixtureHttpClient({Code:200,Result:[{fileName:'data.json',state:'success'}]},text)
+    const upload=new LowcodeDesignFileUpload({http,readScope:fixtureScope})
+    await upload.uploadWorkingText({appType:'jsondatapath',customPath:'',fileName:'data.json',text})
+    const form=http.requests[0]?.data
+    if(!(form instanceof FormData))throw new Error('expected multipart')
+    expect(form.get('appType')).toBe('jsondatapath');expect(form.get('customPath')).toBe('')
+    expect(http.requests[1]?.data).toMatchObject({appType:'jsondatapath',customPath:'',fileName:'data.json'})
+  })
+
   it('rejects a renamed version using the actual filePath, even when fileName is unchanged', async () => {
     const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: '2__script.js',
       filePath: '/APP-A/orders/2__script_renamed.js', state: 'success' }] }, 'A')

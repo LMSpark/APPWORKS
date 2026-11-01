@@ -1,7 +1,7 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {LogicViewDesignClient, JsonDataContentClient} from '@spark-appworks/spark-lowcode-api'
+import {LogicViewDesignClient} from '@spark-appworks/spark-lowcode-api'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
@@ -12,7 +12,6 @@ it('rejects a legacy Ajax business failure for every design write', async () => 
   vi.spyOn(http, 'post').mockResolvedValue({Code: 500, Message: '明确拒绝保存', Result: null})
   const writes = [
     () => new LogicViewDesignClient(http).write({viewId: 'V1', data: {}}),
-    () => new JsonDataContentClient(http).save('J1', []),
   ]
   for (const write of writes) await expect(write()).rejects.toThrow('明确拒绝保存')
 })

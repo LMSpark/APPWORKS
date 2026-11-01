@@ -3014,12 +3014,12 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-10-06T21:05:20.134Z"
+      "sourceModifiedAt": "2026-11-01T21:12:14.714Z"
     },
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-01T19:54:45.410Z"
+      "sourceModifiedAt": "2026-11-01T21:26:27.216Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3225,11 +3225,6 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
       "sourceModifiedAt": "2026-10-06T20:57:27.510Z"
-    },
-    "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts": {
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
-      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts.json",
-      "sourceModifiedAt": "2026-11-01T20:53:21.161Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
@@ -4021,15 +4016,15 @@
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
       "sourceModifiedAt": "2026-11-01T19:20:26.114Z"
     },
-    "src/lowcode/resources/semi-structured/json-data/content-ops.ts": {
-      "sourceFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
-      "shardFile": "files/src/lowcode/resources/semi-structured/json-data/content-ops.ts.json",
-      "sourceModifiedAt": "2026-11-01T20:52:05.917Z"
+    "src/lowcode/resources/semi-structured/json-data/document-resource.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/json-data/document-resource.ts.json",
+      "sourceModifiedAt": "2026-11-01T21:30:32.223Z"
     },
     "src/lowcode/resources/semi-structured/json-data/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.792Z"
+      "sourceModifiedAt": "2026-11-01T21:22:39.942Z"
     },
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
@@ -4099,7 +4094,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-01T19:54:14.897Z"
+      "sourceModifiedAt": "2026-11-01T21:22:39.938Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -4729,7 +4724,7 @@
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.980Z"
+      "sourceModifiedAt": "2026-11-01T21:23:29.412Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",

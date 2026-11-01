@@ -34,7 +34,8 @@
         "excelImportCatalog",
         "pdfInspectCatalog",
         "excelImportEditor",
-        "workflowEditor"
+        "workflowEditor",
+        "jsonDataCatalog"
       ]
     },
     "BuiltinScenarioResource": {
@@ -104,14 +105,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-01T19:54:14.897Z",
+  "generatedAt": "2026-11-01T21:22:39.938Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -168,6 +169,10 @@
           {
             "kind": "union",
             "typeText": "'workflowEditor'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'jsonDataCatalog'"
           }
         ],
         "members": {}

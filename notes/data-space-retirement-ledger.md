@@ -4422,3 +4422,12 @@ flowchart TD
 - **修复后实服终态及下一步：**json-content-guard-all-live.json明确checked=11、returnedRealTree=5、rejectedInvalidContent=6、documentConversionComplete=false；真实现有DataView对6条明确读取失败，5条保持原树载荷，业务写入0。下一批须在语义资源适配内完成树/文档双向转换、原生标准组件绑定、目录正式配置源、取消/选择及完整保存回读；对象/数组根类型、空根及数字键根的协议歧义须核实，不能照搬参考猜根算法或声称全JSON已支持。仍无真实JSON写入或浏览器整页验收。
 - **门禁进展：**正式ClassModel59910、build69746及定向最终lint均exit0，完整verify74424仍在执行；结束后记录终态再按用户授权提交推送。不改后端代码或权限，整体目标active。
 - **JSON协议批最终门禁：**json-protocol-verify.log对应74424 exit0，完整typecheck/lint/verify:rules通过，ClassModel4文件49项通过、AI模型既有2 warning保留；ClassModel59910与build69746 exit0。差异检查无空白错误。按用户授权提交推送origin/1031保存已证实的JSON内容协议拒绝修复；当前仍是传输边界检查点，6条真实内容断链及树/文档消费链未闭合，全目标不结题。
+
+## 2026-11-02 JSON 原文件链烟测与恢复（进行中）
+
+- 按参考 APPWorks 1147b00ee 和实际服务核对 JSON 文件定位：jsondatapath 根目录，path 最后文件名，否则 rowid.json。参考 Java 仅阅读，未修改后端。原 GetJson/SaveJsonData 树转换具有对象根及数组转换限制，已删除本仓对应旧客户端和页面旁路。
+- 新增正式 FFDEF2AED3E19A38C0FCDDC748CF939B 目录 pagedata，并在同一元数据 DataSet 内用公共文件资源 DataView 承接原文；标准 FieldJson 直接绑定 content，编辑、取消、保存与未知结果核验沿公共数据链。共享上传器显式支持 jsondatapath，仍沿既有上传及字节回读合同。缺失文件不自动创建。
+- 真实服务逐条核验 11 条：5 个文件通过原生 DataView 读取、编辑取消及重新查询内容一致；6 个原文件真实 404。证据 artifacts/data-chain-smoke/json-native-document-all-live.json、json-raw-file-contract-live.json。该轮写请求 0。过期登录态导致的上一轮 401 已刷新后重测，不能计作资源缺失。
+- 页面、资源与设计客户端自动测试 22 项通过；公共上传器有效包级 RED 为 1 失败/20 通过，GREEN 21 通过。初次根目录未发现包测试不算验证；页面测试补齐生产 VXETable 插件后通过，未为夹具缺口修改产品。
+- 本批全仓 ClassModel 生成、verify、影响测试与构建尚在执行，未宣称通过或提交。JSON 元数据 CRUD、上传、完整参考布局及真实保存/UI 烟测仍开放；6 个缺失文件、既有工作流失联模型及其他页面差距继续保留，不以本批局部通过结项。
+- 本批最终验证：ClassModel 正式生成通过；pnpm run verify 退出 0（保留已有 2 项 AI model 警告）；生产 build 退出 0；影响测试 7 文件/40 项、上传器包级 21 项全部通过。正式仓库场景 FF 的 HTTP 配置入口返回正确身份及非空文本。准备提交 JSON 内容链检查点到 origin/1031，整体验收仍未完成。

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/json-data/document-resource",
+    "sourcePath": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/json-data/document-resource",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/document-resource\n职责：把正式JSON目录记录定位的原文件接入同一DataSet的文件资源视图。\n边界：不通过有损树接口保存，不建立第二份文档草稿，不改目录记录或推导权限角色。\nAI用途：从当次可读目录行打开命名视图，由标准字段绑定content并经DataSet保存。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "OpenOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OpenOptions",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "catalog": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "jsonId": {
+          "type": "string"
+        },
+        "api": {
+          "type": "object",
+          "title": "Pick<LowcodeDesignApi, 'readTextFile'>"
+        },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-01T21:30:32.223Z",
+  "models": {
+    "OpenOptions": {
+      "name": "OpenOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalog",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "jsonId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

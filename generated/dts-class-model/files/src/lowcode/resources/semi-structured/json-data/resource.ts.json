@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/semi-structured/json-data/resource",
-    "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/resource",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/json-data/resource\n职责：装配正式JSON目录并从其真实记录打开文档资源视图。\n边界：页面只消费同一DataSet，文件传输及定位留在数据层。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeJsonData"
@@ -42,23 +42,26 @@
           "type": "object",
           "title": "Promise<DataSet>"
         },
-        "method.loadPage.params": {
+        "method.openDocument.params": {
           "type": "object",
           "properties": {
-            "scenarioId": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "jsonId": {
               "type": "string"
             }
           },
           "additionalProperties": false
         },
-        "method.loadPage.return": {
-          "type": "object",
-          "title": "Promise<DataSet>"
+        "method.openDocument.return": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         }
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.792Z",
+  "generatedAt": "2026-11-01T21:22:39.942Z",
   "models": {
     "LowcodeJsonData": {
       "name": "LowcodeJsonData",
@@ -106,11 +109,17 @@
               }
             },
             {
-              "name": "loadPage",
-              "jsdoc": "目录 + 内容编辑视图（页面唯一 DataSet 入口）。",
+              "name": "openDocument",
               "parameters": [
                 {
-                  "name": "scenarioId",
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "jsonId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
@@ -119,13 +128,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "DataSet"
-                  }
-                ]
+                "name": "DataView"
               }
             }
           ]

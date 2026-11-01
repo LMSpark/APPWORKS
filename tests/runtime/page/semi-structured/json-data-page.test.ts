@@ -1,73 +1,60 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {config, flushPromises, mount} from '@vue/test-utils'
-import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
+import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
+import {readFileSync} from 'node:fs'
+import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
+import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
+import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
-import {defineComponent, h} from 'vue'
-import JsonDataPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
-import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {buildFormalModels, StructuredCatalogHttp} from '../structured-config/catalog/structured-config-catalog.fixture'
-import {SemiStructuredHttp} from './semi-structured-http.fixture'
-
-const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
-let http: SemiStructuredHttp, runtime: DataSpaceRuntimeApi
-const navigationScenarioId = 'FFDEF2AED3E19A38C0FCDDC748CF939B'
-const models = buildFormalModels({
-  Base_JsonData: ['rowid', 'name', 'updater', 'path', 'createuser'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+import VXETable from 'vxe-table'
+import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import {FieldJson,JsonTreeEditor,RendererTable,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
+import {ApiBackend} from '../api-provider/api-provider.fixture'
+import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
+const SCENE='FFDEF2AED3E19A38C0FCDDC748CF939B'
+const text=readFileSync('config/pages/semi-structured/json-data/pagedata.json','utf8')
+const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,files:new Map<string,string>(),reads:[] as string[],uploads:[] as string[],lose:false,dirty:[] as Array<{isDirty:boolean}>}))
+vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
+vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','ROWID','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
+const wrappers:VueWrapper[]=[],original={...config.global.stubs}
+beforeEach(()=>{
+ state.http=new ApiBackend();state.http.records={Base_JsonData:[{rowid:'J1',name:'样例JSON',path:'/NewApp/data.json'},{rowid:'J2',name:'另一份JSON',path:null}],Base_UserInfo:[]};state.files=new Map([['data.json','{"flag":false,"nested":[[1,null],{}]}']]);state.reads=[];state.uploads=[];state.lose=false;state.dirty=[]
+ state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,name);config.global.stubs=stubs
 })
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
-}))
-const originalStubs = {...config.global.stubs}
-beforeEach(() => {
-  http = new SemiStructuredHttp({
-    Base_JsonData: [{rowid: 'J1', name: '样例JSON', updater: 'U-ROW', path: '/sample.json', createuser: 'U-ROW'}],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
-  })
-  service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
-  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: navigationScenarioId, name: 'json', raw: {}})
-  service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
-  runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
-  registerAllRenderers()
-  config.global.stubs = {...originalStubs, JsonTreeEditor: {
-    template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-    props: ['modelValue'],
-  }}
-  for (const key of ['el-button', 'el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete config.global.stubs[key]
-  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
-})
-afterEach(() => {config.global.stubs = originalStubs; vi.restoreAllMocks()})
-
-async function openPage() {
-  const router = createRouter({history: createMemoryHistory(), routes: []})
-  await createDynamicRouter({router, pageComponent: JsonDataPage, componentMap: {'/json': JsonDataPage},
-    loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
-      {id: 'json', title: 'JSON', path: '/json', itemKind: 'system-page', blueprintScenarioId: navigationScenarioId},
-    ]})}).registerRoutes()
-  await router.push('/json'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body,
-    global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
-  await flushPromises()
-  return wrapper
+afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
+async function open(){
+ const router=createRouter({history:createMemoryHistory(),routes:[{path:'/json',component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/json');await router.isReady()
+ const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
+ const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+ const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await click('内容编辑')}
+ const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
+ return {wrapper,router,click,choose,edit}
 }
-
-describe('json-data page', () => {
-  it('loads real tree content and refuses a document object before the legacy tree write', async () => {
-    const wrapper = await openPage()
-    expect(wrapper.text()).toContain('JSON 数据')
-    expect(wrapper.findComponent(RendererTable).text()).toContain('样例JSON')
-    await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
-    await flushPromises()
-    expect(http.posts.some(p => p.url.includes('GetJson'))).toBe(true)
-    await wrapper.find('textarea').setValue('{"items":[]}')
-    await flushPromises()
-    await wrapper.findAll('button').find(b => b.text().includes('保存内容'))!.trigger('click')
-    await flushPromises()
-    expect(http.posts.some(p => p.url.includes('SaveJsonData'))).toBe(false)
-    expect(wrapper.text()).toContain('JSON_CONTENT_TREE_REQUIRED')
-    wrapper.unmount()
-  })
+function documentValue(wrapper:VueWrapper):unknown{const value=wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).props('modelValue');if(typeof value!=='string')throw new Error('JSON editor text is absent');return JSON.parse(value)}
+describe('JSON document page on the formal DataSet',()=>{
+ it('loads files only after selecting a record and binds the actual document rather than wire tree rows',async()=>{
+  const f=await open();expect(state.reads).toEqual([]);await f.choose()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(FieldJson).exists()).toBe(true))
+  expect(f.wrapper.getComponent(FieldJson).props('dataViewKey')).toBe(`${SCENE}@JsonDocumentFile@document-J1`)
+  expect(documentValue(f.wrapper)).toEqual({flag:false,nested:[[1,null],{}]})
+  await f.edit('{"flag":false,"nested":[[1,null],{}],"new":0}');await f.click('保存内容')
+  expect(JSON.parse(state.files.get('data.json')!)).toEqual({flag:false,nested:[[1,null],{}],new:0});expect(state.http.saves).toEqual([])
+ })
+ it('cancels native edits and protects closing or leaving until cancellation',async()=>{
+  const f=await open();await f.choose();await f.edit('{"changed":1}');await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/json')
+  await f.click('取消修改');expect(state.dirty[0]?.isDirty).toBe(false);expect(state.uploads).toEqual([])
+  await f.click('关闭');await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
+ })
+ it('reports a missing file and disables save without fabricating an empty document',async()=>{
+  const f=await open();await f.choose(1);await vi.waitFor(()=>expect(f.wrapper.text()).toContain('文件不存在'))
+  expect(f.wrapper.findComponent(FieldJson).exists()).toBe(false);expect(f.wrapper.findAll('button').find(b=>b.text()==='保存内容')?.attributes('disabled')).toBeDefined();expect(state.uploads).toEqual([])
+ })
+ it('verifies an unknown raw file write without replaying it',async()=>{
+  const f=await open();await f.choose();await f.edit('{"saved":true}');state.lose=true;await f.click('保存内容');expect(state.uploads).toHaveLength(1)
+  await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
+ it('uses the real metadata fallback filename and preserves an array root',async()=>{
+  state.files.set('J2.json','[false,[],null]');const f=await open();await f.choose(1)
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(FieldJson).exists()).toBe(true))
+  expect(state.reads).toContain('J2.json');expect(documentValue(f.wrapper)).toEqual([false,[],null])
+ })
 })

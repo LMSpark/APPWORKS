@@ -42,6 +42,12 @@
       "type": "object",
       "title": "LowcodeDesignFileUploadCommand",
       "properties": {
+        "appType": {
+          "enum": [
+            "designfile",
+            "jsondatapath"
+          ]
+        },
         "customPath": {
           "type": "string"
         },
@@ -109,7 +115,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T21:05:20.134Z",
+  "generatedAt": "2026-11-01T21:12:14.714Z",
   "models": {
     "LowcodeDesignFileUploadOptions": {
       "name": "LowcodeDesignFileUploadOptions",
@@ -151,16 +157,22 @@
       "jsdoc": "明确目录、最终文件名和原文本；空文本仍按空 UTF-8 字节上传，不自动分配编号。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+            "typeText": "Readonly<{\n    /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */\n    appType?: 'designfile' | 'jsondatapath';\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "appType",
+              "jsdoc": "明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "customPath",
               "readable": true,

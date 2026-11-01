@@ -113,7 +113,6 @@ export { DictionarySchema } from './platform/resources/structured-config/diction
 export { DictionaryWorkspace } from './platform/resources/structured-config/dictionary/workspace.js'
 export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'
 export { LogicViewDesignClient } from './platform/resources/structured-config/logic-view/design-client.js'
-export { JsonDataContentClient } from './platform/resources/semi-structured/json-data/content-client.js'
 export type { LogicViewDesignPayload } from './platform/resources/structured-config/logic-view/design-client.js'
 export type { OrderType, WireFilterOperator, GroupFunType } from './contracts/lowcode-wire-query.js'
 export type { LowcodeApplication } from './platform/lowcode-application.js'

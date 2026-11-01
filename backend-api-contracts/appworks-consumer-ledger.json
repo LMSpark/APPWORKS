@@ -535,43 +535,43 @@
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 95,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/DownFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 108,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 109,
+      "sourceLine": 119,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 162,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/DownFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 162,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 170,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 79,
+      "sourceLine": 82,
       "scope": "publishable-lowcode-api"
     },
     {

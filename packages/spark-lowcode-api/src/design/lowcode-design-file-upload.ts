@@ -18,6 +18,8 @@ type LowcodeDesignFileUploadOptions = Readonly<{
 
 /** 明确目录、最终文件名和原文本；空文本仍按空 UTF-8 字节上传，不自动分配编号。 */
 export type LowcodeDesignFileUploadCommand = Readonly<{
+  /** 明确文件区；默认designfile保持既有工具合同，JSON文档使用已核实的jsondatapath。 */
+  appType?: 'designfile' | 'jsondatapath'
   customPath: string
   fileName: string
   text: string
@@ -66,12 +68,13 @@ export class LowcodeDesignFileUpload {
     replace: boolean,
   ): Promise<LowcodeDesignFileUploadResult> {
     const scope = this.readScope()
-    const customPath = requiredText(command.customPath, 'customPath')
+    const appType = command.appType ?? 'designfile'
+    const customPath = appType === 'designfile' ? requiredText(command.customPath, 'customPath') : command.customPath.trim()
     const fileName = requiredText(command.fileName, 'fileName')
     const bytes = new TextEncoder().encode(command.text)
     const data = new FormData()
     data.append('customPath', customPath)
-    data.append('appType', 'designfile')
+    data.append('appType', appType)
     data.append('isReplace', String(replace))
     data.append('newName', fileName)
     data.append('isCrossEnt', 'false')
@@ -91,7 +94,7 @@ export class LowcodeDesignFileUpload {
         throw new LowcodeApiError(0, '快照文件名与预定版本不一致，不能确认版本')
       }
     }
-    const readback = await this.design.readFileBytes({ appType: 'designfile', customPath, fileName })
+    const readback = await this.design.readFileBytes({ appType, customPath, fileName })
     this.assertScope(scope)
     if (readback.length !== bytes.length || bytes.some((value, index) => readback[index] !== value)) {
       throw new LowcodeApiError(0, `${fileName} 写入后回读不一致`)

@@ -77,6 +77,10 @@
       "resourceId": "repository:scenario-view:A2D63AB2AAEF156E7727094A23AEA433", "path": "config/pages/semi-structured/pdf-inspect-catalog/pagedata.json"
     },
     {
+      "name": "jsonDataCatalog", "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "resourceId": "repository:scenario-view:FFDEF2AED3E19A38C0FCDDC748CF939B", "path": "config/pages/semi-structured/json-data/pagedata.json"
+    },
+    {
       "name": "workflowEditor", "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
       "resourceId": "repository:scenario-view:0DD8D28D462F51C5790AA6FBFAE39366", "path": "config/pages/structured-config/workflow-editor/pagedata.json"
     },

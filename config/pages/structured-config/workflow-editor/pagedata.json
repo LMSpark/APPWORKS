@@ -127,6 +127,35 @@
           }
         }
       }
+    },
+    "WorkflowLayout": {
+      "resourceType": "file",
+      "resourceId": "workflow-definition:layout",
+      "columns": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "fileName",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {
+            "workflowId": ""
+          }
+        }
+      }
     }
   }
 }

@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/layout-document",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/layout-document",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout-document\n职责：投影与更新工作流布局文件的坐标，保留未修改的原生图快照成员。\n边界：文件中的节点属性和边端点不作为数据库业务真源；不读写视图或文件。\nAI用途：从DataView当前content派生图坐标，移动后把新文本写回同一content字段。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "WorkflowLayoutDocument"
+    ]
+  },
+  "$defs": {
+    "Point": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Point",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "Move": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Move",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "pointsList": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Point"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "pointsList"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y",
+        "edges"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowLayoutDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowLayoutDocument",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "properties": {
+            "nodePositions": {
+              "type": "object",
+              "title": "Record<string, Point>"
+            },
+            "edgePaths": {
+              "type": "object",
+              "title": "Record<string, readonly Point[]>"
+            }
+          },
+          "required": [
+            "nodePositions",
+            "edgePaths"
+          ],
+          "additionalProperties": false
+        },
+        "method.move.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "event": {
+              "$ref": "#/$defs/Move"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.move.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-01T20:13:59.392Z",
+  "models": {
+    "Point": {
+      "name": "Point",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Move": {
+      "name": "Move",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    x: number;\n    y: number;\n    edges: ReadonlyArray<Readonly<{\n        id: string | number;\n        pointsList: readonly Point[];\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | number;\n    x: number;\n    y: number;\n    edges: ReadonlyArray<Readonly<{\n        id: string | number;\n        pointsList: readonly Point[];\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowLayoutDocument": {
+      "name": "WorkflowLayoutDocument",
+      "jsdoc": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "jsdoc": "仅投影布局坐标与显式折线；历史业务属性、端点和未知成员均不用于图业务身份。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        nodePositions: Readonly<Record<string, Point>>;\n        edgePaths: Readonly<Record<string, readonly Point[]>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "move",
+              "jsdoc": "只改变本次节点坐标和明确关联边折线，其他对象及未知成员原样保留；调用方核对正式视图身份。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "Move",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

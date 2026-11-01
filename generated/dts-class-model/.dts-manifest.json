@@ -3974,7 +3974,7 @@
     "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.696Z"
+      "sourceModifiedAt": "2026-11-01T20:05:38.458Z"
     },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
@@ -4075,6 +4075,16 @@
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.803Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/layout-document.ts.json",
+      "sourceModifiedAt": "2026-11-01T20:13:59.392Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts.json",
+      "sourceModifiedAt": "2026-11-01T20:13:59.393Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
@@ -4819,7 +4829,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T19:54:04.024Z"
+      "sourceModifiedAt": "2026-11-01T20:12:17.976Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",

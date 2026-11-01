@@ -1,3 +1,4 @@
+import {WORKFLOW_LAYOUT_TABLE,WORKFLOW_LAYOUT_RESOURCE_ID,WORKFLOW_LAYOUT_COLUMNS,WORKFLOW_LAYOUT_VIEWS,WORKFLOW_LAYOUT_QUERY_PARAMETERS,createWorkflowLayoutExecutor} from '../structured-config/workflow-definition/layout-resource'
 import {RequestState, type DataColumn, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import type {LowcodeDesignApi, LowcodeDesignFileUpload, LowcodeFileDirectory, LowcodeFileEntry, LowcodeFileLocator} from '@spark-appworks/spark-lowcode-api'
 import {PROJECT_TOOL_VERSION_COLUMNS, PROJECT_TOOL_VERSION_QUERY_PARAMETERS, PROJECT_TOOL_VERSION_RESOURCE_ID, PROJECT_TOOL_VERSION_TABLE,
@@ -28,6 +29,11 @@ export type LowcodeFileResourceDefinition = Readonly<{
 
 /** Only file resources with a concrete query executor are offered by the data-space designer. */
 export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinition[] = Object.freeze([
+  Object.freeze({
+    tableName:WORKFLOW_LAYOUT_TABLE,resourceId:WORKFLOW_LAYOUT_RESOURCE_ID,label:'数据工作流布局',columns:WORKFLOW_LAYOUT_COLUMNS,
+    views:WORKFLOW_LAYOUT_VIEWS,queryParameters:WORKFLOW_LAYOUT_QUERY_PARAMETERS,
+    createExecutor:(input:Readonly<{api:LowcodeFileResourceApi;fileUpload?:WorkflowFileUpload;assertCurrent:()=>void}>)=>createWorkflowLayoutExecutor({api:input.api,assertCurrent:input.assertCurrent,fileUpload:input.fileUpload??{uploadWorkingText:()=>Promise.reject(new Error('WORKFLOW_LAYOUT_SAVE_OWNER: 未注入文件上传适配器'))}}),
+  }),
   Object.freeze({
     tableName: AGENT_WORKFLOW_FILE_TABLE,
     resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID,

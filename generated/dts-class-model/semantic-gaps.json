@@ -1,5 +1,5 @@
 {
-  "gapCount": 3357,
+  "gapCount": 3346,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -16959,111 +16959,6 @@
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "declarationLine": 14,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "module",
-      "className": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client",
-      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow-definition/design-client 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts"
-    },
-    {
-      "kind": "model",
-      "className": "WorkflowDefinitionDesignPayload",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDefinitionDesignPayload 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 6,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "WorkflowDefinitionDesignPayload",
-      "memberName": "workflowId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDefinitionDesignPayload.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 7,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "WorkflowDefinitionDesignPayload",
-      "memberName": "nodes",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDefinitionDesignPayload.nodes 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "WorkflowDefinitionDesignPayload",
-      "memberName": "connectors",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDefinitionDesignPayload.connectors 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 9,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "WorkflowDesignClient",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDesignClient 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 11,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "WorkflowDesignClient",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDesignClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 13,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "WorkflowDesignClient",
-      "memberName": "read",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDesignClient.read 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 14,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "WorkflowDesignClient",
-      "memberName": "write",
-      "reason": "missing-jsdoc",
-      "chainBreak": "WorkflowDesignClient.write 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
-      "declarationLine": 15,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow-definition/design-client.ts",
       "declarationKind": "class"
     },
     {
@@ -34396,17 +34291,6 @@
     },
     {
       "kind": "module",
-      "className": "app:lowcode/resources/structured-config/workflow-definition/design-ops",
-      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/design-ops",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/design-ops 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/design-ops.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/design-ops.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/design-ops.ts"
-    },
-    {
-      "kind": "module",
       "className": "app:lowcode/resources/structured-config/workflow-definition/resource",
       "moduleName": "app:lowcode/resources/structured-config/workflow-definition/resource",
       "reason": "weak-module-jsdoc",
@@ -34454,12 +34338,24 @@
     {
       "kind": "attribute",
       "className": "LowcodeWorkflowDefinition",
+      "memberName": "designScenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeWorkflowDefinition.designScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "attribute",
+      "className": "LowcodeWorkflowDefinition",
       "memberName": "catalogMetaName",
       "reason": "missing-jsdoc",
       "chainBreak": "LowcodeWorkflowDefinition.catalogMetaName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
-      "declarationLine": 7,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "declarationKind": "class"
     },
@@ -34471,7 +34367,7 @@
       "chainBreak": "LowcodeWorkflowDefinition.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "declarationKind": "class"
     },
@@ -34483,7 +34379,7 @@
       "chainBreak": "LowcodeWorkflowDefinition.loadEditor 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "declarationKind": "class"
     },
@@ -39724,28 +39620,6 @@
       "declarationFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel",
-      "moduleName": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel",
-      "moduleName": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue"
     },
     {
       "kind": "module",

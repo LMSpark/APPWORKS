@@ -1,7 +1,7 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient} from '@spark-appworks/spark-lowcode-api'
+import {LogicViewDesignClient, JsonDataContentClient} from '@spark-appworks/spark-lowcode-api'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
@@ -12,7 +12,6 @@ it('rejects a legacy Ajax business failure for every design write', async () => 
   vi.spyOn(http, 'post').mockResolvedValue({Code: 500, Message: '明确拒绝保存', Result: null})
   const writes = [
     () => new LogicViewDesignClient(http).write({viewId: 'V1', data: {}}),
-    () => new WorkflowDesignClient(http).write({workflowId: 'W1', nodes: [], connectors: []}),
     () => new JsonDataContentClient(http).save('J1', {}),
   ]
   for (const write of writes) await expect(write()).rejects.toThrow('明确拒绝保存')
@@ -56,26 +55,6 @@ describe('LogicViewDesignClient', () => {
     const broken = new StructuredCatalogHttp({})
     broken.post = async () => ({Code: 500, Message: '[500] 数据库连接失败', Result: null}) as never
     await expect(new LogicViewDesignClient(broken).read('V1')).rejects.toThrow('数据库连接失败')
-  })
-})
-
-describe('WorkflowDesignClient', () => {
-  const client = () => new WorkflowDesignClient(http)
-  it('read returns nodes and connectors', async () => {
-    const doc = await client().read('W1')
-    expect(doc.workflowId).toBe('W1')
-    expect(doc.nodes).toEqual([])
-  })
-  it('write posts workflow write URL', async () => {
-    await client().write({workflowId: 'W1', nodes: [], connectors: []})
-    expect(http.posts.some(p => p.url.includes('DataWorkFlowDesign/write'))).toBe(true)
-  })
-  it('defaults missing arrays on read', async () => {
-    const custom = new StructuredCatalogHttp({})
-    custom.post = async url => (url.includes('read') ? {Code: 200, Result: {}} : {Code: 200, Result: {}}) as never
-    const doc = await new WorkflowDesignClient(custom).read('W1')
-    expect(doc.nodes).toEqual([])
-    expect(doc.connectors).toEqual([])
   })
 })
 

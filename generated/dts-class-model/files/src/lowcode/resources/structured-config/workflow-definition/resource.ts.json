@@ -20,6 +20,7 @@
       "title": "LowcodeWorkflowDefinition",
       "properties": {
         "navigationScenarioId": true,
+        "designScenarioId": true,
         "catalogMetaName": true
       },
       "additionalProperties": false,
@@ -58,7 +59,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T18:49:08.530Z",
+  "generatedAt": "2026-11-01T19:54:04.024Z",
   "models": {
     "LowcodeWorkflowDefinition": {
       "name": "LowcodeWorkflowDefinition",
@@ -73,6 +74,11 @@
           "attributes": [
             {
               "name": "navigationScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designScenarioId",
               "readable": true,
               "writable": false
             },

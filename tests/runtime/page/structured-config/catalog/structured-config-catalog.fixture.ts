@@ -22,7 +22,6 @@ export class StructuredCatalogHttp extends HttpClientBase {
     this.posts.push({url, data})
     if (url.includes('GetView')) return Promise.resolve({Code: 200, Result: {data: {tables: []}}} as T)
     if (url.includes('ViewData/GetView')) return Promise.resolve({Code: 200, Result: {data: {nodes: []}}} as T)
-    if (url.includes('DataWorkFlowDesign/read')) return Promise.resolve({Code: 200, Result: {nodes: [], connectors: []}} as T)
     return Promise.resolve({Code: 200, Result: {}} as T)
   }
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {

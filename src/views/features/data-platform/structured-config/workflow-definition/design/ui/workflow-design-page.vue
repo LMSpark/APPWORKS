@@ -2,62 +2,133 @@
 @module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page
 -->
 <template>
-  <section class="structured-editor-page">
-    <header><h1>数据工作流设计</h1><p v-if="workflowId">工作流 ID：{{ workflowId }}</p></header>
+  <section class="workflow-design-page">
+    <header><h1>数据工作流设计</h1></header>
     <p v-if="loading" role="status">正在读取工作流设计…</p>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <template v-if="ready">
-      <WorkflowDesignNodePanel v-model="nodes" :disabled="busy" />
-      <WorkflowDesignEdgePanel v-model="connectors" :disabled="busy" />
-      <RendererButton label="保存设计" button-type="primary" :disabled="busy" @click="save" />
+    <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
+    <p v-if="missing" role="alert">当前工作流不存在</p>
+    <template v-if="ready && validTarget">
+      <RendererForm :data-view-key="definitionKey" :auto-columns="false" :show-data-view-meta="false">
+        <FieldText field="name" label="工作流名称" :readonly="true" />
+        <FieldText field="workflow_key" label="工作流编码" :readonly="true" />
+      </RendererForm>
+      <p role="status">节点新增归属尚缺正式模型合同；布局文件尚未接入，当前画布位置不保存。</p>
+      <p v-if="unconfirmed" role="status">保存结果尚未确认，请使用原保存入口核验，勿重复创建。</p>
+      <div class="workflow-workspaces">
+        <RendererGraph :data-view-key="nodesKey" :edge-data-view-key="edgesKey" label-field="name" description-field="description"
+          node-caption-field="node_type" edge-source-field="sourceID" edge-target-field="targetID"
+          :disabled="locked" :on-select="selectObject" background-pattern="dots" />
+        <aside>
+          <template v-if="selectedKind === 'node' && selectedNode">
+            <h2>节点配置</h2>
+            <RendererForm :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false">
+              <FieldText :data-view-key="nodesKey" field="name" label="节点名称" :readonly="locked" />
+              <FieldText field="description" label="节点描述" :readonly="locked" />
+              <FieldText field="node_type" label="节点类型" :readonly="true" />
+              <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
+              <FieldJson field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
+              <FieldJson field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
+              <FieldJson field="node_config" label="节点配置" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.config',value)" />
+              <FieldJson field="config" label="操作配置" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.operation',value)" />
+            </RendererForm>
+            <RendererButton :label="isUnconfirmed(nodesTable) ? '核验节点保存结果' : '保存节点'" :disabled="busy || pendingPart('nodes')" @click="save(nodesTable)" />
+            <RendererButton label="取消节点修改" :disabled="busy || unconfirmed" @click="cancel(nodesTable)" />
+          </template>
+          <template v-else-if="selectedKind === 'edge' && selectedEdge">
+            <h2>连线配置</h2>
+            <RendererForm :data-view-key="edgesKey" :auto-columns="false" :show-data-view-meta="false">
+              <FieldText field="name" label="连线名称" :readonly="locked" />
+              <FieldText field="description" label="连线描述" :readonly="locked" />
+              <FieldText field="sourceID" label="来源节点" :readonly="true" />
+              <FieldText field="targetID" label="目标节点" :readonly="true" />
+              <FieldJson field="params" label="输入参数映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('edges.params',value)" />
+            </RendererForm>
+            <RendererButton :label="isUnconfirmed(edgesTable) ? '核验连线保存结果' : '保存连线'" :disabled="busy || pendingPart('edges')" @click="save(edgesTable)" />
+            <RendererButton label="取消连线修改" :disabled="busy || unconfirmed" @click="cancel(edgesTable)" />
+          </template>
+          <p v-else>请选择节点或连线后编辑</p>
+        </aside>
+      </div>
     </template>
   </section>
 </template>
-
 <script setup lang="ts">
-import {computed} from 'vue'
-import {useRoute} from 'vue-router'
-import {RendererButton} from '@spark-appworks/spark-component'
-import {isRecord} from '@spark-appworks/spark-utils'
-import {WORKFLOW_DESIGN_INPUT, WORKFLOW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/workflow-definition/design-ops'
+import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
+import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
+import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
-import WorkflowDesignEdgePanel from './edge-panel/workflow-design-edge-panel.vue'
-import WorkflowDesignNodePanel from './node-panel/workflow-design-node-panel.vue'
-
-const route = useRoute()
-const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const workflowId = computed(() => typeof route.query['workflowId'] === 'string' ? route.query['workflowId'] : '')
-const {designView, loading, ready, busy, error, saveChanges, updateDesignField} = useStagedDesignPage({
-  pageId: 'workflow-design-page',
-  scenarioId,
-  scopeId: workflowId,
-  scopeInputTable: WORKFLOW_DESIGN_INPUT,
-  scopeField: 'workflowId',
-  designViewTable: WORKFLOW_DESIGN_VIEW,
-  loadDataSet: id => LowcodeWorkflowDefinition.loadEditor(id),
-  missingScopeMessage: '缺少 workflowId 参数',
-})
-const designDoc = computed((): {nodes?: unknown; connectors?: unknown} => {
-  try {
-    const parsed: unknown = JSON.parse(String(designView.value?.rows[0]?.['designJson'] ?? '{}'))
-    return isRecord(parsed) ? {nodes: parsed['nodes'], connectors: parsed['connectors']} : {}
-  } catch {return {nodes: [], connectors: []}}
-})
-function writeDoc(nodes: unknown, connectors: unknown): void {
-  updateDesignField(designView.value, 'designJson', JSON.stringify({nodes, connectors}, null, 2))
+const {PAGE_RUNTIME,RendererForm,RendererGraph,RendererButton,FieldText,FieldJson,useSparkComponent}=SparkComponent
+const props=defineProps<{rowid?:string}>(),route=useRoute()
+const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
+const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_WorkflowNodeDefinition',edgesTable='Base_WorkflowConnectors'
+const nodesKey=buildDataViewKey(nodesTable,'default',scene),edgesKey=buildDataViewKey(edgesTable,'default',scene),definitionKey=buildDataViewKey('Base_WorkflowDefinition','default',scene)
+const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
+const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
+let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,active=true
+const view=(table:string)=>dataSet.value?.getView(table)
+const views=computed(()=>Object.values(dataSet.value?.tables??{}).flatMap(table=>table.viewList))
+const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
+const missing=computed(()=>ready.value&&!validTarget.value)
+const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
+const busy=computed(()=>acting.value||loading.value)
+const unconfirmed=computed(()=>{revision.value;return views.value.some(v=>v.hasUnconfirmedSave)})
+const locked=computed(()=>busy.value||unconfirmed.value||loadedTarget.value!==workflowId.value)
+const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.size>0||views.value.some(v=>v.hasUnconfirmedSave||v.hasEditingChanges()||v.dirtyTracking.hasPendingChanges())})
+useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}})
+const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
+const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
+const queryError=computed(()=>{revision.value;return views.value.find(v=>v.loadingError)?.loadingError?.message??''})
+function pending(id:string,value:boolean):void{if(value)inputs.value.add(id);else inputs.value.delete(id)}
+function pendingPart(prefix:string):boolean{return [...inputs.value].some(id=>id.startsWith(prefix+'.'))}
+function validateJson(value:unknown):void{if(typeof value!=='string')throw new Error('配置必须是JSON文本');if(value.trim())parseJsonDocument(value)}
+function isUnconfirmed(table:string):boolean{revision.value;return view(table)?.hasUnconfirmedSave===true}
+function selectObject(event:SparkComponent.GraphSelection):void{
+ if(locked.value||hasPending.value){event.control.cancel=true;return}
+ const target=view(event.kind==='node'?nodesTable:edgesTable),row=target?.rows.find(row=>target.getPkKey(row)===event.id)
+ if(!row){event.control.cancel=true;return}
+ target?.setCurrentRow(row);selectedKind.value=event.kind;revision.value++
 }
-const nodes = computed({
-  get: () => designDoc.value.nodes ?? [],
-  set: value => writeDoc(value, connectors.value),
-})
-const connectors = computed({
-  get: () => designDoc.value.connectors ?? [],
-  set: value => writeDoc(nodes.value, value),
-})
-async function save(): Promise<void> {await saveChanges()}
+onBeforeRouteLeave(()=>!hasPending.value)
+onBeforeRouteUpdate(()=>!hasPending.value)
+defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
+watch(workflowId,async id=>{
+ if(hasPending.value){error.value='请先保存或取消当前工作流修改';return}
+ const own=++generation;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined;dataSet.value=undefined;ready.value=false;opening.value=true;selectedKind.value=undefined;error.value='';inputs.value.clear()
+ try{
+  if(!id.trim())throw new Error('缺少 workflowId 参数')
+  const page=new PageRuntime({pageId:'workflow-design-page',scenarioIds:[scene],scenarioInputs:{[scene]:{workflowId:id}},loadScenario:()=>LowcodeWorkflowDefinition.loadEditor(scene)})
+  runtime=page;await page.load();if(!active||own!==generation){page.dispose();return}
+  dataSet.value=page.getDataSet(scene);const ds=dataSet.value,definition=view('Base_WorkflowDefinition')
+  if(!ds||!definition||!view(nodesTable)||!view(edgesTable))throw new Error('工作流正式设计视图缺失')
+  const changed=()=>revision.value++
+  off=ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
+  await definition.refresh();if(definition.loadingError)throw definition.loadingError
+  if(!active||own!==generation)return
+  if(definition.rows.length>1)throw new Error('工作流身份不唯一')
+  loadedTarget.value=id
+  if(definition.rows.length===1){sparkProvide(PAGE_RUNTIME,page);await Promise.all([view(nodesTable)!.refresh(),view(edgesTable)!.refresh()])}
+  if(active&&own===generation)ready.value=true
+ }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation)opening.value=false}
+},{immediate:true})
+async function save(table:string):Promise<void>{
+ if(busy.value||loadedTarget.value!==workflowId.value)return
+ const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
+ acting.value=true;error.value=''
+ try{const result=await ds.saveChanges({views:[{tableName:table,viewId:'default'}]});if(!result.success)throw new Error(result.message??'保存未完整确认')}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function cancel(table:string):void{if(busy.value||unconfirmed.value)return;try{view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
+onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
-
 <style scoped>
-.structured-editor-page { display: grid; gap: 12px; padding: 24px; }
+.workflow-design-page{display:grid;gap:12px;padding:24px}
+.workflow-workspaces{display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:560px;gap:20px}
+.workflow-workspaces aside{min-width:0}
 </style>

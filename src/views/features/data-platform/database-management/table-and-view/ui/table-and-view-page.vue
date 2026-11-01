@@ -565,6 +565,15 @@ const dbToolbar = computed<RToolbarProps>(() => {
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
 })
+function syncSelectedTableCurrentRow(): void {
+  const tables = tableView.value
+  if (!tables || tables.getSelectedValues().length !== 1) return
+  const id = tables.getSelectedValues()[0]
+  const row = tables.rows.find(item => tables.getPkKey(item) === id)
+  if (!row || tables.currentRow === row) return
+  tables.setCurrentRow(row)
+}
+
 const tableToolbar = computed<RToolbarProps>(() => {
   revision.value
   const tables = tableView.value
@@ -583,7 +592,7 @@ const tableToolbar = computed<RToolbarProps>(() => {
     {type: 'r-button', props: {
       label: '表设计',
       disabled: busy.value || !selectedTableLabel.value,
-      onClick: () => { tableDesignOpen.value = true; viewDesignOpen.value = false },
+      onClick: () => { syncSelectedTableCurrentRow(); tableDesignOpen.value = true; viewDesignOpen.value = false },
     }},
     {type: 'r-button', props: {
       label: '复制',
@@ -1547,6 +1556,7 @@ const chooseTable: NonNullable<RTableProps['onRowClick']> = async (...args) => {
   const current = () => active && own === selectionGeneration && dataSet.value === ds
   viewView.value?.setSelectedRows([])
   view.setSelectedRows([original])
+  syncSelectedTableCurrentRow()
   revision.value++
   try {
     await refreshFields()

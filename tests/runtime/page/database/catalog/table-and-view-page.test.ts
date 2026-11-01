@@ -1087,6 +1087,30 @@ describe('table-and-view-page', () => {
     expect(wrapper.text()).toContain('保存')
   })
 
+  it('shows table properties when the selected table has no current row', async () => {
+    const load = vi.spyOn(LowcodeDatabaseTableView, 'loadCatalog')
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    const dataSet = await load.mock.results[0]?.value
+    expect(dataSet).toBeTruthy()
+    await selectDatabase(wrapper)
+    const tables = dataSet.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')
+    expect(tables).toBeTruthy()
+    const orders = tables!.rows.find(row => row['tblname'] === 'Orders')
+    expect(orders).toBeTruthy()
+    tables!.setCurrentRow(null)
+    tables!.setSelectedRows([orders!])
+    expect(tables!.currentRow).toBeFalsy()
+    await flushPromises()
+    await pageButton(wrapper, '表设计').trigger('click')
+    await flushPromises()
+    const designDialog = findTableDesignDialog('Orders')
+    expect(designDialog).toBeTruthy()
+    const formText = designDialog!.find('.el-form').text()
+    expect(formText).toContain('表名')
+    expect(formText).toContain('中文名')
+    expect(formText).toContain('功能描述')
+  })
+
   it('shows the reference design-tab fields present on the catalog model', async () => {
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     const designDialog = await openTableDesignOnTable(wrapper, 'Orders')

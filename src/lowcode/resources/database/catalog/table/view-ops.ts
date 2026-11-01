@@ -18,10 +18,10 @@ function formalField(view: DataView, name: string): string | undefined {
   return view.columns.find(column => column.name.toLowerCase() === wanted)?.name
 }
 
-function rowScalar(row: DataRow, name: string): string {
-  if (Object.hasOwn(row, name)) return scalar(row[name])
-  const key = Object.keys(row).find(item => item.toLowerCase() === name.toLowerCase())
-  return key ? scalar(row[key]) : ''
+function rowScalar(record: DataRow, name: string): string {
+  if (Object.hasOwn(record, name)) return scalar(record[name])
+  const key = Object.keys(record).find(item => item.toLowerCase() === name.toLowerCase())
+  return key ? scalar(record[key]) : ''
 }
 
 function boundCreateFields(view: DataView): readonly string[] {

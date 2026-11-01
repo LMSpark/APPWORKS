@@ -13,7 +13,7 @@
       <RendererTabs v-model="activeTab">
       <RendererTabPane name="design" label="设计" :index="0">
         <RendererForm v-if="objectMetaKey" :data-view-key="objectMetaKey" context-data-member="currentRow"
-          :children="objectHeaderChildren" :auto-columns="false" :grid-columns="1" :show-data-view-meta="false"
+          :children="objectHeaderChildren" :auto-columns="false" :show-data-view-meta="false"
           :form-props="{disabled: busy}" />
         <RendererTable :data-view-key="fieldKey" :children="fieldChildren" :toolbar="toolbar" :stripe="true"
           :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />

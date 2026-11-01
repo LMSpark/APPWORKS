@@ -87,9 +87,9 @@
 
 **表和视图设计与对话框（已提交）。** 表设计页签表头绑定正式列：表名、中文名、物理删除 `PhysicsDel`、默认字段 `hasDefaultFields`、多租户 `multiTenancy`、可见(自动脱敏) `IsVisible`、功能描述 `functiondesc`。摘要表达式 `Expression` 不在参考设计页签，已从表头去掉。字段网格按参考页列名，补上模型已有的是否自增长 `isGrowth`、别名 `AsName`。`table-and-view-page.test.ts` 与 `table-view-ops.test.ts` 共 106 通过。实页 `PX` / `customer` 表头和字段表头可见，默认字段与多租户为选中。关系页签有主表、从表、关系名称、级联删除，当前表无关系行、无报错。数据页签当时被看成空预览，随后证实是字段合同错误，见下条。数据流页签未出现：本空间未装配 `Base_WorkflowDefinition`。脱敏规则、加密字典、字段类型字典同样未装配，对应列仍是文本。`PX` 下视图列表为空，视图设计未打开。注册未登记表被服务拒绝：数据源不认识名为 `PX` 的库；正式行只有 `Name` 和 `ServerName`，没有另一套库名。新增原先写入 `schemaName`，正式列是 `SchemaName`，对话框因此打不开；现按正式列名写入。实页打开新增后取消，待增行已丢弃，表仍是 11 张。复制对话框打开（源表 customer），未保存。删除确认打开后取消，`customer` 仍在。没有点保存、同步元数据、注册确认、复制保存或删除确认。主列表字段区和工具栏改行内操作仍未做。
 
-**表设计数据页（已提交）。** 物理表预览按参考仓线合同：`Fields` 为 `Name`、`Description`、`FieldType`、`IsOutput`、`AsName`、`IsPKey`、`Order`，没有字段时仍带空数组。`DbName` 与 `DbId` 都是数据库 ID，主键仍在 `PrimaryKeyFields`。目录上的 `IsVisible` 保存往返已删除。只有错误匹配公开查询基线或 `IsVisible=1` 时，同一请求体改打 `SysGetData`；其它错误不改道。`preview-view-ops.test.ts` 与 `table-and-view-page.test.ts` 共 91 通过。上一轮实页 `PX` / `customer` 的 `Unknown database 'PX'` 仍是服务端连接缺口，正式行只有 `Name` 和 `ServerName`，本轮不猜库名。
+**表设计数据页（已提交）。** 物理表预览按参考仓线合同：`Fields` 为 `Name`、`Description`、`FieldType`、`IsOutput`、`AsName`、`IsPKey`、`Order`，没有字段时仍带空数组。`DbName` 与 `DbId` 都是数据库 ID，主键仍在 `PrimaryKeyFields`。目录上的 `IsVisible` 保存往返已删除。只有错误匹配公开查询基线或 `IsVisible=1` 时，同一请求体改打 `SysGetData`；其它错误不改道。`preview-view-ops.test.ts` 与 `table-and-view-page.test.ts` 共 91 通过。上一轮实页 `PX` / `customer` 的 `Unknown database 'PX'` 仍是服务端连接缺口，正式行只有 `Name` 和 `ServerName`，本轮不猜库名。2026-11-01 22:36 开发日志三次都是 `DatabaseTablePreviewRows@default` 的 `[500] 数据源连接测试失败（已重试 3 次）…根因：Unknown database 'PX'`，栈在 `databaseCatalogPreviewRefresh` 的 `setPageSize`、`setPage`、`refresh`。只读对照 `CrudServiceImpl.testAndInitDataSource`：JDBC 库名用 `DbInfo.getName()`，即登记名 `PX`。前端线合同不改，Java 不改。
 
-**表设计对话框层次（已提交）。** 页签改为「设计 / 关系 / 数据流 / 数据」，宽度 1600。表头和字段表都在「设计」里，取消与保存在页签右侧，去掉「物理表」行、「未装配」说明和底部「关闭」。数据流模型未装配时页签仍在，空表，不发查询。数据页列来自字段目录的 `enname` / `cnname`，失败时提示「加载数据预览失败」并清空行，不再用 `rowid` 和传输错误原文充当数据页。字段工具栏保留「同步元数据」。参考页的新建、查看系统字段、一键加描述、编码设计、AI填表、属性设置、多租户配置，以及关系页的自引用、分组表头和筛选，这次没做。`table-and-view-page.test.ts` 80 通过。
+**表设计对话框层次（已提交）。** 页签改为「设计 / 关系 / 数据流 / 数据」，宽度 1600。表头和字段表都在「设计」里，取消与保存在页签右侧，去掉「物理表」行、「未装配」说明和底部「关闭」。数据流模型未装配时页签仍在，空表，不发查询。数据页列来自字段目录的 `enname` / `cnname`，失败时提示「加载数据预览失败」并清空行，不再用 `rowid` 和传输错误原文充当数据页。字段工具栏保留「同步元数据」。参考页的新建、查看系统字段、一键加描述、编码设计、AI填表、属性设置、多租户配置，以及关系页的自引用、分组表头和筛选，这次没做。`table-and-view-page.test.ts` 80 通过。表属性表单绑当前行；只选中表、当前行为空时字段不渲染。选表和打开「表设计」时把唯一选中行设为当前行，表头七项按 24 列排成一行。`table-and-view-page.test.ts` 81 通过。多租户配置仍不做。
 
 **布局组件数据合同仍缺（登记为实现差距，非标准例外）。** `RendererSpace`、`zones/RendererEditor`、`create-passthrough.ts` 生成的透传组件、浮层组件（Popover、Tooltip、Dropdown、Popconfirm、Tour）、`Anchor`、`Link`、`Divider`、`FullscreenDialog`、`RendererCollapse` 父组件。这些组件没有 `LayoutDataContextProps`，子节点只能继承外层上下文。
 
@@ -97,7 +97,7 @@
 
 **2026-11-01 只读烟测。** 证据 [spa-chain.txt](evidence/whole-repo-smoke-20261101/spa-chain.txt)。已知断链的查询身份已补进上表。新断链两条：逻辑视图“打开设计”路由未匹配；数据库“管理”报 alias 导航身份不匹配。设计对话框复验：打开时“设计”禁用，关闭可用；已选模型下绑定显示模型名，没有自由输入“绑定表名”。没有新的业务写入。同日页头改为使用导航树标题：该应用显示「SPARK · 软件工坊[AppWorks]」，应用工场仍是「SPARK 应用工场」；卡片列宽未改。逻辑视图设计路由已挂上：打开设计进入设计页并带上当前列表节点。`GetView` 的 `viewId` 改为查询参数后，视图 `106F4CD4…` 返回文件不存在；只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl`/`JsonDataServiceImpl` 确认这是“目录记录存在、从未保存设计 JSON”的合法状态（后端缺少与 `getJsonData` 同构的空结果处理），前端 `LogicViewDesignClient.read()` 已识别该具体拒绝消息并返回空白设计，设计页不再报错；未执行保存。
 
-**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”已提交：同模块目标是 `A8FB`，别名校验不再比较对象引用。步骤条数据上下文已提交。表和视图目录列表、设计页签、数据页和对话框层次已提交。主列表字段区与工具栏改行内操作仍留在后面。下一项仍是布局组件合同里的 `RendererSpace`，排在页面轮之前。其后按原队列第 4–12 轮执行。
+**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”已提交：同模块目标是 `A8FB`，别名校验不再比较对象引用。步骤条数据上下文已提交。表和视图目录列表、设计页签、数据页和对话框层次已提交。2026-11-01 登录后选中 `px_customer` 再点字段「刷新」，目录返回 `rowid`、`address`、`customer_id` 等行，页面没有 `Network Error`，开发日志没有 `Base_TblField` 的 `requestData 失败`。主列表工具栏改行内操作仍留在后面。预览连接缺口保持。下一项仍是布局组件合同里的 `RendererSpace`，排在页面轮之前。其后按原队列第 4–12 轮执行。
 
 ### 2026-10-29 新会话接续摘要（目标不变，交接完成，本会话执行中）
 
@@ -4255,3 +4255,58 @@ flowchart TD
 - **预览实际请求：**表预览发送 `Type=数据库表`、`DbId`/`DbName`、物理 `Name`、目录字段拼出的 `Fields` 与 `PrimaryKeyFields`；视图预览发送 `Type=数据库视图` 且主键固定 `rowid`。两者都是 `http.post('/api/DataOperation/GetData')`。`parseGetDataPage` 本地取 `Items`/`Count`。`readonlyQueryResult` 按返回键在本地合成只读 `fieldAccess`，不消费服务端字段权限。预览视图由 `ensureDataSetFileCommandView` 建成 file 资源，没有正式模型绑定。
 - **裁决：**把物理表名或视图名填进 `metaName` 会把物理资源名当成已注册模型。正式请求也带不上 `DbId`。现有查询合同表达不了这次预览。本轮不改产品、不新增协议、不伪造模型名、不改 Java。目录整理与登录/缓存/租户接口不在本片。
 - **仍缺：**任意物理表/视图的正式模型身份（数据空间、模型 Name、来源库与物理名的稳定对应）、服务端字段权限回执、以及经 `DataSpaceQueryContext` 校验的分页总数。这三项齐备前，预览执行器保持现状。
+
+### 2026-11-01 全架构数据链烟测与循环修复（目标计划，持续进行）
+
+- **目标与边界：**梳理全部架构，通过真实烟测定位数据断链，对照参考仓业务链路及本仓 DataSet → DataTable → columns/views 合同寻找解决方案，修复后继续烟测，直到范围内全部验收通过。目标不缩减为测试变绿或单个底座补丁。用户已确认参考源为 `E:/r/sparkproject/packages/ui/domain/metadata/src`，本次读取时 HEAD 为 `d6beb34c405fe385ea9c9f498f814f8aee2125a0`；旧 `58c1e2605` 对象和 apps/appworks 不存在，不再用旧来源记录证明当前业务。用户明确不改后端代码；不启动、部署或修改本地 Java，实际服务能力缺口保留为未通过项。权限专题仍遵守0.3的暂缓范围，既有守卫不放宽。
+- **工作状态：**目标 active；当前完成基线调查和入口清点，实施方案待审。只维护本台账的统一计划及差距，不另起并行总计划，不自动提交、推送、建分支或删除用户文件。当前基线 HEAD `5a03336e1`；两个原有未跟踪文件 `src/composables/useProjectRouter.ts`、`tests/runtime/auth-nav/application-scope.test.ts` 保留。上一轮创建的 `ignored/cache/architecture-smoke-20261101` 实际没有被Git忽略，暂不提交；后续证据使用已忽略的 `artifacts/data-chain-smoke/`。
+
+#### 架构与完整验收范围
+
+| 层次 | 当前源码入口与责任 | 必验输出 |
+| --- | --- | --- |
+| 宿主与导航 | src/main.ts、src/lowcode/lowcode-runtime.ts、src/registries/vue-page-registry.ts；仓内应用由 config/applications/appworks.json 与 config/navigation/appworks-system.json 声明 | 应用/导航节点/工具/场景身份一致，保留原URL，切换不借旧数据与写入身份 |
+| 页面运行 | spark-app系统页身份与动态路由、spark-project-model的PageRuntime及PageTool | Vue系统页及三文件工具均使用本次运行DataSet，绑定释放和重开正确 |
+| 场景装配 | src/lowcode/data-space/lowcode-data-space-runtime.ts及assembler；数据库正式模型+仓内/远程pagedata | 正式模型名称/ID/空间归属、字段唯一、定义与运行状态分离，不以空数据兜底装配失败 |
+| 数据与组件 | spark-data查询/编辑/取消/保存，spark-component统一绑定 | 完整视图键、分页/过滤/选择/字段编辑、取消恢复、异步换目标与既有权限守卫 |
+| 持久与服务 | spark-lowcode-api查询及保存执行器、文件资源适配、实际服务 | 数据库与文件分别核回执、精确回读、重开与下游消费；明确失败/部分成功/未知结果 |
+| 设计与AI | 开发工作台、ProjectWorkspace、场景定义DataView、spark-ai/ClassModel | 设计结果可被运行页面及AI正式消费，附件引用/正文消费等未证实项保持开放 |
+
+- **入口清点：**当前蓝图85条记录，固定发布26节点，其中18条有URL；全部蓝图42条有URL，另24条未发布URL对应页面源码/注册缺失。当前Vue注册37条，覆盖公开/目录/应用页及隐藏编辑器。机器清单为 `artifacts/data-chain-smoke/navigation-matrix.json` 与 `page-registry-matrix.json`。这只是静态清点，各烟测列均为not-run，不能计作通过。未发布缺页与现有发布入口断链分开登记；权限/角色等暂缓合同不因本轮全仓调查自动变成恢复任务，其他参考语义差距须逐项核定而非静默排除。
+- **每页统一验收列：**进入与真实读取 → 分页/过滤/选择 → 打开配置/维护及字段联动 → 编辑与取消 → 保存及精确回读 → 刷新重开 → 下游运行消费 → 目标/应用切换与迟到响应 → 失败/部分成功/未知结果。不适用项必须说明业务依据；未运行、模拟夹具和线上结果分别记录。
+
+#### 实施顺序及修复方案
+
+1. **恢复可信基线：**两份未跟踪文件错误引用parseApplicationPath，而正式函数为parseApplicationPathScope。仅修正这两个文件的导入及调用，保留内容，不在公共API加旧名兼容出口。完整影响面为同一应用路径解析器、useApplicationRouter及现有navigation/application-scope测试。先类型，再相关lint与路由测试；不把这项称作业务数据链已修复。
+2. **建立可复现烟测环境：**确认5273已有Vite进程的存活及HTTP响应后复用，不重复启动。认证优先复用授权会话；本轮已核已知DPAPI路径不存在，不猜密码、不记录凭据。浏览器URL策略错误只表示该工具不可用，不能拿协议烟测代替UI验收。获得实际会话后先只读跑完18个发布URL及目录/工作台，再按页面选择已授权的可恢复写入目标。
+3. **优先恢复完整目录页面：**应用目录、数据空间目录与设计作为跨页身份/模型来源样板；随后字典、编码、逻辑视图、工作流、JSON/Excel/PDF、数据库/表视图/外部服务及工作台。对每页完整读取参考UI→metadata-api→实际查询保存参数，再落到本仓正式模型、视图配置及存储适配。修复入口/场景缺失时补真实配置与正式绑定，不能删除来源守卫、回退首空间或把物理名当模型名。每个页面的具体改动文件、ClassModel查询与失败证据追加本节后再实施；真实公共缺口在原公共链补齐，删除被替代的页面逻辑。
+4. **循环核销：**一轮烟测的所有新发现归入同一差距表，按根因分为身份/配置/元数据/绑定/查询/编辑取消/持久/下游/服务缺口；针对性RED→修复→相关回归→真实页面复烟测。未完成的完整页面保留开放，不以局部绿灯结题。受服务或账号限制时继续其他可验证项。
+5. **最终审计：**所有有效范围页面及共用运行链均有当前证据，typecheck/lint/适用根与包测试/verify/build通过；公共声明改动先正式generate:class-model-surface再查ClassModel并验证。所有写入有同目标回读、重开和下游证据，全部开放项核销后才标目标complete；未发布语义差距、暂缓专题和真实外部阻塞须逐项裁决，不能隐去。
+
+#### 本轮已获证据与待核项
+
+| 项目 | 当前证据 | 状态/下一动作 |
+| --- | --- | --- |
+| 全量根测试 | ignored/cache/architecture-smoke-20261101/tests.json：7153项，7151 passed / 2 failed / 0 pending，success=false | 未通过；JSON suite数量含分组，不能当作文件数 |
+| 类型基线 | verify.log：两份未跟踪文件TS2724，parseApplicationPath未导出 | 根因已确认；按上面第1项修复，原verify未进入lint/rules |
+| 设计页参数异步 | 全量失败项；parameter-repro.log单独复跑1文件5项全通过，目标迟到响应项2681ms | 尚非稳定产品缺陷；保留全量失败与单跑证据，不靠放大超时伪造通过 |
+| 外部服务/应用列表场景 | loadLowcodeRuntimeScenario对系统应用只接收四个已登记场景；外部服务页面取导航conid=8CBB…并调用该入口，应用列表同类分支使用0C70… | 源码确认入口断链；本轮还未在线复现。需对照参考模型和现有正式目录owner，不直接添加臆造模型配置 |
+| 编码/工作流/Excel/PDF模型 | 10-31历史SPA曾报模型必须唯一且属于当前空间 | 历史线索，今天未复核，禁止称当前服务已缺模型 |
+| 数据空间目录关联应用 | 本仓catalog通过apps视图只按可读身份解析名称；历史响应显示空间行sysid不在应用选项结果内 | 需实测两视图查询范围及权限，不能补写假的应用名称 |
+| 环境 | 启动尝试报5273已占用；已发现PID19092的Vite命令属于D工作树；连接表有存量连接但未见监听，尚未稳定验证HTTP | 环境未通过；不停止未知会话进程，不以进程存在认定服务健康 |
+| 认证/浏览器 | 已知DPAPI凭据文件Test-Path=false；上轮CU无法可靠确认当前URL而停止 | 在线读写与UI烟测未完成；不报告保存/重开通过 |
+
+- **兼容及风险：**保留当前正式数据库记录与配置真源，不为修目录重新造模型、不自动清孤立记录；数据库与pagedata不承诺跨来源事务。参考代码中的角色逻辑、直接HTTP和本地数组只是原实现事实，不作为本仓目标实现。修复公开合同须核全部消费者；测试绿不等于真实数据正确。
+
+#### 参考主线纠偏（同日用户指定 APPWork APP）
+
+- **审批：**用户已明确“通过，按计划循环实施”，整体计划状态approved→implementing；由当前助手在D工作区内实施，不另开分支，不自动提交推送。按计划先修两份未跟踪文件的旧解析函数引用；既有失败类型检查及根测试为RED依据。
+
+- 用户最新指定以参考仓 APPWork APP 为主线，覆盖上文暂以metadata目录为参考的决定。只读抓取远端 `codex/correct-single-web-20260917` 后，确认提交 `1147b00ee53a1476d4ee715c61368b453a215192` 保留 `apps/appworks`，package名称 `@spark-template/appworks-app`，sparkEntry.name=AppWorks。未切换或改动参考工作区源码。此前“旧APP不存在”只适用于当时本地对象和工作区，不能推广到远端。
+- 正式对照源固定为该提交的 `apps/appworks/src/ui/`、`src/data/`、`src/runtime/`及其根运行宿主；当前metadata目录只作旁证。外部服务参考owner `src/data/api/APIManage/APIManage.ts` 为 `AppWorksApiProviderCatalog`：调用方传唯一scenarioId，正式模型为Base_InterfaceProvider，修改人查同场景Base_UserInfo；查询/保存/remove经requireRootSparkRuntime().api，不能将参考页面私有数组/姓名替换照搬为本仓数据真源。后续须完整核本页操作及两类子编辑器，再与本仓同路径页面和场景配置对照。
+- 本仓结构和限制优先：参考链路提供业务语义与输入输出，本仓仍经SPARK data和标准组件；不改后端代码、不照搬参考APP宿主或另建请求链。目标计划的范围和循环验收保持不变。
+- **新增可核差异：**参考APP的DataCode.ts声明正式模型`Base_CodeDesign`，字段`Name/CodeDescription/CodeExample/createtime/AppID/BusTableRowid`，查询限定当前应用AppID；本仓LowcodeDataCode却声明`_Base_CodeDesign`，目录绑定`CodeName/functiondesc/crttime`并未表达同一应用过滤。此为源码不一致证据，不能直接证明实际服务哪份正确。需连读参考DataCodeEdit与本仓design-ops、正式模型响应，统一目录/编辑/保存/重开/运行消费者后修复，不能仅改一个字符串或伪造字段映射。
+- **外部服务完整范围：**参考APP目录通过交付上下文传入场景；接口子页场景为`EC84BD89BDBDF46B1FE5132DD53836E5`，基础配置子页为`446B5D94A71587E9BD4D325A4DF5F6F8`。须核本仓两类子页如何传递场景/服务商身份及各自正式模型，不能仅让目录显示数据即核销整页。
+- **基线推进：**两份旧函数引用已改用parseApplicationPathScope，typecheck exit0、目标ESLint exit0、应用范围及场景加载3文件38项通过。37个注册Vue模块经5274实际Vite返回HTTP200；仅为模块加载证据，不是UI/业务验收。全仓verify随后在既有table/view-ops.ts的rowScalar参数row遮蔽同文件row函数处被lint阻断；本次仅将该参数及函数体引用改名record，不改注册/保存逻辑，按基线门禁修正登记，补相关回归，不借机修改其他行为。
+- **实际认证与只读服务烟测：**用户本轮提供了已授权测试登录；公开企业目录确认显示名“领码科技”对应登录域NewApp，按正式域登录成功。凭据/令牌只在内存和子进程stdin使用，不保存到文件。`artifacts/data-chain-smoke/live-model-read.json`由当前源代码DataSpaceApi/运行查询owner实服读取，writeRequests=0：编码场景4模型含Base_CodeDesign，正式查询返回84条；_Base_CodeDesign报当前空间未找到模型；外部服务目录2模型、基础配置7模型、接口10模型、应用列表14模型均可读。因此“后端缺这些模型”的推断已被否定，主修前端绑定/配置登记。这里只证明查询合同，未完成实际UI编辑/保存/重开。
+- **编码设计空间断链：**参考APP编辑器使用独立`868E62F90DB8118C74CDC9F6BCA61157`，业务表选择器使用`34BDBE645F461A3D83282A941D6037F4`；本仓编辑页沿用目录导航场景且只维护CodeName、六个规则弹窗仍为关闭占位。完整恢复须连同独立设计空间/主记录/节点/规则及业务表选择器核定，不把目录修复当作整页完成。

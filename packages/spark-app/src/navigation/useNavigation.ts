@@ -515,7 +515,6 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
         void router.push(targetPath)
         return
       }
-      const target = resolveNavNodeRuntimeTarget(identityNode)
       const matchingNodes: RuntimeNavigationItem[] = []
       const visit = (nodes: readonly RuntimeNavigationItem[]) => {
         for (const node of nodes) {
@@ -524,13 +523,14 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
         }
       }
       visit(navRoot.items)
-      const formalPath = target.kind === 'route' ? addApplicationPrefix(target.path) : ''
+      const owner = matchingNodes.length === 1 ? matchingNodes[0] : undefined
+      const target = owner === undefined ? undefined : resolveNavNodeRuntimeTarget(owner)
+      const formalPath = target?.kind === 'route' ? addApplicationPrefix(target.path) : ''
       const aliasOf = resolvedAlias.aliasOf
       if (aliasOf === undefined) throw new Error('系统页面 alias 缺少正式目标路由')
       const canonicalPath = aliasOf.path
-      if (matchingNodes.length !== 1 || matchingNodes[0] !== identityNode || target.kind !== 'route'
-        || target.routeKind !== 'page' || normalizeComparablePath(formalPath.split(/[?#]/, 1)[0] ?? '')
-          !== normalizeComparablePath(canonicalPath)) {
+      if (owner === undefined || target?.kind !== 'route' || target.routeKind !== 'page'
+        || normalizeComparablePath(formalPath.split(/[?#]/, 1)[0] ?? '') !== normalizeComparablePath(canonicalPath)) {
         throw new Error('系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配')
       }
       if (resolvedAlias.name === undefined) throw new Error('系统页面 alias 缺少正式命名路由')

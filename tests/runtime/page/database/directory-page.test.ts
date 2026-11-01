@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-router'
-import {defineComponent, h} from 'vue'
+import {defineComponent, h, reactive} from 'vue'
 import ElementPlus from 'element-plus'
 import {RendererDialog, RendererForm, RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {NAV_KEY, useNavigation, type NavigationContext, type RuntimeNavigationItem} from '@spark-appworks/spark-app'
@@ -603,6 +603,49 @@ describe('database directory page', () => {
     expect(targetInstance?.instanceId).not.toBe(directoryInstance?.instanceId)
     expect(targetRoute.query['databaseId']).not.toBe(selectedTarget.blueprintScenarioId)
     expect(targetRoute.query['databaseId']).not.toBe(DATABASE_TABLE_VIEW_SCENARIO_ID)
+  })
+
+  it('opens the table view when the shell navigation is a reactive copy of the raw tree', async () => {
+    const source = {...directoryNode, blueprintScenarioId: DATABASE_TABLE_VIEW_SCENARIO_ID}
+    const selectedTarget = {...tableViewNode, id: 'A8FB2B2B161125A16FD15ED9581CD15B', blueprintScenarioId: 'target-selected-space'}
+    const items = [{...directoryModule, children: [source, selectedTarget]}] as RuntimeNavigationItem[]
+    mocks.navItems.splice(0, mocks.navItems.length, ...items)
+    const navRoot = {title: 'Root', childPlacement: 'sidebar' as const, items}
+    const router = createRouter({history: createMemoryHistory(), routes: []})
+    const routePush = vi.spyOn(router, 'push')
+    const componentMap = await buildComponentMap()
+    const dynamic = createDynamicRouter({router, pageComponent: DatabaseDirectoryPage, componentMap: {
+      ...componentMap,
+      '/DataBaseManage/DataBaseManage/index': DatabaseDirectoryPage,
+    }, componentAliases: getVuePageRouteAliases(), loadNavigation: async () => navRoot})
+    dynamicHosts.push(dynamic)
+    await dynamic.registerRoutes()
+    const shell = reactive<typeof navRoot>({title: '', childPlacement: 'sidebar', items: []})
+    shell.title = navRoot.title
+    shell.childPlacement = navRoot.childPlacement
+    shell.items = navRoot.items
+    let navigationContext: NavigationContext | undefined
+    const root = defineComponent({setup() {
+      navigationContext = useNavigation(shell)
+      return () => h(RouterView)
+    }})
+    const wrapper = mount(root, {attachTo: document.body,
+      global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+    wrappers.push(wrapper)
+    navigationContext!.navigateTo(source)
+    await flushPromises()
+    await flushPromises()
+    const page = wrapper.findComponent(DatabaseDirectoryPage)
+    await selectRow(page.findAllComponents(RendererTable)[1]!)
+    await pageButton(page, '管理').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(page.text()).not.toContain('系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配')
+    expect(routePush).toHaveBeenCalledWith(expect.objectContaining({
+      query: expect.objectContaining({databaseId: 'DB1', __sparkNavigationId: 'A8FB2B2B161125A16FD15ED9581CD15B'}),
+    }))
+    expect(router.currentRoute.value.meta['nodeId']).toBe('A8FB2B2B161125A16FD15ED9581CD15B')
+    expect(router.currentRoute.value.query['databaseId']).toBe('DB1')
   })
 
   it('refuses duplicate targets within the current host branch', async () => {

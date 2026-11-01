@@ -23,6 +23,9 @@ AI用途：通过r-json form模式编辑配置，复用外层字段权限、草�
         <JsonObjectForm v-if="member.schema.type === 'object'" :model-value="JSON.stringify(value(member.name) === undefined ? {} : value(member.name))"
           :schema="member.schema" :read-only="readOnly" :busy="busy || committing" :commit="text => write(member.name, parseJsonDocument(text))"
           @editing-change="value => childEditing.set(member.name, value)" />
+        <JsonDataViewChoice v-else-if="Object.hasOwn(member.schema, 'x-optionDataViewKey')" :model-value="value(member.name)"
+          :option-data-view-key="typeof member.schema['x-optionDataViewKey'] === 'string' ? member.schema['x-optionDataViewKey'] : ''"
+          :label="member.schema.title || member.name" :disabled="locked" @update:model-value="write(member.name, $event)" />
         <el-select v-else-if="arrayChoices(member.schema).length && scalarArray(member.name)" multiple
           :model-value="value(member.name)" :disabled="locked" :aria-label="member.schema.title || member.name" :persistent="false"
           placeholder="未配置" @update:model-value="write(member.name, $event)">
@@ -57,6 +60,7 @@ AI用途：通过r-json form模式编辑配置，复用外层字段权限、草�
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import JsonDataViewChoice from './JsonDataViewChoice.vue'
 import {asJsonValue, isJsonObject, parseJsonDocument, type JsonSchemaObject, type JsonValue} from '@spark-appworks/spark-json-document'
 
 const props = defineProps<{

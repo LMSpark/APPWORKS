@@ -1,0 +1,21 @@
+{
+  "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+  "tables": {
+    "Base_WorkflowDefinition": {
+      "modelBinding": {"modelId": "b51532e2-5193-4f65-a24b-0ce9fcd205c8", "modelName": "Base_WorkflowDefinition"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "name", "workflow_key", "description", "status", "version", "timeExp", "tblName", "tableOperate", "filter", "dbName", "tblid", "activeType", "sysid", "createtime", "updatetime"]},
+        "sortExpression": [{"field": "rowid", "direction": "asc"}]
+      }}
+    },
+    "workflowStatus": {
+      "modelBinding": {"modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5", "modelName": "workflowStatus"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "queryConfig": {"fields": ["rowid", "val", "txt", "ordIdx"], "allPages": true}, "sortExpression": [{"field": "ordIdx", "direction": "asc"}]
+      }}
+    }
+  },
+  "resourceRelations": [], "viewCascades": []
+}

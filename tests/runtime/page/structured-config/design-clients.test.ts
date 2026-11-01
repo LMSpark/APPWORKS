@@ -1,7 +1,7 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataCodeDesignClient, LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient, ExcelImportDesignClient, PdfInspectDesignClient} from '@spark-appworks/spark-lowcode-api'
+import {LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient} from '@spark-appworks/spark-lowcode-api'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
@@ -11,31 +11,11 @@ beforeEach(() => {http = new StructuredCatalogHttp({})})
 it('rejects a legacy Ajax business failure for every design write', async () => {
   vi.spyOn(http, 'post').mockResolvedValue({Code: 500, Message: '明确拒绝保存', Result: null})
   const writes = [
-    () => new DataCodeDesignClient(http).saveDetail('C1', {CodeName: 'X'}),
     () => new LogicViewDesignClient(http).write({viewId: 'V1', data: {}}),
     () => new WorkflowDesignClient(http).write({workflowId: 'W1', nodes: [], connectors: []}),
     () => new JsonDataContentClient(http).save('J1', {}),
-    () => new ExcelImportDesignClient(http).write({importConfigId: 'E1', layout: [], rules: []}),
-    () => new PdfInspectDesignClient(http).write({ruleId: 'P1', rule: {}}),
   ]
   for (const write of writes) await expect(write()).rejects.toThrow('明确拒绝保存')
-})
-
-describe('DataCodeDesignClient', () => {
-  const client = () => new DataCodeDesignClient(http)
-  it('readDetail unwraps POST body', async () => {
-    const detail = await client().readDetail('C1')
-    expect(detail['CodeName']).toBe('测试编码')
-  })
-  it('saveDetail posts SaveCodeDesign', async () => {
-    await client().saveDetail('C1', {CodeName: 'X'})
-    expect(http.posts.some(p => p.url.includes('SaveCodeDesign'))).toBe(true)
-  })
-  it('rejects invalid read payload', async () => {
-    const broken = new StructuredCatalogHttp({})
-    broken.post = async () => null as never
-    await expect(new DataCodeDesignClient(broken).readDetail('C1')).rejects.toThrow(/无效/)
-  })
 })
 
 describe('LogicViewDesignClient', () => {

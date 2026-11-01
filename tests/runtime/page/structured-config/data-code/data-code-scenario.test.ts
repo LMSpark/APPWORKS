@@ -5,28 +5,15 @@ import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-mod
 import {RequestState} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
-import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
+import {codeModels, DESIGN} from './data-code.fixture'
 
-const SCENE = '868E62F90DB8118C74CDC9F6BCA61157'
-// Independent service-contract fixture: names and IDs were checked against the live model catalog.
-const specs = [
-  ['Base_CodeDesign', 0, ['rowid', 'AppID', 'AppName', 'Name', 'BusTableRowid', 'BusTableName', 'KeyFields', 'CodeDescription', 'CodeExample']],
-  ['Base_CodeNodeDesign', 1, ['rowid', 'CodeDesignID', 'NodeNo', 'NodeType', 'ParameterName', 'CodeNodeDesignJson', 'description']],
-  ['Dict_CodeNodeType', 4, ['rowid', 'val', 'txt', 'ordIdx']],
-  ['Base_CodeClassTable', 5, ['rowid', 'Name', 'TableRowid', 'TableName', 'TextFieldName', 'ValueFieldName', 'BusFilterField']],
-  ['Base_CodingSequence', 6, ['rowid', 'Name', 'Incre', 'StartNo', 'EndNo', 'Format']],
-  ['Base_TblField', 7, ['rowid', 'tblid', 'enname', 'cnname']],
-  ['Base_CodeSerialPerform', 8, ['rowid', 'CodeDesignID', 'NodeDesignId', 'NodeCode', 'Code', 'LoopCodeSplitStr']],
-] as const
+const SCENE = DESIGN
 const pages: PageRuntime[] = []
 afterEach(() => {pages.splice(0).forEach(page => page.dispose())})
 
 async function open(applicationId = 'A', codeDesignId = 'C1') {
   const text = await readFile('config/pages/structured-config/data-code-editor/pagedata.json', 'utf8')
-  const models = specs.flatMap(([name, index, fields]) => buildFormalModels({[name]: fields}).map(model => ({
-    ...model, id: `${SCENE}p${String(index).padStart(3, '0')}`,
-    fields: model.fields.map(field => ({...field, output: !(name === 'Base_CodeNodeDesign' && field.name === 'description')})),
-  })))
+  const models = codeModels()
   const http = new ApiBackend()
   http.records = {
     Base_CodeDesign: [
@@ -35,10 +22,10 @@ async function open(applicationId = 'A', codeDesignId = 'C1') {
       {rowid: 'C3', AppID: 'A', Name: '同应用父编码', BusTableRowid: 'T1'},
     ],
     Base_CodeNodeDesign: [
-      {rowid: 'N1', CodeDesignID: 'C1', NodeNo: '1', NodeType: 'fixed', ParameterName: 'A'},
-      {rowid: 'N2', CodeDesignID: 'C2', NodeNo: '1', NodeType: 'fixed', ParameterName: 'B'},
+      {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 2, ParameterName: 'A'},
+      {rowid: 'N2', CodeDesignID: 'C2', NodeNo: 1, NodeType: 2, ParameterName: 'B'},
     ],
-    Dict_CodeNodeType: [{rowid: 'D1', val: 'fixed', txt: '固定字符串', ordIdx: '1'}],
+    Dict_CodeNodeType: [{rowid: 'D1', val: '2', txt: '固定字符串', ordIdx: '1'}],
     Base_CodingSequence: [{rowid: 'S1', Name: '序号', Incre: '1', StartNo: '1', EndNo: '1', Format: '001-999'}],
     Base_CodeClassTable: [], Base_TblField: [], Base_CodeSerialPerform: [],
   }
@@ -65,7 +52,7 @@ describe('formal code-design scenario', () => {
     const {ds, http} = await open()
     expect(ds.getView('Base_CodeDesign')!.rows.map(row => row['rowid'])).toEqual(['C1'])
     expect(ds.getView('Base_CodeNodeDesign')!.rows.map(row => row['rowid'])).toEqual(['N1'])
-    expect(ds.getView('Dict_CodeNodeType')!.rows.map(row => row['val'])).toEqual(['fixed'])
+    expect(ds.getView('Dict_CodeNodeType')!.rows.map(row => row['val'])).toEqual(['2'])
     expect(http.reads.map(read => read.table)).not.toContain('Base_CodingSequence')
     const parents = ds.getView('Base_CodeDesign', 'parents')!
     await parents.refresh()

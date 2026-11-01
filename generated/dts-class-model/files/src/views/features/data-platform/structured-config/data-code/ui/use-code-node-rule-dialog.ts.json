@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog\n日期/父编码弹窗的领域编排；正式值及编辑覆盖由原DataView持有，取消复用原生字段检查点。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RuleTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuleTarget",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "nodeId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "busTableRowid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataViewKey",
+        "nodeId",
+        "busTableRowid"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-01T18:17:20.805Z",
+  "models": {
+    "RuleTarget": {
+      "name": "RuleTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataViewKey: string;\n    nodeId: string | number;\n    busTableRowid: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataViewKey: string;\n    nodeId: string | number;\n    busTableRowid: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busTableRowid",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

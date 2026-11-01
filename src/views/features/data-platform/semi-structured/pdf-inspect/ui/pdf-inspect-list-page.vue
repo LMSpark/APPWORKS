@@ -30,7 +30,7 @@ let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, gen
 const selected = computed(() => {
   revision.value
   const row = view.value?.selectedRows[0]
-  const id = row?.['rowid']
+  const id = row && view.value?.selectedRows.length === 1 ? view.value.getPkKey(row) : undefined
   return typeof id === 'string' || typeof id === 'number' ? String(id) : ''
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
@@ -41,9 +41,9 @@ const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
 ]}))
 const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'RuleName', label: '规则名称', width: 240}},
-  {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
-    optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
+  {type: 'r-text', props: {field: 'name', label: '规则名称', width: 240}},
+  {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
+  {type: 'r-text', props: {field: 'enabled', label: '启用状态', width: 120}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 async function openEditor(): Promise<void> {
@@ -66,7 +66,7 @@ watch(scenarioId, async id => {
     if (!active || own !== generation) {runtime.dispose(); return}
     view.value = dataSet.getView(LowcodePdfInspect.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true
+    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true; dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

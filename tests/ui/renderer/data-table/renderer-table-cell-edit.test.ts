@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, onBeforeUnmount, shallowRef} from 'vue'
-import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
+import ElementPlus, {ElPagination, ElTable, ElTableColumn} from 'element-plus'
 import {DataSet} from '@spark-appworks/spark-data'
 import {FieldText, RendererForm, RendererTable, Spark, PAGE_RUNTIME, DATA_ROW, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
@@ -12,7 +12,7 @@ const originalStubs = config.global.stubs
 const cleanups: Array<() => void> = []
 afterEach(() => {cleanups.splice(0).reverse().forEach(fn => fn()); config.global.stubs = originalStubs; vi.unstubAllGlobals()})
 
-async function fixture(editable = true, header = false) {
+async function fixture(editable = true, header = false, pagination = false) {
   const stubs = {...config.global.stubs}
   for (const name of ['el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
   config.global.stubs = stubs
@@ -49,7 +49,7 @@ async function fixture(editable = true, header = false) {
     sparkProvide(PAGE_RUNTIME, runtime)
     sparkProvide(DATA_ROW, {id: 'PARENT', name: '父容器的模型行'})
     onBeforeUnmount(() => runtime.dispose())
-    return () => h(RendererTable, {dataViewKey: key.value, autoColumns: false, showPagination: false, showDataViewMeta: false,
+    return () => h(RendererTable, {dataViewKey: key.value, autoColumns: false, showPagination: pagination, showDataViewMeta: false,
       children: ['name', 'secret', 'masked'].map(field => ({type: 'r-text', props: {field, label: field, emptyText: '—', editOnDblclick: true, readonly: readonly.value,
         ...(header && field === 'name' ? {header: {type: 'r-form', props: {dataViewKey: 'SPACE@Orders@other', contextDataMember: 'currentRow',
           autoColumns: false, showDataViewMeta: false, gridColumns: 1}, children: [{type: 'r-text', props: {field: 'name', placeholder: '筛选', clearable: true}}]}} : {})}}))})
@@ -65,6 +65,21 @@ async function fixture(editable = true, header = false) {
 }
 
 describe('standard table field editing', () => {
+  it('blocks pagination for editing overlays and applied pending writes, then unlocks after discard', async () => {
+    const {wrapper, view, requests} = await fixture(true, false, true)
+    const pager = wrapper.getComponent(ElPagination)
+    expect(pager.props('disabled')).toBe(false)
+    view.updateEditingValue('O1', 'name', 'unsaved'); await flushPromises()
+    expect(pager.props('disabled')).toBe(true)
+    const before = requests()
+    pager.vm.$emit('current-change', 2); pager.vm.$emit('size-change', 50); await flushPromises()
+    expect(requests()).toBe(before)
+    expect(view.page).toBe(1)
+    view.applyEditingRows(); await flushPromises()
+    expect(pager.props('disabled')).toBe(true)
+    view.discardPendingChanges(); await flushPromises()
+    expect(pager.props('disabled')).toBe(false)
+  })
   it('displays configured empty text without writing it into an empty field or replacing masked values', async () => {
     const {wrapper, view, edit} = await fixture()
     view.updateEditingValue('O2', 'name', ''); await flushPromises()

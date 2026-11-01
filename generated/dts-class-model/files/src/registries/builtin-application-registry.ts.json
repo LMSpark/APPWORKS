@@ -29,7 +29,11 @@
         "apiConfig",
         "apiInterface",
         "dataCodeCatalog",
-        "dataCodeEditor"
+        "dataCodeEditor",
+        "workflowCatalog",
+        "excelImportCatalog",
+        "pdfInspectCatalog",
+        "excelImportEditor"
       ]
     },
     "BuiltinScenarioResource": {
@@ -99,14 +103,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-01T16:27:44.596Z",
+  "generatedAt": "2026-11-01T19:28:19.112Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -143,6 +147,22 @@
           {
             "kind": "union",
             "typeText": "'dataCodeEditor'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'workflowCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'excelImportCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pdfInspectCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'excelImportEditor'"
           }
         ],
         "members": {}

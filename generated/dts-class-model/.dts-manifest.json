@@ -934,12 +934,12 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts.json",
-      "sourceModifiedAt": "2026-10-11T04:22:57.703Z"
+      "sourceModifiedAt": "2026-11-01T18:38:39.563Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-10-25T08:43:13.580Z"
+      "sourceModifiedAt": "2026-11-01T18:36:15.098Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -1019,7 +1019,7 @@
     "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json",
-      "sourceModifiedAt": "2026-10-16T04:57:02.367Z"
+      "sourceModifiedAt": "2026-11-01T18:36:15.096Z"
     },
     "packages/spark-component/src/components/containers/data-views/view-tree-state.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/view-tree-state.ts",
@@ -2164,7 +2164,7 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.520Z"
+      "sourceModifiedAt": "2026-11-01T17:48:57.800Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
@@ -2176,10 +2176,15 @@
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue.json",
       "sourceModifiedAt": "2026-10-25T07:25:48.407Z"
     },
+    "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue": {
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
+      "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue.json",
+      "sourceModifiedAt": "2026-11-01T17:52:05.966Z"
+    },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectForm.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectForm.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectForm.vue.json",
-      "sourceModifiedAt": "2026-10-18T14:31:04.987Z"
+      "sourceModifiedAt": "2026-11-01T17:48:56.973Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectProperties.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectProperties.vue",
@@ -3014,7 +3019,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.638Z"
+      "sourceModifiedAt": "2026-11-01T19:32:25.074Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3221,30 +3226,15 @@
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
       "sourceModifiedAt": "2026-10-06T20:57:27.510Z"
     },
-    "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts": {
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.662Z"
-    },
     "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/json-data/content-client.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.663Z"
-    },
-    "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts": {
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.663Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts.json",
       "sourceModifiedAt": "2026-10-25T07:53:43.531Z"
-    },
-    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts": {
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.665Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
@@ -4031,15 +4021,10 @@
       "shardFile": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.788Z"
     },
-    "src/lowcode/resources/semi-structured/excel-import/design-ops.ts": {
-      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/design-ops.ts",
-      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/design-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.789Z"
-    },
     "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.790Z"
+      "sourceModifiedAt": "2026-11-01T19:20:26.114Z"
     },
     "src/lowcode/resources/semi-structured/json-data/content-ops.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/content-ops.ts",
@@ -4051,15 +4036,10 @@
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.792Z"
     },
-    "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts": {
-      "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts",
-      "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.793Z"
-    },
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/pdf-inspect/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.794Z"
+      "sourceModifiedAt": "2026-11-01T18:56:49.507Z"
     },
     "src/lowcode/resources/shared/ai-data-entry-host.ts": {
       "sourceFile": "src/lowcode/resources/shared/ai-data-entry-host.ts",
@@ -4079,12 +4059,12 @@
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/design-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.797Z"
+      "sourceModifiedAt": "2026-11-01T18:34:20.828Z"
     },
     "src/lowcode/resources/structured-config/data-code/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T16:28:43.736Z"
+      "sourceModifiedAt": "2026-11-01T16:46:42.858Z"
     },
     "src/lowcode/resources/structured-config/dictionary/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dictionary/resource.ts",
@@ -4109,7 +4089,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.805Z"
+      "sourceModifiedAt": "2026-11-01T18:49:08.530Z"
     },
     "src/main.ts": {
       "sourceFile": "src/main.ts",
@@ -4119,7 +4099,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-01T16:27:44.596Z"
+      "sourceModifiedAt": "2026-11-01T19:28:19.112Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -4736,35 +4716,15 @@
       "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.972Z"
     },
-    "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.557Z"
-    },
-    "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.558Z"
-    },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.975Z"
+      "sourceModifiedAt": "2026-11-01T19:33:44.297Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.976Z"
-    },
-    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue": {
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
-      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.977Z"
-    },
-    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue": {
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
-      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.979Z"
+      "sourceModifiedAt": "2026-11-01T19:39:48.653Z"
     },
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
@@ -4774,17 +4734,12 @@
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.982Z"
+      "sourceModifiedAt": "2026-11-01T19:04:52.196Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.984Z"
-    },
-    "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue": {
-      "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
-      "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.985Z"
+      "sourceModifiedAt": "2026-11-01T18:49:08.541Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",
@@ -4799,12 +4754,12 @@
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.989Z"
+      "sourceModifiedAt": "2026-11-01T18:38:39.562Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T16:18:49.421Z"
+      "sourceModifiedAt": "2026-11-01T17:32:37.089Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue",
@@ -4821,20 +4776,25 @@
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue.json",
       "sourceModifiedAt": "2026-10-25T07:53:43.570Z"
     },
-    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.571Z"
+    "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-01T18:08:07.265Z"
     },
-    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.573Z"
+    "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-01T18:40:10.934Z"
     },
-    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.574Z"
+    "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-01T18:08:07.264Z"
+    },
+    "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts.json",
+      "sourceModifiedAt": "2026-11-01T18:17:20.805Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
@@ -4884,7 +4844,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:24.002Z"
+      "sourceModifiedAt": "2026-11-01T18:49:08.538Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",

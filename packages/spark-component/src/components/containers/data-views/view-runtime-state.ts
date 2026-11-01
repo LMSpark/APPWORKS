@@ -87,6 +87,8 @@ export type DataViewRequestAndAggregateState = {
   mutatingError: ComputedRef<Error | null>
   /** 最近一次加载数据错误。 */
   loadingError: ComputedRef<Error | null>
+  /** 原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。 */
+  resultReplacementBlocked: ComputedRef<boolean>
 }
 
 /** DataView 完整运行时投影（不含容器级解析上下文）。 */
@@ -321,6 +323,14 @@ export function useDataViewState(
     revisions.requestRevision.value
     return resolvedView.value?.loadingError ?? null
   })
+  const resultReplacementBlocked = computed(() => {
+    revisions.rowsRevision.value
+    revisions.editingRevision.value
+    revisions.mutationRevision.value
+    revisions.requestRevision.value
+    const view = resolvedView.value
+    return view !== null && (view.destroyed || view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+  })
 
   return {
     tableName, viewId, primaryKey, treeConfig,
@@ -328,6 +338,6 @@ export function useDataViewState(
     value, label, labels,
     requestState, aggregateError, aggregateResult, selectionAggregateResult,
     total, page, pageSize, paginated,
-    mutating, mutatingError, loadingError,
+    mutating, mutatingError, loadingError, resultReplacementBlocked,
   }
 }

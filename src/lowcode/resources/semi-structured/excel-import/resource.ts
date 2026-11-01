@@ -2,30 +2,25 @@
  * @module app:lowcode/resources/semi-structured/excel-import/resource
  */
 import type {DataSet} from '@spark-appworks/spark-data'
-import {lowcodeHttp} from '../../../lowcode-runtime'
-import {loadStructuredConfigCatalog, readStructuredConfigScope} from '../../structured-config/catalog'
-import {attachExcelImportDesignEdit} from './design-ops'
+import {lowcodeApi} from '../../../lowcode-runtime'
+import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 
 export class LowcodeExcelImport {
-  static readonly navigationScenarioId = 'C9F5A2B3D4E5678901BCDEF012345678'
-  static readonly catalogMetaName = '_Base_ImportConfig'
+  static readonly navigationScenarioId = '36B01771C627B9BF5CD493DC75B996A1'
+  static readonly catalogMetaName = 'Base_Import_solution'
+  static readonly designScenarioId = '0F93B82141CF40852021D704B0E30BF4'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {assertCurrent} = readStructuredConfigScope('Excel 导入')
-    return loadStructuredConfigCatalog({
-      scenarioId, assertCurrent,
-      catalogMetaName: this.catalogMetaName,
-      models: [
-        {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'crttime', direction: 'desc'}]},
-        {metaName: 'Base_UserInfo'},
-      ],
-    })
+    if (scenarioId !== this.navigationScenarioId) throw new Error('Excel目录场景身份不匹配')
+    const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
+    if (!projectId) throw new Error('请先选择执行应用')
+    return loadLowcodeRuntimeScenario({projectId, scenarioId})
   }
 
   static async loadEditor(scenarioId: string): Promise<DataSet> {
-    const {assertCurrent} = readStructuredConfigScope('Excel 导入')
-    const dataSet = await this.loadCatalog(scenarioId)
-    attachExcelImportDesignEdit(dataSet, lowcodeHttp, assertCurrent)
-    return dataSet
+    if (scenarioId !== this.designScenarioId) throw new Error('Excel设计场景身份不匹配')
+    const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
+    if (!projectId) throw new Error('请先选择执行应用')
+    return loadLowcodeRuntimeScenario({projectId, scenarioId})
   }
 }

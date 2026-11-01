@@ -35,11 +35,13 @@ export function models(scenarioId: string): FormalModel[] {
 
 /** 内存后端：按表保存记录，查询按过滤及调用参数筛选，保存写入记录并可模拟回执中断。 */
 export class ApiBackend extends HttpClientBase {
+  primaryKeys: Record<string, string> = {...keys}
   records: Record<string, Row[]> = {}
   reads: Array<{table: string; data: unknown}> = []
   saves: Array<{table: string; added: Row[]; changed: Row[]; deleted: Row[]}> = []
   denyDelete = new Set<string>()
   failAfterWrite = false
+  beforeSave?: () => Promise<void>
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
     let result: unknown
     if (request.url === '/api/DataOperation/GetData') {
@@ -56,14 +58,15 @@ export class ApiBackend extends HttpClientBase {
         rows = rows.filter(row => filter.matches(row))
       }
       const fields = table.Fields.map(field => field.Name)
-      result = {primaryKeyField: keys[table.Name] ?? 'rowid', allowAdd: true, lingma_sys_key: 'table-key',
+      result = {primaryKeyField: this.primaryKeys[table.Name] ?? 'rowid', allowAdd: true, lingma_sys_key: 'table-key',
         data: {Items: rows.map(row => ({...Object.fromEntries(fields.map(field => [field, row[field]])), lingma_sys_key: 'row-key',
           lingma_sys_params: {r: [], e: fields, h: [], m: [], d: !this.denyDelete.has(table.Name)}})), Count: rows.length}}
     } else if (request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+      await this.beforeSave?.()
       const maplistadd: Record<string, Row[]>[] = [], maplistedit: Record<string, Row[]>[] = [], maplistdelete: Record<string, Row[]>[] = []
       for (const group of request.data as Array<{TableName: string; CrudModel: {Added: Row[]; Changed: Row[]; Deleted: Row[]}}>) {
         const clean = (raw: Row) => {const row = {...raw}; delete row['lingma_sys_key']; delete row['lingma_sys_params']; return row}
-        const pk = keys[group.TableName] ?? 'rowid', rows = this.records[group.TableName] ??= []
+        const pk = this.primaryKeys[group.TableName] ?? 'rowid', rows = this.records[group.TableName] ??= []
         const added = group.CrudModel.Added.map(clean), changed = group.CrudModel.Changed.map(clean), deleted = group.CrudModel.Deleted.map(clean)
         this.saves.push({table: group.TableName, added, changed, deleted})
         rows.push(...added.map(row => ({...row})))

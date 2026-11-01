@@ -176,6 +176,10 @@
         "loadingError": {
           "type": "object",
           "title": "ComputedRef<Error | null>"
+        },
+        "resultReplacementBlocked": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
         }
       },
       "required": [
@@ -189,7 +193,8 @@
         "paginated",
         "mutating",
         "mutatingError",
-        "loadingError"
+        "loadingError",
+        "resultReplacementBlocked"
       ],
       "additionalProperties": false
     },
@@ -293,6 +298,10 @@
         "loadingError": {
           "type": "object",
           "title": "ComputedRef<Error | null>"
+        },
+        "resultReplacementBlocked": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
         }
       },
       "required": [
@@ -319,7 +328,8 @@
         "paginated",
         "mutating",
         "mutatingError",
-        "loadingError"
+        "loadingError",
+        "resultReplacementBlocked"
       ],
       "additionalProperties": false
     },
@@ -444,6 +454,10 @@
           "type": "object",
           "title": "ComputedRef<Error | null>"
         },
+        "resultReplacementBlocked": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "resolvedView": {
           "type": "object",
           "title": "ComputedRef<DataView | null>"
@@ -478,6 +492,7 @@
         "mutating",
         "mutatingError",
         "loadingError",
+        "resultReplacementBlocked",
         "resolvedView",
         "resolvedDataRow"
       ],
@@ -509,7 +524,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-16T04:57:02.367Z",
+  "generatedAt": "2026-11-01T18:36:15.096Z",
   "models": {
     "DataViewIdentityState": {
       "name": "DataViewIdentityState",
@@ -664,7 +679,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前数据请求状态，用于 loading/empty/error 渲染。 */\n    requestState: ComputedRef<RequestState>;\n    /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */\n    aggregateError: ComputedRef<Error | null>;\n    /** 全量或当前查询条件下的聚合结果。 */\n    aggregateResult: ComputedRef<AggregateResultState>;\n    /** 已选择行集合的聚合结果。 */\n    selectionAggregateResult: ComputedRef<AggregateResultState>;\n    /** 当前查询结果总条数。 */\n    total: ComputedRef<number>;\n    /** 当前页码，从 1 开始。 */\n    page: ComputedRef<number>;\n    /** 当前分页大小。 */\n    pageSize: ComputedRef<number>;\n    /** 当前查询是否按页消费；完整集合不显示分页入口。 */\n    paginated: ComputedRef<boolean>;\n    /** 当前是否存在本地或远端变更中的写操作。 */\n    mutating: ComputedRef<boolean>;\n    /** 最近一次写操作错误。 */\n    mutatingError: ComputedRef<Error | null>;\n    /** 最近一次加载数据错误。 */\n    loadingError: ComputedRef<Error | null>;\n}",
+        "declarationTypeText": "{\n    /** 当前数据请求状态，用于 loading/empty/error 渲染。 */\n    requestState: ComputedRef<RequestState>;\n    /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */\n    aggregateError: ComputedRef<Error | null>;\n    /** 全量或当前查询条件下的聚合结果。 */\n    aggregateResult: ComputedRef<AggregateResultState>;\n    /** 已选择行集合的聚合结果。 */\n    selectionAggregateResult: ComputedRef<AggregateResultState>;\n    /** 当前查询结果总条数。 */\n    total: ComputedRef<number>;\n    /** 当前页码，从 1 开始。 */\n    page: ComputedRef<number>;\n    /** 当前分页大小。 */\n    pageSize: ComputedRef<number>;\n    /** 当前查询是否按页消费；完整集合不显示分页入口。 */\n    paginated: ComputedRef<boolean>;\n    /** 当前是否存在本地或远端变更中的写操作。 */\n    mutating: ComputedRef<boolean>;\n    /** 最近一次写操作错误。 */\n    mutatingError: ComputedRef<Error | null>;\n    /** 最近一次加载数据错误。 */\n    loadingError: ComputedRef<Error | null>;\n    /** 原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。 */\n    resultReplacementBlocked: ComputedRef<boolean>;\n}",
         "members": {
           "attributes": [
             {
@@ -730,6 +745,12 @@
             {
               "name": "loadingError",
               "jsdoc": "最近一次加载数据错误。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resultReplacementBlocked",
+              "jsdoc": "原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。",
               "readable": true,
               "writable": true
             }

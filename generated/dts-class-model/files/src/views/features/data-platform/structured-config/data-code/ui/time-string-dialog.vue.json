@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/time-string-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/time-string-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/time-string-dialog",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-01T18:08:07.264Z",
+  "models": {}
+}

@@ -1,85 +1,141 @@
-import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {flushPromises, mount} from '@vue/test-utils'
-import {createMemoryHistory, createRouter} from 'vue-router'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
+import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {Spark} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, FieldText} from '@spark-appworks/spark-component'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
-import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
+import {codeService, designText} from './data-code.fixture'
 
-const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
-let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
-const models = buildFormalModels({
-  Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
-  Base_AppSystemList: ['rowid', 'AppName'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-  Base_StructureType: ['rowid', 'Mrowid', 'Name'],
-}).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId  }p${  ({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName]}`}))
+const state = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof codeService>}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
-  get lowcodeHttp() {return http},
+  get lowcodeHttp() {return state.current.http},
+  lowcodeApi: {readRequestScope: () => state.current.readRequestScope(), dataSpace: {
+    get design() {return state.current}, get runtime() {return state.current.runtime},
+  }},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === '868E62F90DB8118C74CDC9F6BCA61157' ? designText : null}}),
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
+const wrappers: VueWrapper[] = []
+const originalStubs = {...config.global.stubs}
 beforeEach(() => {
-  http = new StructuredCatalogHttp({
-    Base_CodeDesign: [{rowid: 'C1', AppID: 'APP', Name: '订单号', createuser: 'U-ROW'}],
-    Base_AppSystemList: [{rowid: 'APP', AppName: '应用'}],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
-    Base_StructureType: [{rowid: 'S1', Mrowid: '000000', Name: '基础'}],
-  })
-  service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
-  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeDataCode.navigationScenarioId, name: '编码', raw: {}})
-  service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
-  runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
+  state.current = codeService(); registerAllRenderers()
+  const stubs = {...originalStubs}
+  for (const name of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[name]
+  config.global.stubs = stubs
 })
-afterEach(() => {vi.restoreAllMocks()})
-
-async function editorRouter(query: Record<string, string> = {}) {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{
-      path: '/editor',
-      component: DataCodeEditor,
-      meta: {blueprintScenarioId: LowcodeDataCode.navigationScenarioId},
-    }],
-  })
-  await router.push({path: '/editor', query})
-  await router.isReady()
-  return router
+afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks()})
+async function open(query: Record<string, string> = {codeDesignId: 'C1', applicationId: 'A'}, hostTarget?: {applicationId?: string; codeDesignId?: string}) {
+  const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: DataCodeEditor,
+    props: hostTarget ?? false, meta: {blueprintScenarioId: 'A133D679691178F192D7E9DA06829506'}}, {path: '/other', component: {template: '<p>其他页</p>'}}]})
+  await router.push({path: '/editor', query}); await router.isReady()
+  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body,
+    global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+  wrappers.push(wrapper); await flushPromises()
+  return {wrapper, router}
 }
 
-describe('data-code editor page', () => {
-  it('shows error when codeDesignId missing', async () => {
-    const router = await editorRouter()
-    const wrapper = mount(DataCodeEditor, {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
-    await flushPromises()
-    expect(wrapper.text()).toMatch(/缺少 codeDesignId/)
-    wrapper.unmount()
+describe('code editor formal main and node views', () => {
+  it('rejects a missing managed application before querying design records', async () => {
+    const {wrapper} = await open({codeDesignId: 'C1'})
+    expect(wrapper.text()).toContain('applicationId')
+    expect(state.current.http.reads).toEqual([])
   })
 
-  it('loads detail and saves via POST', async () => {
-    const router = await editorRouter({codeDesignId: 'C1'})
-    const wrapper = mount(DataCodeEditor, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
-    await flushPromises()
-    expect(http.posts.some(p => p.url.includes('GetCodeDesignDetail'))).toBe(true)
-    expect((wrapper.find('input').element as HTMLInputElement).value).toBe('测试编码')
-    await wrapper.find('input').setValue('新编码名')
-    await wrapper.findAll('button').find(b => b.text().includes('保存'))!.trigger('click')
-    await flushPromises()
-    expect(http.posts.some(p => p.url.includes('SaveCodeDesign'))).toBe(true)
-    wrapper.unmount()
+  it('does not complete a partial host target with an unrelated route target', async () => {
+    const {wrapper} = await open({applicationId: 'B', codeDesignId: 'C2'}, {applicationId: 'A'})
+    expect(wrapper.text()).toContain('codeDesignId')
+    expect(state.current.http.reads).toEqual([])
   })
 
-  it('opens class selector dialog', async () => {
-    const router = await editorRouter({codeDesignId: 'C1'})
-    const wrapper = mount(DataCodeEditor, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
-    await flushPromises()
-    await wrapper.findAll('button').find(b => b.text().includes('编码类选择'))!.trigger('click')
-    await flushPromises()
-    expect(document.body.textContent).toMatch(/编码类|类选择/)
-    wrapper.unmount()
+  it('binds the real main definition, edits its name and persists through DataSet', async () => {
+    const {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+    const name = wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'Name')!
+    await vi.waitFor(() => expect((name.get('input').element as HTMLInputElement).value).toBe('订单编码'))
+    await name.get('input').setValue('新订单编码'); await name.get('input').trigger('change'); await flushPromises()
+    expect(state.current.http.records['Base_CodeDesign']![0]!['Name']).toBe('订单编码')
+    await wrapper.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(state.current.http.records['Base_CodeDesign']![0]!['Name']).toBe('新订单编码'))
+    expect(state.current.http.saves.map(save => save.table)).toEqual(['Base_CodeDesign'])
+  })
+
+  it('keeps both main and nodes empty for a design owned by another application', async () => {
+    const {wrapper} = await open({codeDesignId: 'C1', applicationId: 'B'})
+    await vi.waitFor(() => expect(wrapper.text()).toContain('当前应用下未找到'))
+    expect(wrapper.text()).not.toContain('订单编码')
+    expect(state.current.http.saves).toEqual([])
+  })
+
+  it('compiles an edited fixed segment into its original rule field and the main description', async () => {
+    state.current.http.records['Base_CodeNodeDesign']![0]!['CodeNodeDesignJson'] = '{"ConstString":"A","retained":"original"}'
+    const {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(FieldText).some(f => f.props('field') === 'ParameterName' && f.find('input').exists())).toBe(true))
+    const node = wrapper.findAllComponents(FieldText).find(f => f.props('field') === 'ParameterName' && f.find('input').exists())!
+    await node.get('input').setValue('INV'); await node.get('input').trigger('change'); await flushPromises()
+    await wrapper.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(state.current.http.records['Base_CodeNodeDesign']![0]!['ParameterName']).toBe('INV'))
+    expect(JSON.parse(String(state.current.http.records['Base_CodeNodeDesign']![0]!['CodeNodeDesignJson']))).toEqual({ConstString: 'INV', retained: 'original'})
+    expect(state.current.http.records['Base_CodeDesign']![0]!['CodeDescription']).toBe('固定字符串(INV)')
+    expect(state.current.http.records['Base_CodeNodeDesign']![1]!['ParameterName']).toBe('B')
+  })
+
+  it('keeps invalid stored rule JSON visible as an error without issuing a save', async () => {
+    state.current.http.records['Base_CodeNodeDesign']![0]!['CodeNodeDesignJson'] = '{invalid'
+    const {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(FieldText).some(f => f.props('field') === 'ParameterName' && f.find('input').exists())).toBe(true))
+    const node = wrapper.findAllComponents(FieldText).find(f => f.props('field') === 'ParameterName' && f.find('input').exists())!
+    await node.get('input').setValue('INV'); await node.get('input').trigger('change'); await flushPromises()
+    await wrapper.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('JSON无效'))
+    expect(state.current.http.saves).toEqual([])
+    expect(state.current.http.records['Base_CodeNodeDesign']![0]!['CodeNodeDesignJson']).toBe('{invalid')
+  })
+
+  it('keeps dirty edits on the same target and allows navigation only after explicit cancellation', async () => {
+    const {wrapper, router} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(FieldText).some(f => f.props('field') === 'Name')).toBe(true))
+    const name = wrapper.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('未保存'); await name.get('input').trigger('change'); await flushPromises()
+    await router.push({path: '/editor', query: {applicationId: 'B', codeDesignId: 'C2'}})
+    expect(router.currentRoute.value.query['applicationId']).toBe('A')
+    await router.push('/other')
+    expect(router.currentRoute.value.path).toBe('/editor')
+    await wrapper.findAll('button').find(b => b.text() === '取消修改')!.trigger('click'); await flushPromises()
+    expect((name.get('input').element as HTMLInputElement).value).toBe('订单编码')
+    expect(state.current.http.saves).toEqual([])
+    await router.push('/other')
+    expect(router.currentRoute.value.path).toBe('/other')
+  })
+
+  it('does not replace a new target with a late model-load result from the previous target', async () => {
+    const original = state.current.readModelBatch
+    let release!: () => void
+    vi.spyOn(state.current, 'readModelBatch').mockImplementationOnce(async input => {
+      await new Promise<void>(resolve => {release = resolve})
+      return original(input)
+    })
+    const {wrapper, router} = await open()
+    await router.push({path: '/editor', query: {applicationId: 'B', codeDesignId: 'C2'}})
+    await vi.waitFor(() => expect(wrapper.findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    release(); await flushPromises()
+    const name = wrapper.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    expect((name.get('input').element as HTMLInputElement).value).toBe('其他应用编码')
+    expect(wrapper.text()).not.toContain('固定字符串(A)')
+    expect(state.current.http.saves).toEqual([])
+  })
+
+  it('does not replay a write when the save receipt is lost', async () => {
+    const {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    const name = wrapper.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('回执丢失后的名称'); await name.get('input').trigger('change'); await flushPromises()
+    state.current.http.failAfterWrite = true
+    await wrapper.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
+    expect(state.current.http.saves).toHaveLength(1)
+    expect(state.current.http.records['Base_CodeDesign']![0]!['Name']).toBe('回执丢失后的名称')
+    await wrapper.findAll('button').find(b => b.text() === '核验保存结果')!.trigger('click'); await flushPromises()
+    expect(state.current.http.saves).toHaveLength(1)
   })
 })

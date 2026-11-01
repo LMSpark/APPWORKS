@@ -53,7 +53,7 @@
     "Base_CodingSequence": {
       "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p006", "modelName": "Base_CodingSequence"},
       "views": {"default": {
-        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "selectionDelimiter": "", "pageSize": 10,
         "queryConfig": {"fields": ["rowid", "Name", "Incre", "StartNo", "EndNo", "Format"]}
       }}
     },

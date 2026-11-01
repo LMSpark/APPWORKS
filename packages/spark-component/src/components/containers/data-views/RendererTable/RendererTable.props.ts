@@ -47,7 +47,7 @@ export type RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & 
     resizable?: boolean
     /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */
     autoColumns?: boolean
-    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */
+    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */
     showPagination?: boolean
     /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */
     maxHeight?: number | string

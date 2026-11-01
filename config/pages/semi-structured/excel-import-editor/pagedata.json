@@ -1,0 +1,47 @@
+{
+  "scenarioId": "0F93B82141CF40852021D704B0E30BF4",
+  "tables": {
+    "Base_ImportData_Config": {
+      "modelBinding": {"modelId": "0F93B82141CF40852021D704B0E30BF4p000", "modelName": "Base_ImportData_Config"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged", "pageSize": 500,
+        "queryContext": {"importConfigId": ""},
+        "queryConfig": {"fields": ["rowid", "schemeid", "pid", "relatedappid", "relatedAppName", "sheet", "sheetName", "titleIndex", "dataIndex", "table", "tableDesc", "parentField", "parentFieldDesc", "foreignKeyField", "foreignKeyFieldDesc", "exportType", "filters", "sorted", "sheet_layout_json"], "allPages": true},
+        "filterExpression": {"field": "schemeid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}},
+        "treeConfig": {"idField": "rowid", "parentIdField": "pid", "textField": "sheetName", "lazy": false},
+        "sortExpression": [{"field": "sheet", "direction": "asc"}, {"field": "rowid", "direction": "asc"}]
+      }}
+    },
+    "Base_ImportData_Field": {
+      "modelBinding": {"modelId": "0F93B82141CF40852021D704B0E30BF4p002", "modelName": "Base_ImportData_Field"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged", "pageSize": 500,
+        "queryConfig": {"fields": ["rowid", "configid", "name", "title", "index", "type", "isReadOnly", "isDict", "refTable", "refTableDesc", "refDataid", "textField", "textFieldDesc", "valueField", "valueFieldDesc", "filterField", "filterValue", "DesenID"], "allPages": true},
+        "sortExpression": [{"field": "index", "direction": "asc"}, {"field": "rowid", "direction": "asc"}]
+      }}
+    },
+    "ImportExportMethods": {
+      "modelBinding": {"modelId": "0F93B82141CF40852021D704B0E30BF4p001", "modelName": "ImportExportMethods"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "queryConfig": {"fields": ["rowid", "val", "txt", "ordIdx", "exVal_4"], "allPages": true},
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}]
+      }}
+    },
+    "Base_Import_Transform_Rule": {
+      "modelBinding": {"modelId": "b3ca28c2-432c-4374-ac20-bb98a85c2098", "modelName": "Base_Import_Transform_Rule"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged", "pageSize": 500,
+        "queryContext": {"importConfigId": ""},
+        "queryConfig": {"fields": ["id", "scheme_id", "config_id", "rule_name", "phase", "sort_order", "rule_type", "source_field", "target_field", "enabled", "on_error", "condition_json", "config_json", "description"], "allPages": true},
+        "filterExpression": {"field": "scheme_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}},
+        "sortExpression": [{"field": "sort_order", "direction": "asc"}, {"field": "id", "direction": "asc"}]
+      }}
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": [
+    {"kind": "query", "cascadeId": "excel-config-fields", "parentTable": "Base_ImportData_Config", "parentViewId": "default", "childTable": "Base_ImportData_Field", "childViewId": "default", "autoLoad": true, "filterBindings": [{"targetField": "configid", "operator": "in"}]},
+    {"kind": "query", "cascadeId": "excel-config-rules", "parentTable": "Base_ImportData_Config", "parentViewId": "default", "childTable": "Base_Import_Transform_Rule", "childViewId": "default", "autoLoad": true, "filterBindings": [{"targetField": "config_id", "operator": "in"}]}
+  ]
+}

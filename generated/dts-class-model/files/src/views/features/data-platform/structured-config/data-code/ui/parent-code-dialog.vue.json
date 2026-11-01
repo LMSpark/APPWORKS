@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/parent-code-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/parent-code-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/parent-code-dialog",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-01T18:08:07.265Z",
+  "models": {}
+}

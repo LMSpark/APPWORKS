@@ -4,16 +4,19 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
-import {Spark, registerAllRenderers, RendererTable, FieldSelect} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererTable, RendererDialog, FieldSelect, FieldText} from '@spark-appworks/spark-component'
 import {RequestState, type DataSet} from '@spark-appworks/spark-data'
 import {defineComponent, h} from 'vue'
 import DataCodeList from '@/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
-import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
+import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {codeModels, designText, DESIGN} from './data-code.fixture'
+import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
-let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
+let http: ApiBackend, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
   Base_AppSystemList: ['rowid', 'AppName'],
@@ -23,21 +26,24 @@ const models = buildFormalModels({
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === DESIGN ? designText : catalogText}}),
   lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
 const originalStubs = {...config.global.stubs}
 beforeEach(() => {
-  http = new StructuredCatalogHttp({
-    Base_CodeDesign: [{rowid: 'C1', AppID: 'TARGET', Name: '订单号', createuser: 'U-ROW'},
+  http = new ApiBackend()
+  http.records = {
+    Base_CodeDesign: [{rowid: 'C1', AppID: 'TARGET', Name: '订单号', BusTableRowid: 'T1', BusTableName: '订单', createuser: 'U-ROW'},
       {rowid: 'C2', AppID: 'OTHER', Name: '其他应用编码'}],
     Base_AppSystemList: [{rowid: 'TARGET', AppName: '目标应用'}, {rowid: 'OTHER', AppName: '其他应用'}],
     Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
-    Base_StructureType: [{rowid: 'S1', Mrowid: '000000', Name: '基础'}],
-  })
+    Base_CodeNodeDesign: [{rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 2, ParameterName: 'INV', CodeNodeDesignJson: '{"ConstString":"INV"}'}],
+    Dict_CodeNodeType: [{rowid: 'D2', val: '2', txt: '固定字符串', ordIdx: '2'}],
+  }
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
-  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeDataCode.navigationScenarioId, name: '编码', raw: {}})
-  service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
+  service.readSpaceDefinition.mockImplementation(({dataSpaceId}: {dataSpaceId: string}) => Promise.resolve({dataSpaceId, name: '编码'}))
+  service.readModel.mockImplementation(({metaName, dataSpaceId}: {metaName: string; dataSpaceId: string}) =>
+    Promise.resolve((dataSpaceId === DESIGN ? codeModels() : models).find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
   registerAllRenderers()
   const stubs = {...originalStubs}
@@ -81,16 +87,17 @@ describe('data-code list page', () => {
     dataSet.destroy()
   })
 
-  it('loads catalog and navigates to editor', async () => {
+  it('opens the editor in the catalog dialog with the selected managed target', async () => {
     const {wrapper, router} = await openList()
     expect(wrapper.text()).toContain('数据编码')
     expect(wrapper.findComponent(RendererTable).text()).toContain('订单号')
-    const push = vi.spyOn(router, 'push')
     await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
     await flushPromises()
     await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click')
     await flushPromises()
-    expect(push).toHaveBeenCalledWith(expect.objectContaining({query: expect.objectContaining({codeDesignId: 'C1', applicationId: 'TARGET'})}))
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true))
+    expect(router.currentRoute.value.path).toBe('/code')
+    expect(wrapper.getComponent(DataCodeEditor).props()).toMatchObject({codeDesignId: 'C1', applicationId: 'TARGET'})
     wrapper.unmount()
   })
 
@@ -101,12 +108,93 @@ describe('data-code list page', () => {
     wrapper.unmount()
   })
 
-  it('新增编码 navigates with create flag', async () => {
+  it('opens a new design target in the same catalog dialog', async () => {
     const {wrapper, router} = await openList()
-    const push = vi.spyOn(router, 'push')
     await wrapper.findAll('button').find(b => b.text() === '新增编码')!.trigger('click')
     await flushPromises()
-    expect(push).toHaveBeenCalledWith(expect.objectContaining({query: expect.objectContaining({create: '1', applicationId: 'TARGET'})}))
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true))
+    expect(router.currentRoute.value.path).toBe('/code')
+    expect(wrapper.getComponent(DataCodeEditor).props('applicationId')).toBe('TARGET')
+    expect(wrapper.getComponent(DataCodeEditor).props('codeDesignId')).toMatch(/^[A-F0-9]{32}$/)
+    wrapper.unmount()
+  })
+
+  it('keeps a dirty dialog open until explicit discard and then closes without saving', async () => {
+    const {wrapper} = await openList()
+    await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    const name = wrapper.getComponent(DataCodeEditor).findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('本地修改'); await name.get('input').trigger('change'); await flushPromises()
+    const dialog = wrapper.getComponent(RendererDialog)
+    expect(dialog.props('closeDisabled')).toBe(true)
+    dialog.vm.$emit('update:modelValue', false); await flushPromises()
+    expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true)
+    await wrapper.findAll('button').find(b => b.text() === '放弃修改并关闭')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    expect(http.saves).toEqual([])
+    expect(http.records['Base_CodeDesign']![0]!['Name']).toBe('订单号')
+    wrapper.unmount()
+  })
+
+  it('closes a successfully saved design and rereads the current catalog', async () => {
+    const {wrapper} = await openList()
+    await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    const editor = wrapper.getComponent(DataCodeEditor), name = editor.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('目录回读名称'); await name.get('input').trigger('change'); await flushPromises()
+    await editor.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    await vi.waitFor(() => expect(wrapper.getComponent(RendererTable).text()).toContain('目录回读名称'))
+    expect(http.saves).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('locks close and discard during saving and keeps the captured target when the directory selection changes', async () => {
+    const {wrapper, ds} = await openList()
+    await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    const editor = wrapper.getComponent(DataCodeEditor), name = editor.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('只保存原目标'); await name.get('input').trigger('change'); await flushPromises()
+    let release!: () => void
+    http.beforeSave = () => new Promise<void>(resolve => {release = resolve})
+    await editor.findAll('button').find(b => b.text() === '保存设计')!.trigger('click'); await flushPromises()
+    expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+    expect(wrapper.findAll('button').find(b => b.text() === '放弃修改并关闭')!.attributes('disabled')).toBeDefined()
+    wrapper.getComponent(RendererDialog).vm.$emit('update:modelValue', false); await flushPromises()
+    expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true)
+    await chooseApplication(ds, 'OTHER')
+    expect(editor.props()).toMatchObject({applicationId: 'TARGET', codeDesignId: 'C1'})
+    release()
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    expect(http.records['Base_CodeDesign']![0]!['Name']).toBe('只保存原目标')
+    expect(http.records['Base_CodeDesign']![1]!['Name']).toBe('其他应用编码')
+    expect(ds.getView('Base_CodeDesign')!.rows[0]!['AppID']).toBe('OTHER')
+    wrapper.unmount()
+  })
+
+  it('keeps an unknown save open until formal readback confirms it without replaying the write', async () => {
+    const {wrapper} = await openList()
+    await wrapper.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await wrapper.findAll('button').find(b => b.text() === '方案设计')!.trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).findAllComponents(FieldText).some(f => f.props('field') === 'Name' && f.find('input').exists())).toBe(true))
+    const editor = wrapper.getComponent(DataCodeEditor), name = editor.findAllComponents(FieldText).find(f => f.props('field') === 'Name')!
+    await name.get('input').setValue('待核实名称'); await name.get('input').trigger('change'); await flushPromises()
+    http.failAfterWrite = true
+    await editor.findAll('button').find(b => b.text() === '保存设计')!.trigger('click')
+    await vi.waitFor(() => expect(editor.find('[role="alert"]').exists()).toBe(true))
+    expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+    expect(wrapper.findAll('button').find(b => b.text() === '放弃修改并关闭')!.attributes('disabled')).toBeDefined()
+    await wrapper.findAll('button').find(b => b.text() === '放弃修改并关闭')!.trigger('click'); await flushPromises()
+    expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(true)
+    expect(http.saves).toHaveLength(1)
+    await editor.findAll('button').find(b => b.text() === '核验保存结果')!.trigger('click')
+    await vi.waitFor(() => expect(editor.find('[role="alert"]').exists() ? editor.find('[role="alert"]').text() : '').toBe(''))
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    expect(http.saves).toHaveLength(1)
+    expect(wrapper.getComponent(RendererTable).text()).toContain('待核实名称')
     wrapper.unmount()
   })
 

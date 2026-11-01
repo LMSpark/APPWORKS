@@ -1,0 +1,33 @@
+{
+  "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+  "tables": {
+    "Base_Import_solution": {
+      "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p000", "modelName": "Base_Import_solution"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "templatePath", "description", "dataSetId", "createuser", "createtime"]},
+        "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "rowid", "direction": "asc"}]
+      }, "editorTarget": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "",
+        "queryContext": {"importConfigId": ""},
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "dataSetId", "templatePath"]},
+        "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}}
+      }}
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "c2f87e1b-09d8-4770-a93a-a21696bd5dc3", "modelName": "Base_DataSet"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "Name", "pageSize": 500,
+        "queryConfig": {"fields": ["rowid", "Name"], "allPages": true}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p001", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "ROWID", "labelField": "UserName",
+        "queryConfig": {"fields": ["ID", "ROWID", "UserName"], "allPages": true}
+      }}
+    }
+  },
+  "resourceRelations": [], "viewCascades": []
+}

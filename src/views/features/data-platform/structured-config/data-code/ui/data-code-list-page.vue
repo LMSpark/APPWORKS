@@ -7,27 +7,42 @@
     <p v-if="loading" role="status">正在读取编码目录…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
-      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false">
+      <RendererForm :data-view-key="appsKey" :show-data-view-meta="false" :auto-columns="false">
         <FieldSelect :data-view-key="appsKey" data-member="value" :option-data-view-key="appsKey" label="应用" placeholder="请选择应用" />
       </RendererForm>
       <p v-if="queryError" role="alert">{{ queryError }}</p>
       <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
         :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+      <RendererDialog v-if="designTarget" :model-value="true" :title="designTarget.create ? '新增编码' : '编码方案设计'"
+        :data-view-key="catalogKey" :width="960" :destroy-on-close="true" :close-disabled="designPending"
+        @update:model-value="closeDesign">
+        <DataCodeEditor ref="designPage" :application-id="designTarget.applicationId" :code-design-id="designTarget.codeDesignId" @saved="savedDesign" />
+        <template #footer>
+          <RendererButton v-if="designPage?.hasPending" label="放弃修改并关闭" :disabled="designPage?.busy || designPage?.unconfirmed" @click="discardDesign" />
+          <RendererButton label="关闭" :disabled="designPending" @click="closeDesign(false)" />
+        </template>
+      </RendererDialog>
     </template>
   </section>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import {computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
+import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, FieldSelect, RendererForm, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
+
+type RFilterProps = SparkComponent.RFilterProps
+type RToolbarProps = SparkComponent.RToolbarProps
+const {PAGE_RUNTIME, FieldSelect, RendererForm, RendererTable, RendererDialog, RendererButton, useSparkComponent} = SparkComponent
 
 const route = useRoute()
-const router = useRouter()
+const DataCodeEditor = defineAsyncComponent(() => import('./data-code-editor-page.vue'))
+const designTarget = shallowRef<{applicationId: string; codeDesignId: string; create: boolean}>()
+const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
+const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-list-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
@@ -49,7 +64,6 @@ const queryError = computed(() => {
   const apps = runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
   return view.value?.loadingError?.message ?? apps?.loadingError?.message ?? ''
 })
-const editorPath = '/features/data-platform/structured-config/data-code/ui/data-code-editor-page'
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '新增编码', permAction: 'create', disabled: loading.value || !selectedApplication.value, onClick: createCode}},
   {type: 'r-button', props: {label: '方案设计', disabled: !selected.value || loading.value, onClick: openEditor}},
@@ -71,16 +85,27 @@ function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createCode(): void {
   if (!selectedApplication.value) return
   const id = crypto.randomUUID().replaceAll('-', '').toUpperCase()
-  void openEditorRoute(id, true)
+  openDesign(id, true)
 }
-async function openEditor(): Promise<void> {
-  if (selected.value) await openEditorRoute(selected.value, false)
+function openEditor(): void {
+  if (selected.value) openDesign(selected.value, false)
 }
-async function openEditorRoute(codeDesignId: string, create: boolean): Promise<void> {
-  const scope = parseApplicationPathScope(route.path)
-  const path = scope ? buildApplicationPath(scope, editorPath) : editorPath
-  if (!selectedApplication.value) return
-  await router.push({path, query: {codeDesignId, applicationId: selectedApplication.value, ...(create ? {create: '1'} : {})}})
+function openDesign(codeDesignId: string, create: boolean): void {
+  if (!selectedApplication.value || designTarget.value) return
+  designTarget.value = {applicationId: selectedApplication.value, codeDesignId, create}
+}
+async function closeDesign(open: boolean): Promise<void> {
+  if (open || designPending.value) return
+  const own = generation
+  designTarget.value = undefined
+  try {await view.value?.refresh()}
+  catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
+}
+async function savedDesign(): Promise<void> {await closeDesign(false)}
+async function discardDesign(): Promise<void> {
+  if (designPage.value?.busy || designPage.value?.unconfirmed) return
+  if (designPage.value?.discardChanges() !== true) return
+  await closeDesign(false)
 }
 watch(scenarioId, async id => {
   const own = ++generation
@@ -91,12 +116,13 @@ watch(scenarioId, async id => {
     if (!id) throw new Error('编码管理入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeDataCode.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    runtime = new PageRuntime({pageId: 'data-code-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    await runtime.load()
-    if (!active || own !== generation) {runtime.dispose(); return}
+    const page = new PageRuntime({pageId: 'data-code-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
+    runtime = page
+    await page.load()
+    if (!active || own !== generation) {page.dispose(); return}
     view.value = dataSet.getView(LowcodeDataCode.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, requestStateChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true
+    sparkProvide(PAGE_RUNTIME, page); ready.value = true
     dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}

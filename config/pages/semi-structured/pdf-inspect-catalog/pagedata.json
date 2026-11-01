@@ -1,0 +1,19 @@
+{
+  "scenarioId": "A2D63AB2AAEF156E7727094A23AEA433",
+  "tables": {
+    "Base_FileInspectConfig": {
+      "modelBinding": {"modelId": "6d177477-0ecb-41c2-9299-ff037935066d", "modelName": "Base_FileInspectConfig"},
+      "views": {"default": {
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "createtime", "updatetime"]},
+        "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "id", "direction": "asc"}]
+      }, "definition": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
+        "queryContext": {"ruleId": ""},
+        "queryConfig": {"fields": ["id", "name", "description", "enabled", "rule_config"]},
+        "filterExpression": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "ruleId"}}
+      }}
+    }
+  },
+  "resourceRelations": [], "viewCascades": []
+}

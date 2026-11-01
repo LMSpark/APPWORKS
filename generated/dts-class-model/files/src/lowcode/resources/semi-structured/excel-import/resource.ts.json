@@ -20,7 +20,8 @@
       "title": "LowcodeExcelImport",
       "properties": {
         "navigationScenarioId": true,
-        "catalogMetaName": true
+        "catalogMetaName": true,
+        "designScenarioId": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -58,7 +59,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.790Z",
+  "generatedAt": "2026-11-01T19:20:26.114Z",
   "models": {
     "LowcodeExcelImport": {
       "name": "LowcodeExcelImport",
@@ -78,6 +79,11 @@
             },
             {
               "name": "catalogMetaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designScenarioId",
               "readable": true,
               "writable": false
             }

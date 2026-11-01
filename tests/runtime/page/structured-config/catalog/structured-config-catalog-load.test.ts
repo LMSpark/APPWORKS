@@ -6,27 +6,28 @@ import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {buildFormalModels, StructuredCatalogHttp} from './structured-config-catalog.fixture'
+import {WORKFLOW, topicModels, topicTexts} from './formal-topic.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? catalogText}}),
+  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {dataSpaceId: string; metaNames: string[]}) => input.dataSpaceId === WORKFLOW ? topicModels(WORKFLOW) : Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
 
 beforeEach(() => {
   http = new StructuredCatalogHttp({
     Base_DataViewList: [{rowid: 'V1', AppId: 'APP', name: 'A', createuser: 'U-ROW'}],
-    _Base_DataWorkFlow: [{rowid: 'W1', AppId: 'APP', FlowName: 'B', createuser: 'U-ROW'}],
+    Base_WorkflowDefinition: [{rowid: 'W1', name: 'B', workflow_key: 'B', status: '1'}],
+    workflowStatus: [],
     Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
   })
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
     buildFormalModels({
       Base_DataViewList: ['rowid', 'AppId', 'name', 'description', 'createuser', 'crttime'],
-      _Base_DataWorkFlow: ['rowid', 'AppId', 'FlowName', 'functiondesc', 'createuser', 'crttime'],
       Base_UserInfo: ['ID', 'ROWID', 'UserName'],
     }).find(m => m.metaName === metaName),
   ))
@@ -64,7 +65,8 @@ describe('structured-config catalog loaders', () => {
   it('LowcodeWorkflowDefinition.loadCatalog loads through the formal DataView owner', async () => {
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeWorkflowDefinition.navigationScenarioId, name: 'wf', raw: {}})
     const ds = await LowcodeWorkflowDefinition.loadCatalog(LowcodeWorkflowDefinition.navigationScenarioId)
-    expect(ds.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')?.rows[0]).toMatchObject({FlowName: 'B'})
+    ds.triggerAutoLoad()
+    await vi.waitFor(() => expect(ds.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')?.rows[0]).toMatchObject({name: 'B'}))
     ds.destroy()
   })
 

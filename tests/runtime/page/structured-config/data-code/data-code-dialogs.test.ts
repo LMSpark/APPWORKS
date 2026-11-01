@@ -1,41 +1,24 @@
-import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark} from '@spark-appworks/spark-component'
+import {Spark, RendererTable, registerAllRenderers} from '@spark-appworks/spark-component'
+import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
+import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
-
-const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
-let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
-const models = buildFormalModels({
-  Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
-  Base_AppSystemList: ['rowid', 'AppName'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-  Base_StructureType: ['rowid', 'Mrowid', 'Name'],
-}).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId  }p${  ({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName]}`}))
+import {codeService, designText} from './data-code.fixture'
+const state = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof codeService>}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
-  get lowcodeHttp() {return http},
-  lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => catalogText}}),
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {metaNames: string[]}) => Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
+  get lowcodeHttp() {return state.current.http},
+  lowcodeApi: {readRequestScope: () => state.current.readRequestScope(), dataSpace: {
+    get design() {return state.current}, get runtime() {return state.current.runtime},
+  }},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async () => designText}}),
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
 }))
-beforeEach(() => {
-  http = new StructuredCatalogHttp({
-    Base_CodeDesign: [{rowid: 'C1', AppID: 'APP', Name: '订单号', createuser: 'U-ROW'}],
-    Base_AppSystemList: [{rowid: 'APP', AppName: '应用'}],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
-    Base_StructureType: [{rowid: 'S1', Mrowid: '000000', Name: '基础'}],
-  })
-  service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
-  service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeDataCode.navigationScenarioId, name: '编码', raw: {}})
-  service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
-  runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
-})
-afterEach(() => {vi.restoreAllMocks()})
+beforeEach(() => {state.current = codeService(); registerAllRenderers()})
+afterEach(() => vi.restoreAllMocks())
 
 async function mountEditor() {
   const router = createRouter({
@@ -46,18 +29,54 @@ async function mountEditor() {
       meta: {blueprintScenarioId: LowcodeDataCode.navigationScenarioId},
     }],
   })
-  await router.push({path: '/editor', query: {codeDesignId: 'C1'}})
+  await router.push({path: '/editor', query: {codeDesignId: 'C1', applicationId: 'A'}})
   await router.isReady()
   const wrapper = mount(DataCodeEditor, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   await flushPromises()
   return wrapper
 }
 
-const dialogButtons = ['父码规则', '序列规则', '时间片', '初始化数据', '编码类编辑', '编码类选择'] as const
+const dialogButtons = ['初始化数据', '编码类编辑', '编码类选择'] as const
 
 describe('data-code editor dialogs', () => {
+  it('opens sequence selection from its node even when no business table is selected', async () => {
+    state.current.http.records['Base_CodeDesign']![0]!['BusTableRowid'] = ''
+    state.current.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 4, ParameterName: '', CodeNodeDesignJson: '{}'}
+    state.current.http.records['Dict_CodeNodeType']!.push({rowid: 'D4', val: '4', txt: '顺序号串', ordIdx: '4'})
+    const wrapper = await mountEditor()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
+    const action = wrapper.getComponent(RendererTable).props('actions')!.children![0]!
+    if (typeof action !== 'object') throw new Error('expected standard row action')
+    const choose = action.props!['onClick'] as (row: unknown) => void
+    choose(state.current.http.records['Base_CodeNodeDesign']![0]); await flushPromises()
+    expect(wrapper.getComponent(SequenceSelectorDialog).props('nodeId')).toBe('N1')
+    expect(state.current.http.reads.some(read => read.table === 'Base_CodingSequence')).toBe(true)
+    expect(state.current.http.saves).toEqual([])
+    wrapper.unmount()
+  })
+  it('opens a time rule for the selected node and blocks host discard until the local dialog closes', async () => {
+    state.current.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 3,
+      ParameterName: 'yyyyMMDD', CodeNodeDesignJson: '{"DateFormat":"yyyyMMDD","RefBusTableField":""}'}
+    state.current.http.records['Dict_CodeNodeType']!.push({rowid: 'D3', val: '3', txt: '时间字符串', ordIdx: '3'})
+    const wrapper = await mountEditor()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
+    const actions = wrapper.getComponent(RendererTable).props('actions')!
+    const action = actions.children![0]!
+    if (typeof action !== 'object') throw new Error('expected standard row action')
+    const choose = action.props!['onClick'] as (row: unknown) => void
+    choose(state.current.http.records['Base_CodeNodeDesign']![0]); await flushPromises()
+    const dialog = wrapper.getComponent(TimeStringDialog)
+    expect(dialog.props('nodeId')).toBe('N1')
+    expect(dialog.props('busTableRowid')).toBe('T1')
+    expect((wrapper.vm as unknown as {discardChanges: () => boolean}).discardChanges()).toBe(false)
+    expect(state.current.http.saves).toEqual([])
+    dialog.vm.$emit('close'); await flushPromises()
+    expect(wrapper.findComponent(TimeStringDialog).exists()).toBe(false)
+    wrapper.unmount()
+  })
   it.each(dialogButtons)('opens dialog via %s button', async (label) => {
     const wrapper = await mountEditor()
+    await vi.waitFor(() => expect(wrapper.findAll('button').some(b => b.text().includes(label))).toBe(true))
     await wrapper.findAll('button').find(b => b.text().includes(label))!.trigger('click')
     await flushPromises()
     expect(document.body.textContent?.length).toBeGreaterThan(10)

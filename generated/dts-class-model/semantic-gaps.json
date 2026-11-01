@@ -1,5 +1,5 @@
 {
-  "gapCount": 3378,
+  "gapCount": 3357,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -5419,6 +5419,22 @@
       "componentLayer": "data-field",
       "componentDirectory": "fields/data-components",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice",
+      "moduleName": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
+      "componentName": "FieldJson",
+      "componentType": "r-json",
+      "componentLevel": "field-level",
+      "componentLayer": "data-field",
+      "componentDirectory": "fields/data-components"
     },
     {
       "kind": "attribute",
@@ -16785,111 +16801,6 @@
     },
     {
       "kind": "module",
-      "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/design-client",
-      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/design-client",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/design-client 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts"
-    },
-    {
-      "kind": "model",
-      "className": "ExcelImportDesignDocument",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignDocument 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 6,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "ExcelImportDesignDocument",
-      "memberName": "importConfigId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignDocument.importConfigId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 7,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "ExcelImportDesignDocument",
-      "memberName": "layout",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignDocument.layout 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "ExcelImportDesignDocument",
-      "memberName": "rules",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignDocument.rules 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 9,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "ExcelImportDesignClient",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignClient 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 11,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "ExcelImportDesignClient",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 13,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "ExcelImportDesignClient",
-      "memberName": "read",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignClient.read 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 14,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "ExcelImportDesignClient",
-      "memberName": "write",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ExcelImportDesignClient.write 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationLine": 15,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "module",
       "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
       "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/json-data/content-client",
       "reason": "weak-module-jsdoc",
@@ -16948,99 +16859,6 @@
     },
     {
       "kind": "module",
-      "className": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client",
-      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/pdf-inspect/design-client 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts"
-    },
-    {
-      "kind": "model",
-      "className": "PdfInspectRuleDocument",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectRuleDocument 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 6,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "PdfInspectRuleDocument",
-      "memberName": "ruleId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectRuleDocument.ruleId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 7,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "PdfInspectRuleDocument",
-      "memberName": "rule",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectRuleDocument.rule 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "PdfInspectDesignClient",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectDesignClient 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 10,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "PdfInspectDesignClient",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectDesignClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 12,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PdfInspectDesignClient",
-      "memberName": "read",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectDesignClient.read 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 13,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "PdfInspectDesignClient",
-      "memberName": "write",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PdfInspectDesignClient.write 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationLine": 14,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "module",
       "className": "@spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards",
       "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards",
       "reason": "weak-module-jsdoc",
@@ -17049,64 +16867,6 @@
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts"
-    },
-    {
-      "kind": "module",
-      "className": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client",
-      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/design-client 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts"
-    },
-    {
-      "kind": "model",
-      "className": "DataCodeDesignClient",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataCodeDesignClient 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationLine": 6,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "constructor",
-      "className": "DataCodeDesignClient",
-      "memberName": "constructor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataCodeDesignClient.constructor 的构造语义链断开：构造签名没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationLine": 8,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DataCodeDesignClient",
-      "memberName": "readDetail",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataCodeDesignClient.readDetail 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationLine": 9,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DataCodeDesignClient",
-      "memberName": "saveDetail",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataCodeDesignClient.saveDetail 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationLine": 10,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "declarationKind": "class"
     },
     {
       "kind": "module",
@@ -34030,17 +33790,6 @@
     },
     {
       "kind": "module",
-      "className": "app:lowcode/resources/semi-structured/excel-import/design-ops",
-      "moduleName": "app:lowcode/resources/semi-structured/excel-import/design-ops",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/design-ops 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/design-ops.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/design-ops.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/design-ops.ts"
-    },
-    {
-      "kind": "module",
       "className": "app:lowcode/resources/semi-structured/excel-import/resource",
       "moduleName": "app:lowcode/resources/semi-structured/excel-import/resource",
       "reason": "weak-module-jsdoc",
@@ -34098,6 +33847,18 @@
       "declarationKind": "class"
     },
     {
+      "kind": "attribute",
+      "className": "LowcodeExcelImport",
+      "memberName": "designScenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeExcelImport.designScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+      "declarationKind": "class"
+    },
+    {
       "kind": "method",
       "className": "LowcodeExcelImport",
       "memberName": "loadCatalog",
@@ -34105,7 +33866,7 @@
       "chainBreak": "LowcodeExcelImport.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "declarationKind": "class"
     },
@@ -34117,7 +33878,7 @@
       "chainBreak": "LowcodeExcelImport.loadEditor 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "declarationKind": "class"
     },
@@ -34201,17 +33962,6 @@
       "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "declarationKind": "class"
-    },
-    {
-      "kind": "module",
-      "className": "app:lowcode/resources/semi-structured/pdf-inspect/design-ops",
-      "moduleName": "app:lowcode/resources/semi-structured/pdf-inspect/design-ops",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:lowcode/resources/semi-structured/pdf-inspect/design-ops 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/design-ops.ts"
     },
     {
       "kind": "module",
@@ -34516,6 +34266,18 @@
       "declarationKind": "class"
     },
     {
+      "kind": "attribute",
+      "className": "LowcodeDataCode",
+      "memberName": "designScenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeDataCode.designScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/data-code/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
+      "declarationKind": "class"
+    },
+    {
       "kind": "method",
       "className": "LowcodeDataCode",
       "memberName": "loadCatalog",
@@ -34523,7 +34285,7 @@
       "chainBreak": "LowcodeDataCode.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
       "declarationKind": "class"
     },
@@ -34535,7 +34297,7 @@
       "chainBreak": "LowcodeDataCode.loadEditor 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
       "declarationKind": "class"
     },
@@ -39613,28 +39375,6 @@
     },
     {
       "kind": "module",
-      "className": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog",
-      "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-sheet-layout-lookup-dialog.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog",
-      "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/dialogs/excel-import-transform-rule-dialog.vue"
-    },
-    {
-      "kind": "module",
       "className": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
       "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
       "reason": "weak-module-jsdoc",
@@ -39654,28 +39394,6 @@
       "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
-      "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane",
-      "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue"
     },
     {
       "kind": "module",
@@ -39709,17 +39427,6 @@
       "declarationFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form",
-      "moduleName": "app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue"
     },
     {
       "kind": "module",
@@ -39907,36 +39614,94 @@
     },
     {
       "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog",
-      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/parent-code-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/parent-code-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/parent-code-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
       "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/parent-code-dialog.vue"
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue"
     },
     {
       "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog",
-      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
       "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/sequence-selector-dialog.vue"
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue"
     },
     {
       "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog",
-      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/time-string-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/time-string-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/time-string-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
       "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/time-string-dialog.vue"
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts"
+    },
+    {
+      "kind": "model",
+      "className": "RuleTarget",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RuleTarget",
+      "memberName": "dataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationLine": 2,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RuleTarget",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "RuleTarget",
+      "memberName": "busTableRowid",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget.busTableRowid 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",

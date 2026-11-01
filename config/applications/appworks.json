@@ -63,6 +63,22 @@
       "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
       "resourceId": "repository:scenario-view:868E62F90DB8118C74CDC9F6BCA61157",
       "path": "config/pages/structured-config/data-code-editor/pagedata.json"
+    },
+    {
+      "name": "workflowCatalog", "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "resourceId": "repository:scenario-view:5E9676B1E38860B023921F48FB4370DE", "path": "config/pages/structured-config/workflow-catalog/pagedata.json"
+    },
+    {
+      "name": "excelImportCatalog", "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+      "resourceId": "repository:scenario-view:36B01771C627B9BF5CD493DC75B996A1", "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json"
+    },
+    {
+      "name": "pdfInspectCatalog", "scenarioId": "A2D63AB2AAEF156E7727094A23AEA433",
+      "resourceId": "repository:scenario-view:A2D63AB2AAEF156E7727094A23AEA433", "path": "config/pages/semi-structured/pdf-inspect-catalog/pagedata.json"
+    },
+    {
+      "name": "excelImportEditor", "scenarioId": "0F93B82141CF40852021D704B0E30BF4",
+      "resourceId": "repository:scenario-view:0F93B82141CF40852021D704B0E30BF4", "path": "config/pages/semi-structured/excel-import-editor/pagedata.json"
     }
   ]
 }

@@ -118,6 +118,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
       :current-page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :page-sizes="props.pagination?.pageSizes ?? [10, 20, 50, 100]"
+        :disabled="paginationDisabled"
       @current-change="handlePageChange"
       @size-change="handlePageSizeChange"
     />
@@ -319,12 +320,16 @@ const rows = computed(() => buildTreeTableRows({
 }))
 const isLoading = computed(() => dataState.requestState.value === RequestState.Loading)
 const showPagination = computed(() => props.showPagination !== false && dataState.paginated.value && dataState.total.value > 0)
+const paginationDisabled = computed(() => dataState.resultReplacementBlocked.value || dataState.mutating.value
+  || dataState.requestState.value === RequestState.Preparing || isLoading.value)
 
 function handlePageChange(page: number) {
+  if (paginationDisabled.value) return
   dataState.resolvedView.value?.setPage(page)
 }
 
 function handlePageSizeChange(size: number) {
+  if (paginationDisabled.value) return
   dataState.resolvedView.value?.setPageSize(size)
 }
 const { currentRow, isMultiSelect, selectedRows } = dataState

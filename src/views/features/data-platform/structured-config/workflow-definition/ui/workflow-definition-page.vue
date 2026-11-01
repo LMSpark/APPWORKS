@@ -43,8 +43,11 @@ const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
 ]}))
 const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'FlowName', label: '工作流名称', width: 260}},
-  {type: 'r-text', props: {field: 'functiondesc', label: '描述', width: 320}},
+  {type: 'r-text', props: {field: 'name', label: '工作流名称', width: 260}},
+  {type: 'r-text', props: {field: 'workflow_key', label: '工作流编码', width: 180}},
+  {type: 'r-text', props: {field: 'description', label: '描述', width: 320}},
+  {type: 'r-select', props: {field: 'status', label: '状态', width: 120,
+    optionDataViewKey: buildDataViewKey('workflowStatus', 'default', scenarioId.value)}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createFlow(): void {void openDesignRoute(crypto.randomUUID().replaceAll('-', '').toUpperCase())}
@@ -67,7 +70,7 @@ watch(scenarioId, async id => {
     if (!active || own !== generation) {runtime.dispose(); return}
     view.value = dataSet.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true
+    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true; dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

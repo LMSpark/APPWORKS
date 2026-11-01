@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 208,
-  "directUnmatchedCount": 135,
+  "consumerCount": 202,
+  "directUnmatchedCount": 129,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -884,42 +884,6 @@
       "expression": "/api/FormDesign/GetNavigationMenus/PROJECT-1/ROOT",
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-authorization.test.ts",
       "sourceLine": 39,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/ExcelImport/ReadDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "sourceLine": 14,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/ExcelImport/WriteDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/design-client.ts",
-      "sourceLine": 24,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/PdfInspect/ReadRule",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "sourceLine": 14,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/PdfInspect/WriteRule",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/pdf-inspect/design-client.ts",
-      "sourceLine": 20,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/Codeing/GetCodeDesignDetail",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "sourceLine": 12,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/Codeing/SaveCodeDesign",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/design-client.ts",
-      "sourceLine": 17,
       "scope": "publishable-lowcode-api"
     },
     {

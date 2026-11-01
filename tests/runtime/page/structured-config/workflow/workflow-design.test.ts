@@ -6,17 +6,17 @@ import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
+import {StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
+import {topicModels, topicTexts} from '../catalog/formal-topic.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
-const models = buildFormalModels({
-  _Base_DataWorkFlow: ['rowid', 'AppId', 'FlowName', 'createuser', 'crttime'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-})
+const models = topicModels(LowcodeWorkflowDefinition.navigationScenarioId)
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+  lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
+  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readModelBatch: async () => models, readRelations: async () => []}, get runtime() {return runtime}}},
 }))
 beforeEach(() => {
   http = new StructuredCatalogHttp({})
@@ -28,7 +28,7 @@ beforeEach(() => {
 afterEach(() => {vi.restoreAllMocks()})
 
 describe('workflow design page', () => {
-  it('reads and writes design JSON', async () => {
+  it('keeps the legacy design owner isolated after switching the catalog to formal models', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [{

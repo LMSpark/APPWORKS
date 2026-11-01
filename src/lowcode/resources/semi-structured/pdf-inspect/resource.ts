@@ -2,30 +2,21 @@
  * @module app:lowcode/resources/semi-structured/pdf-inspect/resource
  */
 import type {DataSet} from '@spark-appworks/spark-data'
-import {lowcodeHttp} from '../../../lowcode-runtime'
-import {loadStructuredConfigCatalog, readStructuredConfigScope} from '../../structured-config/catalog'
-import {attachPdfInspectDesignEdit} from './design-ops'
+import {lowcodeApi} from '../../../lowcode-runtime'
+import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 
 export class LowcodePdfInspect {
-  static readonly navigationScenarioId = 'D0A6B3C4E5F6789012CDEF0123456789'
-  static readonly catalogMetaName = '_Base_PdfInspectRule'
+  static readonly navigationScenarioId = 'A2D63AB2AAEF156E7727094A23AEA433'
+  static readonly catalogMetaName = 'Base_FileInspectConfig'
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    const {assertCurrent} = readStructuredConfigScope('PDF 识别')
-    return loadStructuredConfigCatalog({
-      scenarioId, assertCurrent,
-      catalogMetaName: this.catalogMetaName,
-      models: [
-        {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'rowid', direction: 'asc'}]},
-        {metaName: 'Base_UserInfo'},
-      ],
-    })
+    if (scenarioId !== this.navigationScenarioId) throw new Error('PDF目录场景身份不匹配')
+    const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
+    if (!projectId) throw new Error('请先选择执行应用')
+    return loadLowcodeRuntimeScenario({projectId, scenarioId})
   }
 
   static async loadEditor(scenarioId: string): Promise<DataSet> {
-    const {assertCurrent} = readStructuredConfigScope('PDF 识别')
-    const dataSet = await this.loadCatalog(scenarioId)
-    attachPdfInspectDesignEdit(dataSet, lowcodeHttp, assertCurrent)
-    return dataSet
+    return this.loadCatalog(scenarioId)
   }
 }

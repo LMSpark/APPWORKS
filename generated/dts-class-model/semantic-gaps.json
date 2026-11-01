@@ -5508,7 +5508,7 @@
       "chainBreak": "UseFieldOptionsReturn.toControlValue 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "typeAlias"
     },
@@ -5520,7 +5520,7 @@
       "chainBreak": "UseFieldOptionsReturn.toSourceValue 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 42,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "typeAlias"
     },

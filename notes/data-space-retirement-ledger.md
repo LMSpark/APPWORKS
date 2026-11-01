@@ -4514,3 +4514,12 @@ flowchart TD
 - TDD证据：data-view-errors-red.log先有一项夹具漏modelBinding，并非有效语义RED；补明确fixture模型身份后red-2.log三项均因缺错误提示失败。修复后green.log3通过，覆盖原生失败DataView绑定表格、隐藏元信息、查询/保存错误、开关切换只显示一次与恢复清除。JSON目录原自建queryError显示与公共提示重复，page-error-red.log证明2条而应1条；删除被替代的页面查询错误拼接，保留流程/文件错误。data-view-errors-page-green.log2文件26项通过，定向lint通过。
 - 影响测试data-view-errors-impact.log16文件172项通过，表格/表单/工具栏及半结构链覆盖；列表区补验和最终ClassModel→verify→build仍在执行。普通删除完整引用、6条存量path问题、跨重载恢复、浏览器和其余完整架构用例继续开放，本轮不结题。
 - 最终门禁：ClassModel正式生成、全仓verify和串行build由3547退出0确认（data-view-errors-classmodel/verify/build.log），已有2项AI模型告警保留；16文件172项及独立列表区14项影响测试通过，范围不重叠不重复计入26项局部验证。当前代码只修公共错误可见性及移除已替代的JSON目录错误拼接，不修改任何授权或服务数据。准备提交推送该检查点，JSON模型正向运行查询及其授权预期仍未验证，保持原整体目标活动。
+
+## 2026-11-02 动态选项查询失败与迟到选择写回
+
+- 延续f15c8585c检查点，用户继续授权真实烟测及适时提交推送，不重复申请许可。公共useFieldOptions原仅消费显式级联状态，直接optionDataViewKey在查询失败/刷新期间仍暴露旧候选，且异步业务回调后可写回旧查询的选择。统一消费直接DataView的请求状态、loadingError及绑定/查询代次，保留原值，不回退静态候选；成功查询后恢复。Idle本地视图继续可用，既有权限守卫及显式级联责任保持。
+- JsonDataViewChoice删除重复查询错误/请求状态判断，复用同一公共能力。完整键指南示例纠正为CATALOG@Categories@default。测试宿主原手工解析不支持正式完整键，改复用spark-data的parse/build/resolveDataViewKey并补空间/正式模型身份反例，不在产品增加兼容旁路。
+- direct-options-red.log的首次失败来自夹具解析，不算产品RED；修正后red-2.log三项语义失败，覆盖错误可见、刷新禁选与旧异步写回。green.log三个文件28项通过；impact.log共20文件149项通过。定向lint发现一处computed窄化导致的冗余条件，改为每次调用读取实时可用性，正在执行ClassModel→全仓verify→build门禁。
+- 本轮为组件/原生DataView响应夹具验证，无真实服务写入；此前临时JSON记录/文件清理证据保持历史范围。普通删除引用完整性、存量JSON路径、模型正向运行查询、跨重载恢复、浏览器及其余全架构闭环仍开放，不结题。
+- 实服复验direct-options-source-live.json：复用RAM授权会话并刷新，当前JSON目录11条来源ID唯一且名称非空；EB63C2BFA0394BD58D777E56B3810F09原文件为object，原生编辑取消后回读一致。端点白名单守卫10次读取、0写入及0阻断尝试；不证明全部来源文件可用或浏览器通过。
+- 最终门禁：direct-options-classmodel.log正式生成完成，direct-options-verify.log全仓verify和direct-options-build.log串行build由会话17173退出0确认，既有2项AI模型告警及构建动态导入提示保留；20文件149项影响测试通过。生成器附带刷新若干TypeScript iterator符号编号，未手改生成物。准备提交并推送本批公共选项链修复，整体目标保持进行中。

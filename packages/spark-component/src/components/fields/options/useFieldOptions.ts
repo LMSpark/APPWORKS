@@ -8,7 +8,7 @@ import { computed, shallowRef } from 'vue'
 import type { ComputedRef } from 'vue'
 import type { SparkOptionFieldProps } from '../../shared-types.js'
 import { PAGE_RUNTIME, useSparkConsume } from '../../internal'
-import { DataMember, DataViewSelectionValue, resolveDataViewMember } from '@spark-appworks/spark-data'
+import { DataMember, DataViewSelectionValue, RequestState, resolveDataViewMember } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useFieldCascadeOptions } from './useFieldCascadeOptions'
 import {useActiveFieldRow} from '../context/useActiveFieldRow'
@@ -70,6 +70,8 @@ formatCascaderValue: (value: unknown) => string
 transferData: ComputedRef<FieldTransferOption[]>
   optionError: ComputedRef<string | undefined>
   optionsAvailable: ComputedRef<boolean>
+  /** 捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。 */
+  captureOptionsGuard: () => () => boolean
   toControlValue: (value: unknown, multiple: boolean) => unknown
   toSourceValue: (value: unknown) => unknown
 }
@@ -117,11 +119,13 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     return view
   })
 
-  const optionRevision = shallowRef(0)
+  const optionRevision = shallowRef(0), optionIntentRevision = shallowRef(0)
   const refreshOptions = () => {optionRevision.value++}
-  useDataViewEventBridge({resolvedView: optionDataView, onRowsChanged: refreshOptions, onCleared: refreshOptions,
-    onRequestStateChanged: refreshOptions, onConfigChanged: refreshOptions,
-    onCurrentRowChanged: refreshOptions, onSelectedRowsChanged: refreshOptions, onEditingChanged: refreshOptions})
+  const invalidateOptions = () => {optionIntentRevision.value++;refreshOptions()}
+  const refreshPointer = () => {if(resolvedOptionDataMember.value===DataMember.Rows)refreshOptions();else invalidateOptions()}
+  useDataViewEventBridge({resolvedView: optionDataView, onRowsChanged: invalidateOptions, onCleared: invalidateOptions,
+    onRequestStateChanged: invalidateOptions, onConfigChanged: invalidateOptions,
+    onCurrentRowChanged: refreshPointer, onSelectedRowsChanged: refreshPointer, onEditingChanged: refreshOptions})
 
   const optionConfig = computed(() => {
     optionRevision.value
@@ -154,6 +158,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
       throw new Error('FIELD_OPTION_LABEL: 多标题字段需要直接绑定DataView.rows')
     }
     if (view) {
+      if(!optionsAvailable.value)return []
       const source = cascade.definition.value
         ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
             rows: cascade.bound.value && cascade.state.value.status === 'ready' ? cascade.state.value.options : []})
@@ -218,9 +223,24 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     return normalizeMultiValue(value, valueSeparator.value)
   }
 
-  const optionsAvailable = computed(() => !cascade.definition.value
-    || (cascade.bound.value && cascade.state.value.status === 'ready'))
-  const optionError = computed(() => cascade.definition.value ? cascade.state.value.error : undefined)
+  const optionsAvailable = computed(() => {
+    optionRevision.value
+    if(cascade.definition.value)return cascade.bound.value&&cascade.state.value.status==='ready'
+    const view=optionDataView.value
+    return !view||(!view.destroyed&&!view.loadingError&&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState))
+  })
+  const optionError = computed(() => {
+    optionRevision.value
+    if(cascade.definition.value)return cascade.state.value.error
+    const view=optionDataView.value
+    return view&&!view.destroyed?view.loadingError?.message:undefined
+  })
+  function captureOptionsGuard():()=>boolean {
+    const isAvailable=()=>optionsAvailable.value
+    const available=isAvailable(),view=optionDataView.value,spec=cascade.definition.value,epoch=optionIntentRevision.value
+    return()=>{try{return available&&isAvailable()&&cascade.definition.value===spec&&optionDataView.value===view
+      &&(spec!==undefined||epoch===optionIntentRevision.value)}catch{return false}}
+  }
 
   function toControlValue(value: unknown, multiple: boolean): unknown {
     if (cascade.definition.value?.valueFormat !== 'selection-string') return value
@@ -230,8 +250,8 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   }
 
   function toSourceValue(value: unknown): unknown {
+    if(!optionsAvailable.value)throw new Error(cascade.definition.value?'FIELD_CASCADE_VALUE: 当前选项尚不可用':'FIELD_OPTION_VALUE: 当前选项尚不可用')
     if (!cascade.definition.value) return value
-    if (!optionsAvailable.value) throw new Error('FIELD_CASCADE_VALUE: 当前选项尚不可用')
     if (cascade.definition.value.valueFormat !== 'selection-string') return value
     const values: unknown[] = Array.isArray(value) ? value : value === null || value === undefined ? [] : [value]
     const tokens = values.map(item => {
@@ -295,6 +315,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     transferData,
     optionError,
     optionsAvailable,
+    captureOptionsGuard,
     toControlValue,
     toSourceValue,
   }
@@ -320,5 +341,6 @@ export function useOptionField<TValue>(options: UseOptionFieldOptions<TValue>) {
     ...optionHelpers,
     ...permissionHelpers,
     isCurrentFieldEditable: computed(() => permissionHelpers.isCurrentFieldEditable.value && optionHelpers.optionsAvailable.value),
+    captureWriteGuard:()=>{const permissionGuard=permissionHelpers.captureWriteGuard(),optionGuard=optionHelpers.captureOptionsGuard();return()=>permissionGuard()&&optionGuard()},
   }
 }

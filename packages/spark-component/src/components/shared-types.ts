@@ -510,8 +510,8 @@ export type SparkOptionFieldProps<TValue = unknown, TOption = unknown> = SparkFi
     /**
      * 选项 DataView 定位键。
      *
-     * 通常指向某个 DataView，例如 `Categories@default`，
-     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。
+     * 完整键例如 `CATALOG@Categories@default`，从本次运行实例的DataView生成候选。
+     * 直接查询在途或失败时不使用旧候选、不回退静态options；错误可见，原字段值保留，恢复成功后再允许选择。
      */
     optionDataViewKey?: string
     /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */

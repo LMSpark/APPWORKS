@@ -80,6 +80,46 @@ function mountMulti(f: Awaited<ReturnType<typeof fixture>>) {
   })
 }
 
+function mountDirect(f:Awaited<ReturnType<typeof fixture>>,onChange?:()=>Promise<void>){
+  f.ds.removeCascade({cascadeId:'city'})
+  return mountFieldInContext({component:FieldSelect,type:'r-select',model:f.orders.currentRow!,fieldName:'city',dataSource:f.orders,pageDataSet:f.ds,
+    componentProps:{optionDataViewKey:'FORM@Cities@default',options:[{value:'FALLBACK',label:'不应回退'}],...(onChange?{onChange}:{})},
+    global:{stubs:{'el-select':Select,'el-option':Option,'el-form-item':FormItem}}})
+}
+
+describe('direct option DataView failure and recovery',()=>{
+  it('shows direct query failure, removes stale choices and rejects synthetic input without clearing the original value',async()=>{
+    const f=await fixture(),wrapper=mountDirect(f)
+    try{
+      await flushPromises();expect(wrapper.findAll('.option').map(item=>item.attributes('data-value'))).toEqual(['GLOBAL'])
+      f.query.mockRejectedValueOnce(new Error('直接选项查询被拒绝'));await f.choices.refresh();await flushPromises()
+      expect(wrapper.get('.form-item').attributes('data-error')).toContain('直接选项查询被拒绝')
+      expect(wrapper.findAll('.option')).toHaveLength(0);expect(wrapper.get('.select').attributes('data-disabled')).toBe('true')
+      wrapper.getComponent(Select).vm.$emit('update:modelValue','GLOBAL');await flushPromises();expect(f.orders.hasEditingChanges()).toBe(false);expect(f.orders.getEditingRow(1)?.['city']).toBe('01|0')
+      f.query.mockResolvedValueOnce(queryResult('Cities',[{id:77,code:'NEW',name:'恢复选项'}]));await f.choices.refresh();await flushPromises()
+      expect(wrapper.get('.form-item').attributes('data-error')).toBeUndefined();expect(wrapper.get('.select').attributes('data-disabled')).toBe('false');expect(wrapper.findAll('.option').map(item=>item.attributes('data-value'))).toEqual(['NEW']);expect(f.orders.hasEditingChanges()).toBe(false)
+    }finally{wrapper.unmount();f.ds.destroy()}
+  })
+
+  it('keeps old choices unavailable during a direct refresh and resumes only on its new result',async()=>{
+    const f=await fixture(),wrapper=mountDirect(f);let complete:((value:ReturnType<typeof queryResult>)=>void)|undefined,request:ReturnType<typeof f.choices.refresh>|undefined
+    try{
+      await flushPromises();f.query.mockImplementationOnce(()=>new Promise(resolve=>{complete=resolve}));request=f.choices.refresh();await flushPromises()
+      expect(wrapper.get('.select').attributes('data-disabled')).toBe('true');expect(wrapper.findAll('.option')).toHaveLength(0)
+      complete?.(queryResult('Cities',[{id:77,code:'NEW',name:'新结果'}]));await request;await flushPromises();expect(wrapper.get('.select').attributes('data-disabled')).toBe('false');expect(wrapper.findAll('.option').map(item=>item.attributes('data-value'))).toEqual(['NEW'])
+    }finally{complete?.(queryResult('Cities',[]));await request?.catch(()=>undefined);wrapper.unmount();f.ds.destroy()}
+  })
+
+  it('drops an asynchronous choice captured before the option query was replaced',async()=>{
+    const f=await fixture();let complete:(()=>void)|undefined,entered=false;const gate=new Promise<void>(resolve=>{complete=resolve})
+    const wrapper=mountDirect(f,async()=>{entered=true;await gate})
+    try{
+      await flushPromises();wrapper.getComponent(Select).vm.$emit('update:modelValue','GLOBAL');await flushPromises();expect(entered).toBe(true)
+      f.query.mockResolvedValueOnce(queryResult('Cities',[{id:77,code:'NEW',name:'新结果'}]));await f.choices.refresh();await flushPromises();complete?.();await flushPromises();expect(f.orders.hasEditingChanges()).toBe(false);expect(f.orders.getEditingRow(1)?.['city']).toBe('01|0')
+    }finally{complete?.();wrapper.unmount();f.ds.destroy()}
+  })
+})
+
 describe('field components consume native value cascades', () => {
   it('isolates identical binding addresses in separate runtime spaces', async () => {
     const a = await fixture()

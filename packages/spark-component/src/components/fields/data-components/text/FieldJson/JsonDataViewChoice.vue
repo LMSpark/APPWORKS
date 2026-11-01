@@ -15,7 +15,7 @@ FieldJson内部的标量成员选项控件，复用同一DataView选项解析，
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount} from 'vue'
-import {parseDataViewKey, RequestState} from '@spark-appworks/spark-data'
+import {parseDataViewKey} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, useSparkConsume} from '../../../../internal'
 import {useFieldOptions} from '../../../options/useFieldOptions'
 
@@ -43,8 +43,8 @@ const source = computed(() => {
 const helpers = useFieldOptions({get optionDataViewKey() {return source.value.view ? props.optionDataViewKey : undefined}})
 const state = computed(() => {
   const options = helpers.flatOptions.value, view = source.value.view
-  return {options, error: source.value.error || helpers.optionError.value || view?.loadingError?.message,
-    disabled: props.disabled || !view || view.destroyed || [RequestState.Preparing, RequestState.Loading, RequestState.Failed].includes(view.requestState)}
+  return {options, error: source.value.error || helpers.optionError.value,
+    disabled: props.disabled || !view || view.destroyed || !helpers.optionsAvailable.value}
 })
 const nonScalar = computed(() => props.modelValue !== undefined && props.modelValue !== null
   && !['string', 'number', 'boolean'].includes(typeof props.modelValue))

@@ -2179,7 +2179,7 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonDataViewChoice.vue.json",
-      "sourceModifiedAt": "2026-11-01T17:52:05.966Z"
+      "sourceModifiedAt": "2026-11-01T23:29:16.758Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectForm.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonObjectForm.vue",
@@ -2344,7 +2344,7 @@
     "packages/spark-component/src/components/fields/options/useFieldOptions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json",
-      "sourceModifiedAt": "2026-10-13T02:15:23.517Z"
+      "sourceModifiedAt": "2026-11-01T23:37:11.343Z"
     },
     "packages/spark-component/src/components/index.ts": {
       "sourceFile": "packages/spark-component/src/components/index.ts",
@@ -2364,7 +2364,7 @@
     "packages/spark-component/src/components/shared-types.ts": {
       "sourceFile": "packages/spark-component/src/components/shared-types.ts",
       "shardFile": "files/packages/spark-component/src/components/shared-types.ts.json",
-      "sourceModifiedAt": "2026-11-01T23:02:05.613Z"
+      "sourceModifiedAt": "2026-11-01T23:29:16.756Z"
     },
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",

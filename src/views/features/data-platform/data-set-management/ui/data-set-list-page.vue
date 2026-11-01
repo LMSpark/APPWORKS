@@ -113,7 +113,7 @@ const actions = computed<RToolbarProps>(() => {
         // 标准行上下文是渲染镜像；按绑定视图主键定位原行，再由原查询核身份和读取权限。
         const original = row && dataSource && toRaw(dataSource) === catalog?.view
           ? catalog.view.rows.find(item => catalog.view.getPkKey(item) === dataSource.getPkKey(row)) : undefined
-        const allowed = () => owner.value === catalog && !busy.value && !editing.value && !bindingsOpen.value
+        const allowed = () => owner.value === catalog && !busy.value && !editing.value && !bindingsOpen.value && !designId.value
           && !!original && !!catalog?.designTarget(original)
         return {disabled: !allowed(), onClick: async () => {if (original && allowed()) {choose(original); await action.run()}}}
       },
@@ -145,7 +145,7 @@ const filter = computed<RFilterProps>(() => {
   ]}
 })
 function choose(row: DataRow): void {
-  if (busy.value || editing.value || bindingsOpen.value) return
+  if (busy.value || editing.value || bindingsOpen.value || designId.value) return
   const current = owner.value
   const original = toRaw(row)
   if (current?.isCurrent() && current.view.rows.includes(original)) current.view.setSelectedRows([original])

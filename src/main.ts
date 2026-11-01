@@ -409,6 +409,10 @@ async function startApp() {
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,
         componentAliases,
+        systemPageIdentityCompanions: [{
+          path: '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page',
+          hostPath: '/features/data-platform/structured-config/logic-view/ui/logic-view-list-page',
+        }],
         isAuthenticated: hasLowcodeSession,
         applicationPathPrefix: '/apps/:projectId',
         preAuthNavTree,

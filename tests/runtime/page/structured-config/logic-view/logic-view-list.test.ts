@@ -6,6 +6,7 @@ import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable} from '@spark-appworks/spark-component'
 import {defineComponent, h} from 'vue'
 import LogicViewList from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue'
+import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
@@ -61,7 +62,9 @@ describe('logic-view list page', () => {
     await flushPromises()
     await wrapper.findAll('button').find(b => b.text() === '打开设计')!.trigger('click')
     await flushPromises()
-    expect(push).toHaveBeenCalledWith(expect.objectContaining({query: expect.objectContaining({viewId: 'V1'})}))
+    expect(push).toHaveBeenCalledWith(expect.objectContaining({
+      query: expect.objectContaining({viewId: 'V1', [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: 'lv'}),
+    }))
     wrapper.unmount()
   })
 

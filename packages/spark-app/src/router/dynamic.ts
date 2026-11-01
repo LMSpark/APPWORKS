@@ -85,6 +85,11 @@ export type DynamicRouterOptions = {
   componentAliases?: Readonly<Record<string, readonly string[]>>
 
   /**
+   * 没有导航节点的系统页。只借用宿主路径上的节点身份，不把其它节点算作自己的身份。
+   */
+  systemPageIdentityCompanions?: readonly SystemPageIdentityCompanion[]
+
+  /**
    * 应用路径前缀（如 '/apps/:projectId'）。
    * 设置后，config 页面路由自动加此前缀，使业务路由统一在应用 URL 下。
    * system-page 路由不受影响（DB 中已含完整路径）。
@@ -138,6 +143,12 @@ export type DynamicRouterOptions = {
   loadScenario?: (command: RuntimeScenarioLoadCommand) => Promise<DataSet>
 }
 
+/** 伴随页借用宿主路径上的导航节点，自身路径单独注册为系统页宿主。 */
+export type SystemPageIdentityCompanion = Readonly<{
+  path: string
+  hostPath: string
+}>
+
 type RouteRegistrationOptions = {
   skipApplicationPrefix?: boolean
   routePathPrefix?: string
@@ -158,6 +169,7 @@ export class DynamicRouter {
   private staticComponentMap: Map<string, Component> = new Map()
   /** canonical system-page path → explicit alias paths from the Vue page registry */
   private staticComponentAliases: Map<string, readonly string[]> = new Map()
+  private identityCompanions: readonly SystemPageIdentityCompanion[] = []
   /** 应用路径前缀（如 '/apps/:projectId'），config 路由自动加此前缀 */
   private applicationPathPrefix: string
   /** applicationPathPrefix 的实体路径匹配（如 '^/apps/[^/]+'） */
@@ -223,6 +235,7 @@ constructor(options: DynamicRouterOptions) {
         this.staticComponentAliases.set(canonicalPath, normalizedAliases)
       }
     }
+    this.identityCompanions = this.readIdentityCompanions(options.systemPageIdentityCompanions)
 
     // 初始化页面实例池
     this.runtimePool = new PageRuntimePool({
@@ -515,6 +528,69 @@ constructor(options: DynamicRouterOptions) {
     }
   }
 
+  private readIdentityCompanions(companions: readonly SystemPageIdentityCompanion[] | undefined): readonly SystemPageIdentityCompanion[] {
+    if (companions === undefined) return []
+    const seen = new Set<string>()
+    return companions.map(companion => {
+      const path = this.requireCompanionPath(companion.path, '伴随页')
+      const hostPath = this.requireCompanionPath(companion.hostPath, '伴随页宿主')
+      if (path === hostPath) throw new Error(`伴随页不能把自身当作宿主：${path}`)
+      if (seen.has(path)) throw new Error(`伴随页路径重复：${path}`)
+      seen.add(path)
+      if (!this.staticComponentMap.has(path)) throw new Error(`伴随页缺少组件：${path}`)
+      if (!this.staticComponentMap.has(hostPath)) throw new Error(`伴随页宿主缺少组件：${hostPath}`)
+      return {path, hostPath}
+    })
+  }
+
+  private requireCompanionPath(path: string, label: string): string {
+    const normalized = this.normalizePath(path.split(/[?#]/, 1)[0] ?? '')
+    if (normalized === '/' || path.includes('?') || path.includes('#')) throw new Error(`${label}路径无效：${path}`)
+    return normalized
+  }
+
+  private findIdentityHostNodes(items: readonly RuntimeNavigationItem[], hostPath: string, matches: RuntimeNavigationItem[] = []): RuntimeNavigationItem[] {
+    for (const item of items) {
+      const target = resolveNavNodeRuntimeTarget(item)
+      if (target.kind === 'route' && target.routeKind === 'page') {
+        const relativePath = this.normalizePath(target.path.split(/[?#]/, 1)[0] ?? '')
+        if (relativePath === hostPath && this.staticComponentMap.has(relativePath)) matches.push(item)
+      }
+      if (item.children?.length) this.findIdentityHostNodes(item.children, hostPath, matches)
+    }
+    return matches
+  }
+
+  private registerIdentityCompanions(tree: RuntimeNavigation, owners: SystemPageIdentityOwner[]): void {
+    for (const companion of this.identityCompanions) {
+      const component = this.staticComponentMap.get(companion.path)
+      if (component === undefined) throw new Error(`伴随页缺少组件：${companion.path}`)
+      const routePath = this.addApplicationPrefix(companion.path)
+      if (this.registeredRoutes.has(routePath)) throw new Error(`伴随页路径已被导航占用：${routePath}`)
+      const hosts = this.findIdentityHostNodes(tree.items, companion.hostPath)
+      const seenIds = new Set<string>()
+      for (const node of hosts) {
+        if (seenIds.has(node.id)) throw new Error(`伴随页宿主节点重复：${node.id}`)
+        seenIds.add(node.id)
+        owners.push(this.systemPages.createOwner({
+          scope: 'application',
+          path: routePath,
+          ...(tree.projectId === undefined ? {} : {projectId: tree.projectId}),
+          node,
+          pageId: companion.path,
+          component,
+        }))
+      }
+      this.router.addRoute({
+        path: routePath,
+        name: this.systemPages.hostRouteName('application', routePath),
+        component: SystemPageRouteHost,
+        meta: this.systemPages.hostRouteMeta('application', routePath),
+      })
+      this.registeredRoutes.add(routePath)
+    }
+  }
+
   private mapNavigationRoutePath(relativePath: string, options: RouteRegistrationOptions): string {
     return options.routePathPrefix !== undefined
       ? this.addRoutePathPrefix(options.routePathPrefix, relativePath)
@@ -549,6 +625,7 @@ constructor(options: DynamicRouterOptions) {
             ...(appNavTree.projectId === undefined ? {} : { systemPageProjectId: appNavTree.projectId }),
             systemPageOwners: nextSystemPageOwners,
           })
+          this.registerIdentityCompanions(appNavTree, nextSystemPageOwners)
           routerLogger.info('运行导航路由注册完成', { nodeCount: appNavTree.items.length })
         }
         if (platformNavTree !== null) {

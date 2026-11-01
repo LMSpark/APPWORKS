@@ -761,15 +761,16 @@ describe('layout rebuild entry', () => {
     }}))
     const {wrapper, instance} = await page(), session = f.sessions[0]!
     await select(wrapper, 'Orders')
-    await writeBound(wrapper, 'newTable', 'OrderBinding'); await writeBound(wrapper, 'newName', 'detail')
+    expect(wrapper.getComponent(DataSpaceViewEditor).findAllComponents(FieldText).map(field => field.props('field'))).not.toContain('newTable')
+    await writeBound(wrapper, 'newName', 'detail')
     await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
     expect(wrapper.getComponent(DataSpaceViewEditor).text()).not.toContain('定义投影已失效')
     expect(session.definitionStatus).toBe('unloaded')
-    expect(session.metadataDataSet.getView('DataViewDefinition')!.rows.some(row => row['tableName'] === 'OrderBinding' && row['viewId'] === 'detail')).toBe(true)
+    expect(session.metadataDataSet.getView('DataViewDefinition')!.rows.some(row => row['tableName'] === 'Orders' && row['viewId'] === 'detail')).toBe(true)
     await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false); expect(f.fileWrites).toHaveLength(1); expect(writes(f)).toHaveLength(0)
     const reopened = await f.open('A')
-    expect(reopened.definitionDataSet!.getView('OrderBinding', 'detail')).toBeDefined()
+    expect(reopened.definitionDataSet!.getView('Orders', 'detail')).toBeDefined()
     expect(reopened.definitionDataSet!.getView('CustomersAlias', 'shared')!.pageSize).toBe(24)
   })
   it('saves only the selected view without losing the unchanged legacy graph or assembling the whole target', async () => {
@@ -1861,7 +1862,7 @@ describe('native graph layout persistence', () => {
     expect(directory.rows).toHaveLength(0)
     await select(wrapper, 'PurchaseOrders')
     expect(wrapper.findComponent(DataSpaceViewEditor).exists(), wrapper.findAll('[role="alert"]').map(item => item.text()).join('\n')).toBe(true)
-    await writeBound(wrapper, 'newTable', 'PurchaseBinding')
+    expect(wrapper.findComponent(DataSpaceViewEditor).findAllComponents(FieldText).map(field => field.props('field'))).not.toContain('newTable')
     await writeBound(wrapper, 'newName', 'detail')
     await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
@@ -1869,7 +1870,7 @@ describe('native graph layout persistence', () => {
     await (await boundNumber(wrapper, 'pageSize')).setValue('31')
     await wrapper.get('[data-action="discard-view-edits"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false)
-    const reopened = await f.open('A'), bound = reopened.definitionDataSet?.getView('PurchaseBinding', 'detail')
+    const reopened = await f.open('A'), bound = reopened.definitionDataSet?.getView('PurchaseOrders', 'detail')
     expect(bound?.dataTable?.modelBinding).toMatchObject({modelId, modelName: 'PurchaseOrders'})
     expect(bound?.columns.some(column => column.name === 'id')).toBe(true)
     expect(bound?.pageSize).not.toBe(31)
@@ -4691,7 +4692,7 @@ describe('native data-space design entry', () => {
     }
     expect(metadata.getView('Base_DataModel', 'default')!.rows).toEqual(modelRows)
     expect(metadata.getView('Base_DataModel_Field', 'default')!.rows).toEqual(fieldRows)
-    expect(editor.findAllComponents(FieldText).map(field => field.props('field'))).toContain('newTable')
+    expect(editor.findAllComponents(FieldText).map(field => field.props('field'))).not.toContain('newTable')
   })
 
   it('keeps a binding removal draft recoverable and verifies an unknown save without replay', async () => {
@@ -6955,6 +6956,7 @@ describe('native data-space design entry', () => {
     await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
     expect(f.sessions[0]!.metadataDataSet.destroyed).toBe(true)
     expect(wrapper.text()).toContain('DATA_SPACE_DESIGN_SESSION_DISPOSED')
+    expect(instance.isDirty).toBe(false)
     expect(f.fileWrites).toHaveLength(0)
   })
 
@@ -6983,47 +6985,46 @@ describe('native data-space design entry', () => {
     const f = fixture({missing: true})
     const {wrapper} = await page()
     await select(wrapper, 'Orders')
-    await writeBound(wrapper, 'newTable', 'OrderBinding')
     await writeBound(wrapper, 'newName', 'detail')
     await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
     expect(f.fileWrites).toHaveLength(0)
     await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
     const reopened = await f.open('A')
-    expect(reopened.definitionDataSet?.getView('OrderBinding', 'detail')).toBeDefined()
-    expect(reopened.definitionDataSet?.getView('OrderBinding', 'default')).toBeDefined()
+    expect(reopened.definitionDataSet?.getView('Orders', 'detail')).toBeDefined()
+    expect(reopened.definitionDataSet?.getView('Orders', 'default')).toBeDefined()
     expect(f.fileWrites).toHaveLength(1)
   })
 
   it.each(['cancel', 'save'] as const)('refreshes implicit default views after later edits are resolved by %s', async resolution => {
     const f = fixture({missing: true}), {wrapper} = await page()
     await select(wrapper, 'Orders')
-    await writeBound(wrapper, 'newTable', 'OrderBinding'); await writeBound(wrapper, 'newName', 'detail')
+    await writeBound(wrapper, 'newName', 'detail')
     await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
     const dataSet = f.sessions[0]!.metadataDataSet, views = dataSet.getView('DataViewDefinition')!
     const save = dataSet.saveChanges.bind(dataSet)
     vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
       const result = await save(options)
-      const row = views.rows.find(row => row['tableName'] === 'OrderBinding' && row['viewId'] === 'detail')!
+      const row = views.rows.find(row => row['tableName'] === 'Orders' && row['viewId'] === 'detail')!
       views.updateEditingValue(views.getPkKey(row)!, 'pageSize', 39)
       return result
     })
     await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
     expect(views.hasEditingChanges()).toBe(true)
-    expect(views.rows.some(row => row['tableName'] === 'OrderBinding' && row['viewId'] === 'default')).toBe(false)
+    expect(views.rows.some(row => row['tableName'] === 'Orders' && row['viewId'] === 'default')).toBe(false)
     expect(f.fileWrites).toHaveLength(1)
     await wrapper.get(`[data-action="${resolution === 'cancel' ? 'discard-view-edits' : 'save-views'}"]`).trigger('click')
-    await vi.waitFor(() => expect(views.rows.some(row => row['tableName'] === 'OrderBinding' && row['viewId'] === 'default')).toBe(true))
+    await vi.waitFor(() => expect(views.rows.some(row => row['tableName'] === 'Orders' && row['viewId'] === 'default')).toBe(true))
     expect(views.hasEditingChanges()).toBe(false)
     expect(f.fileWrites).toHaveLength(resolution === 'save' ? 2 : 1)
     const reopened = await f.open('A')
-    expect(reopened.definitionDataSet?.getView('OrderBinding', 'default')).toBeDefined()
-    if (resolution === 'save') expect(reopened.definitionDataSet?.getView('OrderBinding', 'detail')?.pageSize).toBe(39)
+    expect(reopened.definitionDataSet?.getView('Orders', 'default')).toBeDefined()
+    if (resolution === 'save') expect(reopened.definitionDataSet?.getView('Orders', 'detail')?.pageSize).toBe(39)
   })
 
   it('reports a confirmed save with failed directory readback and retries the read without writing again', async () => {
     const f = fixture({missing: true}), {wrapper} = await page()
     await select(wrapper, 'Orders')
-    await writeBound(wrapper, 'newTable', 'OrderBinding'); await writeBound(wrapper, 'newName', 'detail')
+    await writeBound(wrapper, 'newName', 'detail')
     await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
     const views = f.sessions[0]!.metadataDataSet.getView('DataViewDefinition')!
     vi.spyOn(views, 'loadFromServer').mockRejectedValueOnce(new Error('目录查询暂不可用'))
@@ -7033,7 +7034,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.text()).not.toContain('视图配置已保存并回读确认')
     await wrapper.get('[data-action="reload-view-directory"]').trigger('click'); await flushPromises()
     expect(views.requestState).toBe(RequestState.Loaded)
-    expect(views.rows.some(row => row['tableName'] === 'OrderBinding' && row['viewId'] === 'default')).toBe(true)
+    expect(views.rows.some(row => row['tableName'] === 'Orders' && row['viewId'] === 'default')).toBe(true)
     expect(f.fileWrites).toHaveLength(1)
   })
 

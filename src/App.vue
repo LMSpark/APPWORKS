@@ -204,11 +204,6 @@ function resolveActiveProjectId(): string {
 }
 
 const activeProjectId = ref(resolveActiveProjectId())
-const headerTitle = computed(() =>
-  activeProjectId.value === 'platform'
-    ? 'SPARK 平台管理'
-    : activeProjectId.value === APPLICATION_CATALOG_PROJECT_ID ? 'SPARK 应用工场' : `SPARK · ${activeProjectId.value}`
-)
 const theme = useTheme()
 const isDark = computed(() => theme?.isDark ?? false)
 const toggleTheme = () => theme?.toggle()
@@ -463,6 +458,12 @@ navigationActionRegistry.register('theme-toggle', () => {
 
 /* ── 导航模型（预认证时使用 preAuthNavTree，登录后使用远程导航树） ── */
 const _navRoot = reactive<RuntimeNavigation>({ title: '', childPlacement: 'header', items: [] })
+const headerTitle = computed(() => {
+  if (activeProjectId.value === 'platform') return 'SPARK 平台管理'
+  if (activeProjectId.value === APPLICATION_CATALOG_PROJECT_ID) return 'SPARK 应用工场'
+  const name = _navRoot.projectId === activeProjectId.value ? _navRoot.title.trim() : ''
+  return name.length > 0 ? `SPARK · ${name}` : 'SPARK'
+})
 const nav = useNavigation(_navRoot, {
   onCrossAppNavigate: handleCrossAppNavigate,
   getHeaders: lowcodeRequestHeaders,
@@ -567,9 +568,14 @@ function applyNavTree(navData: RuntimeNavigation | null): void {
   if (navData && safeItems.length > 0) {
     _navRoot.childPlacement = navData.childPlacement
     _navRoot.items = safeItems
-  } else if (import.meta.env.DEV) {
-    console.warn('[Nav] ⚠️ 导航树为空')
+    _navRoot.title = navData.title
+    if (navData.projectId !== undefined) _navRoot.projectId = navData.projectId
+    else delete _navRoot.projectId
+    return
   }
+  _navRoot.title = ''
+  delete _navRoot.projectId
+  if (import.meta.env.DEV) console.warn('[Nav] ⚠️ 导航树为空')
 }
 
 function syncAppNavProjectionFromRouter(): void {

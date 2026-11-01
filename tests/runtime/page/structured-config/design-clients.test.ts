@@ -2,6 +2,7 @@ import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataCodeDesignClient, LogicViewDesignClient, WorkflowDesignClient, JsonDataContentClient, ExcelImportDesignClient, PdfInspectDesignClient} from '@spark-appworks/spark-lowcode-api'
+import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
 let http: StructuredCatalogHttp
@@ -39,19 +40,42 @@ describe('DataCodeDesignClient', () => {
 
 describe('LogicViewDesignClient', () => {
   const client = () => new LogicViewDesignClient(http)
-  it('read returns viewId and data', async () => {
+  it('read sends viewId as a query parameter', async () => {
+    const calls: Array<{url: string; data: unknown; params: unknown}> = []
+    http.post = async (url: string, data?: unknown, config?: Partial<RequestConfig>) => {
+      calls.push({url, data, params: config?.params})
+      return {Code: 200, Result: {data: {tables: []}}} as never
+    }
     const payload = await client().read('V1')
     expect(payload.viewId).toBe('V1')
     expect(payload.data).toEqual({tables: []})
+    expect(calls).toEqual([{url: '/api/ViewData/GetView', data: undefined, params: {viewId: 'V1'}}])
+  })
+  it('rejects an empty viewId before requesting', async () => {
+    const post = vi.spyOn(http, 'post')
+    await expect(client().read('  ')).rejects.toThrow('逻辑视图 viewId 不能为空')
+    expect(post).not.toHaveBeenCalled()
   })
   it('write posts SaveView', async () => {
     await client().write({viewId: 'V1', data: {tables: []}})
-    expect(http.posts.some(p => p.url.includes('SaveView'))).toBe(true)
+    const saved = http.posts.find(post => post.url.includes('SaveView'))
+    expect(saved?.data).toEqual({viewId: 'V1', data: {tables: []}})
   })
   it('rejects invalid read payload', async () => {
     const broken = new StructuredCatalogHttp({})
     broken.post = async () => 0 as never
     await expect(new LogicViewDesignClient(broken).read('V1')).rejects.toThrow(/无效/)
+  })
+  it('treats a missing design file as a blank new design', async () => {
+    const broken = new StructuredCatalogHttp({})
+    broken.post = async () => ({Code: 500, Message: '[500] [404] 文件不存在', Result: null}) as never
+    const payload = await new LogicViewDesignClient(broken).read('V1')
+    expect(payload).toEqual({viewId: 'V1', data: {}})
+  })
+  it('still rejects other business failures from GetView', async () => {
+    const broken = new StructuredCatalogHttp({})
+    broken.post = async () => ({Code: 500, Message: '[500] 数据库连接失败', Result: null}) as never
+    await expect(new LogicViewDesignClient(broken).read('V1')).rejects.toThrow('数据库连接失败')
   })
 })
 

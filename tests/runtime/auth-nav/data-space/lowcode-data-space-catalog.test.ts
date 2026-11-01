@@ -5,7 +5,7 @@ import {config,flushPromises,mount} from '@vue/test-utils'
 import {createMemoryHistory,createRouter} from 'vue-router'
 import ElementPlus, {ElSelect} from 'element-plus'
 import {DataSet,type DataView,type QueryParams,type DataViewFilterTree} from '@spark-appworks/spark-data'
-import {Spark,FieldText,FieldSelect,RendererButton,RendererTable,RendererFilter,RendererToolbar,RendererForm} from '@spark-appworks/spark-component'
+import {Spark,FieldText,FieldSelect,RendererButton,RendererTable,RendererFilter,RendererToolbar,RendererForm,RendererDialog} from '@spark-appworks/spark-component'
 import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
@@ -445,6 +445,26 @@ describe('catalog page entry',()=>{
     await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.fullPath).toBe(before)
     expect((wrapper.vm as any).$?.setupState?.designId).toBe('TARGET')
     expect(openDesign).not.toHaveBeenCalled()
+  })
+  it('does not open a second designer session and still closes the dialog',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'
+      ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0],rowid:'SECOND',Name:'Second'}]:defaults[view.tableName]??[]))
+    const {wrapper}=await page(),rows=wrapper.findAll('tbody tr')
+    const design=rows[0]!.findAll('button').find(item=>item.text()==='设计')!
+    await design.trigger('click');await flushPromises()
+    const state=()=>(wrapper.vm as any).$?.setupState
+    expect(state().designId).toBe('TARGET')
+    const opened=openDesign.mock.calls.length
+    const again=rows[1]!.findAll('button').find(item=>item.text()==='设计')!
+    expect(again.attributes('disabled')).toBeDefined()
+    await again.trigger('click');await flushPromises()
+    expect(openDesign).toHaveBeenCalledTimes(opened)
+    expect(state().designId).toBe('TARGET')
+    const dialog=wrapper.findAllComponents(RendererDialog).find(item=>item.props('title')==='数据集设计')
+    expect(dialog).toBeDefined()
+    expect(dialog!.props('closeDisabled')).not.toBe(true)
+    dialog!.vm.$emit('update:modelValue',false);await flushPromises()
+    expect(state().designId).toBe('')
   })
   it('opens the native designer for the clicked row rather than a different selection',async()=>{
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'

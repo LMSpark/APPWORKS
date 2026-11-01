@@ -1,0 +1,61 @@
+2026-11-01 只读烟测（认证会话，dev server http://localhost:5273/，应用 D99A1DCE9894698799101EFD70F8FC76）
+方法：页面内记录 GetData 的表名、过滤里的模型名、返回 Code 与 Count。不新增、不保存、不删除。凭据未写入本文件。
+模型查询的 x-FormKey 是设计场景 8D1AB14DD8277F3E7017CD38F77B09FD，过滤 dataSetId 等于导航节点 ID。
+
+== 已知首屏断链 ==
+0C70 应用系统列表
+  页面：BUILTIN_SCENARIO_SOURCE_MISSING: 0C70F74793F9E858B71E0DBDEC784D57 不是已登记的系统程序场景
+  抛错前没有 GetData，也没有 Base_DataModel 查询。页面没有读到该空间的正式模型。
+8CBB 外部服务管理
+  页面：BUILTIN_SCENARIO_SOURCE_MISSING: 8CBB62EBC873A38DB9E6EEF177AFC731 不是已登记的系统程序场景
+  抛错前没有 GetData。
+
+A133 数据编码
+  页面停在：正式数据空间模型必须唯一且属于当前数据空间: _Base_CodeDesign
+  Base_DataModel dataSetId=A133… Name=_Base_CodeDesign → Code 200 Count 0
+  同空间 Base_UserInfo Count 1，Base_StructureType Count 1。不是整空间没有模型。
+
+5E96 数据工作流
+  页面停在：正式数据空间模型必须唯一且属于当前数据空间: _Base_DataWorkFlow
+  Base_DataModel dataSetId=5E96… Name=_Base_DataWorkFlow → Count 0
+  Name=Base_UserInfo → Count 0
+
+E0BB 数据工作流
+  页面停在：正式数据空间模型必须唯一且属于当前数据空间: _Base_DataWorkFlow
+  Name=_Base_DataWorkFlow → Count 0
+  Name=Base_UserInfo → Count 1，随后读到 36 个字段
+
+36B0 电子表格导入导出配置
+  页面停在：正式数据空间模型必须唯一且属于当前数据空间: _Base_ImportConfig
+  Name=_Base_ImportConfig → Count 0
+  Name=Base_UserInfo → Count 1
+
+A2D6 PDF效验管理
+  页面停在：正式数据空间模型必须唯一且属于当前数据空间: Base_UserInfo
+  Name=Base_UserInfo → Count 0
+  Name=_Base_PdfInspectRule → Count 0
+
+CB52 字典管理
+  页面停在：正式模型字段重复: Base_AppSystemList
+  Base_DataModel 对 _Base_DictType、Base_AppSystemList、Base_UserInfo、Base_StructureType 各 Count 1
+  Base_AppSystemList 的字段查询 Count 41，输出名 isWeChat 有两条：5AC6922E956E1DB751E3AFC7A4D3FE16、994DA1B4AF971F26936C03383B9C31A9
+  没有打开设计，没有改字段。
+
+A8FB 表和视图管理
+  首屏仍有 20 行。返回 0 行的 Base_DataModel 名称：Base_Desensitization_Rule、Dict_encryption_rule、TblField_type、Base_WorkflowDefinition、workflowStatus、Base_AppSystemList。共 6 次。
+  _base_dbInfo、_Base_TblList、_Base_ViewList、Base_TblField、Base_TblRln 各 Count 1。
+
+28F3 数据表和视图
+  首屏仍有 20 行。上面 6 个名称再加 Base_TblRln，共 7 次 Count 0。其余四个目录模型 Count 1。
+
+== 再进一层 ==
+服务器管理：选中一行后打开编辑，对话框有取消/确定，没有错误。点了取消。
+数据库管理：选中服务器“sqlserver本地测试库”和数据库“PX”后点“管理”。页面停在原地址，提示“系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配”。
+数据字典 EDB0：选中一行后“方案设计”对话框打开，没有上述错误。随后关闭。
+逻辑视图 EB72：选中一行后“打开设计”把地址改成 logic-view-design-page?viewId=106F4CD483394270A668AA89C24756E4。$route.matched 为空，设计页组件没有挂上，只剩外壳。
+JSON：点开一条记录后出现内容区，按钮含“保存内容”。没有错误，没有点保存。
+/dev：仍显示“缺少当前导航身份，不能选择项目”。没有选项目。
+
+== 设计对话框复验（未提交的关闭与绑定表名） ==
+数据空间目录打开计量单位 03F5471C81BB27C6AF72E8337AA69207。对话框打开时各行“设计”按钮均为禁用。读完后页头关闭按钮可用，点击后对话框消失。
+选中模型 _Base_DictData 的“数据视图”页：已有模型绑定显示 _Base_DictData，旁边是“新视图名称”和“新增视图草稿”。没有自由输入“绑定表名”。没有新增，没有保存。

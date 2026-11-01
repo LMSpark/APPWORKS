@@ -353,10 +353,12 @@ export class LowcodeDataSpaceDesignSession {
       // 文件模型以正式声明的资源及字段为真源，不伪造数据库模型身份或补查Base_DataModel_Field。
       return {file, table, input: undefined, sourceName: undefined, key: JSON.stringify([tableName, table['resourceId'], table['columns']])}
     }
-    if (!file || !isRecord(table) || !isRecord(binding) || typeof binding['modelId'] !== 'string' || typeof binding['modelName'] !== 'string') {
-      throw new Error('字段目录绑定与正式模型不一致')
+    const modelId = isRecord(binding) ? binding['modelId'] : undefined
+    const modelName = isRecord(binding) ? binding['modelName'] : undefined
+    if (!isRecord(table) || typeof modelId !== 'string' || typeof modelName !== 'string') {
+      throw new Error(file ? '字段目录绑定与正式模型不一致' : '尚无视图文件')
     }
-    const input = {scenarioId: this.targetId, modelId: binding['modelId'], modelName: binding['modelName']}
+    const input = {scenarioId: this.targetId, modelId, modelName}
     const models = this.metadataDataSet.getView('Base_DataModel', 'default')
     const matches = models?.rows.filter(row => row['rowid'] === input.modelId) ?? [], model = matches[0]
     if (models?.requestState !== SparkData.RequestState.Loaded
@@ -504,10 +506,10 @@ export class LowcodeDataSpaceDesignSession {
    * @throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。
    */
   async loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext> {
-    const initial = this.viewFieldSnapshot(input), text = initial.file.getText()
+    const initial = this.viewFieldSnapshot(input), text = initial.file?.getText() ?? null
     const assertCurrent = (): void => {
       const current = this.viewFieldSnapshot(input)
-      if (current.file !== initial.file || current.file.getText() !== text || current.key !== initial.key) throw new Error('视图函数目录身份已变化')
+      if (current.file !== initial.file || (current.file?.getText() ?? null) !== text || current.key !== initial.key) throw new Error('视图函数目录身份已变化')
     }
     return this.readFilterContext(input, assertCurrent)
   }

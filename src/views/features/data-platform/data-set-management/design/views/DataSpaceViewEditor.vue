@@ -216,9 +216,9 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
       <FieldSelect v-if="bindings.length" field="binding" label="已有模型绑定" :clearable="false" />
       <RendererButton v-if="binding && bindings.includes(binding)" button-type="danger" data-action="preview-remove-binding"
         :disabled="blocked || viewInputDirty" :label="fileResource ? '删除此文件模型…' : '解除此模型绑定'" @click="previewBindingRemoval" />
-      <FieldText v-if="!binding && !bindings.length" field="newTable" label="绑定表名" placeholder="绑定表名" />
+      <FieldText v-if="!binding && !bindings.length && !implicitTable" field="newTable" label="绑定表名" placeholder="绑定表名" />
       <FieldText field="newName" label="新视图名称" placeholder="新视图名称" />
-      <RendererButton data-action="add-view" :disabled="blocked || !newName || !(binding || newTable) || !!activeProperty || filterPending" label="新增视图草稿" @click="add" />
+      <RendererButton data-action="add-view" :disabled="blocked || !newName || !(binding || newTable || implicitTable) || !!activeProperty || filterPending" label="新增视图草稿" @click="add" />
     </RendererForm>
   </section>
 </template>
@@ -446,6 +446,7 @@ const bindings = computed(() => {
     : isRecord(table['modelBinding']) && table['modelBinding']['modelId'] === props.modelId && table['modelBinding']['modelName'] === props.modelName))
     .map(([name]) => name).filter(name => bindingView.rows.some(item => item['tableName'] === name)) : []
 })
+const implicitTable = computed(() => !props.fileResource && !bindings.value.length && props.modelName ? props.modelName : '')
 watch(() => [ownerKey.value, props.rowKey], () => {
   const table = row.value?.['tableName']
   setControl('ownerKey', ownerKey.value)
@@ -673,7 +674,7 @@ async function adoptRemote(): Promise<void> {
 async function add(): Promise<void> {
   if (blocked.value || activeProperty.value || filterPending.value) return
   return run(async () => {
-    const tableName = binding.value || newTable.value
+    const tableName = binding.value || implicitTable.value || newTable.value
     const viewId = newName.value
     if (!viewId.trim() || viewId.trim() !== viewId || viewId.includes('@') || viewId.startsWith('#')) throw new Error('视图名称无效')
     const session = props.session

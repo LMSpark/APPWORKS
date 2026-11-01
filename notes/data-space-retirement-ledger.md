@@ -19,7 +19,7 @@
 | 结构化目录在代码里拼场景 | 配置未正式化 | `structured-config/catalog.ts:35-55` 仍生成 JSON，`viewCascades` 为空。字典目录已改读 `config/pages/data-platform/data-dictionary/catalog-views.json`，编辑空间 69B 不变 | 编码、逻辑视图、工作流、JSON、Excel、PDF 改查询配置仍须改源码 | 这些目录随后改由正式 pagedata 承接。字典目录这一行不再算未迁 | `catalog.ts` 不再拼 tables / filterLookups；改正式配置后不改 host 即可生效 |
 | 设计文件视图运行时挂上 | 配置未正式化 | `repository/staged-design-file-view.ts` 在代码里挂 scope 表和文件命令视图 | 编码、逻辑视图、工作流、JSON、Excel、PDF 的设计保存不在正式场景里 | 同一资源适配保留在 executor 内；视图定义改由正式配置声明 | 页面不再依赖运行时 attach 才能找到设计视图；未改内容仍被保留 |
 | 编码、工作流、Excel、PDF 的设计 URL 未核 | 服务合同未证实 | `data-code/design-client.ts:12`、`workflow-definition/design-client.ts:3,14,20`（注释写明实服 URL 待核）、`excel-import/design-client.ts:14`、`pdf-inspect/design-client.ts:14` | 保存可能 404 或写到错误合同；测试只 mock 了 HTTP | 保持缺口。不用夹具或本地 Java 目录核销。不成立的动作关闭并标明缺口 | 真实服务回执、精确回读、关闭重开都成立后，才删除对应拒绝或占位 |
-| 逻辑视图 GetView / SaveView 无在线证据 | 服务合同未证实 | `logic-view/design-client.ts:14` 调用 `/api/ViewData/GetView` | 本地目录有端点不等于当前服务支持 | 同上，保持缺口 | 同上 |
+| 逻辑视图 GetView / SaveView 无在线证据 | GetView 已提交；SaveView 仍无在线证据 | 2026-11-01 只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl.getView`：按 `rowId` 查到目录记录后按 `viewList.getName()+".json"` 读文件；文件服务对不存在的文件抛 `ServiceException(NOT_FOUND=404,"文件不存在")`，其 `GlobalExceptionHandler` 格式化成 `"[404] 文件不存在"` 随 `AjaxResult{Code:404}` 回传；`getView` 的 `catch(Exception e){throw new SystemException(e.getMessage(),e)}` 把该文案原样包进新异常，外层 `handleSystem` 再加 `"[500] "` 前缀，最终 `AjaxResult{Code:500, Message:"[500] [404] 文件不存在"}`（HTTP 状态仍 200，未调用 `response.setStatus`）。对照 `JsonDataServiceImpl.getJsonData`（同仓同模式）对完全相同的“文件不存在”有专门 catch 返回空结果，`getView` 缺这一同构处理（后端自身不一致，未改 Java）。前端 `LogicViewDesignClient.read()` 据此把该具体拒绝消息识别为“目录记录存在但从未保存过设计 JSON”的合法空白新设计状态，返回 `{data:{}}`；其它拒绝消息仍抛出。浏览器复验：视图 `106F4CD483394270A668AA89C24756E4`（“接口拼接数据”）打开设计页不再报 500，显示空白设计树（根节点 `$`，0 字段），未执行保存 | 本地目录有端点不等于当前服务支持；`getView` 对“文件不存在”缺少与 `getJsonData` 同构的空结果处理 | 保持 `SaveView` 缺口；`GetView` 这一条已核实根因并在前端做了针对性兼容 | `SaveView` 仍无在线回执，未验证首次保存会创建文件、二次读取是否成功；该闭环留待用户要求执行保存时再验 |
 | 物理表/视图预览没有正式资源身份 | 身份缺口 | `database/catalog/table/preview-view-ops.ts` 用临时 Table 描述调用 GetData，本地构造可读列 | 不能证明服务端行/字段权限；不能改成普通模型绑定来假装闭环 | 保持缺口，直到正式资源身份、稳定主键和拒绝语义有回包 | 有服务端权限回包和 SPA 只读查询证据后，才改这一段的完成状态 |
 | 旧服务器 HTML 没有别名 | 身份缺口 | `vue-pages.json` 只给表和视图登记了 `/DataBaseManage/TableAndView`；没有 `ServerManagerment.html` | 旧导航节点打不开服务器管理页 | 不猜映射。有正式节点和部署身份后再加别名 | 别名目标与正式导航节点一致，并有打开证据 |
 | 设计正文和部分对话框没有字段绑定 | 标准组件缺口 | 编码名称 `data-code-editor-page.vue:10`；JSON `json-data-page.vue:15`；Excel / PDF / 工作流 / 逻辑视图使用 textarea 或 `v-model`；复制表 `copy-table-dialog.vue:11`；表设计工作流过滤 `table-design-dialog.vue:29` | 编辑覆盖、权限和取消不走 DataView | 先用现有标准字段组件绑定原设计 DataView。窄树/图编辑器可以保留，但必须写回原视图 | 这些原生 input / textarea 删除后，读写、取消和权限测试通过 |
@@ -58,20 +58,24 @@
 
 | bug | 分类 | 证据 | 原实现事实 | 目标 | 待核实 |
 | --- | --- | --- | --- | --- | --- |
-| 内置应用页用导航节点 ID 装运行场景 | 前端断链 | 应用系统列表 `0C70`、外部服务管理 `8CBB` 报 `BUILTIN_SCENARIO_SOURCE_MISSING: … 不是已登记的系统程序场景`。`AppList.vue:139`、`api-management-page.vue:117`、`api-interface-list-page.vue:150`、`api-config-page.vue:139`、`NavHostProjectPicker.vue:105,127` 都调 `loadLowcodeRuntimeScenario`；`builtin-application-registry.ts` 只放行四个仓内场景 | 内置应用改为仓内场景后，这些页面的场景装载入口没有跟着迁 | 按结构化目录的同一条正式模型装配链，或在 `config/pages` 正式登记场景；二选一需要裁决 | 这些节点空间在后端有哪些正式模型 |
-| 导航节点空间缺正式模型 | 后端空间配置缺口 | 数据编码 `A133` 缺 `_Base_CodeDesign`；数据工作流 `5E96`、`E0BB` 缺 `_Base_DataWorkFlow`；Excel `36B0` 缺 `_Base_ImportConfig`；PDF `A2D6` 缺 `Base_UserInfo` 等。报错均为"正式数据空间模型必须唯一且属于当前数据空间"，首条 `Base_DataModel` 查询 0 行 | `loadStructuredConfigCatalog` 以 `node.conid` 为空间 ID 读模型，前端按合同拒绝 | 经数据空间设计在对应空间补正式模型；不在前端兜底或改借别的空间 | 写这些空间需要用户授权 |
-| 字典管理 `CB52` 模型字段冲突 | 存量数据缺陷 | "正式模型字段重复: Base_AppSystemList"，`data-space-design-api.ts:334`；同页经 `EDB0` 正常 | `CB52` 空间的 `Base_AppSystemList` 有同规范名、输出定义不同的字段记录 | 在设计页核对并修正该空间字段记录；不在前端去重 | 冲突的具体两条字段 |
+| 内置应用页用导航节点 ID 装运行场景 | 前端断链 | 应用系统列表 `0C70`、外部服务管理 `8CBB` 报 `BUILTIN_SCENARIO_SOURCE_MISSING: … 不是已登记的系统程序场景`。`AppList.vue:139`、`api-management-page.vue:117`、`api-interface-list-page.vue:150`、`api-config-page.vue:139`、`NavHostProjectPicker.vue:105,127` 都调 `loadLowcodeRuntimeScenario`；`builtin-application-registry.ts` 只放行四个仓内场景 | 内置应用改为仓内场景后，这些页面的场景装载入口没有跟着迁 | 按结构化目录的同一条正式模型装配链，或在 `config/pages` 正式登记场景；二选一需要裁决 | 2026-11-01 只读：两页抛错前都没有 GetData，页面没有读到这两个空间的正式模型 |
+| 导航节点空间缺正式模型 | 后端空间配置缺口 | 数据编码 `A133` 缺 `_Base_CodeDesign`；数据工作流 `5E96`、`E0BB` 缺 `_Base_DataWorkFlow`；Excel `36B0` 缺 `_Base_ImportConfig`；PDF `A2D6` 缺 `Base_UserInfo` 与 `_Base_PdfInspectRule`。查询走设计场景 `8D1`，`dataSetId` 为节点 ID，Code 200 Count 0 | `loadStructuredConfigCatalog` 以 `node.conid` 为空间 ID 读模型，前端按合同拒绝 | 经数据空间设计在对应空间补正式模型；不在前端兜底或改借别的空间 | `A133` 同空间 `Base_UserInfo`、`Base_StructureType` 各 1 行；`E0BB`、`36B0` 的 `Base_UserInfo` 各 1 行；`5E96` 的 `Base_UserInfo` 也是 0 行。写这些空间仍要用户授权 |
+| 字典管理 `CB52` 模型字段冲突 | 存量数据缺陷 | "正式模型字段重复: Base_AppSystemList"，`data-space-design-api.ts:334`；同页经 `EDB0` 正常 | `CB52` 空间的 `Base_AppSystemList` 模型本身 Count 1；字段查询 Count 41，输出名 `isWeChat` 有两条 `5AC6922E…`、`994DA1B4…` | 在设计页核对并修正这两条字段记录；不在前端去重 | 两条记录的输出定义差异还没打开设计核对。修正需要用户授权 |
 | 数据空间目录"未解析应用" | 范围不一致 | 目录 `Base_DataSet` 不带过滤返回 1357 个空间（首页 `sysid=902A722C…`）；`Base_AppSystemList` 只返回当前应用 1 行；`lowcode-data-space-catalog.ts:347` | 目录范围与应用选项范围不同 | 二者用同一应用范围，或应用选项能解析目录里出现的全部应用 | 服务端对两表的范围规则 |
-| 无视图文件时误报绑定不一致 | 文案/状态错误 | 新建首个视图草稿后出现"字段目录绑定与正式模型不一致"x2，`lowcode-data-space-view-design.ts:353`，条件含 `!file` | 文件不存在与绑定不一致合成一条错误 | 区分"尚无视图文件"与"绑定不一致" | — |
-| 设计对话框重入后无法关闭 | 交互状态 | 对话框打开时再次触发"设计"，出现 `DATA_SPACE_METADATA_SCOPE: 元数据查询目标已变化`，关闭按钮无响应，需整页刷新 | 重入同一目标时旧会话失效但没有释放 | 重入时复用或先释放旧会话；关闭始终可用 | 是否只在脚本连点时出现 |
+| 无视图文件时误报绑定不一致 | 已提交 | 新建首个视图草稿后出现"字段目录绑定与正式模型不一致"x2，`lowcode-data-space-view-design.ts` | 文件不存在与绑定不一致合成一条错误 | 可确认的首个草稿按绑定读正式字段；取消后、文件仍不存在时报"尚无视图文件" | — |
+| 设计对话框重入后无法关闭 | 已提交 | 对话框打开时再次触发"设计"，出现 `DATA_SPACE_METADATA_SCOPE`，关闭按钮无响应 | 行按钮不看对话框是否已开，状态读失败被当成未保存 | 对话框打开时禁用"设计"且不改选中行；会话失效或状态读不出时允许关闭，真有未保存修改时关闭仍禁用 | — |
 | 打开设计页整套装载两份元场景 | 按需加载偏差 | 7AB 蓝图 124 字段 / 140 物理字段、8D1 设计场景 13 模型 / 338 字段 / 301 物理字段在打开时全部查询；无视图文件时同一 `content/text` 404 读 6 次 | 元场景装配按全模型走 | 设计页按展开的工作区按需查询；同一文件状态只读一次 | 哪些视图首屏必需 |
-| 新增视图需手填绑定表名 | 交互 | 已选模型 `_Base_DictData` 下仍显示自由输入"绑定表名"；输入框失焦后"新增视图草稿"才可用 | `DataSpaceViewEditor.vue:219-221` | 当前模型就是绑定目标 | — |
-| 应用卡片列过窄、页头显示原始 ID | 布局 | 应用工场首页卡片标签/值列每行 2–4 字；页头 `SPARK - D99A1DCE…` | — | 卡片按内容宽度排版；页头显示应用名 | — |
-| 表和视图首屏 7 次空模型查询 | 待核 | 两个入口进页都有 7 次 `Base_DataModel` 返回 0 行 | — | 只查本页需要的模型 | 这 7 个模型名与用途 |
+| 新增视图需手填绑定表名 | 已提交 | 已选模型下仍显示自由输入"绑定表名" | 没有已有绑定时要手填表名 | 已选模型且没有历史绑定时，绑定表名用模型名，去掉自由输入；已有绑定仍用原选择 | — |
+| 应用卡片列过窄、页头显示原始 ID | 页头已提交；卡片列宽未做 | 页头曾是 `SPARK · D99A1DCE…`。2026-11-01 进入该应用后页头为 `SPARK · 软件工坊[AppWorks]`，与导航树标题一致；应用工场页头仍是「SPARK 应用工场」。卡片列宽未改 | 页头直接拼接应用 ID | 卡片按内容宽度排版；页头显示导航树应用名，名称未到时只显示「SPARK」 | — |
+| 表和视图首屏空模型查询 | 待核 | `A8FB` 6 次、`28F3` 7 次 `Base_DataModel` Count 0。名称：`Base_Desensitization_Rule`、`Dict_encryption_rule`、`TblField_type`、`Base_WorkflowDefinition`、`workflowStatus`、`Base_AppSystemList`；`28F3` 另有 `Base_TblRln`。两页目录仍各 20 行 | 页面按固定模型名补查，缺的不阻断目录 | 只查本页需要的模型 | 这些名称各自对应哪段目录功能 |
+| 逻辑视图“打开设计”没有挂上页面 | 已提交 | `EB72` 选中一行后进入设计页，地址带 `viewId=106F4CD4…` 与 `__sparkNavigationId=EB720370…`，页面出现「逻辑视图设计」。`GetView` 的 `viewId` 改为查询参数后不再报缺少参数；2026-11-01 再核对该视图“文件不存在”的根因并在前端识别为空白新设计后，设计页不再报 500，显示空白设计树，没有保存 | 设计页路径没有进入当前应用路由表 | 从已登记路由打开，并带上当前导航的数据空间身份 | 该视图的设计 JSON 从未保存，首次保存是否能创建文件未验证（未执行保存） |
+| 数据库“管理”找不到表和视图导航 | 前端断链 | `62DB` 选中服务器和数据库 `PX` 后点“管理”，地址不变，提示“系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配” | `openTableView` 按 alias 找表和视图节点，当前活动导航对不上 | 管理入口打开当前应用里已登记的表和视图页 | 对得上的导航节点是 `A8FB` 还是 `28F3` |
 
 **队列调整。** 在原第 1 轮前插入第 0 轮"内置应用页场景装载"，等待裁决装载方式；后端空间缺模型与 `CB52` 字段冲突需用户授权写入后经数据空间设计修正，不进前端队列。其余条目按归属挂到原轮次：设计页的误报、重入、按需加载与绑定表名挂在第 2 轮之后作为设计页下一批（本次第 2 轮只做三处页面快照），卡片与页头进第 8 轮，表和视图空查询进第 5 轮。
 
-**前三轮完成（2026-10-31，分支 `1031`，未提交）。** 三轮都先有失败测试再实现。全量 `test:run` 379 个文件 7135 项通过，三条已知 15 秒超时本次全量未复现；typecheck、变动 ESLint、`verify:rules`、`generate:class-model-surface`、`build` 退出 0。本次没有新的 SPA 写入。
+**前三轮完成（2026-10-31，分支 `1031`）。** 已提交 `39368fcee` 并推送到 `origin/1031` 与 `gitlab` `light/SPARK_AppWorks`。
+
+**设计页下一批（关闭与绑定表名，已提交）。** 没有场景视图文件时，可确认的首个视图草稿按该绑定读正式模型字段；草稿取消且文件仍不存在时报“尚无视图文件”。设计对话框打开时“设计”禁用，不再改目录选中行，也不再装第二份会话；会话已释放、元数据目标变化或状态读不出来时允许关闭，真有未保存修改时关闭仍禁用。已选模型且没有历史绑定时，新增视图的绑定表名用模型名，不再手填。已有一条或多条绑定仍用原来的选择。打开设计页时整套装载 7AB / 8D1 仍未做。`useProjectRouter.ts` 与 `tests/runtime/auth-nav/application-scope.test.ts` 仍引用不存在的 `parseApplicationPath`，本轮未改。前三轮的全量测试与生成记录仍以 `39368fcee` 为准。本次没有新的 SPA 写入。
 
 - **第 1 轮 前端角色。** 已从 `lowcode-runtime.ts`、`src/main.ts`、`spark-app` 的 `types.ts`/`bootstrap.ts`/README、`CapabilityDemo.vue` 删除 `roles` 与 `isLowcodePlatformAdministrator`；`permissions` 与路由守卫保持原行为。测试：`tests/runtime/auth-nav/navigation/auth-state-guard.test.ts`。
 - **第 2 轮 设计页三处快照。** 参数基线改由输入参数会话持有：构造时从目标 `Base_DataSet` 行捕获，确认保存或回读后更新；页面不再传 `parameterBaseline`，调用方仍可显式给 `expectedValue`。文件绑定未知状态改读定义 DataView 自身的 `hasUnconfirmedSave`。历史恢复的 JSON 快照改为订阅定义视图的变更事件，预览期间有改动、视图销毁或集合变化都会拒绝恢复。测试在 `data-space-design-page.test.ts` 末尾，覆盖丢失回执只提交一次、外部参数变化拒绝保存、预览期间定义变化拒绝恢复。
@@ -81,7 +85,9 @@
 
 **本轮新发现。** 正式重新生成 ClassModel 时刷新了大量过期的 `generated/` 产物。说明此前有源码改动没有跟正式生成，之后每轮改公开声明都要重跑生成。
 
-**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。下一轮是设计页下一批：无视图文件误报、对话框重入、按需加载、绑定表名。然后是上面第 3 轮剩余的布局组件合同，排在页面轮之前。其后按原队列第 4–12 轮执行。
+**2026-11-01 只读烟测。** 证据 [spa-chain.txt](evidence/whole-repo-smoke-20261101/spa-chain.txt)。已知断链的查询身份已补进上表。新断链两条：逻辑视图“打开设计”路由未匹配；数据库“管理”报 alias 导航身份不匹配。设计对话框复验：打开时“设计”禁用，关闭可用；已选模型下绑定显示模型名，没有自由输入“绑定表名”。没有新的业务写入。同日页头改为使用导航树标题：该应用显示「SPARK · 软件工坊[AppWorks]」，应用工场仍是「SPARK 应用工场」；卡片列宽未改。逻辑视图设计路由已挂上：打开设计进入设计页并带上当前列表节点。`GetView` 的 `viewId` 改为查询参数后，视图 `106F4CD4…` 返回文件不存在；只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl`/`JsonDataServiceImpl` 确认这是“目录记录存在、从未保存设计 JSON”的合法状态（后端缺少与 `getJsonData` 同构的空结果处理），前端 `LogicViewDesignClient.read()` 已识别该具体拒绝消息并返回空白设计，设计页不再报错；未执行保存。
+
+**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”导航还没排进修复。然后是上面第 3 轮剩余的布局组件合同，排在页面轮之前。其后按原队列第 4–12 轮执行。
 
 ### 2026-10-29 新会话接续摘要（目标不变，交接完成，本会话执行中）
 

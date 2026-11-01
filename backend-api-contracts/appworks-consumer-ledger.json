@@ -955,13 +955,13 @@
     {
       "expression": "/api/ViewData/GetView",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
-      "sourceLine": 14,
+      "sourceLine": 18,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ViewData/SaveView",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
-      "sourceLine": 21,
+      "sourceLine": 31,
       "scope": "publishable-lowcode-api"
     },
     {

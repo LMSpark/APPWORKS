@@ -90,6 +90,8 @@ export type PageNodeOptions = {
   componentMap?: Record<string, Component>
   /** canonical system-page path → explicit Vue Router aliases for the same identity owner. */
   componentAliases?: Readonly<Record<string, readonly string[]>>
+  /** 没有导航节点的系统页，只借用宿主路径上的节点身份。 */
+  systemPageIdentityCompanions?: DynamicRouterOptions['systemPageIdentityCompanions']
   /**
    * 应用路径前缀（如 '/apps/:projectId'）。
    * 设置后，config 页面路由自动加此前缀。
@@ -315,6 +317,7 @@ export async function start(options: StartOptions): Promise<void> {
         pageComponent, // SparkPageRenderer 或用户提供的组件，if 块已确保非空
         ...(pageNode.componentMap !== undefined && { componentMap: pageNode.componentMap }),
         ...(pageNode.componentAliases !== undefined && { componentAliases: pageNode.componentAliases }),
+        ...(pageNode.systemPageIdentityCompanions !== undefined && { systemPageIdentityCompanions: pageNode.systemPageIdentityCompanions }),
         ...(pageNode.applicationPathPrefix !== undefined && { applicationPathPrefix: pageNode.applicationPathPrefix }),
         ...(pageNode.loadNavigation !== undefined && { loadNavigation: pageNode.loadNavigation }),
         ...(pageNode.loadPlatformNavigation !== undefined && { loadPlatformNavigation: pageNode.loadPlatformNavigation }),

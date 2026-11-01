@@ -1399,12 +1399,23 @@ const inspection = computed(() => {
   if (selectedId.value !== 'parameters') return {result: null, error: ''}
   try {return {result: session.value?.inspectInputParameters() ?? null, error: ''}} catch (cause) {return {result: null, error: readError(cause)}}
 })
+function releasedSession(cause: unknown): boolean {
+  const message = cause instanceof Error ? cause.message : String(cause)
+  return session.value?.metadataDataSet.destroyed === true
+    || message.startsWith('DATA_SPACE_METADATA_SCOPE')
+    || message.startsWith('DATA_SPACE_DESIGN_SESSION_DISPOSED')
+    || message.startsWith('DATA_SPACE_DESIGN_SESSION_STALE')
+    || message.startsWith('SPARK_EXECUTION_SCOPE_STALE')
+    || message.startsWith('DATA_VIEW_SOURCE_STALE')
+    || message.startsWith('DATA_VIEW_QUERY_IDENTITY')
+}
 function isPending(includeLayout = true): boolean {
+  if (session.value?.metadataDataSet.destroyed) return false
   if (historyPending.value) return true
   try {
     if ((historyView.value?.getSourceHistoryStatus().state === 'unknown')
       || historyView.value?.getSourceHistoryStatus().state === 'pending') return true
-  } catch {return true}
+  } catch (cause) {if (!releasedSession(cause)) return true}
   if (parameterRowEditing.value) return true
   if (layoutEdit.value?.rebuild) return true
   if (activeFieldRemovalId.value) return true
@@ -1421,7 +1432,7 @@ function isPending(includeLayout = true): boolean {
       || current.hasPendingModelEdits() || current.hasPendingModelRemovals() || current.hasPendingModelCreate() || current.hasPendingModelSourceEdits() || models?.hasEditingChanges() === true || models?.dirtyTracking.hasPendingChanges() === true
       || definitions.some(definition => definition?.hasEditingChanges() === true || definition?.dirtyTracking.hasPendingChanges() === true)
       || current.viewState?.dirty === true || current.viewState?.saveStatus !== 'idle' && current.viewState !== null
-  } catch {return true}
+  } catch (cause) {return !releasedSession(cause)}
 }
 const hasPending = computed(() => {revision.value; return isPending()})
 defineExpose({hasPending})

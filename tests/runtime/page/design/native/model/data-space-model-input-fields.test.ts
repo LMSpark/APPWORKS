@@ -90,6 +90,19 @@ describe('request panel model input fields', () => {
     expect(() => session.getViewFields(selected)).toThrow(/绑定|身份/)
   })
 
+  it('reads a first pending view when the scenario file does not exist yet', async () => {
+    const f = setup({overviewOnly: true, deferDefinition: true, missing: true})
+    f.stored.delete('A')
+    const session = await f.open('A'), view = session.metadataDataSet.getView('DataViewDefinition')!
+    const selected = {tableName: 'FreshOrders', viewId: 'review', modelId: 'M1', modelName: 'Orders'}
+    await view.addRow({dataSetId: 'A', dataModelId: 'M1', dataModelName: 'Orders', tableName: selected.tableName, viewId: selected.viewId})
+    await session.loadViewFields(selected)
+    expect(session.getViewFields(selected)?.filter(column => column.name !== '_pk').map(column => column.name)).toEqual(['rowid', 'parentId'])
+    expect(f.fileWrites).toEqual([])
+    view.discardPendingChanges()
+    expect(() => session.getViewFields(selected)).toThrow('尚无视图文件')
+  })
+
   it('rejects a late field directory after its new view draft is cancelled', async () => {
     const f = setup({overviewOnly: true, deferDefinition: true})
     f.stored.set('A', JSON.stringify({scenarioId: 'A', schemaVersion: 2, tables: {}}))

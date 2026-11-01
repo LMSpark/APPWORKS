@@ -17,6 +17,7 @@ import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
@@ -50,10 +51,19 @@ const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createView(): void {void openDesignRoute(crypto.randomUUID().replaceAll('-', '').toUpperCase())}
 async function openDesign(): Promise<void> {if (selected.value) await openDesignRoute(selected.value)}
+function navigationNodeId(): string {
+  const nodeId = route.meta['nodeId']
+  return route.meta['systemPageIdentityState'] === 'resolved' && typeof nodeId === 'string' ? nodeId.trim() : ''
+}
 async function openDesignRoute(viewId: string): Promise<void> {
+  const nodeId = navigationNodeId()
+  if (!scenarioId.value || !nodeId) {
+    error.value = '缺少导航绑定的数据空间ID'
+    return
+  }
   const scope = parseApplicationPathScope(route.path)
   const path = scope ? buildApplicationPath(scope, designPath) : designPath
-  await router.push({path, query: {viewId}})
+  await router.push({path, query: {viewId, [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: nodeId}})
 }
 watch(scenarioId, async id => {
   const own = ++generation

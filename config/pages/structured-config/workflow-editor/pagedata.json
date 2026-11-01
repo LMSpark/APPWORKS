@@ -1,0 +1,132 @@
+{
+  "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+  "tables": {
+    "Base_WorkflowDefinition": {
+      "modelBinding": {
+        "modelId": "ef912d1c-027e-4e0c-a703-d5ccce2574cc",
+        "modelName": "Base_WorkflowDefinition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name",
+              "workflow_key",
+              "description",
+              "status",
+              "sysid",
+              "tblid",
+              "tblName",
+              "dbName",
+              "activeType",
+              "tableOperate",
+              "filter",
+              "timeExp"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "Base_WorkflowNodeDefinition": {
+      "modelBinding": {
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "modelName": "Base_WorkflowNodeDefinition"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name",
+              "description",
+              "node_key",
+              "node_type",
+              "position_type",
+              "dataOperateModId",
+              "input_mapping",
+              "output_mapping",
+              "node_config",
+              "config"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "workflow_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    },
+    "Base_WorkflowConnectors": {
+      "modelBinding": {
+        "modelId": "4f5525d8-07d9-47c2-ac31-dc59ca00966e",
+        "modelName": "Base_WorkflowConnectors"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "workflow_id",
+              "name",
+              "description",
+              "sourceID",
+              "targetID",
+              "params"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "workflow_id",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "workflowId"
+            }
+          }
+        }
+      }
+    }
+  }
+}

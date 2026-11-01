@@ -213,7 +213,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T21:05:20.133Z",
+  "generatedAt": "2026-11-01T22:45:41.509Z",
   "models": {
     "LowcodeDesignApiOptions": {
       "name": "LowcodeDesignApiOptions",
@@ -404,7 +404,7 @@
           "methods": [
             {
               "name": "readFileBytes",
-              "jsdoc": "下载原始文件字节，不解包 AjaxResult 或转换文本。",
+              "jsdoc": "下载原始文件字节；接受 ArrayBuffer 或保留偏移/长度的字节视图，不解包 AjaxResult 或转换文本。",
               "parameters": [
                 {
                   "name": "locator",

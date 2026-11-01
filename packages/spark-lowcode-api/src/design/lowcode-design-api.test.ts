@@ -114,6 +114,16 @@ describe('LowcodeDesignApi', () => {
     })])
   })
 
+  it.each(['typed-array', 'data-view'])('reads only the selected %s byte range without retaining its backing buffer', async kind => {
+    const source = new Uint8Array([222, 239, 187, 191, 0, 255, 111])
+    const selected = kind === 'typed-array' ? source.subarray(1, 6) : new DataView(source.buffer, 1, 5)
+    const api = new LowcodeDesignApi({ http: new FixtureHttpClient(selected), readScope: fixtureScope })
+    const bytes = await api.readFileBytes({ appType: 'jsondatapath', customPath: '', fileName: 'owned.json' })
+    expect([...bytes]).toEqual([239, 187, 191, 0, 255])
+    source[1] = 0
+    expect(bytes[0]).toBe(239)
+  })
+
   it('rejects a JSON envelope where download bytes are required', async () => {
     const api = new LowcodeDesignApi({ http: new FixtureHttpClient({ Code: 200, Result: '' }), readScope: fixtureScope })
     await expect(api.readFileBytes({ appType: 'designfile', customPath: 'SysForm/scene', fileName: 'pagedata.json' })).rejects.toThrow('文件下载响应不是 ArrayBuffer')

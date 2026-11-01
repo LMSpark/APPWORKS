@@ -487,7 +487,7 @@
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
-      "sourceLine": 133,
+      "sourceLine": 143,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -499,19 +499,19 @@
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 111,
+      "sourceLine": 110,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/list",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 127,
+      "sourceLine": 126,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 173,
+      "sourceLine": 172,
       "scope": "publishable-lowcode-api"
     },
     {

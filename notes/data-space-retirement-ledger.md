@@ -4491,3 +4491,15 @@ flowchart TD
 - 本批已提交并推送ff3c7eca3到origin/1031，远端同hash确认，源码工作区干净。下一步受控真实保存烟测准备：固定SMOKE_JSON_DATA_CHAIN_标记，只创建本次原生生成ID与其ID.json文件；文件确认后保存目录，分别读回，验证取消与修改回读。清理仅限本脚本新建、未用于模型/配置的捕获ID，不处理现有11条目录或6条断链。
 - 真实写入脚本须在发送前约束CRUD表只能Base_JsonData且每行rowid等于捕获ID，文件上传/删除必须jsondatapath根目录和相同ID.json；通过stdin复用内存登录态，不写凭据。所有读写和清理沿DataSet/DataView及公共文件资源适配器；清理视图复用同一JsonDocumentFile资源ID与目标键，防止绕过公共未知结果状态。
 - 任一提交未知只沿原owner核验一次，并断言没有新增写请求；未证明未生效前不重放。每阶段把自身ID、文件名、阶段和结果存到无凭据证据文件，观察超时先查原进程/证据，不重跑造新记录。新记录删除必须消费其重新查询返回的当前删除数据权限；失败或未确认须保留精确身份并继续恢复，不能称清理成功。这是受控临时测试数据清理，不证明普通JSON资源删除的全局引用合同已完成。
+
+## 2026-11-02 JSON 受控真实保存、字节协议纠偏与清理复验
+
+- 上轮为progress：导入ff3c7eca3及烟测范围bb80d0fa0已推送origin/1031，起始工作区干净。本轮执行此前唯一台账限定的临时保存烟测，测试身份复用内存登录态并刷新，不存凭据。ignored脚本json-owned-write-smoke.mts发送前约束：数据库CRUD只能Base_JsonData且每行必须是本次捕获ID；文件上传/删除只能jsondatapath根目录同ID.json；其他写端点拒绝。未写模型、配置或其他目录记录。
+- 第一轮临时ID78037E420F58503BB972966AB313FAF6，文件/目录各新增、各修改及各清理共6次请求，双方取消及回读通过，最终清理确认。文件新增及修改首次确认抛错，原DataSet owner仅回读核验后确认，无上传重放；证据json-owned-write-live-first.json保留原样。该脚本早期检查文案含“byte confirmed”并不成立：本轮首次实际只在未知结果后以原文回读确认，不能作为SDK原字节确认通过。
+- 真实只读定位json-byte-response-live.json：DownFile由当前Node HTTP适配返回Buffer，是ArrayBuffer字节视图，147字节与UTF-8原文逐字节相等；SDK却只认instanceof ArrayBuffer，抛“文件下载响应不是ArrayBuffer”。这是当前SDK/HTTP传输容器不兼容，不是后端未写入，也不能据Node症状推断浏览器同样报错。未修改后端。
+- 补共享LowcodeDesignApi.readFileBytes：继续接受ArrayBuffer，新增标准ArrayBuffer.isView分支，按byteOffset/byteLength复制限定字节，不读取池化缓冲区相邻数据，不引入Node依赖，不解包JSON或猜文本。作用域失效检查、HTTP拒绝与非二进制响应拒绝保持。字节视图两项新增测试先RED2失败/15通过，修复后低代码设计API/上传器2文件38项GREEN（json-byte-view-green.log）；覆盖Uint8Array/DataView偏移、BOM/零/255及底层变更不污染返回值。
+- 修复后只读json-byte-response-fixed-live.json相同Buffer返回sdkError=null。旧进程已exit0且首轮已清理后，明确启动新的回归轮，使用新ID0B9BC9DB97CB9664EC7F7ACE4904C2AA；6次写入及6次owner确认全部直接成功，confirmationFailures=[]，无未知回执、无重传，文件/目录新增、取消、修改回读和清理全部通过（json-owned-write-live.json）。这不是对观察超时或未确认操作的盲目重跑。
+- 清理通过同一JsonDocumentFile资源ID/目标键的公共文件适配器视图、目录DataView执行，只允许该本次新建且未配置为模型来源的捕获ID；删除权限消费该目录重新查询的正式结果，脚本不代表普通JSON删除功能开放。现有生产canDelete=false及完整引用核验缺口保留，不能以受控临时清理证明所有资源可删。
+- 独立只读复查json-owned-final-absence-live.json：两个临时目录ID查询总数0、两个文件名均不在真实文件列表，目录文件列表仍21项，写请求0。临时记录/文件均已清理，未留未知结果；此前6条按path不可读的存量记录未修改。
+- 本批仍待ClassModel、全仓verify/build及62项影响测试最终核验后提交推送。浏览器整页、普通删除引用完整性、跨重载恢复、模型运行消费/根类型实际合同及其余业务页未闭合项仍开放，整体目标不结题。
+- 最终门禁：设计API/上传器包级38项、业务影响7文件62项均通过；ClassModel正式生成与消费者合同生成完成；json-byte-verify.log全仓verify和json-byte-build.log串行build由82640退出0确认，既有2项AI模型告警保留。两轮受控临时数据已独立核对清理完成，当前无遗留未知结果。准备提交推送共享字节容器修复及真实烟测证据台账，不将本轮结果扩大为普通删除、全部JSON根类型、浏览器或全架构已完成。

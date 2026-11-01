@@ -3009,7 +3009,7 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
-      "sourceModifiedAt": "2026-10-06T21:05:20.133Z"
+      "sourceModifiedAt": "2026-11-01T22:45:41.509Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",

@@ -89,7 +89,7 @@ export class LowcodeDesignApi {
     this.client = new LowcodeClient(options.http)
   }
 
-  /** 下载原始文件字节，不解包 AjaxResult 或转换文本。 */
+  /** 下载原始文件字节；接受 ArrayBuffer 或保留偏移/长度的字节视图，不解包 AjaxResult 或转换文本。 */
   public async readFileBytes(locator: LowcodeFileLocator): Promise<Uint8Array> {
     const scope = this.readScope()
     const response = await this.http.request<unknown>({
@@ -98,10 +98,9 @@ export class LowcodeDesignApi {
       responseType: 'arraybuffer', cache: false, meta: { rawEnvelope: true },
     })
     this.assertScope(scope)
-    if (!(response instanceof ArrayBuffer)) {
-      throw new LowcodeApiError(0, '文件下载响应不是 ArrayBuffer')
-    }
-    return new Uint8Array(response)
+    if (response instanceof ArrayBuffer) return new Uint8Array(response)
+    if (ArrayBuffer.isView(response)) return new Uint8Array(response.buffer, response.byteOffset, response.byteLength).slice()
+    throw new LowcodeApiError(0, '文件下载响应不是 ArrayBuffer 或字节视图')
   }
 
   /** 读取 UTF-8 文本文件全文；Result 非 string 视为协议错误。 */

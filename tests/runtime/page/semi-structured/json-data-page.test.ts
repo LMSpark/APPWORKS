@@ -6,7 +6,7 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
-import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldJson,FieldText,JsonTreeEditor,RendererTable,Spark,registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability,type PageSelectedFile,type PageBrowseFilesOptions} from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import JsonPage from '@/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'
@@ -14,18 +14,18 @@ import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
 const SCENE='FFDEF2AED3E19A38C0FCDDC748CF939B'
 const text=readFileSync('config/pages/semi-structured/json-data/pagedata.json','utf8')
-const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,files:new Map<string,string>(),reads:[] as string[],uploads:[] as string[],lose:false,dirty:[] as Array<{isDirty:boolean}>}))
+const state=vi.hoisted(()=>({picked:[] as PageSelectedFile[],browseCalls:[] as PageBrowseFilesOptions[],http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,files:new Map<string,string>(),reads:[] as string[],uploads:[] as string[],lose:false,dirty:[] as Array<{isDirty:boolean}>}))
 vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadTextVersion:async(input:{fileName:string;text:string})=>{if(state.files.has(input.fileName))throw new Error('File exists');state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}},uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','ROWID','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
- state.http=new ApiBackend();state.http.records={Base_JsonData:[{rowid:'J1',name:'样例JSON',path:'/NewApp/data.json'},{rowid:'J2',name:'另一份JSON',path:null}],Base_UserInfo:[]};state.files=new Map([['data.json','{"flag":false,"nested":[[1,null],{}]}']]);state.reads=[];state.uploads=[];state.lose=false;state.dirty=[]
+ state.picked=[];state.browseCalls=[];state.http=new ApiBackend();state.http.records={Base_JsonData:[{rowid:'J1',name:'样例JSON',path:'/NewApp/data.json'},{rowid:'J2',name:'另一份JSON',path:null}],Base_UserInfo:[]};state.files=new Map([['data.json','{"flag":false,"nested":[[1,null],{}]}']]);state.reads=[];state.uploads=[];state.lose=false;state.dirty=[]
  state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const name of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,name);config.global.stubs=stubs
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
 async function open(){
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/json',component:JsonPage,meta:{blueprintScenarioId:SCENE}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/json');await router.isReady()
- const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
+ const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-page-test-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=> 'cancel',selectEntities:async()=>[],browseFiles:async options=>{state.browseCalls.push(options??{});return state.picked},uploadFiles:async()=>{throw new Error('Direct host upload is forbidden in this JSON flow')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
  const click=async(label:string)=>{const button=wrapper.findAll('button').find(b=>b.text()===label&&b.attributes('disabled')===undefined);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
  const choose=async(index=0)=>{await vi.waitFor(()=>expect(wrapper.findComponent(RendererTable).exists()).toBe(true));await wrapper.getComponent(RendererTable).findAll('tbody tr')[index]!.trigger('click');await flushPromises();await click('内容编辑')}
  const edit=async(value:string)=>{wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).vm.$emit('update:modelValue',value);await flushPromises()}
@@ -105,4 +105,28 @@ it('does not create a file when the catalog has no usable source name',async()=>
 })
 it('rejects whitespace-only names through the native catalog column rule',async()=>{
  const f=await open();const input=f.wrapper.getComponent(RendererTable).findAll('input').find(item=>item.element.value==='样例JSON');expect(input).toBeDefined();await input!.setValue('   ');await flushPromises();await f.click('保存目录');expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('不能为空')
+})
+
+function pickJson(name:string,text:string,read?:()=>Promise<string>){const file=new File([text],name,{type:'application/json'});Object.defineProperty(file,'text',{value:read??(async()=>text)});state.picked=[{name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}]}
+it('imports a chosen JSON through the same file-first native creation flow',async()=>{
+ const f=await open();const raw='{"items":[false,null,[]],"unicode":"中文"}';pickJson('导入.json',raw);state.http.beforeSave=async()=>{expect(state.uploads).toHaveLength(1)};await f.click('导入JSON');expect(state.browseCalls).toEqual([{title:'导入JSON',accept:'.json,application/json',multiple:false}]);expect(state.http.saves).toHaveLength(1);const added=state.http.saves[0]!.added[0];expect(added?.['name']).toBe('导入.json');expect(added?.['description']).toBe('导入.json');expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe(raw);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+it('rejects invalid imported JSON before creating any native drafts or persistence',async()=>{
+ const f=await open();pickJson('bad.json','not JSON');await f.click('导入JSON');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false);expect(f.wrapper.findComponent(FieldJson).exists()).toBe(false);expect(f.wrapper.find('[role="alert"]').exists()).toBe(true)
+})
+it('cancels file picking without drafts or writes',async()=>{
+ const f=await open();await f.click('导入JSON');expect(state.browseCalls).toHaveLength(1);expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false);await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
+})
+it('holds an uncertain import and verifies its file once before creating the catalog record',async()=>{
+ const f=await open();pickJson('unknown.json','{"imported":true}');state.lose=true;await f.click('导入JSON');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toEqual([]);await f.click('核验内容保存结果');expect(state.uploads).toHaveLength(1);expect(state.http.saves).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+})
+it('reports local file read failure without creating resources',async()=>{
+ const f=await open();pickJson('unreadable.json','{}',async()=>{throw new Error('File read failed')});await f.click('导入JSON');expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false);expect(f.wrapper.text()).toContain('File read failed')
+})
+it('ignores a late imported file after the navigation scenario changes',async()=>{
+ let complete:((text:string)=>void)|undefined;const pending=new Promise<string>(resolve=>{complete=resolve});const f=await open();pickJson('late.json','{}',()=>pending);await f.click('导入JSON');expect(state.dirty[0]?.isDirty).toBe(true)
+ f.router.currentRoute.value={...f.router.currentRoute.value,meta:{blueprintScenarioId:'OTHER'}};await flushPromises();complete?.('{}');await flushPromises();expect(state.http.saves).toEqual([]);expect(state.uploads).toEqual([]);expect(f.wrapper.text()).toContain('JSON目录场景身份不匹配');expect(state.dirty[0]?.isDirty).toBe(false)
+})
+it('preserves an imported array root and nested primitive values',async()=>{
+ const f=await open();const raw='[false,null,[0],{"x":[]}]';pickJson('array.json',raw);await f.click('导入JSON');const added=state.http.saves[0]?.added[0];expect(added).toBeDefined();expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe(raw);expect(state.dirty[0]?.isDirty).toBe(false)
 })

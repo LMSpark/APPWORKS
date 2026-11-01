@@ -4477,3 +4477,14 @@ flowchart TD
 - 真实烟测进一步加只读端点守卫后复验：json-create-ui-guarded-live.json为11次读取、blockedWriteAttempts=0，双方新增追踪/取消/回读全部通过；该守卫只允许已核读取端点，未知端点在发送前拒绝，不仅以脚本意图声明零写入。
 - 最终门禁：json-create-ui-classmodel-final.log正式生成成功；json-create-ui-verify-final-3.log全仓verify及json-create-ui-build-final-3.log构建均由77853退出0确认，原有2项AI模型警告保留。追加来源消费测试的spy结果曾丢失类型，已按mock结果return分支收窄，未用any/断言绕过；json-create-ui-source-typed.log该用例再次通过。55项影响测试仍为本轮最终语义版本的范围证据。
 - 按授权准备提交推送JSON新增页面及名称数据链约束到origin/1031；工作流、Excel/PDF、API等未闭合项与JSON导入/删除、跨重载恢复、真实保存和浏览器验收继续开放，整体目标不结题。
+
+## 2026-11-02 JSON 导入接入标准宿主及原生新增链（进行中）
+
+- 上轮为progress：932f9af22已推送origin/1031，起始工作区干净。先核FieldUpload发现其维护路径并执行上传，不适合“先解析、再经DataSet保存”的原文件导入；继续查ClassModel目录/概要与PageService指南及实际pageUiService，确认既有browseFiles返回本地File，不需新控件或第二套传输。
+- 页面通过useSparkComponent.sparkConsume(PAGE_SERVICE)调用正式browseFiles，限制单个.json选择；读取File.text并parseJsonDocument后才进入现有createDocument初值，再沿同一文件视图→目录唯一ID保存。原文件名作为名称/描述，落盘文件仍是原生ID.json；成功刷新目录，未知结果保留原新增工作区。未调用PageService.uploadFiles或业务页面HTTP。
+- 选择在途/文件读取在途进入同一busy与离页保护；捕获原DataSet与页面代次，目标变化后忽略旧结果。场景切换重置在途UI标志，避免旧finally覆盖新实例。取消选择/读失败/非法JSON不建草稿、不上传；没有文件内容副本或自建草稿。
+- RED→GREEN：json-import-page-red.log 4新增失败/原15通过；实现后green.log19通过；补本地读取失败、迟到目标切换和数组根/嵌套值保存后json-import-page-final.log22通过，定向lint通过。宿主夹具按完整PageServiceCapability提供browseFiles，直接uploadFiles显式拒绝；File.text只在jsdom夹具中补标准浏览器方法，产品无兼容旁路。
+- 删除缺口复核：现有字典workspace明确因无覆盖数据库/配置/代码消费者的全局引用合同拒绝删除，JSON同样不能凭可见Base_DataModel子集证明完整。参考JSON先删目录再删文件不具完整性保证；Java的delJsonData是文件内部节点删除，不是资源删除。已有File/RemoveFile只能证明物理文件删除；未查得已验证的完整资源引用核验及实际服务证明，不虚构协议、不放宽权限、不调用实际删除，不将缺口改称已完成。
+- 真实只读端点守卫下，json-import-source-candidates-live.json：当前授权目录11条全部可被正式JSON来源选择器消费，稳定ID唯一、名称非空，8次读取、写入/阻断尝试均0。仅验证来源候选，不证明文件可读（此前6条按path失败仍保留），不证明JSON模型运行查询支持所有根类型。本轮无真实导入/删除/保存或浏览器整页成功声明。
+- 当前影响测试json-import-impact.log7文件62项通过；ClassModel正式生成已完成，verify→build串行执行中。跨重载恢复、完整删除、真实写入/浏览器验收、完整参考布局及其余全仓业务闭环保持开放，整体目标不结题。
+- 最终门禁：json-import-classmodel.log正式生成完成，json-import-verify.log全仓verify及json-import-build.log串行build由99264退出0确认；既有2项AI模型告警保留。62项影响测试通过，无后端变更，当前真实服务读链未写入业务数据。准备提交推送本批导入修复，完整资源删除仍缺正式引用核验，不因此宣称全专题完成。

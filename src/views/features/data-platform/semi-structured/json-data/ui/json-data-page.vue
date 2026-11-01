@@ -34,21 +34,24 @@ import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
-const {PAGE_RUNTIME,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,useSparkComponent}=SparkComponent
-const route=useRoute(),{sparkProvide,sparkRemove}=useSparkComponent({type:'json-data-page'})
+const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,useSparkComponent}=SparkComponent
+const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
+const pageService=sparkConsume(PAGE_SERVICE)
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
 const creating=ref('')
+const importing=ref(false)
 let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,documentGeneration=0,active=true
 const selected=computed(()=>{revision.value;const rows=catalog.value?.selectedRows??[],row=rows[0];return rows.length===1&&row?String(catalog.value?.getPkKey(row)??''):''})
 const contentKey=computed(()=>document.value?buildDataViewKey(document.value.tableName,document.value.viewId,scenarioId.value):'')
 const requestPending=(view:DataView|undefined)=>view?.requestState===RequestState.Preparing||view?.requestState===RequestState.Loading
 const loading=computed(()=>{revision.value;return opening.value||requestPending(catalog.value)})
 const documentLoading=computed(()=>{revision.value;return openingDocument.value||requestPending(document.value)})
-const busy=computed(()=>acting.value||loading.value||documentLoading.value)
+const busy=computed(()=>importing.value||acting.value||loading.value||documentLoading.value)
 const documentReady=computed(()=>{revision.value;const view=document.value;return view?.requestState===RequestState.Loaded&&!view.loadingError&&view.rows.length===1})
 const documentError=computed(()=>{revision.value;return document.value?.loadingError?.message??''})
 const queryError=computed(()=>{revision.value;return catalog.value?.loadingError?.message??''})
@@ -67,7 +70,8 @@ const fields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'createtime',label:'创建时间',readonly:true}},
 ])
 const toolbar=computed<SparkComponent.RToolbarProps>(()=>({children:[
- {type:'r-button',props:{label:'新增',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled',onClick:createDocument}},
+ {type:'r-button',props:{label:'新增',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled',onClick:()=>createDocument()}},
+ {type:'r-button',props:{label:'导入JSON',disabled:busy.value||hasPending.value||!!document.value||catalog.value?.addActionState()!=='enabled'||!pageService?.browseFiles,onClick:importDocument}},
  {type:'r-button',props:{label:catalogUnconfirmed.value?'核验目录保存结果':'保存目录',disabled:busy.value||!!document.value||!catalogPending.value,onClick:saveCatalog}},
  {type:'r-button',props:{label:'取消目录修改',disabled:busy.value||!!document.value||catalogUnconfirmed.value||!catalogPending.value,onClick:cancelCatalog}},
  {type:'r-button',props:{label:'内容编辑',disabled:!selected.value||busy.value||hasPending.value,onClick:openContent}},
@@ -87,17 +91,32 @@ function closeDocument(open:boolean):void{
  if(view)view.dataTable?.destroyView(view.viewId)
 }
 function choose(row:DataRow):void{if(busy.value||hasPending.value)return;closeDocument(false);catalog.value?.setSelectedRows([row])}
-async function createDocument():Promise<void>{
+async function importDocument():Promise<void>{
+ if(busy.value||hasPending.value||document.value||!dataSet.value||catalog.value?.addActionState()!=='enabled'||!pageService?.browseFiles)return
+ const current=dataSet.value,own=generation;importing.value=true;error.value=''
+ try{
+  const files=await pageService.browseFiles({title:'导入JSON',accept:'.json,application/json',multiple:false})
+  if(!active||own!==generation||current!==dataSet.value||files.length===0)return
+  if(files.length!==1)throw new Error('每次只能导入一个JSON文件')
+  const file=files[0]!;const content=await file.file.text();parseJsonDocument(content)
+  if(!active||own!==generation||current!==dataSet.value)return
+  importing.value=false;await createDocument({name:file.file.name,content})
+  if(active&&own===generation&&documentReady.value&&creating.value)await saveContent()
+  if(active&&own===generation&&!creating.value&&document.value&&!hasPending.value)await refreshCatalog()
+ }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation)importing.value=false}
+}
+async function createDocument(initial?:Readonly<{name:string;content:string}>):Promise<void>{
  if(busy.value||hasPending.value||document.value||!dataSet.value||!catalog.value||catalog.value.addActionState()!=='enabled')return
  const current=dataSet.value,view=catalog.value,own=++documentGeneration;openingDocument.value=true;error.value=''
  try{
-  await view.addRow({name:'',description:'',path:''})
+  await view.addRow({name:initial?.name??'',description:initial?.name??'',path:''})
   if(!active||own!==documentGeneration)return
   const row=view.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('JSON目录新增草稿缺失')
   creating.value=String(view.getPkKey(row));view.setCurrentRow(row);view.setSelectedRows([row])
   const file=LowcodeJsonData.openDocument(current,creating.value,{create:true});document.value=file;await file.refresh()
   if(!active||own!==documentGeneration||file.loadingError)return
-  await file.addRow({content:'{}'})
+  await file.addRow({content:initial?.content??'{}'})
   const fileRow=file.rows[0];if(fileRow)file.setCurrentRow(fileRow)
  }catch(cause){if(active&&own===documentGeneration){error.value=cause instanceof Error?cause.message:String(cause);if(!document.value&&creating.value){view.discardPendingChanges([creating.value]);creating.value=''}}}
  finally{if(active&&own===documentGeneration){openingDocument.value=false;revision.value++}}
@@ -127,7 +146,7 @@ function cancelContent():void{if(busy.value||unconfirmed.value||creationFileComm
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 watch(scenarioId,async id=>{
- const own=++generation;ready.value=false;opening.value=true;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined
+ const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined
  try{
   if(!id)throw new Error('JSON数据入口缺少导航数据空间ID')
   const page=new PageRuntime({pageId:'json-data-page',scenarioIds:[id],loadScenario:()=>LowcodeJsonData.loadCatalog(id)});runtime=page;await page.load()

@@ -67,14 +67,16 @@ function buildOptionSelectField(input: CatalogOptionSelectFieldInput): SparkNode
 /** 表/视图字段网格：显式标准子组件，选项列绑定同 DataSet 内 DataView。 */
 export function buildDatabaseCatalogFieldGridChildren(dataSet: DataSet): SparkNode[] {
   return [
-    {type: 'r-text', props: {field: 'enname', label: '英文名', width: 140, sortable: true, editOnDblclick: true}},
-    {type: 'r-text', props: {field: 'cnname', label: '中文名', width: 140, showCellControl: true}},
-    buildOptionSelectField({dataSet, tableName: DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL, field: 'DataTypeName', label: '类型', width: 120, labelField: 'txt', valueField: 'val'}),
+    {type: 'r-text', props: {field: 'enname', label: '字段', width: 140, sortable: true, editOnDblclick: true}},
+    {type: 'r-text', props: {field: 'cnname', label: '描述', width: 140, showCellControl: true}},
+    buildOptionSelectField({dataSet, tableName: DATABASE_CATALOG_FIELD_TYPE_DICT_MODEL, field: 'DataTypeName', label: '字段类型', width: 120, labelField: 'txt', valueField: 'val'}),
     {type: 'r-text', props: {field: 'DataLen', label: '长度', width: 80, editOnDblclick: true}},
     {type: 'r-text', props: {field: 'IsPKey', label: '主键', width: 72, editOnDblclick: true}},
-    {type: 'r-text', props: {field: 'IsNill', label: '可空', width: 72, editOnDblclick: true}},
-    {type: 'r-text', props: {field: 'IsUQ', label: '唯一', width: 72, editOnDblclick: true}},
+    {type: 'r-text', props: {field: 'IsNill', label: '允许为空', width: 92, editOnDblclick: true}},
+    {type: 'r-text', props: {field: 'IsUQ', label: '是否唯一', width: 92, editOnDblclick: true}},
+    {type: 'r-text', props: {field: 'isGrowth', label: '是否自增长', width: 104, editOnDblclick: true}},
     {type: 'r-text', props: {field: 'DefaultValue', label: '默认值', width: 120, editOnDblclick: true}},
+    {type: 'r-text', props: {field: 'AsName', label: '别名', width: 100, editOnDblclick: true}},
     buildOptionSelectField({dataSet, tableName: DATABASE_CATALOG_ENCRYPTION_DICT_MODEL, field: 'encryption_rule', label: '加密', width: 120, labelField: 'txt', valueField: 'val'}),
     buildOptionSelectField({dataSet, tableName: DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL, field: 'DesenID', label: '脱敏', width: 160, labelField: 'name', valueField: 'rowid'}),
     {type: 'r-text', props: {field: 'Memo', label: '备注', width: 160, editOnDblclick: true}},

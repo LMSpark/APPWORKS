@@ -11,6 +11,27 @@ import {
 } from '../table-view'
 
 const createFields = ['dbid', 'tblname', 'tbldesc', 'schemaName', 'status'] as const
+const optionalCreateFields = new Set<string>(['schemaName', 'status'])
+
+function formalField(view: DataView, name: string): string | undefined {
+  const wanted = name.toLowerCase()
+  return view.columns.find(column => column.name.toLowerCase() === wanted)?.name
+}
+
+function rowScalar(row: DataRow, name: string): string {
+  if (Object.hasOwn(row, name)) return scalar(row[name])
+  const key = Object.keys(row).find(item => item.toLowerCase() === name.toLowerCase())
+  return key ? scalar(row[key]) : ''
+}
+
+function boundCreateFields(view: DataView): readonly string[] {
+  return createFields.flatMap(field => {
+    const formal = formalField(view, field)
+    if (formal) return [formal]
+    if (optionalCreateFields.has(field)) return []
+    throw new Error(`数据表目录缺少正式列 ${field}`)
+  })
+}
 
 export type DatabaseCatalogTableEditState = Readonly<{id: string; mode: 'add'; row: DataRow}>
 
@@ -72,14 +93,14 @@ export async function databaseCatalogTableBeginCreate(tableView: DataView, dbVie
   const dbId = databaseCatalogDbSelectedId(dbView)
   const dbRow = dbId ? row(dbView, dbId) : undefined
   if (!dbRow) throw new Error('请先选择数据库')
-  const schemaName = scalar(dbRow['SchemaName']) || 'dbo'
-  const created = await tableView.addRow({
-    dbid: dbId,
-    tblname: '',
-    tbldesc: '',
-    schemaName,
-    status: '1',
-  })
+  const payload: Record<string, string> = {}
+  for (const field of boundCreateFields(tableView)) {
+    if (field.toLowerCase() === 'dbid') payload[field] = dbId
+    else if (field.toLowerCase() === 'schemaname') payload[field] = rowScalar(dbRow, 'SchemaName') || 'dbo'
+    else if (field.toLowerCase() === 'status') payload[field] = '1'
+    else payload[field] = ''
+  }
+  const created = await tableView.addRow(payload)
   if (!('rowid' in created) || typeof created['rowid'] !== 'string') throw new Error('新增数据表行的身份无效')
   const id = created['rowid']
   const current = row(tableView, id)
@@ -126,10 +147,11 @@ export async function databaseCatalogTableSaveEdit(
   const patch = view.getEditingPatch(edit.id) ?? {}
   const value = view.getEditingRow(edit.id)
   if (!value) throw new Error('数据表编辑记录已失效')
-  const allowedSet = new Set<string>(createFields)
+  const allowedFields = boundCreateFields(view)
+  const allowedSet = new Set<string>(allowedFields)
   if (Object.keys(patch).some(field => !allowedSet.has(field))) throw new Error('数据表保存包含不允许修改的字段')
   if (view.addActionState() !== 'enabled') throw new Error('数据表保存权限已变化')
-  for (const field of createFields) {
+  for (const field of allowedFields) {
     if (!Object.hasOwn(patch, field) && field !== 'tblname') continue
     if (view.fieldAccess(edit.row, field).write !== 'allowed') continue
     const input = value[field]

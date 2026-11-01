@@ -65,13 +65,83 @@ describe('database/catalog/table/preview-view-ops', () => {
       && (request.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]?.['Type'] === '数据库表').slice(-1)[0]
     const descriptor = (request?.data as {Table?: Array<Record<string, unknown>>} | undefined)?.Table?.[0]
     expect(descriptor?.['PrimaryKeyFields']).toBe('Id')
+    expect(descriptor?.['DbName']).toBe('DB1')
     expect(descriptor?.['Fields']).toEqual([
-      {name: 'Id', label: '编号', fieldType: '整数型', isPrimaryKey: true},
-      {name: 'Name', label: '名称', fieldType: '字符串型', isPrimaryKey: false},
+      {Name: 'Id', Description: '编号', FieldType: '整数型', IsOutput: true, AsName: 'Id', IsPKey: true, Order: 1},
+      {Name: 'Name', Description: '名称', FieldType: '字符串型', IsOutput: true, AsName: 'Name', IsPKey: false, Order: 2},
     ])
+    expect(descriptor?.['Fields']).not.toEqual(expect.arrayContaining([expect.objectContaining({name: 'Id'})]))
     expect(preview.rows.some(row => row['Name'] === '预览行一')).toBe(true)
     expect(preview.total).toBe(2)
     expect(ds.getView(DATABASE_TABLE_PREVIEW_RESULT_TABLE, 'default')).toBe(preview)
+  })
+
+  it('does not save catalog IsVisible while previewing a physical table', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const databases = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    databases.setSelectedRows([databases.rows[0]!])
+    const tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')!
+    await tables.refresh()
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    const before = http.requests.length
+
+    await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })
+
+    const later = http.requests.slice(before)
+    expect(later.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
+    expect(later.some(request => request.url === '/api/DataOperation/SysGetData')).toBe(false)
+    expect(http.rows[DATABASE_CATALOG_TABLE_MODEL]?.find(row => row['rowid'] === 'T1')).not.toHaveProperty('IsVisible')
+    expect(preview.rows.some(row => row['Name'] === '预览行一')).toBe(true)
+  })
+
+  it('retries the same physical preview body on SysGetData only for a public baseline rejection', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const databases = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    databases.setSelectedRows([databases.rows[0]!])
+    const tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')!
+    await tables.refresh()
+    tables.setSelectedRows([tables.rows.find(row => tables.getPkKey(row) === 'T1')!])
+    const fields = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fields.refresh()
+    const preview = requireDatabaseCatalogPreviewView(ds)
+    http.physicalPreviewPublicBaseline = true
+    const before = http.requests.length
+
+    await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
+    })
+
+    const later = http.requests.slice(before).filter(request => request.url === '/api/DataOperation/GetData' || request.url === '/api/DataOperation/SysGetData')
+    expect(later.length).toBeGreaterThan(0)
+    expect(later.length % 2).toBe(0)
+    for (let index = 0; index < later.length; index += 2) {
+      expect(later[index]?.url).toBe('/api/DataOperation/GetData')
+      expect(later[index + 1]?.url).toBe('/api/DataOperation/SysGetData')
+      expect(later[index + 1]?.data).toEqual(later[index]?.data)
+    }
+    const descriptor = (later[0]?.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]
+    expect(descriptor?.['Fields']).toEqual(expect.arrayContaining([
+      expect.objectContaining({Name: 'Id', IsPKey: true, IsOutput: true}),
+    ]))
+    expect(preview.rows.some(row => row['Name'] === '预览行一')).toBe(true)
+  })
+
+  it('sends an empty Fields array when the catalog has no fields for the table', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const preview = requireDatabaseCatalogPreviewView(ds)
+
+    await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'MISSING', pageIndex: 1, pageSize: 10,
+    })
+
+    const request = http.requests.filter(item => item.url === '/api/DataOperation/GetData'
+      && (item.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]?.['Type'] === '数据库表').slice(-1)[0]
+    expect((request?.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]?.['Fields']).toEqual([])
   })
 
   it('loads database view preview through GetData readonly command view', async () => {
@@ -156,6 +226,7 @@ describe('database/catalog/table/preview-view-ops', () => {
     await expect(databaseCatalogPreviewRefresh(ds, preview, {
       dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
     })).rejects.toMatchObject({name: 'LowcodeApiError', code: 500, message: '物理资源查询被拒绝'})
+    expect(http.requests.some(request => request.url === '/api/DataOperation/SysGetData')).toBe(false)
     expect(preview.requestState).toBe(RequestState.Failed)
     expect(preview.rows).toEqual([])
   })

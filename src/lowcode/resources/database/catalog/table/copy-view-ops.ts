@@ -91,15 +91,17 @@ export async function databaseCatalogCopyTable(dataSet: DataSet, input: Database
   if (sourceFields.length === 0) throw new Error('源表没有字段，无法复制')
 
   const newRowId = crypto.randomUUID().replaceAll('-', '').toUpperCase()
-  const schemaName = scalar(sourceRow['schemaName']) || 'dbo'
+  const schemaField = tableView.columns.find(column => column.name.toLowerCase() === 'schemaname')?.name
+  const statusField = tableView.columns.find(column => column.name.toLowerCase() === 'status')?.name
+  const schemaName = scalar(sourceRow['SchemaName'] ?? sourceRow['schemaName']) || 'dbo'
   const status = scalar(sourceRow['status']) || '1'
-  const tablePayload = {
+  const tablePayload: Record<string, string> = {
     dbid: dbId,
     tblname: newTableName,
     tbldesc: newTableDesc,
-    schemaName,
-    status,
   }
+  if (schemaField) tablePayload[schemaField] = schemaName
+  if (statusField) tablePayload[statusField] = status
   if (!tableView.supportsExplicitIdentityCreate) throw new Error('当前正式查询不支持复制表身份新增')
   assertNewRowPermission(tableView, tablePayload)
 

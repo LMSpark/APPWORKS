@@ -81,13 +81,23 @@
 - **第 2 轮 设计页三处快照。** 参数基线改由输入参数会话持有：构造时从目标 `Base_DataSet` 行捕获，确认保存或回读后更新；页面不再传 `parameterBaseline`，调用方仍可显式给 `expectedValue`。文件绑定未知状态改读定义 DataView 自身的 `hasUnconfirmedSave`。历史恢复的 JSON 快照改为订阅定义视图的变更事件，预览期间有改动、视图销毁或集合变化都会拒绝恢复。测试在 `data-space-design-page.test.ts` 末尾，覆盖丢失回执只提交一次、外部参数变化拒绝保存、预览期间定义变化拒绝恢复。
 - **第 3 轮 标准组件数据合同。** `FieldCheckTag` 改为字段语义合同（删掉 `checked`/`label` 本地 props，无存量消费者），读写走字段链与编辑覆盖。`FieldMention` 文本与写回字段都经 `writeField`，不再直改行。picker 预设转发 `dataViewKey`/`dataMember`/`dataField`。`DisplayPagination` 绑定视图时读视图的 total/page/pageSize 并调 `setPage`/`setPageSize`，未知键抛 `DATA_VIEW_MISSING`；未绑定时仍用 `total` prop。`RendererCard`、`RendererCollapseItem` 接入 `useLayoutDataContext`。测试：`tests/ui/field/field-standard-data-contract.test.ts`、`tests/ui/renderer/layout/renderer-card-collapse-data-context.test.ts`。
 
-**布局组件数据合同仍缺（登记为实现差距，非标准例外）。** `RendererSteps`/`StepItem`、`RendererSpace`、`zones/RendererEditor`、`create-passthrough.ts` 生成的透传组件、浮层组件（Popover、Tooltip、Dropdown、Popconfirm、Tour）、`Anchor`、`Link`、`Divider`、`FullscreenDialog`、`RendererCollapse` 父组件。这些组件没有 `LayoutDataContextProps`，子节点只能继承外层上下文。
+**步骤条数据上下文（已提交）。** `RendererSteps` 与 `RendererStepItem` 接入 `useLayoutDataContext`。父级 `dataViewKey` 作用于当前步骤；步骤项自己的键只替换该项。测试在 `renderer-card-collapse-data-context.test.ts`。`generate:class-model-surface` 同时改写了无关的过期 `generated/` 产物（如 `spark-data` 类型、`dynamic.ts`、zones 类型），已丢弃。生成器仍落后，本次不纳入这些产物。
+
+**表和视图目录列表（已提交）。** 左侧改为「数据库名称 / 描述」（`Name`、`Remark`），不再按模型自动出列。表、视图页签按名称、中文名、创建人走 DataView 筛选；页签「物理表」改为「表」。实页库 `PX` 显示「培训测试数据库」；中文名「商谈纪要」只剩 `px_crm_minutes`，重置后列表恢复。没有保存。其后设计页签已另改，见下条。
+
+**表和视图设计与对话框（已提交）。** 表设计页签表头绑定正式列：表名、中文名、物理删除 `PhysicsDel`、默认字段 `hasDefaultFields`、多租户 `multiTenancy`、可见(自动脱敏) `IsVisible`、功能描述 `functiondesc`。摘要表达式 `Expression` 不在参考设计页签，已从表头去掉。字段网格按参考页列名，补上模型已有的是否自增长 `isGrowth`、别名 `AsName`。`table-and-view-page.test.ts` 与 `table-view-ops.test.ts` 共 106 通过。实页 `PX` / `customer` 表头和字段表头可见，默认字段与多租户为选中。关系页签有主表、从表、关系名称、级联删除，当前表无关系行、无报错。数据页签当时被看成空预览，随后证实是字段合同错误，见下条。数据流页签未出现：本空间未装配 `Base_WorkflowDefinition`。脱敏规则、加密字典、字段类型字典同样未装配，对应列仍是文本。`PX` 下视图列表为空，视图设计未打开。注册未登记表被服务拒绝：数据源不认识名为 `PX` 的库；正式行只有 `Name` 和 `ServerName`，没有另一套库名。新增原先写入 `schemaName`，正式列是 `SchemaName`，对话框因此打不开；现按正式列名写入。实页打开新增后取消，待增行已丢弃，表仍是 11 张。复制对话框打开（源表 customer），未保存。删除确认打开后取消，`customer` 仍在。没有点保存、同步元数据、注册确认、复制保存或删除确认。主列表字段区和工具栏改行内操作仍未做。
+
+**表设计数据页（已提交）。** 物理表预览按参考仓线合同：`Fields` 为 `Name`、`Description`、`FieldType`、`IsOutput`、`AsName`、`IsPKey`、`Order`，没有字段时仍带空数组。`DbName` 与 `DbId` 都是数据库 ID，主键仍在 `PrimaryKeyFields`。目录上的 `IsVisible` 保存往返已删除。只有错误匹配公开查询基线或 `IsVisible=1` 时，同一请求体改打 `SysGetData`；其它错误不改道。`preview-view-ops.test.ts` 与 `table-and-view-page.test.ts` 共 91 通过。上一轮实页 `PX` / `customer` 的 `Unknown database 'PX'` 仍是服务端连接缺口，正式行只有 `Name` 和 `ServerName`，本轮不猜库名。
+
+**表设计对话框层次（已提交）。** 页签改为「设计 / 关系 / 数据流 / 数据」，宽度 1600。表头和字段表都在「设计」里，取消与保存在页签右侧，去掉「物理表」行、「未装配」说明和底部「关闭」。数据流模型未装配时页签仍在，空表，不发查询。数据页列来自字段目录的 `enname` / `cnname`，失败时提示「加载数据预览失败」并清空行，不再用 `rowid` 和传输错误原文充当数据页。字段工具栏保留「同步元数据」。参考页的新建、查看系统字段、一键加描述、编码设计、AI填表、属性设置、多租户配置，以及关系页的自引用、分组表头和筛选，这次没做。`table-and-view-page.test.ts` 80 通过。
+
+**布局组件数据合同仍缺（登记为实现差距，非标准例外）。** `RendererSpace`、`zones/RendererEditor`、`create-passthrough.ts` 生成的透传组件、浮层组件（Popover、Tooltip、Dropdown、Popconfirm、Tour）、`Anchor`、`Link`、`Divider`、`FullscreenDialog`、`RendererCollapse` 父组件。这些组件没有 `LayoutDataContextProps`，子节点只能继承外层上下文。
 
 **本轮新发现。** 正式重新生成 ClassModel 时刷新了大量过期的 `generated/` 产物。说明此前有源码改动没有跟正式生成，之后每轮改公开声明都要重跑生成。
 
 **2026-11-01 只读烟测。** 证据 [spa-chain.txt](evidence/whole-repo-smoke-20261101/spa-chain.txt)。已知断链的查询身份已补进上表。新断链两条：逻辑视图“打开设计”路由未匹配；数据库“管理”报 alias 导航身份不匹配。设计对话框复验：打开时“设计”禁用，关闭可用；已选模型下绑定显示模型名，没有自由输入“绑定表名”。没有新的业务写入。同日页头改为使用导航树标题：该应用显示「SPARK · 软件工坊[AppWorks]」，应用工场仍是「SPARK 应用工场」；卡片列宽未改。逻辑视图设计路由已挂上：打开设计进入设计页并带上当前列表节点。`GetView` 的 `viewId` 改为查询参数后，视图 `106F4CD4…` 返回文件不存在；只读核对 `E:\lowcode-jdk17` `ViewDataServiceImpl`/`JsonDataServiceImpl` 确认这是“目录记录存在、从未保存设计 JSON”的合法状态（后端缺少与 `getJsonData` 同构的空结果处理），前端 `LogicViewDesignClient.read()` 已识别该具体拒绝消息并返回空白设计，设计页不再报错；未执行保存。
 
-**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”已提交：同模块目标是 `A8FB`，别名校验不再比较对象引用。然后是上面第 3 轮剩余的布局组件合同，排在页面轮之前。其后按原队列第 4–12 轮执行。
+**调整后队列。** 第 0 轮内置应用页场景装载仍待裁决。第 1–3 轮已完成。设计页下一批里，无视图文件误报、对话框重入和绑定表名已提交；按需装载 7AB / 8D1 仍留在后面。逻辑视图设计路由已提交。`GetView` 已按查询参数读取；该视图设计文件不存在的根因已核实（后端对“文件不存在”缺少空结果处理），前端已做对应兼容并提交；`SaveView` 未调用，首次保存创建文件的闭环未验证。页头应用名已提交，卡片列宽未做。数据库“管理”已提交：同模块目标是 `A8FB`，别名校验不再比较对象引用。步骤条数据上下文已提交。表和视图目录列表、设计页签、数据页和对话框层次已提交。主列表字段区与工具栏改行内操作仍留在后面。下一项仍是布局组件合同里的 `RendererSpace`，排在页面轮之前。其后按原队列第 4–12 轮执行。
 
 ### 2026-10-29 新会话接续摘要（目标不变，交接完成，本会话执行中）
 

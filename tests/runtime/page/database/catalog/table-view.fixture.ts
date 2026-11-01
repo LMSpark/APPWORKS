@@ -61,7 +61,7 @@ export const databaseTableViewModels = {
   [DATABASE_SERVER_MODEL]: model(DATABASE_SERVER_MODEL, ['rowid', 'Type', 'ServerName', 'ip_address', 'Port', 'description']),
   [DATABASE_CATALOG_DB_MODEL]: model(DATABASE_CATALOG_DB_MODEL, ['rowid', 'Id', 'serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark']),
   [DATABASE_CATALOG_TABLE_MODEL]: model(DATABASE_CATALOG_TABLE_MODEL, [
-    'rowid', 'dbid', 'tblname', 'tbldesc', 'Expression', 'IsVisible', 'schemaName', 'status', 'createuser', 'createtime', 'object_id', 'multiTenancy',
+    'rowid', 'dbid', 'tblname', 'tbldesc', 'functiondesc', 'PhysicsDel', 'hasDefaultFields', 'IsVisible', 'schemaName', 'status', 'createuser', 'createtime', 'object_id', 'multiTenancy',
   ]),
   [DATABASE_CATALOG_VIEW_MODEL]: model(DATABASE_CATALOG_VIEW_MODEL, [
     'rowid', 'dbid', 'vewname', 'vewdesc', 'functiondesc', 'modid', 'sql', 'IsVisible', 'SchemaName', 'status', 'createuser', 'createtime', 'object_id',
@@ -69,7 +69,7 @@ export const databaseTableViewModels = {
   [DATABASE_CATALOG_APP_SYSTEM_MODEL]: model(DATABASE_CATALOG_APP_SYSTEM_MODEL, ['rowid', 'AppDesc', 'AppName']),
   [DATABASE_CATALOG_FIELD_MODEL]: model(DATABASE_CATALOG_FIELD_MODEL, [
     'rowid', 'tblid', 'tblname', 'enname', 'cnname', 'DataTypeName', 'DataType', 'DataLen',
-    'IsNill', 'IsPKey', 'IsUQ', 'IsSys', 'DefaultValue', 'Memo', 'ordIdx', 'DesenID', 'encryption_rule',
+    'IsNill', 'IsPKey', 'IsUQ', 'isGrowth', 'IsSys', 'DefaultValue', 'AsName', 'Memo', 'ordIdx', 'DesenID', 'encryption_rule',
   ]),
   [DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL]: model(DATABASE_CATALOG_DESENSITIZATION_RULE_MODEL, ['rowid', 'name']),
   [DATABASE_CATALOG_ENCRYPTION_DICT_MODEL]: model(DATABASE_CATALOG_ENCRYPTION_DICT_MODEL, ['rowid', 'txt', 'val', 'ordIdx']),
@@ -88,6 +88,8 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   onPhysicalPreviewResponse?: () => void
   physicalPreviewRowsOverride?: Array<Record<string, unknown>>
   physicalPreviewResponseOverride: unknown = undefined
+  /** GetData 返回公开查询基线错误，SysGetData 仍返回预览行。 */
+  physicalPreviewPublicBaseline = false
   connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
   connectionTestGate?: Promise<void>
   deniedFieldsByModel: Record<string, readonly string[]> = {}
@@ -311,7 +313,8 @@ export class DatabaseTableViewHttp extends HttpClientBase {
         ...(deletedBuckets.length ? {maplistdelete: deletedBuckets} : {}),
       }}, status: 200, statusText: 'OK', headers: {}}
     }
-    if (config.url !== '/api/DataOperation/GetData') throw new Error(`unexpected request ${config.url ?? ''}`)
+    const isCatalogRead = config.url === '/api/DataOperation/GetData' || config.url === '/api/DataOperation/SysGetData'
+    if (!isCatalogRead) throw new Error(`unexpected request ${config.url ?? ''}`)
     if (this.failNextCatalogRead && config.url === '/api/DataOperation/GetData') {
       this.failNextCatalogRead = false
       const error = new Error('目录查询连接中断')
@@ -323,6 +326,9 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     const table = body.Table[0]!
     const tableType = String(table['Type'] ?? '')
     if (tableType === '数据库表' || tableType === '数据库视图' || (table['DbId'] && table['OutputType'] === 'Table')) {
+      if (config.url === '/api/DataOperation/GetData' && this.physicalPreviewPublicBaseline && tableType === '数据库表') {
+        return {data: {Code: 500, Message: '权限不足，表或视图未配置公开查询基线(IsVisible=1)', Result: {data: {Items: [], Count: 0}}}, status: 200, statusText: 'OK', headers: {}}
+      }
       const page = body.PageParam ?? {index: 1, size: 10}
       const previewRows = this.physicalPreviewRowsOverride ?? (tableType === '数据库视图'
         ? [{rowid: 'VP1', Total: '100.00'}, {rowid: 'VP2', Total: '200.00'}]

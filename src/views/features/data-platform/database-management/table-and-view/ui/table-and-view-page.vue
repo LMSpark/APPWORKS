@@ -14,21 +14,21 @@
         <section class="table-and-view-sidebar">
           <h2>数据库列表</h2>
           <div :inert="busy || !!tableEdit">
-            <RendererTable :data-view-key="dbKey" :auto-columns="true" :toolbar="dbToolbar" :filter="catalogListFilter" :stripe="true"
+            <RendererTable :data-view-key="dbKey" :children="DATABASE_CATALOG_DB_LIST_FIELDS" :toolbar="dbToolbar" :filter="dbListFilter" :stripe="true"
               :on-current-change="guardDatabaseCurrentChange" :on-row-click="chooseDatabase"
               :highlight-current-row="true" :show-pagination="true" :show-data-view-meta="false" />
           </div>
         </section>
         <section v-if="databaseSelected" class="table-and-view-main">
           <RendererTabs v-model="objectTab">
-            <RendererTabPane name="tables" label="物理表" :index="0">
+            <RendererTabPane name="tables" label="表" :index="0">
               <p v-if="tableListError" role="alert">{{ tableListError }}</p>
-              <RendererTable :data-view-key="tableKey" :children="DATABASE_CATALOG_TABLE_LIST_FIELDS" :toolbar="tableToolbar" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
+              <RendererTable :data-view-key="tableKey" :children="DATABASE_CATALOG_TABLE_LIST_FIELDS" :toolbar="tableToolbar" :filter="tableListFilter" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
                 :on-row-click="chooseTable" :highlight-current-row="true" />
             </RendererTabPane>
             <RendererTabPane name="views" label="视图" :index="1" :lazy="true">
               <p v-if="viewListError" role="alert">{{ viewListError }}</p>
-              <RendererTable :data-view-key="viewKey" :children="DATABASE_CATALOG_VIEW_LIST_FIELDS" :toolbar="viewToolbar" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
+              <RendererTable :data-view-key="viewKey" :children="DATABASE_CATALOG_VIEW_LIST_FIELDS" :toolbar="viewToolbar" :filter="viewListFilter" :stripe="true" :show-pagination="true" :show-data-view-meta="false"
                 :on-row-click="chooseView" :highlight-current-row="true" />
             </RendererTabPane>
           </RendererTabs>
@@ -57,17 +57,18 @@
         :can-load-unregistered="canLoadUnregisteredTables"
         @cancel="cancelTableRegister" @save="saveTableRegister" @load-unregistered="loadUnregisteredTableNames" />
       <TableDesignDialog v-if="tableDesignOpen"
-        title="表设计" :object-label="selectedTableLabel" :object-meta-key="tableKey"
+        title="表设计" :object-meta-key="tableKey"
         :object-header-children="DATABASE_CATALOG_TABLE_DESIGN_HEADER_FIELDS"
         :field-key="fieldKey" :field-children="fieldGridChildren"
         :relation-key="relationKey" :relation-list-fields="DATABASE_CATALOG_RELATION_LIST_FIELDS"
         :relation-toolbar="relationToolbar" :relation-error="relationListError"
         :workflow-key="workflowKey" :workflow-list-fields="workflowListFields" :workflow-toolbar="workflowToolbar"
         :workflow-error="workflowListError" :workflow-query="workflowQuery"
-        :preview-key="previewKey" :preview-toolbar="previewToolbar" :preview-error="previewListError"
-        :toolbar="designFieldToolbar" :hint="designFieldHint"
+        :preview-key="previewKey" :preview-children="previewChildren" :preview-error="previewFailure"
+        :toolbar="tableDesignFieldToolbar" :save-disabled="designSaveDisabled"
         :busy="busy" :error="fieldListError" :on-relation-row-click="chooseRelation" @close="closeTableDesign"
-        @open-preview="refreshTablePreview" @open-workflow="refreshTableWorkflows"
+        @save="saveDesignFields"
+        @open-preview="() => { void act(() => refreshTablePreview()) }" @open-workflow="refreshTableWorkflows"
         @apply-workflow-filter="applyTableWorkflowFilter" @update:workflow-query="applyWorkflowQueryUpdate" />
       <TableRelationDialog v-if="relationSession"
         :data-view-key="relationKey" :peer-data-view-key="relationPeerKey" :peer-field="relationPeerField"
@@ -202,7 +203,11 @@ import {
   databaseCatalogRegisterViews,
 } from '@/lowcode/resources/database/catalog/table/register-view-ops'
 import {
+  DATABASE_CATALOG_DB_FILTER_FIELDS,
+  DATABASE_CATALOG_DB_LIST_FIELDS,
+  DATABASE_CATALOG_TABLE_FILTER_FIELDS,
   DATABASE_CATALOG_TABLE_LIST_FIELDS,
+  DATABASE_CATALOG_VIEW_FILTER_FIELDS,
   DATABASE_CATALOG_VIEW_LIST_FIELDS,
 } from '@/lowcode/resources/database/catalog/list-metadata'
 import {
@@ -213,8 +218,10 @@ import {databaseCatalogCopyTable} from '@/lowcode/resources/database/catalog/tab
 import {
   DATABASE_TABLE_PREVIEW_RESULT_TABLE,
   DATABASE_VIEW_PREVIEW_RESULT_TABLE,
+  applyDatabaseCatalogPreviewColumns,
   databaseCatalogHasTablePreview,
   databaseCatalogHasViewPreview,
+  databaseCatalogPreviewColumns,
   databaseCatalogPreviewRefresh,
   databaseCatalogViewPreviewRefresh,
 } from '@/lowcode/resources/database/catalog/table/preview-view-ops'
@@ -272,10 +279,19 @@ const workflowQuery = reactive<{name?: string; workflowKey?: string; description
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0, selectionGeneration = 0
 
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
-const catalogListFilter = computed<RFilterProps>(() => ({
+const dbListFilter = computed<RFilterProps>(() => ({
   autoQuery: true,
   collapsible: true,
   defaultCollapsed: true,
+  children: DATABASE_CATALOG_DB_FILTER_FIELDS,
+}))
+const tableListFilter = computed<RFilterProps>(() => ({
+  autoQuery: true,
+  children: DATABASE_CATALOG_TABLE_FILTER_FIELDS,
+}))
+const viewListFilter = computed<RFilterProps>(() => ({
+  autoQuery: true,
+  children: DATABASE_CATALOG_VIEW_FILTER_FIELDS,
 }))
 const fieldGridChildren = computed(() => {
   revision.value
@@ -372,23 +388,24 @@ const relationKey = computed(() => {
   return SparkData.buildDataViewKey(DATABASE_CATALOG_RELATION_MODEL, DATABASE_CATALOG_RELATION_TABLE_VIEW, catalogScenarioId.value)
 })
 const relationListError = computed(() => {revision.value; return relationView.value?.loadingError?.message ?? ''})
-const previewToolbar = computed<RToolbarProps>(() => {
+const previewFailure = ref('')
+const previewChildren = computed(() => {
   revision.value
-  const preview = previewView.value
-  return {children: [
-    {type: 'r-button', props: {
-      label: '刷新',
-      disabled: busy.value || !preview,
-      onClick: () => { void act(() => refreshTablePreview()) },
-    }},
-  ]}
+  const ds = dataSet.value
+  const tables = tableView.value
+  if (!ds || !tables) return []
+  const tableId = tables.getSelectedValues()[0]
+  if (typeof tableId !== 'string') return []
+  return databaseCatalogPreviewColumns(ds, tableId).map(column => ({
+    type: 'r-text',
+    props: {field: column.name, label: column.label, minWidth: 140, showOverflowTooltip: true},
+  }))
 })
 const previewKey = computed(() => {
   revision.value
   if (!previewView.value) return ''
   return SparkData.buildDataViewKey(DATABASE_TABLE_PREVIEW_RESULT_TABLE, 'default', catalogScenarioId.value)
 })
-const previewListError = computed(() => {revision.value; return previewView.value?.loadingError?.message ?? ''})
 const viewPreviewToolbar = computed<RToolbarProps>(() => {
   revision.value
   const preview = viewPreviewView.value
@@ -618,7 +635,16 @@ const canDeleteSelectedView = computed(() => {
   return typeof id === 'string' && databaseCatalogCanDeleteRow(views, id)
 })
 const childToolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '刷新', action: 'refresh'}}]}))
-const designFieldToolbar = computed<RToolbarProps>(() => {
+const designSaveDisabled = computed(() => {
+  revision.value
+  const fields = activeFieldView.value
+  const ds = dataSet.value
+  return busy.value || !ds || !fields || !databaseCatalogDesignCanSave(fields, designObjectView.value, designExtraViews.value)
+})
+const designFieldToolbar = computed<RToolbarProps>(() => buildDesignFieldToolbar(true))
+const tableDesignFieldToolbar = computed<RToolbarProps>(() => buildDesignFieldToolbar(false))
+
+function buildDesignFieldToolbar(includeSave: boolean): RToolbarProps {
   revision.value
   const fields = activeFieldView.value
   const ds = dataSet.value
@@ -634,16 +660,16 @@ const designFieldToolbar = computed<RToolbarProps>(() => {
       onClick: syncDesignMetadata,
     }})
   }
-  children.push(
-    {type: 'r-button', props: {
+  if (includeSave) {
+    children.push({type: 'r-button', props: {
       label: '保存',
-      disabled: busy.value || !ds || !fields || !databaseCatalogDesignCanSave(fields, designObjectView.value, designExtraViews.value),
+      disabled: designSaveDisabled.value,
       onClick: saveDesignFields,
-    }},
-    {type: 'r-button', props: {label: '刷新', disabled: busy.value, onClick: refreshDesignFields}},
-  )
+    }})
+  }
+  children.push({type: 'r-button', props: {label: '刷新', disabled: busy.value, onClick: refreshDesignFields}})
   return {children}
-})
+}
 
 async function act(operation: () => void | Promise<void>, success = ''): Promise<void> {
   const ds = dataSet.value
@@ -955,13 +981,22 @@ async function refreshTablePreview(): Promise<void> {
   const dbId = typeof row?.['dbid'] === 'string' ? row['dbid'] : ''
   const tableName = typeof row?.['tblname'] === 'string' ? row['tblname'] : ''
   if (!dbId || !tableName) throw new Error('当前表缺少 dbid 或表名，无法预览数据')
-  await databaseCatalogPreviewRefresh(ds, preview, {
-    dbId,
-    tableName,
-    tblid: tableId,
-    pageIndex: preview.page,
-    pageSize: preview.pageSize,
-  })
+  const columns = databaseCatalogPreviewColumns(ds, tableId)
+  applyDatabaseCatalogPreviewColumns(preview, columns)
+  previewFailure.value = ''
+  try {
+    await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId,
+      tableName,
+      tblid: tableId,
+      pageIndex: preview.page,
+      pageSize: preview.pageSize,
+    })
+  } catch {
+    previewFailure.value = '加载数据预览失败'
+    preview.loadingError = null
+    preview.replaceRows([])
+  }
 }
 
 async function refreshTableRelations(): Promise<void> {

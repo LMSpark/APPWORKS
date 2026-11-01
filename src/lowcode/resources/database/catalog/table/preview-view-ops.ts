@@ -38,11 +38,14 @@ export type DatabaseCatalogViewPreviewParams = Readonly<{
   pageSize?: number
 }>
 
-type PreviewFieldDescriptor = Readonly<{
-  name: string
-  label: string
-  fieldType: string
-  isPrimaryKey: boolean
+type PreviewFieldWire = Readonly<{
+  Name: string
+  Description: string
+  FieldType: string
+  IsOutput: true
+  AsName: string
+  IsPKey: boolean
+  Order: number
 }>
 
 function scalar(value: unknown): string {
@@ -78,22 +81,56 @@ function parseGetDataPage(response: unknown): {items: DataRow[]; total: number} 
   return {items, total: Number.isFinite(total) ? total : items.length}
 }
 
-function previewFieldsFromCatalog(dataSet: DataSet, tblid: string): PreviewFieldDescriptor[] {
+function isPrimaryKey(value: unknown): boolean {
+  return value === 1 || value === '1' || value === true
+}
+
+function previewFieldsFromCatalog(dataSet: DataSet, tblid: string): PreviewFieldWire[] {
   if (!tblid) return []
   const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
   if (!fieldView) return []
   return fieldView.rows
     .filter(row => scalar(row['tblid']) === tblid && scalar(row['enname']) !== '')
-    .map(row => ({
-      name: scalar(row['enname']),
-      label: scalar(row['cnname']) || scalar(row['enname']),
-      fieldType: scalar(row['DataTypeName']) || 'varchar',
-      isPrimaryKey: scalar(row['IsPKey']) === '1' || row['IsPKey'] === 1 || row['IsPKey'] === true,
-    }))
+    .map((row, index) => {
+      const name = scalar(row['enname'])
+      return {
+        Name: name,
+        Description: scalar(row['cnname']),
+        FieldType: scalar(row['DataTypeName']) || 'varchar',
+        IsOutput: true,
+        AsName: scalar(row['AsName']) || name,
+        IsPKey: isPrimaryKey(row['IsPKey']),
+        Order: index + 1,
+      }
+    })
 }
 
-function resolvePrimaryKey(fields: readonly PreviewFieldDescriptor[]): string {
-  return fields.find(field => field.isPrimaryKey)?.name ?? 'rowid'
+export type DatabaseCatalogPreviewColumn = Readonly<{name: string; label: string}>
+
+/** 数据页列跟字段目录：字段名是 enname，标题是 cnname。 */
+export function databaseCatalogPreviewColumns(dataSet: DataSet, tblid: string): DatabaseCatalogPreviewColumn[] {
+  const id = tblid.trim()
+  if (!id) return []
+  const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
+  if (!fieldView) return []
+  return fieldView.rows.flatMap(row => {
+    if (scalar(row['tblid']) !== id) return []
+    const name = scalar(row['enname'])
+    if (!name) return []
+    return [{name, label: scalar(row['cnname']) || name}]
+  })
+}
+
+export function applyDatabaseCatalogPreviewColumns(view: DataView, columns: readonly DatabaseCatalogPreviewColumn[]): void {
+  const table = view.dataTable
+  if (!table || columns.length === 0) return
+  table.addColumns(columns.map(column => ({name: column.name, type: 'string' as const, label: column.label})))
+}
+
+function resolvePrimaryKey(dataSet: DataSet, tblid: string): string {
+  const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
+  const primary = fieldView?.rows.find(row => scalar(row['tblid']) === tblid && scalar(row['enname']) !== '' && isPrimaryKey(row['IsPKey']))
+  return primary ? scalar(primary['enname']) : 'rowid'
 }
 
 function syncPreviewColumns(view: DataView, rows: readonly DataRow[]): void {
@@ -156,22 +193,50 @@ async function fetchPhysicalPreviewPage(fetch: FetchPhysicalPreviewPageInput): P
   const scenarioId = dataSet.scenarioId?.trim()
   if (!scenarioId) throw new Error('缺少数据空间身份，无法预览物理表')
   const fields = previewFieldsFromCatalog(dataSet, input.tblid.trim())
-  const primaryKey = resolvePrimaryKey(fields)
-  const descriptor: Record<string, unknown> = {
-    Name: tableName,
-    Type: '数据库表',
-    DbName: dbId,
-    DbId: dbId,
-    OutputType: 'Table',
-    PrimaryKeyFields: primaryKey,
-    Filter: null,
-    ...(fields.length ? {Fields: fields.map(field => ({...field}))} : {}),
-  }
-  const response = await http.post<unknown>('/api/DataOperation/GetData', {
-    Table: [descriptor],
+  const primaryKey = resolvePrimaryKey(dataSet, input.tblid.trim())
+  const payload = {
+    Table: [{
+      Name: tableName,
+      Type: '数据库表',
+      DbName: dbId,
+      DbId: dbId,
+      OutputType: 'Table',
+      PrimaryKeyFields: primaryKey,
+      Filter: null,
+      Fields: fields,
+    }],
     PageParam: {index: pageIndex, size: pageSize},
-  })
-  return parseGetDataPage(response)
+  }
+  return postPhysicalPreview(http, payload)
+}
+
+type PhysicalPreviewDescriptor = Readonly<{
+  Name: string
+  Type: string
+  DbName: string
+  DbId: string
+  OutputType: string
+  PrimaryKeyFields: string
+  Filter: null
+  Fields: readonly PreviewFieldWire[]
+}>
+
+type PhysicalPreviewRequest = Readonly<{
+  Table: readonly PhysicalPreviewDescriptor[]
+  PageParam: Readonly<{index: number; size: number}>
+}>
+
+const PUBLIC_QUERY_BASELINE = /公开查询基线|IsVisible\s*=\s*1/
+
+/** 公开查询基线不足时，同一请求体改打系统查询；其它错误保持原样。 */
+async function postPhysicalPreview(http: HttpClientBase, payload: PhysicalPreviewRequest): Promise<{items: DataRow[]; total: number}> {
+  try {
+    return parseGetDataPage(await http.post<unknown>('/api/DataOperation/GetData', payload))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (!PUBLIC_QUERY_BASELINE.test(message)) throw error
+    return parseGetDataPage(await http.post<unknown>('/api/DataOperation/SysGetData', payload))
+  }
 }
 
 export function databaseCatalogHasTablePreview(dataSet: DataSet): boolean {

@@ -6,7 +6,6 @@ import type {DataSet, SparkNode} from '@spark-appworks/spark-data'
 import {DATABASE_CATALOG_TABLE_MODEL, DATABASE_CATALOG_VIEW_MODEL} from './table-view'
 
 const TABLE_HEADER_COLUMNS = [
-  {name: 'Expression', label: '摘要表达式'},
   {name: 'IsVisible', label: '可见(自动脱敏)'},
 ] as const
 
@@ -37,9 +36,13 @@ export function applyDatabaseCatalogObjectDesignMetadata(dataSet: DataSet): void
 }
 
 export const DATABASE_CATALOG_TABLE_DESIGN_HEADER_FIELDS: SparkNode[] = [
+  {type: 'r-text', props: {field: 'tblname', label: '表名', colSpan: 12}},
   {type: 'r-text', props: {field: 'tbldesc', label: '中文名', colSpan: 12}},
-  {type: 'r-text', props: {field: 'Expression', label: '摘要表达式', colSpan: 12}},
+  {type: 'r-checkbox', props: {field: 'PhysicsDel', label: '物理删除', colSpan: 12, trueValue: 1, falseValue: 0}},
+  {type: 'r-checkbox', props: {field: 'hasDefaultFields', label: '默认字段', colSpan: 12, trueValue: 1, falseValue: 0}},
+  {type: 'r-checkbox', props: {field: 'multiTenancy', label: '多租户', colSpan: 12, trueValue: 1, falseValue: 0}},
   {type: 'r-checkbox', props: {field: 'IsVisible', label: '可见(自动脱敏)', colSpan: 12, trueValue: 1, falseValue: 0}},
+  {type: 'r-text', props: {field: 'functiondesc', label: '功能描述', colSpan: 12}},
 ]
 
 export const DATABASE_CATALOG_VIEW_DESIGN_FORM_FIELDS: SparkNode[] = [

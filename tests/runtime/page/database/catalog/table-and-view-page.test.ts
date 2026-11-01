@@ -96,10 +96,18 @@ async function openTableDesignOnTable(wrapper: VueWrapper, tableName: string): P
   await selectPhysicalTableByName(wrapper, tableName)
   await pageButton(wrapper, '表设计').trigger('click')
   await flushPromises()
-  const body = new DOMWrapper(document.body)
-  const designDialog = body.findAll('.el-dialog').find(dialog => dialog.text().includes('表设计') && dialog.text().includes(`物理表：${tableName}`))
+  const designDialog = findTableDesignDialog(tableName)
   expect(designDialog).toBeTruthy()
   return designDialog!
+}
+
+function findTableDesignDialog(tableName?: string): DOMWrapper<Element> | undefined {
+  const body = new DOMWrapper(document.body)
+  return body.findAll('.el-dialog').find(dialog => {
+    if (!dialog.text().includes('表设计')) return false
+    if (!tableName) return true
+    return dialog.findAll('input').some(input => (input.element as HTMLInputElement).value === tableName)
+  })
 }
 
 async function openViewDesignOnView(wrapper: VueWrapper, viewName: string): Promise<DOMWrapper<Element>> {
@@ -137,7 +145,7 @@ async function setDesignFieldCnname(
   const fieldRow = designDialog.findAll('.el-table__body-wrapper tbody tr').find(row => row.text().includes(rowIncludes))
   expect(fieldRow).toBeTruthy()
   const fieldTable = new DOMWrapper(fieldRow!.element.closest('.el-table')!)
-  const cnIndex = fieldTable.findAll('.el-table__header-wrapper th').findIndex(cell => cell.text().includes('中文名'))
+  const cnIndex = fieldTable.findAll('.el-table__header-wrapper th').findIndex(cell => cell.text().includes('描述'))
   expect(cnIndex).toBeGreaterThanOrEqual(0)
   const cnCell = fieldRow!.findAll('td')[cnIndex]
   expect(cnCell).toBeTruthy()
@@ -264,14 +272,34 @@ describe('table-and-view-page', () => {
     expect(dynamic.getSystemPageInstanceById(instance!.instanceId)).toBeUndefined()
   })
 
-  it('loads catalog tables with autoColumns when blueprintScenarioId is bound', async () => {
+  it('shows database name and description instead of every model field', async () => {
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     expect(wrapper.text()).toContain('表和视图')
     expect(http.requests.some(request => JSON.stringify(request.data).includes('_base_dbInfo'))).toBe(true)
     const table = wrapper.findComponent(RendererTable)
     expect(table.exists()).toBe(true)
-    expect(table.find('.el-table__header-wrapper').text()).toContain('Name')
+    const header = table.find('.el-table__header-wrapper').text()
+    expect(header).toContain('数据库名称')
+    expect(header).toContain('描述')
+    expect(header).not.toContain('唯一标识')
+    expect(header).not.toContain('ServerName')
     expect(table.find('.el-table__body-wrapper').text()).toContain('业务库')
+  })
+
+  it('filters the table tab by Chinese name through the DataView', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectDatabase(wrapper)
+    expect(wrapper.findAll('.el-tabs__item').some(item => item.text() === '表')).toBe(true)
+    expect(wrapper.findAll('.el-tabs__item').some(item => item.text() === '物理表')).toBe(false)
+    const chineseName = wrapper.findAll('.renderer-table-filters .el-form-item').find(item => item.find('label').text() === '中文名')
+    expect(chineseName).toBeTruthy()
+    await chineseName!.get('input').setValue('订单')
+    await flushPromises()
+    await flushPromises()
+    const tableList = wrapper.findAllComponents(RendererTable)[1]!
+    const body = tableList.find('.el-table__body-wrapper').text()
+    expect(body).toContain('Orders')
+    expect(body).not.toContain('LineItems')
   })
 
   it('starts the database DataView with the same autoQuery identity used by the standard filter', async () => {
@@ -676,9 +704,12 @@ describe('table-and-view-page', () => {
     expect(wrapper.text()).toContain('工作流编码')
     expect(wrapper.text()).toMatch(/设计/)
     expect(wrapper.text()).toContain('保存')
+    expect(wrapper.text()).toContain('取消')
     expect(wrapper.text()).toContain('同步元数据')
     expect(wrapper.text()).toContain('复制')
-    expect(wrapper.text()).toContain('双击单元格编辑字段')
+    expect(wrapper.findAll('.el-tabs__item').some(item => item.text() === '设计')).toBe(true)
+    expect(wrapper.text()).not.toContain('未装配')
+    expect(wrapper.text()).not.toContain('物理表：')
   })
 
   it('loads unregistered physical table names into add-table dialog hint', async () => {
@@ -1056,6 +1087,20 @@ describe('table-and-view-page', () => {
     expect(wrapper.text()).toContain('保存')
   })
 
+  it('shows the reference design-tab fields present on the catalog model', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    const designDialog = await openTableDesignOnTable(wrapper, 'Orders')
+    const formText = designDialog.find('.el-form').text()
+    for (const label of ['表名', '中文名', '物理删除', '默认字段', '多租户', '可见(自动脱敏)', '功能描述']) {
+      expect(formText).toContain(label)
+    }
+    expect(formText).not.toContain('摘要表达式')
+    const fieldHeader = designDialog.find('.el-table__header-wrapper').text()
+    for (const label of ['字段', '描述', '字段类型', '长度', '主键', '允许为空', '是否唯一', '是否自增长', '默认值', '别名', '加密', '脱敏', '备注']) {
+      expect(fieldHeader).toContain(label)
+    }
+  })
+
   it('saves table design header through design save toolbar', async () => {
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     const designDialog = await openTableDesignOnTable(wrapper, 'Orders')
@@ -1128,16 +1173,45 @@ describe('table-and-view-page', () => {
     const dataTab = wrapper.findAll('.el-tabs__item').find(item => item.text() === '数据')
     expect(dataTab).toBeTruthy()
     await dataTab!.trigger('click')
-    await flushPromises()
-    await flushPromises()
-    await flushPromises()
-    expect(http.requests.some(request => {
+    for (let attempt = 0; attempt < 8; attempt += 1) await flushPromises()
+    const request = http.requests.find(request => {
       if (request.url !== '/api/DataOperation/GetData') return false
       const data = request.data as {Table?: Array<Record<string, unknown>>}
       const table = data.Table?.[0]
       return table?.['Type'] === '数据库表' && table?.['Name'] === 'Orders'
-    })).toBe(true)
-    expect(wrapper.text()).toContain('预览行一')
+    })
+    const table = (request?.data as {Table?: Array<Record<string, unknown>>} | undefined)?.Table?.[0]
+    expect(table?.['Fields']).toEqual(expect.arrayContaining([
+      expect.objectContaining({Name: 'Id', Description: '编号', AsName: 'Id', FieldType: '整数型', IsOutput: true, IsPKey: true}),
+    ]))
+    expect(table?.['Fields']).not.toEqual(expect.arrayContaining([expect.objectContaining({name: 'Id'})]))
+    expect(http.requests.some(request => request.url === '/api/DataOperation/SysGetData')).toBe(false)
+    const previewTable = findTableDesignDialog('Orders')!.findAll('.el-table').find(table => {
+      const header = table.find('.el-table__header-wrapper').text()
+      return header.includes('编号') && header.includes('名称') && !header.includes('字段')
+    })
+    expect(previewTable).toBeTruthy()
+    expect(previewTable!.find('.el-table__header-wrapper').text()).not.toContain('rowid')
+    expect(previewTable!.text()).toContain('预览行一')
+  })
+
+  it('keeps catalog field headers and a short message when physical preview fails', async () => {
+    http.physicalPreviewResponseOverride = {Code: 500, Message: 'Network Error', Result: {data: {Items: [], Count: 0}}}
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await openTableDesignOnTable(wrapper, 'Orders')
+    const dataTab = wrapper.findAll('.el-tabs__item').find(item => item.text() === '数据')
+    await dataTab!.trigger('click')
+    for (let attempt = 0; attempt < 8; attempt += 1) await flushPromises()
+    const designDialog = findTableDesignDialog('Orders')!
+    expect(designDialog.text()).toContain('加载数据预览失败')
+    expect(designDialog.text()).not.toContain('Network Error')
+    const previewTable = designDialog.findAll('.el-table').find(table => {
+      const header = table.find('.el-table__header-wrapper').text()
+      return header.includes('编号') && !header.includes('字段')
+    })
+    expect(previewTable).toBeTruthy()
+    expect(previewTable!.find('.el-table__header-wrapper').text()).not.toContain('rowid')
+    expect(previewTable!.text()).not.toContain('预览行一')
   })
 
   it('loads view preview when view design data tab opens', async () => {
@@ -1237,12 +1311,12 @@ describe('table-and-view-page', () => {
     await relationsTab!.trigger('click')
     await flushPromises()
     await flushPromises()
-    const body = new DOMWrapper(document.body)
-    const designDialog = body.findAll('.el-dialog').find(dialog => dialog.text().includes('表设计') && dialog.text().includes('物理表：Orders'))!
+    const designDialog = findTableDesignDialog('Orders')!
     const addRelation = designDialog.findAll('button').find(button => button.text() === '新增')
     expect(addRelation).toBeTruthy()
     await addRelation!.trigger('click')
     await flushPromises()
+    const body = new DOMWrapper(document.body)
     const dialog = body.findAll('.el-dialog').at(-1)!
     expect(dialog.text()).toContain('新增表关系')
     const peerSelect = dialog.findComponent(FieldSelect)
@@ -1273,12 +1347,12 @@ describe('table-and-view-page', () => {
     await flushPromises()
     await flushPromises()
 
-    const body = new DOMWrapper(document.body)
-    const designDialog = body.findAll('.el-dialog').find(dialog => dialog.text().includes('表设计') && dialog.text().includes('物理表：Orders'))!
+    const designDialog = findTableDesignDialog('Orders')!
     const addRelation = designDialog.findAll('button').find(button => button.text() === '新增')
     expect(addRelation).toBeTruthy()
     await addRelation!.trigger('click')
     await flushPromises()
+    const body = new DOMWrapper(document.body)
     const relationDialog = body.findAll('.el-dialog').at(-1)!
 
     const relationForm = relationDialog.findComponent(RendererForm)
@@ -2240,7 +2314,7 @@ describe('table-and-view-page', () => {
       await pendingOldQuery
       requestOwner.executeRequest = originalExecute
     }
-    expect(designDialog.text()).toContain('物理表：LineItems')
+    expect(designDialog.findAll('input').some(input => (input.element as HTMLInputElement).value === 'LineItems')).toBe(true)
   })
 
   it('deletes selected table through confirm dialog and saveChanges', async () => {

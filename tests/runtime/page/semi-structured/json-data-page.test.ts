@@ -32,6 +32,10 @@ async function open(){
  return {wrapper,router,click,choose,edit}
 }
 function documentValue(wrapper:VueWrapper):unknown{const value=wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).props('modelValue');if(typeof value!=='string')throw new Error('JSON editor text is absent');return JSON.parse(value)}
+it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{
+ state.http.interceptors.request.use({onRequest:request=>{const body=request.data as {Table?:Array<{Name?:string}>}|undefined;if(request.url==='/api/DataOperation/GetData'&&body?.Table?.[0]?.Name==='Base_JsonData')throw new Error('catalog query denied');return request}})
+ const f=await open();const errors=f.wrapper.findAll('[role="alert"]').filter(item=>item.text().includes('catalog query denied'));expect(errors).toHaveLength(1);expect(f.wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
+})
 describe('JSON document page on the formal DataSet',()=>{
  it('loads files only after selecting a record and binds the actual document rather than wire tree rows',async()=>{
   const f=await open();expect(state.reads).toEqual([]);await f.choose()

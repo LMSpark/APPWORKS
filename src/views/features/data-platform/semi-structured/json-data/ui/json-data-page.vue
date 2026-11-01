@@ -5,7 +5,7 @@
  <section class="json-data-page">
   <header><h1>JSON 数据</h1><p>管理JSON文档</p></header>
   <p v-if="loading" role="status">正在读取目录…</p>
-  <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
+  <p v-if="error" role="alert">{{ error }}</p>
   <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
   <RendererDialog v-if="document" :model-value="true" title="JSON 内容编辑" :data-view-key="contentKey" :width="1100" :close-disabled="busy || hasPending" :destroy-on-close="true" @update:model-value="closeDocument">
    <p v-if="documentLoading" role="status">正在读取内容…</p>
@@ -54,7 +54,6 @@ const documentLoading=computed(()=>{revision.value;return openingDocument.value|
 const busy=computed(()=>importing.value||acting.value||loading.value||documentLoading.value)
 const documentReady=computed(()=>{revision.value;const view=document.value;return view?.requestState===RequestState.Loaded&&!view.loadingError&&view.rows.length===1})
 const documentError=computed(()=>{revision.value;return document.value?.loadingError?.message??''})
-const queryError=computed(()=>{revision.value;return catalog.value?.loadingError?.message??''})
 const unconfirmed=computed(()=>{revision.value;return document.value?.hasUnconfirmedSave===true})
 const catalogUnconfirmed=computed(()=>{revision.value;return catalog.value?.hasUnconfirmedSave===true})
 const creationFileCommitted=computed(()=>{revision.value;const view=document.value;return !!creating.value&&!!view&&(view.hasUnconfirmedSave||(view.rows.length===1&&!view.dirtyTracking.isPendingCreate(creating.value)))})

@@ -2507,7 +2507,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.537Z",
+  "generatedAt": "2026-11-01T23:02:05.613Z",
   "models": {
     "ValueRef": {
       "name": "ValueRef",
@@ -3540,7 +3540,7 @@
       "jsdoc": "表级模型属性（第五层）：\n用于 DataView 驱动的数据容器，描述它们和页面数据空间的连接点。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * @internal 运行时数据线，由框架注入，不属于页面配置。\n     *\n     * 它代表当前容器实际绑定到的 DataView。\n     */\n    dataSource?: DataView;\n    /**\n     * DataView 定位键。\n     * 完整格式为 `scenarioId@modelName@viewId`（数据空间ID@模型名称@视图名称），由本次 PageRuntime 校验身份并解析。\n     * `modelName@viewId` 仅在运行实例明确主场景时使用；已有 `#scenarioId@modelName@viewId` 保留读取兼容，新配置不生成前导 #。\n     */\n    dataViewKey?: string;\n    /** DataView 成员枚举值，用于读取 DataView 输出成员。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "declarationTypeText": "{\n    /**\n     * @internal 运行时数据线，由框架注入，不属于页面配置。\n     *\n     * 它代表当前容器实际绑定到的 DataView。\n     */\n    dataSource?: DataView;\n    /**\n     * DataView 定位键。\n     * 完整格式为 `scenarioId@modelName@viewId`（数据空间ID@模型名称@视图名称），由本次 PageRuntime 校验身份并解析。\n     * `modelName@viewId` 仅在运行实例明确主场景时使用；已有 `#scenarioId@modelName@viewId` 保留读取兼容，新配置不生成前导 #。\n     */\n    dataViewKey?: string;\n    /** DataView 成员枚举值，用于读取 DataView 输出成员。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /** 是否显示 DataView 行数、总数等元信息栏；查询和变更错误始终显示，不受此开关影响。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -3569,7 +3569,7 @@
             },
             {
               "name": "showDataViewMeta",
-              "jsdoc": "是否显示 DataView 元信息栏。",
+              "jsdoc": "是否显示 DataView 行数、总数等元信息栏；查询和变更错误始终显示，不受此开关影响。",
               "readable": true,
               "writable": false
             },

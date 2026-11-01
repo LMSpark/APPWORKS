@@ -8,6 +8,9 @@ AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/
   <div v-if="aggregateError" role="alert" class="spark-data-view-meta spark-data-view-meta__item--error" data-aggregate-error>
     {{ aggregateError.message }}
   </div>
+  <div v-if="errorMessage" role="alert" class="spark-data-view-meta spark-data-view-meta__item--error" data-view-error>
+    {{ errorMessage }}
+  </div>
   <div v-if="visible" class="spark-data-view-meta" data-testid="data-view-meta">
     <span class="spark-data-view-meta__item">行数 {{ rowCount }}</span>
     <span class="spark-data-view-meta__item">总数 {{ total }}</span>
@@ -25,7 +28,6 @@ AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/
       :key="`selection-aggregate-${entry.key}`"
       class="spark-data-view-meta__item spark-data-view-meta__item--selection"
     >选区{{ entry.label }} {{ entry.value }}</span>
-    <span v-if="errorMessage" class="spark-data-view-meta__item spark-data-view-meta__item--error">{{ errorMessage }}</span>
   </div>
 </template>
 

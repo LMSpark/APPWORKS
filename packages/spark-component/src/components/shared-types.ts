@@ -700,7 +700,7 @@ export type SparkTableModelProps = {
   dataMember?: DataMember | `${DataMember}`
   /** DataView 成员内部业务字段或点路径。 */
   dataField?: string
-  /** 是否显示 DataView 元信息栏。 */
+  /** 是否显示 DataView 行数、总数等元信息栏；查询和变更错误始终显示，不受此开关影响。 */
   showDataViewMeta?: boolean
   /** 是否显示全量聚合摘要。 */
   showAggregateSummary?: boolean

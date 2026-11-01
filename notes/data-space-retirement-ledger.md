@@ -4503,3 +4503,14 @@ flowchart TD
 - 独立只读复查json-owned-final-absence-live.json：两个临时目录ID查询总数0、两个文件名均不在真实文件列表，目录文件列表仍21项，写请求0。临时记录/文件均已清理，未留未知结果；此前6条按path不可读的存量记录未修改。
 - 本批仍待ClassModel、全仓verify/build及62项影响测试最终核验后提交推送。浏览器整页、普通删除引用完整性、跨重载恢复、模型运行消费/根类型实际合同及其余业务页未闭合项仍开放，整体目标不结题。
 - 最终门禁：设计API/上传器包级38项、业务影响7文件62项均通过；ClassModel正式生成与消费者合同生成完成；json-byte-verify.log全仓verify和json-byte-build.log串行build由82640退出0确认，既有2项AI模型告警保留。两轮受控临时数据已独立核对清理完成，当前无遗留未知结果。准备提交推送共享字节容器修复及真实烟测证据台账，不将本轮结果扩大为普通删除、全部JSON根类型、浏览器或全架构已完成。
+
+## 2026-11-02 JSON 下游模型只读烟测与公共错误呈现修复
+
+- 上轮为progress：932bed893已推送origin/1031，起始工作区干净。先读实际8D1A元模型字段合同，确认Type/DbId/Name/MetaName/dataSetId等输出，再按Type=JSON只读查询；当前授权可见仅1个JSON模型：4F2240B23F1F951EC6356AA576F28165，Name/MetaName=TestJSON0819，空间97DCB03F75AADEAE6B102B062DB71CEA，来源DbId=EB63C2BFA0394BD58D777E56B3810F09。证据json-model-metadata-contract-live.json、json-runtime-consumers-live.json。
+- 该模型正式6字段均输出，但没有正式主键声明；原生readModel返回primaryKey空，装配无诊断。不能因字段名/描述含id/主键自动改IsPKey或发明写入身份，当前正向数据行为尚未获证。json-runtime-consumer-formal-live.json保存正式合同。
+- 真实运行查询返回[500]权限不足，资源Base_JsonData、数据空间基线未配置按none、IsVisible=0。不是401登录过期。沿真实空间/模型装配DataSet/DataView后，查询state=Failed(4)、rows=0、loadingError保留完整拒绝、addState=hidden（json-runtime-bound-model-live.json）。同一授权会话对照：FFDEF目录的该来源原文件DataView可读对象JSON，97DC运行模型仍被拒绝（json-file-vs-runtime-scope-live.json），全程只读端点守卫、0写入。
+- 分开判定：当前拒绝是当次正式授权事实；是否符合业务授权预期尚未核定，不能擅自认定服务漏洞或要求放开。负向守卫应通过，JSON模型正向消费仍未验证。按权限专题延期约束，不新增权限接线、不改服务基线/IsVisible、不借目录场景凭据、不另走文件接口替代被拒绝的模型查询。Java仅参考：getJsonData在文件不存在时返回空PageResult，但实际请求被权限拒绝，尚未走到该分支，不能把源码推断写成实服已验证的“缺文件等于空数据”。
+- 顺链查出可修前端缺口：公共DataViewMetaBar把loadingError/mutatingError放在showDataViewMeta控制区，业务关闭元信息时错误也消失。改为独立role=alert，开关只管行数/总数等元信息；聚合错误既有独立提示不变。更新共享属性正式JSDoc，须经ClassModel生成刷新。
+- TDD证据：data-view-errors-red.log先有一项夹具漏modelBinding，并非有效语义RED；补明确fixture模型身份后red-2.log三项均因缺错误提示失败。修复后green.log3通过，覆盖原生失败DataView绑定表格、隐藏元信息、查询/保存错误、开关切换只显示一次与恢复清除。JSON目录原自建queryError显示与公共提示重复，page-error-red.log证明2条而应1条；删除被替代的页面查询错误拼接，保留流程/文件错误。data-view-errors-page-green.log2文件26项通过，定向lint通过。
+- 影响测试data-view-errors-impact.log16文件172项通过，表格/表单/工具栏及半结构链覆盖；列表区补验和最终ClassModel→verify→build仍在执行。普通删除完整引用、6条存量path问题、跨重载恢复、浏览器和其余完整架构用例继续开放，本轮不结题。
+- 最终门禁：ClassModel正式生成、全仓verify和串行build由3547退出0确认（data-view-errors-classmodel/verify/build.log），已有2项AI模型告警保留；16文件172项及独立列表区14项影响测试通过，范围不重叠不重复计入26项局部验证。当前代码只修公共错误可见性及移除已替代的JSON目录错误拼接，不修改任何授权或服务数据。准备提交推送该检查点，JSON模型正向运行查询及其授权预期仍未验证，保持原整体目标活动。

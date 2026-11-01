@@ -3,7 +3,7 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,RendererGraph,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,RendererTable,RendererGraph,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
@@ -13,8 +13,8 @@ vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDi
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{text:string})=>{state.uploads.push(input.text);state.layoutText=input.text;if(state.loseLayoutReceipt){state.loseLayoutReceipt=false;throw new Error("layout response lost")}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===WORKFLOW_DESIGN?workflowDesignText:null}}),lowcodeApi:{design:{readTextFile:async()=>{if(state.denyLayout)throw new LowcodeApiError(403,'布局读取被拒绝');if(state.layoutText===null)throw new LowcodeApiError(404,'missing');return state.layoutText}},readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'工作流设计'}),readModelBatch:async()=>workflowDesignModels(),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
- state.dirty=[];state.layoutText=null;state.uploads=[];state.denyLayout=false;state.loseLayoutReceipt=false;state.http=new ApiBackend();state.http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'当前流程'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'查询订单',node_type:'query'},{rowid:'N2',workflow_id:'W2',name:'其他节点'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N1',name:'原连线'}]}
- state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();config.global.stubs={...original,RendererGraph:true}
+ state.dirty=[];state.layoutText=null;state.uploads=[];state.denyLayout=false;state.loseLayoutReceipt=false;state.http=new ApiBackend();state.http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'当前流程'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'查询订单',node_type:'query',node_config:'M1',dataOperateModId:'M2'},{rowid:'N2',workflow_id:'W2',name:'其他节点'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N1',name:'原连线'}],Base_DataModel:[{rowid:'M1',dataSetId:'W1',Name:'订单模型',MetaName:'Orders'},{rowid:'M2',dataSetId:'W1',Name:'目标模型',MetaName:'Targets'},{rowid:'M3',dataSetId:'W2',Name:'其他流程模型'}],Base_DataModel_Field:[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'code',description:'原字段说明'},{rowid:'F2',dataSetId:'W1',dataModelId:'M2',Name:'target'}],Base_DataModel_Relation:[{rowid:'R1',dataSetId:'W1',parentModId:'M1',childModId:'M2',description:'模型关系'}]}
+ state.runtime=new DataSpaceRuntimeApi({http:state.http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})});registerAllRenderers();const stubs={...original};for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])Reflect.deleteProperty(stubs,key);config.global.stubs={...stubs,RendererGraph:true}
 })
 afterEach(()=>{wrappers.splice(0).forEach(w=>w.unmount());config.global.stubs=original})
 async function open(workflowId='W1'){
@@ -89,6 +89,38 @@ describe('workflow formal design page',()=>{
   await f.click('保存布局');expect(state.uploads).toHaveLength(1)
   expect(f.wrapper.getComponent(RendererGraph).props('draggableKeys')).toEqual([])
   await f.click('核验布局保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
+ it.each([{type:'query',expected:'订单模型'},{type:'copy',expected:'订单模型'},{type:'add',expected:'目标模型'}])('resolves $type node model ownership before loading fields',async({type,expected})=>{
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['node_type']=type
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  expect(state.http.reads.some(r=>r.table==='Base_DataModel')).toBe(false)
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.findAll('input').map(input=>input.element.value)).toContain(expected))
+  expect(f.wrapper.findAllComponents(FieldJson).some(field=>field.props('field')==='node_config')).toBe(false)
+  expect(state.http.reads.some(r=>r.table==='Base_DataModel_Field')).toBe(true)
+  expect(state.http.saves).toEqual([])
+ })
+ it('persists field descriptions independently of pending node edits and leaves other models unchanged',async()=>{
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(t=>t.props('dataViewKey')?.includes('@Base_DataModel_Field@'))).toBe(true))
+  const fields=f.wrapper.findAllComponents(RendererTable).find(t=>t.props('dataViewKey')?.includes('@Base_DataModel_Field@'))!
+  await fields.get('tbody tr').trigger('click');await flushPromises()
+  const nodeName=f.wrapper.findAllComponents(FieldText).find(field=>field.props('dataViewKey')?.includes('@Base_WorkflowNodeDefinition@')&&field.props('field')==='name')!
+  await nodeName.get('input').setValue('未保存节点名称');await flushPromises()
+  const description=fields.findAllComponents(FieldText).find(field=>field.props('field')==='description'&&field.find('input').exists())!
+  await description.get('input').setValue('正式字段说明');await flushPromises();await f.click('保存字段说明')
+  expect(state.http.saves.map(s=>s.table)).toEqual(['Base_DataModel_Field'])
+  expect(state.http.records['Base_DataModel_Field']?.find(row=>row['rowid']==='F2')?.['Name']).toBe('target')
+  expect(state.http.records['Base_WorkflowNodeDefinition']?.find(row=>row['rowid']==='N1')?.['name']).toBe('查询订单')
+  expect(state.dirty[0]?.isDirty).toBe(true);await f.click('取消节点修改')
+ })
+ it.each(['MISSING','M3'])('reports an unavailable model reference %s without substituting another model',async modelId=>{
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['node_config']=modelId
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.text()).toContain('当前节点引用的模型不存在'))
+  expect(state.http.saves).toEqual([])
  })
  it('does not load node or connector views for a missing target',async()=>{
   const f=await open('MISSING');await vi.waitFor(()=>expect(f.wrapper.text()).toContain('当前工作流不存在'))

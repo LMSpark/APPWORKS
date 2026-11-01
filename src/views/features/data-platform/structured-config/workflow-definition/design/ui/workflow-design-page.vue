@@ -40,11 +40,31 @@
               <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
               <FieldJson field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
               <FieldJson field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
-              <FieldJson field="node_config" label="节点配置" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.config',value)" />
+              <FieldText field="node_config" label="查询模型ID" :readonly="true" />
               <FieldJson field="config" label="操作配置" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.operation',value)" />
             </RendererForm>
             <RendererButton :label="isUnconfirmed(nodesTable) ? '核验节点保存结果' : '保存节点'" :disabled="busy || pendingPart('nodes')" @click="save(nodesTable)" />
             <RendererButton label="取消节点修改" :disabled="busy || unconfirmed" @click="cancel(nodesTable)" />
+            <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
+            <section v-if="validModel">
+              <h2>模型配置</h2>
+              <RendererForm :data-view-key="modelKey" :auto-columns="false" :show-data-view-meta="false">
+                <FieldText field="Name" label="模型名称" :readonly="true" />
+                <FieldText field="MetaName" label="来源资源" :readonly="true" />
+                <FieldText field="Type" label="资源类型" :readonly="true" />
+                <FieldText field="description" label="模型说明" :readonly="locked" />
+              </RendererForm>
+              <RendererButton :label="isUnconfirmed(modelTable) ? '核验模型说明保存结果' : '保存模型说明'" :disabled="busy" @click="save(modelTable)" />
+              <RendererButton label="取消模型说明修改" :disabled="busy || unconfirmed" @click="cancel(modelTable)" />
+              <h3>字段与参数</h3>
+              <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
+              <RendererButton :label="isUnconfirmed(fieldsTable) ? '核验字段说明保存结果' : '保存字段说明'" :disabled="busy" @click="save(fieldsTable)" />
+              <RendererButton label="取消字段说明修改" :disabled="busy || unconfirmed" @click="cancel(fieldsTable)" />
+              <h3>作为父模型的原服务关系</h3>
+              <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
+              <h3>作为子模型的原服务关系</h3>
+              <RendererTable :data-view-key="childRelationsKey" :children="relationFields" />
+            </section>
           </template>
           <template v-else-if="selectedKind === 'edge' && selectedEdge">
             <h2>连线配置</h2>
@@ -67,7 +87,7 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
-import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
+import {buildDataViewKey,RequestState,type DataRow,type DataSet,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
@@ -75,11 +95,14 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
-const {PAGE_RUNTIME,RendererForm,RendererGraph,RendererButton,FieldText,FieldJson,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
 const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_WorkflowNodeDefinition',edgesTable='Base_WorkflowConnectors'
 const nodesKey=buildDataViewKey(nodesTable,'default',scene),edgesKey=buildDataViewKey(edgesTable,'default',scene),definitionKey=buildDataViewKey('Base_WorkflowDefinition','default',scene)
+const modelTable='Base_DataModel',fieldsTable='Base_DataModel_Field',relationsTable='Base_DataModel_Relation'
+const modelKey=buildDataViewKey(modelTable,'default',scene),fieldsKey=buildDataViewKey(fieldsTable,'default',scene)
+const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
 const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
@@ -96,6 +119,18 @@ const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.
 useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}})
 const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
 const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
+function nodeModelId(row:DataRow):string{
+ const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
+ const type=typeof row['node_type']==='string'?row['node_type'].trim().toLowerCase():''
+ const field=type==='query'||type==='copy'?'node_config':'dataOperateModId'
+ if(nodes.fieldAccess(row,field).read!=='visible')throw new Error('节点模型身份不可读')
+ const id=row[field];return typeof id==='string'?id.trim():''
+}
+const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{return nodeModelId(row)}catch{return ''}})
+const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
+const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
+const modelFields=computed<SparkNode[]>(()=>Object.entries({Name:'字段名称',AsName:'输出名称',type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:true,cellReadonly:()=>field!=='description'||locked.value}})))
+const relationFields:SparkNode[]=Object.entries({parentModId:'父模型',childModId:'子模型',depType:'原服务关系类型',filter:'原服务条件',description:'说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const layoutRow=computed(()=>{revision.value;return view(layoutTable)?.rows[0]})
 const layoutMissing=computed(()=>{revision.value;const target=view(layoutTable);return target?.requestState===RequestState.Loaded&&!target.loadingError&&target.rows.length===0})
 const layoutState=computed(()=>{
@@ -122,6 +157,12 @@ function selectObject(event:SparkComponent.GraphSelection):void{
  const target=view(event.kind==='node'?nodesTable:edgesTable),row=target?.rows.find(row=>target.getPkKey(row)===event.id)
  if(!row){event.control.cancel=true;return}
  target?.setCurrentRow(row);selectedKind.value=event.kind;revision.value++
+ if(event.kind==='node')void loadNodeModel(row)
+}
+async function loadNodeModel(row:DataRow):Promise<void>{
+ const model=view(modelTable),own=generation;if(!model)return
+ try{const modelId=nodeModelId(row);model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
 }
 onBeforeRouteLeave(()=>!hasPending.value)
 onBeforeRouteUpdate(()=>!hasPending.value)

@@ -19,8 +19,9 @@ async function fixture(){
  let lose=false,current=true
  const read=vi.fn(async({fileName}:{fileName:string})=>{const text=files.get(fileName);if(text===undefined)throw new LowcodeApiError(404,'文件不存在');return text})
  const upload=vi.fn(async(input:{fileName:string;text:string})=>{files.set(input.fileName,input.text);if(lose){lose=false;throw new Error('lost response')}return {}})
- const options={api:{readTextFile:read},fileUpload:{uploadWorkingText:upload},assertCurrent:()=>{if(!current)throw new Error('STALE')}}
- return {ds,catalog,read,upload,files,lose:()=>{lose=true},stale:()=>{current=false},open:(id='J1')=>openJsonDocumentView({dataSet:ds,catalog,jsonId:id,...options})}
+ const createUpload=vi.fn(upload)
+ const options={api:{readTextFile:read},fileUpload:{uploadWorkingText:upload,uploadTextVersion:createUpload},assertCurrent:()=>{if(!current)throw new Error('STALE')}}
+ return {ds,catalog,read,upload,createUpload,files,lose:()=>{lose=true},stale:()=>{current=false},open:(id='J1',create=false)=>openJsonDocumentView({dataSet:ds,catalog,jsonId:id,...options,...(create?{create:true}:{})})}
 }
 describe('raw JSON document file through SPARK data',()=>{
  it('reads the proven jsondatapath locator and preserves nested arrays, null and false on scoped file save',async()=>{
@@ -46,4 +47,25 @@ describe('raw JSON document file through SPARK data',()=>{
  it('rejects an unreadable metadata target before touching files',async()=>{
   const f=await fixture();expect(()=>f.open('UNKNOWN')).toThrow('JSON_DOCUMENT_TARGET');expect(f.read).not.toHaveBeenCalled()
  })
+})
+
+it('creates a file only for the native pending catalog row and commits each source separately',async()=>{
+ const f=await fixture();await f.catalog.addRow({name:'新JSON',path:''});const row=f.catalog.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('Native pending row missing');const id=f.catalog.getPkKey(row);expect(typeof id).toBe('string')
+ const view=f.open(String(id),true);await view.refresh();expect(view.loadingError).toBeNull();expect(view.rows).toEqual([]);await view.addRow({content:'{"items":[[],null,false]}'})
+ await f.ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});expect(f.files.get(`${String(id)}.json`)).toBe('{"items":[[],null,false]}');expect(f.createUpload).toHaveBeenCalledTimes(1);expect(f.catalog.dirtyTracking.isPendingCreate(id!)).toBe(true)
+ await f.ds.saveChanges({views:[{tableName:'Base_JsonData',viewId:'default',ids:[id!]}]});expect(f.catalog.dirtyTracking.isPendingCreate(id!)).toBe(false)
+})
+it('rejects create intent for an existing or absent catalog identity before touching a file',async()=>{
+ const f=await fixture();expect(()=>f.open('J1',true)).toThrow('JSON_DOCUMENT_CREATE');expect(()=>f.open('J2',true)).toThrow('JSON_DOCUMENT_CREATE');expect(f.read).not.toHaveBeenCalled();expect(f.upload).not.toHaveBeenCalled()
+})
+it('refuses a pending row that points to another file instead of its own generated identity',async()=>{
+ const f=await fixture();await f.catalog.addRow({name:'collision',path:'/NewApp/data.json'});const row=f.catalog.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('Pending catalog row missing');expect(()=>f.open(String(f.catalog.getPkKey(row)),true)).toThrow('JSON_DOCUMENT_CREATE');expect(f.upload).not.toHaveBeenCalled()
+})
+it('does not adopt or overwrite a file already occupying the new catalog identity',async()=>{
+ const f=await fixture();await f.catalog.addRow({name:'collision',path:''});const row=f.catalog.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('Pending catalog row missing');const id=String(f.catalog.getPkKey(row));f.files.set(`${id}.json`,'{"existing":true}');const view=f.open(id,true);await view.refresh();expect(view.loadingError?.message).toContain('JSON_DOCUMENT_CREATE_CONFLICT');expect(view.rows).toEqual([]);expect(f.upload).not.toHaveBeenCalled()
+})
+
+it('recovers an unknown create on the same named view without replaying or committing catalog metadata',async()=>{
+ const f=await fixture();await f.catalog.addRow({name:'new',path:''});const row=f.catalog.dirtyTracking.pendingCreateRows[0];if(!row)throw new Error('Pending catalog row missing');const id=String(f.catalog.getPkKey(row)),view=f.open(id,true);await view.refresh();await view.addRow({content:'{"created":true}'});f.lose();const save=()=>f.ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})
+ await expect(save()).rejects.toThrow('lost response');expect(view.hasUnconfirmedSave).toBe(true);expect(f.open(id,true)).toBe(view);await save();expect(f.upload).toHaveBeenCalledTimes(1);expect(f.catalog.dirtyTracking.isPendingCreate(id)).toBe(true)
 })

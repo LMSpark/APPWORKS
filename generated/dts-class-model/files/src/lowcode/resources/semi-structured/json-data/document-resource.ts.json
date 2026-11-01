@@ -33,7 +33,10 @@
         },
         "fileUpload": {
           "type": "object",
-          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>"
+          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>"
+        },
+        "create": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -47,18 +50,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T21:30:32.223Z",
+  "generatedAt": "2026-11-01T21:49:27.437Z",
   "models": {
     "OpenOptions": {
       "name": "OpenOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    create?: boolean;\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    catalog: DataView;\n    jsonId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    create?: boolean;\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -86,6 +89,11 @@
             },
             {
               "name": "fileUpload",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "create",
               "readable": true,
               "writable": false
             }

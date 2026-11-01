@@ -4442,3 +4442,21 @@ flowchart TD
 - 未完成：新增、导入、完整删除文件命令及部分成功恢复、参考行编辑入口/布局完全还原、真实保存及浏览器整页烟测。6 个存量缺文件仍不重建、不隐藏。全仓门禁及构建正在执行，尚未声明本轮可提交。
 - 删除影响面补查：正式目录查询全部 11 条并按已核服务定位规则计算文件身份，当前无多条目录共用同一文件（json-catalog-file-identity-live.json）；这是本轮存量样本，不作为未来删除可跳过引用核验的理由。未调用删除端点。下一轮新增/导入与删除须明确数据库/文件分别提交、失败和未知结果的可恢复状态，禁止套用参考先删目录后删文件流程冒充完整删除。
 - 最终门禁：json-metadata-classmodel.log 正式生成 exit0；json-metadata-impact.log 7 文件43项通过；json-metadata-page-final.log 最终8项通过；json-metadata-build.log build exit0。首次 verify 的4项错误均为新增测试索引访问，改用方括号后 json-metadata-verify-final.log 全仓 verify exit0，已有2条AI模型警告保留。无后端变更、无真实业务写入；按授权准备提交推送当前检查点，整体验收不结题。
+
+## 2026-11-02 JSON 文件目录交叉烟测与浏览器入口核查
+
+- 上轮为 progress：dade389f4 已推送 origin/1031，本轮起始干净。真实既有 LowcodeDesignApi.listFiles(jsondatapath,根目录) 返回21条文件项，证据 json-file-directory-live.json，未写文件或业务记录。
+- 与上一轮11条正式目录身份交叉发现需纠正“缺文件”的表述：6条记录按正式 path 定位仍404，但其中81C9D7E55CB949BC82A017AFA4243BCB对应ID名的81C9D7E55CB949BC82A017AFA4243BCB.json确实在文件列表；正式path却指vk_swiftshader_icd.json。只能证明定位不一致候选，尚未读取候选内容/确认归属，禁止自动改path、回退ID文件或删除。Base_DepartInfo.json(1).bak也只是候选备份，不能当正式文件。21项与11目录差额须继续核对，不能直接认定孤立文件并清理。
+- 重读computer-use技能及guidance/confirmations后，应用清单显示Chrome未运行，按已安装app ID启动；唯一新标签页窗口被返回。get_window_state时工具明确停止：无法足够可靠确定当前浏览器URL以执行策略。未输入URL、未登录、未点击业务页、无UI烟测通过声明。本轮停止Computer Use，不重试绕过。后续可继续API/源码闭环；原生浏览器验收仍待工具可确认URL。
+- 新增/导入/删除尚未实施；本轮只完成真实目录证据扩充，未改产品代码。整体目标继续活动，不把浏览器工具中断当全项目无路可走。
+
+## 2026-11-02 JSON 显式文件创建资源合同（进行中）
+
+- 上轮为 progress，新增证据已登记。候选81C9…ID文件经当前原文接口确认为85字符的有效对象JSON；仍未确认其与目录记录归属，不自动重挂。Base_DepartInfo.json(1).bak被服务以[1004]文件类型拒绝读取，不改扩展名或换端点绕过。证据json-locator-candidates-live.json，实际写入0。
+- 参考1147b00ee的新增save仅写name/description/path空值，不初始化文件，不能照搬该流程继续制造目录/文件断链。Ruling：新增资源文件只接受本次原生目录待新增行，使用其正式原生ID对应文件名；普通打开既有404仍失败，不自动补文件、不覆盖同名文件。文件与目录分开提交、分别核验，不承诺事务。该合同为后续新增/导入闭环前置，尚无页面新增入口。
+- 按ClassModel的原生DataView.addRow、dirtyTracking.isPendingCreate及公共文件适配器canCreate/查询/save合同接线；openJsonDocumentView显式create仅在目录当次addActionState允许且身份是pending-create时有效。空文件查询返回null只限此路径；新文件提交调用共享禁止覆盖上传与字节回读，正文/新增草稿/未知回执仍在公共DataView中。
+- RED→GREEN：json-create-resource-red.log 2失败/5通过；碰撞保护json-create-collision-red.log 2新增失败后修复；重开未知提交json-create-rebind-red.log暴露旧每次configure覆盖保护，改为仅首次配置。json-create-resource-final-2.log 10通过。创建阶段证据按原生视图WeakSet保持，避免同视图重绑丢失曾提交事实；不缓存正文或回执、不另造草稿/查询通道。
+- 真实管线json-create-cancel-live.json：正式目录新增草稿和文件新增草稿均由原生链追踪，分别取消后目录/文件回读均不存在，业务写请求0。真实创建/保存/清理及浏览器整页验收未进行；后续页面须先确认文件再保存目录，显式处理文件已落盘而目录未确认的状态，不能允许取消造成无提示孤立文件。
+- ClassModel正式生成、影响测试、verify和build本轮在执行。当前仍缺新增/导入/删除的完整页面流程和真实写入验收；6条按path不可读的记录保留，其他业务页面总范围不变。
+- 本批影响测试7文件48项通过（json-create-impact.log）；定向lint通过。首次build在vite-plugin-class-model-static closeBundle复制dist/dts-class-model时ENOENT退出1，当时ClassModel生成仍在运行；这是并发产物争用的待复验线索，不当作业务代码已坏或构建通过。等全仓verify结束再串行重跑build，不因日志超时重启活动任务。
+- 最终门禁：ClassModel正式生成exit0；全仓verify（27125）exit0，既有2条AI模型警告保留；48项影响测试通过；待生成/校验完成后串行build（29623，json-create-build-final.log）exit0。首次并发build失败已保留证据，未以重跑覆盖原日志。无真实JSON写入，无后端变更；准备提交推送显式创建资源能力检查点，下一轮仍须实现完整页面编排及真实写入验收。

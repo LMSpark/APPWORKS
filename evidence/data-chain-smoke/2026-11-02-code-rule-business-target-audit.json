@@ -1,0 +1,55 @@
+{
+  "testedAt": "2026-11-02T14:06:07.814Z",
+  "kind": "code-rule-current-business-target-audit",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "implementation": [
+    "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+    "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
+  ],
+  "live": {
+    "kind": "native-code-rule-business-draft",
+    "success": true,
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "newTableId": "10CEED2E242C4DB1872964D30BCB2FDA",
+    "newTableName": "Base_CodeNodeDesign",
+    "fieldRows": 18,
+    "effectiveTargetVerified": true,
+    "originalBaselinePreserved": true,
+    "nativeCancel": true,
+    "independentMainUnchanged": true,
+    "saveAttempted": false
+  },
+  "requests": {
+    "reads": 33,
+    "functionPosts": 0,
+    "crud": 0,
+    "blocked": 0
+  },
+  "automatedCoverage": [
+    "time and parent root actions consume unsaved new table identity",
+    "main target changes reject confirmation and cancellation preserves main edits",
+    "late field response cannot start stale parent query",
+    "formal masked business identity rejects writes",
+    "field from another table cannot be confirmed",
+    "stale native checkpoint release permits cancellation without overwriting a new-query draft"
+  ],
+  "readOnlyReview": "no new confirmed findings after stale-cancel fix",
+  "limitations": [
+    "Actual service verified original DataSet read/edit/cancel and independent reread; both popup interactions verified with mounted standard components and formal-query permission fixtures",
+    "No live persistence attempted or temporary objects created in this turn",
+    "Full picker layout/filter/selection restoration still pending",
+    "sys_edit SaveView remains unconfirmed and never replayed"
+  ],
+  "automatedTests": {
+    "passed": 163,
+    "log": "artifacts/data-chain-smoke/code-rule-target-related-complete.log",
+    "files": 18
+  },
+  "gates": {
+    "classModelGenerated": true,
+    "verify": true,
+    "build": true,
+    "terminalSession": 48280
+  }
+}

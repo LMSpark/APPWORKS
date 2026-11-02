@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 998,
+  "scannedFileCount": 999,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13897,6 +13897,19 @@
         "symbols": [
           "LowcodeDataCode"
         ]
+      }
+    },
+    "src/lowcode/resources/structured-config/data-code/rule-target.ts": {
+      "file": "files/src/lowcode/resources/structured-config/data-code/rule-target.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/data-code/rule-target",
+        "sourcePath": "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/data-code/rule-target",
+        "jsdoc": "@module app:lowcode/resources/structured-config/data-code/rule-target\n职责：核当前编码主/分段归属，并读取原主DataView的有效业务表身份。\n边界：不查询、不复制草稿、不更改权限；规则入口及持续目标校验共用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/structured-config/data-code/segment-ops.ts": {

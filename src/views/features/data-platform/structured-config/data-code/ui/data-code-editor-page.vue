@@ -42,6 +42,7 @@ import {PAGE_RUNTIME, FieldText, RendererForm, RendererButton, useSparkComponent
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeNodeTypeLabel, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
 import {getCodeInitializationPlan} from '@/lowcode/resources/structured-config/data-code/initialization-plan'
+import {readCodeRuleBusinessTable} from '@/lowcode/resources/structured-config/data-code/rule-target'
 import CodeClassSelectorDialog from './code-class-selector-dialog.vue'
 import CodeInitDialog from './code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
@@ -128,10 +129,10 @@ function openRule(row: DataRow): void {
   const dialog = label.includes('时间字符串') ? 'timeString' : label === '父编码串' ? 'parentCode' : label === '顺序号串' ? 'sequence' : label === '分类字符串' ? 'classSelector' : ''
   if (!dialog) {error.value = '该类型规则尚未恢复'; return}
   const needsBusinessFields = dialog === 'timeString' || dialog === 'parentCode'
-  if (needsBusinessFields && main.value.fieldAccess(owner, 'BusTableRowid').read !== 'visible') return
-  const nodeId = nodes.value.getPkKey(row), busTableRowid = needsBusinessFields ? owner['BusTableRowid'] : ''
-  if ((typeof nodeId !== 'string' && typeof nodeId !== 'number') || needsBusinessFields && (typeof busTableRowid !== 'string' || !busTableRowid)) {error.value = '缺少编码段或业务表身份'; return}
-  ruleTarget.value = {nodeId, busTableRowid: typeof busTableRowid === 'string' ? busTableRowid : ''}; openDialog.value = dialog
+  const nodeId = nodes.value.getPkKey(row)
+  if (typeof nodeId !== 'string' && typeof nodeId !== 'number') {error.value = '缺少编码段身份'; return}
+  try {ruleTarget.value = {nodeId, busTableRowid: needsBusinessFields ? readCodeRuleBusinessTable(dataSet.value,nodeId) : ''}; openDialog.value = dialog}
+  catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
 watch([applicationId, codeDesignId, () => props.create], async ([app, code, create]) => {
   const own = ++generation

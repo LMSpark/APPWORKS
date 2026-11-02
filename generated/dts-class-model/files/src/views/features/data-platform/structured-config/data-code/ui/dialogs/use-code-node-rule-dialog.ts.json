@@ -42,7 +42,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T12:51:52.727Z",
+  "generatedAt": "2026-11-02T14:03:09.692Z",
   "models": {
     "RuleTarget": {
       "name": "RuleTarget",

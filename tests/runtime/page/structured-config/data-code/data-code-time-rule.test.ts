@@ -4,6 +4,7 @@ import {defineComponent, h} from 'vue'
 import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {RequestState, type DataView} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {PAGE_RUNTIME, Spark, FieldText, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
@@ -12,7 +13,7 @@ import {codeModels, codeService, designText, DESIGN} from './data-code.fixture'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = original})
-async function fixture(kind: 'time' | 'parent' = 'time', beforeOpen?: (view: DataView) => void) {
+async function fixture(kind: 'time' | 'parent' = 'time', beforeOpen?: (view: DataView,service:ReturnType<typeof codeService>) => void) {
   const service = codeService()
   service.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 3,
     ParameterName: 'yyyyMMDD', CodeNodeDesignJson: '{"DateFormat":"yyyyMMDD","RefBusTableField":"","keep":false}'}
@@ -32,7 +33,7 @@ async function fixture(kind: 'time' | 'parent' = 'time', beforeOpen?: (view: Dat
   await runtime.load(); runtimes.push(runtime); ds.triggerAutoLoad()
   const nodes = ds.getView('Base_CodeNodeDesign')!
   await vi.waitFor(() => expect(nodes.requestState).toBe(RequestState.Loaded))
-  beforeOpen?.(nodes)
+  beforeOpen?.(nodes,service)
   registerAllRenderers()
   const stubs = {...original}; for (const name of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[name]
   config.global.stubs = stubs
@@ -45,6 +46,71 @@ async function fixture(kind: 'time' | 'parent' = 'time', beforeOpen?: (view: Dat
 }
 
 describe('time-string rule dialog', () => {
+  it('rejects confirmation after the formal business-table identity becomes masked',async()=>{
+    const f=await fixture();await vi.waitFor(()=>expect(f.wrapper.findComponent(ElSelect).exists()).toBe(true))
+    f.service.http.interceptors.response.use({onResponse:response=>{
+      const body:unknown=response.data
+      if(isRecord(body)&&isRecord(body['Result'])&&isRecord(body['Result']['data'])&&Array.isArray(body['Result']['data']['Items'])){
+        for(const row of body['Result']['data']['Items'])if(isRecord(row)&&Object.hasOwn(row,'BusTableRowid')&&isRecord(row['lingma_sys_params'])){
+          row['lingma_sys_params']['m']=['BusTableRowid'];row['BusTableRowid']='***'
+        }
+      }
+      return response
+    }})
+    await f.ds.getView('Base_CodeDesign')!.refresh()
+    await vi.waitFor(()=>expect(f.nodes.requestState).toBe(RequestState.Loaded));f.nodes.setCurrentRowById('N1')
+    await f.wrapper.findAll('button').find(button=>button.text()==='保存')!.trigger('click');await flushPromises()
+    expect(f.wrapper.text()).toContain('不可读');expect(f.dialog.emitted('close')).toBeUndefined();expect(f.service.http.saves).toEqual([])
+    f.nodes.updateEditingValue('N1','ParameterName','新查询后的草稿')
+    await f.wrapper.findAll('button').find(button=>button.text()==='取消')!.trigger('click');await flushPromises()
+    expect(f.dialog.emitted('close')).toHaveLength(1)
+    expect(f.nodes.getEditingRow('N1')?.['ParameterName']).toBe('新查询后的草稿')
+  })
+  it('does not accept a readable field returned with another table owner',async()=>{
+    const f=await fixture('time',(_view,service)=>{
+      service.http.interceptors.response.use({onResponse:response=>{
+        const body:unknown=response.data
+        if(isRecord(body)&&isRecord(body['Result'])&&isRecord(body['Result']['data'])&&Array.isArray(body['Result']['data']['Items'])){
+          for(const row of body['Result']['data']['Items'])if(isRecord(row)&&row['rowid']==='F1')row['tblid']='T2'
+        }
+        return response
+      }})
+    })
+    await vi.waitFor(()=>expect(f.wrapper.findComponent(ElSelect).exists()).toBe(true))
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','created_at');await flushPromises()
+    await f.wrapper.findAll('button').find(button=>button.text()==='保存')!.trigger('click');await flushPromises()
+    expect(f.wrapper.text()).toContain('业务表字段不在当前可读目录');expect(f.dialog.emitted('close')).toBeUndefined();expect(f.service.http.saves).toEqual([])
+  })
+  it('rejects a stale field response before starting the parent query',async()=>{
+    let release:()=>void=()=>undefined,held=false,mainReads=0
+    const gate=new Promise<void>(resolve=>{release=resolve})
+    const f=await fixture('parent',(_view,service)=>{
+      service.http.interceptors.response.use({onResponse:async response=>{
+        const body:unknown=response.data
+        if(isRecord(body)&&isRecord(body['Result'])&&isRecord(body['Result']['data'])&&Array.isArray(body['Result']['data']['Items'])
+          &&body['Result']['data']['Items'].some(row=>isRecord(row)&&row['tblid']==='T1')){
+          held=true;mainReads=service.http.reads.filter(read=>read.table==='Base_CodeDesign').length;await gate
+        }
+        return response
+      }})
+    })
+    await vi.waitFor(()=>expect(held).toBe(true))
+    f.ds.getView('Base_CodeDesign')!.updateEditingValue('C1','BusTableRowid','T2');release()
+    await vi.waitFor(()=>expect(f.wrapper.text()).toContain('业务表目标已改变'))
+    expect(f.service.http.reads.filter(read=>read.table==='Base_CodeDesign')).toHaveLength(mainReads)
+    expect(f.dialog.emitted('close')).toBeUndefined();expect(f.service.http.saves).toEqual([])
+  })
+  it.each(['time','parent'] as const)('rejects %s confirmation after the effective main business table changes',async kind=>{
+    const f=await fixture(kind)
+    await vi.waitFor(()=>expect(f.wrapper.findComponent(ElSelect).exists()).toBe(true))
+    f.ds.getView('Base_CodeDesign')!.updateEditingValue('C1','BusTableRowid','T2')
+    await f.wrapper.findAll('button').find(button=>button.text()==='保存')!.trigger('click');await flushPromises()
+    expect(f.wrapper.text()).toContain('业务表目标已改变')
+    expect(f.dialog.emitted('close')).toBeUndefined();expect(f.service.http.saves).toEqual([])
+    await f.wrapper.findAll('button').find(button=>button.text()==='取消')!.trigger('click');await flushPromises()
+    expect(f.ds.getView('Base_CodeDesign')!.getEditingRow('C1')?.['BusTableRowid']).toBe('T2')
+    expect(f.dialog.emitted('close')).toHaveLength(1)
+  })
   it('keeps incomplete parent rules open and sends no persistence request', async () => {
     const f = await fixture('parent')
     await vi.waitFor(() => expect(f.wrapper.findAllComponents(ElSelect)).toHaveLength(2))

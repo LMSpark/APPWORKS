@@ -3,10 +3,11 @@
  * 日期/父编码弹窗的领域编排；正式值及编辑覆盖由原DataView持有，取消复用原生字段检查点。
  */
 import {computed, nextTick, onBeforeUnmount, ref, watch} from 'vue'
-import {buildDataViewKey, parseDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {isJsonObject, parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {codeNodeTypeLabel} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {readCodeRuleBusinessTable} from '@/lowcode/resources/structured-config/data-code/rule-target'
 
 type RuleTarget = Readonly<{dataViewKey: string; nodeId: string | number; busTableRowid: string}>
 /** @param props 本次原节点绑定及业务表身份。 @param kind 规则类型。 @param close 释放弹窗，不提交后端。 */
@@ -25,13 +26,18 @@ export function useCodeNodeRuleDialog(props: RuleTarget, kind: 'time' | 'parent'
       || !view || view.destroyed || runtime?.resolveView(target.dataViewKey) !== view || !view.currentRow || view.getPkKey(view.currentRow) !== target.nodeId) {
       throw new Error('编码段目标已改变，请重新打开规则')
     }
-    const row = view.currentRow
+    const row = view.currentRow,dataSet=view.dataSet
+    if(!dataSet||readCodeRuleBusinessTable(dataSet,target.nodeId)!==target.busTableRowid)throw new Error('业务表目标已改变，请重新打开规则')
     if (view.hasUnconfirmedSave || view.dataSet?.getView('Base_CodeDesign')?.hasUnconfirmedSave) throw new Error('请先核验保存结果')
     for (const field of ['CodeNodeDesignJson', 'ParameterName']) {
       const access = view.fieldAccess(row, field)
       if (access.read !== 'visible' || access.write !== 'allowed') throw new Error('当前编码段规则不可读写')
     }
-    return view.getEditingRow(target.nodeId) ?? row
+    const effective=view.getEditingRow(target.nodeId)??row
+    if(view.fieldAccess(row,'NodeType').read!=='visible')throw new Error('编码段类型不可读')
+    const label=codeNodeTypeLabel(dataSet,effective['NodeType'])
+    if(kind==='time'?!label.includes('时间字符串'):label!=='父编码串')throw new Error('当前编码段类型与规则不匹配')
+    return effective
   }
   function ruleObject(row: DataRow) {
     const raw = row['CodeNodeDesignJson']
@@ -47,7 +53,10 @@ export function useCodeNodeRuleDialog(props: RuleTarget, kind: 'time' | 'parent'
     return value.trim()
   }
   function known(options: DataView, field: string, value: string): boolean {
-    return options.rows.some(row => options.fieldAccess(row, field).read === 'visible' && row[field] === value)
+    if(options.requestState!==RequestState.Loaded||options.loadingError)throw new Error('规则选项尚未完成读取')
+    if(field==='enname'&&options.queryContext['busTableRowid']!==target.busTableRowid)throw new Error('业务字段选项目标已改变')
+    return options.rows.some(row => options.fieldAccess(row, field).read === 'visible' && row[field] === value
+      &&(field!=='enname'||options.fieldAccess(row,'tblid').read==='visible'&&row['tblid']===target.busTableRowid))
   }
   async function open(): Promise<void> {
     const own = ++generation
@@ -56,9 +65,7 @@ export function useCodeNodeRuleDialog(props: RuleTarget, kind: 'time' | 'parent'
       view = runtime?.resolveView(target.dataViewKey) ?? undefined
       if (!view?.setCurrentRowById(target.nodeId)) throw new Error('当前编码段不存在')
       const row = current(), dataSet = view.dataSet
-      if (!dataSet || view.fieldAccess(row, 'NodeType').read !== 'visible') throw new Error('编码段类型不可读')
-      const label = codeNodeTypeLabel(dataSet, row['NodeType'])
-      if (kind === 'time' ? !label.includes('时间字符串') : label !== '父编码串') throw new Error('当前编码段类型与规则不匹配')
+      if (!dataSet) throw new Error('编码规则所属空间缺失')
       const object = ruleObject(row)
       if (!target.busTableRowid) throw new Error('当前设计未选择业务表')
       checkpoint = view.createEditingCheckpoint(target.nodeId, ['CodeNodeDesignJson', 'ParameterName'])
@@ -69,6 +76,7 @@ export function useCodeNodeRuleDialog(props: RuleTarget, kind: 'time' | 'parent'
       fields.queryContext = {...fields.queryContext, busTableRowid: target.busTableRowid}
       await fields.refresh()
       if (fields.loadingError) throw fields.loadingError
+      current()
       if (kind === 'parent') {
         const parents = dataSet.getView('Base_CodeDesign', 'parents')
         if (!parents) throw new Error('父编码选项视图缺失')
@@ -106,7 +114,14 @@ export function useCodeNodeRuleDialog(props: RuleTarget, kind: 'time' | 'parent'
     closing.value = true; ready.value = false; generation++
     await nextTick()
     try {checkpoint?.restore(); checkpoint = undefined; close()}
-    catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+    catch (cause) {
+      const main=view?.dataSet?.getView('Base_CodeDesign')
+      // 新查询已经取代原检查点，释放旧检查点即可退出；不能恢复旧值覆盖新查询/草稿。
+      if(cause instanceof Error&&cause.message.startsWith('DATA_VIEW_CHECKPOINT_STALE:')&&view&&main
+        &&[view,main].every(source=>source.requestState===RequestState.Loaded&&!source.mutating&&!source.hasUnconfirmedSave)){
+        checkpoint?.release();checkpoint=undefined;close()
+      }else error.value=cause instanceof Error?cause.message:String(cause)
+    }
     finally {closing.value = false}
   }
   watch(() => [props.dataViewKey, props.nodeId, props.busTableRowid], (_value, previous) => {

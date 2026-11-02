@@ -4976,3 +4976,16 @@ flowchart TD
 - 完整证据evidence/data-chain-smoke/2026-11-02-code-initialization-live-lifecycle-audit.json，含独立seed/inspect/cleanup回执及日期GET差异；旧初始化UI/示例workspace快照增加followUpAudit指向新证据，旧时间点的“待授权/未落库”限制不当作当前状态。截图artifacts/data-chain-smoke/code-initialization-live-save.jpg、code-example-live-design-save.jpg、code-initialization-live-cleanup.jpg。
 - 最终94018退出0：正式ClassModel重新生成、完整verify、build全部通过；34013的18文件156项相关测试通过。按executing-plans要求review_init_date独立只读审查整组日期改动，未发现确定缺陷，未代替主会话实服证据。无后端修改、无权限扩展、无原sys_edit SaveView重放；后者仍未确认。初始化最小值null、其他格式/父链/多顺序号的真实写入及整页视觉仍未验，不能称整个编码或全架构通过。
 - 本轮另核到下一处真实源码断点（尚未修复）：data-code-editor-page.vue:132的时间/父编码openRule仍读owner['BusTableRowid']基线，而业务表选择applyCodeBusinessTable已把新ID写入原主getEditingRow；未保存新表时规则字段目录会继续沿旧表查询。共享use-code-node-rule-dialog.current也没有对主视图当前有效业务表重核。下一步先用当前原生主视图暂存新表、开时间/父规则的测试复现，再统一读取有效业务身份并拒绝打开后目标变更；不为它新建业务记录。原选择器四面板/筛选/回显差距继续登记，未用今日日期修复掩盖。整体目标active。
+
+### 2026-11-02 业务表编辑覆盖到日期/父规则的断链修复中
+- 上轮2cf14bdb5实服五条临时记录完整清理并推送属于progress。本轮沿同一批准计划推进，不重建已清理fixture，不更改后端与权限。
+- 参考1147b00ee的handleChooseParameter与原生模板以当前formData.BusTableRowid传日期/父编码，目标是当前编辑值；当前根页openRule仍取owner基线，已由两个根页真实标准组件测试复现T_NEW暂存后仍传T1。共享规则弹窗也在主有效业务表改为T2后继续确认旧目录，两个time/parent回归RED；共4失败、26原项通过。
+- 本次影响面：data-code领域新增rule-target统一核当前主/节点查询身份与有效业务表；根页按此传目标，现有共享规则hook在打开、异步返回、写入/确认时复核同一目标及类型，字段确认核原选项视图的表归属。测试继续沿原DataSet编辑覆盖、查询权限与检查点；不添加页面状态真源、缓存或保存器。取消须保留打开前主/节点无关编辑。所需公共API已有getEditingRow/fieldAccess/queryContext，标准组件及属性无新增。
+- 新rule-target已实现：入口及共享规则hook从同一原DataSet/DataView核主/节点真实modelBinding、查询应用/编码身份、原字段读取权限与当前编辑覆盖；原主rows保持基线，BusTableRowid使用getEditingRow的有效值。未把可读当可写、未新增权限或实体。节点类型现在在每次规则写入/确认时重核，字段目录的queryContext及候选tblid必须匹配捕获目标。
+- 首轮4回归GREEN后补延迟字段响应，RED证实旧目标变化后仍多发一次父编码查询（2次主表读取而非1次）；字段await后立即current()，不再为失效目标继续父查询。主业务表已改后取消只恢复原节点检查点，保留主T2编辑。两个正式查询响应夹具覆盖主BusTableRowid脱敏与可读字段tblid错误；无新增角色分支或模拟前端授权。
+- 首轮权限测试实际被节点重查清当前行更早拦下，不能算字段权限已覆盖；改为等待正式节点新查询Loaded并原生选中N1后，确实走主业务表不可读拒绝。审查review_rule_target指出原hook.cancel在重查导致DATA_VIEW_CHECKPOINT_STALE后无法关闭；补测试RED复现，随后只对明确STALE且主/节点均Loaded、非mutating、非unknown释放旧检查点并关闭，不恢复旧字段。断言新查询后的ParameterName草稿保留，原新查询及其他编辑不被覆盖。
+- 完整门禁第一轮88290因使用DataView私有getRowById及一个测试map回调隐式any失败；现改用公开rows+getPkKey及DataRow注解。先前实服运行虽可调用TS私有方法，不作为公共API合同通过；最终源码已按公开API重新实测，不能用首轮日志冒充通过。
+- 最终相关95099退出0，18文件163项通过。实际服务原DataSet/PageRuntime额外按需装配34B来源空间，沿正式应用/数据库/表/字段级联选择唯一Base_CodeNodeDesign（10CEED2E242C4DB1872964D30BCB2FDA），原applyCodeBusinessTable暂存3项映射→新helper读取有效ID→原Base_TblField查询返回18字段且tblid全匹配→原主取消恢复旧目标→正式独立回读原主未变，33读0函数POST/0CRUD/0保存。没有新造测试记录，也没有业务持久化；证据evidence/data-chain-smoke/2026-11-02-code-rule-business-target-audit.json。
+- review_rule_target只读整体复核及新增取消修复复核未发现新增确定缺陷；不替代主会话实服。最终48280正在正式ClassModel生成/完整verify/build，结束后补最终状态。两类弹窗交互由真实标准组件挂载及原查询权限夹具验证，本轮实服验证原生有效值/查询/取消，不把它说成实服浏览器两弹窗持久化通过。原选择器布局/筛选/回显与sys_edit未知SaveView等全架构缺口仍在，整体目标active。
+
+- 最终48280退出0，正式ClassModel重新生成、完整verify及build全部通过，目录/page-thin门禁通过；95099的163项已通过。证据JSON补最终门禁，当前只提交本轮规则有效业务目标及失效检查点取消修复，整体目标仍active；未触碰后端、未扩大权限、未重放sys_edit。

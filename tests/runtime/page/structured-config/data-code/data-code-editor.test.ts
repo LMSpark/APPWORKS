@@ -9,6 +9,8 @@ import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/r
 import {CodeExampleWorkspace} from '@/lowcode/resources/structured-config/data-code/example-workspace'
 import {createSourceDataSet, sourceRecords} from './source-picker/fixture'
 import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
+import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
+import ParentCodeDialog from '@/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
 import {codeService, designText} from './data-code.fixture'
 
@@ -41,6 +43,20 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it.each([['time',3,'时间字符串'],['parent',5,'父编码串']] as const)('opens %s fields from the unsaved business table mapping',async(kind,type,label)=>{
+    state.current.http.records['Base_CodeNodeDesign']![0]={rowid:'N1',CodeDesignID:'C1',NodeNo:1,NodeType:type,ParameterName:'规则',CodeNodeDesignJson:kind==='time'?'{"DateFormat":"yyyyMMdd"}':'{}'}
+    state.current.http.records['Dict_CodeNodeType']!.push({rowid:'RULE',val:String(type),txt:label})
+    state.current.http.records['Base_TblField']=[{rowid:'OLD',tblid:'T1',enname:'old_field',cnname:'旧表字段'},{rowid:'NEW',tblid:'T_NEW',enname:'new_field',cnname:'新表字段'}]
+    const loaded=vi.spyOn(LowcodeDataCode,'loadEditor'),{wrapper}=await open()
+    await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='选择')).toBe(true))
+    const ds=await loaded.mock.results[0]!.value,main=ds.getView('Base_CodeDesign')!
+    main.updateEditingValue('C1','BusTableRowid','T_NEW')
+    await wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='选择')!.get('button').trigger('click');await flushPromises()
+    const dialog=wrapper.getComponent(kind==='time'?TimeStringDialog:ParentCodeDialog)
+    expect(dialog.props('busTableRowid')).toBe('T_NEW')
+    await vi.waitFor(()=>expect(ds.getView('Base_TblField')!.rows.map((row:DataRow)=>row['enname'])).toEqual(['new_field']))
+    expect(main.rows[0]?.['BusTableRowid']).toBe('T1');expect(state.current.http.saves).toEqual([])
+  })
   it('refreshes the example through its semantic view, shows the original draft and cancels without saving',async()=>{
     vi.spyOn(LowcodeDataCode,'example').mockImplementation(ds=>new CodeExampleWorkspace({dataSet:ds,client:{read:async()=> 'BROWSER_EXAMPLE'}}))
     const loaded=vi.spyOn(LowcodeDataCode,'loadEditor'),{wrapper}=await open()

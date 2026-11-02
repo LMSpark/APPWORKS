@@ -4116,6 +4116,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json",
       "sourceModifiedAt": "2026-11-02T13:24:30.575Z"
     },
+    "src/lowcode/resources/structured-config/data-code/rule-target.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/data-code/rule-target.ts.json",
+      "sourceModifiedAt": "2026-11-02T14:02:32.895Z"
+    },
     "src/lowcode/resources/structured-config/data-code/segment-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/segment-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/segment-ops.ts.json",
@@ -4859,7 +4864,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T13:25:20.008Z"
+      "sourceModifiedAt": "2026-11-02T13:53:27.339Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
@@ -4869,7 +4874,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts.json",
-      "sourceModifiedAt": "2026-11-02T12:51:52.727Z"
+      "sourceModifiedAt": "2026-11-02T14:03:09.692Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",

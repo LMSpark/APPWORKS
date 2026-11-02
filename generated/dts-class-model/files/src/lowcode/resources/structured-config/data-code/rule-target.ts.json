@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/rule-target",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/rule-target.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/rule-target",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/rule-target\n职责：核当前编码主/分段归属，并读取原主DataView的有效业务表身份。\n边界：不查询、不复制草稿、不更改权限；规则入口及持续目标校验共用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T14:02:32.895Z",
+  "models": {}
+}

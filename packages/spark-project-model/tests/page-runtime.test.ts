@@ -1,10 +1,81 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DataSet } from '@spark-appworks/spark-data'
 import { PageRuntime } from '../src/page/runtime-page'
 import { PageTool } from '../src/page/page-tool'
 import { ScenarioViewFile } from '../src/scenario/scenario-view-file'
 function tool():PageTool { const result=new PageTool({pageId:'shared'});result.markLoaded();return result }
 function data(scenarioId:string):DataSet { return DataSet.fromJson({dataSetName:scenarioId,scenarioId,tables:{}}) }
+
+describe('PageRuntime deferred declared scenarios', () => {
+  it('loads the main workspace first and deduplicates explicit source loading with original inputs and ownership', async () => {
+    const calls: string[] = [], main = data('a')
+    const source = DataSet.fromJson({scenarioId: 'b', tables: {Choices: {modelBinding: {modelId: 'M', modelName: 'Choices'},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {queryContext: {keep: true}}}}}})
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['b', 'a'], deferredScenarioIds: ['b'],
+      scenarioInputs: {b: {target: 'T'}}, loadScenario: async id => {calls.push(id); return id === 'a' ? main : source}})
+    await runtime.load()
+    expect(calls).toEqual(['a']); expect(runtime.isLoaded).toBe(true)
+    expect(runtime.resolveView('b@Choices@default')).toBeUndefined()
+    const results = await Promise.all([runtime.ensureScenarioLoaded('b'), runtime.ensureScenarioLoaded('b')])
+    expect(results).toEqual([source, source]); expect(calls).toEqual(['a', 'b'])
+    expect(runtime.resolveView('b@Choices@default')?.queryContext).toEqual({keep: true, target: 'T'})
+    expect(Object.isFrozen(runtime.call.deferredScenarioIds)).toBe(true)
+    await expect(runtime.ensureScenarioLoaded('other')).rejects.toThrow('未声明')
+    runtime.dispose(); expect(main.destroyed).toBe(true); expect(source.destroyed).toBe(true)
+  })
+  it('rejects duplicate or undeclared deferred space identities', () => {
+    for (const deferredScenarioIds of [['b', 'b'], ['other'], ['']]) expect(() => new PageRuntime({pageId: 'editor',
+      scenarioIds: ['a', 'b'], deferredScenarioIds, loadScenario: async id => data(id)})).toThrow('延后')
+  })
+  it('destroys a late source after the page owner is disposed', async () => {
+    let finish: (ds: DataSet) => void = () => {}, started = false
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: id => id === 'a' ? Promise.resolve(data(id)) : new Promise(resolve => {finish = resolve; started = true})})
+    await runtime.load(); const pending = runtime.ensureScenarioLoaded('b')
+    const rejected = expect(pending).rejects.toThrow('DESTROYED')
+    await vi.waitFor(() => expect(started).toBe(true)); runtime.dispose()
+    const late = data('b'); finish(late); await rejected; expect(late.destroyed).toBe(true)
+  })
+  it('retains the main owner after a source failure and retries only the failed source', async () => {
+    const main = data('a'); let sourceCalls = 0
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'], loadScenario: async id => {
+      if (id === 'a') return main
+      if (++sourceCalls === 1) throw new Error('source unavailable')
+      return data(id)
+    }})
+    await runtime.load(); await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('source unavailable')
+    expect(runtime.getDataSet('a')).toBe(main); expect(main.destroyed).toBe(false)
+    expect((await runtime.ensureScenarioLoaded('b')).scenarioId).toBe('b'); expect(sourceCalls).toBe(2); runtime.dispose()
+  })
+  it('rejects a wrong returned identity without destroying an already owned main dataset', async () => {
+    const main = data('a'), wrong = data('other'); let calls = 0
+    const runtime = new PageRuntime({pageId: 'editor', scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: async id => id === 'a' || calls++ === 0 ? main : wrong})
+    await runtime.load(); await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('身份')
+    expect(main.destroyed).toBe(false); expect(runtime.getDataSet('a')).toBe(main)
+    await expect(runtime.ensureScenarioLoaded('b')).rejects.toThrow('身份'); expect(wrong.destroyed).toBe(true); runtime.dispose()
+  })
+  it('does not let an old source load clear or destroy the source accepted after a clean reload', async () => {
+    let finish: (ds: DataSet) => void = () => {}, sourceCalls = 0
+    const current = data('b'), runtime = new PageRuntime({tool: tool(), scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'],
+      loadScenario: id => id === 'a' ? Promise.resolve(data(id)) : ++sourceCalls === 1 ? new Promise(resolve => {finish = resolve}) : Promise.resolve(current)})
+    await runtime.load(); const old = runtime.ensureScenarioLoaded('b'), rejected = expect(old).rejects.toThrow('STALE')
+    await vi.waitFor(() => expect(sourceCalls).toBe(1)); await runtime.reload()
+    expect(runtime.getDataSet('b')).toBeUndefined(); await runtime.ensureScenarioLoaded('b')
+    const late = data('b'); finish(late); await rejected
+    expect(late.destroyed).toBe(true); expect(runtime.getDataSet('b')).toBe(current); expect(current.destroyed).toBe(false); runtime.dispose()
+  })
+  it('rejects a source request issued before reload even if the previous page load had already resolved', async () => {
+    let sourceCalls = 0
+    const runtime = new PageRuntime({tool: tool(), scenarioIds: ['a', 'b'], deferredScenarioIds: ['b'], loadScenario: async id => {
+      if (id === 'b') sourceCalls++
+      return data(id)
+    }})
+    await runtime.load(); const source = runtime.ensureScenarioLoaded('b'), rejected = expect(source).rejects.toThrow('STALE')
+    await runtime.reload(); await rejected
+    expect(sourceCalls).toBe(0); expect(runtime.getDataSet('b')).toBeUndefined(); runtime.dispose()
+  })
+})
 describe('PageRuntime lifecycle',()=>{
   it('tracks a shared scenario file until reload or dispose without owning it', async()=>{
     const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})

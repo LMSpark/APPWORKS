@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/reference-ops",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/reference-ops",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/reference-ops\n职责：从原生引用来源视图投影获准读取的表/字段选择，并原子写回当前分类映射。\n边界：只消费DataView原查询与编辑检查点，不查询、不持草稿、不提交目录或更改权限。\nAI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeClassReferenceSelection"
+    ]
+  },
+  "$defs": {
+    "CodeClassReferenceSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeClassReferenceSelection",
+      "properties": {
+        "TableRowid": {
+          "type": "string"
+        },
+        "TableName": {
+          "type": "string"
+        },
+        "TextFieldName": {
+          "type": "string"
+        },
+        "ValueFieldName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "TableRowid",
+        "TableName",
+        "TextFieldName",
+        "ValueFieldName",
+        "description"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T09:20:29.019Z",
+  "models": {
+    "CodeClassReferenceSelection": {
+      "name": "CodeClassReferenceSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    TableRowid: string;\n    TableName: string;\n    TextFieldName: string;\n    ValueFieldName: string;\n    description: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    TableRowid: string;\n    TableName: string;\n    TextFieldName: string;\n    ValueFieldName: string;\n    description: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "TableRowid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "TextFieldName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFieldName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -21,7 +21,8 @@
       "properties": {
         "navigationScenarioId": true,
         "catalogMetaName": true,
-        "designScenarioId": true
+        "designScenarioId": true,
+        "referenceScenarioId": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -29,6 +30,15 @@
           "type": "object",
           "properties": {},
           "additionalProperties": false
+        },
+        "method.loadReferenceSources.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadReferenceSources.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
         },
         "method.loadCatalog.params": {
           "type": "object",
@@ -59,7 +69,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T16:46:42.858Z",
+  "generatedAt": "2026-11-02T09:06:46.308Z",
   "models": {
     "LowcodeDataCode": {
       "name": "LowcodeDataCode",
@@ -86,9 +96,29 @@
               "name": "designScenarioId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "referenceScenarioId",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
+            {
+              "name": "loadReferenceSources",
+              "jsdoc": "按本次执行应用装配原生引用表来源；由同一PageRuntime按需持有，不切换应用或保存数据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
             {
               "name": "loadCatalog",
               "parameters": [

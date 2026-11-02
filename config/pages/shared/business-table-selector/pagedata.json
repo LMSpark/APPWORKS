@@ -1,0 +1,41 @@
+{
+  "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+  "tables": {
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "a9bb14ed-81c4-4f68-88c2-dc9b1d86ef06", "modelName": "Base_AppSystemList"},
+      "views": {"default": {"autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false,
+        "valueField": "rowid", "labelField": "AppName", "queryConfig": {"fields": ["rowid", "AppName"], "allPages": true}}}
+    },
+    "Base_AppAndSource_Relation": {
+      "modelBinding": {"modelId": "400d5424-9a33-4faf-a10b-da436344b203", "modelName": "Base_AppAndSource_Relation"},
+      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+        "valueField": "rowid", "labelField": "conName", "queryConfig": {"fields": ["rowid", "sysid", "conid", "conName"], "allPages": true}}}
+    },
+    "_Base_TblList": {
+      "modelBinding": {"modelId": "06f387a1-fe18-422a-b1ef-997002c15eaa", "modelName": "_Base_TblList"},
+      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
+        "valueField": "rowid", "labelField": "tblname", "queryConfig": {"fields": ["rowid", "tblname", "tbldesc"]}}}
+    },
+    "Base_TblField": {
+      "modelBinding": {"modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a", "modelName": "Base_TblField"},
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false},
+        "textFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
+        "valueFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}}
+      }
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": [
+    {"kind": "query", "cascadeId": "source-application-databases", "parentTable": "Base_AppSystemList", "parentViewId": "default",
+      "childTable": "Base_AppAndSource_Relation", "childViewId": "default", "autoLoad": true, "filterBindings": [{"targetField": "sysid", "operator": "in"}]},
+    {"kind": "query", "cascadeId": "source-database-tables", "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default",
+      "childTable": "_Base_TblList", "childViewId": "default", "autoLoad": true, "filterBindings": [{"sourceField": "conid", "targetField": "dbid", "operator": "eq"}]},
+    {"kind": "query", "cascadeId": "source-table-output-fields", "parentTable": "_Base_TblList", "parentViewId": "default",
+      "childTable": "Base_TblField", "childViewId": "textFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]},
+    {"kind": "query", "cascadeId": "source-table-filter-fields", "parentTable": "_Base_TblList", "parentViewId": "default",
+      "childTable": "Base_TblField", "childViewId": "valueFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]}
+  ]
+}

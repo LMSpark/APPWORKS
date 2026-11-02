@@ -18,6 +18,8 @@ export type PageRuntimeOptions = {
   /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */
   pageId?: string
   scenarioIds: readonly string[]
+  /** 已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。 */
+  deferredScenarioIds?: readonly string[]
   mainScenarioId?: string
   /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */
   scenarioInputs?: PageScenarioInputs
@@ -27,6 +29,8 @@ export type PageRuntimeOptions = {
 }
 /** 不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。 */
 export type PageRuntimeCall = Readonly<{ instanceId: string; pageId: string; scenarioIds: readonly string[]; mainScenarioId?: string;
+  /** 本次调用固定的按需空间身份，必须属于scenarioIds。 */
+  deferredScenarioIds?: readonly string[];
   /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */
   scenarioInputs?: PageScenarioInputs }>
 type ExternalDirtySource = Readonly<{ isDirty: boolean; subscribe(listener: () => void): () => void }>
@@ -42,6 +46,7 @@ export class PageRuntime {
   readonly #loadScenario: PageRuntimeOptions['loadScenario']
   readonly #loadTool: PageRuntimeOptions['loadTool']
   readonly #dataSets = new Map<string,DataSet>()
+  readonly #scenarioLoading = new Map<string,Promise<DataSet>>()
   readonly #content = new Map<string,PageContentRuntime>()
   readonly #contentListeners = new Set<() => void>()
   readonly #externalDirtySources = new Map<string, { source: ExternalDirtySource; unsubscribe: () => void }>()
@@ -59,10 +64,12 @@ export class PageRuntime {
     const ids=options.scenarioIds.map(id=>id.trim())
     if(ids.some(id=>!id || id.includes('@') || id.startsWith('#')) || new Set(ids).size!==ids.length)throw new Error('页面调用场景身份非法或重复')
     if(options.mainScenarioId && !ids.includes(options.mainScenarioId))throw new Error('主场景不属于本次调用')
+    const deferred=options.deferredScenarioIds
+    if(deferred && (new Set(deferred).size!==deferred.length || deferred.some(id=>!ids.includes(id))))throw new Error('延后装配空间身份未声明或重复')
     const scenarioInputs=options.scenarioInputs===undefined ? undefined : PageRuntime.#snapshotInputs(options.scenarioInputs)
     if(scenarioInputs && Object.keys(scenarioInputs).some(id=>!ids.includes(id)))throw new Error('scenarioInputs 引用了未声明的场景')
     this.#tool=options.tool;this.#loadScenario=options.loadScenario;this.#loadTool=options.loadTool
-    this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId,scenarioIds:Object.freeze(ids),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {}),...(scenarioInputs===undefined ? {} : {scenarioInputs})})
+    this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId,scenarioIds:Object.freeze(ids),...(deferred===undefined ? {} : {deferredScenarioIds:Object.freeze([...deferred])}),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {}),...(scenarioInputs===undefined ? {} : {scenarioInputs})})
   }
   /** 解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。 */
   static parseScenarioInputs(text:string):PageScenarioInputs {
@@ -113,6 +120,7 @@ export class PageRuntime {
     if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
     this.#clearExternalDirtySources()
     this.#generation++;this.#loaded=false;this.#loading=undefined
+    this.#scenarioLoading.clear()
     for(const content of this.#content.values())content.dispose()
     this.#content.clear()
     for(const ds of this.#dataSets.values())ds.destroy()
@@ -134,7 +142,7 @@ export class PageRuntime {
   #clearExternalDirtySources():void { for(const entry of this.#externalDirtySources.values())entry.unsubscribe();this.#externalDirtySources.clear() }
   getContent(key:string):PageContentRuntime { this.#assertAlive();if(!key)throw new Error('页面内容身份不能为空');let content=this.#content.get(key);if(!content){content=new PageContentRuntime();content.subscribe(()=>{for(const listener of this.#contentListeners)listener()});this.#content.set(key,content)}return content }
   onContentChange(listener:()=>void):()=>void { this.#assertAlive();this.#contentListeners.add(listener);return ()=>this.#contentListeners.delete(listener) }
-  /** 装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。 */
+  /** 装载工具与非延后声明场景；迟到或身份错误的数据集销毁并显式失败。 */
   async load():Promise<void> {
     this.#assertAlive();if(this.isLoaded)return;if(this.#loading)return this.#loading
     const generation=++this.#generation
@@ -144,23 +152,54 @@ export class PageRuntime {
   async #load(generation:number):Promise<void> {
     if(this.#loadTool){const tool=await this.#loadTool();this.#assertGeneration(generation);if(tool!==this.tool)throw new Error('页面工具装载身份改变')}
     this.#tool?.toDefinition()
-    const results=await Promise.allSettled(this.call.scenarioIds.map(id=>this.#loadScenario(id)))
+    const ids=this.call.scenarioIds.filter(id=>!this.call.deferredScenarioIds?.includes(id))
+    const results=await Promise.allSettled(ids.map(id=>this.#loadScenario(id)))
     const dataSets=results.flatMap(result=>result.status==='fulfilled' ? [result.value] : [])
     try {
       this.#assertGeneration(generation)
       const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason
       if(new Set(dataSets).size!==dataSets.length)throw new Error('页面场景共享了同一个运行数据集')
       for(let i=0;i<dataSets.length;i++){
-        const ds=dataSets[i];const id=this.call.scenarioIds[i]
+        const ds=dataSets[i];const id=ids[i]
         if(!ds || !id || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
-        const inputs=this.call.scenarioInputs
-        if(inputs && Object.hasOwn(inputs,id))for(const table of Object.values(ds.tables))for(const view of Object.values(table.views)){
-          view.queryContext=deepClone({...view.queryContext,...inputs[id]})
-        }
+        this.#applyScenarioInputs(id,ds)
         this.#dataSets.set(id,ds)
       }
       this.#loaded=true;this.#configPending=false
     } catch(error) {for(const ds of dataSets)ds.destroy();if(this.#generation===generation)this.#dataSets.clear();throw error}
+  }
+  /**
+   * 显式装配已声明的按需空间，并沿同一PageRuntime解析绑定及管理销毁。
+   * @param scenarioId 本次调用声明的完整空间身份，不推导首空间或同名资源。
+   * @returns 同一代次独占的DataSet；并发读取复用装配，失败可重试，迟到结果销毁。
+   */
+  async ensureScenarioLoaded(scenarioId:string):Promise<DataSet> {
+    this.#assertAlive()
+    if(!this.call.scenarioIds.includes(scenarioId))throw new Error(`视图场景未声明: ${scenarioId}`)
+    const pageLoading=this.load(),generation=this.#generation
+    await pageLoading;this.#assertGeneration(generation)
+    const existing=this.#dataSets.get(scenarioId)
+    if(existing)return existing
+    const pending=this.#scenarioLoading.get(scenarioId)
+    if(pending)return pending
+    const loading=this.#loadDeferredScenario(scenarioId,generation).finally(()=>{
+      if(this.#scenarioLoading.get(scenarioId)===loading)this.#scenarioLoading.delete(scenarioId)
+    })
+    this.#scenarioLoading.set(scenarioId,loading);return loading
+  }
+  async #loadDeferredScenario(id:string,generation:number):Promise<DataSet> {
+    const ds=await this.#loadScenario(id),alreadyOwned=[...this.#dataSets.values()].includes(ds)
+    try {
+      this.#assertGeneration(generation)
+      if(alreadyOwned || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
+      this.#applyScenarioInputs(id,ds);this.#dataSets.set(id,ds);return ds
+    } catch(error) {if(!alreadyOwned)ds.destroy();throw error}
+  }
+  #applyScenarioInputs(id:string,ds:DataSet):void {
+    const inputs=this.call.scenarioInputs
+    if(inputs && Object.hasOwn(inputs,id))for(const table of Object.values(ds.tables))for(const view of Object.values(table.views)){
+      view.queryContext=deepClone({...view.queryContext,...inputs[id]})
+    }
   }
   getDataSet(scenarioId:string):DataSet|undefined { this.#assertAlive();return this.#dataSets.get(scenarioId) }
   /** 按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。 */
@@ -191,7 +230,7 @@ export class PageRuntime {
     return definition
   }
   /** 销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。 */
-  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
+  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#scenarioLoading.clear();this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
   #assertAlive():void { if(this.#destroyed)throw new Error('PAGE_RUNTIME_DESTROYED: 页面调用已销毁') }
   #assertGeneration(generation:number):void { this.#assertAlive();if(generation!==this.#generation)throw new Error('PAGE_RUNTIME_STALE: 页面调用代次已失效') }
 }

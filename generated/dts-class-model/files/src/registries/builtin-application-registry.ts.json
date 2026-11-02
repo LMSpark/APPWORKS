@@ -35,7 +35,8 @@
         "pdfInspectCatalog",
         "excelImportEditor",
         "workflowEditor",
-        "jsonDataCatalog"
+        "jsonDataCatalog",
+        "businessTableSelector"
       ]
     },
     "BuiltinScenarioResource": {
@@ -105,14 +106,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-01T21:22:39.938Z",
+  "generatedAt": "2026-11-02T09:01:13.220Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -173,6 +174,10 @@
           {
             "kind": "union",
             "typeText": "'jsonDataCatalog'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'businessTableSelector'"
           }
         ],
         "members": {}

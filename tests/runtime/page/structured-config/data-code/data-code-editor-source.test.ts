@@ -12,8 +12,8 @@ const loaded: DataSet[] = []
 beforeEach(() => {
   state.load.mockReset()
   state.readScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'EXECUTION_APP'}})
-  state.load.mockImplementation(async () => {
-    const ds = SparkData.fromJson({scenarioId: DESIGN, dataSetName: '编码设计', tables: {}})
+  state.load.mockImplementation(async (input: {scenarioId: string}) => {
+    const ds = SparkData.fromJson({scenarioId: input.scenarioId, dataSetName: '编码设计', tables: {}})
     loaded.push(ds)
     return ds
   })
@@ -21,6 +21,11 @@ beforeEach(() => {
 afterEach(() => {loaded.splice(0).forEach(ds => ds.destroy())})
 
 describe('code editor formal scenario source', () => {
+  it('loads reference-table sources from the original formal source scene and current execution scope', async () => {
+    const ds = await LowcodeDataCode.loadReferenceSources()
+    expect(state.load).toHaveBeenCalledExactlyOnceWith({projectId: 'EXECUTION_APP', scenarioId: '34BDBE645F461A3D83282A941D6037F4'})
+    expect(ds.scenarioId).toBe('34BDBE645F461A3D83282A941D6037F4')
+  })
   it('loads the independent design scenario through the canonical loader without adding a file-design owner', async () => {
     const ds = await LowcodeDataCode.loadEditor(DESIGN)
     expect(state.load).toHaveBeenCalledExactlyOnceWith({projectId: 'EXECUTION_APP', scenarioId: DESIGN})

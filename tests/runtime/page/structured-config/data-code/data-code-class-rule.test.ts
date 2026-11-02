@@ -9,10 +9,11 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
 import {codeModels, codeService, designText, DESIGN} from './data-code.fixture'
 import * as CodeDesignOps from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {createSourceDataSet, sourceRecords, SOURCE_SCENE} from './source-picker/fixture'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = original})
-async function fixture(denyDelete = false) {
+async function fixture(denyDelete = false, withSources = false) {
   const service = codeService()
   if (denyDelete) service.http.denyDelete.add('Base_CodeClassTable')
   service.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 1,
@@ -22,9 +23,18 @@ async function fixture(denyDelete = false) {
     TextFieldName: 'code', ValueFieldName: 'id', BusFilterField: 'class_id', BusTableName: '订单', description: '原说明'}]
   service.http.records['Base_TblField'] = [{rowid: 'F1', tblid: 'T1', enname: 'class_id', cnname: '分类ID'},
     {rowid: 'F2', tblid: 'T2', enname: 'code', cnname: '分类编码'}, {rowid: 'F3', tblid: 'T2', enname: 'id', cnname: '分类主键'}]
+  if (withSources) {
+    const {Base_TblField: _fields, ...records} = sourceRecords()
+    Object.assign(service.http.records, records)
+  }
   const ds = new LowcodeDataSpaceAssembler(service.runtime, service.http).assemble({config: new ScenarioViewConfig(DESIGN, designText),
     space: {dataSpaceId: DESIGN, name: '编码'}, models: codeModels(), relations: []}).dataSet
-  const runtime = new PageRuntime({pageId: 'class-rule', scenarioIds: [DESIGN], scenarioInputs: {[DESIGN]: {applicationId: 'A', codeDesignId: 'C1'}}, loadScenario: async () => ds})
+  const runtime = new PageRuntime({pageId: 'class-rule', scenarioIds: [DESIGN, SOURCE_SCENE], deferredScenarioIds: [SOURCE_SCENE],
+    scenarioInputs: {[DESIGN]: {applicationId: 'A', codeDesignId: 'C1'}}, loadScenario: async id => {
+      if (id === DESIGN) return ds
+      if (id === SOURCE_SCENE && withSources) return createSourceDataSet(service.http)
+      throw new Error('unexpected source loading')
+    }})
   await runtime.load(); runtimes.push(runtime); ds.triggerAutoLoad()
   const nodes = ds.getView('Base_CodeNodeDesign')!, catalog = ds.getView('Base_CodeClassTable')!, main = ds.getView('Base_CodeDesign')!
   await vi.waitFor(() => expect(nodes.requestState).toBe(RequestState.Loaded))
@@ -48,10 +58,54 @@ async function fixture(denyDelete = false) {
       if (confirmation) {await confirmation.get('button').trigger('click'); await flushPromises()}
     }
   }
-  return {wrapper, dialog, nodes, main, catalog, service, click, ds}
+  return {wrapper, dialog, nodes, main, catalog, service, click, ds, runtime}
 }
 
 describe('classification selection through original views', () => {
+  it('cancels the reference picker without modifying the stored mapping and rejects confirmation after the parent business target changes', async () => {
+    const f = await fixture(false, true)
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('编辑')
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).some(item => item.props('label') === '设置引用表')).toBe(true))
+    await f.click('设置引用表')
+    await vi.waitFor(() => expect(f.runtime.resolveView(`${SOURCE_SCENE}@Base_AppSystemList@default`)?.requestState).toBe(RequestState.Loaded))
+    await f.click('取消选择引用表')
+    expect(f.catalog.hasEditingChanges()).toBe(false)
+    await f.click('设置引用表')
+    await flushPromises()
+    f.main.updateEditingValue('C1', 'BusTableRowid', 'OTHER'); await flushPromises()
+    await f.click('确定引用表')
+    expect(document.body.textContent).toContain('业务表目标已改变')
+    expect(f.catalog.hasEditingChanges()).toBe(false)
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('loads reference sources only on demand, applies selected physical fields and restores the entire mapping on parent cancel', async () => {
+    const f = await fixture(false, true)
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    expect(f.runtime.resolveView(`${SOURCE_SCENE}@Base_AppSystemList@default`)).toBeUndefined()
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('编辑')
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).some(item => item.props('label') === '设置引用表')).toBe(true))
+    await f.click('设置引用表')
+    const sourceView = (model: string, view = 'default') => f.runtime.resolveView(`${SOURCE_SCENE}@${model}@${view}`)!
+    await vi.waitFor(() => expect(sourceView('Base_AppSystemList')?.requestState).toBe(RequestState.Loaded))
+    const choose = (model: string, id: string, viewId = 'default') => {
+      const view = sourceView(model, viewId); view.setCurrentRowById(id); view.setSelectedRows([view.currentRow!])
+    }
+    choose('Base_AppSystemList', 'A1')
+    await vi.waitFor(() => expect(sourceView('Base_AppAndSource_Relation').rows).toHaveLength(1)); choose('Base_AppAndSource_Relation', 'R1')
+    await vi.waitFor(() => expect(sourceView('_Base_TblList').rows).toHaveLength(2)); choose('_Base_TblList', 'T1')
+    await vi.waitFor(() => expect(sourceView('Base_TblField', 'textFields').rows).toHaveLength(1))
+    choose('Base_TblField', 'F1', 'textFields'); choose('Base_TblField', 'F1', 'valueFields'); await flushPromises()
+    await f.click('确定引用表')
+    await vi.waitFor(() => expect(f.ds.getView('Base_TblField', 'referenceFields')!.queryContext['referenceTableRowid']).toBe('T1'))
+    expect(f.catalog.getEditingRow('K1')).toMatchObject({TableRowid: 'T1', TableName: 'table_one', TextFieldName: 'class_id', ValueFieldName: 'class_id'})
+    expect(f.service.http.saves).toEqual([])
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '取消编辑')!.props('disabled')).toBe(false))
+    await f.click('取消编辑')
+    expect(f.catalog.getEditingRow('K1') ?? f.catalog.currentRow).toMatchObject({TableRowid: 'T2', TableName: '分类表', TextFieldName: 'code', ValueFieldName: 'id', description: '原说明'})
+    expect(f.service.http.saves).toEqual([])
+    expect(f.main.hasEditingChanges()).toBe(true)
+  })
   it('requires deletion confirmation and leaves every draft unchanged when the confirmation is cancelled', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))

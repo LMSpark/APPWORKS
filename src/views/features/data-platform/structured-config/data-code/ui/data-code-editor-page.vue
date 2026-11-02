@@ -111,8 +111,13 @@ watch([applicationId, codeDesignId], async ([app, code]) => {
     if (!app.trim() || !code.trim()) throw new Error('缺少唯一 applicationId 或 codeDesignId 参数')
     const loaded = await LowcodeDataCode.loadEditor(scene)
     if (!active || own !== generation) {loaded.destroy(); return}
-    const page = new PageRuntime({pageId: 'data-code-editor-page', scenarioIds: [scene],
-      scenarioInputs: {[scene]: {applicationId: app, codeDesignId: code}}, loadScenario: async () => loaded})
+    const page = new PageRuntime({pageId: 'data-code-editor-page', scenarioIds: [scene, LowcodeDataCode.referenceScenarioId],
+      deferredScenarioIds: [LowcodeDataCode.referenceScenarioId], scenarioInputs: {[scene]: {applicationId: app, codeDesignId: code}},
+      loadScenario: async id => {
+        if (id === scene) return loaded
+        if (id === LowcodeDataCode.referenceScenarioId) return LowcodeDataCode.loadReferenceSources()
+        throw new Error('引用来源空间未声明')
+      }})
     runtime = page
     await page.load()
     if (!active || own !== generation) {page.dispose(); return}

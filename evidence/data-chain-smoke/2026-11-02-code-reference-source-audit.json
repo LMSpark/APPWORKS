@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "current-source native DataSet source cascade and pagination; no browser acceptance or persistence write",
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 20,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+      "success": true,
+      "diagnostics": [],
+      "referenceSourceAudit": {
+        "success": true,
+        "inspectedPages": 10,
+        "apps": 1,
+        "databases": 1,
+        "tablesOnCurrentPage": 20,
+        "tablesTotal": 222,
+        "textFields": 33,
+        "valueFields": 33,
+        "tableIdentityMatches": true,
+        "physicalFieldNamesResolved": true,
+        "dbidNotOutput": true,
+        "saveAttempted": false,
+        "clearedDownstream": true
+      },
+      "views": [
+        {
+          "table": "Base_AppSystemList",
+          "view": "default",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_AppAndSource_Relation",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "_Base_TblList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "textFields",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "valueFields",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ]
+}

@@ -42,6 +42,12 @@
             "type": "string"
           }
         },
+        "deferredScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "mainScenarioId": {
           "type": "string"
         },
@@ -100,6 +106,12 @@
         },
         "mainScenarioId": {
           "type": "string"
+        },
+        "deferredScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "scenarioInputs": {
           "$ref": "#/$defs/PageScenarioInputs"
@@ -265,6 +277,19 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.ensureScenarioLoaded.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureScenarioLoaded.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
         "method.getDataSet.params": {
           "type": "object",
           "properties": {
@@ -307,7 +332,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.630Z",
+  "generatedAt": "2026-11-02T09:23:50.155Z",
   "models": {
     "PageScenarioInputs": {
       "name": "PageScenarioInputs",
@@ -330,7 +355,7 @@
       "jsdoc": "一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 三文件工具；与系统页pageId二选一。 */\n    tool?: PageTool;\n    /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */\n    pageId?: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */\n    scenarioInputs?: PageScenarioInputs;\n    instanceId?: string;\n    loadScenario: (scenarioId: string) => Promise<DataSet>;\n    loadTool?: () => Promise<PageTool>;\n}",
+        "declarationTypeText": "{\n    /** 三文件工具；与系统页pageId二选一。 */\n    tool?: PageTool;\n    /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */\n    pageId?: string;\n    scenarioIds: readonly string[];\n    /** 已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。 */\n    deferredScenarioIds?: readonly string[];\n    mainScenarioId?: string;\n    /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */\n    scenarioInputs?: PageScenarioInputs;\n    instanceId?: string;\n    loadScenario: (scenarioId: string) => Promise<DataSet>;\n    loadTool?: () => Promise<PageTool>;\n}",
         "members": {
           "attributes": [
             {
@@ -349,6 +374,12 @@
               "name": "scenarioIds",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "deferredScenarioIds",
+              "jsdoc": "已声明但由业务工作区显式按需装配的空间；不影响未配置此项的原装载行为。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "mainScenarioId",
@@ -414,11 +445,11 @@
       "jsdoc": "不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */\n    scenarioInputs?: PageScenarioInputs;\n}>",
+        "declarationTypeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    /** 本次调用固定的按需空间身份，必须属于scenarioIds。 */\n    deferredScenarioIds?: readonly string[];\n    /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */\n    scenarioInputs?: PageScenarioInputs;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */\n    scenarioInputs?: PageScenarioInputs;\n}>",
+            "typeText": "Readonly<{\n    instanceId: string;\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    /** 本次调用固定的按需空间身份，必须属于scenarioIds。 */\n    deferredScenarioIds?: readonly string[];\n    /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */\n    scenarioInputs?: PageScenarioInputs;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -441,6 +472,12 @@
             },
             {
               "name": "mainScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deferredScenarioIds",
+              "jsdoc": "本次调用固定的按需空间身份，必须属于scenarioIds。",
               "readable": true,
               "writable": false
             },
@@ -714,7 +751,7 @@
             },
             {
               "name": "load",
-              "jsdoc": "装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。",
+              "jsdoc": "装载工具与非延后声明场景；迟到或身份错误的数据集销毁并显式失败。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -723,6 +760,29 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureScenarioLoaded",
+              "jsdoc": "显式装配已声明的按需空间，并沿同一PageRuntime解析绑定及管理销毁。\n@param scenarioId 本次调用声明的完整空间身份，不推导首空间或同名资源。\n@returns 同一代次独占的DataSet；并发读取复用装配，失败可重试，迟到结果销毁。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
                   }
                 ]
               }

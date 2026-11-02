@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/resources/structured-config/logic-view/design-client",
-    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图设计 JSON 的 read/write（ViewData 合同）。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图对象数组的 read/write（ViewData 合同），保存须有正式成功回执。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LogicViewDesignPayload",
@@ -41,6 +41,23 @@
           "properties": {
             "http": {
               "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "readScope": {
+                  "type": "object",
+                  "title": "() => DataSpaceRequestScope"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "readScope"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -74,7 +91,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T19:38:09.389Z",
+  "generatedAt": "2026-11-02T01:02:39.809Z",
   "models": {
     "LogicViewDesignPayload": {
       "name": "LogicViewDesignPayload",
@@ -111,13 +128,27 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(http: HttpClientBase)",
+          "jsdoc": "本次正式DataSet的场景及当前执行域；不借用目录外的应用或身份。",
+          "signatureText": "constructor(http: HttpClientBase, context: Readonly<{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }>)",
           "parameters": [
             {
               "name": "http",
               "type": {
                 "type": "reference",
                 "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "context",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }"
+                  }
+                ]
               }
             }
           ]

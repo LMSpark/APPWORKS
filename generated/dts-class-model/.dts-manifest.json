@@ -3244,7 +3244,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json",
-      "sourceModifiedAt": "2026-10-31T19:38:09.389Z"
+      "sourceModifiedAt": "2026-11-02T01:02:39.809Z"
     },
     "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
@@ -4064,12 +4064,12 @@
     "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.802Z"
+      "sourceModifiedAt": "2026-11-02T01:13:40.239Z"
     },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.803Z"
+      "sourceModifiedAt": "2026-11-02T01:13:40.240Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",

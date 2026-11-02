@@ -8,10 +8,10 @@
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/logic-view/design-ops",
     "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-30T19:39:23.802Z",
+  "generatedAt": "2026-11-02T01:13:40.239Z",
   "models": {}
 }

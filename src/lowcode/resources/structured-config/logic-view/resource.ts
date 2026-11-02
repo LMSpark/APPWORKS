@@ -2,7 +2,7 @@
  * @module app:lowcode/resources/structured-config/logic-view/resource
  */
 import type {DataSet} from '@spark-appworks/spark-data'
-import {lowcodeHttp} from '../../../lowcode-runtime'
+import {lowcodeApi, lowcodeHttp} from '../../../lowcode-runtime'
 import {loadStructuredConfigCatalog, readStructuredConfigScope} from '../catalog'
 import {attachLogicViewDesignEdit} from './design-ops'
 
@@ -25,7 +25,7 @@ export class LowcodeLogicView {
   static async loadEditor(scenarioId: string): Promise<DataSet> {
     const {assertCurrent} = readStructuredConfigScope('逻辑视图')
     const dataSet = await this.loadCatalog(scenarioId)
-    attachLogicViewDesignEdit(dataSet, lowcodeHttp, assertCurrent)
+    attachLogicViewDesignEdit({dataSet, http: lowcodeHttp, guard: assertCurrent, readScope: () => lowcodeApi.readRequestScope()})
     return dataSet
   }
 }

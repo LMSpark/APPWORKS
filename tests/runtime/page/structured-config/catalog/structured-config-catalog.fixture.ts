@@ -17,11 +17,19 @@ export class StructuredCatalogHttp extends HttpClientBase {
   requests: RequestConfig[] = []
   posts: Array<{url: string; data: unknown}> = []
   rowsByTable: Record<string, Record<string, unknown>[]> = {}
+  logicDesigns: Record<string, unknown[]> = {}
   constructor(tables: Record<string, Record<string, unknown>[]>) {super(); this.rowsByTable = tables}
-  override post<T>(url: string, data?: unknown): Promise<T> {
+  override post<T>(url: string, data?: unknown, config?: Partial<RequestConfig>): Promise<T> {
     this.posts.push({url, data})
-    if (url.includes('GetView')) return Promise.resolve({Code: 200, Result: {data: {tables: []}}} as T)
-    if (url.includes('ViewData/GetView')) return Promise.resolve({Code: 200, Result: {data: {nodes: []}}} as T)
+    if (url.includes('ViewData/GetView')) {
+      const viewId = String(config?.params?.['viewId'] ?? '')
+      return Promise.resolve({Code: 200, Result: structuredClone(this.logicDesigns[viewId] ?? [])} as T)
+    }
+    if (url.includes('ViewData/SaveView')) {
+      const payload = data as {viewId: string; data: unknown[]}
+      this.logicDesigns[payload.viewId] = structuredClone(payload.data)
+      return Promise.resolve({Code: 200, Result: '保存成功'} as T)
+    }
     return Promise.resolve({Code: 200, Result: {}} as T)
   }
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {

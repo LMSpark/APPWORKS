@@ -919,13 +919,13 @@
     {
       "expression": "/api/ViewData/GetView",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
-      "sourceLine": 18,
+      "sourceLine": 52,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ViewData/SaveView",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
-      "sourceLine": 31,
+      "sourceLine": 71,
       "scope": "publishable-lowcode-api"
     },
     {

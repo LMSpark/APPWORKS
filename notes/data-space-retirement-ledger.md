@@ -4581,3 +4581,18 @@ flowchart TD
 - 范围纠偏：当前15份config/pages正式pagedata所涉20个字典模型全部实际查询成功，130失败没有落在此20模型；不证明15页完整验收、所有发布节点或其它来源通过。仅对publishedNodeIds直接相同身份的交集另查7模型无失败，该交集不替代导航→场景映射验收。历史/其它应用来源仍属平台消费缺口，按实际入口归属继续核查。
 - 后续方案：32项仅在用户确认候选业务来源后，按原元数据DataView权限/保存/回读修正；Dic_Test无来源不造字典或删除引用；workflowStatus保留精确失败/对照待服务归属核定；96项不做前端旁路。独立的已批准前端整页恢复继续推进，不以这些待核项阻止其它工作，也不把它们改称已通过。
 - 本轮源码/测试与072a65f23一致，仅证据和唯一台账变更。dictionary-runtime-full-verify.log全仓verify由24004退出0确认，既有2项AI模型警告保留；无公开源码变更不重建ClassModel或重复构建。最后证据/文档检查后按授权提交推送，整体目标继续活动。
+
+## 2026-11-02 逻辑视图设计数组与执行域修复
+
+- 上轮为progress：13c379f73已推送origin/1031，起始工作区干净。本轮回到参考APPWorks 1147b00ee逻辑视图页及LogicViewDesign.ts完整语义：目录/定义、入参、来源、节点树/字段、预览和输出维护分别有责任；read/write主体为TableDesign[]，仅明确可选文件缺失才由owner呈现空数组。当前本仓JSON树整页不是完整参考UI，不能据此结题。
+- 断链定位：LogicViewDesignClient允许未知对象，design-ops.persist用parseJsonObject拒绝真正设计数组，缺文件还生成{}；SaveView忽略真实Result；客户端未明确传当前应用/场景，原HTTP仅自动注入Bearer。已查正式ClassModel旧客户端合同及源码，当前AI按业务/API源事实修正，须正式生成刷新，不改Java。
+- 数据层统一修复：设计只接受对象数组，保留完整嵌套字段/ChildTables及未知业务成员；空白编辑作为[]，缺少设计文件仍[]；其它业务失败/null/错误结构失败关闭。SaveView只接受既有“保存成功”回执，未确认回执留原owner核验，不发明新协议。所有修改继续沿原DataSet/DataView→存储适配→SDK，未另建草稿/页面保存器。
+- SDK必须传本次DataSet的scenarioId与readScope；捕获X-AppId及执行域，显式X-FormKey覆盖旧同名头，响应后核token/应用身份，迟到读写结果不能套新应用。缺少正式DataSet场景在attach前明确拒绝。未把执行域token当Bearer、未引入角色或权限放行。
+- RED/GREEN：logic-array-red.log6新增失败/原12通过，包含对象/非法成员写入、无效保存回执以及真实数组经DataSet保存受阻；scope-red.log新上下文提示失败/18通过；scenario-red.log缺正式场景新失败/21通过。修复后局部读写/取消/场景与迟到响应验证通过，结构化配置影响impact-final.log20文件111项通过（局部不重复累计），SDK全包api-impact.log30文件1213项通过。首轮fixture仍是错误对象包装/泛化回执，已按正式数组和保存确认纠正。
+- 正式目录实服16行（logic-view-catalog-live.json）。显式只读GetView形状探针16请求：4个对象数组、12个[1003]数据不存在；不把它们当新设计或物理删除。原生DataView首次因授权会话过期16次401（native-cancel-live.json）全部保留且不算业务通过，刷新既有授权会话后refreshed-live.json白名单20读取/0写入，4目标原生编辑→取消→精确回读通过，12目标仍1003。证据evidence/data-chain-smoke/2026-11-02-logic-view-array-audit.json；实际SaveView未执行，保存回执仅源码/参考与夹具证据。
+- 既有页面“保存”测试原来只验证发出请求，不能证明成功；已将测试HTTP的正式存储真值与读回分开承接数组，页面补断言保存内容和无DESIGN_SAVE_UNCONFIRMED。补验执行中；不是产品第二份状态。
+- 首轮ClassModel后verify由73164在TypeScript场景可能undefined处退出2，已通过缺场景RED及显式校验修复；稳定后重新正式消费者台账→ClassModel→verify→build（83793）。当前最终门禁/补验待核。新增、目录与设计双持久边界、完整参考布局/节点编辑/来源/预览/输出字段、12个命令失败、真实保存、浏览器及其它全架构项继续开放。
+- 补验page-confirmed.log及命名参数后options-confirmed.log均7文件39项通过；与20文件111项重叠，不累计。全仓规则曾因attachLogicViewDesignEdit四个位置参数失败（83793 exit1），已改命名options对象，verify:ai-codegen单独通过，再刷新正式产物并串行最终门禁（23121，*-final-2.log），未跳过规则。
+- final-options-live.json在最终命名入口对D0624BDE07FA475B90D5653994A6493D再核2读取/0写入，原生数组编辑取消后回读一致；不重放任何保存。当前持久审计仍区分16目录、4成功、12未闭合及首轮会话401。
+- 最终门禁23121退出0：消费者台账仍611端点/200消费者、ClassModel正式编译生成、全仓verify与串行build均通过（logic-array-*-final-2.log），既有2项AI模型告警及动态导入提示保留。SDK1213项、结构化配置20文件111项，以及最后命名入口/页面补验7文件39项通过；补验与影响测试重叠不累计。当前无后端或实服写入，未宣称真实SaveView或完整UI验收。
+- 准备提交推送origin/1031保存数组协议、明确成功回执、当前应用/场景/迟到响应守卫及只读证据。专题完整布局/来源与节点配置/输出预览、新增目录-设计持久化、12项GetView差异及全架构其它未闭合项仍开放，32项字典来源确认仍待用户答复，整体目标不结题。

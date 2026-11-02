@@ -11152,7 +11152,7 @@
         "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "platform/resources/structured-config/logic-view/design-client",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图设计 JSON 的 read/write（ViewData 合同）。",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/logic-view/design-client\n职责：逻辑视图对象数组的 read/write（ViewData 合同），保存须有正式成功回执。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LogicViewDesignPayload",
@@ -13737,7 +13737,7 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/design-ops",
         "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops",
-        "jsdocSource": "source-file-jsdoc",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

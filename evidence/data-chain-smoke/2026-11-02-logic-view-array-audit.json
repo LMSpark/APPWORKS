@@ -1,0 +1,320 @@
+{
+  "date": "2026-11-02",
+  "baseCommit": "13c379f736f1a1500556dcad8348a86cbfc82dcc",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+  "catalog": {
+    "total": 16,
+    "ids": [
+      "1908DEAAA3004BF18CF412EFFAEF56C6",
+      "D0624BDE07FA475B90D5653994A6493D",
+      "641CDA3724684384926D0E9753DFDCA1",
+      "BF2B46A276DE4596B585EF71C44BF6A3",
+      "48CB789BE209406D96D0B6C1BD98BB99",
+      "1FE934122F964818A91A6576CE2FD24B",
+      "1A927C754D924B218FCEA1A3B4AF97C6",
+      "BF112400AD6E45EC8839CD961807C8E5",
+      "1CF5A4F1B6FC4FBABB8FBDC4A694EFD8",
+      "4105B19A3F14476AAFCB7C6E56D7DAFD",
+      "BF645926F79C426DB71D67F90C9C21C8",
+      "2ABDC59469654429B0882D0B9BB73FA4",
+      "9BB57B29626F4B5EB06C7C23055F25C0",
+      "56BD2809F5B5483080239B0194A8A1F6",
+      "E9580F14168045B1A9139453476390A9",
+      "106F4CD483394270A668AA89C24756E4"
+    ]
+  },
+  "rawShapeRead": {
+    "requests": 16,
+    "successfulArrayDesigns": 4,
+    "results": [
+      {
+        "viewId": "1908DEAAA3004BF18CF412EFFAEF56C6",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "D0624BDE07FA475B90D5653994A6493D",
+        "status": 200,
+        "code": 200,
+        "success": true,
+        "rootType": "array",
+        "length": 1,
+        "itemKinds": [
+          "object"
+        ]
+      },
+      {
+        "viewId": "641CDA3724684384926D0E9753DFDCA1",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "BF2B46A276DE4596B585EF71C44BF6A3",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "48CB789BE209406D96D0B6C1BD98BB99",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "1FE934122F964818A91A6576CE2FD24B",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+        "status": 200,
+        "code": 200,
+        "success": true,
+        "rootType": "array",
+        "length": 1,
+        "itemKinds": [
+          "object"
+        ]
+      },
+      {
+        "viewId": "BF112400AD6E45EC8839CD961807C8E5",
+        "status": 200,
+        "code": 200,
+        "success": true,
+        "rootType": "array",
+        "length": 1,
+        "itemKinds": [
+          "object"
+        ]
+      },
+      {
+        "viewId": "1CF5A4F1B6FC4FBABB8FBDC4A694EFD8",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "4105B19A3F14476AAFCB7C6E56D7DAFD",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "BF645926F79C426DB71D67F90C9C21C8",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "2ABDC59469654429B0882D0B9BB73FA4",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "9BB57B29626F4B5EB06C7C23055F25C0",
+        "status": 200,
+        "code": 200,
+        "success": true,
+        "rootType": "array",
+        "length": 1,
+        "itemKinds": [
+          "object"
+        ]
+      },
+      {
+        "viewId": "56BD2809F5B5483080239B0194A8A1F6",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "E9580F14168045B1A9139453476390A9",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "viewId": "106F4CD483394270A668AA89C24756E4",
+        "status": 200,
+        "code": 1003,
+        "success": false,
+        "rootType": "undefined",
+        "error": "[1003] 数据不存在"
+      }
+    ]
+  },
+  "nativeReadCancel": {
+    "readOnlyGuard": true,
+    "readRequests": 20,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "kind": "native-logic-design",
+        "viewId": "1908DEAAA3004BF18CF412EFFAEF56C6",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "D0624BDE07FA475B90D5653994A6493D",
+        "success": true,
+        "rootType": "array",
+        "nodes": 1,
+        "cancelVerified": true,
+        "rereadUnchanged": true
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "641CDA3724684384926D0E9753DFDCA1",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "BF2B46A276DE4596B585EF71C44BF6A3",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "48CB789BE209406D96D0B6C1BD98BB99",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "1FE934122F964818A91A6576CE2FD24B",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+        "success": true,
+        "rootType": "array",
+        "nodes": 1,
+        "cancelVerified": true,
+        "rereadUnchanged": true
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "BF112400AD6E45EC8839CD961807C8E5",
+        "success": true,
+        "rootType": "array",
+        "nodes": 1,
+        "cancelVerified": true,
+        "rereadUnchanged": true
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "1CF5A4F1B6FC4FBABB8FBDC4A694EFD8",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "4105B19A3F14476AAFCB7C6E56D7DAFD",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "BF645926F79C426DB71D67F90C9C21C8",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "2ABDC59469654429B0882D0B9BB73FA4",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "9BB57B29626F4B5EB06C7C23055F25C0",
+        "success": true,
+        "rootType": "array",
+        "nodes": 1,
+        "cancelVerified": true,
+        "rereadUnchanged": true
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "56BD2809F5B5483080239B0194A8A1F6",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "E9580F14168045B1A9139453476390A9",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      },
+      {
+        "kind": "native-logic-design",
+        "viewId": "106F4CD483394270A668AA89C24756E4",
+        "success": false,
+        "error": "[1003] 数据不存在"
+      }
+    ]
+  },
+  "expiredSessionAttempt": {
+    "artifact": "artifacts/data-chain-smoke/logic-view-native-cancel-live.json",
+    "results": 16,
+    "error": "HTTP 401",
+    "countedAsBusinessSuccess": false
+  },
+  "changesAppliedToService": false,
+  "limitations": [
+    "No real SaveView writes",
+    "Save acknowledgement validation is reference-contract and fixture evidence only",
+    "12 catalog-visible IDs still return data-not-found from GetView; deletion or ownership cause unproven",
+    "Current JSON tree page is not the complete reference design UI",
+    "Full catalog creation, output fields, source selection, preview and reference fidelity still open",
+    "No browser UI pass"
+  ],
+  "finalNamedEntryRecheck": {
+    "readRequests": 2,
+    "writeRequests": 0,
+    "readOnlyGuard": true,
+    "results": [
+      {
+        "kind": "native-logic-design",
+        "viewId": "D0624BDE07FA475B90D5653994A6493D",
+        "success": true,
+        "rootType": "array",
+        "nodes": 1,
+        "cancelVerified": true,
+        "rereadUnchanged": true
+      }
+    ]
+  }
+}

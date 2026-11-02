@@ -2,31 +2,62 @@ import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {LogicViewDesignClient} from '@spark-appworks/spark-lowcode-api'
+import {attachLogicViewDesignEdit, LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 
 let http: StructuredCatalogHttp
+const readScope = () => ({token: 'scope', headers: {'X-AppId': 'APP'}})
+const logicClient = (transport = http) => new LogicViewDesignClient(transport, {scenarioId: 'SPACE', readScope})
 beforeEach(() => {http = new StructuredCatalogHttp({})})
 
 it('rejects a legacy Ajax business failure for every design write', async () => {
   vi.spyOn(http, 'post').mockResolvedValue({Code: 500, Message: '明确拒绝保存', Result: null})
   const writes = [
-    () => new LogicViewDesignClient(http).write({viewId: 'V1', data: {}}),
+    () => logicClient().write({viewId: 'V1', data: []}),
   ]
   for (const write of writes) await expect(write()).rejects.toThrow('明确拒绝保存')
 })
 
 describe('LogicViewDesignClient', () => {
-  const client = () => new LogicViewDesignClient(http)
+  it.each(['read', 'write'] as const)('rejects a late %s response after the application changes', async operation => {
+    let scope = readScope()
+    const target = new LogicViewDesignClient(http, {scenarioId: 'SPACE', readScope: () => scope})
+    http.post = async <T>(): Promise<T> => {
+      scope = {token: 'next', headers: {'X-AppId': 'OTHER'}}
+      return {Code: 200, Result: operation === 'read' ? [] : '保存成功'} as T
+    }
+    await expect(operation === 'read' ? target.read('V1') : target.write({viewId: 'V1', data: []})).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  })
+  it('carries the current application and scenario on both read and write', async () => {
+    const calls: Array<Partial<RequestConfig> | undefined> = []
+    http.post = async <T>(url: string, _data?: unknown, options?: Partial<RequestConfig>): Promise<T> => {
+      calls.push(options)
+      return {Code: 200, Result: url.endsWith('GetView') ? [] : '保存成功'} as T
+    }
+    await logicClient().read('V1'); await logicClient().write({viewId: 'V1', data: []})
+    expect(calls).toHaveLength(2)
+    for (const options of calls) expect(options?.headers).toMatchObject({'X-AppId': 'APP', 'X-FormKey': 'SPACE'})
+  })
+  it.each([{}, null, [null], [1]])('rejects a non-design-array write before sending: %j', async data => {
+    const post = vi.spyOn(http, 'post')
+    await expect(client().write({viewId: 'V1', data})).rejects.toThrow('对象数组')
+    expect(post).not.toHaveBeenCalled()
+  })
+  it('rejects an acknowledgement that does not prove SaveView completed', async () => {
+    vi.spyOn(http, 'post').mockResolvedValue({Code: 200, Result: false})
+    await expect(client().write({viewId: 'V1', data: []})).rejects.toThrow('回执')
+  })
+  const client = () => logicClient()
   it('read sends viewId as a query parameter', async () => {
     const calls: Array<{url: string; data: unknown; params: unknown}> = []
     http.post = async (url: string, data?: unknown, config?: Partial<RequestConfig>) => {
       calls.push({url, data, params: config?.params})
-      return {Code: 200, Result: {data: {tables: []}}} as never
+      return {Code: 200, Result: {data: [{Name: 'Orders', Fields: []}]}} as never
     }
     const payload = await client().read('V1')
     expect(payload.viewId).toBe('V1')
-    expect(payload.data).toEqual({tables: []})
+    expect(payload.data).toEqual([{Name: 'Orders', Fields: []}])
     expect(calls).toEqual([{url: '/api/ViewData/GetView', data: undefined, params: {viewId: 'V1'}}])
   })
   it('rejects an empty viewId before requesting', async () => {
@@ -35,26 +66,61 @@ describe('LogicViewDesignClient', () => {
     expect(post).not.toHaveBeenCalled()
   })
   it('write posts SaveView', async () => {
-    await client().write({viewId: 'V1', data: {tables: []}})
+    vi.spyOn(http, 'post').mockImplementation(async (url, data) => {http.posts.push({url, data}); return {Code: 200, Result: '保存成功'}})
+    await client().write({viewId: 'V1', data: []})
     const saved = http.posts.find(post => post.url.includes('SaveView'))
-    expect(saved?.data).toEqual({viewId: 'V1', data: {tables: []}})
+    expect(saved?.data).toEqual({viewId: 'V1', data: []})
   })
   it('rejects invalid read payload', async () => {
     const broken = new StructuredCatalogHttp({})
     broken.post = async () => 0 as never
-    await expect(new LogicViewDesignClient(broken).read('V1')).rejects.toThrow(/无效/)
+    await expect(logicClient(broken).read('V1')).rejects.toThrow(/无效/)
   })
   it('treats a missing design file as a blank new design', async () => {
     const broken = new StructuredCatalogHttp({})
     broken.post = async () => ({Code: 500, Message: '[500] [404] 文件不存在', Result: null}) as never
-    const payload = await new LogicViewDesignClient(broken).read('V1')
-    expect(payload).toEqual({viewId: 'V1', data: {}})
+    const payload = await logicClient(broken).read('V1')
+    expect(payload).toEqual({viewId: 'V1', data: []})
   })
   it('still rejects other business failures from GetView', async () => {
     const broken = new StructuredCatalogHttp({})
     broken.post = async () => ({Code: 500, Message: '[500] 数据库连接失败', Result: null}) as never
-    await expect(new LogicViewDesignClient(broken).read('V1')).rejects.toThrow('数据库连接失败')
+    await expect(logicClient(broken).read('V1')).rejects.toThrow('数据库连接失败')
   })
+})
+
+it('requires the owning DataSet to carry a formal scenario before attaching design storage', () => {
+  const dataSet = DataSet.fromJson({tables: {}}); sets.push(dataSet)
+  expect(() => attachLogicViewDesignEdit({dataSet, http, guard: () => {}, readScope})).toThrow('场景')
+  expect(http.posts).toEqual([])
+})
+
+it('edits, cancels and saves a real design array through the existing DataSet owner without losing nested fields', async () => {
+  const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {}}); sets.push(dataSet)
+  let stored = [{Name: 'Orders', Fields: [{Name: 'id', IsOutput: 0}], ChildTables: [{Name: 'Lines', Fields: []}], custom: {keep: false}}]
+  const writes: unknown[] = []
+  http.post = async <T>(url: string, data?: unknown): Promise<T> => {
+    if (url.endsWith('GetView')) return {Code: 200, Result: structuredClone(stored)} as T
+    writes.push(data)
+    stored = structuredClone((data as {data: typeof stored}).data)
+    return {Code: 200, Result: '保存成功'} as T
+  }
+  attachLogicViewDesignEdit({dataSet, http, guard: () => {}, readScope})
+  setDesignScopeValue({dataSet, tableName: LOGIC_VIEW_DESIGN_INPUT, field: 'viewId', scopeId: 'V1'})
+  const view = dataSet.getView(LOGIC_VIEW_DESIGN_VIEW)!
+  await view.refresh()
+  const changed = structuredClone(stored); changed[0]!.custom.keep = true
+  view.updateEditingValue('V1', 'designJson', JSON.stringify(changed))
+  view.discardPendingChanges()
+  expect(writes).toEqual([])
+  expect(JSON.parse(String(view.rows[0]?.['designJson']))).toEqual(stored)
+  view.updateEditingValue('V1', 'designJson', JSON.stringify(changed))
+  const result = await dataSet.saveChanges({views: [{tableName: LOGIC_VIEW_DESIGN_VIEW, viewId: 'default'}]})
+  expect(result.success).toBe(true)
+  expect(writes).toEqual([{viewId: 'V1', data: changed}])
+  await view.refresh()
+  expect(JSON.parse(String(view.rows[0]?.['designJson']))).toEqual(changed)
+  expect(view.hasUnconfirmedSave).toBe(false)
 })
 
 const sets: DataSet[] = []

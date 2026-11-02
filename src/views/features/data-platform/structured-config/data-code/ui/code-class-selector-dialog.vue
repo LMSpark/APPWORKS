@@ -10,6 +10,7 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
     <p v-if="loading" role="status">正在读取分类规则…</p>
     <p v-if="unconfirmed" role="status">目录保存结果尚未确认，请先核验。</p>
     <div v-if="ready">
+      <RendererButton :data-view-key="catalogKey" label="新增" perm-action="create" :disabled="busy || unconfirmed" @click="addClass" />
       <RendererButton label="编辑" :disabled="busy || unconfirmed || !selected" @click="editClass" />
       <RendererButton :data-view-key="catalogKey" label="删除" perm-action="delete" :disabled="busy || unconfirmed || !selected" @click="removeClass" />
       <RendererButton :label="unconfirmed ? '核验目录保存结果' : '保存目录'" :disabled="busy || !dirty" @click="saveCatalog" />
@@ -29,7 +30,7 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
       <RendererButton :data-view-key="catalogKey" label="确定删除" perm-action="delete" :disabled="acting || unconfirmed" @click="confirmRemoveClass" />
     </template>
   </RendererDialog>
-  <CodeClassEditDialog v-if="editing" :data-view-key="catalogKey" :class-id="editing.classId" :bus-table-rowid="editing.busTableRowid" @close="editing = undefined" />
+  <CodeClassEditDialog v-if="editing" :data-view-key="catalogKey" :class-id="editing.classId" :bus-table-rowid="editing.busTableRowid" @accepted="acceptEdit" @close="closeEdit" />
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
@@ -43,7 +44,7 @@ const {sparkConsume} = useSparkComponent({type: 'code-class-selector-dialog'}), 
 const target = {...props}, parsed = parseDataViewKey(target.dataViewKey)
 const catalogKey = parsed?.scope ? buildDataViewKey('Base_CodeClassTable', 'default', parsed.scope) : ''
 const catalog = shallowRef<DataView>(), ready = ref(false), loading = ref(true), acting = ref(false), error = ref(''), revision = ref(0)
-const editing = shallowRef<{classId: string | number; busTableRowid: string}>()
+const editing = shallowRef<{classId: string | number; busTableRowid: string; created?: boolean}>()
 const removing = shallowRef<{id: string | number}>()
 let active = true, nodes: DataView | undefined, original: DataRow | null = null, unsubscribe: (() => void) | undefined
 const selected = computed(() => {revision.value; return catalog.value?.currentRow})
@@ -75,6 +76,32 @@ function editClass(): void {
     const busTableRowid = owner['BusTableRowid']
     if (typeof busTableRowid !== 'string' || !busTableRowid) throw new Error('当前设计未选择业务表')
     editing.value = {classId, busTableRowid}
+  } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+}
+async function addClass(): Promise<void> {
+  if (!ready.value || busy.value || unconfirmed.value) return
+  acting.value = true; error.value = ''
+  try {
+    const view = assertTarget(), main = view.dataSet?.getView('Base_CodeDesign'), owner = main?.currentRow
+    const ownerId = owner ? main?.getPkKey(owner) : undefined, row = ownerId === undefined ? owner : main?.getEditingRow(ownerId) ?? owner
+    if (!owner || main?.hasUnconfirmedSave || main?.fieldAccess(owner, 'BusTableRowid').read !== 'visible'
+      || main.fieldAccess(owner, 'BusTableName').read !== 'visible' || typeof row?.['BusTableRowid'] !== 'string' || !row['BusTableRowid']
+      || typeof row['BusTableName'] !== 'string' || !row['BusTableName'].trim()) throw new Error('当前设计缺少可读业务表身份或名称')
+    const busTableRowid = row['BusTableRowid']
+    const added = await view.addRow({Name: '', TableRowid: '', TableName: '', TextFieldName: '', ValueFieldName: '',
+      BusFilterField: '', BusTableName: row['BusTableName'], description: ''})
+    const classId = view.getPkKey(added)
+    if (classId === undefined || !view.dirtyTracking.pendingCreateIds.has(classId)) throw new Error('分类新增未进入原视图待提交状态')
+    if (!active) {view.discardPendingChanges([classId]); return}
+    assertTarget(); view.setCurrentRow(added); editing.value = {classId, busTableRowid, created: true}
+  } catch (cause) {if (active) error.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {if (active) {acting.value = false; revision.value++}}
+}
+function acceptEdit(): void {if (editing.value) editing.value = {...editing.value, created: false}}
+function closeEdit(): void {
+  try {
+    if (editing.value?.created) catalog.value?.discardPendingChanges([editing.value.classId])
+    editing.value = undefined
   } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
 function cancel(): void {
@@ -142,5 +169,5 @@ watch(() => [props.dataViewKey, props.nodeId], (_value, previous) => {
   if (!previous) {void open(); return}
   ready.value = false; error.value = '编码段目标已改变，请重新打开'
 }, {immediate: true, flush: 'sync'})
-onBeforeUnmount(() => {active = false; unsubscribe?.()})
+onBeforeUnmount(() => {active = false; unsubscribe?.(); if (editing.value?.created && !catalog.value?.destroyed) catalog.value?.discardPendingChanges([editing.value.classId])})
 </script>

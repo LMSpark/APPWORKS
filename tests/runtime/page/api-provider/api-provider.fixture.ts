@@ -40,6 +40,7 @@ export class ApiBackend extends HttpClientBase {
   reads: Array<{table: string; data: unknown}> = []
   saves: Array<{table: string; added: Row[]; changed: Row[]; deleted: Row[]}> = []
   denyDelete = new Set<string>()
+  denyAdd = new Set<string>()
   failAfterWrite = false
   beforeSave?: () => Promise<void>
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
@@ -58,7 +59,7 @@ export class ApiBackend extends HttpClientBase {
         rows = rows.filter(row => filter.matches(row))
       }
       const fields = table.Fields.map(field => field.Name)
-      result = {primaryKeyField: this.primaryKeys[table.Name] ?? 'rowid', allowAdd: true, lingma_sys_key: 'table-key',
+      result = {primaryKeyField: this.primaryKeys[table.Name] ?? 'rowid', allowAdd: !this.denyAdd.has(table.Name), lingma_sys_key: 'table-key',
         data: {Items: rows.map(row => ({...Object.fromEntries(fields.map(field => [field, row[field]])), lingma_sys_key: 'row-key',
           lingma_sys_params: {r: [], e: fields, h: [], m: [], d: !this.denyDelete.has(table.Name)}})), Count: rows.length}}
     } else if (request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {

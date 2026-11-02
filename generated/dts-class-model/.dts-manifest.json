@@ -4779,12 +4779,12 @@
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T09:18:32.369Z"
+      "sourceModifiedAt": "2026-11-02T09:29:52.918Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T08:40:10.470Z"
+      "sourceModifiedAt": "2026-11-02T09:29:52.918Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",

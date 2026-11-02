@@ -62,6 +62,60 @@ async function fixture(denyDelete = false, withSources = false) {
 }
 
 describe('classification selection through original views', () => {
+  it('consumes a fresh formal table-level create denial for the add action', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.service.http.denyAdd.add('Base_CodeClassTable'); await f.catalog.refresh(); await flushPromises()
+    const button = f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '新增')!
+    expect(button.get('button').attributes('disabled')).toBeDefined()
+    await button.get('button').trigger('click'); await flushPromises()
+    expect(f.catalog.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('creates an empty native class and cancels only that new row, preserving preexisting directory and design drafts', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.updateEditingValue('K1', 'Name', '此前目录草稿')
+    await f.click('新增')
+    await vi.waitFor(() => expect(f.catalog.dirtyTracking.pendingCreateIds.size).toBe(1))
+    const id = [...f.catalog.dirtyTracking.pendingCreateIds][0]!
+    expect(f.catalog.getEditingRow(id) ?? f.catalog.currentRow).toMatchObject({Name: '', TableRowid: '', BusTableName: '订单'})
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '取消编辑')?.props('disabled')).toBe(false))
+    await f.click('取消编辑')
+    expect(f.catalog.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(f.catalog.rows).toHaveLength(1)
+    expect(f.catalog.getEditingRow('K1')?.['Name']).toBe('此前目录草稿')
+    expect(f.main.hasEditingChanges()).toBe(true)
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('completes a new class through native source selection and saves only the directory', async () => {
+    const f = await fixture(false, true)
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    await f.click('新增')
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '设置引用表')?.props('disabled')).toBe(false))
+    const id = [...f.catalog.dirtyTracking.pendingCreateIds][0]!
+    f.catalog.updateEditingValue(id, 'Name', '新分类'); f.catalog.updateEditingValue(id, 'BusFilterField', 'class_id')
+    await f.click('设置引用表')
+    const sourceView = (model: string, view = 'default') => f.runtime.resolveView(`${SOURCE_SCENE}@${model}@${view}`)!
+    await vi.waitFor(() => expect(sourceView('Base_AppSystemList')?.requestState).toBe(RequestState.Loaded))
+    const choose = (model: string, key: string, viewId = 'default') => {
+      const view = sourceView(model, viewId); view.setCurrentRowById(key); view.setSelectedRows([view.currentRow!])
+    }
+    choose('Base_AppSystemList', 'A1')
+    await vi.waitFor(() => expect(sourceView('Base_AppAndSource_Relation').rows).toHaveLength(1)); choose('Base_AppAndSource_Relation', 'R1')
+    await vi.waitFor(() => expect(sourceView('_Base_TblList').rows).toHaveLength(2)); choose('_Base_TblList', 'T1')
+    await vi.waitFor(() => expect(sourceView('Base_TblField', 'textFields').rows).toHaveLength(1))
+    choose('Base_TblField', 'F1', 'textFields'); choose('Base_TblField', 'F1', 'valueFields'); await flushPromises(); await f.click('确定引用表')
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '确认编辑')?.props('disabled')).toBe(false))
+    await f.click('确认编辑')
+    expect(f.catalog.dirtyTracking.pendingCreateIds.has(id)).toBe(true)
+    expect(f.service.http.saves).toEqual([])
+    await f.click('保存目录')
+    expect(f.service.http.saves.map(save => save.table)).toEqual(['Base_CodeClassTable'])
+    expect(f.service.http.records['Base_CodeClassTable']).toContainEqual(expect.objectContaining({Name: '新分类', TableRowid: 'T1', TextFieldName: 'class_id', BusTableName: '订单'}))
+    expect(f.main.hasEditingChanges()).toBe(true)
+    expect(f.nodes.hasEditingChanges()).toBe(false)
+  })
   it('cancels the reference picker without modifying the stored mapping and rejects confirmation after the parent business target changes', async () => {
     const f = await fixture(false, true)
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))

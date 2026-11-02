@@ -15,8 +15,8 @@ AI用途：为当前分类编辑引用表和字段；提供完整分类绑定、
       <FieldSelect field="BusFilterField" label="业务表过滤字段" :option-data-view-key="businessFieldsKey" :on-change="guardEdit" />
       <FieldText field="TableName" label="引用表名" :readonly="true" />
       <RendererButton label="设置引用表" :disabled="loading || closing || choosingReference" @click="openReference" />
-      <FieldSelect field="TextFieldName" label="引用字段" :option-data-view-key="referenceFieldsKey" :on-change="guardEdit" />
-      <FieldSelect field="ValueFieldName" label="引用表过滤字段" :option-data-view-key="referenceFieldsKey" :on-change="guardEdit" />
+      <FieldSelect field="TextFieldName" label="引用字段" :readonly="!referenceId" :option-data-view-key="referenceFieldsKey" :on-change="guardEdit" />
+      <FieldSelect field="ValueFieldName" label="引用表过滤字段" :readonly="!referenceId" :option-data-view-key="referenceFieldsKey" :on-change="guardEdit" />
       <FieldText field="description" label="说明" :on-change="guardEdit" />
     </RendererForm>
     <template #footer>
@@ -32,7 +32,7 @@ import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type Dat
 import {PAGE_RUNTIME, FieldSelect, FieldText, RendererButton, RendererDialog, RendererForm, useSparkComponent} from '@spark-appworks/spark-component'
 import CodeReferenceTableDialog from './code-reference-table-dialog.vue'
 const props = defineProps<{dataViewKey: string; classId: string | number; busTableRowid: string}>()
-const emit = defineEmits<{close: []}>()
+const emit = defineEmits<{close: []; accepted: []}>()
 const {sparkConsume} = useSparkComponent({type: 'code-class-edit-dialog'}), runtime = sparkConsume(PAGE_RUNTIME)
 const target = {...props}, parsed = parseDataViewKey(target.dataViewKey)
 const businessFieldsKey = parsed?.scope ? buildDataViewKey('Base_TblField', 'default', parsed.scope) : ''
@@ -82,12 +82,13 @@ function optionView(key: string, tableId: string): DataView {
 function confirm(): void {
   if (!ready.value || loading.value || closing.value || choosingReference.value) return
   try {
+    if (!referenceId) throw new Error('请选择引用表')
     const row = current(), business = optionView(businessFieldsKey, target.busTableRowid), reference = optionView(referenceFieldsKey, referenceId)
     if (typeof row['Name'] !== 'string' || !row['Name'].trim()) throw new Error('分类名称不能为空')
     for (const [field, options] of [['BusFilterField', business], ['TextFieldName', reference], ['ValueFieldName', reference]] as const) {
       if (view?.fieldAccess(original, field).read !== 'visible' || !options.rows.some(option => options.fieldAccess(option, 'enname').read === 'visible' && option['enname'] === row[field])) throw new Error('请选择当前表的有效字段映射')
     }
-    checkpoint?.release(); checkpoint = undefined; ready.value = false; emit('close')
+    checkpoint?.release(); checkpoint = undefined; ready.value = false; emit('accepted'); emit('close')
   } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
 function cancel(): void {
@@ -104,16 +105,16 @@ async function open(): Promise<void> {
     if (!view?.setCurrentRowById(target.classId)) throw new Error('分类记录不存在')
     original = view.currentRow
     const row = view.getEditingRow(target.classId) ?? original
-    if (!row || typeof row['TableRowid'] !== 'string' || !row['TableRowid']) throw new Error('当前分类未选择引用表')
+    if (!row || typeof row['TableRowid'] !== 'string') throw new Error('当前分类缺少引用表字段')
     referenceId = row['TableRowid']; current()
     checkpoint = view.createEditingCheckpoint(target.classId, ['Name', 'description', 'BusFilterField', 'TableRowid', 'TableName', 'TextFieldName', 'ValueFieldName'])
     const business = view.dataSet?.getView('Base_TblField'), reference = view.dataSet?.getView('Base_TblField', 'referenceFields')
     if (!business || !reference) throw new Error('分类字段候选视图缺失')
     business.queryContext = {...business.queryContext, busTableRowid: target.busTableRowid}
     reference.queryContext = {...reference.queryContext, referenceTableRowid: referenceId}
-    await Promise.all([business.refresh(), reference.refresh()])
+    await Promise.all([business.refresh(), ...(referenceId ? [reference.refresh()] : [])])
     if (!active) return
-    current(); optionView(businessFieldsKey, target.busTableRowid); optionView(referenceFieldsKey, referenceId); ready.value = true
+    current(); optionView(businessFieldsKey, target.busTableRowid); if (referenceId) optionView(referenceFieldsKey, referenceId); ready.value = true
   } catch (cause) {if (active) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active) loading.value = false}
 }

@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "native staged class creation and targeted cancellation only; no persistence write or browser acceptance",
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 11,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "success": true,
+      "diagnostics": [],
+      "codeClassCreateCancel": {
+        "success": true,
+        "catalogRows": 7,
+        "nativeGeneratedIdentity": true,
+        "pendingCreateTracked": true,
+        "fieldCheckpointRestored": true,
+        "onlyNewRowDiscarded": true,
+        "independentRereadUnchanged": true,
+        "nodeSnapshotsUnchanged": true,
+        "saveAttempted": false
+      },
+      "views": [
+        {
+          "table": "Base_CodeDesign",
+          "view": "default",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_CodeDesign",
+          "view": "parents",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_CodeNodeDesign",
+          "view": "default",
+          "rows": 3,
+          "total": 3,
+          "state": 3
+        },
+        {
+          "table": "Dict_CodeNodeType",
+          "view": "default",
+          "rows": 5,
+          "total": 5,
+          "state": 3
+        },
+        {
+          "table": "Base_CodeClassTable",
+          "view": "default",
+          "rows": 7,
+          "total": 7,
+          "state": 3
+        },
+        {
+          "table": "Base_CodingSequence",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "referenceFields",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_CodeSerialPerform",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ]
+}

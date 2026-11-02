@@ -1,0 +1,92 @@
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {computed, defineComponent, h, ref} from 'vue'
+import {flushPromises, mount} from '@vue/test-utils'
+import {DataSet} from '@spark-appworks/spark-data'
+import {Spark} from '@spark-appworks/spark-component'
+import {attachStagedDesignView} from '@/lowcode/resources/repository/staged-design-file-view'
+import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
+
+const wrappers: Array<ReturnType<typeof mount>> = []
+const host = vi.hoisted(() => ({dirty: [] as Array<{readonly isDirty: boolean}>}))
+vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {readonly isDirty: boolean}) => host.dirty.push(source)}))
+afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount())})
+async function setup() {
+  const scope = ref('A'), writes = vi.fn(), reads = vi.fn(async (id: string) => ({rowid: id, targetId: id, designJson: '[]'}))
+  const dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {}})
+  attachStagedDesignView(dataSet, {scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design',
+    resourceId: 'test-design', columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'designJson'}],
+    jsonFields: ['designJson'], loadRow: reads, persistRow: async row => {writes(row)}}, () => {})
+  let page!: ReturnType<typeof useStagedDesignPage>
+  const component = defineComponent({setup() {
+    page = useStagedDesignPage({pageId: 'scope-test', scenarioId: computed(() => 'SCENE'), scopeId: computed(() => scope.value),
+      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', loadDataSet: async () => dataSet, missingScopeMessage: 'Missing target'})
+    return () => h('div')
+  }})
+  wrappers.push(mount(component, {global: {plugins: [Spark.createPlugin()]}}))
+  await flushPromises()
+  expect(page.ready.value).toBe(true)
+  return {scope, page, dataSet, writes, reads}
+}
+
+describe('staged design current target', () => {
+  it('keeps the current draft visible when an ordinary refresh is rejected', async () => {
+    const {page} = await setup()
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    await page.refreshDesign()
+    expect(page.ready.value).toBe(true)
+    expect(page.designView.value?.rows[0]?.['designJson']).toContain('Edited')
+  })
+  it('exposes the actual pending draft to the host close guard', async () => {
+    const {page} = await setup()
+    expect(host.dirty.at(-1)?.isDirty).toBe(false)
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    expect(host.dirty.at(-1)?.isDirty).toBe(true)
+  })
+  it('hides the old editor when the route target is cleared', async () => {
+    const {scope, page} = await setup()
+    scope.value = ''; await flushPromises()
+    expect(page.ready.value).toBe(false)
+    expect(page.designView.value).toBeUndefined()
+    expect(page.error.value).toBe('Missing target')
+  })
+  it('cannot save the old draft through an empty route target', async () => {
+    const {scope, page, writes} = await setup()
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    scope.value = ''; await flushPromises()
+    await page.saveChanges()
+    expect(writes).not.toHaveBeenCalled()
+  })
+  it('does not relabel the original pending draft as a different target', async () => {
+    const {scope, page, dataSet, reads} = await setup()
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    scope.value = 'B'; await flushPromises()
+    expect(dataSet.getTable('Input')?.rows[0]?.['targetId']).toBe('A')
+    expect(reads.mock.calls.map(call => call[0])).toEqual(['A'])
+    expect(page.ready.value).toBe(false)
+    scope.value = 'A'; await flushPromises()
+    expect(page.ready.value).toBe(true)
+    expect(page.designView.value?.rows[0]?.['designJson']).toContain('Edited')
+  })
+  it('rejects editing the old row while the next target is still loading', async () => {
+    const {scope, page, reads} = await setup(), oldView = page.designView.value
+    let finish!: (row: {rowid: string; targetId: string; designJson: string}) => void
+    reads.mockImplementationOnce(() => new Promise(resolve => {finish = resolve}))
+    scope.value = 'B'; await flushPromises()
+    page.updateDesignField(oldView, 'designJson', '[{"Name":"Stale"}]'); await flushPromises()
+    finish({rowid: 'B', targetId: 'B', designJson: '[]'}); await flushPromises()
+    expect(page.designView.value?.rows[0]?.['designJson']).toBe('[]')
+    expect(page.error.value).not.toBe('')
+  })
+  it('ignores a late failure from a previous target after the current target loaded', async () => {
+    const {scope, page, reads} = await setup()
+    let fail!: (error: Error) => void
+    reads.mockImplementationOnce(() => new Promise((_resolve, reject) => {fail = reject}))
+    scope.value = 'B'; await flushPromises()
+    scope.value = 'C'; await flushPromises()
+    fail(new Error('late B failure')); await flushPromises()
+    expect(page.ready.value).toBe(true)
+    expect(page.loading.value).toBe(false)
+    expect(page.error.value).toBe('')
+    expect(page.designView.value?.rows[0]?.['targetId']).toBe('C')
+  })
+})

@@ -4608,3 +4608,16 @@ flowchart TD
 - 本轮build退出0，日志logic-catalog-build.log；完整verify已通过typecheck/lint并进入规则检查，尚未报最终通过。ClassModel重新生成包含TypeScript内部符号编号漂移，正式生成产物随本轮保留，不手改产物。
 - 最终门禁22116退出0：正式ClassModel生成、全仓verify（typecheck/lint/全部规则及ClassModel测试）通过，保留既有AI模型2项warning/1项info；build26748退出0，结构化配置20文件116项通过。未进行浏览器整页或真实SaveView写入，不宣称完整专题已通过。
 - 本轮准备提交推送origin/1031，保存32项已授权来源修复证据、逻辑视图目录新增/描述编辑/取消/未知结果核验及正式生成合同；整体全架构循环目标继续，剩余98项字典运行失败、12项GetView差异和其它开放项仍按本台账追踪。
+
+### 2026-11-02 继续逻辑视图参考语义与设计实例身份烟测
+- 上轮a0fd3502ba20b68177cecb1b5670597568af84ff已推送origin/1031，当前复核工作树干净；上一目标轮为progress（32项真实DbId修复及消费恢复），全架构目标继续active。
+- 本轮沿1147b00ee参考LogicViewDesign.ts、use-logic-view-design-page.ts和原Vue读取基本信息/参数/节点与来源/输出预览的完整链。当前页只有JSON设计编辑，不能称参考页迁移完成。参考也有缺陷：参数假定rowid，而实服正式_Base_ParamList主键parid（rowid不存在）；参考表来源名_Base_TblList在元数据空间不成立，实际登记View_TblList。不能照搬别名或构造后端身份。
+- 只读实服参考依赖探针22读取/0写入：参数、字典、接口、JSON及表字段正式模型可读，两个探针名称未匹配；其中LogicViewNodePreview仅诊断假设名，不代表源码要求该模型或服务缺能力。再以正式Base_DataModel列3场景：元数据空间18模型、节点预览空间8模型、目录空间3模型；节点预览按动态MetaName查询，不能发明固定模型。契约/目录原始证据已落artifacts/data-chain-smoke/logic-view-reference-{contract,scenes}-live.json。
+- 新复现真实前端身份缺陷：useStagedDesignPage清空scope后仍ready且可保存旧目标；脏状态切换时先改输入再被原DataView阻挡，导致原查询/目标身份分裂。原生DataSet+file owner夹具首轮4项全RED；修复后合并场景/目标生命周期，以实际已装配空间和绑定目标核读取/编辑/保存，切换前复用原DataView的结果替换守卫，不复制草稿，旧草稿保留原身份供返回处理；迟到结果不覆盖新目标。
+- 增补普通refresh拒绝后保留原编辑器、原owner脏状态登记两项先RED，再接入既有系统页关闭守卫；额外迟到失败不污染新目标通过。最终逻辑视图4文件16项通过（含7项scope回归，重叠不累计），正式ClassModel/verify执行中。当前未写线上业务或修改Java；参数及完整参考UI仍未实现，未核销全页。
+- 最终影响测试21文件123项通过（design-scope-impact.log），含原逻辑视图4文件16项；该范围重叠不相加。实服原生设计4目标再次编辑→取消→回读一致，白名单合计36读取/0写入。参数精确pid过滤读得1条，主键parid；正式View_TblList为数据库视图且primaryKey空，作为只读来源候选，不能伪造主键或照搬参考CRUD。脱敏持久证据evidence/data-chain-smoke/2026-11-02-logic-view-reference-dependencies-audit.json。
+- 当前修复只关闭本次已复现的设计目标身份分裂/旧目标保存/迟到错误与缺少脏状态登记，不代表完整逻辑视图UI、真实SaveView或其它全架构项完成。正式生成后完整verify及build仍待终态。
+- 首轮完整verify60027在lint退出1：异步await后重复检查active/generation被no-unnecessary-condition静态收窄误判4处。未删除迟到响应守卫，改为统一isCurrent(own)函数读取实时生命周期；局部eslint通过，7项scope回归重新执行，正式生成→verify69768及最终build重新运行。首轮build21896本身退出0，不能冒充最终源码门禁。
+- 后续动作保留完整语义：当前页“放弃修改并重读”仍调用普通refresh，原DataView会拒绝未保存草稿；本轮保证拒绝后原编辑器仍可操作，并未把该按钮的显式取消语义核销。下一步须用原DataView的明确取消入口恢复该行为（未确认保存不能取消），再按parid/多空间正式模型恢复参数、来源、节点与输出流程，不回到通用JSON页即完成的口径。
+- 最终69768退出0：局部eslint/7项scope回归、正式ClassModel编译生成、全仓verify全部通过（design-scope-verify-final.log）；最终build22774退出0（design-scope-build-final.log）。21文件123项影响测试在统一isCurrent等价提取前通过，提取后7项生命周期专项重跑通过；不重复累计。既有AI模型告警保留。
+- 本轮提交推送origin/1031保存设计实例身份与关闭保护修复、真实只读依赖/取消回读证据；未进行实服SaveView、浏览器整页或其它模型修复。后续显式取消、参数parid/来源只读合同、完整参考页面及全架构开放项继续，整体目标不标完成。

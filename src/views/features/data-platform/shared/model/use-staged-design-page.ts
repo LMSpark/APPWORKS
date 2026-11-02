@@ -6,6 +6,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch, type ComputedRef} fro
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 
 export type StagedDesignPageConfig = Readonly<{
@@ -24,61 +25,86 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
   const runtime = shallowRef<PageRuntime>()
   const loading = ref(false), ready = ref(false), busy = ref(false), error = ref('')
   let generation = 0, active = true
+  const loadedScenario = ref(''), boundScope = ref('')
+  const isCurrent = (own: number): boolean => active && own === generation
 
   function currentDataSet(): DataSet | undefined {
-    const scenario = config.scenarioId.value
+    const scenario = loadedScenario.value
     return scenario ? runtime.value?.getDataSet(scenario) : undefined
   }
 
-  const designView = computed(() => currentDataSet()?.getView(config.designViewTable, 'default'))
+  const ownedView = (): DataView | undefined => currentDataSet()?.getView(config.designViewTable, 'default')
+  const designView = computed(() => ready.value && !loading.value && loadedScenario.value === config.scenarioId.value
+    && boundScope.value === config.scopeId.value?.trim() ? ownedView() : undefined)
+
+  function hasPending(): boolean {
+    const view = ownedView()
+    return !!view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave)
+  }
+  useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || hasPending()}})
 
   async function refreshDesign(): Promise<void> {
     const scope = config.scopeId.value?.trim()
     const ds = currentDataSet()
-    if (!ds || !scope) return
-    setDesignScopeValue({dataSet: ds, tableName: config.scopeInputTable, field: config.scopeField, scopeId: scope})
-    const view = designView.value
-    if (!view) return
+    if (!active || !ds || !scope || loadedScenario.value !== config.scenarioId.value || busy.value) {
+      error.value = !scope ? config.missingScopeMessage : '设计目标已变化或操作尚未完成'
+      return
+    }
+    const own = ++generation
+    loading.value = true; ready.value = false; error.value = ''
+    try {await readDesign({dataSet: ds, scope, generation: own}); if (isCurrent(own)) ready.value = true}
+    catch (cause) {if (isCurrent(own)) {
+      error.value = cause instanceof Error ? cause.message : String(cause)
+      ready.value = boundScope.value === scope && hasPending()
+    }}
+    finally {if (isCurrent(own)) loading.value = false}
+  }
+
+  async function readDesign(input: {dataSet: DataSet; scope: string; generation: number}): Promise<void> {
+    const view = input.dataSet.getView(config.designViewTable, 'default')
+    if (!view) throw new Error('设计视图缺失')
+    view.assertResultReplacementAllowed()
+    setDesignScopeValue({dataSet: input.dataSet, tableName: config.scopeInputTable, field: config.scopeField, scopeId: input.scope})
+    boundScope.value = input.scope
     await view.refresh()
+    if (!isCurrent(input.generation)) return
     if (view.loadingError) throw view.loadingError
   }
 
-  watch(config.scenarioId, async scenario => {
+  watch([config.scenarioId, config.scopeId], async ([scenario, requestedScope]) => {
     const own = ++generation
     ready.value = false; loading.value = true; error.value = ''
-    sparkRemove(PAGE_RUNTIME); runtime.value?.dispose(); runtime.value = undefined
     try {
       if (!scenario) throw new Error('缺少导航绑定的数据空间ID')
-      const loaded = await config.loadDataSet(scenario)
-      if (own !== generation) {loaded.destroy(); return}
-      runtime.value = new PageRuntime({pageId: config.pageId, scenarioIds: [scenario], loadScenario: () => Promise.resolve(loaded)})
-      await runtime.value.load()
-      if (own !== generation) {runtime.value.dispose(); return}
-      sparkProvide(PAGE_RUNTIME, runtime.value)
-      const scope = config.scopeId.value?.trim()
-      if (!scope) {
-        error.value = config.missingScopeMessage
-        ready.value = true
-        return
+      if (busy.value) throw new Error('设计保存尚未完成，请返回原目标核验')
+      if (loadedScenario.value !== scenario || !runtime.value) {
+        if (hasPending()) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
+        sparkRemove(PAGE_RUNTIME); runtime.value?.dispose(); runtime.value = undefined
+        loadedScenario.value = ''; boundScope.value = ''
+        const loaded = await config.loadDataSet(scenario)
+        if (!isCurrent(own)) {loaded.destroy(); return}
+        const next = new PageRuntime({pageId: config.pageId, scenarioIds: [scenario], loadScenario: () => Promise.resolve(loaded)})
+        await next.load()
+        if (!isCurrent(own)) {next.dispose(); return}
+        runtime.value = next; loadedScenario.value = scenario
+        sparkProvide(PAGE_RUNTIME, next)
       }
-      await refreshDesign()
-      ready.value = true
+      const scope = requestedScope?.trim()
+      if (!scope) throw new Error(config.missingScopeMessage)
+      if (hasPending()) {
+        if (boundScope.value !== scope) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
+      } else {
+        const ds = currentDataSet()
+        if (!ds) throw new Error('设计数据空间缺失')
+        await readDesign({dataSet: ds, scope, generation: own})
+      }
+      if (isCurrent(own)) ready.value = true
     } catch (cause) {
-      if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
+      if (isCurrent(own)) error.value = cause instanceof Error ? cause.message : String(cause)
     } finally {
-      if (active && own === generation) loading.value = false
+      if (isCurrent(own)) loading.value = false
     }
   }, {immediate: true})
-
-  watch(config.scopeId, async scope => {
-    if (!runtime.value || !ready.value) return
-    if (!scope?.trim()) {error.value = config.missingScopeMessage; return}
-    error.value = ''
-    loading.value = true
-    try {await refreshDesign()}
-    catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
-    finally {loading.value = false}
-  })
 
   onBeforeUnmount(() => {
     active = false; generation++
@@ -87,17 +113,18 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
 
   async function saveChanges(): Promise<void> {
     const ds = currentDataSet()
-    if (!ds || busy.value) return
+    if (!active || !ds || !designView.value || busy.value) return
+    const own = generation
     busy.value = true; error.value = ''
     try {
       const result = await ds.saveChanges({views: [{tableName: config.designViewTable, viewId: 'default'}]})
       if (!result.success) throw new Error(result.message ?? '保存失败')
-    } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+    } catch (cause) {if (isCurrent(own)) error.value = cause instanceof Error ? cause.message : String(cause)}
     finally {busy.value = false}
   }
 
   function updateDesignField(view: DataView | undefined, field: string, value: unknown): void {
-    if (!view) return
+    if (!active || !view || view !== designView.value || busy.value) {error.value = '设计目标已变化或尚未读取完成'; return}
     const row = view.rows[0]
     const pk = view.primaryKey
     if (!row || !pk) return

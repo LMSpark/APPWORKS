@@ -9,6 +9,7 @@ import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view
 import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-config-catalog.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
+vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => undefined}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser'],

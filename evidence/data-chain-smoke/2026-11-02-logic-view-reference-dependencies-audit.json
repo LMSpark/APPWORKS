@@ -1,0 +1,510 @@
+{
+  "date": "2026-11-02",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "Read-only logical-view reference dependencies and native design edit/cancel/reread",
+  "summary": {
+    "readRequests": 36,
+    "writeRequests": 0,
+    "nativeCancelRereadPassed": 4
+  },
+  "formalDependencies": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "_Base_ParamList",
+      "success": true,
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp011",
+      "sourceName": "_Base_ParamList",
+      "primaryKey": "parid"
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "_Base_TblList",
+      "success": false,
+      "error": "正式数据空间模型必须唯一且属于当前数据空间: _Base_TblList"
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "_Base_DictType",
+      "success": true,
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp005",
+      "sourceName": "_Base_DictType",
+      "primaryKey": "rowid"
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataServiceInterface",
+      "success": true,
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp006",
+      "sourceName": "Base_DataServiceInterface",
+      "primaryKey": "rowid"
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_JsonData",
+      "success": true,
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp007",
+      "sourceName": "Base_JsonData",
+      "primaryKey": "rowid"
+    },
+    {
+      "scenarioId": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "metaName": "Base_TblField",
+      "success": true,
+      "modelId": "A8FB2B2B161125A16FD15ED9581CD15Bp003",
+      "sourceName": "Base_TblField",
+      "primaryKey": "rowid"
+    },
+    {
+      "scenarioId": "732153B66CC6BF097121E59E4FEB13B0",
+      "metaName": "LogicViewNodePreview",
+      "success": false,
+      "error": "正式数据空间模型必须唯一且属于当前数据空间: LogicViewNodePreview"
+    }
+  ],
+  "actualScenes": [
+    {
+      "label": "logic-sources",
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "success": true,
+      "total": 18,
+      "models": [
+        {
+          "name": "Base_DataSet",
+          "resource": "Base_DataSet",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataModel",
+          "resource": "Base_DataModel",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataModel_Field",
+          "resource": "Base_DataModel_Field",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataModel_Relation",
+          "resource": "Base_DataModel_Relation",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "View_TblList",
+          "resource": "View_TblList",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "_Base_DictType",
+          "resource": "_Base_DictType",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataServiceInterface",
+          "resource": "Base_DataServiceInterface",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_JsonData",
+          "resource": "Base_JsonData",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataViewList",
+          "resource": "Base_DataViewList",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "View_ViewList",
+          "resource": "View_ViewList",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_TblField",
+          "resource": "Base_TblField",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "_Base_ParamList",
+          "resource": "_Base_ParamList",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "数据关系依赖",
+          "resource": "数据关系依赖",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_Desensitization_Rule",
+          "resource": "Base_Desensitization_Rule",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataModel_DataView",
+          "resource": "Base_DataModel_DataView",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "_Base_FunctionNode",
+          "resource": "_Base_FunctionNode",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_FunctionDetail",
+          "resource": "Base_FunctionDetail",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "name": "Base_DataModel_DataView_Field",
+          "resource": "Base_DataModel_DataView_Field",
+          "space": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        }
+      ]
+    },
+    {
+      "label": "logic-preview",
+      "scenarioId": "732153B66CC6BF097121E59E4FEB13B0",
+      "success": true,
+      "total": 8,
+      "models": [
+        {
+          "name": "_Base_ParamList",
+          "resource": "_Base_ParamList",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "Base_DataViewList",
+          "resource": "Base_DataViewList",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "Base_TblField",
+          "resource": "Base_TblField",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "Base_DataServiceInterface",
+          "resource": "Base_DataServiceInterface",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "View_TblList",
+          "resource": "View_TblList",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "View_ViewList",
+          "resource": "View_ViewList",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "_Base_DictType",
+          "resource": "_Base_DictType",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        },
+        {
+          "name": "Base_JsonData",
+          "resource": "Base_JsonData",
+          "space": "732153B66CC6BF097121E59E4FEB13B0"
+        }
+      ]
+    },
+    {
+      "label": "logic-design",
+      "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+      "success": true,
+      "total": 3,
+      "models": [
+        {
+          "name": "Base_UserInfo",
+          "resource": "Base_UserInfo",
+          "space": "EB720370EF06A5A656838F87E0716D6B"
+        },
+        {
+          "name": "Base_AppSystemList",
+          "resource": "Base_AppSystemList",
+          "space": "EB720370EF06A5A656838F87E0716D6B"
+        },
+        {
+          "name": "Base_DataViewList",
+          "resource": "Base_DataViewList",
+          "space": "EB720370EF06A5A656838F87E0716D6B"
+        }
+      ]
+    }
+  ],
+  "verifiedNativeDesigns": [
+    {
+      "kind": "native-logic-design",
+      "viewId": "D0624BDE07FA475B90D5653994A6493D",
+      "success": true,
+      "rootType": "array",
+      "nodes": 1,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    },
+    {
+      "kind": "native-logic-design",
+      "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "success": true,
+      "rootType": "array",
+      "nodes": 1,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    },
+    {
+      "kind": "native-logic-design",
+      "viewId": "BF112400AD6E45EC8839CD961807C8E5",
+      "success": true,
+      "rootType": "array",
+      "nodes": 1,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    },
+    {
+      "kind": "native-logic-design",
+      "viewId": "9BB57B29626F4B5EB06C7C23055F25C0",
+      "success": true,
+      "rootType": "array",
+      "nodes": 1,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    }
+  ],
+  "parameters": {
+    "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "metaName": "_Base_ParamList",
+    "success": true,
+    "total": 1,
+    "countReported": true,
+    "returned": 1,
+    "rows": [
+      {
+        "parid": "AA6B31630F2840D0AF890B06AAF194C0",
+        "pid": "D0624BDE07FA475B90D5653994A6493D",
+        "parname": "sysid"
+      }
+    ]
+  },
+  "tableSource": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+      "sourceType": "数据库视图",
+      "primaryKey": "",
+      "fields": [
+        {
+          "name": "multiTenancy",
+          "output": false
+        },
+        {
+          "name": "WebChartViewUrl",
+          "output": false
+        },
+        {
+          "name": "functiondesc",
+          "output": false
+        },
+        {
+          "name": "DropDownViewJson",
+          "output": false
+        },
+        {
+          "name": "tbldesc",
+          "output": true
+        },
+        {
+          "name": "dbid",
+          "output": true
+        },
+        {
+          "name": "RecCreater",
+          "output": false
+        },
+        {
+          "name": "ColCount",
+          "output": true
+        },
+        {
+          "name": "hasDefaultFields",
+          "output": false
+        },
+        {
+          "name": "DbName",
+          "output": true
+        },
+        {
+          "name": "updateuser",
+          "output": false
+        },
+        {
+          "name": "IsVisible",
+          "output": false
+        },
+        {
+          "name": "DetailViewUrl",
+          "output": false
+        },
+        {
+          "name": "ListViewUrl",
+          "output": false
+        },
+        {
+          "name": "modid",
+          "output": false
+        },
+        {
+          "name": "wfid",
+          "output": false
+        },
+        {
+          "name": "ViewTempLoc",
+          "output": false
+        },
+        {
+          "name": "RecLast",
+          "output": false
+        },
+        {
+          "name": "tblname",
+          "output": true
+        },
+        {
+          "name": "SchemaName",
+          "output": false
+        },
+        {
+          "name": "updatetime",
+          "output": false
+        },
+        {
+          "name": "QuoteTblid",
+          "output": false
+        },
+        {
+          "name": "RecordOrState",
+          "output": false
+        },
+        {
+          "name": "IsOldSys",
+          "output": false
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "output": false
+        },
+        {
+          "name": "lingma_sys_ent",
+          "output": false
+        },
+        {
+          "name": "IsReferenceSelf",
+          "output": false
+        },
+        {
+          "name": "object_id",
+          "output": false
+        },
+        {
+          "name": "ReportID",
+          "output": false
+        },
+        {
+          "name": "Expression",
+          "output": false
+        },
+        {
+          "name": "ReferenceParentKey",
+          "output": false
+        },
+        {
+          "name": "StateTable",
+          "output": false
+        },
+        {
+          "name": "modname",
+          "output": false
+        },
+        {
+          "name": "ReferenceKey",
+          "output": false
+        },
+        {
+          "name": "crttime",
+          "output": false
+        },
+        {
+          "name": "ListViewJson",
+          "output": false
+        },
+        {
+          "name": "tblname",
+          "output": true
+        },
+        {
+          "name": "PhysicsDel",
+          "output": false
+        },
+        {
+          "name": "description",
+          "output": false
+        },
+        {
+          "name": "rowid",
+          "output": true
+        },
+        {
+          "name": "status",
+          "output": false
+        },
+        {
+          "name": "DetailViewJson",
+          "output": false
+        },
+        {
+          "name": "flowstate",
+          "output": false
+        },
+        {
+          "name": "createtime",
+          "output": false
+        },
+        {
+          "name": "FormViewType",
+          "output": false
+        },
+        {
+          "name": "LastTime",
+          "output": false
+        },
+        {
+          "name": "createuser",
+          "output": false
+        },
+        {
+          "name": "MapSync",
+          "output": false
+        }
+      ]
+    }
+  ],
+  "interpretation": [
+    "The actual parameter primary key is parid, not reference rowid.",
+    "The actual source model is View_TblList and has no primary key; it is a read-only source catalog.",
+    "LogicViewNodePreview was a diagnostic hypothesis, not a required reference model; preview uses selected MetaName.",
+    "No real SaveView write or complete browser page acceptance."
+  ],
+  "artifacts": [
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-reference-contract-live.json",
+      "sha256": "2de209c50e7573dfa20087a3d2a9624f92fe6c5f25419b897dea241b8f1b7e82"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-reference-scenes-live.json",
+      "sha256": "467625a6cf37d792403fcd84e4a943bc14de41f5aabc5e9c11d2cf6b11cd95ef"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-reference-dependencies-live.json",
+      "sha256": "8f342c9c2de0143e3f11e1e8ab1bae079741a0f8d5d625984aba8a95dad1f278"
+    }
+  ]
+}
